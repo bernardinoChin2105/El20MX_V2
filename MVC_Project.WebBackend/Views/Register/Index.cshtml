@@ -1,0 +1,186 @@
+﻿@model MVC_Project.WebBackend.Models.RegisterViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title> @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"] | Registro </title>
+
+    @Styles.Render("~/Content/template/css")
+
+    @Styles.Render("~/font-awesome/css")
+    @Scripts.Render("~/font-awesome/js")
+
+    @Styles.Render("~/plugins/sweetAlertStyles")
+    @Scripts.Render("~/plugins/sweetAlert")
+
+    <style>
+        #checkTerm-error {
+            top: 90%;
+            display: inline-table;
+            width: 300px;
+            position: absolute;
+            left: -180%;
+        }
+        
+    </style>
+
+</head>
+
+<body class="gray-bg">
+
+    <div class="middle-box text-center loginscreen   animated fadeInDown">
+        <div>
+            <div>
+                <img src="~/Images/logos/logo_default.png" width="300" />
+            </div>
+            <h3>Register to @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</h3>
+            <p>Crea tu cuenta de manera sencilla.</p>
+
+            @if (!string.IsNullOrEmpty(ViewBag.Error))
+            {
+                <div class="col-lg-12">
+                    <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
+                </div>
+            }
+
+            @using (Html.BeginForm("CreateAccount", "Register", FormMethod.Post, new { @class = "m-t", role = "form", @id = "RegisterForm" }))
+            {
+                @Html.AntiForgeryToken()
+
+                @*@if (!string.IsNullOrEmpty(ViewBag.Message))
+            {
+                <div class="col-lg-12">
+                    <div class="alert alert-info" role="alert">@ViewBag.Message</div>
+                </div>
+            }*@
+
+                <div class="form-group">
+                    @Html.TextBoxFor(m => m.FistName, new { @class = "form-control", type = "text", @autocomplete = "off", placeholder = "Nombre", @required = "required" })
+                </div>
+                <div class="form-group">
+                    @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", type = "text", @autocomplete = "off", placeholder = "Apellido(s)", @required = "required" })
+                </div>
+                <div class="form-group">
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", @autocomplete = "off", placeholder = @ViewLabels.USERNAME, @required = "required" })
+                </div>
+                <div class="form-group">
+                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.PASSWORD, @required = "required" })
+                </div>
+                <div class="form-group">
+                    @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.CONFIRM_NEW_PASSWORD, @required = "required" })
+                </div>
+                <div class="form-group">
+                    <div class="checkbox i-checks"><label> <input type="checkbox"><i></i> Acepto t&eacute;rminos y condiciones </label></div>
+                </div>
+                <button type="button" class="btn btn-primary block full-width m-b" onclick="validarDatos();">Registrarse</button>
+
+                <p class="text-muted text-center"><small>Ya tienes cuenta?</small></p>
+                <a class="btn btn-sm btn-white btn-block" href="@Url.Action("Login", "Auth")">Iniciar Sesi&oacute;n</a>
+            }
+        </div>
+    </div>
+
+
+    <!-- Mainly scripts -->
+    <script src="~/Scripts/jquery-3.1.1.min.js"></script>
+    <script src="~/Scripts/popper.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <!-- iCheck -->
+    <script src="~/Scripts/plugins/iCheck/icheck.min.js"></script>
+
+    @Scripts.Render("~/plugins/validate")
+
+    <script>      
+        $.validator.addMethod("PasswordTrue",
+            function (value, element) {
+                return value.match(/^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/);
+            }, "La contraseña debe contener al menos un número, mayúsculas, minúsculas y caracteres especiales"
+        );
+        $.validator.addMethod("ConfirmPassEqPassword",
+            function (value, element) {
+                return value == $("#Password").val();
+            }, "las contraseñas no coinciden"
+        );
+        $.validator.addMethod("ConfirmTermTrue",
+            function (value, element) {                
+                return $("input[type='checkbox']").is(":checked")
+            }, ""
+        );
+
+        $("#RegisterForm").validate({
+            rules: {
+                FistName: {
+                    required: true,
+                },
+                LastName: {
+                    required: true,
+                },
+                Email: {
+                    required: true,
+                },
+                Password: {
+                    PasswordTrue: true,
+                    ConfirmPassEqPassword: true,
+                    required: true,
+                    minlength: 8
+                },
+                ConfirmPassword: {
+                    ConfirmPassEqPassword: true,
+                    required: true,
+                },
+                checkTerm: {
+                    ConfirmTermTrue: true,
+                    required: true,
+                }
+            }
+            ,
+            messages: {
+                FistName: {
+                    required: "Campo obligatorio",
+                },
+                LastName: {
+                    required: "Campo obligatorio",
+                },
+                Email: {
+                    required: "Campo obligatorio",
+                },
+                Password: {
+                    required: "Campo obligatorio",
+                    minlength: "La contraseña debe ser mínimo de 8 caracteres",
+                },
+                ConfirmPassword: {
+                    required: "Campo obligatorio",
+                },
+                checkTerm: {
+                    required: "Campo obligatorio",
+                }
+            }
+        });
+
+        $(document).ready(function () {
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+            });
+
+            $("input[type='checkbox']").attr({ "id": "checkTerm", "name": "checkTerm" });
+        });
+
+        function validarDatos() {
+            if (!$('#RegisterForm').valid()) {
+                return;
+            }
+            $('#RegisterForm').submit();
+        }
+    </script>
+
+</body>
+
+</html>

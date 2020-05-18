@@ -1,0 +1,76 @@
+﻿@model  MVC_Project.Web.Models.PaymentViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Test Checkout</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
+    <link href="@Url.Content("~/Scripts/template/plugins/jquery-ui/jquery-ui.min.css")" rel="stylesheet" type="text/css" />
+    <!-- Primary Inspinia style -->
+    @Styles.Render("~/Content/template/css")
+    @Styles.Render("~/font-awesome/css")
+    @Styles.Render("~/plugins/toastrStyles")
+    @Styles.Render("~/plugins/sweetAlertStyles")
+    @Scripts.Render("~/font-awesome/js")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/plugins/sweetAlert")
+    @Scripts.Render("~/plugins/bluebird")
+</head>
+<body>
+    <div class='container'>
+        <div class='col-md-12'>
+            <br />
+            <br />
+            <br />
+            <div class="col-md-8 col-md-offset-2">
+                @using (Html.BeginForm("Index", "Checkout", FormMethod.Post, new { @id = "test-form", @role = "form" }))
+                {
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.AppKey, new { @style = "color: white" })
+                        @Html.EditorFor(m => m.AppKey, new { @class = "form-control", placeholder = "App Key", @required = "required" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.OrderId, new { @style = "color: white" })
+                        @Html.EditorFor(m => m.OrderId, new { @class = "form-control", placeholder = "ID Orden", @required = "required" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.Amount, new { @style = "color: white" })
+                        @Html.EditorFor(m => m.Amount, new { @class = "form-control", placeholder = "Cantidad", @required = "required" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.Description, new { @style = "color: white" })
+                        @Html.EditorFor(m => m.Description, new { @class = "form-control", placeholder = "Descripción", @required = "required" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.ConfirmationEmail, new { @style = "color: white" })
+                        @Html.EditorFor(m => m.ConfirmationEmail, new { @class = "form-control", placeholder = "Confirmation Email", @required = "required" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.PaymentMethod, new { @style = "color: white" })
+                        <select class="form-control" id="PaymentMethod" name="PaymentMethod">
+                            <option value="card">card</option>
+                            <option value="bank_account">bank_account</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-lg" style="width:100%;">
+                        Test
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Section for main scripts render -->
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/plugins/slimScroll")
+    @Scripts.Render("~/bundles/inspinia")
+    @Scripts.Render("~/plugins/toastr")
+
+</body>
+</html>

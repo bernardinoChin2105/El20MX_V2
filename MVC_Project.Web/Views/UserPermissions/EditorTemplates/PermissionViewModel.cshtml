@@ -1,0 +1,7 @@
+﻿@model MVC_Project.Web.Models.PermissionViewModel
+
+<fieldset>
+    @Html.HiddenFor(model => model.Id)
+    @Html.CheckBoxFor(model => model.Assigned)
+    @Html.DisplayFor(model => model.Description)
+</fieldset>

@@ -1,0 +1,48 @@
+﻿@using MVC_Project.WebBackend.AuthManagement.Models
+@{
+    AuthUser authUser = ViewBag.UserProfile;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>@ViewBag.Title</title>
+
+    @Styles.Render("~/Content/template/css")
+
+    @Styles.Render("~/font-awesome/css")
+    @Scripts.Render("~/font-awesome/js")
+
+    @Styles.Render("~/plugins/sweetAlertStyles")
+    @Scripts.Render("~/plugins/sweetAlert")
+
+    <!-- Local styles -->
+    @if (IsSectionDefined("Styles"))
+    {
+        @RenderSection("Styles", required: false)
+    }
+</head>
+
+<body class="gray-bg">
+    <!-- Main view  -->
+    @RenderBody()
+    <!-- End wrapper-->
+    <!-- Mainly scripts -->
+    <script src="~/Scripts/jquery-3.1.1.min.js"></script>
+    <script src="~/Scripts/popper.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="~/Scripts/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+
+    <!-- Custom and plugin javascript -->
+    <script src="~/Scripts/inspinia.js"></script>
+    <script src="~/Scripts/plugins/pace/pace.min.js"></script>
+
+    <!-- Local scripts -->
+    @RenderSection("scripts", required: false)
+</body>
+</html>

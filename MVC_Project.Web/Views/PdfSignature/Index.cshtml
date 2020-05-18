@@ -1,0 +1,45 @@
+﻿
+@{
+    ViewBag.Title = "Demo Firma Autógrafa";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/pdf-signature.css")
+</head>
+
+<body>
+
+    <div class="container">
+        <img src="~/Images/Anytime_Fitness_logo.png" />
+        <h1>Contrato 9202390</h1>
+        <textarea readonly="readonly" style="width: 100%; max-height: 150px; overflow-y: scroll;" rows="15" disabled="disabled">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sagittis nulla tempus mi sodales ultricies.
+            Nulla hendrerit, justo quis ultricies pellentesque, est urna tincidunt nunc, vel faucibus ante leo id metus.
+            Duis tempus eleifend venenatis. Suspendisse faucibus nibh non est molestie, eu pretium ligula facilisis. Etiam
+            laoreet venenatis eros vitae dictum. Proin faucibus eget magna non accumsan. Proin cursus congue velit imperdiet tempor.
+            Donec eu diam ac sem facilisis tristique vitae et arcu. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+        </textarea>
+        <br/><br />
+        <input type="checkbox" required/> Acepto los términos y condiciones del contrato
+        <div class="signature-wrapper">
+        <h3>Firma del socio</h3>
+        <canvas id="signature-pad" class="signature-pad" width=400 height=200></canvas>
+        <button class="clear-signature btn">Limpiar</button>
+        <button class="generate-pdf btn">Generar PDF</button>
+        <button class="generate-jpeg btn">Generar JPEG</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+    @Scripts.Render("~/Scripts/views/PdfSignature/Index.js")
+</body>
+</html>
+

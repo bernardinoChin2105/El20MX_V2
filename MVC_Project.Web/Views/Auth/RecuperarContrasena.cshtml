@@ -1,0 +1,35 @@
+﻿@model MVC_Project.Web.Models.RecoverPasswordViewModel
+@{
+    Layout = null;
+    string emailRegex = @"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}" + @"\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\" + @".)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$";
+    string mensaje = ViewBag.mensajeError;
+}
+<div class="modal-header">
+    <h5 class="modal-title">Recuperar Contraseña</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+@using (Html.BeginForm("RecuperarContrasena", "Auth", FormMethod.Post, new { id = "recupera-cuenta-form" }))
+{
+    <div class="modal-body">
+
+        <div class="form-horizontal">
+            <div class="form-group">
+                <div class="col-md-8">
+                    <label class="control-label">Ingrese su cuenta de correo</label>
+                    @*pattern = "@emailRegex",*@
+                    @Html.TextBoxFor(x => x.Email, new { @class = "form-control", maxlength = "150", required = "required", title = "Ingrese un correo electrónico." })
+                    @*<input type="email" id="correoCuenta" class="form-control" maxlength="150" pattern="@emailRegex" title="Campo Requerido" required />*@
+                    @Html.ValidationMessageFor(x => x.Email, mensaje, new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="btn-RecuperaCE"><i class="fa fa-envelope"></i> Enviar</button>
+        <button type="button" class="btn btn-secondary" id="btn-CloseCE" data-dismiss="modal"><i class="fas fa-ban"></i> Cerrar</button>
+    </div>
+}
+

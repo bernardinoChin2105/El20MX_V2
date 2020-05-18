@@ -1,0 +1,134 @@
+﻿@model MVC_Project.BackendWeb.Models.AuthViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title> @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"] | @ViewLabels.AUTH_LOGIN_TITLE </title>
+
+    @Styles.Render("~/Content/template/css")
+
+
+    @Styles.Render("~/font-awesome/css")
+    @Scripts.Render("~/font-awesome/js")
+
+    @Styles.Render("~/plugins/sweetAlertStyles")
+    @Scripts.Render("~/plugins/sweetAlert")
+
+</head>
+
+<body class="gray-bg">
+
+    <div style="padding:5px">
+        @Html.ActionLink("Español", "ChangeLanguage", "Auth", new { lang = "es-MX" }, null) | @Html.ActionLink("Inglés", "ChangeLanguage", "Auth", new { lang = "en" }, null)
+    </div>
+
+    <div class="middle-box text-center loginscreen animated fadeInDown">
+        <div>
+            <div>
+                @*<h1 class="logo-name">ST</h1>*@
+                <img src="~/Images/logos/logo_default.png" width="300" />
+            </div>
+            <h3>@System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</h3>
+
+            @if (!string.IsNullOrEmpty(ViewBag.Error))
+            {
+                <div class="col-lg-12">
+                    <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(ViewBag.Message))
+            {
+                <div class="col-lg-12">
+                    <div class="alert alert-info" role="alert">@ViewBag.Message</div>
+                </div>
+            }
+
+            <p>@ViewLabels.AUTH_LOGIN_TITLE</p>
+            @using (Html.BeginForm("Login", "Auth", FormMethod.Post, new { @class = "m-t", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                @*@Html.ValidationSummary("Errors", new { @class = "alert alert-danger" })*@
+                @Html.Hidden("ReturnUrl", (string)ViewBag.ReturnUrl)
+                <div class="input-group mb-3">
+                    <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", placeholder = @ViewLabels.USERNAME, @required = "required" })
+                </div>
+                <span class="help-block"></span>
+                <div class="input-group mb-3">
+                    <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", placeholder = @ViewLabels.PASSWORD, @required = "required" })
+                </div>
+                <span class="help-block"></span>
+                <button type="submit" class="btn btn-primary block full-width m-b">@ViewLabels.AUTH_LOGIN_SUBMIT</button>
+                <span class="help-block"></span>
+
+                <a href="javascript:void(0);" onclick="javascript:resetPassModal();" data-target="#modal-containerRecupera" data-toggle="modal"><small>@ViewLabels.AUTH_LOGIN_RECOVERPASS</small></a>
+
+                <p class="text-muted text-center"><small>Do not have an account?</small></p>
+                <a class="btn btn-sm btn-white btn-block" href="@Url.Action("Index", "Register")">Crear una cuenta</a>
+
+            }
+        </div>
+    </div>
+
+    <div id="modal-containerRecupera" class="modal fade hidden-print" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="dialog">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+
+    <!-- Mainly scripts -->
+    <script src="~/Scripts/jquery-3.1.1.min.js"></script>
+    <script src="~/Scripts/popper.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="/Scripts/plugins/validate/jquery.validate.min.js"></script>
+</body>
+</html>
+
+@if (ViewBag.Message != null)
+{
+    <script type="text/javascript">
+            swal({
+                title: "Operacion exitosa!",
+                text: '@(ViewBag.Message)',
+                html: true
+            });
+    </script>
+}
+
+<script>
+    function resetPassModal() {
+        $("#modal-containerRecupera").find('.modal-content').load("@Url.Action("ResetPassword")", function () {
+            $("#modal-containerRecupera").modal("show");
+            $("#btn-RecuperaCE").on("click",
+                function (e) {
+                    e.preventDefault();
+                    var validate = $('form#recupera-cuenta-form').validate();
+                    if (!$('#recupera-cuenta-form').valid()) {
+                        //$("form#recupera-cuenta-form").find('span').removeClass("help-block").css("display", "none");
+                        return;
+                    }
+                    $("#modal-containerRecupera form#recupera-cuenta-form button#btn-RecuperaCE").hide();
+                    $('#recupera-cuenta-form').submit();
+                });
+        });
+    }
+    function MessageAlert(d) {
+        debugger;
+        var rslt = $.parseJSON(d.responseText);
+        if (rslt.statusCode == 200) {
+            $().toastmessage("showSuccessToast", rslt.status);
+        }
+        else {
+            $().toastmessage("showErrorToast", rslt.status);
+        }
+    }
+
+</script>

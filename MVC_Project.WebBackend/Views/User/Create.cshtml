@@ -1,0 +1,164 @@
+﻿@model MVC_Project.WebBackend.Models.UserCreateViewModel
+
+@{
+    ViewBag.Title = "Crear Usuario";
+}
+
+@section Styles {
+    @Styles.Render("~/Content/template/plugins/chosen/chosenStyles")
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Crear Usuario</h5>
+                </div>
+                <div class="ibox-content">
+                    @using (Html.BeginForm("Create", "User", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "CreateForm" }))
+                    {
+
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-horizontal">
+                            @Html.ValidationSummary(true)
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.Name, new { @class = "col-form-label col-md-2 control-label" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.Name, new { @class = "form-control", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.Name)
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.Apellidos, new { @class = "col-form-label col-md-2 control-label" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.Apellidos, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.Apellidos)
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.Email, new { @class = "col-form-label col-md-2 control-label", required = "required" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.Email, new { @class = "form-control", required = "required" })
+                                    @Html.ValidationMessageFor(model => model.Email)
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.MobileNumber, new { @class = "col-form-label col-md-2 control-label" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.MobileNumber, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.MobileNumber)
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.Password, new { @class = "col-form-label col-md-2 control-label" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.Password, new { @class = "form-control", @required = "required", type = "password" })
+                                    @Html.ValidationMessageFor(model => model.Password)
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.ConfirmPassword, new { @class = "col-form-label col-md-2 control-label" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.ConfirmPassword, new { @class = "form-control", @required = "required", type = "password" })
+                                    @Html.ValidationMessageFor(model => model.ConfirmPassword)
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.Role, new { @class = "col-form-label col-md-2 control-label" })
+                                <div class="col-md-10">
+                                    @Html.DropDownListFor(model => model.Role, Model.Roles, "Seleccione un rol", new { @class = "chosen-select", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.Role)
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="offset-md-2 col-md-10">
+                                    <input type="button" value="Crear" class="btn btn-primary" onclick="validarDatos();" />
+                                    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-white" })
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/plugins/chosen")
+    @Scripts.Render("~/plugins/validate")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.chosen-select').chosen({ width: '100%' });
+            $.validator.addMethod("PasswordTrue",
+                function (value, element) {
+                    return value.match(/^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/);
+                }, "La contraseña debe contener al menos un número, mayúsculas, minúsculas y caracteres especiales"
+            );
+            $.validator.addMethod("ConfirmPassEqPassword",
+                function (value, element) {
+                    return value == $("#Password").val();
+                }, "las contraseñas no coinciden"
+            );
+            $("#CreateForm").validate({
+                rules: {
+                    Name: {
+                        required: true,
+                    },
+                    Email: {
+                        required: true,
+                    },
+                    Password: {
+                        PasswordTrue: true,
+                        ConfirmPassEqPassword: true,
+                        required: true,
+                        minlength: 8
+                    },
+                    ConfirmPassword: {
+                        ConfirmPassEqPassword: true,
+                        required: true,
+                    },
+                    Role: {
+                        required: true,
+                    },
+                }
+                ,
+                messages: {
+                    Name: {
+                        required: "Campo obligatorio",
+                    },
+                    Email: {
+                        required: "Campo obligatorio",
+                    },
+                    Password: {
+                        required: "Campo obligatorio",
+                        minlength: "La contraseña debe ser mínimo de 8 caracteres",
+                    },
+                    ConfirmPassword: {
+                        required: "Campo obligatorio",
+                    },
+                    Role: {
+                        required: "Campo obligatorio",
+                    },
+                }
+            })
+        });
+        function validarDatos() {
+            if (!$('#CreateForm').valid()) {
+                return;
+            }
+            $('#CreateForm').submit();
+        }
+    </script>
+}
