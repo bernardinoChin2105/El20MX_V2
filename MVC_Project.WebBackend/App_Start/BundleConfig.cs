@@ -14,7 +14,8 @@ namespace MVC_Project.WebBackend
                           "~/Content/template/plugins/iCheck/custom.css",
                           "~/Content/template/animate.css",
                           "~/Content/template/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css",
-                          "~/Content/template/style.css"));
+                          "~/Content/template/style.css",
+                          "~/Content/template/stylesEl20mx.css"));
            
 
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(

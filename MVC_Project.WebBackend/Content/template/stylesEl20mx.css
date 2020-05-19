@@ -1,0 +1,27 @@
+﻿body {
+}
+
+.nav.navbar-top-links li .fa-user {
+    font-size: 20px;
+}
+.nav > li.active {
+    border-left: 4px solid #53D5E9;
+}
+
+.img-fluid.img-max{
+    max-height: 250px;
+}
+
+.btn.btn-color {
+    background-color: #53D5E9;
+    color: #002642;
+    border: #53D5E9;
+}
+
+    .btn.btn-color:hover {
+        background: #002642;
+        color: #FFFFFF;
+        border: #002642;
+    }
+
+/*37465A*/

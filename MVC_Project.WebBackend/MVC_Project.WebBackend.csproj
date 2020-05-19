@@ -1194,6 +1194,7 @@
     <Content Include="Content\img\rails_logo.png" />
     <Content Include="Content\img\starter_logo.jpg" />
     <Content Include="Content\img\zender_logo.png" />
+    <Content Include="Content\template\stylesEl20mx.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\font-awesome\all.css" />
     <Content Include="fonts\font-awesome\all.js" />

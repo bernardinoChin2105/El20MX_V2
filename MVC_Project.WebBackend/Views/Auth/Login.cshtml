@@ -32,7 +32,7 @@
         <div>
             <div>
                 @*<h1 class="logo-name">ST</h1>*@
-                <img src="~/Images/logos/logo_default.png" width="300" />
+                <img src="~/Images/logos/El20mx-logo-estes-donde-e.png" width="300" />
             </div>
             <h3>@System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</h3>
 
@@ -66,7 +66,7 @@
                     @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", placeholder = @ViewLabels.PASSWORD, @required = "required" })
                 </div>
                 <span class="help-block"></span>
-                <button type="submit" class="btn btn-primary block full-width m-b">@ViewLabels.AUTH_LOGIN_SUBMIT</button>
+                <button type="submit" class="btn btn-color block full-width m-b">@ViewLabels.AUTH_LOGIN_SUBMIT</button>
                 <span class="help-block"></span>
 
                 <a href="javascript:void(0);" onclick="javascript:resetPassModal();" data-target="#modal-containerRecupera" data-toggle="modal"><small>@ViewLabels.AUTH_LOGIN_RECOVERPASS</small></a>
