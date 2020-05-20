@@ -11,10 +11,10 @@ namespace MVC_Project.WebBackend.App_Code
     {
         public static List<Language> AvailableLanguages = new List<Language> {
             new Language {
-                LanguageFullName = "English", LanguageCultureName = "en"
+                LanguageFullName = "Español", LanguageCultureName = "es-MX"
             },
             new Language {
-                LanguageFullName = "Español", LanguageCultureName = "es-MX"
+                LanguageFullName = "English", LanguageCultureName = "en"
             }
         };
         public static bool IsLanguageAvailable(string lang)
