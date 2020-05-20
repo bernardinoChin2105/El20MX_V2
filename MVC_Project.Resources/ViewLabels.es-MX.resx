@@ -136,7 +136,7 @@
     <value>Te queda(n) {0} día(s) para que tu contraseña expire</value>
   </data>
   <data name="USERNAME" xml:space="preserve">
-    <value>Usuario y/o Correo Electrónico</value>
+    <value>Correo electrónico</value>
   </data>
   <data name="UsernameRequired" xml:space="preserve">
     <value>Usuario o correo electrónico requerido</value>
@@ -145,7 +145,7 @@
     <value>Cerrar Sesión</value>
   </data>
   <data name="HOME_TITLE" xml:space="preserve">
-    <value>Bienvenido al proyecto Plantilla MVC</value>
+    <value>Bienvenido - Plataforma V2</value>
   </data>
   <data name="MODULE_CATALOGS" xml:space="preserve">
     <value>Catálogos</value>
