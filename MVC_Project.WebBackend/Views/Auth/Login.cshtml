@@ -8,11 +8,11 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com">
 
     <title> @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"] | @ViewLabels.AUTH_LOGIN_TITLE </title>
 
     @Styles.Render("~/Content/template/css")
-
 
     @Styles.Render("~/font-awesome/css")
     @Scripts.Render("~/font-awesome/js")
@@ -20,13 +20,19 @@
     @Styles.Render("~/plugins/sweetAlertStyles")
     @Scripts.Render("~/plugins/sweetAlert")
 
+    <style>
+        .abcRioButtonBlue{
+            display: inline-block;
+        }
+    </style>
+
 </head>
 
 <body class="gray-bg">
 
     @*<div style="padding:5px">
-        @Html.ActionLink("Español", "ChangeLanguage", "Auth", new { lang = "es-MX" }, null) | @Html.ActionLink("Inglés", "ChangeLanguage", "Auth", new { lang = "en" }, null)
-    </div>*@
+            @Html.ActionLink("Español", "ChangeLanguage", "Auth", new { lang = "es-MX" }, null) | @Html.ActionLink("Inglés", "ChangeLanguage", "Auth", new { lang = "en" }, null)
+        </div>*@
 
     <div class="middle-box text-center loginscreen animated fadeInDown">
         <div>
@@ -67,13 +73,17 @@
                 </div>
                 <span class="help-block"></span>
                 <button type="submit" class="btn btn-color block full-width m-b">@ViewLabels.AUTH_LOGIN_SUBMIT</button>
+                <div class="fb-login-button" data-size="large" data-button-type="continue_with" data-layout="default" data-auto-logout-link="false" data-use-continue-as="false" data-width=""></div>
+                <br/><br />
+                <div id="my-signin2"></div>
                 <span class="help-block"></span>
 
+                <br />
                 <a href="javascript:void(0);" onclick="javascript:resetPassModal();" data-target="#modal-containerRecupera" data-toggle="modal"><small>@ViewLabels.AUTH_LOGIN_RECOVERPASS</small></a>
                 <br />
 
                 <p class="text-muted text-center"><small>¿No tienes una cuenta?</small> <a class="btn btn-sm btn-white btn-block" href="@Url.Action("Index", "Register")">Crear una cuenta</a></p>
-                
+
 
             }
         </div>
@@ -103,8 +113,30 @@
             });
     </script>
 }
-
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_LA/sdk.js#xfbml=1&version=v7.0&appId=675014006312332&autoLogAppEvents=1"></script>
 <script>
+    function onSuccess(googleUser) {
+        console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
+    }
+    function onFailure(error) {
+        console.log(error);
+    }
+    function renderButton() {
+        gapi.signin2.render('my-signin2', {
+            'scope': 'profile email',
+            'width': 240,
+            'height': 50,
+            'longtitle': true,
+            'theme': 'dark',
+            'onsuccess': onSuccess,
+            'onfailure': onFailure
+        });
+    }
+</script>
+<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+<script>
+
     function resetPassModal() {
         $("#modal-containerRecupera").find('.modal-content').load("@Url.Action("ResetPassword")", function () {
             $("#modal-containerRecupera").modal("show");

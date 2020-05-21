@@ -1671,7 +1671,9 @@
     <Content Include="Scripts\views\rol\Index.js" />
     <Content Include="Scripts\views\UserPermission\Index.js" />
     <Content Include="Scripts\views\user\Index.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -1686,7 +1688,9 @@
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Content\template\bootstrap.css.map" />
     <Content Include="Content\template\bootstrap.min.css.map" />

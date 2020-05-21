@@ -55,6 +55,32 @@ namespace MVC_Project.Utils
 
         // URLs varias
         public static string DEFAULT_AVATAR = "https://bootdey.com/img/Content/avatar/avatar1.png";
-       
+
+
+        public enum ENivelLog
+        {
+            Fatal = 0,
+            Error = 1,
+            Warn = 2,
+            Info = 3,
+            Debug = 4
+        }
+
+        public enum EOperacionLog
+        {
+            ACCESS = 0,
+            SELECT = 1,
+            INSERT = 2,
+            UPDATE = 3,
+            DELETE = 4,
+            INACTIVE = 5,
+            IMPORT = 6,
+            EXPORT = 7,
+            DOWNLOAD = 8,
+            GENERAL = 9,
+            NOTIFICATE = 10,
+            DIGITAL_SIGN = 11,
+            AUTHORIZATION = 12
+        }
     }
 }

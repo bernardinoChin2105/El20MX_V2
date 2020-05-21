@@ -12,6 +12,7 @@ using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using MVC_Project.WebBackend.AuthManagement;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -184,6 +185,19 @@ namespace MVC_Project.WebBackend.Controllers
                     user.Permissions.Add(permission);
                 }
                 _userService.Create(user);
+
+                /*AuthUser usuario = (AuthUser)Authenticator.AuthenticatedUser;
+                LogUtil.AddEntry(
+                   "Ingresa al Sistema",
+                   ENivelLog.Info,
+                   usuario.Id,
+                   usuario.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", usuario.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", usuario.Email, DateUtil.GetDateTimeNow())
+                );*/
+
                 return RedirectToAction("Index");
             }
             else
