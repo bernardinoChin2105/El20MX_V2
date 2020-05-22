@@ -26,7 +26,17 @@ namespace MVC_Project.Utils
                 msg.Detail = detalle;
                 msg.Module = modulo;
 
-                Task.Run(() => logHubClient.SendLog(msg));
+                try
+                {
+                    var respuesta = logHubClient.SendLog(msg);
+                }
+                catch (Exception er)
+                {
+                    string error = er.Message.ToString();
+                }
+
+
+                //Task.Run(() => logHubClient.SendLog(msg));
             }
         }
     }

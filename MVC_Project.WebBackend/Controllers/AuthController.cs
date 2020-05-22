@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Web.Mvc;
-//using LogHubSDK.Models;
+using LogHubSDK.Models;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -92,16 +92,16 @@ namespace MVC_Project.WebBackend.Controllers
                     //Set user in sesion
                     Authenticator.StoreAuthenticatedUser(authUser);
 
-                    //LogUtil.AddEntry(
-                    //   "Ingresa al Sistema",
-                    //   ENivelLog.Info,
-                    //   authUser.Id,
-                    //   authUser.Email,
-                    //   EOperacionLog.ACCESS,
-                    //   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                    //   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                    //   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                    //);
+                    LogUtil.AddEntry(
+                       "Ingresa al Sistema",
+                       ENivelLog.Info,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
 
                     //Set Language
                     LanguageMngr.SetDefaultLanguage();
