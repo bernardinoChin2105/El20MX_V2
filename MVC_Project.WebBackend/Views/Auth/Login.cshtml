@@ -8,7 +8,7 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com">
+    @*<meta name="google-signin-client_id" content="765148629644-b079jrh41hge7fd68b69kcaj477arf9n.apps.googleusercontent.com">*@
 
     <title> @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"] | @ViewLabels.AUTH_LOGIN_TITLE </title>
 
@@ -21,7 +21,7 @@
     @Scripts.Render("~/plugins/sweetAlert")
 
     <style>
-        .abcRioButtonBlue{
+        .abcRioButtonBlue {
             display: inline-block;
         }
     </style>
@@ -73,9 +73,11 @@
                 </div>
                 <span class="help-block"></span>
                 <button type="submit" class="btn btn-color block full-width m-b">@ViewLabels.AUTH_LOGIN_SUBMIT</button>
-                <div class="fb-login-button" data-size="large" data-button-type="continue_with" data-layout="default" data-auto-logout-link="false" data-use-continue-as="false" data-width=""></div>
-                <br/><br />
-                <div id="my-signin2"></div>
+                @*<div class="fb-login-button" data-size="large" data-button-type="continue_with" data-layout="default" data-auto-logout-link="false" data-use-continue-as="false" data-width="" onclick="Loguear()"></div>*@
+                <button type="button" class="btn btn-color block full-width m-b" onclick="Loguear()">Entrar con Facebook</button>
+                <br /><br />
+                @*<div id="my-signin2"></div>*@
+                @*<div class="g-signin2" data-onsuccess="onSignIn"></div>*@
                 <span class="help-block"></span>
 
                 <br />
@@ -99,7 +101,25 @@
     <script src="~/Scripts/jquery-3.1.1.min.js"></script>
     <script src="~/Scripts/popper.min.js"></script>
     <script src="~/Scripts/bootstrap.js"></script>
-    <script src="/Scripts/plugins/validate/jquery.validate.min.js"></script>
+    <script src="~/Scripts/plugins/validate/jquery.validate.min.js"></script>
+    <!--Configuración de facebook-->
+    @*<div id="fb-root"></div>*@
+    @*<script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_LA/sdk.js#xfbml=1&version=v7.0&appId=246375746578693&autoLogAppEvents=1"></script>*@
+    <script src="~/Scripts/Facebook.js"></script>
+    @*<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>*@
+    <!--Configuración de facebook-->
+
+    @*<script src="https://apis.google.com/js/platform.js" async defer></script>*@
+    <!--singOut-->
+    @*<a href="#" onclick="signOut();">Sign out</a>
+    <script>
+        function signOut() {
+            var auth2 = gapi.auth2.getAuthInstance();
+            auth2.signOut().then(function () {
+                console.log('User signed out.');
+            });
+        }
+    </script>*@
 </body>
 </html>
 
@@ -113,28 +133,33 @@
             });
     </script>
 }
-<div id="fb-root"></div>
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_LA/sdk.js#xfbml=1&version=v7.0&appId=675014006312332&autoLogAppEvents=1"></script>
+
 <script>
-    function onSuccess(googleUser) {
-        console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
-    }
-    function onFailure(error) {
-        console.log(error);
-    }
-    function renderButton() {
-        gapi.signin2.render('my-signin2', {
-            'scope': 'profile email',
-            'width': 240,
-            'height': 50,
-            'longtitle': true,
-            'theme': 'dark',
-            'onsuccess': onSuccess,
-            'onfailure': onFailure
-        });
-    }
+    //function onSignIn(googleUser) {
+    //    var profile = googleUser.getBasicProfile();
+    //    console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+    //    console.log('Name: ' + profile.getName());
+    //    console.log('Image URL: ' + profile.getImageUrl());
+    //    console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+    //}
+    //function onSuccess(googleUser) {
+    //    console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
+    //}
+    //function onFailure(error) {
+    //    console.log(error);
+    //}
+    //function renderButton() {
+    //    gapi.signin2.render('my-signin2', {
+    //        'scope': 'profile email',
+    //        'width': 240,
+    //        'height': 50,
+    //        'longtitle': true,
+    //        'theme': 'dark',
+    //        'onsuccess': onSuccess,
+    //        'onfailure': onFailure
+    //    });
+    //}
 </script>
-<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
 <script>
 
     function resetPassModal() {
