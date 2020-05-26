@@ -24,11 +24,11 @@ namespace MVC_Project.WebBackend.Models
         [RegularExpression("^[a-z0-9_\\+-]+(\\.[a-z0-9_\\+-]+)*@[a-z0-9-]+(\\.[a-z0-9]+)*\\.([a-z]{2,6})$", ErrorMessage = "El Email no es válido")]
         public string Email { get; set; }
 
-        [Required]
-        [Display(Name = "Teléfono")]
-        [StringLength(10)]
-        [RegularExpression("^[0-9]{10}$", ErrorMessage = "El teléfono no es válido")]
-        public string Phone { get; set; }
+        //[Required]
+        //[Display(Name = "Teléfono")]
+        //[StringLength(10)]
+        //[RegularExpression("^[0-9]{10}$", ErrorMessage = "El teléfono no es válido")]
+        //public string Phone { get; set; }
 
         [Required]
         [Display(Name = "Contraseña")]
