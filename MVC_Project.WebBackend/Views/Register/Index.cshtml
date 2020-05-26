@@ -72,18 +72,22 @@
                     @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", @autocomplete = "off", placeholder = @ViewLabels.USERNAME, @required = "required" })
                 </div>
                 <div class="form-group">
+                    @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", type = "number", @autocomplete = "off", placeholder = "Teléfono", @required = "required" })
+                </div>
+                <div class="form-group">
                     @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.PASSWORD, @required = "required" })
                 </div>
                 <div class="form-group">
                     @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.CONFIRM_NEW_PASSWORD, @required = "required" })
                 </div>
                 <div class="form-group">
-                    <div class="checkbox i-checks"><label> <input type="checkbox"><i></i> Acepto t&eacute;rminos y condiciones </label></div>
+                    <a href="#">Acepto t&eacute;rminos y condiciones</a>
+                    @*<div class="checkbox i-checks"><label> <input type="checkbox"><i></i> Acepto t&eacute;rminos y condiciones </label></div>*@
                 </div>
                 <button type="button" class="btn btn-color block full-width m-b" onclick="validarDatos();">Registrarse</button>
 
                 <p class="text-muted text-center"><small>¿Ya tienes cuenta?</small><a class="btn btn-sm btn-white btn-block" href="@Url.Action("Login", "Auth")">Iniciar Sesi&oacute;n</a></p>
-                
+
             }
         </div>
     </div>
@@ -94,7 +98,7 @@
     <script src="~/Scripts/popper.min.js"></script>
     <script src="~/Scripts/bootstrap.js"></script>
     <!-- iCheck -->
-    <script src="~/Scripts/plugins/iCheck/icheck.min.js"></script>
+    @*<script src="~/Scripts/plugins/iCheck/icheck.min.js"></script>*@
 
     @Scripts.Render("~/plugins/validate")
 
@@ -104,6 +108,11 @@
                 return value.match(/^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/);
             }, "La contraseña debe contener al menos un número, mayúsculas, minúsculas y caracteres especiales"
         );
+        //$.validator.addMethod("PhoneTrue",
+        //    function (value, element) {
+        //        return value.match(/^[0-9]{10}$/);
+        //    }, "El teléfono no es válido"
+        //);
         $.validator.addMethod("ConfirmPassEqPassword",
             function (value, element) {
                 return value == $("#Password").val();
@@ -126,6 +135,9 @@
                 Email: {
                     required: true,
                 },
+                Phone: {
+                    required: true,
+                },
                 Password: {
                     PasswordTrue: true,
                     ConfirmPassEqPassword: true,
@@ -136,10 +148,11 @@
                     ConfirmPassEqPassword: true,
                     required: true,
                 },
-                checkTerm: {
-                    ConfirmTermTrue: true,
-                    required: true,
-                }
+
+                //checkTerm: {
+                //    ConfirmTermTrue: true,
+                //    required: true,
+                //}
             }
             ,
             messages: {
@@ -152,6 +165,9 @@
                 Email: {
                     required: "Campo obligatorio",
                 },
+                Phone: {
+                    required: "Campo obligatorio",
+                },
                 Password: {
                     required: "Campo obligatorio",
                     minlength: "La contraseña debe ser mínimo de 8 caracteres",
@@ -159,19 +175,19 @@
                 ConfirmPassword: {
                     required: "Campo obligatorio",
                 },
-                checkTerm: {
-                    required: "Campo obligatorio",
-                }
+                //checkTerm: {
+                //    required: "Campo obligatorio",
+                //}
             }
         });
 
         $(document).ready(function () {
-            $('.i-checks').iCheck({
-                checkboxClass: 'icheckbox_square-green',
-                radioClass: 'iradio_square-green',
-            });
+            //$('.i-checks').iCheck({
+            //    checkboxClass: 'icheckbox_square-green',
+            //    radioClass: 'iradio_square-green',
+            //});
 
-            $("input[type='checkbox']").attr({ "id": "checkTerm", "name": "checkTerm" });
+            //$("input[type='checkbox']").attr({ "id": "checkTerm", "name": "checkTerm" });
         });
 
         function validarDatos() {
