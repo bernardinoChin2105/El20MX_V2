@@ -14,11 +14,11 @@
 
     FB.AppEvents.logPageView();
 
-    FB.getLoginStatus(function (response) {
-        console.log("respuesta", response);
-        close();
-        //statusChangeCallback(response);
-    });
+    //FB.getLoginStatus(function (response) {
+    //    console.log("respuesta", response);
+    //    close();
+    //    //statusChangeCallback(response);
+    //});
 };
 
 function close() {
@@ -29,7 +29,6 @@ function close() {
 }
 
 function Loguear() {
-    console.log("entre");
     try {
         FB.login(function (response) {
             console.log("respuesta", response);
@@ -71,7 +70,7 @@ function Loguear() {
                 // The person is not logged into this app or we are unable to tell.
                 //GOOGLE TAG MANAGER (PAGE 15)                
             }
-        }, { scope: 'public_profile,email' });
+        }, { scope: 'public_profile,email' }); //, whatsapp_business_management
     }
     catch (e) {
         // statements to handle any exceptions
