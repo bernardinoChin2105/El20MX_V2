@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2046
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVC_Project.Web", "MVC_Project.Web\MVC_Project.Web.csproj", "{A4C631FD-60FF-40FE-A450-5D034DB9D960}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVC_Project.API", "MVC_Project.API\MVC_Project.API.csproj", "{25CCAF09-7620-4011-BD66-046C559142C7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVC_Project.Data", "MVC_Project.Data\MVC_Project.Data.csproj", "{347A6BFB-7CD3-4B7F-90AD-AB21950EF7AD}"
@@ -33,10 +31,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A4C631FD-60FF-40FE-A450-5D034DB9D960}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A4C631FD-60FF-40FE-A450-5D034DB9D960}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A4C631FD-60FF-40FE-A450-5D034DB9D960}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A4C631FD-60FF-40FE-A450-5D034DB9D960}.Release|Any CPU.Build.0 = Release|Any CPU
 		{25CCAF09-7620-4011-BD66-046C559142C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{25CCAF09-7620-4011-BD66-046C559142C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25CCAF09-7620-4011-BD66-046C559142C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
