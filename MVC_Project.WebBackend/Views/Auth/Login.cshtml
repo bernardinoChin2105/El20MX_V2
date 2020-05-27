@@ -77,7 +77,7 @@
                 <button type="button" class="btn btn-color block full-width m-b" onclick="Loguear()">Entrar con Facebook</button>
                 <br /><br />
                 @*<div id="my-signin2"></div>*@
-                <div class="g-signin2" data-onsuccess="onSignIn" onclick="onSignIn()"></div>
+                <div class="g-signin2 btn btn-color block full-width m-b" data-onsuccess="onSignIn" onclick="onSignIn()"></div>
                 <span class="help-block"></span>
 
                 <br />
@@ -161,6 +161,34 @@
     //        'onfailure': onFailure
     //    });
     //}
+
+    function login() {
+         $.ajax({
+             url: '@Url.Action("ConvertirJson","Login")',
+             data: { user: info.email, pass: info.id, facebook: true, rutaFace: info.picture.data.url },
+             type: 'POST',
+             dataType: 'json',
+             success: function (json) {
+                 console.log(json)
+                 if (json.facebook === "0") {
+                    //redireccionar al registro del usuario
+                     window.location = "/registro-facebook";
+                 }
+                 if (json.ID_CLIENTE > 0) {
+                     //redireccionar al sitio con ya la cuenta iniciadad
+                     window.location = "/cuenta";
+                 }
+             },
+             error: function (xhr, status) {
+                 //alert('Disculpe, existió un problema');
+                 $(document).ready(function () {
+                     //Mensaje de error
+                     //$("body").addClass("no_scroll");
+                     //$('#ModalError').show();                     
+                 });
+             },
+         });
+    }
 </script>
 <script>
 

@@ -24,21 +24,23 @@ namespace MVC_Project.WebBackend.Models
         [RegularExpression("^[a-z0-9_\\+-]+(\\.[a-z0-9_\\+-]+)*@[a-z0-9-]+(\\.[a-z0-9]+)*\\.([a-z]{2,6})$", ErrorMessage = "El Email no es válido")]
         public string Email { get; set; }
 
-        //[Required]
-        //[Display(Name = "Teléfono")]
-        //[StringLength(10)]
-        //[RegularExpression("^[0-9]{10}$", ErrorMessage = "El teléfono no es válido")]
-        //public string Phone { get; set; }
+        [Required]
+        [Display(Name = "Teléfono")]
+        [StringLength(10)]
+        [RegularExpression("^[0-9]{10}$", ErrorMessage = "El teléfono no es válido")]
+        public string MobileNumber { get; set; }
 
         [Required]
         [Display(Name = "Contraseña")]
         [DataType(DataType.Password)]
-
         public string Password { get; set; }
+
         [Required]
         [Display(Name = "Confirmar contraseña")]
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; }
 
+        public bool RedSocial { get; set; }
+        public int TypeRedSocial { get; set; }
     }
 }

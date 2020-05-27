@@ -53,6 +53,7 @@ namespace MVC_Project.WebBackend.Controllers
                     string daysToExpirateDate = ConfigurationManager.AppSettings["DaysToExpirateDate"];
                     DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
 
+                    /*Asignar el nuevo rol para el cliente*/
                     var availableRoles = _roleService.GetAll();
                     var role = availableRoles.Where(x => x.Code == "EMPLOYEE").FirstOrDefault();
 
@@ -62,6 +63,7 @@ namespace MVC_Project.WebBackend.Controllers
                         FirstName = model.FistName,
                         LastName = model.LastName,
                         Email = model.Email,
+                        MobileNumber = model.MobileNumber,
                         Password = SecurityUtil.EncryptPassword(model.Password),
                         PasswordExpiration = passwordExpiration,
                         Username = model.Email,
@@ -76,7 +78,12 @@ namespace MVC_Project.WebBackend.Controllers
                         user.Permissions.Add(permission);
                     }
                     _userService.Create(user);
+
+                    /*Mandar log*/
+
                     //ViewBag.Message = "Usuario registrado";
+                    /*si es un contribuyente con registro por red social se tiene que redireccionar al sitio e iniciar sesión automatica*/
+                    /*Si es un cliente con registro por email mandar correo */
                     return RedirectToAction("Login", "Auth");
                 }
                 else
