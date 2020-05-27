@@ -9,7 +9,7 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
-        public string Uuid { get; set; }
+        public Guid Uuid { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Language { get; set; }

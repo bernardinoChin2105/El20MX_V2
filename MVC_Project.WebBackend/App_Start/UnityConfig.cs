@@ -56,6 +56,8 @@ namespace MVC_Project.WebBackend
             container.RegisterType<IPaymentService, PaymentService>();
             container.RegisterType<IEventService, EventService>();
             container.RegisterType<IOrderService, OrderService>();
+            container.RegisterType<IProfileService, ProfileService>();
+            container.RegisterType<IAccountService, AccountService>();
         }
     }
 }

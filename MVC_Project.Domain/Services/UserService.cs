@@ -38,12 +38,12 @@ namespace MVC_Project.Domain.Services
             var query = _repository.Session.QueryOver<User>();
             if (!string.IsNullOrWhiteSpace(FilterName))
             {
-                query = query.Where(user => user.Email.IsInsensitiveLike("%" + FilterName + "%") || user.FirstName.IsInsensitiveLike("%" + FilterName + "%") || user.LastName.IsInsensitiveLike("%" + FilterName + "%"));
+                query = query.Where(user => user.name.IsInsensitiveLike("%" + FilterName + "%") || user.profile.firstName.IsInsensitiveLike("%" + FilterName + "%") || user.profile.lastName.IsInsensitiveLike("%" + FilterName + "%"));
             }
             if (FilterStatus != Constants.SEARCH_ALL)
             {
-                bool FilterStatusBool = Convert.ToBoolean(FilterStatus);
-                query = query.Where(user => user.Status == FilterStatusBool);
+                string FilterStatusBool = Status.ACTIVE.ToString();
+                query = query.Where(user => user.status == FilterStatusBool);
             }
             var count = query.RowCount();
 
@@ -56,7 +56,7 @@ namespace MVC_Project.Domain.Services
             {
                 query.Take(take.Value);
             }
-            var list = query.OrderBy(u => u.CreatedAt).Desc.List();
+            var list = query.OrderBy(u => u.createdAt).Desc.List();
             return new Tuple<IEnumerable<User>, int>(list, count);
         }
     }

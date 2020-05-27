@@ -59,7 +59,7 @@ namespace MVC_Project.Desktop
             foreach (DataGridViewRow row in dtvUsers.Rows)
             {
                 string RoleName = null;
-                RoleName = ((User)row.DataBoundItem).Role.Name;
+                //RoleName = ((User)row.DataBoundItem).Role.Name;
                 row.Cells["Role"].Value = RoleName;
             }
 

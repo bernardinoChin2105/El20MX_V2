@@ -8,6 +8,14 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Utils
 {
+    public enum Status
+    {
+        [Display(Name = "ACTIVE")]
+        ACTIVE,
+        [Display(Name = "INACTIVE")]
+        INACTIVE
+    }
+
     public enum DocumentType
     {
         [Display(Name = "Curriculum Vitae")]

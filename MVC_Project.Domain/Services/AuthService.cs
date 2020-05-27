@@ -14,8 +14,8 @@ namespace MVC_Project.Domain.Services
 
         public User Authenticate(string username, string password)
         {
-            User user = _repository.FindBy(u => u.Email == username).FirstOrDefault();
-            if (user != null && user.Password == password) return user;
+            User user = _repository.FindBy(u => u.name == username).FirstOrDefault();
+            if (user != null && user.password == password) return user;
             return null;
         }        
     }

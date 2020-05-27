@@ -37,12 +37,12 @@ namespace MVC_Project.Desktop.Users
             if (RecordId.HasValue && RecordId.Value > 0)
             {
                 var userBO = _userService.GetById(RecordId.Value);
-                txtUsername.Text = userBO.Username;
-                txtPassword.Text = userBO.Password;
-                txtEmail.Text = userBO.Email;
-                txtFirstname.Text = userBO.FirstName;
-                txtLastname.Text = userBO.LastName;
-                chkStatus.Checked = userBO.Status;
+                txtUsername.Text = userBO.name;
+                txtPassword.Text = userBO.password;
+                txtEmail.Text = userBO.name;
+                txtFirstname.Text = userBO.profile.firstName;
+                txtLastname.Text = userBO.profile.lastName;
+                chkStatus.Checked = userBO.status.Equals(Status.ACTIVE.ToString());
             }
         }
         
@@ -50,35 +50,35 @@ namespace MVC_Project.Desktop.Users
         {
             DateTime todayDate = DateUtil.GetDateTimeNow();
             DateTime passwordExpiration = todayDate.AddYears(5);
-            Role role = _roleService.FindBy(x => x.Code == Constants.ROLE_EMPLOYEE).FirstOrDefault();
+            Role role = _roleService.FindBy(x => x.code == Constants.ROLE_EMPLOYEE).FirstOrDefault();
 
             if (RecordId.HasValue && RecordId.Value > 0)
             {
                 var userBO = _userService.GetById(RecordId.Value);
-                userBO.FirstName = txtFirstname.Text;
-                userBO.LastName = txtLastname.Text;
-                userBO.UpdatedAt = todayDate;
-                userBO.Status = chkStatus.Checked;
+                userBO.name = txtFirstname.Text;
+                //userBO.lastName = txtLastname.Text;
+                userBO.modifiedAt = todayDate;
+                userBO.status = chkStatus.Checked ? Status.ACTIVE.ToString() : Status.INACTIVE.ToString();
                 _userService.Update(userBO);
             }
             else
             {
                 var userBO = new User
                 {
-                    Uuid = Guid.NewGuid().ToString(),
-                    FirstName = txtFirstname.Text,
-                    LastName = txtLastname.Text,
-                    Username = txtUsername.Text,
-                    Password = SecurityUtil.EncryptPassword(txtPassword.Text),
-                    Email = txtEmail.Text,
-                    Role = role,
-                    MobileNumber = "",
-                    PasswordExpiration = passwordExpiration,
-                    Language = "ES",
-                    CreatedAt = todayDate,
-                    UpdatedAt = todayDate,
-                    Status = chkStatus.Checked
-                };
+                    uuid = Guid.NewGuid(),
+                    name = txtFirstname.Text,
+                    //lastName = txtLastname.Text,
+                    //userName = txtUsername.Text,
+                    password = SecurityUtil.EncryptPassword(txtPassword.Text),
+                    //name = txtEmail.Text,
+                    //Role = role,
+                    //phoneNumber = "",
+                    passwordExpiration = passwordExpiration,
+                    //language = "ES",
+                    createdAt = todayDate,
+                    modifiedAt = todayDate,
+                    status = chkStatus.Checked ? Status.ACTIVE.ToString() : Status.INACTIVE.ToString()
+            };
                 /*foreach (var permission in role.Permissions)
                 {
                     userBO.Permissions.Add(permission);

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 
@@ -15,11 +16,16 @@ namespace MVC_Project.WebBackend.Controllers
     {
         private IUserService _userService;
         private IRoleService _roleService;
+        private IProfileService _profileService;
+        private IAccountService _accountService;
 
-        public RegisterController(IUserService userService, IRoleService roleService)
+        public RegisterController(IUserService userService, IRoleService roleService, IProfileService profileService,
+            IAccountService accountService)
         {
             _userService = userService;
             _roleService = roleService;
+            _profileService = profileService;
+            _accountService = accountService;
         }
 
         [AllowAnonymous]
@@ -44,7 +50,7 @@ namespace MVC_Project.WebBackend.Controllers
 
             if (ModelState.IsValid)
             {
-                var UserVal = _userService.FindBy(x => x.Email == model.Email).FirstOrDefault();
+                var UserVal = _userService.FindBy(x => x.name == model.Email).FirstOrDefault();
 
                 if (UserVal == null)
                 {
@@ -54,29 +60,64 @@ namespace MVC_Project.WebBackend.Controllers
                     DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
 
                     var availableRoles = _roleService.GetAll();
-                    var role = availableRoles.Where(x => x.Code == "EMPLOYEE").FirstOrDefault();
+                    var role = availableRoles.Where(x => x.code == "EMPLOYEE").FirstOrDefault();
+                    
+                    
+
+                   
+                    var profile = new Profile
+                    {
+                        uuid = Guid.NewGuid(),
+                        firstName = model.FistName,
+                        lastName = model.LastName,
+                        email = model.Email,
+                        createdAt = todayDate,
+                        modifiedAt = todayDate,
+                        status = Status.ACTIVE.ToString(),
+                    };
+
+                    _profileService.Create(profile);
 
                     var user = new User
                     {
-                        Uuid = Guid.NewGuid().ToString(),
-                        FirstName = model.FistName,
-                        LastName = model.LastName,
-                        Email = model.Email,
-                        Password = SecurityUtil.EncryptPassword(model.Password),
-                        PasswordExpiration = passwordExpiration,
-                        Username = model.Email,
-                        CreatedAt = todayDate,
-                        UpdatedAt = todayDate,
-                        Status = true,
-                        Role = new Role { Id = role.Id }
+                        uuid = Guid.NewGuid(),
+                        name = model.Email,
+                        password = SecurityUtil.EncryptPassword(model.Password),
+                        passwordExpiration = passwordExpiration,
+                        createdAt = todayDate,
+                        modifiedAt = todayDate,
+                        status = Status.ACTIVE.ToString(),
+                        role = role,
+                        profile = profile
                     };
 
-                    foreach (var permission in role.Permissions)
+                    
+                    
+                    foreach (var permission in role.permissions)
                     {
-                        user.Permissions.Add(permission);
+                        user.permissions.Add(permission);
                     }
                     _userService.Create(user);
-                    //ViewBag.Message = "Usuario registrado";
+
+                    StringBuilder builder = new StringBuilder();
+                    builder.Append(model.FistName);
+                    builder.Append(" ");
+                    builder.Append(model.LastName);
+
+                    var account = new Account
+                    {
+                        uuid = Guid.NewGuid(),
+                        name = builder.ToString(),
+                        createdAt = todayDate,
+                        modifiedAt = todayDate,
+                        status = Status.ACTIVE.ToString(),
+                        //rfc = "CAYW880502FK4"
+                    };
+
+                    account.users.Add(user);
+                    _accountService.Create(account);
+
+
                     return RedirectToAction("Login", "Auth");
                 }
                 else

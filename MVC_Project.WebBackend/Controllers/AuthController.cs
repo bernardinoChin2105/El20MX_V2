@@ -45,46 +45,46 @@ namespace MVC_Project.WebBackend.Controllers
                 var user = _authService.Authenticate(model.Email, SecurityUtil.EncryptPassword(model.Password));
                 if (user != null)
                 {
-                    if (!user.Status)
+                    if (user.status != Status.ACTIVE.ToString())
                     {
                         ViewBag.Error = Resources.ErrorMessages.UserInactive;
                         return View(model);
                     }
-                    user.LastLoginAt = DateTime.Now;
+                    user.lastLoginAt = DateTime.Now;
                     _userService.Update(user);
 
                     //Permissions by role
-                    List<Permission> permissionsUser = user.Role.Permissions.Select(p => new Permission
+                    List<Permission> permissionsUser = user.role.permissions.Select(p => new Permission
                     {
-                        Action = p.Action,
-                        Controller = p.Controller,
-                        Module = p.Module
+                        Action = p.action,
+                        Controller = p.controller,
+                        Module = p.module
                     }).ToList();
 
                     //IF SUPPORT, SET ALL PERMISSIONS
-                    if (user.Role.Code == Constants.ROLE_IT_SUPPORT)
+                    if (user.role.code == Constants.ROLE_IT_SUPPORT)
                     {
                         permissionsUser = _permissionService.GetAll().Select(p => new Permission
                         {
-                            Action = p.Action,
-                            Controller = p.Controller,
-                            Module = p.Module
+                            Action = p.action,
+                            Controller = p.controller,
+                            Module = p.module
                         }).ToList();
                     }
 
                     AuthUser authUser = new AuthUser
                     {
-                        Id = user.Id,
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        Email = user.Email,
-                        Language = user.Language,
-                        Uuid = user.Uuid,
-                        PasswordExpiration = user.PasswordExpiration,
+                        Id = user.id,
+                        FirstName = user.profile.firstName,
+                        LastName = user.profile.lastName,
+                        Email = user.name,
+                        Language = user.profile.language,
+                        Uuid = user.uuid,
+                        PasswordExpiration = user.passwordExpiration,
                         Role = new Role
                         {
-                            Code = user.Role.Code,
-                            Name = user.Role.Name
+                            Code = user.role.code,
+                            Name = user.role.name
                         },
                         Permissions = permissionsUser
                     };
@@ -110,11 +110,11 @@ namespace MVC_Project.WebBackend.Controllers
                         LanguageMngr.SetLanguage(authUser.Language);
                     }
 
-                    if (user.PasswordExpiration.HasValue)
+                    if (user.passwordExpiration.HasValue)
                     {
-                        DateTime passwordExpiration = user.PasswordExpiration.Value;
+                        DateTime passwordExpiration = user.passwordExpiration.Value;
                         DateTime todayDate = DateUtil.GetDateTimeNow();
-                        if (user.PasswordExpiration.Value.Date < todayDate.Date)
+                        if (user.passwordExpiration.Value.Date < todayDate.Date)
                         {
                             return RedirectToAction("ChangePassword", "Auth");
                         }
@@ -124,7 +124,7 @@ namespace MVC_Project.WebBackend.Controllers
                         {
 
                             int daysLeft = ((TimeSpan)(passwordExpiration.Date - todayDate.Date)).Days + 1;
-                            if(daysLeft <= daysBeforeExpireToNotify)
+                            if (daysLeft <= daysBeforeExpireToNotify)
                             {
                                 string message = String.Format(ViewLabels.PASSWORD_EXPIRATION_MESSAGE, daysLeft);
                                 MensajeFlashHandler.RegistrarMensaje(message, TiposMensaje.Info);
@@ -173,20 +173,20 @@ namespace MVC_Project.WebBackend.Controllers
             }
             try
             {
-                var resultado = _userService.FindBy(e => e.Email == model.Email).First();
+                var resultado = _userService.FindBy(e => e.name == model.Email).First();
                 if (resultado != null)
                 {
                     ViewBag.mensajeError = string.Empty;
-                    resultado.ExpiraToken = System.DateTime.Now.AddDays(1);
-                    string token = (resultado.Uuid + "@" + DateTime.Now.AddDays(1).ToString());
+                    resultado.tokenExpiration = System.DateTime.Now.AddDays(1);
+                    string token = (resultado.uuid + "@" + DateTime.Now.AddDays(1).ToString());
                      token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
-                    resultado.Token = token;
+                    resultado.token = token;
                     Dictionary<string, string> customParams = new Dictionary<string, string>();
                     string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
                     string link = urlAccion + "Auth/AccedeToken?token=" + token;
-                    customParams.Add("param1", resultado.Email);
+                    customParams.Add("param1", resultado.name);
                     customParams.Add("param2", link);
-                    NotificationUtil.SendNotification(resultado.Email, customParams, Constants.NOT_TEMPLATE_PASSWORDRECOVER );
+                    NotificationUtil.SendNotification(resultado.name, customParams, Constants.NOT_TEMPLATE_PASSWORDRECOVER );
                     _userService.Update(resultado);
                     //MensajesFlash.MensajeFlashHandler.RegistrarMensaje(ImpuestoPredial.Resource.Recursos.OperacionExitosa);
                     ViewBag.Message = "Solicitud realizada";
@@ -224,17 +224,17 @@ namespace MVC_Project.WebBackend.Controllers
                     return RedirectToAction("Login");
 
                 var elements = desencriptaToken.Split('@');
-                string id = elements.First().ToString();
-                var resultado = _userService.FindBy(e => e.Uuid == id).First();
+                Guid id = Guid.Parse(elements.First().ToString());
+                var resultado = _userService.FindBy(e => e.uuid == id).First();
                 int[] valores = new int[100];
                 for(int a=0;a<100; a++)
                 {
                     valores[a] = a++;
                 }
-                if (resultado != null && DateTime.Now <= resultado.ExpiraToken)
+                if (resultado != null && DateTime.Now <= resultado.tokenExpiration)
                 {
                     ResetPassword model = new ResetPassword();
-                    model.Uuid = resultado.Uuid.ToString();
+                    model.Uuid = resultado.uuid.ToString();
                     return View("ResetPassword", model);
                 }
             }
@@ -269,12 +269,12 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 return RedirectToAction("Login", "Auth");
             }
-            var user = _userService.FindBy(e => e.Uuid == authenticatedUser.Uuid).First();
+            var user = _userService.FindBy(e => e.uuid == authenticatedUser.Uuid).First();
 
             if (!String.IsNullOrWhiteSpace(model.Password) && user != null)
             {
                 string encriptedPass = SecurityUtil.EncryptPassword(model.Password);
-                if (user.Password == encriptedPass)
+                if (user.password == encriptedPass)
                 {
                     ModelState.AddModelError("Password", "La contraseña ya ha sido utilizada");
                 }
@@ -283,29 +283,29 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 if (user != null)
                 {
-                    user.Password = SecurityUtil.EncryptPassword(model.Password);
+                    user.password = SecurityUtil.EncryptPassword(model.Password);
                     DateTime todayDate = DateUtil.GetDateTimeNow();
                     string daysToExpirateDate = ConfigurationManager.AppSettings["DaysToExpirateDate"];
                     DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
-                    user.PasswordExpiration = passwordExpiration;
+                    user.passwordExpiration = passwordExpiration;
                     _userService.Update(user);
                     AuthUser authUser = new AuthUser
                     {
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        Email = user.Email,
-                        Uuid = user.Uuid,
-                        PasswordExpiration = user.PasswordExpiration,
+                        FirstName = user.profile.firstName,
+                        LastName = user.profile.lastName,
+                        Email = user.name,
+                        Uuid = user.uuid,
+                        PasswordExpiration = user.passwordExpiration,
                         Role = new Role
                         {
-                            Code = user.Role.Code,
-                            Name = user.Role.Name
+                            Code = user.role.code,
+                            Name = user.role.name
                         },
-                        Permissions = user.Permissions.Select(p => new Permission
+                        Permissions = user.permissions.Select(p => new Permission
                         {
-                            Action = p.Action,
-                            Controller = p.Controller,
-                            Module = p.Module
+                            Action = p.action,
+                            Controller = p.controller,
+                            Module = p.module
                         }).ToList()
                     };
                     Authenticator.StoreAuthenticatedUser(authUser);
@@ -329,32 +329,32 @@ namespace MVC_Project.WebBackend.Controllers
             }
             try
             {
-                var resultado = _userService.FindBy(e => e.Uuid == model.Uuid).First();
+                var resultado = _userService.FindBy(e => e.uuid == Guid.Parse(model.Uuid)).First();
                 if (resultado != null)
                 {
-                    resultado.Password = SecurityUtil.EncryptPassword(model.Password);
+                    resultado.password = SecurityUtil.EncryptPassword(model.Password);
                     DateTime todayDate = DateUtil.GetDateTimeNow();
                     string daysToExpirateDate = ConfigurationManager.AppSettings["DaysToExpirateDate"];
                     DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
-                    resultado.PasswordExpiration = passwordExpiration;
+                    resultado.passwordExpiration = passwordExpiration;
                     _userService.Update(resultado);
                     AuthUser authUser = new AuthUser
                     {
-                        FirstName = resultado.FirstName,
-                        LastName = resultado.LastName,
-                        Uuid = resultado.Uuid,
-                        PasswordExpiration = resultado.PasswordExpiration,
-                        Email = resultado.Email,
+                        FirstName = resultado.profile.firstName,
+                        LastName = resultado.profile.lastName,
+                        Uuid = resultado.uuid,
+                        PasswordExpiration = resultado.passwordExpiration,
+                        Email = resultado.name,
                         Role = new Role
                         {
-                            Code = resultado.Role.Code,
-                            Name = resultado.Role.Name
+                            Code = resultado.role.code,
+                            Name = resultado.role.name
                         },
-                        Permissions = resultado.Permissions.Select(p => new Permission
+                        Permissions = resultado.permissions.Select(p => new Permission
                         {
-                            Action = p.Action,
-                            Controller = p.Controller,
-                            Module = p.Module
+                            Action = p.action,
+                            Controller = p.controller,
+                            Module = p.module
                         }).ToList()
                     };
                     //UnitOfWork unitOfWork = new UnitOfWork();

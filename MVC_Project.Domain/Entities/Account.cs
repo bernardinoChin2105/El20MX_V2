@@ -1,26 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace MVC_Project.Domain.Entities {
-
-    public class Role : IEntity {
+namespace MVC_Project.Domain.Entities
+{
+    public class Account : IEntity
+    {
         public virtual int id { get; set; }
         public virtual Guid uuid { get; set; }
         public virtual string name { get; set; }
-        public virtual string code { get; set; }
-        public virtual string description { get; set; }
+        public virtual string rfc { get; set; }
         public virtual DateTime createdAt { get; set; }
         public virtual DateTime modifiedAt { get; set; }
         public virtual string status { get; set; }
 
         public virtual IList<User> users { get; set; }
-        public virtual IList<Permission> permissions { get; set; }
 
-        public Role()
+        public Account()
         {
             users = new List<User>();
-            permissions = new List<Permission>();
         }
     }
 }

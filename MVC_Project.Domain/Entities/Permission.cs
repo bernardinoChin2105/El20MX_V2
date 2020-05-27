@@ -5,13 +5,14 @@ using System.Text;
 namespace MVC_Project.Domain.Entities {
 
     public class Permission : IEntity {
-        public virtual int Id { get; set; }        
-        public virtual string Description { get; set; }
-        public virtual string Controller { get; set; }
-        public virtual string Action { get; set; }
-        public virtual string Module { get; set; }
-        public virtual DateTime CreatedAt { get; set; }
-        public virtual DateTime UpdatedAt { get; set; }
-        public virtual DateTime? RemovedAt { get; set; }
+        public virtual int id { get; set; }       
+        public virtual Guid uuid { get; set; }
+        public virtual string description { get; set; }
+        public virtual string controller { get; set; }
+        public virtual string action { get; set; }
+        public virtual string module { get; set; }
+        public virtual DateTime createdAt { get; set; }
+        public virtual DateTime modifiedAt { get; set; }
+        public virtual string status { get; set; }
     }
 }

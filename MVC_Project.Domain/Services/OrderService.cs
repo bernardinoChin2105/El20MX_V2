@@ -51,12 +51,12 @@ namespace MVC_Project.Domain.Services
             if (!String.IsNullOrWhiteSpace(filters[2]))
             {
                 int id = Convert.ToInt32(filters[2]);
-                query = query.Where(() => storeAlias.Id == id);
+                query = query.Where(() => storeAlias.id == id);
             }
             if (!String.IsNullOrWhiteSpace(filters[3]))
             {
                 int id = Convert.ToInt32(filters[3]);
-                query = query.Where(() => staffAlias.Id == id);
+                query = query.Where(() => staffAlias.id == id);
             }
             if (!String.IsNullOrWhiteSpace(filters[4]))
             {
@@ -99,12 +99,12 @@ namespace MVC_Project.Domain.Services
             if (!String.IsNullOrWhiteSpace(filters[2]))
             {
                 int id = Convert.ToInt32(filters[2]);
-                query = query.Where(() => storeAlias.Id == id);
+                query = query.Where(() => storeAlias.id == id);
             }
             if (!String.IsNullOrWhiteSpace(filters[3]))
             {
                 int id = Convert.ToInt32(filters[3]);
-                query = query.Where(() => staffAlias.Id == id);
+                query = query.Where(() => staffAlias.id == id);
             }
             if (!String.IsNullOrWhiteSpace(filters[4]))
             {
@@ -145,9 +145,9 @@ namespace MVC_Project.Domain.Services
             var query = _repository.Session.QueryOver<OrderItems>()
                 .JoinAlias(x => x.Order, () => OrderAlias)
                 .JoinAlias(x => x.Producto, () => ProductoAlias)
-                .Where(() => OrderAlias.Id == orderId);
+                .Where(() => OrderAlias.id == orderId);
             
-            return query.OrderBy(u => u.Id).Asc.List();
+            return query.OrderBy(u => u.id).Asc.List();
         }
     }
 }

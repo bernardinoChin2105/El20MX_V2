@@ -8,7 +8,7 @@ namespace MVC_Project.Domain.Entities
 {
     public class PaymentApplication : IEntity
     {
-        public virtual int Id { get; set; }
+        public virtual int id { get; set; }
         
         public virtual string AppKey { get; set; }
 

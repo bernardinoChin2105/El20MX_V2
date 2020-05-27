@@ -9,7 +9,7 @@ namespace MVC_Project.Domain.Entities
     public class Event : IEntity
     {
 
-        public virtual int Id { get; set; }
+        public virtual int id { get; set; }
 
         public virtual string Uuid { get; set; }
 

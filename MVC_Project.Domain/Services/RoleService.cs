@@ -29,7 +29,7 @@ namespace MVC_Project.Domain.Services {
             if (!string.IsNullOrWhiteSpace(filters[0]))
             {
                 string nombre = filters[0];
-                roles = roles.Where(p => p.Name.ToLower().Contains(nombre.ToLower()));
+                roles = roles.Where(p => p.name.ToLower().Contains(nombre.ToLower()));
             }
             //if (filters[1] != "2")
             //{

@@ -65,7 +65,7 @@ namespace MVC_Project.WebBackend.Controllers
                     userRowImportResultViewModel.RowNumber = rowResult.Number;
                     userRowImportResultViewModel.Messages = new List<string>();
                     bool hasCustomError = false;
-                    User existingUser = _userService.FindBy(x => x.Email == userRowImportResultViewModel.Email).FirstOrDefault();
+                    User existingUser = _userService.FindBy(x => x.name == userRowImportResultViewModel.Email).FirstOrDefault();
                     if (existingUser != null && !String.IsNullOrWhiteSpace(userRowImportResultViewModel.Email))
                     {
                         userRowImportResultViewModel.Messages.Add("El correo electrónico del usuario ya se encuentra registrado");
@@ -96,14 +96,14 @@ namespace MVC_Project.WebBackend.Controllers
                 foreach (var user in results.Item1)
                 {
                     UserData userData = new UserData();
-                    userData.Name = user.FirstName + " " + user.LastName;
-                    userData.Email = user.Email;
-                    userData.RoleName = user.Role.Name;
-                    userData.CreatedAt = user.CreatedAt;
-                    userData.UpdatedAt = user.UpdatedAt;
-                    userData.Status = user.Status;
-                    userData.Uuid = user.Uuid;
-                    userData.LastLoginAt = user.LastLoginAt;
+                    userData.Name = user.profile.firstName + " " + user.profile.lastName;
+                    userData.Email = user.name;
+                    userData.RoleName = user.role.name;
+                    userData.CreatedAt = user.createdAt;
+                    userData.UpdatedAt = user.modifiedAt;
+                    userData.Status = user.status==Status.ACTIVE.ToString();
+                    userData.Uuid = user.uuid.ToString();
+                    userData.LastLoginAt = user.lastLoginAt;
                     dataResponse.Add(userData);
                 }
                 return Json(new
@@ -139,8 +139,8 @@ namespace MVC_Project.WebBackend.Controllers
             var rolesList = new List<SelectListItem>();
             rolesList = availableRoles.Select(role => new SelectListItem
             {
-                Value = role.Id.ToString(),
-                Text = role.Name
+                Value = role.id.ToString(),
+                Text = role.name
             }).ToList();
             return rolesList;
         }
@@ -165,24 +165,24 @@ namespace MVC_Project.WebBackend.Controllers
                 DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
                 var user = new User
                 {
-                    Uuid = Guid.NewGuid().ToString(),
-                    FirstName = userCreateViewModel.Name,
-                    LastName = userCreateViewModel.Apellidos,
-                    Email = userCreateViewModel.Email,
-                    MobileNumber = userCreateViewModel.MobileNumber,
-                    Password = SecurityUtil.EncryptPassword(userCreateViewModel.Password),
-                    PasswordExpiration = passwordExpiration,
-                    Role = new Role { Id = userCreateViewModel.Role },
-                    Username = userCreateViewModel.Username,
-                    Language = userCreateViewModel.Language,
-                    CreatedAt = todayDate,
-                    UpdatedAt = todayDate,
-                    Status = true
+                    uuid = Guid.NewGuid(),
+                    //firstName = userCreateViewModel.Name,
+                    //lastName = userCreateViewModel.Apellidos,
+                    name = userCreateViewModel.Email,
+                    //phoneNumber = userCreateViewModel.MobileNumber,
+                    password = SecurityUtil.EncryptPassword(userCreateViewModel.Password),
+                    passwordExpiration = passwordExpiration,
+                    role = new Role { id = userCreateViewModel.Role },
+                    //userName = userCreateViewModel.Username,
+                    //language = userCreateViewModel.Language,
+                    createdAt = todayDate,
+                    modifiedAt = todayDate,
+                    status = Status.ACTIVE.ToString()
                 };
-                var role = _roleService.GetById(user.Role.Id);
-                foreach (var permission in role.Permissions)
+                var role = _roleService.GetById(user.role.id);
+                foreach (var permission in role.permissions)
                 {
-                    user.Permissions.Add(permission);
+                    user.permissions.Add(permission);
                 }
                 _userService.Create(user);
 
@@ -210,15 +210,15 @@ namespace MVC_Project.WebBackend.Controllers
         [Authorize]
         public ActionResult Edit(string uuid)
         {
-            User user = _userService.FindBy(x => x.Uuid == uuid).First();
+            User user = _userService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
             UserEditViewModel model = new UserEditViewModel();
-            model.Uuid = user.Uuid;
-            model.Name = user.FirstName;
-            model.Apellidos = user.LastName;
-            model.Email = user.Email;
-            model.MobileNumber = user.MobileNumber;
+            model.Uuid = user.uuid.ToString();
+            model.Name = user.profile.firstName;
+            model.Apellidos = user.profile.lastName;
+            model.Email = user.name;
+            model.MobileNumber = user.profile.phoneNumber;
             model.Roles = PopulateRoles();
-            model.Role = user.Role.Id;
+            model.Role = user.role.id;
             return View(model);
         }
 
@@ -227,13 +227,13 @@ namespace MVC_Project.WebBackend.Controllers
         {
             try
             {
-                User user = _userService.FindBy(x => x.Uuid == model.Uuid).First();
-                user.FirstName = model.Name;
-                user.LastName = model.Apellidos;
-                user.Email = model.Email;
-                user.MobileNumber = model.MobileNumber;
-                user.Username = model.Username;
-                user.Language = model.Language;
+                User user = _userService.FindBy(x => x.uuid == Guid.Parse(model.Uuid)).First();
+                user.name = model.Name;
+                //user.lastName = model.Apellidos;
+                //user.name = model.Email;
+                //user.phoneNumber = model.MobileNumber;
+                //user.userName = model.Username;
+                //user.language = model.Language;
                 _userService.Update(user);
                 return RedirectToAction("Index");
             }
@@ -245,7 +245,7 @@ namespace MVC_Project.WebBackend.Controllers
         [HttpGet]
         public ActionResult EditPassword(string uuid)
         {
-            var user = _userService.FindBy(e => e.Uuid == uuid).FirstOrDefault();
+            var user = _userService.FindBy(e => e.uuid == Guid.Parse(uuid)).FirstOrDefault();
             if (user == null)
             {
                 string message = Resources.ErrorMessages.UserNotAvailable;
@@ -274,7 +274,7 @@ namespace MVC_Project.WebBackend.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult EditPassword(UserChangePasswordViewModel model)
         {
-            var user = _userService.FindBy(e => e.Uuid == model.Uuid).FirstOrDefault();
+            var user = _userService.FindBy(e => e.uuid == Guid.Parse(model.Uuid)).FirstOrDefault();
             if(user == null)
             {
                 string message = Resources.ErrorMessages.UserNotAvailable;
@@ -290,10 +290,10 @@ namespace MVC_Project.WebBackend.Controllers
             }
             if (ModelState.IsValid)
             {
-                user.Password = SecurityUtil.EncryptPassword(model.Password);
+                user.password = SecurityUtil.EncryptPassword(model.Password);
                 DateTime todayDate = DateUtil.GetDateTimeNow();
                 DateTime passwordExpiration = todayDate.AddDays(-1);
-                user.PasswordExpiration = passwordExpiration;
+                user.passwordExpiration = passwordExpiration;
                 _userService.Update(user);
                 string successMessage = Resources.Messages.UserPasswordUpdated;
                 if (Request.IsAjaxRequest())
@@ -323,10 +323,10 @@ namespace MVC_Project.WebBackend.Controllers
         {
             try
             {
-                var user = _userService.FindBy(x => x.Uuid == uuid).First();
+                var user = _userService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
                 if (user != null)
                 {
-                    user.Status = !user.Status;
+                    user.status = user.status;
                     _userService.Update(user);
                     return Json(true, JsonRequestBehavior.AllowGet);
                 }

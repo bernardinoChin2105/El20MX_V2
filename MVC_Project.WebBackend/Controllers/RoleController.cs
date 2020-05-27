@@ -39,12 +39,12 @@ namespace MVC_Project.WebBackend.Controllers
                 foreach (var rol in roles)
                 {
                     RoleData userData = new RoleData();
-                    userData.Name = rol.Name;
-                    userData.Description = rol.Description;
-                    userData.CreatedAt = rol.CreatedAt;
-                    userData.UpdatedAt = rol.UpdatedAt;
-                    userData.Status = rol.Status;
-                    userData.Uuid = rol.Uuid;
+                    userData.Name = rol.name;
+                    userData.Description = rol.description;
+                    userData.CreatedAt = rol.createdAt;
+                    userData.UpdatedAt = rol.modifiedAt;
+                    userData.Status = rol.status==Status.ACTIVE.ToString();
+                    userData.Uuid = rol.uuid.ToString();
                     UsuariosResponse.Add(userData);
                 }
                 return Json(new
@@ -89,8 +89,8 @@ namespace MVC_Project.WebBackend.Controllers
             var permissionsVM = new List<PermissionViewModel>();
             permissionsVM = permissions.Select(permission => new PermissionViewModel
             {
-                Id = permission.Id,
-                Description = permission.Description
+                Id = permission.id,
+                Description = permission.description
             }).ToList();
             return permissionsVM;
         }
@@ -105,13 +105,13 @@ namespace MVC_Project.WebBackend.Controllers
                 DateTime todayDate = DateUtil.GetDateTimeNow();      
                 var role = new Role
                 {
-                    Uuid = Guid.NewGuid().ToString(),
-                    Name = roleCreateViewModel.Name,
-                    Code = roleCreateViewModel.Code,
-                    Description = roleCreateViewModel.Name,
-                    CreatedAt = todayDate,
-                    UpdatedAt = todayDate,
-                    Status = true
+                    uuid = Guid.NewGuid(),
+                    name = roleCreateViewModel.Name,
+                    code = roleCreateViewModel.Code,
+                    description = roleCreateViewModel.Name,
+                    createdAt = todayDate,
+                    modifiedAt = todayDate,
+                    status = Status.ACTIVE.ToString()
                 };
                 _roleService.Create(role);
 
@@ -119,8 +119,8 @@ namespace MVC_Project.WebBackend.Controllers
                 foreach (PermissionViewModel permisoNuevo in permisosNuevos)
                 {
                     RolePermission rolePermission = new RolePermission();
-                    rolePermission.Role = new Role { Id = role.Id };
-                    rolePermission.Permission = new Permission { Id = permisoNuevo.Id };
+                    rolePermission.Role = new Role { id = role.id };
+                    rolePermission.Permission = new Permission { id = permisoNuevo.Id };
                     _rolePermissionService.Create(rolePermission);
                 }
                
@@ -137,15 +137,15 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult Edit(string uuid)
         {
             Role role = new Role();
-            role = _roleService.FindBy(x => x.Uuid == uuid).First();
+            role = _roleService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
             RoleEditViewModel model = new RoleEditViewModel();
-            model.Id = role.Id;
-            model.Name = role.Name;
-            model.Code = role.Code;
+            model.Id = role.id;
+            model.Name = role.name;
+            model.Code = role.code;
             IEnumerable<PermissionViewModel> permisos = PopulatePermissions();
             foreach (PermissionViewModel permiso in permisos)
             {
-                var match = role.Permissions.FirstOrDefault(stringToCheck => stringToCheck.Description.Contains(permiso.Description));
+                var match = role.permissions.FirstOrDefault(stringToCheck => stringToCheck.description.Contains(permiso.Description));
                 if (match != null)
                 {
                     permiso.Assigned = true;
@@ -161,26 +161,26 @@ namespace MVC_Project.WebBackend.Controllers
         {
             try
             {
-                Role role = _roleService.FindBy(x => x.Id == model.Id).First();
+                Role role = _roleService.FindBy(x => x.id == model.Id).First();
                 //role.Name = model.Name;
                 //role.Code = model.Code;
                 //_roleService.Update(role);
 
-                IList<Permission> permissions = role.Permissions;
+                IList<Permission> permissions = role.permissions;
                 IList<PermissionViewModel> permisosNuevos = model.Permissions.Where(x => x.Assigned == true).ToList();
-                var query = permisosNuevos.Where(p => !permissions.Any(l => p.Id == l.Id)); //permisosNuevos.Where(x => permissions.Contains(x.Id));
-                var query2 = permissions.Where(p => !permisosNuevos.Any(l => p.Id == l.Id));
+                var query = permisosNuevos.Where(p => !permissions.Any(l => p.Id == l.id)); //permisosNuevos.Where(x => permissions.Contains(x.Id));
+                var query2 = permissions.Where(p => !permisosNuevos.Any(l => p.id == l.Id));
                 foreach (PermissionViewModel permisoNuevo in query)
                 {
                     RolePermission rolePermission = new RolePermission();
-                    rolePermission.Role = new Role { Id = role.Id };
-                    rolePermission.Permission = new Permission { Id = permisoNuevo.Id };
+                    rolePermission.Role = new Role { id = role.id };
+                    rolePermission.Permission = new Permission { id = permisoNuevo.Id };
                     _rolePermissionService.Create(rolePermission);
                 }
                 foreach (Permission permisoQuitado in query2)
                 {
-                    RolePermission rolePermission = _rolePermissionService.FindBy(x => x.Role.Id == role.Id && x.Permission.Id == permisoQuitado.Id).FirstOrDefault();
-                    _rolePermissionService.Delete(rolePermission.Id);
+                    RolePermission rolePermission = _rolePermissionService.FindBy(x => x.Role.id == role.id && x.Permission.id == permisoQuitado.id).FirstOrDefault();
+                    _rolePermissionService.Delete(rolePermission.id);
                 }
                 return RedirectToAction("Index");
             }
@@ -202,16 +202,16 @@ namespace MVC_Project.WebBackend.Controllers
         {
             try
             {
-                var rol = _roleService.FindBy(x => x.Uuid == uuid).First();
+                var rol = _roleService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
                 if (rol != null)
                 {
-                    if (rol.Status == true)
+                    if (rol.status == Status.ACTIVE.ToString())
                     {
-                        rol.Status = false;
+                        rol.status = Status.INACTIVE.ToString();
                     }
                     else
                     {
-                        rol.Status = true;
+                        rol.status = Status.ACTIVE.ToString();
                     }
 
                 }

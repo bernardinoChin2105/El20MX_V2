@@ -116,7 +116,7 @@ namespace MVC_Project.WebBackend.Controllers
                 //Primero guardar en BD
                 Payment paymentBO = new Payment();
                 paymentBO.CreationDate = DateUtil.GetDateTimeNow();
-                paymentBO.User = new User() { Id = Authenticator.AuthenticatedUser.Id };
+                paymentBO.User = new User() { id = Authenticator.AuthenticatedUser.Id };
                 paymentBO.Amount = model.Amount;
                 paymentBO.OrderId = model.OrderId;
                 paymentBO.ConfirmationEmail = model.ConfirmationEmail;
@@ -177,7 +177,7 @@ namespace MVC_Project.WebBackend.Controllers
             //Primero en BD
             Payment paymentBO = new Payment();
             paymentBO.CreationDate = DateUtil.GetDateTimeNow();
-            paymentBO.User = new User() { Id = Authenticator.AuthenticatedUser.Id };
+            paymentBO.User = new User() { id = Authenticator.AuthenticatedUser.Id };
             paymentBO.Amount = model.Amount;
             paymentBO.OrderId = model.OrderId;
             paymentBO.ConfirmationEmail = model.ConfirmationEmail;
@@ -267,7 +267,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     PaymentViewModel resultData = new PaymentViewModel
                     {
-                        Id = Convert.ToString( payment.Id ),
+                        Id = Convert.ToString( payment.id ),
                         OrderId = payment.OrderId,
                         Amount = payment.Amount,
                         PaymentMethod = payment.Method,
@@ -275,7 +275,7 @@ namespace MVC_Project.WebBackend.Controllers
                         Status = payment.Status,
                         CreationDate = payment.CreationDate.ToString(Constants.DATE_FORMAT_CALENDAR),
                         ConfirmationDate = payment.ConfirmationDate.HasValue?payment.ConfirmationDate.Value.ToString(Constants.DATE_FORMAT_CALENDAR) :"",
-                        User = payment.User.Email
+                        User = payment.User.name
                     };
                     dataResponse.Add(resultData);
                 }
@@ -333,7 +333,7 @@ namespace MVC_Project.WebBackend.Controllers
                         
                         if (paymentBO != null)
                         {
-                            System.Diagnostics.Trace.TraceInformation("\t\t Payment BO ID: " + paymentBO.Id);
+                            System.Diagnostics.Trace.TraceInformation("\t\t Payment BO ID: " + paymentBO.id);
                             paymentBO.Status = paymentEvent.transaction.status;
                             paymentBO.LogData = rawJSON;
                             if (paymentEvent.type == PaymentEventStatus.CHARGE_SUCCEEDED)
@@ -342,14 +342,14 @@ namespace MVC_Project.WebBackend.Controllers
                                 paymentBO.AuthorizationCode = paymentEvent.transaction.authorization;
 
                                 Dictionary<string, string> customParams = new Dictionary<string, string>();
-                                customParams.Add("param1", user.FirstName);
+                                customParams.Add("param1", user.profile.firstName);
                                 customParams.Add("param2", paymentEvent.transaction.order_id);
                                 customParams.Add("param3", paymentBO.AuthorizationCode);
                                 customParams.Add("param4", paymentEvent.transaction.id);
                                 customParams.Add("param5", paymentBO.ConfirmationDate.Value.ToString(Constants.DATE_FORMAT) );
                                 customParams.Add("param6", string.Format("{0:#.00}", paymentBO.Amount));
                                 customParams.Add("param7", paymentBO.Method);
-                                string confirmationEmail = !string.IsNullOrWhiteSpace(paymentBO.ConfirmationEmail) ? paymentBO.ConfirmationEmail : user.Email;
+                                string confirmationEmail = !string.IsNullOrWhiteSpace(paymentBO.ConfirmationEmail) ? paymentBO.ConfirmationEmail : user.name;
                                 NotificationUtil.SendNotification(confirmationEmail, customParams, Constants.NOT_TEMPLATE_CHARGESUCCESS);
                             }
                             _paymentService.Update(paymentBO);
