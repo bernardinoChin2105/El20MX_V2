@@ -1,4 +1,30 @@
-﻿window.fbAsyncInit = function () {
+﻿function statusChangeCallback(response) {
+    console.log('statusChangeCallback', response);
+    if (response.status === 'connected') {
+        testAPI();
+    } else if (response.status === 'not_authorized' || response.status === "unknown") {
+        //no se hace nada
+        console.log(response, "no autorizado");
+    } else {
+        FB.login(function (response) {
+            if (response.status === 'connected') {
+                testAPI();
+                //window.location = "/registro-facebook";
+            } else {
+                // The person is not logged into this app or we are unable to tell.
+            }
+        });
+        console.log("log face");
+    }
+}
+
+function checkLoginState() {               // Called when a person is finished with the Login Button.
+    FB.getLoginStatus(function (response) {   // See the onlogin handler
+        statusChangeCallback(response);
+    });
+}
+
+window.fbAsyncInit = function () {
     FB.init({
         appId: '246375746578693', //LOCAL 
         //appId: '675014006312332', //DEV 
@@ -12,20 +38,62 @@
         //version: 'v7.0.'
     });
 
-    FB.AppEvents.logPageView();
+    //FB.AppEvents.logPageView();
 
-    //FB.getLoginStatus(function (response) {
-    //    console.log("respuesta", response);
-    //    close();
-    //    //statusChangeCallback(response);
-    //});
+    FB.getLoginStatus(function (response) {
+        console.log("respuesta", response);
+        //close();
+        statusChangeCallback(response);
+    });
 };
 
+
+
+function testAPI() {
+    console.log("entro al testApi");
+    FB.api(
+        '/me',
+        'GET',
+        { "fields": "email,first_name,last_name,birthday, hometown" },
+        function (response) {
+            console.log("traje resultados", response);
+            GetInfo(response);        
+        });    
+}
+
+function GetInfo(response) {
+    console.log(response);
+    var profile = response;
+    FB.api(
+        "/" + profile.id + "/",
+        { "fields": "email,first_name,last_name,birthday, hometown" },
+        function (response) {
+            console.log(response, "persona");
+            if (response && !response.error) {
+                /* handle the result */
+            }
+        }
+    );
+    //Asignar información de facebook al registro
+    $("#FistName").val(profile.first_name);
+    $("#LastName").val(profile.last_name);
+    $("#Email").val(profile.email).attr("readonly", true);
+    $("#Password").val(profile.id).attr("disabled", true);
+    $("#ConfirmPassword").val(profile.id).attr("disabled", true);    
+
+    $("#SocialId").val(profile.id);
+    $("#RedSocial").val(true);
+    $("#TypeRedSocial").val("Facebook");
+
+            //$("#Email").trigger("blur");
+}
+
 function close() {
-    //FB.logout(function (response) {
-    //    // user is now logged out
-    //    console.log("cerro", response);
-    //});
+    console.log("entro al cierre")
+    FB.logout(function (response) {
+        // user is now logged out
+        console.log("cerro", response);
+    });
 }
 
 function Loguear() {
@@ -36,9 +104,11 @@ function Loguear() {
                 FB.api(
                     '/me',
                     'GET',
-                    { "fields": "email,first_name,last_name,picture.width(500)" },
+                    //{ "fields": "email,first_name,last_name,picture.width(500)" },
+                    { "fields": "email,first_name,last_name,birthday, hometown" },
                     function (info) {
                         console.log(info, "información que obtuve");
+                        GetInfo(info);
                         //$.ajax({
                         //    url: '@Url.Action("ConvertirJson","Login")',
                         //    data: { user: info.email, pass: info.id, facebook: true, rutaFace: info.picture.data.url },
@@ -84,12 +154,6 @@ function Loguear() {
     }
 
 }
-
-//function checkLoginState() {
-//    FB.getLoginStatus(function (response) {
-//        statusChangeCallback(response);
-//    });
-//}
 
 //(function (d, s, id) {
 //    var js, fjs = d.getElementsByTagName(s)[0];

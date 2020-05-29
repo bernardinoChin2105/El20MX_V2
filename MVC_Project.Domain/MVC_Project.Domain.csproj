@@ -67,6 +67,7 @@
     <Compile Include="Entities\Profile.cs" />
     <Compile Include="Entities\Role.cs" />
     <Compile Include="Entities\RolePermission.cs" />
+    <Compile Include="Entities\SocialNetworkLogin.cs" />
     <Compile Include="Entities\Staff.cs" />
     <Compile Include="Entities\Store.cs" />
     <Compile Include="Entities\User.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="Services\ServiceBase.cs" />
     <Compile Include="Services\IService.cs" />
     <Compile Include="Services\RoleService.cs" />
+    <Compile Include="Services\SocialNetworkLoginServices.cs" />
     <Compile Include="Services\UserService.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -46,4 +46,12 @@ namespace MVC_Project.BackendWeb.Models
         [Required(ErrorMessage = "Campo obligatorio"), MinLength(8, ErrorMessage = "{0} debe ser mínimo de {1} caracteres")]
         public string ConfirmPassword { get; set; }
     }
+
+    public class AuthLogin
+    {
+        public string username { get; set; }
+        public string password { get; set; }
+        public string socialNetwork { get; set; }
+        public string urlImage { get; set; }
+    }
 }

@@ -8,6 +8,7 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id" content="765148629644-ehqbkj60uuotg1tb7ofe66jjf7j8gaut.apps.googleusercontent.com">
 
     <title> @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"] | @ViewLabels.AUTH_LOGIN_TITLE </title>
@@ -99,9 +100,12 @@
                 <button type="submit" class="btn btn-color block full-width m-b">@ViewLabels.AUTH_LOGIN_SUBMIT</button>
                 @*<div class="fb-login-button" data-size="large" data-button-type="continue_with" data-layout="default" data-auto-logout-link="false" data-use-continue-as="false" data-width="" onclick="Loguear()"></div>*@
                 <button type="button" class="btn btn-color block full-width m-b" onclick="Loguear()">Entrar con Facebook</button>
-                <br /><br />
-                @*<div id="my-signin2"></div>*@
-                <div class="g-signin2 btn btn-color block full-width m-b" data-onsuccess="onSignIn" onclick="onSignIn()"></div>
+                @*<br /><br />*@
+                @*<div id="my-signin2"></div> data-onsuccess="onSignIn" onclick="onSignIn()"*@
+                <div id="my-signin2" class="g-signin2"></div>
+
+                <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+                </fb:login-button>
                 <span class="help-block"></span>
 
                 <br />
@@ -121,31 +125,23 @@
         </div>
     </div>
 
+    <a href="#" onclick="signOut();">Sign out google</a>
+    <br />
+    <a href="#" onclick="close();">Sign out facebook</a>
     <!-- Mainly scripts -->
     <script src="~/Scripts/jquery-3.1.1.min.js"></script>
     <script src="~/Scripts/popper.min.js"></script>
     <script src="~/Scripts/bootstrap.js"></script>
     <script src="~/Scripts/plugins/validate/jquery.validate.min.js"></script>
     <!--Configuración de facebook-->
-    @*<div id="fb-root"></div>*@
-    @*<script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_LA/sdk.js#xfbml=1&version=v7.0&appId=246375746578693&autoLogAppEvents=1"></script>*@
     <script src="~/Scripts/Facebook.js"></script>
-    @*<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>*@
     <!--Configuración de facebook-->
-
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <!--Configuración de Google-->
+    <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+    <script src="~/Scripts/Google.js"></script>
+    <!--Configuración de Google-->
+    @*<script src="https://apis.google.com/js/platform.js" async defer></script>*@
     <!--singOut-->
-    <a href="#" onclick="signOut();">Sign out</a>
-    <script>
-        function signOut() {
-            var auth2 = gapi.auth2.getAuthInstance();
-            auth2.signOut().then(function () {
-                console.log('User signed out.');
-            });
-        }
-    </script>
-</body>
-</html>
 
 @if (!string.IsNullOrEmpty(ViewBag.Error))
 {
@@ -215,9 +211,8 @@
                  });
              },
          });
-    }
-</script>
-<script>
+
+  
 
     function resetPassModal() {
         $("#modal-containerRecupera").find('.modal-content').load("@Url.Action("ResetPassword")", function () {
@@ -246,4 +241,8 @@
         }
     }
 
-</script>
+    </script>
+</body>
+</html>
+
+

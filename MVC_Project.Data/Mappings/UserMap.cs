@@ -11,7 +11,7 @@ namespace MVC_Project.Data.Mappings {
             Id(x => x.id).GeneratedBy.Identity().Column("id");
             Map(x => x.uuid).Column("uuid").Not.Nullable();
             Map(x => x.name).Column("name").Not.Nullable();
-            Map(x => x.password).Column("password").Not.Nullable();
+            Map(x => x.password).Column("password").Nullable();
             Map(x => x.passwordExpiration).Column("passwordExpiration").Nullable();
             Map(x => x.token).Column("token").Nullable();
             Map(x => x.tokenExpiration).Column("tokenExpiration").Nullable();

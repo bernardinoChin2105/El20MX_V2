@@ -12,6 +12,7 @@ using System.Configuration;
 using System.Linq;
 using System.Web.Mvc;
 using LogHubSDK.Models;
+using static MVC_Project.Utils.Constants;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -388,6 +389,29 @@ namespace MVC_Project.WebBackend.Controllers
         {
             LanguageMngr.SetLanguage(lang);
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        public JsonResult ValidateLogin(AuthLogin user)
+        {
+            try
+            {
+                if (SocialNetwork.Facebook.ToString() != user.socialNetwork && SocialNetwork.Google.ToString() != user.socialNetwork )
+                {
+                    //no es una redsocial
+                }
+                else
+                {
+                    //es una red social
+                }
+            }
+            catch (Exception ex)
+            {
+                string Error = ex.Message.ToString();
+            }
+            /*salida*/
+
+            return Json(new { data = "respuesta" }, JsonRequestBehavior.AllowGet);
         }
     }
 }

@@ -1317,6 +1317,7 @@
     <Content Include="Scripts\demo\rickshaw-demo.js" />
     <Content Include="Scripts\demo\sparkline-demo.js" />
     <Content Include="Scripts\Facebook.js" />
+    <Content Include="Scripts\Google.js" />
     <Content Include="Scripts\inspinia.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-3.1.1.min.js" />

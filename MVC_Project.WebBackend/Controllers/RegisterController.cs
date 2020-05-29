@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using static MVC_Project.Utils.Constants;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -19,15 +20,18 @@ namespace MVC_Project.WebBackend.Controllers
         private IProfileService _profileService;
         private IAccountService _accountService;
         private IAccountUserService _accountUserService;
+        private ISocialNetworkLoginService _socialNetworkLoginService;
 
         public RegisterController(IUserService userService, IRoleService roleService, IProfileService profileService,
-            IAccountService accountService, IAccountUserService accountUserService)
+            IAccountService accountService, IAccountUserService accountUserService, ISocialNetworkLoginService socialNetworkLoginService)
         {
             _userService = userService;
             _roleService = roleService;
             _profileService = profileService;
             _accountService = accountService;
             _accountUserService = accountUserService;
+            _socialNetworkLoginService = socialNetworkLoginService;
+
         }
 
         [AllowAnonymous]
@@ -41,6 +45,7 @@ namespace MVC_Project.WebBackend.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult CreateAccount(RegisterViewModel model)
         {
+            //Falta agregar el loghub
             if (!String.IsNullOrWhiteSpace(model.ConfirmPassword)
                 && !String.IsNullOrWhiteSpace(model.Password))
             {
@@ -83,18 +88,19 @@ namespace MVC_Project.WebBackend.Controllers
                         uuid = Guid.NewGuid(),
                         name = model.Email,
                         password = SecurityUtil.EncryptPassword(model.Password),
-                        passwordExpiration = passwordExpiration,
+                        passwordExpiration = passwordExpiration, //validar cuando sea red social
                         createdAt = todayDate,
                         modifiedAt = todayDate,
                         status = SystemStatus.ACTIVE.ToString(),
                         //role = role,
                         profile = profile
                     };
-                    
+
                     foreach (var permission in role.permissions)
                     {
                         user.permissions.Add(permission);
                     }
+
                     _userService.Create(user);
 
                     //StringBuilder builder = new StringBuilder();
@@ -122,21 +128,45 @@ namespace MVC_Project.WebBackend.Controllers
                         role = role
                     };
 
-                    _accountUserService.Create(accountUser);
 
-                    return RedirectToAction("Login", "Auth");
+                    _accountUserService.Create(accountUser);
+                    //account.users.Add(user);
+                    //_accountService.Create(account);
+
+                    if (model.RedSocial)
+                    {
+                        SocialNetworkLogin socialNW = new SocialNetworkLogin()
+                        {
+                            uuid = Guid.NewGuid(),
+                            socialNetwork = model.TypeRedSocial,
+                            token = model.Password,
+                            user = user,
+                            createdAt = todayDate,
+                            modifiedAt = todayDate,
+                            status = SystemStatus.ACTIVE.ToString()
+                        };
+
+                        _socialNetworkLoginService.Create(socialNW);
+                        return RedirectToAction("Login", "Auth");                        
+                    }
+                    else
+                    {
+                        //Enviar notificación para activar el correo si no es por red social
+                        return RedirectToAction("Login", "Auth");
+                    }
+
                 }
                 else
                 {
                     ViewBag.Error = "Ya existe el usuario con el Email registrado.";
                     return View("Index", model);
-                }                
+                }
             }
             else
-            {                
+            {
                 return View("Index", model);
-            }           
+            }
         }
-                
+
     }
 }

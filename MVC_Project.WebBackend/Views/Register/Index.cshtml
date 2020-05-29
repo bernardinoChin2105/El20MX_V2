@@ -9,7 +9,10 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <!--Configuracion Google-->
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="765148629644-ehqbkj60uuotg1tb7ofe66jjf7j8gaut.apps.googleusercontent.com">
+    <!--Configuracion Google-->
     <title> @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"] | Registro </title>
 
     @Styles.Render("~/Content/template/css")
@@ -20,16 +23,16 @@
     @Styles.Render("~/plugins/sweetAlertStyles")
     @Scripts.Render("~/plugins/sweetAlert")
 
-    <style>
-        #checkTerm-error {
-            top: 90%;
-            display: inline-table;
-            width: 300px;
-            position: absolute;
-            left: -180%;
-        }
-        
-    </style>
+    @*<style>
+            #checkTerm-error {
+                top: 90%;
+                display: inline-table;
+                width: 300px;
+                position: absolute;
+                left: -180%;
+            }
+        </style>*@
+
 
 </head>
 
@@ -41,8 +44,20 @@
                 @*<img src="~/Images/logos/logo_default.png" width="300" />*@
                 <img src="~/Images/logos/El20mx-logo-estes-donde-e.png" width="300" />
             </div>
+
+            <button type="button" class="btn btn-color block full-width m-b" onclick="Loguear()">
+                <span><i class="fa fa-facebook"></i></span>&nbsp;&nbsp;&nbsp; Registrarte con Facebook
+            </button>
+            <div class="btn-google">
+                <div id="my-signin2" class="g-signin2"></div>
+                <button type="button" class="btn btn-color block full-width m-b">
+                    <span><i class="fa fa-google"></i></span>&nbsp;&nbsp;&nbsp; Resitrarte con Google
+                </button>
+            </div>
+
+            <div><h5 class="line">O</h5></div>
             @*<h3>Register to @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</h3>*@
-            <p>Crea tu cuenta de manera sencilla.</p>
+            <p>Registrarte con tu correo electrónico.</p>
 
             @if (!string.IsNullOrEmpty(ViewBag.Error))
             {
@@ -55,13 +70,9 @@
             {
                 @Html.AntiForgeryToken()
 
-                @*@if (!string.IsNullOrEmpty(ViewBag.Message))
-            {
-                <div class="col-lg-12">
-                    <div class="alert alert-info" role="alert">@ViewBag.Message</div>
-                </div>
-            }*@
-
+                @Html.HiddenFor(m => m.TypeRedSocial, new { Value = "" })
+                @Html.HiddenFor(m => m.RedSocial, new { Value = false})
+                @Html.HiddenFor(m => m.SocialId, new { Value = "" })
                 <div class="form-group">
                     @Html.TextBoxFor(m => m.FistName, new { @class = "form-control", type = "text", @autocomplete = "off", placeholder = "Nombre", @required = "required" })
                 </div>
@@ -85,8 +96,7 @@
                     @*<div class="checkbox i-checks"><label> <input type="checkbox"><i></i> Acepto t&eacute;rminos y condiciones </label></div>*@
                 </div>
                 <button type="button" class="btn btn-color block full-width m-b" onclick="validarDatos();">Registrarse</button>
-
-                <p class="text-muted text-center"><small>¿Ya tienes cuenta?</small><a class="btn btn-sm btn-white btn-block" href="@Url.Action("Login", "Auth")">Iniciar Sesi&oacute;n</a></p>
+                <p class="text-center">¿Ya tienes cuenta?  <a class="" href="@Url.Action("Login", "Auth")">Iniciar Sesi&oacute;n</a></p>
 
             }
         </div>
@@ -97,12 +107,19 @@
     <script src="~/Scripts/jquery-3.1.1.min.js"></script>
     <script src="~/Scripts/popper.min.js"></script>
     <script src="~/Scripts/bootstrap.js"></script>
+    @Scripts.Render("~/plugins/validate")
+    <!--Configuración de facebook-->
+    <!--Configuración de Google-->
+    <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+    <!--Configuración de Google-->
+    <script src="~/Scripts/Facebook.js"></script>
+    <!--Configuración de facebook-->
+    <script src="~/Scripts/Google.js"></script>
     <!-- iCheck -->
     @*<script src="~/Scripts/plugins/iCheck/icheck.min.js"></script>*@
 
-    @Scripts.Render("~/plugins/validate")
 
-    <script>      
+    <script>
         $.validator.addMethod("PasswordTrue",
             function (value, element) {
                 return value.match(/^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/);
@@ -119,7 +136,7 @@
             }, "las contraseñas no coinciden"
         );
         $.validator.addMethod("ConfirmTermTrue",
-            function (value, element) {                
+            function (value, element) {
                 return $("input[type='checkbox']").is(":checked")
             }, ""
         );
@@ -135,7 +152,7 @@
                 Email: {
                     required: true,
                 },
-                Phone: {
+                MobileNumber: {
                     required: true,
                 },
                 Password: {
@@ -165,7 +182,7 @@
                 Email: {
                     required: "Campo obligatorio",
                 },
-                Phone: {
+                MobileNumber: {
                     required: "Campo obligatorio",
                 },
                 Password: {
