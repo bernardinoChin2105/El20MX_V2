@@ -58,6 +58,7 @@ namespace MVC_Project.WebBackend
             container.RegisterType<IOrderService, OrderService>();
             container.RegisterType<IProfileService, ProfileService>();
             container.RegisterType<IAccountService, AccountService>();
+            container.RegisterType<ISocialNetworkLoginService, SocialNetworkLoginService>();
         }
     }
 }

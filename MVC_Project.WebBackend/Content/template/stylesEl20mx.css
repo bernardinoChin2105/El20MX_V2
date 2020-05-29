@@ -24,4 +24,43 @@
         border: #002642;
     }
 
-/*37465A*/
+.abcRioButton.abcRioButtonBlue {
+    width: 100% !important;
+}
+
+#my-signin2 {
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+}
+
+    #my-signin2:hover + .btn.btn-color {
+        background: #002642;
+        color: #FFFFFF;
+        border: #002642;
+    }
+
+.btn-google {
+    position: relative;
+}
+
+.line {
+    display: table;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 2px;
+    color: rgb(117, 117, 117);
+    position: relative;
+    text-align: center;
+    width: 85%;
+    margin: 0px auto 1em;
+}
+
+.line::before, .line::after {
+    content: "";
+    display: table-cell;
+    position: relative;
+    top: 0.8em;
+    width: 42%;
+    border-top: 1px solid rgb(189, 189, 189);
+}

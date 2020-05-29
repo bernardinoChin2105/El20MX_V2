@@ -41,6 +41,7 @@ namespace MVC_Project.WebBackend.Models
         public string ConfirmPassword { get; set; }
 
         public bool RedSocial { get; set; }
-        public int TypeRedSocial { get; set; }
+        public string TypeRedSocial { get; set; }
+        public int SocialId { get; set; }
     }
 }

@@ -56,6 +56,11 @@ namespace MVC_Project.Utils
         // URLs varias
         public static string DEFAULT_AVATAR = "https://bootdey.com/img/Content/avatar/avatar1.png";
 
-       
+        public enum SocialNetwork
+        {
+            Email = 0,
+            Facebook = 1,
+            Google = 2
+        }
     }
 }

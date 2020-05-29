@@ -97,6 +97,7 @@
     <Compile Include="Mappings\ProfileMap.cs" />
     <Compile Include="Mappings\RoleMap.cs" />
     <Compile Include="Mappings\RolePermissionMap.cs" />
+    <Compile Include="Mappings\SocialNetworkLoginMap.cs" />
     <Compile Include="Mappings\StaffMap.cs" />
     <Compile Include="Mappings\StoreMap.cs" />
     <Compile Include="Mappings\UserMap.cs" />
