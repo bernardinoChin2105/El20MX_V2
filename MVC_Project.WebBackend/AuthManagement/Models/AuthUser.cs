@@ -18,6 +18,8 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
 
         public DateTime? PasswordExpiration { get; set; }
 
+        public Account Account { get; set; }
+
         public bool HasAccessToModule(string module)
         {
             if (this.Permissions != null && this.Permissions.Count > 0)
@@ -60,6 +62,13 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
         public string Controller { get; set; }
         public string Action { get; set; }
         public string Module { get; set; }
+    }
+
+    public class Account
+    {
+        public Guid Uuid { get; set; }
+        public string Name { get; set; }
+        public string RFC { get; set; }
     }
     
 }

@@ -18,14 +18,16 @@ namespace MVC_Project.WebBackend.Controllers
         private IRoleService _roleService;
         private IProfileService _profileService;
         private IAccountService _accountService;
+        private IAccountUserService _accountUserService;
 
         public RegisterController(IUserService userService, IRoleService roleService, IProfileService profileService,
-            IAccountService accountService)
+            IAccountService accountService, IAccountUserService accountUserService)
         {
             _userService = userService;
             _roleService = roleService;
             _profileService = profileService;
             _accountService = accountService;
+            _accountUserService = accountUserService;
         }
 
         [AllowAnonymous]
@@ -60,20 +62,18 @@ namespace MVC_Project.WebBackend.Controllers
                     DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
 
                     var availableRoles = _roleService.GetAll();
-                    var role = availableRoles.Where(x => x.code == "EMPLOYEE").FirstOrDefault();
-                    
-                    
+                    var role = availableRoles.Where(x => x.code == SystemRoles.ACCOUNT_OWNER.ToString()).FirstOrDefault();
 
-                   
                     var profile = new Profile
                     {
                         uuid = Guid.NewGuid(),
                         firstName = model.FistName,
                         lastName = model.LastName,
                         email = model.Email,
+                        phoneNumber = model.MobileNumber,
                         createdAt = todayDate,
                         modifiedAt = todayDate,
-                        status = Status.ACTIVE.ToString(),
+                        status = SystemStatus.ACTIVE.ToString(),
                     };
 
                     _profileService.Create(profile);
@@ -86,12 +86,10 @@ namespace MVC_Project.WebBackend.Controllers
                         passwordExpiration = passwordExpiration,
                         createdAt = todayDate,
                         modifiedAt = todayDate,
-                        status = Status.ACTIVE.ToString(),
-                        role = role,
+                        status = SystemStatus.ACTIVE.ToString(),
+                        //role = role,
                         profile = profile
                     };
-
-                    
                     
                     foreach (var permission in role.permissions)
                     {
@@ -99,24 +97,32 @@ namespace MVC_Project.WebBackend.Controllers
                     }
                     _userService.Create(user);
 
-                    StringBuilder builder = new StringBuilder();
-                    builder.Append(model.FistName);
-                    builder.Append(" ");
-                    builder.Append(model.LastName);
+                    //StringBuilder builder = new StringBuilder();
+                    //builder.Append(model.FistName);
+                    //builder.Append(" ");
+                    //builder.Append(model.LastName);
 
-                    var account = new Account
+                    //var account = new Account
+                    //{
+                    //    uuid = Guid.NewGuid(),
+                    //    name = builder.ToString(),
+                    //    createdAt = todayDate,
+                    //    modifiedAt = todayDate,
+                    //    status = Status.ACTIVE.ToString(),
+                    //    //rfc = "CAYW880502FK4"
+                    //};
+
+                    ////account.users.Add(user);
+                    //_accountService.Create(account);
+
+                    var accountUser = new AccountUser
                     {
-                        uuid = Guid.NewGuid(),
-                        name = builder.ToString(),
-                        createdAt = todayDate,
-                        modifiedAt = todayDate,
-                        status = Status.ACTIVE.ToString(),
-                        //rfc = "CAYW880502FK4"
+                        //account = account,
+                        user = user,
+                        role = role
                     };
 
-                    account.users.Add(user);
-                    _accountService.Create(account);
-
+                    _accountUserService.Create(accountUser);
 
                     return RedirectToAction("Login", "Auth");
                 }

@@ -12,7 +12,10 @@
                     <img alt="image" class="img-thumbnail" src="~/Images/logos/logo-blanco.png" />
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                         <span class="block m-t-xs font-bold">@user.FirstName</span>
+                        @if (user.Role != null)
+                        {
                         <span class="text-muted text-xs block">@user.Role.Name<b class="caret"></b></span>
+                        }
                     </a>
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
                         <li><a class="dropdown-item" href="@Url.Action("Logout", "Auth")">@ViewLabels.AUTH_LOGOUT</a></li>

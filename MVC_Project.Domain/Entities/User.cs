@@ -19,14 +19,16 @@ namespace MVC_Project.Domain.Entities
         public virtual string status { get; set; }
 
         public virtual Profile profile { get; set; }
-        public virtual Role role { get; set; }
+        //public virtual Role role { get; set; }
         public virtual IList<Permission> permissions { get; set; }
         //public virtual IList<Account> accounts { get; set; }
+        public virtual IList<AccountUser> accountUsers { get; set; }
 
         public User()
         {            
             permissions = new List<Permission>();
             //accounts = new List<Account>();
+            accountUsers = new List<AccountUser>();
         }
     }
 }

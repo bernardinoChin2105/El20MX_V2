@@ -42,7 +42,7 @@ namespace MVC_Project.Desktop.Users
                 txtEmail.Text = userBO.name;
                 txtFirstname.Text = userBO.profile.firstName;
                 txtLastname.Text = userBO.profile.lastName;
-                chkStatus.Checked = userBO.status.Equals(Status.ACTIVE.ToString());
+                chkStatus.Checked = userBO.status.Equals(SystemStatus.ACTIVE.ToString());
             }
         }
         
@@ -58,7 +58,7 @@ namespace MVC_Project.Desktop.Users
                 userBO.name = txtFirstname.Text;
                 //userBO.lastName = txtLastname.Text;
                 userBO.modifiedAt = todayDate;
-                userBO.status = chkStatus.Checked ? Status.ACTIVE.ToString() : Status.INACTIVE.ToString();
+                userBO.status = chkStatus.Checked ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString();
                 _userService.Update(userBO);
             }
             else
@@ -77,7 +77,7 @@ namespace MVC_Project.Desktop.Users
                     //language = "ES",
                     createdAt = todayDate,
                     modifiedAt = todayDate,
-                    status = chkStatus.Checked ? Status.ACTIVE.ToString() : Status.INACTIVE.ToString()
+                    status = chkStatus.Checked ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()
             };
                 /*foreach (var permission in role.Permissions)
                 {

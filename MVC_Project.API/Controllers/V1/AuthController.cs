@@ -37,7 +37,7 @@ namespace MVC_Project.API.Controllers.V1
             {
                 List<MessageResponse> messages = new List<MessageResponse>();
                 var authUser = _authService.Authenticate(request.Username, SecurityUtil.EncryptPassword(request.Password));
-                if(authUser == null || authUser.status != Status.ACTIVE.ToString())
+                if(authUser == null || authUser.status != SystemStatus.ACTIVE.ToString())
                 {
                     messages.Add(new MessageResponse { Type = MessageType.error.ToString("G"), Description = "El usuario no existe o contraseña inválida." });
                     return CreateErrorResponse(null, messages);
@@ -94,7 +94,7 @@ namespace MVC_Project.API.Controllers.V1
                 //user.permissions = _roleService.GetById(user.Role.id).Permissions.ToList();
                 user.createdAt = DateTime.Now;
                 user.modifiedAt = DateTime.Now;
-                user.status = Status.ACTIVE.ToString();
+                user.status = SystemStatus.ACTIVE.ToString();
                 _userService.Create(user);
                 messages.Add(new MessageResponse { Type = MessageType.info.ToString("G"), Description = "Usuario creado correctamente." });
                 return CreateResponse(messages);

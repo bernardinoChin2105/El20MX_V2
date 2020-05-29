@@ -42,7 +42,7 @@ namespace MVC_Project.Domain.Services
             }
             if (FilterStatus != Constants.SEARCH_ALL)
             {
-                string FilterStatusBool = Status.ACTIVE.ToString();
+                string FilterStatusBool = SystemStatus.ACTIVE.ToString();
                 query = query.Where(user => user.status == FilterStatusBool);
             }
             var count = query.RowCount();

@@ -19,7 +19,6 @@
 
     @Styles.Render("~/plugins/sweetAlertStyles")
     @Scripts.Render("~/plugins/sweetAlert")
-
     <style>
         .abcRioButtonBlue {
             display: inline-block;
@@ -29,7 +28,32 @@
 </head>
 
 <body class="gray-bg">
-
+    <div style="position: absolute; top: 20px; right: 20px;">
+        <div class="toast toast-warning" id="warning-toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
+            <div class="toast-header">
+                <i class="fa fa-exclamation-circle"> </i>
+                <strong class="mr-auto m-l-sm">Ups</strong>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="toast-body">
+                @ViewBag.Error
+            </div>
+        </div>
+        <div class="toast toast-info" id="info-toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
+            <div class="toast-header">
+                <i class="fa fa-info-circle"> </i>
+                <strong class="mr-auto m-l-sm">Info</strong>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="toast-body">
+                @ViewBag.Message
+            </div>
+        </div>
+    </div>
     @*<div style="padding:5px">
             @Html.ActionLink("Español", "ChangeLanguage", "Auth", new { lang = "es-MX" }, null) | @Html.ActionLink("Inglés", "ChangeLanguage", "Auth", new { lang = "en" }, null)
         </div>*@
@@ -42,19 +66,19 @@
             </div>
             @*<h3>@System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</h3>*@
 
-            @if (!string.IsNullOrEmpty(ViewBag.Error))
-            {
-                <div class="col-lg-12">
-                    <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
-                </div>
-            }
+            @*@if (!string.IsNullOrEmpty(ViewBag.Error))
+                {
+                    <div class="col-lg-12">
+                        <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
+                    </div>
+                }
 
-            @if (!string.IsNullOrEmpty(ViewBag.Message))
-            {
-                <div class="col-lg-12">
-                    <div class="alert alert-info" role="alert">@ViewBag.Message</div>
-                </div>
-            }
+                @if (!string.IsNullOrEmpty(ViewBag.Message))
+                {
+                    <div class="col-lg-12">
+                        <div class="alert alert-info" role="alert">@ViewBag.Message</div>
+                    </div>
+                }*@
 
             <p>@ViewLabels.AUTH_LOGIN_TITLE</p>
             @using (Html.BeginForm("Login", "Auth", FormMethod.Post, new { @class = "m-t", role = "form" }))
@@ -123,14 +147,17 @@
 </body>
 </html>
 
-@if (ViewBag.Message != null)
+@if (!string.IsNullOrEmpty(ViewBag.Error))
 {
     <script type="text/javascript">
-            swal({
-                title: "Operacion exitosa!",
-                text: '@(ViewBag.Message)',
-                html: true
-            });
+        $('#warning-toast').toast('show');
+    </script>
+}
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <script type="text/javascript">
+        $('#info-toast').toast('show');
     </script>
 }
 
@@ -184,7 +211,7 @@
                  $(document).ready(function () {
                      //Mensaje de error
                      //$("body").addClass("no_scroll");
-                     //$('#ModalError').show();                     
+                     //$('#ModalError').show();
                  });
              },
          });

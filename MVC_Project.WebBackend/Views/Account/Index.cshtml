@@ -1,0 +1,20 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<div class="row">
+    <div id="selectAccountModal" class="modal fade hidden-print" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="dialog">
+            <div class="modal-content" style="background-color:darkgray"></div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#selectAccountModal").find('.modal-content').load("@Url.Action("SelectAccount")", function () {
+                $("#selectAccountModal").modal({backdrop: 'static', keyboard: false });
+            });
+        });
+    </script>
+}

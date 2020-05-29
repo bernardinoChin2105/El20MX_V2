@@ -16,11 +16,12 @@ namespace MVC_Project.Domain.Entities
         public virtual DateTime modifiedAt { get; set; }
         public virtual string status { get; set; }
 
-        public virtual IList<User> users { get; set; }
-
+        //public virtual IList<User> users { get; set; }
+        public virtual IList<AccountUser> accountUsers { get; set; }
         public Account()
         {
-            users = new List<User>();
+            //users = new List<User>();
+            accountUsers = new List<AccountUser>();
         }
     }
 }

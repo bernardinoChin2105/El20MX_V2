@@ -1,0 +1,36 @@
+﻿@model MVC_Project.WebBackend.Models.AccountSelectViewModel
+@{
+    Layout = null;
+    string mensaje = ViewBag.mensajeError;
+}
+<div class="modal-header">
+    <h4 class="modal-title" style="color:white">Seleccione una cuenta</h4>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<div class="modal-body">
+    <div class="row">
+
+            @foreach (var m in Model.accountListViewModels)
+            {
+                <div class="col-md-4" style="padding-bottom: 15px; padding-top: 15px;">
+                    <div class="ibox-content text-center">
+                        <h4>@m.rfc</h4>
+                        <div class="m-b-sm">
+                            <a class="btn btn-color btn-circle btn-lg" href='@Url.Action("SetAccount", new { uuid = m.uuid })'>
+                                <i class="fa fa-check"></i>
+                            </a>
+                        </div>
+                        <h5>@m.name</h5>
+                        <h9>@m.role</h9>
+                    </div>
+                </div>
+            }
+
+    </div>
+</div>
+@*<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" id="btn-CloseModal" data-dismiss="modal"><i class="fa fa-close"></i> Cerrar</button>
+</div>*@

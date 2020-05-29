@@ -21,11 +21,13 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
             Map(x => x.status).Column("status").Nullable();
 
-            HasManyToMany(x => x.users)
-               .Cascade.SaveUpdate()
-               .Table("accountsUsers")
-               .ParentKeyColumn("accountId")
-               .ChildKeyColumn("userId");
+            HasMany(x => x.accountUsers).Inverse().Cascade.All().KeyColumn("accountId");
+
+            //HasManyToMany(x => x.users)
+            //   .Cascade.SaveUpdate()
+            //   .Table("accountsUsers")
+            //   .ParentKeyColumn("accountId");
+            //.ChildKeyColumn("userId");
         }
     }
 }

@@ -43,7 +43,7 @@ namespace MVC_Project.WebBackend.Controllers
                     userData.Description = rol.description;
                     userData.CreatedAt = rol.createdAt;
                     userData.UpdatedAt = rol.modifiedAt;
-                    userData.Status = rol.status==Status.ACTIVE.ToString();
+                    userData.Status = rol.status==SystemStatus.ACTIVE.ToString();
                     userData.Uuid = rol.uuid.ToString();
                     UsuariosResponse.Add(userData);
                 }
@@ -111,7 +111,7 @@ namespace MVC_Project.WebBackend.Controllers
                     description = roleCreateViewModel.Name,
                     createdAt = todayDate,
                     modifiedAt = todayDate,
-                    status = Status.ACTIVE.ToString()
+                    status = SystemStatus.ACTIVE.ToString()
                 };
                 _roleService.Create(role);
 
@@ -205,13 +205,13 @@ namespace MVC_Project.WebBackend.Controllers
                 var rol = _roleService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
                 if (rol != null)
                 {
-                    if (rol.status == Status.ACTIVE.ToString())
+                    if (rol.status == SystemStatus.ACTIVE.ToString())
                     {
-                        rol.status = Status.INACTIVE.ToString();
+                        rol.status = SystemStatus.INACTIVE.ToString();
                     }
                     else
                     {
-                        rol.status = Status.ACTIVE.ToString();
+                        rol.status = SystemStatus.ACTIVE.ToString();
                     }
 
                 }

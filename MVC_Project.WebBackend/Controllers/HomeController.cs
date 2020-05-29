@@ -1,4 +1,6 @@
-﻿using MVC_Project.WebBackend.AuthManagement;
+﻿using MVC_Project.Domain.Services;
+using MVC_Project.WebBackend.AuthManagement;
+using MVC_Project.WebBackend.AuthManagement.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

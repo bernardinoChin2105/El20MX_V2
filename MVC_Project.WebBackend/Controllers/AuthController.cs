@@ -20,12 +20,14 @@ namespace MVC_Project.WebBackend.Controllers
         private IAuthService _authService;
         private IUserService _userService;
         private IPermissionService _permissionService;
-      
-        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService)
+        private IAccountUserService _accountUserService;
+
+        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService, IAccountUserService accountUserService)
         {
             _authService = authService;
             _userService = userService;
             _permissionService = permissionService;
+            _accountUserService = accountUserService;
          }
 
         [AllowAnonymous]
@@ -45,7 +47,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var user = _authService.Authenticate(model.Email, SecurityUtil.EncryptPassword(model.Password));
                 if (user != null)
                 {
-                    if (user.status != Status.ACTIVE.ToString())
+                    if (user.status != SystemStatus.ACTIVE.ToString())
                     {
                         ViewBag.Error = Resources.ErrorMessages.UserInactive;
                         return View(model);
@@ -53,24 +55,22 @@ namespace MVC_Project.WebBackend.Controllers
                     user.lastLoginAt = DateTime.Now;
                     _userService.Update(user);
 
-                    //Permissions by role
-                    List<Permission> permissionsUser = user.role.permissions.Select(p => new Permission
+                    //var accountUser = user.accountUsers.First();
+
+                    ////Permissions by role
+                    //List<Permission> permissionsUser = accountUser.role.permissions.Select(p => new Permission
+                    //{
+                    //    Action = p.action,
+                    //    Controller = p.controller,
+                    //    Module = p.module
+                    //}).ToList();
+
+                    List<Permission> permissionsUser = _permissionService.GetAll().Select(p => new Permission
                     {
                         Action = p.action,
                         Controller = p.controller,
                         Module = p.module
                     }).ToList();
-
-                    //IF SUPPORT, SET ALL PERMISSIONS
-                    if (user.role.code == Constants.ROLE_IT_SUPPORT)
-                    {
-                        permissionsUser = _permissionService.GetAll().Select(p => new Permission
-                        {
-                            Action = p.action,
-                            Controller = p.controller,
-                            Module = p.module
-                        }).ToList();
-                    }
 
                     AuthUser authUser = new AuthUser
                     {
@@ -81,11 +81,6 @@ namespace MVC_Project.WebBackend.Controllers
                         Language = user.profile.language,
                         Uuid = user.uuid,
                         PasswordExpiration = user.passwordExpiration,
-                        Role = new Role
-                        {
-                            Code = user.role.code,
-                            Name = user.role.name
-                        },
                         Permissions = permissionsUser
                     };
                     
@@ -131,11 +126,11 @@ namespace MVC_Project.WebBackend.Controllers
                             }
                         }
                     }
-                    if (!string.IsNullOrEmpty(Request.Form["ReturnUrl"]))
-                    {
-                        return Redirect(Request.Form["ReturnUrl"]);
-                    }
-                    return RedirectToAction("Index", "Home");
+                    //if (!string.IsNullOrEmpty(Request.Form["ReturnUrl"]))
+                    //{
+                    //    return Redirect(Request.Form["ReturnUrl"]);
+                    //}
+                    return RedirectToAction("Index", "Account");
                 }
                 else
                 {
@@ -289,6 +284,10 @@ namespace MVC_Project.WebBackend.Controllers
                     DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
                     user.passwordExpiration = passwordExpiration;
                     _userService.Update(user);
+
+                    var accountUser = user.accountUsers.First();
+                    //var accountUser = _accountUserService.FindBy(x => x.user.id == user.id && x.account.id == account.id).First();
+
                     AuthUser authUser = new AuthUser
                     {
                         FirstName = user.profile.firstName,
@@ -298,8 +297,8 @@ namespace MVC_Project.WebBackend.Controllers
                         PasswordExpiration = user.passwordExpiration,
                         Role = new Role
                         {
-                            Code = user.role.code,
-                            Name = user.role.name
+                            Code = accountUser.role.code,
+                            Name = accountUser.role.name
                         },
                         Permissions = user.permissions.Select(p => new Permission
                         {
@@ -338,6 +337,9 @@ namespace MVC_Project.WebBackend.Controllers
                     DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
                     resultado.passwordExpiration = passwordExpiration;
                     _userService.Update(resultado);
+
+                    var accountUser = resultado.accountUsers.First();
+
                     AuthUser authUser = new AuthUser
                     {
                         FirstName = resultado.profile.firstName,
@@ -347,8 +349,8 @@ namespace MVC_Project.WebBackend.Controllers
                         Email = resultado.name,
                         Role = new Role
                         {
-                            Code = resultado.role.code,
-                            Name = resultado.role.name
+                            Code = accountUser.role.code,
+                            Name = accountUser.role.name
                         },
                         Permissions = resultado.permissions.Select(p => new Permission
                         {

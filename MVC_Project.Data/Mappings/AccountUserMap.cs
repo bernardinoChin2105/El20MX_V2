@@ -14,8 +14,7 @@ namespace MVC_Project.Data.Mappings
         {
             Table("accountsUsers");
             Id(x => x.id).GeneratedBy.Identity().Column("id");
-            //Map(x => x.uuid).Column("uuid").Not.Nullable();
-            References(x => x.account).Column("accountId");
+            References(x => x.account).Column("accountId").Nullable();
             References(x => x.user).Column("userId");
             References(x => x.role).Column("roleId");
         }

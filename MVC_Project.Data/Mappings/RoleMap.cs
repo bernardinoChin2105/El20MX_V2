@@ -16,7 +16,8 @@ namespace MVC_Project.Data.Mappings {
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
             Map(x => x.status).Column("status").Nullable();
-            HasMany(x => x.users).Inverse().Cascade.All().KeyColumn("roleId");
+            //HasMany(x => x.users).Inverse().Cascade.All().KeyColumn("roleId");
+            HasMany(x => x.accountUsers).Inverse().Cascade.All().KeyColumn("roleId");
             HasManyToMany(x => x.permissions).Cascade.All().Table("rolesPermissions").ParentKeyColumn("roleId").ChildKeyColumn("permissionId");
         }
     }

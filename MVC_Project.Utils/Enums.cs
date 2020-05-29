@@ -8,12 +8,18 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Utils
 {
-    public enum Status
+    public enum SystemStatus
     {
         [Display(Name = "ACTIVE")]
         ACTIVE,
         [Display(Name = "INACTIVE")]
         INACTIVE
+    }
+
+    public enum SystemRoles
+    {
+        [Display(Name = "Owner")]
+        ACCOUNT_OWNER
     }
 
     public enum DocumentType

@@ -68,14 +68,14 @@ namespace MVC_Project.WebBackend.AuthManagement
                 }
                 string controller = httpContext.Request.RequestContext.RouteData.Values["controller"].ToString();
                 string action = httpContext.Request.RequestContext.RouteData.Values["action"].ToString();
-                if (authenticatedUser.Role.Code.Equals(ConfigurationManager.AppSettings.Get("AdminKey")))
-                {
-                    return true;
-                }
-                if (authenticatedUser.Role.Code.Equals(Constants.ROLE_IT_SUPPORT))
-                {
-                    return true;
-                }
+                //if (authenticatedUser.Role.Code.Equals(ConfigurationManager.AppSettings.Get("AdminKey")))
+                //{
+                //    return true;
+                //}
+                //if (authenticatedUser.Role.Code.Equals(Constants.ROLE_IT_SUPPORT))
+                //{
+                //    return true;
+                //}
                 if (authenticatedUser.Permissions.Any(permission => permission.Controller.Equals(controller) && permission.Action.Equals(action)))
                 {
                     return true;

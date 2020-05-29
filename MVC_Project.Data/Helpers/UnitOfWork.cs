@@ -37,7 +37,7 @@ namespace MVC_Project.Data.Helpers
         public static void UpdateSchemaFromMappings()
         {
             var config = BaseConfiguration();
-            new SchemaUpdate(config.BuildConfiguration()).Execute(false, true);
+            new SchemaUpdate(config.BuildConfiguration()).Execute(true, true);
         }
 
         public UnitOfWork()

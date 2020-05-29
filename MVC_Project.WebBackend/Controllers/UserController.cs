@@ -20,11 +20,13 @@ namespace MVC_Project.WebBackend.Controllers
     {
         private IUserService _userService;
         private IRoleService _roleService;
+        private IAccountUserService _accountUserService;
 
-        public UserController(IUserService userService, IRoleService roleService)
+        public UserController(IUserService userService, IRoleService roleService, IAccountUserService accountUserService)
         {
             _userService = userService;
             _roleService = roleService;
+            _accountUserService = accountUserService;
         }
 
         [Authorize]
@@ -95,13 +97,16 @@ namespace MVC_Project.WebBackend.Controllers
                 IList<UserData> dataResponse = new List<UserData>();
                 foreach (var user in results.Item1)
                 {
+                    var accountUser = user.accountUsers.First();
+                    //var accountUser = _accountUserService.FindBy(x => x.user.id == user.id && x.account.id == account.id).First();
+
                     UserData userData = new UserData();
                     userData.Name = user.profile.firstName + " " + user.profile.lastName;
                     userData.Email = user.name;
-                    userData.RoleName = user.role.name;
+                    userData.RoleName = accountUser.role.name;
                     userData.CreatedAt = user.createdAt;
                     userData.UpdatedAt = user.modifiedAt;
-                    userData.Status = user.status==Status.ACTIVE.ToString();
+                    userData.Status = user.status==SystemStatus.ACTIVE.ToString();
                     userData.Uuid = user.uuid.ToString();
                     userData.LastLoginAt = user.lastLoginAt;
                     dataResponse.Add(userData);
@@ -172,14 +177,14 @@ namespace MVC_Project.WebBackend.Controllers
                     //phoneNumber = userCreateViewModel.MobileNumber,
                     password = SecurityUtil.EncryptPassword(userCreateViewModel.Password),
                     passwordExpiration = passwordExpiration,
-                    role = new Role { id = userCreateViewModel.Role },
+                    //role = new Role { id = userCreateViewModel.Role },
                     //userName = userCreateViewModel.Username,
                     //language = userCreateViewModel.Language,
                     createdAt = todayDate,
                     modifiedAt = todayDate,
-                    status = Status.ACTIVE.ToString()
+                    status = SystemStatus.ACTIVE.ToString()
                 };
-                var role = _roleService.GetById(user.role.id);
+                var role = _roleService.GetById(userCreateViewModel.Role);
                 foreach (var permission in role.permissions)
                 {
                     user.permissions.Add(permission);
@@ -211,6 +216,10 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult Edit(string uuid)
         {
             User user = _userService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
+
+            var accountUser = user.accountUsers.First();
+            //var accountUser = _accountUserService.FindBy(x => x.user.id == user.id && x.account.id == account.id).First();
+
             UserEditViewModel model = new UserEditViewModel();
             model.Uuid = user.uuid.ToString();
             model.Name = user.profile.firstName;
@@ -218,7 +227,7 @@ namespace MVC_Project.WebBackend.Controllers
             model.Email = user.name;
             model.MobileNumber = user.profile.phoneNumber;
             model.Roles = PopulateRoles();
-            model.Role = user.role.id;
+            model.Role = accountUser.role.id;
             return View(model);
         }
 

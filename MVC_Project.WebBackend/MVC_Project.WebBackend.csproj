@@ -183,6 +183,7 @@
     <Compile Include="AuthManagement\Authenticator.cs" />
     <Compile Include="AuthManagement\AuthorizeUsersAttribute.cs" />
     <Compile Include="AuthManagement\Models\AuthUser.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AuthController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\CalendarController.cs" />
@@ -201,6 +202,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\HTMLHelperExtensions.cs" />
+    <Compile Include="Models\AccountViewModel.cs" />
     <Compile Include="Models\AuthViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
     <Compile Include="Models\DataTableModel.cs" />
@@ -1768,6 +1770,8 @@
     <None Include="Properties\PublishProfiles\el20mx-plataformav2-test - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\el20mx-plataformav2-test - ReadOnly - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\el20mx-plataformav2-test - Web Deploy.pubxml" />
+    <Content Include="Views\Account\Index.cshtml" />
+    <Content Include="Views\Account\_SelectAccountModal.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
@@ -1802,6 +1806,7 @@
       <Name>MVC_Project.Utils</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
