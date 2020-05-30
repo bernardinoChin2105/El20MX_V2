@@ -19,7 +19,9 @@ namespace MVC_Project.Utils
     public enum SystemRoles
     {
         [Display(Name = "Owner")]
-        ACCOUNT_OWNER
+        ACCOUNT_OWNER,
+        [Display(Name = "Guest")]
+        GUEST
     }
 
     public enum DocumentType

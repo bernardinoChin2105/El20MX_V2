@@ -74,13 +74,18 @@ namespace MVC_Project.WebBackend.Controllers
                     authUser.Permissions = permissionsUser;
 
                     Authenticator.RefreshAuthenticatedUser(authUser);
-                    Authenticator.StoreCookieUser(authUser);
 
                     return RedirectToAction("Index", "Home");
                 }
             }
 
             return RedirectToAction("Login", "Auth");
+        }
+
+        [AllowAnonymous]
+        public ActionResult CreateAccountModal()
+        {
+            return PartialView("_CreateAccountModal");
         }
     }
 }

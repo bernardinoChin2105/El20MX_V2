@@ -5,16 +5,36 @@
 <div class="row">
     <div id="selectAccountModal" class="modal fade hidden-print" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="dialog">
-            <div class="modal-content" style="background-color:darkgray"></div>
+            <div class="modal-content"></div>
         </div>
     </div>
 </div>
+
+<div class="row">
+    <div id="createAccountModal" class="modal fade hidden-print" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="dialog">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script type="text/javascript">
+        
         $(document).ready(function () {
             $("#selectAccountModal").find('.modal-content').load("@Url.Action("SelectAccount")", function () {
                 $("#selectAccountModal").modal({backdrop: 'static', keyboard: false });
             });
         });
+
+        function createAccountModal() {
+            $("#selectAccountModal").modal('hide');
+            $("#createAccountModal").find('.modal-content').load("@Url.Action("CreateAccountModal")", function () {
+                $("#createAccountModal").modal({ backdrop: 'static', keyboard: false });
+            });
+            $("#createAccountModal").on('shown.bs.modal', function () {
+                $("#wizard").steps();
+            });
+        }
     </script>
 }

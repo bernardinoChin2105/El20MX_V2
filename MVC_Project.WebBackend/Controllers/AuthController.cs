@@ -22,13 +22,15 @@ namespace MVC_Project.WebBackend.Controllers
         private IUserService _userService;
         private IPermissionService _permissionService;
         private IAccountUserService _accountUserService;
+        private IRoleService _roleService;
 
-        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService, IAccountUserService accountUserService)
+        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService, IAccountUserService accountUserService, IRoleService roleService)
         {
             _authService = authService;
             _userService = userService;
             _permissionService = permissionService;
             _accountUserService = accountUserService;
+            _roleService = roleService;
          }
 
         [AllowAnonymous]
@@ -56,23 +58,6 @@ namespace MVC_Project.WebBackend.Controllers
                     user.lastLoginAt = DateTime.Now;
                     _userService.Update(user);
 
-                    //var accountUser = user.accountUsers.First();
-
-                    ////Permissions by role
-                    //List<Permission> permissionsUser = accountUser.role.permissions.Select(p => new Permission
-                    //{
-                    //    Action = p.action,
-                    //    Controller = p.controller,
-                    //    Module = p.module
-                    //}).ToList();
-
-                    List<Permission> permissionsUser = _permissionService.GetAll().Select(p => new Permission
-                    {
-                        Action = p.action,
-                        Controller = p.controller,
-                        Module = p.module
-                    }).ToList();
-
                     AuthUser authUser = new AuthUser
                     {
                         Id = user.id,
@@ -81,12 +66,10 @@ namespace MVC_Project.WebBackend.Controllers
                         Email = user.name,
                         Language = user.profile.language,
                         Uuid = user.uuid,
+                        Avatar = user.profile.avatar,
                         PasswordExpiration = user.passwordExpiration,
-                        Permissions = permissionsUser
+                        //Permissions = permissionsUser
                     };
-                    
-                    //Set user in sesion
-                    Authenticator.StoreAuthenticatedUser(authUser);
 
                     LogUtil.AddEntry(
                        "Ingresa al Sistema",
@@ -118,20 +101,66 @@ namespace MVC_Project.WebBackend.Controllers
                         int daysBeforeExpireToNotify = 0;
                         if (Int32.TryParse(daysBeforeExpireToNotifyConfig, out daysBeforeExpireToNotify))
                         {
-
                             int daysLeft = ((TimeSpan)(passwordExpiration.Date - todayDate.Date)).Days + 1;
                             if (daysLeft <= daysBeforeExpireToNotify)
                             {
+                                 
                                 string message = String.Format(ViewLabels.PASSWORD_EXPIRATION_MESSAGE, daysLeft);
+                                ViewBag.Message = message;
                                 MensajeFlashHandler.RegistrarMensaje(message, TiposMensaje.Info);
                             }
                         }
+                    }
+
+                    if (user.accountUsers.Count <= 0)//Rol invitado
+                    {
+                        var guestRole = _roleService.FindBy(x => x.code == SystemRoles.GUEST.ToString()).FirstOrDefault();
+                        List<Permission> permissionsUserGest = guestRole.permissions.Select(p => new Permission
+                        {
+                            Action = p.action,
+                            Controller = p.controller,
+                            Module = p.module
+                        }).ToList();
+
+                        authUser.Role = new Role { Code = guestRole.code, Name = guestRole.name };
+                        authUser.Permissions = permissionsUserGest;
+                        Authenticator.StoreAuthenticatedUser(authUser);
+                        return RedirectToAction("Index", "Account");
+                    }
+                    else if (user.accountUsers.Count == 1)
+                    {
+                        var uniqueRole = _roleService.FindBy(x => x.code == SystemRoles.GUEST.ToString()).FirstOrDefault();
+                        List<Permission> permissionsUserUnique = user.accountUsers.First().role.permissions.Select(p => new Permission
+                        {
+                            Action = p.action,
+                            Controller = p.controller,
+                            Module = p.module
+                        }).ToList();
+
+                        authUser.Role = new Role { Code = uniqueRole.code, Name = uniqueRole.name };
+                        authUser.Permissions = permissionsUserUnique;
+                        Authenticator.StoreAuthenticatedUser(authUser);
+                        return RedirectToAction("Index", "Account");
+                    }
+                    else
+                    {
+                        List<Permission> permissionsUser = new List<Permission>();
+                        permissionsUser.Add(new Permission
+                        {
+                            Action = "Index",
+                            Controller = "Account",
+                            Module = "Account"
+                        });
+                        authUser.Permissions = permissionsUser;
+                        Authenticator.StoreAuthenticatedUser(authUser);
+                        return RedirectToAction("Index", "Account");
+                        //Manda a seleccionar cuenta
                     }
                     //if (!string.IsNullOrEmpty(Request.Form["ReturnUrl"]))
                     //{
                     //    return Redirect(Request.Form["ReturnUrl"]);
                     //}
-                    return RedirectToAction("Index", "Account");
+                   
                 }
                 else
                 {
