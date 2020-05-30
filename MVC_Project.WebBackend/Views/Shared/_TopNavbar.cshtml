@@ -15,13 +15,19 @@
 
                     @*<img src="~/Images/logos/logo_icon.png" width="100" />*@
                     @*<i class="fa fa-user"></i>*@
-                    <span class="m-r-sm text-muted welcome-message"> <strong> Bienvenido @user.Account.RFC </strong></span>
+                    <span class="m-r-sm text-muted welcome-message"> 
+                        <i class="fa fa-user-circle"></i>
+                        <strong>@user.Account.RFC </strong>
+                    </span>
 
                 }
             </li>
             <li>
                 <a href="@Url.Action("Logout", "Auth")">
-                    <i class="fa fa-sign-out"></i>@ViewLabels.AUTH_LOGOUT
+                    <span class="m-r-sm text-muted welcome-message"> 
+                        <i class="fa fa-sign-out"></i>
+                        <strong>@ViewLabels.AUTH_LOGOUT</strong>
+                    </span>
                 </a>
             </li>
         </ul>

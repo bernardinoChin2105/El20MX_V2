@@ -124,7 +124,7 @@
     <value>Access</value>
   </data>
   <data name="AUTH_LOGIN_TITLE" xml:space="preserve">
-    <value>Log In</value>
+    <value>Log in</value>
   </data>
   <data name="PASSWORD" xml:space="preserve">
     <value>Password</value>
@@ -136,13 +136,13 @@
     <value>Your password will expire in {0} days</value>
   </data>
   <data name="USERNAME" xml:space="preserve">
-    <value>Username or Email</value>
+    <value>Username or email</value>
   </data>
   <data name="UsernameRequired" xml:space="preserve">
-    <value>Username or Email is required</value>
+    <value>Username or email is required</value>
   </data>
   <data name="AUTH_LOGOUT" xml:space="preserve">
-    <value>Log Out</value>
+    <value>Log out</value>
   </data>
   <data name="HOME_TITLE" xml:space="preserve">
     <value>Welcome to Template Project</value>

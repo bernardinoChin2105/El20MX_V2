@@ -22,11 +22,14 @@
     <script type="text/javascript">
         
         $(document).ready(function () {
+            selectAccountModal();
+        });
+
+        function selectAccountModal() {
             $("#selectAccountModal").find('.modal-content').load("@Url.Action("SelectAccount")", function () {
                 $("#selectAccountModal").modal({backdrop: 'static', keyboard: false });
             });
-        });
-
+        }
         function createAccountModal() {
             $("#selectAccountModal").modal('hide');
             $("#createAccountModal").find('.modal-content').load("@Url.Action("CreateAccountModal")", function () {
@@ -34,6 +37,9 @@
             });
             $("#createAccountModal").on('shown.bs.modal', function () {
                 $("#wizard").steps();
+            });
+            $("#createAccountModal").on('hidden.bs.modal', function () {
+                selectAccountModal();
             });
         }
     </script>

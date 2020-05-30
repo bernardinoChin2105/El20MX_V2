@@ -19,7 +19,7 @@
 
         @foreach (var m in Model.accountListViewModels)
         {
-            <div class="col-md-4" style="padding-bottom: 15px; padding-top: 15px;">
+            <div class="col-md-4">
                 <div class="ibox-content text-center">
                     <h4>@m.rfc</h4>
                     <h5>@m.name</h5>
@@ -28,7 +28,7 @@
                             <i class="fa fa-check"></i>
                         </a>
                     </div>
-                    <h9>@m.role</h9>
+                    <abbr title="Su rol es">@m.role</abbr> 
                 </div>
             </div>
         }
@@ -38,7 +38,7 @@
                 <h4>Nueva cuenta</h4>
                 <div class="m-b-sm">
                     <button id="btnCreateAccount" onclick="createAccountModal()" class="btn btn-color btn-circle btn-lg">
-                        <i class="fa fa-plus-circle"></i>
+                        <i class="fa fa-plus"></i>
                     </button>
                 </div>
             </div>

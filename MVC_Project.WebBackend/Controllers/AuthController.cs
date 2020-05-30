@@ -129,8 +129,9 @@ namespace MVC_Project.WebBackend.Controllers
                     }
                     else if (user.accountUsers.Count == 1)
                     {
-                        var uniqueRole = _roleService.FindBy(x => x.code == SystemRoles.GUEST.ToString()).FirstOrDefault();
-                        List<Permission> permissionsUserUnique = user.accountUsers.First().role.permissions.Select(p => new Permission
+                        var uniqueAccountUser = user.accountUsers.First();
+                        var uniqueRole = _roleService.FindBy(x => x.code == uniqueAccountUser.role.code).FirstOrDefault();
+                        List<Permission> permissionsUserUnique = uniqueRole.permissions.Select(p => new Permission
                         {
                             Action = p.action,
                             Controller = p.controller,
@@ -139,8 +140,9 @@ namespace MVC_Project.WebBackend.Controllers
 
                         authUser.Role = new Role { Code = uniqueRole.code, Name = uniqueRole.name };
                         authUser.Permissions = permissionsUserUnique;
+                        authUser.Account = new Account { Name = uniqueAccountUser.account.name, RFC = uniqueAccountUser.account.rfc, Uuid = uniqueAccountUser.account.uuid };
                         Authenticator.StoreAuthenticatedUser(authUser);
-                        return RedirectToAction("Index", "Account");
+                        return RedirectToAction("Index", "Home");
                     }
                     else
                     {
