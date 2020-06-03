@@ -35,7 +35,8 @@ namespace MVC_Project.Utils
         public static string NOT_TEMPLATE_ACTIVATION = "534f930b-d06f-4aad-a30a-ff42346e7c56";
         public static string NOT_TEMPLATE_PASSWORDRESET = "d12f6fbe-cab5-485f-95ec-6875d196d49c";
         public static string NOT_TEMPLATE_PASSWORDRECOVER = "aa61890e-5e39-43c4-92ff-fae95e03a711";
-        public static string NOT_TEMPLATE_CHARGESUCCESS = "3e58558e-0a7c-4f2b-b003-ac27b5677d91";
+        public static string NOT_TEMPLATE_CHARGESUCCESS = "3e58558e-0a7c-4f2b-b003-ac27b5677d91";        
+
 
         // Encabezados de archivo Excel
         public static string HEADER_USERIDENTIFIER = "Identificador";

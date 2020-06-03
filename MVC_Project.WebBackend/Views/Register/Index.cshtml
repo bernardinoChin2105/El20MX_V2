@@ -45,7 +45,7 @@
                 <img src="~/Images/logos/El20mx-logo-estes-donde-e.png" width="300" />
             </div>
 
-            <button type="button" class="btn btn-color block full-width m-b" onclick="Loguear()">
+            <button type="button" class="btn btn-color block full-width m-b" onclick="Loguear(false)">
                 <span><i class="fa fa-facebook"></i></span>&nbsp;&nbsp;&nbsp; Registrarte con Facebook
             </button>
             <div class="btn-google">
@@ -71,10 +71,10 @@
                 @Html.AntiForgeryToken()
 
                 @Html.HiddenFor(m => m.TypeRedSocial, new { Value = "" })
-                @Html.HiddenFor(m => m.RedSocial, new { Value = false})
+                @Html.HiddenFor(m => m.RedSocial, new { Value = false })
                 @Html.HiddenFor(m => m.SocialId, new { Value = "" })
                 <div class="form-group">
-                    @Html.TextBoxFor(m => m.FistName, new { @class = "form-control", type = "text", @autocomplete = "off", placeholder = "Nombre", @required = "required" })
+                    @Html.TextBoxFor(m => m.FistName, new { @class = "form-control", type = "text", @autocomplete = "off", placeholder = "Nombre(s)", @required = "required" })
                 </div>
                 <div class="form-group">
                     @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", type = "text", @autocomplete = "off", placeholder = "Apellido(s)", @required = "required" })
@@ -102,19 +102,21 @@
         </div>
     </div>
 
-
+    <a href="#" onclick="signOut();">Sign out google</a>
+        <br />
+        <a href="#" onclick="close();">Sign out facebook</a>
     <!-- Mainly scripts -->
     <script src="~/Scripts/jquery-3.1.1.min.js"></script>
     <script src="~/Scripts/popper.min.js"></script>
     <script src="~/Scripts/bootstrap.js"></script>
     @Scripts.Render("~/plugins/validate")
-    <!--Configuración de facebook-->
     <!--Configuración de Google-->
     <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+    <script src="~/Scripts/Google.js"></script>
     <!--Configuración de Google-->
+    <!--Configuración de facebook-->
     <script src="~/Scripts/Facebook.js"></script>
     <!--Configuración de facebook-->
-    <script src="~/Scripts/Google.js"></script>
     <!-- iCheck -->
     @*<script src="~/Scripts/plugins/iCheck/icheck.min.js"></script>*@
 
@@ -216,5 +218,4 @@
     </script>
 
 </body>
-
 </html>

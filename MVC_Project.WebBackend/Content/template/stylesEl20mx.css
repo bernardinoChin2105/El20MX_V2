@@ -64,3 +64,10 @@
     width: 42%;
     border-top: 1px solid rgb(189, 189, 189);
 }
+.btn-borderBlue {
+    border: 2px solid #002642;
+    color: #002642
+}
+    .btn-borderBlue:hover {
+        border: 2px solid #002642;
+    }

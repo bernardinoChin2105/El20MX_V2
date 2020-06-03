@@ -1,4 +1,4 @@
-﻿using MVC_Project.Web.CustomAttributes.Validations;
+﻿using MVC_Project.WebBackend.CustomAttributes.Validations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

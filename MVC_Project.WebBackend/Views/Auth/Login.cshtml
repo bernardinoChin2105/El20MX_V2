@@ -68,24 +68,29 @@
             @*<h3>@System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</h3>*@
 
             @*@if (!string.IsNullOrEmpty(ViewBag.Error))
-                {
-                    <div class="col-lg-12">
-                        <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
-                    </div>
-                }
+        {
+            <div class="col-lg-12">
+                <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
+            </div>
+        }
 
-                @if (!string.IsNullOrEmpty(ViewBag.Message))
-                {
-                    <div class="col-lg-12">
-                        <div class="alert alert-info" role="alert">@ViewBag.Message</div>
-                    </div>
-                }*@
+        @if (!string.IsNullOrEmpty(ViewBag.Message))
+        {
+            <div class="col-lg-12">
+                <div class="alert alert-info" role="alert">@ViewBag.Message</div>
+            </div>
+        }*@
 
             <p>@ViewLabels.AUTH_LOGIN_TITLE</p>
-            @using (Html.BeginForm("Login", "Auth", FormMethod.Post, new { @class = "m-t", role = "form" }))
+            @using (Html.BeginForm("Login", "Auth", FormMethod.Post, new { @class = "m-t", role = "form", id = "Login" }))
             {
                 @Html.AntiForgeryToken()
                 @*@Html.ValidationSummary("Errors", new { @class = "alert alert-danger" })*@
+
+                @Html.HiddenFor(m => m.TypeRedSocial, new { Value = "" })
+                @Html.HiddenFor(m => m.RedSocial, new { Value = false })
+                @Html.HiddenFor(m => m.SocialId, new { Value = "" })
+
                 @Html.Hidden("ReturnUrl", (string)ViewBag.ReturnUrl)
                 <div class="input-group mb-3">
                     <span class="input-group-addon"><i class="fa fa-user"></i></span>
@@ -99,20 +104,27 @@
                 <span class="help-block"></span>
                 <button type="submit" class="btn btn-color block full-width m-b">@ViewLabels.AUTH_LOGIN_SUBMIT</button>
                 @*<div class="fb-login-button" data-size="large" data-button-type="continue_with" data-layout="default" data-auto-logout-link="false" data-use-continue-as="false" data-width="" onclick="Loguear()"></div>*@
-                <button type="button" class="btn btn-color block full-width m-b" onclick="Loguear()">Entrar con Facebook</button>
-                @*<br /><br />*@
-                @*<div id="my-signin2"></div> data-onsuccess="onSignIn" onclick="onSignIn()"*@
-                <div id="my-signin2" class="g-signin2"></div>
+                <div><h5 class="line">O</h5></div>
+                <button type="button" class="btn btn-color block full-width m-b" onclick="Loguear(true)">
+                    <span><i class="fa fa-facebook"></i></span>&nbsp;&nbsp;&nbsp; Entrar con Facebook
+                </button>
+                <div class="btn-google">
+                    <div id="my-signin2" class="g-signin2"></div>
+                    <button type="button" class="btn btn-color block full-width m-b">
+                        <span><i class="fa fa-google"></i></span>&nbsp;&nbsp;&nbsp; Entrar con Google
+                    </button>
+                </div>
 
-                <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
-                </fb:login-button>
+                <div id="signInButton"><img src="IMAGE_FILE" /></div>
+
+                @*<fb:login-button scope="public_profile,email" onlogin="checkLoginState();"></fb:login-button>*@
                 <span class="help-block"></span>
 
                 <br />
                 <a href="javascript:void(0);" onclick="javascript:resetPassModal();" data-target="#modal-containerRecupera" data-toggle="modal"><small>@ViewLabels.AUTH_LOGIN_RECOVERPASS</small></a>
                 <br />
 
-                <p class="text-muted text-center"><small>¿No tienes una cuenta?</small> <a class="btn btn-sm btn-white btn-block" href="@Url.Action("Index", "Register")">Crear una cuenta</a></p>
+                <p class="text-muted text-center">¿No tienes una cuenta? <a class="btn btn-sm btn-borderBlue btn-block" href="@Url.Action("Index", "Register")"><b>Regístrate</b></a></p>
 
 
             }
@@ -125,9 +137,7 @@
         </div>
     </div>
 
-    <a href="#" onclick="signOut();">Sign out google</a>
-    <br />
-    <a href="#" onclick="close();">Sign out facebook</a>
+
     <!-- Mainly scripts -->
     <script src="~/Scripts/jquery-3.1.1.min.js"></script>
     <script src="~/Scripts/popper.min.js"></script>
@@ -140,108 +150,29 @@
     <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
     <script src="~/Scripts/Google.js"></script>
     <!--Configuración de Google-->
-    @*<script src="https://apis.google.com/js/platform.js" async defer></script>*@
+    <script>
+        var UrlLogin = '@Url.Action("ValidateLogin", "Auth")';
+        var UrlReset = '@Url.Action("ResetPassword")';
+    </script>
+    <script src="~/Scripts/views/Auth/Index.js"></script>
     <!--singOut-->
+    @*<a href="#" onclick="signOut();">Sign out google</a>
+        <br />
+        <a href="#" onclick="close();">Sign out facebook</a>*@
 
-@if (!string.IsNullOrEmpty(ViewBag.Error))
-{
-    <script type="text/javascript">
-        $('#warning-toast').toast('show');
-    </script>
-}
-
-@if (!string.IsNullOrEmpty(ViewBag.Message))
-{
-    <script type="text/javascript">
-        $('#info-toast').toast('show');
-    </script>
-}
-
-<script>
-    function onSignIn(googleUser) {
-        console.log(googleUser)
-        var profile = googleUser.getBasicProfile();
-        console.log(profile, "usuario");
-        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-        console.log('Name: ' + profile.getName());
-        console.log('Image URL: ' + profile.getImageUrl());
-        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
-    }
-    //function onSuccess(googleUser) {
-    //    console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
-    //}
-    //function onFailure(error) {
-    //    console.log(error, "Error");
-    //}
-    //function renderButton() {
-    //    gapi.signin2.render('my-signin2', {
-    //        'scope': 'profile email',
-    //        'width': 240,
-    //        'height': 50,
-    //        'longtitle': true,
-    //        'theme': 'dark',
-    //        'onsuccess': onSuccess,
-    //        'onfailure': onFailure
-    //    });
-    //}
-
-    function login() {
-         $.ajax({
-             url: '@Url.Action("ConvertirJson","Login")',
-             data: { user: info.email, pass: info.id, facebook: true, rutaFace: info.picture.data.url },
-             type: 'POST',
-             dataType: 'json',
-             success: function (json) {
-                 console.log(json)
-                 if (json.facebook === "0") {
-                    //redireccionar al registro del usuario
-                     window.location = "/registro-facebook";
-                 }
-                 if (json.ID_CLIENTE > 0) {
-                     //redireccionar al sitio con ya la cuenta iniciadad
-                     window.location = "/cuenta";
-                 }
-             },
-             error: function (xhr, status) {
-                 //alert('Disculpe, existió un problema');
-                 $(document).ready(function () {
-                     //Mensaje de error
-                     //$("body").addClass("no_scroll");
-                     //$('#ModalError').show();
-                 });
-             },
-         });
-
-  
-
-    function resetPassModal() {
-        $("#modal-containerRecupera").find('.modal-content').load("@Url.Action("ResetPassword")", function () {
-            $("#modal-containerRecupera").modal("show");
-            $("#btn-RecuperaCE").on("click",
-                function (e) {
-                    e.preventDefault();
-                    var validate = $('form#recupera-cuenta-form').validate();
-                    if (!$('#recupera-cuenta-form').valid()) {
-                        //$("form#recupera-cuenta-form").find('span').removeClass("help-block").css("display", "none");
-                        return;
-                    }
-                    $("#modal-containerRecupera form#recupera-cuenta-form button#btn-RecuperaCE").hide();
-                    $('#recupera-cuenta-form').submit();
-                });
-        });
-    }
-    function MessageAlert(d) {
-        debugger;
-        var rslt = $.parseJSON(d.responseText);
-        if (rslt.statusCode == 200) {
-            $().toastmessage("showSuccessToast", rslt.status);
-        }
-        else {
-            $().toastmessage("showErrorToast", rslt.status);
-        }
+    @if (!string.IsNullOrEmpty(ViewBag.Error))
+    {
+        <script type="text/javascript">
+            $('#warning-toast').toast('show');
+        </script>
     }
 
-    </script>
+    @if (!string.IsNullOrEmpty(ViewBag.Message))
+    {
+        <script type="text/javascript">
+            $('#info-toast').toast('show');
+        </script>
+    }
 </body>
 </html>
 

@@ -22,14 +22,17 @@ namespace MVC_Project.WebBackend.Controllers
         private IUserService _userService;
         private IPermissionService _permissionService;
         private IAccountUserService _accountUserService;
+        private ISocialNetworkLoginService _socialNetworkLoginService;
 
-        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService, IAccountUserService accountUserService)
+        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService, IAccountUserService accountUserService,
+            ISocialNetworkLoginService socialNetworkLoginService)
         {
             _authService = authService;
             _userService = userService;
             _permissionService = permissionService;
             _accountUserService = accountUserService;
-         }
+            _socialNetworkLoginService = socialNetworkLoginService;
+        }
 
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
@@ -45,7 +48,7 @@ namespace MVC_Project.WebBackend.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = _authService.Authenticate(model.Email, SecurityUtil.EncryptPassword(model.Password));
+                Domain.Entities.User user = _authService.Authenticate(model.Email, SecurityUtil.EncryptPassword(model.Password));
                 if (user != null)
                 {
                     if (user.status != SystemStatus.ACTIVE.ToString())
@@ -53,58 +56,8 @@ namespace MVC_Project.WebBackend.Controllers
                         ViewBag.Error = Resources.ErrorMessages.UserInactive;
                         return View(model);
                     }
-                    user.lastLoginAt = DateTime.Now;
-                    _userService.Update(user);
-
-                    //var accountUser = user.accountUsers.First();
-
-                    ////Permissions by role
-                    //List<Permission> permissionsUser = accountUser.role.permissions.Select(p => new Permission
-                    //{
-                    //    Action = p.action,
-                    //    Controller = p.controller,
-                    //    Module = p.module
-                    //}).ToList();
-
-                    List<Permission> permissionsUser = _permissionService.GetAll().Select(p => new Permission
-                    {
-                        Action = p.action,
-                        Controller = p.controller,
-                        Module = p.module
-                    }).ToList();
-
-                    AuthUser authUser = new AuthUser
-                    {
-                        Id = user.id,
-                        FirstName = user.profile.firstName,
-                        LastName = user.profile.lastName,
-                        Email = user.name,
-                        Language = user.profile.language,
-                        Uuid = user.uuid,
-                        PasswordExpiration = user.passwordExpiration,
-                        Permissions = permissionsUser
-                    };
-                    
-                    //Set user in sesion
-                    Authenticator.StoreAuthenticatedUser(authUser);
-
-                    LogUtil.AddEntry(
-                       "Ingresa al Sistema",
-                       ENivelLog.Info,
-                       authUser.Id,
-                       authUser.Email,
-                       EOperacionLog.ACCESS,
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                    );
-
-                    //Set Language
-                    LanguageMngr.SetDefaultLanguage();
-                    if (!string.IsNullOrEmpty(authUser.Language))
-                    {
-                        LanguageMngr.SetLanguage(authUser.Language);
-                    }
+                    //Asignar usuario en sesión
+                    user = GetValidateUserLogin(user);
 
                     if (user.passwordExpiration.HasValue)
                     {
@@ -175,14 +128,14 @@ namespace MVC_Project.WebBackend.Controllers
                     ViewBag.mensajeError = string.Empty;
                     resultado.tokenExpiration = System.DateTime.Now.AddDays(1);
                     string token = (resultado.uuid + "@" + DateTime.Now.AddDays(1).ToString());
-                     token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
+                    token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
                     resultado.token = token;
                     Dictionary<string, string> customParams = new Dictionary<string, string>();
                     string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
                     string link = urlAccion + "Auth/AccedeToken?token=" + token;
                     customParams.Add("param1", resultado.name);
                     customParams.Add("param2", link);
-                    NotificationUtil.SendNotification(resultado.name, customParams, Constants.NOT_TEMPLATE_PASSWORDRECOVER );
+                    NotificationUtil.SendNotification(resultado.name, customParams, Constants.NOT_TEMPLATE_PASSWORDRECOVER);
                     _userService.Update(resultado);
                     //MensajesFlash.MensajeFlashHandler.RegistrarMensaje(ImpuestoPredial.Resource.Recursos.OperacionExitosa);
                     ViewBag.Message = "Solicitud realizada";
@@ -223,7 +176,7 @@ namespace MVC_Project.WebBackend.Controllers
                 Guid id = Guid.Parse(elements.First().ToString());
                 var resultado = _userService.FindBy(e => e.uuid == id).First();
                 int[] valores = new int[100];
-                for(int a=0;a<100; a++)
+                for (int a = 0; a < 100; a++)
                 {
                     valores[a] = a++;
                 }
@@ -392,26 +345,171 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         [HttpPost]
-        public JsonResult ValidateLogin(AuthLogin user)
+        [AllowAnonymous]
+        public JsonResult ValidateLogin(AuthViewModel model)
         {
+            string Error = string.Empty;
+            Domain.Entities.User user = null;//new Domain.Entities.User();
+            bool exist = false;
             try
             {
-                if (SocialNetwork.Facebook.ToString() != user.socialNetwork && SocialNetwork.Google.ToString() != user.socialNetwork )
+                //es una red social
+                if (model.RedSocial)
                 {
-                    //no es una redsocial
+                    //Existe usuario
+                    //Domain.Entities.User user = _authService.Authenticate(model.Email, SecurityUtil.EncryptPassword(model.Password));
+                    user = _authService.Authenticate(model.Email, SecurityUtil.EncryptPassword(model.Password));
+                    //_socialNe.GetUserByEmail(model.Email);
+                    if (user != null)
+                    {
+                        if (user.status != SystemStatus.ACTIVE.ToString())
+                        {
+                            Error = Resources.ErrorMessages.UserInactive;                            
+                        }
+                        else
+                        {
+                            var validateSocial = _socialNetworkLoginService.AuthenticateSocialNetwork(user.id, user.password, model.TypeRedSocial);
+
+                            //validar si es una red social si existe
+                            if (validateSocial != null && validateSocial.user.id == user.id)
+                            {
+                                //Asignar usuario en sesión
+                                user = GetValidateUserLogin(user);
+
+                                var session = Authenticator.AuthenticatedUser;
+                                if (session != null)
+                                {
+                                    exist = true;
+                                }
+                                //No voy a checar la fecha de expiracion del password
+                                //if (user.passwordExpiration.HasValue)
+                                //{
+                                //    DateTime passwordExpiration = user.passwordExpiration.Value;
+                                //    DateTime todayDate = DateUtil.GetDateTimeNow();
+                                //    if (user.passwordExpiration.Value.Date < todayDate.Date)
+                                //    {
+                                //        //return RedirectToAction("ChangePassword", "Auth");
+                                //    }
+                                //    string daysBeforeExpireToNotifyConfig = ConfigurationManager.AppSettings["DaysBeforeExpireToNotify"];
+                                //    int daysBeforeExpireToNotify = 0;
+                                //    if (Int32.TryParse(daysBeforeExpireToNotifyConfig, out daysBeforeExpireToNotify))
+                                //    {
+
+                                //        int daysLeft = ((TimeSpan)(passwordExpiration.Date - todayDate.Date)).Days + 1;
+                                //        if (daysLeft <= daysBeforeExpireToNotify)
+                                //        {
+                                //            string message = String.Format(ViewLabels.PASSWORD_EXPIRATION_MESSAGE, daysLeft);
+                                //            MensajeFlashHandler.RegistrarMensaje(message, TiposMensaje.Info);
+                                //        }
+                                //    }
+                                //}
+                            }
+                            else
+                            {
+                                Error = "El usuario no existe o contraseña inválida.";
+                            }
+                        }
+                      
+                        //return RedirectToAction("Index", "Account");
+                    }
+                    else
+                    {
+                        Error = "El usuario no existe o contraseña inválida.";
+                    }
+
                 }
                 else
                 {
-                    //es una red social
-                }
+                    //no es una redsocial
+                    Error = "El usuario no existe o contraseña inválida.";
+                }     
+                
+                return new JsonResult
+                {
+                    Data = new { Mensaje = new { title = "response", error = Error }, data = user, Success = exist },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
+
             }
             catch (Exception ex)
             {
-                string Error = ex.Message.ToString();
+                Error = ex.Message;
+                return new JsonResult
+                {
+                    Data = new { Mensaje = new { title = "Error", message = Error } },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
             }
             /*salida*/
 
-            return Json(new { data = "respuesta" }, JsonRequestBehavior.AllowGet);
         }
+
+        public Domain.Entities.User GetValidateUserLogin(Domain.Entities.User user)
+        {
+            try
+            {
+                user.lastLoginAt = DateTime.Now;
+                _userService.Update(user);
+
+                List<Permission> permissionsUser = _permissionService.GetAll().Select(p => new Permission
+                {
+                    Action = p.action,
+                    Controller = p.controller,
+                    Module = p.module
+                }).ToList();
+
+                AuthUser authUser = new AuthUser
+                {
+                    Id = user.id,
+                    FirstName = user.profile.firstName,
+                    LastName = user.profile.lastName,
+                    Email = user.name,
+                    Language = user.profile.language,
+                    Uuid = user.uuid,
+                    PasswordExpiration = user.passwordExpiration,
+                    Permissions = permissionsUser
+                };
+
+                //Set user in sesion
+                Authenticator.StoreAuthenticatedUser(authUser);
+
+                LogUtil.AddEntry(
+                   "Ingresa al Sistema",
+                   ENivelLog.Info,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+
+                //Set Language
+                LanguageMngr.SetDefaultLanguage();
+                if (!string.IsNullOrEmpty(authUser.Language))
+                {
+                    LanguageMngr.SetLanguage(authUser.Language);
+                }
+
+            }
+            catch (Exception Ex)
+            {
+                string Error = Ex.Message.ToString();
+            }
+
+            return user;
+        }
+
+        [HttpPost, AllowAnonymous]
+        //[ValidateAntiForgeryToken]
+        public ActionResult LoginAuth(AuthViewModel model)
+        {            
+            //Falta validar si el resultado es falso
+
+            var response = ValidateLogin(model);
+            return RedirectToAction("Index", "Account");
+        } 
     }
 }

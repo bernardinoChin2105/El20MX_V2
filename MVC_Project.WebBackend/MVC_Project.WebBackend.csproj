@@ -1673,6 +1673,7 @@
     <Content Include="Scripts\plugins\video\responsible-video.js" />
     <Content Include="Scripts\plugins\wow\wow.min.js" />
     <Content Include="Scripts\popper.min.js" />
+    <Content Include="Scripts\views\Auth\Index.js" />
     <Content Include="Scripts\views\Payments\Index.js" />
     <Content Include="Scripts\views\PdfSignature\Index.js" />
     <Content Include="Scripts\views\Reports\OrderIndex.js" />
@@ -1773,6 +1774,7 @@
     <None Include="Properties\PublishProfiles\el20mx-plataformav2-test - Web Deploy.pubxml" />
     <Content Include="Views\Account\Index.cshtml" />
     <Content Include="Views\Account\_SelectAccountModal.cshtml" />
+    <Content Include="Views\Register\VerifyUser.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
