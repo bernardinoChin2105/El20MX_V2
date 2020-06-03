@@ -22,19 +22,28 @@ namespace MVC_Project.WebBackend.Controllers
         private IUserService _userService;
         private IPermissionService _permissionService;
         private IAccountUserService _accountUserService;
+<<<<<<< HEAD
         private ISocialNetworkLoginService _socialNetworkLoginService;
-        private IRoleService _roleService;
-        
+
         public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService, IAccountUserService accountUserService,
-            IRoleService roleService, ISocialNetworkLoginService socialNetworkLoginService)
+            ISocialNetworkLoginService socialNetworkLoginService)
+=======
+        private IRoleService _roleService;
+
+        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService, IAccountUserService accountUserService, IRoleService roleService)
+>>>>>>> f5ff7889b5430c8a5b9f606206677c2d848eb346
         {
             _authService = authService;
             _userService = userService;
             _permissionService = permissionService;
             _accountUserService = accountUserService;
+<<<<<<< HEAD
             _socialNetworkLoginService = socialNetworkLoginService;
-            _roleService = roleService;
         }
+=======
+            _roleService = roleService;
+         }
+>>>>>>> f5ff7889b5430c8a5b9f606206677c2d848eb346
 
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
@@ -58,8 +67,44 @@ namespace MVC_Project.WebBackend.Controllers
                         ViewBag.Error = Resources.ErrorMessages.UserInactive;
                         return View(model);
                     }
+<<<<<<< HEAD
                     //Asignar usuario en sesión
-                    user = GetValidateUserLogin(user);                       
+                    user = GetValidateUserLogin(user);
+=======
+                    user.lastLoginAt = DateTime.Now;
+                    _userService.Update(user);
+
+                    AuthUser authUser = new AuthUser
+                    {
+                        Id = user.id,
+                        FirstName = user.profile.firstName,
+                        LastName = user.profile.lastName,
+                        Email = user.name,
+                        Language = user.profile.language,
+                        Uuid = user.uuid,
+                        Avatar = user.profile.avatar,
+                        PasswordExpiration = user.passwordExpiration,
+                        //Permissions = permissionsUser
+                    };
+
+                    LogUtil.AddEntry(
+                       "Ingresa al Sistema",
+                       ENivelLog.Info,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
+
+                    //Set Language
+                    LanguageMngr.SetDefaultLanguage();
+                    if (!string.IsNullOrEmpty(authUser.Language))
+                    {
+                        LanguageMngr.SetLanguage(authUser.Language);
+                    }
+>>>>>>> f5ff7889b5430c8a5b9f606206677c2d848eb346
 
                     if (user.passwordExpiration.HasValue)
                     {
@@ -496,7 +541,6 @@ namespace MVC_Project.WebBackend.Controllers
 
         }
 
-        //Validar el login e iniciar sesión
         public Domain.Entities.User GetValidateUserLogin(Domain.Entities.User user)
         {
             try
@@ -519,9 +563,8 @@ namespace MVC_Project.WebBackend.Controllers
                     Email = user.name,
                     Language = user.profile.language,
                     Uuid = user.uuid,
-                    PasswordExpiration = user.passwordExpiration,                    
-                    Avatar = user.profile.avatar,
-                    //Permissions = permissionsUser
+                    PasswordExpiration = user.passwordExpiration,
+                    Permissions = permissionsUser
                 };
 
                 //Set user in sesion

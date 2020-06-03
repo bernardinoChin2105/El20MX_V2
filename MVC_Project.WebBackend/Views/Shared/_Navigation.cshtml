@@ -8,16 +8,18 @@
     <div class="sidebar-collapse">
         <ul class="nav metismenu" id="side-menu">
             <li class="nav-header">
-                <div class="dropdown profile-element">                    
-                    <img alt="image" class="img-thumbnail" src="~/Images/logos/logo-blanco.png" />
+                <div class="dropdown profile-element">
+                    <img alt="image" class="rounded-circle" src="@user.Avatar" />
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                         <span class="block m-t-xs font-bold">@user.FirstName</span>
                         @if (user.Role != null)
                         {
-                        <span class="text-muted text-xs block">@user.Role.Name<b class="caret"></b></span>
+                            <span class="text-muted text-xs block">@user.Role.Name<b class="caret"></b></span>
                         }
                     </a>
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                        <li><a class="dropdown-item" href="@Url.Action("Index", "Account")">Administrar cuentas</a></li>
+                        <li class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="@Url.Action("Logout", "Auth")">@ViewLabels.AUTH_LOGOUT</a></li>
                     </ul>
                 </div>

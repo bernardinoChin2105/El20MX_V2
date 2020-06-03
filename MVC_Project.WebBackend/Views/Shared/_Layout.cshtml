@@ -11,7 +11,8 @@
     @Styles.Render("~/Content/template/css")
     @Styles.Render("~/font-awesome/css")
     @Styles.Render("~/plugins/sweetAlertStyles")
-
+    <link href="~/Content/template/plugins/steps/jquery.steps.css" rel="stylesheet" />
+    <link href="~/Content/template/stylesEl20mx.css" rel="stylesheet" />
     <!-- Local styles -->
     @if (IsSectionDefined("Styles"))
     {
@@ -21,7 +22,32 @@
 </head>
 
 <body>
-
+    <div style="position: absolute; top: 20px; right: 20px;">
+        <div class="toast toast-warning" id="warning-toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
+            <div class="toast-header">
+                <i class="fa fa-exclamation-circle"> </i>
+                <strong class="mr-auto m-l-sm">Ups</strong>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="toast-body">
+                @ViewBag.Error
+            </div>
+        </div>
+        <div class="toast toast-info" id="info-toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
+            <div class="toast-header">
+                <i class="fa fa-info-circle"> </i>
+                <strong class="mr-auto m-l-sm">Info</strong>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="toast-body">
+                @ViewBag.Message
+            </div>
+        </div>
+    </div>
     <div id="wrapper">
 
         <!-- Left navigation bar -->
@@ -55,6 +81,7 @@
     <script src="~/Scripts/bootstrap.js"></script>
     <script src="~/Scripts/plugins/metisMenu/jquery.metisMenu.js"></script>
     <script src="~/Scripts/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="~/Scripts/plugins/steps/jquery.steps.min.js"></script>
 
     @Scripts.Render("~/font-awesome/js")
     @Scripts.Render("~/plugins/sweetAlert")
@@ -63,6 +90,19 @@
     <script src="~/Scripts/inspinia.js"></script>
     <script src="~/Scripts/plugins/pace/pace.min.js"></script>
 
+    @if (!string.IsNullOrEmpty(ViewBag.Error))
+    {
+        <script type="text/javascript">
+            $('#warning-toast').toast('show');
+        </script>
+    }
+
+    @if (!string.IsNullOrEmpty(ViewBag.Message))
+    {
+        <script type="text/javascript">
+            $('#info-toast').toast('show');
+        </script>
+    }
     <!-- iCheck -->
     <script src="~/Scripts/plugins/iCheck/icheck.min.js"></script>
     <script>
