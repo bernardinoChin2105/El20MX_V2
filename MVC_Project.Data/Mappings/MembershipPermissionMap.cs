@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Data.Mappings
 {
-    public class RolePermissionMap : ClassMap<RolePermission>
+    public class MembershipPermissionMap : ClassMap<MembershipPermission>
     {
-        public RolePermissionMap()
+        public MembershipPermissionMap()
         {
-            Table("rolesPermissions");
+            Table("membershipsPermissions");
             Id(x => x.id).GeneratedBy.Identity().Column("id");
-            References(x => x.role).Column("roleId");
+            References(x => x.membership).Column("membershipId");
             References(x => x.permission).Column("permissionId");
             References(x => x.account).Column("accountId");
         }

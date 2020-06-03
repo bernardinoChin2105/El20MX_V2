@@ -82,10 +82,11 @@
   <ItemGroup>
     <Compile Include="Helpers\UnitOfWork.cs" />
     <Compile Include="Mappings\AccountMap.cs" />
-    <Compile Include="Mappings\AccountUserMap.cs" />
+    <Compile Include="Mappings\MembershipMap.cs" />
     <Compile Include="Mappings\ConfigParamMap.cs" />
     <Compile Include="Mappings\CustomerMap.cs" />
     <Compile Include="Mappings\EventMap.cs" />
+    <Compile Include="Mappings\MembershipPermissionMap.cs" />
     <Compile Include="Mappings\OrderItemsMap.cs" />
     <Compile Include="Mappings\OrderMap.cs" />
     <Compile Include="Mappings\PaymentApplicationMap.cs" />

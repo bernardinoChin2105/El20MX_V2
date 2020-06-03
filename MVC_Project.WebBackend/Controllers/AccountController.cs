@@ -13,11 +13,11 @@ namespace MVC_Project.WebBackend.Controllers
 {
     public class AccountController : Controller
     {
-        private IAccountUserService _accountUserService;
+        private IMembershipService _membership;
         private IAccountService _accountService;
-        public AccountController(IAccountUserService accountUserService, IAccountService accountService)
+        public AccountController(IMembershipService accountUserService, IAccountService accountService)
         {
-            _accountUserService = accountUserService;
+            _membership = accountUserService;
             _accountService = accountService;
         }
 
@@ -39,7 +39,7 @@ namespace MVC_Project.WebBackend.Controllers
             var authUser = Authenticator.AuthenticatedUser;
             var accountViewModel = new AccountSelectViewModel { accountListViewModels = new List<AccountListViewModel>() };
             
-            accountViewModel.accountListViewModels = _accountUserService.FindBy(x => x.user.id == authUser.Id).Select(x => new AccountListViewModel
+            accountViewModel.accountListViewModels = _membership.FindBy(x => x.user.id == authUser.Id).Select(x => new AccountListViewModel
             {
                 uuid = x.account.uuid,
                 name = x.account.name,
@@ -58,20 +58,21 @@ namespace MVC_Project.WebBackend.Controllers
 
             if (account != null)
             {
-                var accountUser = _accountUserService.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id).FirstOrDefault();
+                var membership = _membership.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id).FirstOrDefault();
 
-                if (accountUser != null)
+                if (membership != null)
                 {
-                    List<Permission> permissionsUser = accountUser.role.permissions.Select(p => new Permission
-                    {
-                        Action = p.action,
-                        Controller = p.controller,
-                        Module = p.module
-                    }).ToList();
+                    var mebershipPermissions = membership.mebershipPermissions.Select(x => x.permission);
+                    var permissions = mebershipPermissions.Select(p => new Permission
+                        {
+                            Action = p.action,
+                            Controller = p.controller,
+                            Module = p.module
+                        }).ToList();
 
-                    authUser.Role = new Role { Code = accountUser.role.code, Name = accountUser.role.name };
+                    authUser.Role = new Role { Code = membership.role.code, Name = membership.role.name };
                     authUser.Account = new Account { Uuid = account.uuid, Name = account.name, RFC = account.rfc };
-                    authUser.Permissions = permissionsUser;
+                    authUser.Permissions = permissions;
 
                     Authenticator.RefreshAuthenticatedUser(authUser);
 

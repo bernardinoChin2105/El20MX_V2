@@ -14,14 +14,16 @@ namespace MVC_Project.Domain.Entities {
         public virtual DateTime modifiedAt { get; set; }
         public virtual string status { get; set; }
 
+        public virtual Account account { get; set; }
+
         //public virtual IList<User> users { get; set; }
-        public virtual IList<AccountUser> accountUsers { get; set; }
+        public virtual IList<Membership> memberships { get; set; }
         public virtual IList<Permission> permissions { get; set; }
 
         public Role()
         {
             //users = new List<User>();
-            accountUsers = new List<AccountUser>();
+            memberships = new List<Membership>();
             permissions = new List<Permission>();
         }
     }

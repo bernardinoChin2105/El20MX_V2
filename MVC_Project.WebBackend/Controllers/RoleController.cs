@@ -29,7 +29,7 @@ namespace MVC_Project.WebBackend.Controllers
             RoleViewModel roles = new RoleViewModel();
             return View(roles);
         }
-        [HttpGet, Authorize]
+        [HttpGet, AllowAnonymous]
         public JsonResult ObtenerRoles(JQueryDataTableParams param, string filtros)
         {
             try
@@ -119,8 +119,8 @@ namespace MVC_Project.WebBackend.Controllers
                 foreach (PermissionViewModel permisoNuevo in permisosNuevos)
                 {
                     RolePermission rolePermission = new RolePermission();
-                    rolePermission.Role = new Role { id = role.id };
-                    rolePermission.Permission = new Permission { id = permisoNuevo.Id };
+                    rolePermission.role = new Role { id = role.id };
+                    rolePermission.permission = new Permission { id = permisoNuevo.Id };
                     _rolePermissionService.Create(rolePermission);
                 }
                
@@ -173,13 +173,13 @@ namespace MVC_Project.WebBackend.Controllers
                 foreach (PermissionViewModel permisoNuevo in query)
                 {
                     RolePermission rolePermission = new RolePermission();
-                    rolePermission.Role = new Role { id = role.id };
-                    rolePermission.Permission = new Permission { id = permisoNuevo.Id };
+                    rolePermission.role = new Role { id = role.id };
+                    rolePermission.permission = new Permission { id = permisoNuevo.Id };
                     _rolePermissionService.Create(rolePermission);
                 }
                 foreach (Permission permisoQuitado in query2)
                 {
-                    RolePermission rolePermission = _rolePermissionService.FindBy(x => x.Role.id == role.id && x.Permission.id == permisoQuitado.id).FirstOrDefault();
+                    RolePermission rolePermission = _rolePermissionService.FindBy(x => x.role.id == role.id && x.permission.id == permisoQuitado.id).FirstOrDefault();
                     _rolePermissionService.Delete(rolePermission.id);
                 }
                 return RedirectToAction("Index");

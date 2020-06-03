@@ -19,17 +19,17 @@ namespace MVC_Project.WebBackend.Controllers
         private IRoleService _roleService;
         private IProfileService _profileService;
         private IAccountService _accountService;
-        private IAccountUserService _accountUserService;
+        private IMembershipService _membershipService;
         private ISocialNetworkLoginService _socialNetworkLoginService;
 
         public RegisterController(IUserService userService, IRoleService roleService, IProfileService profileService,
-            IAccountService accountService, IAccountUserService accountUserService, ISocialNetworkLoginService socialNetworkLoginService)
+            IAccountService accountService, IMembershipService membershipService, ISocialNetworkLoginService socialNetworkLoginService)
         {
             _userService = userService;
             _roleService = roleService;
             _profileService = profileService;
             _accountService = accountService;
-            _accountUserService = accountUserService;
+            _membershipService = membershipService;
             _socialNetworkLoginService = socialNetworkLoginService;
 
         }
@@ -96,10 +96,10 @@ namespace MVC_Project.WebBackend.Controllers
                         profile = profile
                     };
 
-                    foreach (var permission in role.permissions)
-                    {
-                        user.permissions.Add(permission);
-                    }
+                    //foreach (var permission in role.permissions)
+                    //{
+                    //    user.permissions.Add(permission);
+                    //}
 
                     _userService.Create(user);
 
@@ -121,15 +121,24 @@ namespace MVC_Project.WebBackend.Controllers
                     ////account.users.Add(user);
                     //_accountService.Create(account);
 
-                    var accountUser = new AccountUser
+                    var membership = new Membership
                     {
                         //account = account,
                         user = user,
-                        role = role
+                        role = role,
+                        //mebershipPermissions = role.permissions
                     };
 
+                    foreach(var permission in role.permissions)
+                    {
+                        membership.mebershipPermissions.Add(new MembershipPermission
+                        {
+                            permission = permission
+                        });
+                    }
 
-                    _accountUserService.Create(accountUser);
+
+                    _membershipService.Create(membership);
                     //account.users.Add(user);
                     //_accountService.Create(account);
 

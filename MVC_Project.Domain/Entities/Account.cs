@@ -17,11 +17,11 @@ namespace MVC_Project.Domain.Entities
         public virtual string status { get; set; }
 
         //public virtual IList<User> users { get; set; }
-        public virtual IList<AccountUser> accountUsers { get; set; }
+        public virtual IList<Membership> memberships { get; set; }
         public Account()
         {
             //users = new List<User>();
-            accountUsers = new List<AccountUser>();
+            memberships = new List<Membership>();
         }
     }
 }

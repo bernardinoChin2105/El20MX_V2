@@ -22,14 +22,8 @@ namespace MVC_Project.Data.Mappings {
             References(x => x.profile).Column("profileId");
             //References(x => x.role).Column("roleId");
 
-            HasMany(x => x.accountUsers).Inverse().Cascade.All().KeyColumn("userId");
-
-            HasManyToMany(x => x.permissions)
-                .Cascade.SaveUpdate()
-                .Table("usersPermissions")
-                .ParentKeyColumn("userId")
-                .ChildKeyColumn("permissionId");
-
+            HasMany(x => x.memberships).Inverse().Cascade.All().KeyColumn("userId");
+            
             //HasManyToMany(x => x.accounts)
             //   .Cascade.SaveUpdate()
             //   .Table("accountsUsers")

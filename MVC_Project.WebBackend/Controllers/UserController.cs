@@ -20,9 +20,9 @@ namespace MVC_Project.WebBackend.Controllers
     {
         private IUserService _userService;
         private IRoleService _roleService;
-        private IAccountUserService _accountUserService;
+        private IMembershipService _accountUserService;
 
-        public UserController(IUserService userService, IRoleService roleService, IAccountUserService accountUserService)
+        public UserController(IUserService userService, IRoleService roleService, IMembershipService accountUserService)
         {
             _userService = userService;
             _roleService = roleService;
@@ -87,7 +87,7 @@ namespace MVC_Project.WebBackend.Controllers
             return View("Import", model);
         }
 
-        [HttpGet, Authorize]
+        [HttpGet, AllowAnonymous]
         public JsonResult GetAllByFilter(JQueryDataTableParams param, string filtros)
         {
             try
@@ -97,7 +97,7 @@ namespace MVC_Project.WebBackend.Controllers
                 IList<UserData> dataResponse = new List<UserData>();
                 foreach (var user in results.Item1)
                 {
-                    var accountUser = user.accountUsers.First();
+                    var accountUser = user.memberships.First();
                     //var accountUser = _accountUserService.FindBy(x => x.user.id == user.id && x.account.id == account.id).First();
 
                     UserData userData = new UserData();
@@ -185,10 +185,10 @@ namespace MVC_Project.WebBackend.Controllers
                     status = SystemStatus.ACTIVE.ToString()
                 };
                 var role = _roleService.GetById(userCreateViewModel.Role);
-                foreach (var permission in role.permissions)
-                {
-                    user.permissions.Add(permission);
-                }
+                //foreach (var permission in role.permissions)
+                //{
+                //    user.permissions.Add(permission);
+                //}
                 _userService.Create(user);
 
                 /*AuthUser usuario = (AuthUser)Authenticator.AuthenticatedUser;
@@ -217,7 +217,7 @@ namespace MVC_Project.WebBackend.Controllers
         {
             User user = _userService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
 
-            var accountUser = user.accountUsers.First();
+            var accountUser = user.memberships.First();
             //var accountUser = _accountUserService.FindBy(x => x.user.id == user.id && x.account.id == account.id).First();
 
             UserEditViewModel model = new UserEditViewModel();

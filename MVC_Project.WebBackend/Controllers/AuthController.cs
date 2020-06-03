@@ -21,10 +21,10 @@ namespace MVC_Project.WebBackend.Controllers
         private IAuthService _authService;
         private IUserService _userService;
         private IPermissionService _permissionService;
-        private IAccountUserService _accountUserService;
+        private IMembershipService _accountUserService;
         private IRoleService _roleService;
 
-        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService, IAccountUserService accountUserService, IRoleService roleService)
+        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService, IMembershipService accountUserService, IRoleService roleService)
         {
             _authService = authService;
             _userService = userService;
@@ -112,10 +112,10 @@ namespace MVC_Project.WebBackend.Controllers
                         }
                     }
 
-                    if (user.accountUsers.Count <= 0)//Rol invitado
+                    if (user.memberships.Count <= 0)//Rol invitado
                     {
                         var guestRole = _roleService.FindBy(x => x.code == SystemRoles.GUEST.ToString()).FirstOrDefault();
-                        List<Permission> permissionsUserGest = guestRole.permissions.Select(p => new Permission
+                        List<Permission> permissionsGest = guestRole.permissions.Select(p => new Permission
                         {
                             Action = p.action,
                             Controller = p.controller,
@@ -123,24 +123,24 @@ namespace MVC_Project.WebBackend.Controllers
                         }).ToList();
 
                         authUser.Role = new Role { Code = guestRole.code, Name = guestRole.name };
-                        authUser.Permissions = permissionsUserGest;
+                        authUser.Permissions = permissionsGest;
                         Authenticator.StoreAuthenticatedUser(authUser);
                         return RedirectToAction("Index", "Account");
                     }
-                    else if (user.accountUsers.Count == 1)
+                    else if (user.memberships.Count == 1)
                     {
-                        var uniqueAccountUser = user.accountUsers.First();
-                        var uniqueRole = _roleService.FindBy(x => x.code == uniqueAccountUser.role.code).FirstOrDefault();
-                        List<Permission> permissionsUserUnique = uniqueRole.permissions.Select(p => new Permission
+                        var uniqueMembership = user.memberships.First();
+                        //var uniqueRole = _roleService.FindBy(x => x.code == uniqueMembership.role.code).FirstOrDefault();
+                        List<Permission> permissionsUniqueMembership = uniqueMembership.mebershipPermissions.Select(p => new Permission
                         {
-                            Action = p.action,
-                            Controller = p.controller,
-                            Module = p.module
+                            Action = p.permission.action,
+                            Controller = p.permission.controller,
+                            Module = p.permission.module
                         }).ToList();
 
-                        authUser.Role = new Role { Code = uniqueRole.code, Name = uniqueRole.name };
-                        authUser.Permissions = permissionsUserUnique;
-                        authUser.Account = new Account { Name = uniqueAccountUser.account.name, RFC = uniqueAccountUser.account.rfc, Uuid = uniqueAccountUser.account.uuid };
+                        authUser.Role = new Role { Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
+                        authUser.Permissions = permissionsUniqueMembership;
+                        authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
                         Authenticator.StoreAuthenticatedUser(authUser);
                         return RedirectToAction("Index", "Home");
                     }
@@ -317,7 +317,7 @@ namespace MVC_Project.WebBackend.Controllers
                     user.passwordExpiration = passwordExpiration;
                     _userService.Update(user);
 
-                    var accountUser = user.accountUsers.First();
+                    var membership = user.memberships.First();
                     //var accountUser = _accountUserService.FindBy(x => x.user.id == user.id && x.account.id == account.id).First();
 
                     AuthUser authUser = new AuthUser
@@ -329,14 +329,14 @@ namespace MVC_Project.WebBackend.Controllers
                         PasswordExpiration = user.passwordExpiration,
                         Role = new Role
                         {
-                            Code = accountUser.role.code,
-                            Name = accountUser.role.name
+                            Code = membership.role.code,
+                            Name = membership.role.name
                         },
-                        Permissions = user.permissions.Select(p => new Permission
+                        Permissions = membership.mebershipPermissions.Select(p => new Permission
                         {
-                            Action = p.action,
-                            Controller = p.controller,
-                            Module = p.module
+                            Action = p.permission.action,
+                            Controller = p.permission.controller,
+                            Module = p.permission.module
                         }).ToList()
                     };
                     Authenticator.StoreAuthenticatedUser(authUser);
@@ -370,7 +370,7 @@ namespace MVC_Project.WebBackend.Controllers
                     resultado.passwordExpiration = passwordExpiration;
                     _userService.Update(resultado);
 
-                    var accountUser = resultado.accountUsers.First();
+                    var membership = resultado.memberships.First();
 
                     AuthUser authUser = new AuthUser
                     {
@@ -381,14 +381,14 @@ namespace MVC_Project.WebBackend.Controllers
                         Email = resultado.name,
                         Role = new Role
                         {
-                            Code = accountUser.role.code,
-                            Name = accountUser.role.name
+                            Code = membership.role.code,
+                            Name = membership.role.name
                         },
-                        Permissions = resultado.permissions.Select(p => new Permission
+                        Permissions = membership.mebershipPermissions.Select(p => new Permission
                         {
-                            Action = p.action,
-                            Controller = p.controller,
-                            Module = p.module
+                            Action = p.permission.action,
+                            Controller = p.permission.controller,
+                            Module = p.permission.module
                         }).ToList()
                     };
                     //UnitOfWork unitOfWork = new UnitOfWork();

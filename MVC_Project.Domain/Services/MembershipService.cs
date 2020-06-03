@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Services
 {
-    public interface IAccountUserService : IService<AccountUser>
+    public interface IMembershipService : IService<Membership>
     {
     }
 
-    public class AccountUserService : ServiceBase<AccountUser>, IAccountUserService
+    public class MembershipService : ServiceBase<Membership>, IMembershipService
     {
-        private IRepository<AccountUser> _repository;
-        public AccountUserService(IRepository<AccountUser> baseRepository) : base(baseRepository)
+        private IRepository<Membership> _repository;
+        public MembershipService(IRepository<Membership> baseRepository) : base(baseRepository)
         {
             _repository = baseRepository;
         }
