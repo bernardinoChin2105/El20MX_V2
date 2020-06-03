@@ -12,8 +12,10 @@ namespace MVC_Project.Domain.Services
     #region Interfaces
     public interface ISocialNetworkLoginService : IService<SocialNetworkLogin>
     {
+        SocialNetworkLogin AuthenticateSocialNetwork(int userId, string password, string typeSocialNetwork);
     }
     #endregion
+
     public class SocialNetworkLoginService : ServiceBase<SocialNetworkLogin>, ISocialNetworkLoginService
     {
         private IRepository<SocialNetworkLogin> _repository;
@@ -21,6 +23,14 @@ namespace MVC_Project.Domain.Services
         public SocialNetworkLoginService(IRepository<SocialNetworkLogin> baseRepository) : base(baseRepository)
         {
             _repository = baseRepository;
+        }
+
+        public SocialNetworkLogin AuthenticateSocialNetwork(int userId, string password, string typeSocialNetwork)
+        {
+            //_repository.Session.Query
+            SocialNetworkLogin login = _repository.FindBy(u => u.token == password).FirstOrDefault();
+            if (login != null && login.socialNetwork == typeSocialNetwork) return login;
+            return null;
         }
     }
 }

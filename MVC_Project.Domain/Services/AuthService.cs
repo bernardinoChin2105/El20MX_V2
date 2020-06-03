@@ -18,5 +18,12 @@ namespace MVC_Project.Domain.Services
             if (user != null && user.password == password) return user;
             return null;
         }        
+
+        public User GetUserByEmail(string username)
+        {
+            User user = _repository.FindBy(u => u.name == username).FirstOrDefault();
+            if (user != null) return user;
+            return null;
+        }
     }
 }

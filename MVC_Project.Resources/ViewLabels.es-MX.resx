@@ -121,7 +121,7 @@
     <value>Olvidé mi contraseña</value>
   </data>
   <data name="AUTH_LOGIN_SUBMIT" xml:space="preserve">
-    <value>Acceder</value>
+    <value>Entrar</value>
   </data>
   <data name="AUTH_LOGIN_TITLE" xml:space="preserve">
     <value>Iniciar sesión</value>

@@ -1,14 +1,14 @@
 ﻿function statusChangeCallback(response) {
     console.log('statusChangeCallback', response);
     if (response.status === 'connected') {
-        testAPI();
+        registerAPI();
     } else if (response.status === 'not_authorized' || response.status === "unknown") {
         //no se hace nada
         console.log(response, "no autorizado");
     } else {
         FB.login(function (response) {
             if (response.status === 'connected') {
-                testAPI();
+                registerAPI();
                 //window.location = "/registro-facebook";
             } else {
                 // The person is not logged into this app or we are unable to tell.
@@ -34,7 +34,8 @@ window.fbAsyncInit = function () {
         //appId: '{your-app-id}',
         cookie: true,
         xfbml: true,
-        version: 'v6.0',
+        version: 'v2.8' // use graph api version 2.8
+        //version: 'v6.0',
         //version: 'v7.0.'
     });
 
@@ -47,9 +48,7 @@ window.fbAsyncInit = function () {
     });
 };
 
-
-
-function testAPI() {
+function registerAPI() {
     console.log("entro al testApi");
     FB.api(
         '/me',
@@ -57,46 +56,46 @@ function testAPI() {
         { "fields": "email,first_name,last_name,birthday, hometown" },
         function (response) {
             console.log("traje resultados", response);
-            GetInfo(response);        
-        });    
+            GetInfo(response);
+        });
 }
 
 function GetInfo(response) {
     console.log(response);
     var profile = response;
-    FB.api(
-        "/" + profile.id + "/",
-        { "fields": "email,first_name,last_name,birthday, hometown" },
-        function (response) {
-            console.log(response, "persona");
-            if (response && !response.error) {
-                /* handle the result */
-            }
-        }
-    );
+    //FB.api(
+    //    "/" + profile.id + "/",
+    //    { "fields": "email,first_name,last_name,birthday, hometown" },
+    //    function (response) {
+    //        console.log(response, "persona");
+    //        if (response && !response.error) {
+    //            /* handle the result */
+    //        }
+    //    }
+    //);
     //Asignar información de facebook al registro
     $("#FistName").val(profile.first_name);
     $("#LastName").val(profile.last_name);
     $("#Email").val(profile.email).attr("readonly", true);
-    $("#Password").val(profile.id).attr("disabled", true);
-    $("#ConfirmPassword").val(profile.id).attr("disabled", true);    
+    $("#Password").val(profile.id+"Fe.").attr("readonly", true);
+    $("#ConfirmPassword").val(profile.id+"Fe.").attr("readonly", true);
 
     $("#SocialId").val(profile.id);
     $("#RedSocial").val(true);
     $("#TypeRedSocial").val("Facebook");
 
-            //$("#Email").trigger("blur");
+    //$("#Email").trigger("blur");
 }
 
 function close() {
-    console.log("entro al cierre")
+    console.log("entro al cierre");
     FB.logout(function (response) {
         // user is now logged out
         console.log("cerro", response);
     });
 }
 
-function Loguear() {
+function Loguear(form) {
     try {
         FB.login(function (response) {
             console.log("respuesta", response);
@@ -108,31 +107,46 @@ function Loguear() {
                     { "fields": "email,first_name,last_name,birthday, hometown" },
                     function (info) {
                         console.log(info, "información que obtuve");
-                        GetInfo(info);
-                        //$.ajax({
-                        //    url: '@Url.Action("ConvertirJson","Login")',
-                        //    data: { user: info.email, pass: info.id, facebook: true, rutaFace: info.picture.data.url },
-                        //    type: 'POST',
-                        //    dataType: 'json',
-                        //    success: function (json) {
-                        //        console.log(json);
+                        if (form) {
+                            //validación de login
+                            var data = {
+                                Email: info.email,
+                                Password: info.id,
+                                RedSocial: true,
+                                TypeRedSocial: "Facebook",
+                                SocialId: info.id
+                            };
 
-                        //        if (json.facebook === "0") {                                    
-                        //            window.location = "/registro-facebook";
-                        //        }
-                        //        if (json.ID_CLIENTE > 0) {                                    
-                        //            window.location = "/cuenta";
-                        //        }
-                        //    },
-                        //    error: function (xhr, status) {
-                        //        console.log(xhr, status, "error");
-                        //        //alert('Disculpe, existió un problema');
-                        //        //$(document).ready(function () {
-                        //        //    $("body").addClass("no_scroll");
-                        //        //    $('#ModalError').show();                                    
-                        //        //});
-                        //    },
-                        //});
+                            $.ajax({
+                                url: UrlLogin,
+                                data: data,
+                                type: 'POST',
+                                dataType: 'json',
+                                success: function (json) {
+                                    console.log(json);
+                                    if (!json.Success) {
+                                        window.location = "/Register";
+                                    }
+                                    //por ajustar si tiene sesion
+                                    if (json.ID_CLIENTE > 0) {
+                                        window.location = "/cuenta";
+                                    }
+                                },
+                                error: function (xhr, status) {
+                                    console.log(xhr, status, "error");
+                                    //alert('Disculpe, existió un problema');
+                                    //$(document).ready(function () {
+                                    //    $("body").addClass("no_scroll");
+                                    //    $('#ModalError').show();                                    
+                                    //});
+                                },
+                            });
+                        } else {
+                            //formulario de registro
+                            GetInfo(info);
+                        }
+
+
                     });
 
             } else {

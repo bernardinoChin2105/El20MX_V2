@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Web;
+using System.Runtime.Serialization;
+using MVC_Project.WebBackend.CustomAttributes.Validations;
 
 namespace MVC_Project.WebBackend.Models
 {
@@ -12,11 +13,9 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Nombre")]
         public string FistName { get; set; }
 
-
         [Required]
         [Display(Name = "Apellido")]
         public string LastName { get; set; }
-
 
         [Required]
         [Display(Name = "Correo electrónico")]
@@ -32,16 +31,19 @@ namespace MVC_Project.WebBackend.Models
 
         [Required]
         [Display(Name = "Contraseña")]
-        [DataType(DataType.Password)]
+        [DataType(DataType.Password)]        
+        [DataMember(Name = "Password")]
         public string Password { get; set; }
 
         [Required]
         [Display(Name = "Confirmar contraseña")]
         [DataType(DataType.Password)]
+        [DataMember(Name = "ConfirmPassword")]
+        [StringComparer("Password", ErrorMessage = "Las contraseñas no coinciden")]
         public string ConfirmPassword { get; set; }
 
         public bool RedSocial { get; set; }
         public string TypeRedSocial { get; set; }
-        public int SocialId { get; set; }
+        public string SocialId { get; set; }
     }
 }

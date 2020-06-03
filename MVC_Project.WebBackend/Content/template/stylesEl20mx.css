@@ -65,12 +65,22 @@
     border-top: 1px solid rgb(189, 189, 189);
 }
 
+.btn-borderBlue {
+    border: 2px solid #002642;
+    color: #002642
+}
+
+    .btn-borderBlue:hover {
+        border: 2px solid #002642;
+    }
+
 .wizard > .steps .current a, .wizard > .steps .current a:hover, .wizard > .steps .current a:active {
     background-color: #53D5E9
 }
 
 .wizard > .steps .done a, .wizard > .steps .done a:hover, .wizard > .steps .done a:active {
     background-color: #4ab9ca
+    
 }
 
 .wizard > .actions a, .wizard > .actions a:hover, .wizard > .actions a:active {

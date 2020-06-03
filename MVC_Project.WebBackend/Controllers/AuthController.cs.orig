@@ -21,20 +21,29 @@ namespace MVC_Project.WebBackend.Controllers
         private IAuthService _authService;
         private IUserService _userService;
         private IPermissionService _permissionService;
-        private IMembershipService _accountUserService;
-        private IRoleService _roleService;
+        private IAccountUserService _accountUserService;
+<<<<<<< HEAD
         private ISocialNetworkLoginService _socialNetworkLoginService;
 
-        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService, 
-            IMembershipService accountUserService, IRoleService roleService, ISocialNetworkLoginService socialNetworkLoginService)
+        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService, IAccountUserService accountUserService,
+            ISocialNetworkLoginService socialNetworkLoginService)
+=======
+        private IRoleService _roleService;
+
+        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService, IAccountUserService accountUserService, IRoleService roleService)
+>>>>>>> f5ff7889b5430c8a5b9f606206677c2d848eb346
         {
             _authService = authService;
             _userService = userService;
             _permissionService = permissionService;
             _accountUserService = accountUserService;
-            _roleService = roleService;
+<<<<<<< HEAD
             _socialNetworkLoginService = socialNetworkLoginService;
         }
+=======
+            _roleService = roleService;
+         }
+>>>>>>> f5ff7889b5430c8a5b9f606206677c2d848eb346
 
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
@@ -58,8 +67,44 @@ namespace MVC_Project.WebBackend.Controllers
                         ViewBag.Error = Resources.ErrorMessages.UserInactive;
                         return View(model);
                     }
+<<<<<<< HEAD
                     //Asignar usuario en sesión
-                    var authUser = GetValidateUserLogin(user);                       
+                    user = GetValidateUserLogin(user);
+=======
+                    user.lastLoginAt = DateTime.Now;
+                    _userService.Update(user);
+
+                    AuthUser authUser = new AuthUser
+                    {
+                        Id = user.id,
+                        FirstName = user.profile.firstName,
+                        LastName = user.profile.lastName,
+                        Email = user.name,
+                        Language = user.profile.language,
+                        Uuid = user.uuid,
+                        Avatar = user.profile.avatar,
+                        PasswordExpiration = user.passwordExpiration,
+                        //Permissions = permissionsUser
+                    };
+
+                    LogUtil.AddEntry(
+                       "Ingresa al Sistema",
+                       ENivelLog.Info,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
+
+                    //Set Language
+                    LanguageMngr.SetDefaultLanguage();
+                    if (!string.IsNullOrEmpty(authUser.Language))
+                    {
+                        LanguageMngr.SetLanguage(authUser.Language);
+                    }
+>>>>>>> f5ff7889b5430c8a5b9f606206677c2d848eb346
 
                     if (user.passwordExpiration.HasValue)
                     {
@@ -84,10 +129,10 @@ namespace MVC_Project.WebBackend.Controllers
                         }
                     }
 
-                    if (user.memberships.Count <= 0)//Rol invitado
+                    if (user.accountUsers.Count <= 0)//Rol invitado
                     {
                         var guestRole = _roleService.FindBy(x => x.code == SystemRoles.GUEST.ToString()).FirstOrDefault();
-                        List<Permission> permissionsGest = guestRole.permissions.Select(p => new Permission
+                        List<Permission> permissionsUserGest = guestRole.permissions.Select(p => new Permission
                         {
                             Action = p.action,
                             Controller = p.controller,
@@ -95,24 +140,24 @@ namespace MVC_Project.WebBackend.Controllers
                         }).ToList();
 
                         authUser.Role = new Role { Code = guestRole.code, Name = guestRole.name };
-                        authUser.Permissions = permissionsGest;
+                        authUser.Permissions = permissionsUserGest;
                         Authenticator.StoreAuthenticatedUser(authUser);
                         return RedirectToAction("Index", "Account");
                     }
-                    else if (user.memberships.Count == 1)
+                    else if (user.accountUsers.Count == 1)
                     {
-                        var uniqueMembership = user.memberships.First();
-                        //var uniqueRole = _roleService.FindBy(x => x.code == uniqueMembership.role.code).FirstOrDefault();
-                        List<Permission> permissionsUniqueMembership = uniqueMembership.mebershipPermissions.Select(p => new Permission
+                        var uniqueAccountUser = user.accountUsers.First();
+                        var uniqueRole = _roleService.FindBy(x => x.code == uniqueAccountUser.role.code).FirstOrDefault();
+                        List<Permission> permissionsUserUnique = uniqueRole.permissions.Select(p => new Permission
                         {
-                            Action = p.permission.action,
-                            Controller = p.permission.controller,
-                            Module = p.permission.module
+                            Action = p.action,
+                            Controller = p.controller,
+                            Module = p.module
                         }).ToList();
 
-                        authUser.Role = new Role { Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
-                        authUser.Permissions = permissionsUniqueMembership;
-                        authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
+                        authUser.Role = new Role { Code = uniqueRole.code, Name = uniqueRole.name };
+                        authUser.Permissions = permissionsUserUnique;
+                        authUser.Account = new Account { Name = uniqueAccountUser.account.name, RFC = uniqueAccountUser.account.rfc, Uuid = uniqueAccountUser.account.uuid };
                         Authenticator.StoreAuthenticatedUser(authUser);
                         return RedirectToAction("Index", "Home");
                     }
@@ -289,7 +334,7 @@ namespace MVC_Project.WebBackend.Controllers
                     user.passwordExpiration = passwordExpiration;
                     _userService.Update(user);
 
-                    var membership = user.memberships.First();
+                    var accountUser = user.accountUsers.First();
                     //var accountUser = _accountUserService.FindBy(x => x.user.id == user.id && x.account.id == account.id).First();
 
                     AuthUser authUser = new AuthUser
@@ -301,14 +346,14 @@ namespace MVC_Project.WebBackend.Controllers
                         PasswordExpiration = user.passwordExpiration,
                         Role = new Role
                         {
-                            Code = membership.role.code,
-                            Name = membership.role.name
+                            Code = accountUser.role.code,
+                            Name = accountUser.role.name
                         },
-                        Permissions = membership.mebershipPermissions.Select(p => new Permission
+                        Permissions = user.permissions.Select(p => new Permission
                         {
-                            Action = p.permission.action,
-                            Controller = p.permission.controller,
-                            Module = p.permission.module
+                            Action = p.action,
+                            Controller = p.controller,
+                            Module = p.module
                         }).ToList()
                     };
                     Authenticator.StoreAuthenticatedUser(authUser);
@@ -342,7 +387,7 @@ namespace MVC_Project.WebBackend.Controllers
                     resultado.passwordExpiration = passwordExpiration;
                     _userService.Update(resultado);
 
-                    var membership = resultado.memberships.First();
+                    var accountUser = resultado.accountUsers.First();
 
                     AuthUser authUser = new AuthUser
                     {
@@ -353,14 +398,14 @@ namespace MVC_Project.WebBackend.Controllers
                         Email = resultado.name,
                         Role = new Role
                         {
-                            Code = membership.role.code,
-                            Name = membership.role.name
+                            Code = accountUser.role.code,
+                            Name = accountUser.role.name
                         },
-                        Permissions = membership.mebershipPermissions.Select(p => new Permission
+                        Permissions = resultado.permissions.Select(p => new Permission
                         {
-                            Action = p.permission.action,
-                            Controller = p.permission.controller,
-                            Module = p.permission.module
+                            Action = p.action,
+                            Controller = p.controller,
+                            Module = p.module
                         }).ToList()
                     };
                     //UnitOfWork unitOfWork = new UnitOfWork();
@@ -424,7 +469,7 @@ namespace MVC_Project.WebBackend.Controllers
                             if (validateSocial != null && validateSocial.user.id == user.id)
                             {
                                 //Asignar usuario en sesión
-                                var authUser  = GetValidateUserLogin(user);
+                                user = GetValidateUserLogin(user);
 
                                 var session = Authenticator.AuthenticatedUser;
                                 if (session != null)
@@ -496,10 +541,8 @@ namespace MVC_Project.WebBackend.Controllers
 
         }
 
-        //Validar el login e iniciar sesión
-        public AuthUser GetValidateUserLogin(Domain.Entities.User user)
+        public Domain.Entities.User GetValidateUserLogin(Domain.Entities.User user)
         {
-            AuthUser authUser = null;
             try
             {
                 user.lastLoginAt = DateTime.Now;
@@ -512,7 +555,7 @@ namespace MVC_Project.WebBackend.Controllers
                     Module = p.module
                 }).ToList();
 
-                authUser = new AuthUser
+                AuthUser authUser = new AuthUser
                 {
                     Id = user.id,
                     FirstName = user.profile.firstName,
@@ -520,9 +563,8 @@ namespace MVC_Project.WebBackend.Controllers
                     Email = user.name,
                     Language = user.profile.language,
                     Uuid = user.uuid,
-                    PasswordExpiration = user.passwordExpiration,                    
-                    Avatar = user.profile.avatar,
-                    //Permissions = permissionsUser
+                    PasswordExpiration = user.passwordExpiration,
+                    Permissions = permissionsUser
                 };
 
                 //Set user in sesion
@@ -552,7 +594,7 @@ namespace MVC_Project.WebBackend.Controllers
                 string Error = Ex.Message.ToString();
             }
 
-            return authUser;
+            return user;
         }
 
         [HttpPost, AllowAnonymous]

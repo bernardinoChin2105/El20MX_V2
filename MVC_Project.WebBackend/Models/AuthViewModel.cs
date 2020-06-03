@@ -1,4 +1,4 @@
-﻿using MVC_Project.Web.CustomAttributes.Validations;
+﻿using MVC_Project.WebBackend.CustomAttributes.Validations;
 using System.ComponentModel.DataAnnotations;
 using MVC_Project.Resources;
 
@@ -13,6 +13,10 @@ namespace MVC_Project.BackendWeb.Models
         [Display(Name = "PASSWORD", ResourceType = typeof(ViewLabels))]
         [Required(ErrorMessageResourceType = typeof(ViewLabels), ErrorMessageResourceName = "PasswordRequired"), MinLength(8)]
         public string Password { get; set; }
+
+        public bool RedSocial { get; set; }
+        public string TypeRedSocial { get; set; }
+        public string SocialId { get; set; }
     }
     public class RecoverPasswordViewModel
     {
@@ -47,11 +51,11 @@ namespace MVC_Project.BackendWeb.Models
         public string ConfirmPassword { get; set; }
     }
 
-    public class AuthLogin
-    {
-        public string username { get; set; }
-        public string password { get; set; }
-        public string socialNetwork { get; set; }
-        public string urlImage { get; set; }
-    }
+    //public class AuthLogin
+    //{
+    //    public string username { get; set; }
+    //    public string password { get; set; }
+    //    public string socialNetwork { get; set; }
+    //    public string urlImage { get; set; }
+    //}
 }

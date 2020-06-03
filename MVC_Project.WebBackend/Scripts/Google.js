@@ -1,13 +1,13 @@
 ﻿function onSignIn(googleUser) {
-    console.log(googleUser, "login");
+    console.log(googleUser, "login onclick");
     var profile = googleUser.getBasicProfile();
     console.log(profile, "usuario perfil");
     console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
     console.log('Name: ' + profile.getName());
     console.log('Image URL: ' + profile.getImageUrl());
     console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
-
 }
+
 function onSuccess(googleUser) {
     console.log(googleUser, "usuario");
     console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
@@ -21,21 +21,27 @@ function onSuccess(googleUser) {
     //console.log('Image URL: ' + profile.getImageUrl());
     //console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
 
+    var form = $("form").attr("id");
+    if (form === "Login") {
+        //validación de login
+        login(profile);
+        
+    } else {
+        $("#FistName").val(profile.getGivenName());
+        $("#LastName").val(profile.getFamilyName());
+        $("#Email").val(profile.getEmail()).attr("readonly", true);
+        $("#Password").val(profile.getId()+ "Go.").attr("readonly", true);
+        $("#ConfirmPassword").val(profile.getId() + "Go.").attr("readonly", true);
 
-    $("#FistName").val(profile.getGivenName());
-    $("#LastName").val(profile.getFamilyName());
-    $("#Email").val(profile.getEmail()).attr("readonly", true);
-    $("#Password").val(profile.getId()).attr("disabled", true);
-    $("#ConfirmPassword").val(profile.getId()).attr("disabled", true);    
-
-    $("#SocialId").val(profile.getId());
-    $("#RedSocial").val(true);
-    $("#TypeRedSocial").val("Google");
+        $("#SocialId").val(profile.getId());
+        $("#RedSocial").val(true);
+        $("#TypeRedSocial").val("Google");
+    }
 }
 function onFailure(error) {
     console.log(error, "Error");
 }
-function renderButton() {    
+function renderButton() {
     gapi.signin2.render('my-signin2', {
         'scope': 'profile email',
         //'width': '100%',
@@ -45,35 +51,73 @@ function renderButton() {
         'onsuccess': onSuccess,
         'onfailure': onFailure
     });
+
+    //var button = document.querySelector('#my-signin2');
+    //button.addEventListener('click', function () {
+    //    console.log("hias");
+    //    gapi.signIn();
+    //});
+
+    //gapi.load('auth2', function () {
+    //    gapi.auth2.init({
+    //        client_id: "765148629644-ehqbkj60uuotg1tb7ofe66jjf7j8gaut.apps.googleusercontent.com",
+    //        scope: "profile email", // this isn't required
+    //    }).then(function (auth2) {
+    //        console.log("signed in: " + auth2.isSignedIn.get());
+    //        //onSuccess();
+    //        auth2.isSignedIn.listen(onSignIn);
+    //        var button = document.querySelector('#signInButton');
+    //        button.addEventListener('click', function () {
+    //            auth2.signIn();
+    //        });
+    //    });
+    //});
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.isSignedIn.listen(onSignIn);
+
+    function onSignIn(googleUser) {
+        console.log("signedin");
+        // Useful data for your client-side scripts:
+        var profile = googleUser.getBasicProfile();
+        console.log("Name: " + profile.getName());
+    };
 }
 
-//function login() {
-//    $.ajax({
-//        url: '@Url.Action("ConvertirJson","Login")',
-//        data: { user: info.email, pass: info.id, facebook: true, rutaFace: info.picture.data.url },
-//        type: 'POST',
-//        dataType: 'json',
-//        success: function (json) {
-//            console.log(json)
-//            if (json.facebook === "0") {
-//                //redireccionar al registro del usuario
-//                //window.location = "/registro-facebook";
-//            }
-//            if (json.ID_CLIENTE > 0) {
-//                //redireccionar al sitio con ya la cuenta iniciadad
-//                //window.location = "/cuenta";
-//            }
-//        },
-//        error: function (xhr, status) {
-//            //alert('Disculpe, existió un problema');
-//            $(document).ready(function () {
-//                //Mensaje de error
-//                //$("body").addClass("no_scroll");
-//                //$('#ModalError').show();                     
-//            });
-//        },
-//    });
-//}
+function onSign() {}
+
+function login(profile) {
+    var data = {
+        Email: profile.getEmail(),
+        Password: profile.getId(),
+        RedSocial: true,
+        TypeRedSocial: "Google",
+        SocialId: profile.getId()
+    };
+
+    $.ajax({
+        url: UrlLogin,
+        data: data,
+        type: 'POST',
+        dataType: 'json',
+        success: function (json) {
+            console.log(json, "holas");
+            //if (json.facebook === "0") {
+            //    window.location = "/registro-facebook";
+            //}
+            //if (json.ID_CLIENTE > 0) {
+            //    window.location = "/cuenta";
+            //}
+        },
+        error: function (xhr, status) {
+            console.log(xhr, status, "error");
+            //alert('Disculpe, existió un problema');
+            //$(document).ready(function () {
+            //    $("body").addClass("no_scroll");
+            //    $('#ModalError').show();                                    
+            //});
+        },
+    });
+}
 
 function signOut() {
     var auth2 = gapi.auth2.getAuthInstance();
@@ -81,3 +125,9 @@ function signOut() {
         console.log('User signed out.');
     });
 }
+
+
+
+
+
+

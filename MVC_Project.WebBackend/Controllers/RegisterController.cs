@@ -1,4 +1,5 @@
-﻿using MVC_Project.Domain.Entities;
+﻿using MVC_Project.BackendWeb.Models;
+using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Services;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.Models;
@@ -46,14 +47,22 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult CreateAccount(RegisterViewModel model)
         {
             //Falta agregar el loghub
-            if (!String.IsNullOrWhiteSpace(model.ConfirmPassword)
-                && !String.IsNullOrWhiteSpace(model.Password))
+            //Falta Notificación para verificar usuario
+            //redireccionamiento a la cuenta si es por red social
+            if (model.RedSocial)
             {
-                if (!model.Password.Equals(model.ConfirmPassword))
-                {
-                    ModelState.AddModelError("ConfirmPassword", "Las contraseñas no coinciden");
-                }
+                model.ConfirmPassword = model.SocialId.ToString();
+                model.Password = model.SocialId.ToString();                 
             }
+
+            //if (!String.IsNullOrWhiteSpace(model.ConfirmPassword)
+            //    && !String.IsNullOrWhiteSpace(model.Password))
+            //{
+            //    if (!model.Password.Equals(model.ConfirmPassword))
+            //    {
+            //        ModelState.AddModelError("ConfirmPassword", "Las contraseñas no coinciden");
+            //    }
+            //}
 
             if (ModelState.IsValid)
             {
@@ -91,7 +100,7 @@ namespace MVC_Project.WebBackend.Controllers
                         passwordExpiration = passwordExpiration, //validar cuando sea red social
                         createdAt = todayDate,
                         modifiedAt = todayDate,
-                        status = SystemStatus.ACTIVE.ToString(),
+                        status = SystemStatus.INACTIVE.ToString(),
                         //role = role,
                         profile = profile
                     };
@@ -148,7 +157,7 @@ namespace MVC_Project.WebBackend.Controllers
                         {
                             uuid = Guid.NewGuid(),
                             socialNetwork = model.TypeRedSocial,
-                            token = model.Password,
+                            token = model.SocialId,
                             user = user,
                             createdAt = todayDate,
                             modifiedAt = todayDate,
@@ -156,11 +165,40 @@ namespace MVC_Project.WebBackend.Controllers
                         };
 
                         _socialNetworkLoginService.Create(socialNW);
-                        return RedirectToAction("Login", "Auth");                        
+
+                        user.status = SystemStatus.ACTIVE.ToString();
+                        _userService.Update(user);
+
+                        AuthViewModel LoginModel = new AuthViewModel()
+                        {
+                            Email = model.Email,
+                            Password = model.SocialId.ToString(),
+                            RedSocial = model.RedSocial,
+                            TypeRedSocial = model.TypeRedSocial,
+                            SocialId = model.SocialId
+                        };                     
+
+                        return RedirectToAction("LoginAuth", "Auth", LoginModel);
+                        //return RedirectToAction("Index", "Account", );
                     }
                     else
                     {
                         //Enviar notificación para activar el correo si no es por red social
+
+                        //user.tokenExpiration = System.DateTime.Now.AddDays(1);
+                        string token = (user.uuid + "@");
+                        token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
+                        //user.token = token;
+                        Dictionary<string, string> customParams = new Dictionary<string, string>();
+                        string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
+                        string link = urlAccion + "Register/VerifyUser?token=" + token;
+                        customParams.Add("param1", user.profile.firstName);
+                        customParams.Add("param2", link);
+
+                        NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_WELCOME);
+
+                        ViewBag.Message = "Registro exitoso.";
+
                         return RedirectToAction("Login", "Auth");
                     }
 
@@ -177,5 +215,45 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult VerifyUser(string token)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(token))
+                    return RedirectToAction("Login");
+
+                var desencriptaToken = EncryptorText.DataDecrypt(token.Replace("!!", "/").Replace("$", "+"));
+
+                if (string.IsNullOrEmpty(desencriptaToken))
+                    return RedirectToAction("Login");
+
+                var elements = desencriptaToken.Split('@');
+                Guid id = Guid.Parse(elements.First().ToString());
+                var resultado = _userService.FindBy(e => e.uuid == id).First();
+                int[] valores = new int[100];
+                for (int a = 0; a < 100; a++)
+                {
+                    valores[a] = a++;
+                }
+                if (resultado != null)
+                {
+                    resultado.status = SystemStatus.ACTIVE.ToString();
+                    _userService.Update(resultado);
+
+                    ViewBag.Message = "Tu cuenta ha sido activada exitosamente.";
+                    return View("VerifyUser");
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = "Token ha expirado";
+                return View("Login");
+                //ErrorController.SaveLogError(this, listAction.Update, "AccedeToken", ex);
+            }
+            ViewBag.Message = "Error en el token";
+            return View("Login");
+        }
     }
 }
