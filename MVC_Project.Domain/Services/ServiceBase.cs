@@ -18,6 +18,11 @@ namespace MVC_Project.Domain.Services
             _baseRepository = baseRepository;
         }
 
+        public void Create(IEnumerable<M> entities)
+        {
+            _baseRepository.Create(entities);
+        }
+
         public void Create(M entity)
         {
             _baseRepository.Create(entity);

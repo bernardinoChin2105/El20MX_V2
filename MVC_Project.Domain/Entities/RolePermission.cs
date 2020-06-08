@@ -12,5 +12,6 @@ namespace MVC_Project.Domain.Entities
         public virtual Role role { get; set; }
         public virtual Permission permission { get; set; }
         public virtual Account account { get; set; }
+        public virtual string level { get; set; }
     }
 }

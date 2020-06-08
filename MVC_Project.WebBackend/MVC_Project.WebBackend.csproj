@@ -207,6 +207,7 @@
     <Compile Include="Models\CalendarViewModel.cs" />
     <Compile Include="Models\DataTableModel.cs" />
     <Compile Include="Models\ExcelImport\UserImport.cs" />
+    <Compile Include="Models\FeatureViewModel.cs" />
     <Compile Include="Models\JQueryDataTableParams.cs" />
     <Compile Include="Models\PaymentViewModel.cs" />
     <Compile Include="Models\RegisterViewModel.cs" />

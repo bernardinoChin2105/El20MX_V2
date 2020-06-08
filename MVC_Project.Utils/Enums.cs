@@ -16,6 +16,16 @@ namespace MVC_Project.Utils
         INACTIVE
     }
 
+    public enum SystemAction
+    {
+        [Display(Name = "No access")]
+        NO_ACCESS,
+        [Display(Name = "Full access")]
+        FULL_ACCESS,
+        [Display(Name = "Read only")]
+        READ_ONLY
+    }
+
     public enum SystemRoles
     {
         [Display(Name = "Owner")]

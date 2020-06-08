@@ -22,5 +22,7 @@ namespace MVC_Project.Domain.Repositories
         void Update(T entity);
 
         void Delete(int id);
+
+        void Create(IEnumerable<T> entities);
     }
 }

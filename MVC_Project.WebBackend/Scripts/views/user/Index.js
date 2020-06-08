@@ -51,7 +51,7 @@
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             deshabilitarBtns +
                             '<button class="btn btn-light btn-edit" title="Editar Usuario"><span class="fas fa-user-edit"></span></button>' +
-                            '<button class="btn btn-light btn-edit-password" title="Cambiar Contraseña"><span class="fas fa-key"></span></button>' +
+                            //'<button class="btn btn-light btn-edit-password" title="Cambiar Contraseña"><span class="fas fa-key"></span></button>' +
                             '</div>';
                         return buttons;
                     }

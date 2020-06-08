@@ -112,7 +112,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                         authUser.Role = new Role { Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
                         authUser.Permissions = permissionsUniqueMembership;
-                        authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
+                        authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
                         Authenticator.StoreAuthenticatedUser(authUser);
                         return RedirectToAction("Index", "Home");
                     }

@@ -6,6 +6,13 @@
 
 @section Styles {
     @Styles.Render("~/Content/template/plugins/chosen/chosenStyles")
+    <link href="~/Content/template/plugins/cropper/cropper.min.css" rel="stylesheet" />
+    <style>
+        /* Limit image width to avoid overflow the container */
+        img {
+            max-width: 100%; /* This rule is very important, please do not ignore this! */
+        }
+    </style>
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
@@ -23,10 +30,21 @@
 
                         <div class="form-horizontal">
                             @Html.ValidationSummary(true)
-
+                            @*<div class="form-group row">
+                                <div class="col-md-2 offset-9">
+                                    <img id="image" src="/Content/img/profile_small.jpg">
+                                    
+                                </div>
+                                <div class="col-md-1">
+                                    <label title="Subir imagen" for="inputImage" class="btn btn-default btn-sm" style="margin-top:100%">
+                                        <input type="file" accept="image/*" name="file" id="inputImage" style="display:none">
+                                        <i class="fas fa-upload"></i>
+                                    </label>
+                                </div>
+                            </div>*@
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.Name, new { @class = "col-form-label col-md-2 control-label" })
-                                <div class="col-md-10">
+                                <div class="col-md-8">
                                     @Html.EditorFor(model => model.Name, new { @class = "form-control", @required = "required" })
                                     @Html.ValidationMessageFor(model => model.Name)
                                 </div>
@@ -34,7 +52,7 @@
 
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.Apellidos, new { @class = "col-form-label col-md-2 control-label" })
-                                <div class="col-md-10">
+                                <div class="col-md-8">
                                     @Html.EditorFor(model => model.Apellidos, new { @class = "form-control" })
                                     @Html.ValidationMessageFor(model => model.Apellidos)
                                 </div>
@@ -42,7 +60,7 @@
 
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.Email, new { @class = "col-form-label col-md-2 control-label", required = "required" })
-                                <div class="col-md-10">
+                                <div class="col-md-8">
                                     @Html.EditorFor(model => model.Email, new { @class = "form-control", required = "required" })
                                     @Html.ValidationMessageFor(model => model.Email)
                                 </div>
@@ -50,7 +68,7 @@
 
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.MobileNumber, new { @class = "col-form-label col-md-2 control-label" })
-                                <div class="col-md-10">
+                                <div class="col-md-8">
                                     @Html.EditorFor(model => model.MobileNumber, new { @class = "form-control" })
                                     @Html.ValidationMessageFor(model => model.MobileNumber)
                                 </div>
@@ -58,7 +76,7 @@
 
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.Password, new { @class = "col-form-label col-md-2 control-label" })
-                                <div class="col-md-10">
+                                <div class="col-md-8">
                                     @Html.EditorFor(model => model.Password, new { @class = "form-control", @required = "required", type = "password" })
                                     @Html.ValidationMessageFor(model => model.Password)
                                 </div>
@@ -66,7 +84,7 @@
 
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.ConfirmPassword, new { @class = "col-form-label col-md-2 control-label" })
-                                <div class="col-md-10">
+                                <div class="col-md-8">
                                     @Html.EditorFor(model => model.ConfirmPassword, new { @class = "form-control", @required = "required", type = "password" })
                                     @Html.ValidationMessageFor(model => model.ConfirmPassword)
                                 </div>
@@ -74,16 +92,17 @@
 
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.Role, new { @class = "col-form-label col-md-2 control-label" })
-                                <div class="col-md-10">
-                                    @Html.DropDownListFor(model => model.Role, Model.Roles, "Seleccione un rol", new { @class = "chosen-select", @required = "required" })
+                                <div class="col-md-8">
+                                    @Html.DropDownListFor(model => model.Role, Model.Roles, new { @class = "chosen-select", @required = "required" })
                                     @Html.ValidationMessageFor(model => model.Role)
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <div class="offset-md-2 col-md-10">
-                                    <input type="button" value="Crear" class="btn btn-primary" onclick="validarDatos();" />
-                                    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-white" })
+                                <div class="offset-md-2 col-md-8 text-right">
+
+                                    <a href='@Url.Action("Index", "User")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
+                                    <button type="button" value="Crear" class="btn btn-color" onclick="validarDatos();"><i class="fa fa-save"></i> Guardar</button>
                                 </div>
                             </div>
                         </div>
@@ -97,10 +116,28 @@
 @section Scripts {
     @Scripts.Render("~/plugins/chosen")
     @Scripts.Render("~/plugins/validate")
-
+    <script src="~/Scripts/plugins/cropper/cropper.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            $('.chosen-select').chosen({ width: '100%' });
+            var $image = $('#image');
+
+            $image.cropper({
+                aspectRatio: 16 / 9,
+                crop: function (event) {
+                    console.log(event.detail.x);
+                    console.log(event.detail.y);
+                    console.log(event.detail.width);
+                    console.log(event.detail.height);
+                    console.log(event.detail.rotate);
+                    console.log(event.detail.scaleX);
+                    console.log(event.detail.scaleY);
+                }
+            });
+
+            // Get the Cropper.js instance after initialized
+            var cropper = $image.data('cropper');
+
+            $('.chosen-select').chosen({ width: '100%', "disable_search": true });
             $.validator.addMethod("PasswordTrue",
                 function (value, element) {
                     return value.match(/^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/);

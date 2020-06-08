@@ -16,6 +16,7 @@ namespace MVC_Project.Domain.Entities {
         public virtual string status { get; set; }
 
         public virtual Account account { get; set; }
+        public virtual Feature feature { get; set; }
 
         public virtual IList<MembershipPermission> mebershipPermissions { get; set; }
 

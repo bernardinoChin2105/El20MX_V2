@@ -1,6 +1,8 @@
-﻿using System;
+﻿using MVC_Project.Utils;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Web.Mvc;
 
 namespace MVC_Project.WebBackend.Models
 {
@@ -37,7 +39,7 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Código")]
         public string Code { get; set; }
 
-        public IEnumerable<PermissionViewModel> Permissions { get; set; }
+        public List<FeatureViewModel> Features { get; set; }
     }
     public class RoleEditViewModel
     {
@@ -53,9 +55,11 @@ namespace MVC_Project.WebBackend.Models
     public class PermissionViewModel {
         public int Id { get; set; }
 
-        [Display(Name = "Descripción")]
-        public string Description { get; set; }
+        [Display(Name = "Nombre")]
+        public string Name { get; set; }
 
-        public bool Assigned { get; set; }
+        public int SystemAction { get; set; }
+
+        public List<SelectListItem> SystemActions { get; set; }
     }
 }
