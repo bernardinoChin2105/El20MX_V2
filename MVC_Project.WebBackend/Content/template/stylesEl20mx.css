@@ -14,7 +14,7 @@
 
 .btn.btn-color {
     background-color: #53D5E9;
-    color: #ffffff;
+    color: #ffffff !important;
     border: #53D5E9;
 }
 
@@ -90,4 +90,18 @@
 
 .wizard > .actions a, .wizard > .actions a:hover, .wizard > .actions a:active {
     background-color: #53D5E9
+}
+
+.page-item.active .page-link {
+    background-color: #53D5E9 !important;
+    color: #ffffff;
+    border-color: #53D5E9;
+}
+
+.chosen-container .chosen-results li.highlighted {
+    background-color: #53D5E9 !important;
+}
+
+.chosen-container-active.chosen-with-drop .chosen-single {
+    border-color: #53D5E9 !important;
 }

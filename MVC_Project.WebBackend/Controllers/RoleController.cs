@@ -7,6 +7,7 @@ using System.Web.Mvc;
 using MVC_Project.WebBackend.Models;
 using MVC_Project.Utils;
 using System.Configuration;
+using MVC_Project.WebBackend.AuthManagement;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -15,12 +16,15 @@ namespace MVC_Project.WebBackend.Controllers
         private IRoleService _roleService;
         private IPermissionService _permissionService;
         private IRolePermissionService _rolePermissionService;
+        private IFeatureService _featureService;
 
-        public RoleController(IRoleService roleService, IPermissionService permissionService, IRolePermissionService rolePermissionService)
+        public RoleController(IRoleService roleService, IPermissionService permissionService, IRolePermissionService rolePermissionService,
+            IFeatureService featureService)
         {
             _roleService = roleService;
             _permissionService = permissionService;
             _rolePermissionService = rolePermissionService;
+            _featureService = featureService;
         }
 
         // GET: Role
@@ -55,9 +59,6 @@ namespace MVC_Project.WebBackend.Controllers
                     iTotalDisplayRecords = 10,
                     aaData = UsuariosResponse
                 }, JsonRequestBehavior.AllowGet);
-
-
-
             }
             catch (Exception ex)
             {
@@ -79,18 +80,50 @@ namespace MVC_Project.WebBackend.Controllers
         // GET: Role/Create
         public ActionResult Create()
         {
-            var roleCreateViewModel = new RoleCreateViewModel { Permissions = PopulatePermissions() };
+            var roleCreateViewModel = new RoleCreateViewModel {Features = PopulateFeatures()};
             return View(roleCreateViewModel);
         }
 
-        private IEnumerable<PermissionViewModel> PopulatePermissions()
+        private List<FeatureViewModel> PopulateFeatures()
+        {
+            var features = _featureService.GetAll();
+            var featuresViewModel = new List<FeatureViewModel>();
+            var values = Enum.GetValues(typeof(SystemAction));
+            var items = new List<SelectListItem>();
+            foreach (int i in values)
+            {
+                items.Add(new SelectListItem
+                {
+                    Text = ((SystemAction)i).GetDisplayName(),
+                    Value = i.ToString()
+            });
+            }
+            foreach (var feature in features)
+            {
+                featuresViewModel.Add(new FeatureViewModel
+                {
+                    Id = feature.id,
+                    Name = feature.name,
+                    Permissions = feature.permissions.Select(x => new PermissionViewModel
+                    {
+                        Id = x.id,
+                        Name = x.description,
+                        SystemActions = items
+                    }).ToList()
+                });
+            }
+            
+            return featuresViewModel;
+        }
+
+        private List<PermissionViewModel> PopulatePermissions()
         {
             var permissions = _permissionService.GetAll();
             var permissionsVM = new List<PermissionViewModel>();
             permissionsVM = permissions.Select(permission => new PermissionViewModel
             {
                 Id = permission.id,
-                Description = permission.description
+                Name = permission.description
             }).ToList();
             return permissionsVM;
         }
@@ -102,6 +135,7 @@ namespace MVC_Project.WebBackend.Controllers
         {          
             if (ModelState.IsValid)
             {
+                var userAuth = Authenticator.AuthenticatedUser;
                 DateTime todayDate = DateUtil.GetDateTimeNow();      
                 var role = new Role
                 {
@@ -111,24 +145,31 @@ namespace MVC_Project.WebBackend.Controllers
                     description = roleCreateViewModel.Name,
                     createdAt = todayDate,
                     modifiedAt = todayDate,
-                    status = SystemStatus.ACTIVE.ToString()
+                    status = SystemStatus.ACTIVE.ToString(),
+                    account = new Account { id = userAuth.Account.Id }
                 };
+
                 _roleService.Create(role);
 
-                IList<PermissionViewModel> permisosNuevos = roleCreateViewModel.Permissions.Where(x => x.Assigned == true).ToList();                
-                foreach (PermissionViewModel permisoNuevo in permisosNuevos)
+                IEnumerable<RolePermission> rolesPermissions = new List<RolePermission>();
+                foreach(var feature in roleCreateViewModel.Features)
                 {
-                    RolePermission rolePermission = new RolePermission();
-                    rolePermission.role = new Role { id = role.id };
-                    rolePermission.permission = new Permission { id = permisoNuevo.Id };
-                    _rolePermissionService.Create(rolePermission);
+                    foreach (PermissionViewModel permisoNuevo in feature.Permissions)
+                    {
+                        RolePermission rolePermission = new RolePermission();
+                        rolePermission.role = new Role { id = role.id };
+                        rolePermission.permission = new Permission { id = permisoNuevo.Id };
+                        rolePermission.level = ((SystemAction)permisoNuevo.SystemAction).ToString();
+                        rolePermission.account = new Account { id = userAuth.Account.Id };
+                        rolesPermissions.Append(rolePermission);
+                    }
                 }
-               
+                _rolePermissionService.Create(rolesPermissions);
                 return RedirectToAction("Index");
             }
             else
             {
-                roleCreateViewModel = new RoleCreateViewModel { Permissions = PopulatePermissions() };
+                roleCreateViewModel = new RoleCreateViewModel { Features = PopulateFeatures() };
                 return View("Create", roleCreateViewModel);
             }
         }
@@ -145,10 +186,10 @@ namespace MVC_Project.WebBackend.Controllers
             IEnumerable<PermissionViewModel> permisos = PopulatePermissions();
             foreach (PermissionViewModel permiso in permisos)
             {
-                var match = role.permissions.FirstOrDefault(stringToCheck => stringToCheck.description.Contains(permiso.Description));
+                var match = role.permissions.FirstOrDefault(stringToCheck => stringToCheck.description.Contains(permiso.Name));
                 if (match != null)
                 {
-                    permiso.Assigned = true;
+                    //permiso.Assigned = true;
                 }
             }
             model.Permissions = permisos;
@@ -167,7 +208,7 @@ namespace MVC_Project.WebBackend.Controllers
                 //_roleService.Update(role);
 
                 IList<Permission> permissions = role.permissions;
-                IList<PermissionViewModel> permisosNuevos = model.Permissions.Where(x => x.Assigned == true).ToList();
+                IList<PermissionViewModel> permisosNuevos = model.Permissions.ToList();
                 var query = permisosNuevos.Where(p => !permissions.Any(l => p.Id == l.id)); //permisosNuevos.Where(x => permissions.Contains(x.Id));
                 var query2 = permissions.Where(p => !permisosNuevos.Any(l => p.id == l.Id));
                 foreach (PermissionViewModel permisoNuevo in query)

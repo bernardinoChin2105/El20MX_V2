@@ -71,7 +71,7 @@ namespace MVC_Project.WebBackend.Controllers
                         }).ToList();
 
                     authUser.Role = new Role { Code = membership.role.code, Name = membership.role.name };
-                    authUser.Account = new Account { Uuid = account.uuid, Name = account.name, RFC = account.rfc };
+                    authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc };
                     authUser.Permissions = permissions;
 
                     Authenticator.RefreshAuthenticatedUser(authUser);

@@ -19,6 +19,8 @@ namespace MVC_Project.Data.Mappings {
             Map(x => x.status).Column("status").Nullable();
 
             References(x => x.account).Column("accountId").Nullable();
+            References(x => x.feature).Column("featureId").Nullable();
+
             HasMany(x => x.mebershipPermissions).Inverse().Cascade.All().KeyColumn("permissionId");
         }
     }

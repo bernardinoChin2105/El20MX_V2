@@ -1,7 +1,7 @@
 ﻿@model MVC_Project.WebBackend.Models.RoleViewModel
 
 @{
-    ViewBag.Title = "Roles del Sistema";
+    ViewBag.Title = "Roles del sistema";
 
 }
 @section styles {
@@ -28,7 +28,7 @@
                             </div>
                             <div class="col-sm-6 col-lg-4">
                                 <br />
-                                <button type="button" class="btn btn-sm btn-primary btn-filter-rol"><i class="fas fa-search"></i> Buscar</button>
+                                <button type="button" class="btn btn-sm btn-color btn-filter-rol"><i class="fas fa-search"></i> Buscar</button>
                                 &nbsp;
                                 <button type="button" id="btnClearForm" class="btn btn-sm btn-default"><i class="fas fa-eraser "></i> Limpiar</button>                                
                             </div>
@@ -42,7 +42,7 @@
                 <div class="ibox-title">
                     <h5>Resultado</h5>
                     <div class="ibox-tools">
-                        <a href="@Url.Action("Create","Role")" class="btn btn-primary"><span class="fas fa-plus-square"></span> Crear Nuevo</a>
+                        <a href="@Url.Action("Create","Role")" class="btn btn-color"><span class="fas fa-plus-square"></span> Crear Nuevo</a>
                     </div>
                 </div>
                 <div class="ibox-content">

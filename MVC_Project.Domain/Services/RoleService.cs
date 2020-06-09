@@ -38,5 +38,24 @@ namespace MVC_Project.Domain.Services {
             //}
             return roles.ToList();
         }
+
+        public IList<Role> ObtenerRoles(string filtros, int accountId)
+        {
+            filtros = filtros.Replace("[", "").Replace("]", "").Replace("\\", "").Replace("\"", "");
+            var filters = filtros.Split(',').ToList();
+
+            var roles = _repository.FindBy(x => x.account.id == accountId);
+            if (!string.IsNullOrWhiteSpace(filters[0]))
+            {
+                string nombre = filters[0];
+                roles = roles.Where(p => p.name.ToLower().Contains(nombre.ToLower()));
+            }
+            //if (filters[1] != "2")
+            //{
+            //    bool status = filters[1] == "1" ? true : false;
+            //    users = users.Where(p => p.Status == status);
+            //}
+            return roles.ToList();
+        }
     }
 }

@@ -21,12 +21,14 @@ namespace MVC_Project.WebBackend.Controllers
         private IUserService _userService;
         private IRoleService _roleService;
         private IMembershipService _accountUserService;
+        private IFeatureService _featureService;
 
-        public UserController(IUserService userService, IRoleService roleService, IMembershipService accountUserService)
+        public UserController(IUserService userService, IRoleService roleService, IMembershipService accountUserService, IFeatureService featureService)
         {
             _userService = userService;
             _roleService = roleService;
             _accountUserService = accountUserService;
+            _featureService = featureService;
         }
 
         [Authorize]
@@ -92,8 +94,9 @@ namespace MVC_Project.WebBackend.Controllers
         {
             try
             {
+                var userAuth = Authenticator.AuthenticatedUser;
                 NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
-                var results = _userService.FilterBy(filtersValues, param.iDisplayStart, param.iDisplayLength);
+                var results = _userService.FilterBy(filtersValues, userAuth.Account.Id, param.iDisplayStart, param.iDisplayLength);
                 IList<UserData> dataResponse = new List<UserData>();
                 foreach (var user in results.Item1)
                 {
@@ -134,13 +137,49 @@ namespace MVC_Project.WebBackend.Controllers
         [Authorize]
         public ActionResult Create()
         {
-            var userCreateViewModel = new UserCreateViewModel { Roles = PopulateRoles() };
+            var roles = PopulateRoles();
+            var userCreateViewModel = new UserCreateViewModel { Roles = roles, Features = PopulateFeatures(int.Parse(roles.First().Value)) };
             return View(userCreateViewModel);
+        }
+
+        private IEnumerable<FeatureViewModel> PopulateFeatures(int roleId)
+        {
+            var role = _roleService.FindBy(x => x.id == roleId).FirstOrDefault();
+            var features = _featureService.GetAll();
+            var featuresViewModel = new List<FeatureViewModel>();
+            var values = Enum.GetValues(typeof(SystemAction));
+            var items = new List<SelectListItem>();
+            foreach (var i in values)
+            {
+                items.Add(new SelectListItem
+                {
+                    Text = Enum.GetName(typeof(SystemAction), i),
+                    Value = ((int)i).ToString()
+                });
+            }
+            foreach (var feature in features)
+            {
+                var permisions = role.permissions.Where(x => x.feature.id == feature.id);
+                featuresViewModel.Add(new FeatureViewModel
+                {
+                    Id = feature.id,
+                    Name = feature.name,
+                    Permissions = permisions.Select(x => new PermissionViewModel
+                    {
+                        Id = x.id,
+                        Name = x.description,
+                        SystemActions = items
+                    }).ToList()
+                });
+            }
+
+            return featuresViewModel;
         }
 
         private IEnumerable<SelectListItem> PopulateRoles()
         {
-            var availableRoles = _roleService.GetAll();
+            var userAuth = Authenticator.AuthenticatedUser;
+            var availableRoles = _roleService.FindBy(x => x.account.id == userAuth.Id).OrderBy(x => x.code);
             var rolesList = new List<SelectListItem>();
             rolesList = availableRoles.Select(role => new SelectListItem
             {

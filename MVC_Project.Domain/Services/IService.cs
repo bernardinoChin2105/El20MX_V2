@@ -19,5 +19,7 @@ namespace MVC_Project.Domain.Services
         void Update(M entity);
 
         void Delete(int id);
+
+        void Create(IEnumerable<M> entities);
     }
 }

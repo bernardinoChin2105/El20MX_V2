@@ -17,6 +17,7 @@ namespace MVC_Project.Domain.Services
     public interface IUserService : IService<User>
     {
         Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, int? skip, int? take);
+        Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, int accountId, int? skip, int? take);
     }
 
     #endregion Interfaces
@@ -59,5 +60,43 @@ namespace MVC_Project.Domain.Services
             var list = query.OrderBy(u => u.createdAt).Desc.List();
             return new Tuple<IEnumerable<User>, int>(list, count);
         }
+
+        public Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, int accountId, int? skip, int? take)
+        {
+            string FilterName = filtersValue.Get("Name").Trim();
+            int FilterStatus = Convert.ToInt32(filtersValue.Get("Status").Trim());
+
+            Membership membershipAlias = null;
+            Account accountAlias = null;
+
+            var query = _repository.Session.QueryOver<User>()
+                .JoinAlias(x => x.memberships, () => membershipAlias)
+                .JoinAlias(() => membershipAlias.account, () => accountAlias)
+                .Where(() => accountAlias.id == accountId);
+
+            if (!string.IsNullOrWhiteSpace(FilterName))
+            {
+                query = query.Where(user => user.name.IsInsensitiveLike("%" + FilterName + "%") || user.profile.firstName.IsInsensitiveLike("%" + FilterName + "%") || user.profile.lastName.IsInsensitiveLike("%" + FilterName + "%"));
+            }
+            if (FilterStatus != Constants.SEARCH_ALL)
+            {
+                string FilterStatusBool = SystemStatus.ACTIVE.ToString();
+                query = query.Where(user => user.status == FilterStatusBool);
+            }
+            var count = query.RowCount();
+
+            if (skip.HasValue)
+            {
+                query.Skip(skip.Value);
+            }
+
+            if (take.HasValue)
+            {
+                query.Take(take.Value);
+            }
+            var list = query.OrderBy(u => u.createdAt).Desc.List();
+            return new Tuple<IEnumerable<User>, int>(list, count);
+        }
+
     }
 }
