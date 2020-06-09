@@ -176,9 +176,11 @@ namespace MVC_Project.WebBackend.Controllers
                             RedSocial = model.RedSocial,
                             TypeRedSocial = model.TypeRedSocial,
                             SocialId = model.SocialId
-                        };                     
+                        };
 
-                        return RedirectToAction("LoginAuth", "Auth", LoginModel);
+                        Session["modelNW"] = LoginModel;
+
+                        return RedirectToAction("LoginAuth", "Auth");
                         //return RedirectToAction("Index", "Account", );
                     }
                     else

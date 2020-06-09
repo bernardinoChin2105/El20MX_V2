@@ -25,11 +25,11 @@ namespace MVC_Project.Domain.Services
             _repository = baseRepository;
         }
 
-        public SocialNetworkLogin AuthenticateSocialNetwork(int userId, string password, string typeSocialNetwork)
+        public SocialNetworkLogin AuthenticateSocialNetwork(int userId, string socialId, string typeSocialNetwork)
         {
             //_repository.Session.Query
-            SocialNetworkLogin login = _repository.FindBy(u => u.token == password).FirstOrDefault();
-            if (login != null && login.socialNetwork == typeSocialNetwork) return login;
+            SocialNetworkLogin login = _repository.FindBy(u => u.user.id == userId).FirstOrDefault();
+            if (login != null && login.socialNetwork == typeSocialNetwork && login.token == socialId) return login;
             return null;
         }
     }

@@ -27,62 +27,21 @@ namespace MVC_Project.Domain.Services
         }
 
         public User AuthenticateSocialNetwork(string username, string password, string typeSocialNetwork, string SocialId)
-        {
-            //[dbo].[st_user_select_by_email_password]
-
-            //@IDPers=:IDPers, @jaar=:jaar, @maand=:maand
-            var user = _repository.Session.CreateSQLQuery("exec dbo.st_user_select_by_email_password "+
+        {          
+            /*var user = _repository.Session.CreateSQLQuery("exec dbo.st_user_select_by_email_password "+
                 "@Email =:Email, @Password=:Password, @TypeRedSocial=:TypeRedSocial, @SocialId=:SocialId")
                     .SetParameter("Email", username)
                     .SetParameter("Password", password)
                     .SetParameter("TypeRedSocial", typeSocialNetwork)
                     .SetParameter("SocialId", SocialId)
                     .SetResultTransformer(Transformers.AliasToBean(typeof(User)))
-                    .UniqueResult<User>();
-                    //.SetResultTransformer(new AliasToBeanResultTransformer(typeof(User))).
-            //.List<User>()
-            //.ToList();
+                    .UniqueResult<User>();*/
 
-            //var user = queryU;
+            Profile profile = null;
 
-            //var emailParameter = new SqlParameter("@Email", SqlDbType.NVarChar);
-            //emailParameter.Value = username;
-
-            //var passwordParameter = new SqlParameter("Password", SqlDbType.NVarChar);
-            //passwordParameter.Value = password;
-
-            //var typeSNParameter = new SqlParameter("@TypeRedSocial", SqlDbType.NVarChar);
-            //typeSNParameter.Value = typeSocialNetwork;
-
-            //var SocialIdParameter = new SqlParameter("SocialId", SqlDbType.NVarChar);
-            //SocialIdParameter.Value = SocialId;
-
-
-            //User user = _repository.Session.CreateSQLQuery<User>("exec dbo.st_user_select_by_email_password " +
-            //"@Email" +
-            //",@Password" +
-            //",@TypeRedSocial" +
-            //",@SocialId",
-            //emailParameter,
-            //passwordParameter,
-            //typeSNParameter,
-            //SocialIdParameter
-            //).FirstOrDefault();
-
-            /*.GetCurrentSession()
-                .GetNamedQuery("GetForumProfileDetails")
-                .SetInt32("UserID", user.UserID)
-                .SetResultTransformer(
-                        Transformers.AliasToBean(typeof(ForumProfile)))
-                .UniqueResult<ForumProfile>();*/
-
-            //User user = _repository.Session.GetNamedQuery("st_user_select_by_email_password")
-            //    .SetString("Email", username)
-            //    .SetString("Password", password)
-            //    .SetString("TypeRedSocial", typeSocialNetwork)
-            //    .SetString("SocialId", SocialId)
-            //    .SetResultTransformer(Transformers.AliasToBean(typeof(User)))
-            //    .UniqueResult<User>();
+            User user = (User)_repository.Session.QueryOver<User>()            
+                        .JoinAlias(x => x.profile, () => profile);
+         
 
 
 
