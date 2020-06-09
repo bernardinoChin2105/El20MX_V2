@@ -28,17 +28,22 @@
     width: 100% !important;
 }
 
+#custom_signin_button,
 #my-signin2 {
     opacity: 0;
     position: absolute;
     width: 100%;
 }
-
-    #my-signin2:hover + .btn.btn-color {
-        background: #002642;
-        color: #FFFFFF;
-        border: #002642;
+    #custom_signin_button .abcRioButton.abcRioButtonLightBlue,
+    #my-signin2 .abcRioButton.abcRioButtonLightBlue {
+        width: 100% !important;
     }
+
+#my-signin2:hover + .btn.btn-color {
+    background: #002642;
+    color: #FFFFFF;
+    border: #002642;
+}
 
 .btn-google {
     position: relative;

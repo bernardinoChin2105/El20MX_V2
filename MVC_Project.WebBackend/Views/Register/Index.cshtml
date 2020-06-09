@@ -49,7 +49,7 @@
                 <span><i class="fa fa-facebook"></i></span>&nbsp;&nbsp;&nbsp; Registrarte con Facebook
             </button>
             <div class="btn-google">
-                <div id="my-signin2" class="g-signin2"></div>
+                <div id="my-signin2" class="g-signin2" data-onsuccess="onSuccess"></div>
                 <button type="button" class="btn btn-color block full-width m-b">
                     <span><i class="fa fa-google"></i></span>&nbsp;&nbsp;&nbsp; Resitrarte con Google
                 </button>
@@ -102,16 +102,24 @@
         </div>
     </div>
 
+    @*<div class="g-signin2" data-onsuccess="onSuccess"></div>*@
+    <div id="custom_signin_button"></div>
+
     <a href="#" onclick="signOut();">Sign out google</a>
-        <br />
-        <a href="#" onclick="close();">Sign out facebook</a>
+    <br />
+    <a href="#" onclick="close();">Sign out facebook</a>
+
+    <script>
+        var UrlLogin = '@Url.Action("ValidateLogin", "Auth")';
+    </script>
     <!-- Mainly scripts -->
     <script src="~/Scripts/jquery-3.1.1.min.js"></script>
     <script src="~/Scripts/popper.min.js"></script>
     <script src="~/Scripts/bootstrap.js"></script>
     @Scripts.Render("~/plugins/validate")
     <!--Configuración de Google-->
-    <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    @*<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>*@
     <script src="~/Scripts/Google.js"></script>
     <!--Configuración de Google-->
     <!--Configuración de facebook-->

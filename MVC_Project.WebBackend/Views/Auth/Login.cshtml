@@ -68,18 +68,18 @@
             @*<h3>@System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</h3>*@
 
             @*@if (!string.IsNullOrEmpty(ViewBag.Error))
-        {
-            <div class="col-lg-12">
-                <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
-            </div>
-        }
+                {
+                    <div class="col-lg-12">
+                        <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
+                    </div>
+                }
 
-        @if (!string.IsNullOrEmpty(ViewBag.Message))
-        {
-            <div class="col-lg-12">
-                <div class="alert alert-info" role="alert">@ViewBag.Message</div>
-            </div>
-        }*@
+                @if (!string.IsNullOrEmpty(ViewBag.Message))
+                {
+                    <div class="col-lg-12">
+                        <div class="alert alert-info" role="alert">@ViewBag.Message</div>
+                    </div>
+                }*@
 
             <p>@ViewLabels.AUTH_LOGIN_TITLE</p>
             @using (Html.BeginForm("Login", "Auth", FormMethod.Post, new { @class = "m-t", role = "form", id = "Login" }))
@@ -109,13 +109,14 @@
                     <span><i class="fa fa-facebook"></i></span>&nbsp;&nbsp;&nbsp; Entrar con Facebook
                 </button>
                 <div class="btn-google">
-                    <div id="my-signin2" class="g-signin2"></div>
+                    @*<div id="my-signin2" class="g-signin2"></div>*@
+                    <div id="custom_signin_button" onclick=""></div>
                     <button type="button" class="btn btn-color block full-width m-b">
                         <span><i class="fa fa-google"></i></span>&nbsp;&nbsp;&nbsp; Entrar con Google
                     </button>
                 </div>
 
-                <div id="signInButton"><img src="IMAGE_FILE" /></div>
+                @*<div id="signInButton"><img src="IMAGE_FILE" /></div>*@
 
                 @*<fb:login-button scope="public_profile,email" onlogin="checkLoginState();"></fb:login-button>*@
                 <span class="help-block"></span>
@@ -137,6 +138,8 @@
         </div>
     </div>
 
+    @*<div id="custom_signin_button" onclick=""></div>*@
+    <a href="#" onclick="signOut();">Sign out</a>
 
     <!-- Mainly scripts -->
     <script src="~/Scripts/jquery-3.1.1.min.js"></script>
@@ -147,7 +150,8 @@
     <script src="~/Scripts/Facebook.js"></script>
     <!--Configuración de facebook-->
     <!--Configuración de Google-->
-    <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+    @*<script src="https://apis.google.com/js/platform.js" async defer></script>*@
+    <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
     <script src="~/Scripts/Google.js"></script>
     <!--Configuración de Google-->
     <script>

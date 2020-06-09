@@ -1,4 +1,37 @@
-﻿function statusChangeCallback(response) {
+﻿(function (d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) { return; }
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/es_LA/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+
+window.fbAsyncInit = function () {
+    FB.init({
+        appId: '246375746578693', //LOCAL 
+        //appId: '675014006312332', //DEV 
+        //appId: '737753873052692', //QA
+        //appId: '1702488126725250',//PROD
+
+        //appId: '{your-app-id}',
+        cookie: true,
+        oauth: true,
+        xfbml: true,
+        //version: 'v2.8' // use graph api version 2.8
+        version: 'v6.0',
+        //version: 'v7.0.'
+    });
+
+    //FB.AppEvents.logPageView();
+
+    FB.getLoginStatus(function (response) {
+        console.log("respuesta", response);
+        //close();
+        statusChangeCallback(response);
+    });
+};
+
+function statusChangeCallback(response) {
     console.log('statusChangeCallback', response);
     if (response.status === 'connected') {
         registerAPI();
@@ -23,30 +56,6 @@ function checkLoginState() {               // Called when a person is finished w
         statusChangeCallback(response);
     });
 }
-
-window.fbAsyncInit = function () {
-    FB.init({
-        appId: '246375746578693', //LOCAL 
-        //appId: '675014006312332', //DEV 
-        //appId: '737753873052692', //QA
-        //appId: '1702488126725250',//PROD
-
-        //appId: '{your-app-id}',
-        cookie: true,
-        xfbml: true,
-        version: 'v2.8' // use graph api version 2.8
-        //version: 'v6.0',
-        //version: 'v7.0.'
-    });
-
-    //FB.AppEvents.logPageView();
-
-    FB.getLoginStatus(function (response) {
-        console.log("respuesta", response);
-        //close();
-        statusChangeCallback(response);
-    });
-};
 
 function registerAPI() {
     console.log("entro al testApi");
@@ -177,12 +186,5 @@ function Loguear(form) {
 //    fjs.parentNode.insertBefore(js, fjs);
 //}(document, 'script', 'facebook-jssdk'));
 
-(function (d, s, id) {
-    var js, fjs = d.getElementsByTagName(s)[0];
-    if (d.getElementById(id)) { return; }
-    js = d.createElement(s); js.id = id;
-    js.src = "//connect.facebook.net/es_LA/sdk.js";
-    fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));
 
 

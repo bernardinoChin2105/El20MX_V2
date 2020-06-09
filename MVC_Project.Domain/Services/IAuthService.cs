@@ -4,8 +4,7 @@ namespace MVC_Project.Domain.Services
 {
     public interface IAuthService
     {
-        User Authenticate(string username, string password);
-        User GetUserByEmail(string username);
-        //User AuthenticateSocialNetwork(string username, string password, string typeSocialNetwork);
+        User Authenticate(string username, string password);        
+        User AuthenticateSocialNetwork(string username, string password, string typeSocialNetwork, string SocialId);
     }
 }

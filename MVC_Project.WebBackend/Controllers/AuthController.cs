@@ -25,7 +25,7 @@ namespace MVC_Project.WebBackend.Controllers
         private IRoleService _roleService;
         private ISocialNetworkLoginService _socialNetworkLoginService;
 
-        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService, 
+        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService,
             IMembershipService accountUserService, IRoleService roleService, ISocialNetworkLoginService socialNetworkLoginService)
         {
             _authService = authService;
@@ -59,7 +59,7 @@ namespace MVC_Project.WebBackend.Controllers
                         return View(model);
                     }
                     //Asignar usuario en sesión
-                    var authUser = GetValidateUserLogin(user);                       
+                    var authUser = GetValidateUserLogin(user);
 
                     if (user.passwordExpiration.HasValue)
                     {
@@ -76,7 +76,7 @@ namespace MVC_Project.WebBackend.Controllers
                             int daysLeft = ((TimeSpan)(passwordExpiration.Date - todayDate.Date)).Days + 1;
                             if (daysLeft <= daysBeforeExpireToNotify)
                             {
-                                 
+
                                 string message = String.Format(ViewLabels.PASSWORD_EXPIRATION_MESSAGE, daysLeft);
                                 ViewBag.Message = message;
                                 MensajeFlashHandler.RegistrarMensaje(message, TiposMensaje.Info);
@@ -134,7 +134,7 @@ namespace MVC_Project.WebBackend.Controllers
                     //{
                     //    return Redirect(Request.Form["ReturnUrl"]);
                     //}
-                   
+
                 }
                 else
                 {
@@ -401,6 +401,7 @@ namespace MVC_Project.WebBackend.Controllers
             string Error = string.Empty;
             Domain.Entities.User user = null;//new Domain.Entities.User();
             bool exist = false;
+            string url = string.Empty;
             try
             {
                 //es una red social
@@ -408,58 +409,76 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     //Existe usuario
                     //Domain.Entities.User user = _authService.Authenticate(model.Email, SecurityUtil.EncryptPassword(model.Password));
-                    user = _authService.Authenticate(model.Email, SecurityUtil.EncryptPassword(model.Password));
+                    user = _authService.AuthenticateSocialNetwork(model.Email, SecurityUtil.EncryptPassword(model.Password),
+                        model.TypeRedSocial, model.SocialId);
                     //_socialNe.GetUserByEmail(model.Email);
                     if (user != null)
                     {
                         if (user.status != SystemStatus.ACTIVE.ToString())
                         {
-                            Error = Resources.ErrorMessages.UserInactive;                            
+                            Error = Resources.ErrorMessages.UserInactive;
                         }
                         else
                         {
-                            var validateSocial = _socialNetworkLoginService.AuthenticateSocialNetwork(user.id, user.password, model.TypeRedSocial);
+                            //Asignar usuario en sesión
+                            var authUser = GetValidateUserLogin(user);
 
-                            //validar si es una red social si existe
-                            if (validateSocial != null && validateSocial.user.id == user.id)
+                            var session = Authenticator.AuthenticatedUser;
+                            if (session != null)
                             {
-                                //Asignar usuario en sesión
-                                var authUser  = GetValidateUserLogin(user);
+                                exist = true;
 
-                                var session = Authenticator.AuthenticatedUser;
-                                if (session != null)
+                                if (user.memberships.Count <= 0)//Rol invitado
                                 {
-                                    exist = true;
-                                }
-                                //No voy a checar la fecha de expiracion del password
-                                //if (user.passwordExpiration.HasValue)
-                                //{
-                                //    DateTime passwordExpiration = user.passwordExpiration.Value;
-                                //    DateTime todayDate = DateUtil.GetDateTimeNow();
-                                //    if (user.passwordExpiration.Value.Date < todayDate.Date)
-                                //    {
-                                //        //return RedirectToAction("ChangePassword", "Auth");
-                                //    }
-                                //    string daysBeforeExpireToNotifyConfig = ConfigurationManager.AppSettings["DaysBeforeExpireToNotify"];
-                                //    int daysBeforeExpireToNotify = 0;
-                                //    if (Int32.TryParse(daysBeforeExpireToNotifyConfig, out daysBeforeExpireToNotify))
-                                //    {
+                                    var guestRole = _roleService.FindBy(x => x.code == SystemRoles.GUEST.ToString()).FirstOrDefault();
+                                    List<Permission> permissionsGest = guestRole.permissions.Select(p => new Permission
+                                    {
+                                        Action = p.action,
+                                        Controller = p.controller,
+                                        Module = p.module
+                                    }).ToList();
 
-                                //        int daysLeft = ((TimeSpan)(passwordExpiration.Date - todayDate.Date)).Days + 1;
-                                //        if (daysLeft <= daysBeforeExpireToNotify)
-                                //        {
-                                //            string message = String.Format(ViewLabels.PASSWORD_EXPIRATION_MESSAGE, daysLeft);
-                                //            MensajeFlashHandler.RegistrarMensaje(message, TiposMensaje.Info);
-                                //        }
-                                //    }
-                                //}
+                                    authUser.Role = new Role { Code = guestRole.code, Name = guestRole.name };
+                                    authUser.Permissions = permissionsGest;
+                                    Authenticator.StoreAuthenticatedUser(authUser);
+                                    url = "Account/Index";
+                                }
+                                else if (user.memberships.Count == 1)
+                                {
+                                    var uniqueMembership = user.memberships.First();
+                                    //var uniqueRole = _roleService.FindBy(x => x.code == uniqueMembership.role.code).FirstOrDefault();
+                                    List<Permission> permissionsUniqueMembership = uniqueMembership.mebershipPermissions.Select(p => new Permission
+                                    {
+                                        Action = p.permission.action,
+                                        Controller = p.permission.controller,
+                                        Module = p.permission.module
+                                    }).ToList();
+
+                                    authUser.Role = new Role { Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
+                                    authUser.Permissions = permissionsUniqueMembership;
+                                    authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
+                                    Authenticator.StoreAuthenticatedUser(authUser);                                    
+                                    url = "Home/Index";
+                                }
+                                else
+                                {
+                                    List<Permission> permissionsUser = new List<Permission>();
+                                    permissionsUser.Add(new Permission
+                                    {
+                                        Action = "Index",
+                                        Controller = "Account",
+                                        Module = "Account"
+                                    });
+                                    authUser.Permissions = permissionsUser;
+                                    Authenticator.StoreAuthenticatedUser(authUser);
+                                    url = "Account/Index";
+                                    //Manda a seleccionar cuenta
+                                }
+
                             }
-                            else
-                            {
-                                Error = "El usuario no existe o contraseña inválida.";
-                            }
+
                         }
-                      
+
                         //return RedirectToAction("Index", "Account");
                     }
                     else
@@ -472,11 +491,11 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     //no es una redsocial
                     Error = "El usuario no existe o contraseña inválida.";
-                }     
-                
+                }
+
                 return new JsonResult
                 {
-                    Data = new { Mensaje = new { title = "response", error = Error }, data = user, Success = exist },
+                    Data = new { Mensaje = new { title = "response", error = Error }, data = user, Success = exist, Url = url },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
                 };
@@ -487,7 +506,7 @@ namespace MVC_Project.WebBackend.Controllers
                 Error = ex.Message;
                 return new JsonResult
                 {
-                    Data = new { Mensaje = new { title = "Error", message = Error } },
+                    Data = new { Mensaje = new { title = "Error", message = Error }, Success = exist },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
                 };
@@ -520,7 +539,7 @@ namespace MVC_Project.WebBackend.Controllers
                     Email = user.name,
                     Language = user.profile.language,
                     Uuid = user.uuid,
-                    PasswordExpiration = user.passwordExpiration,                    
+                    PasswordExpiration = user.passwordExpiration,
                     Avatar = user.profile.avatar,
                     //Permissions = permissionsUser
                 };
@@ -558,11 +577,11 @@ namespace MVC_Project.WebBackend.Controllers
         [HttpPost, AllowAnonymous]
         //[ValidateAntiForgeryToken]
         public ActionResult LoginAuth(AuthViewModel model)
-        {            
+        {
             //Falta validar si el resultado es falso
 
             var response = ValidateLogin(model);
             return RedirectToAction("Index", "Account");
-        } 
+        }
     }
 }
