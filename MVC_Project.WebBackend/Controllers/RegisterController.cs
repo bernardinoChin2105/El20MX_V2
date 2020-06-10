@@ -149,16 +149,26 @@ namespace MVC_Project.WebBackend.Controllers
                             SocialId = model.SocialId
                         };
 
-                        Session["modelNW"] = LoginModel;
 
+                        //Falta notificación para envio de corro cuando sea registro con redes sociales
+                        //string token = (user.uuid + "@");
+                        //token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
+                        //user.token = token;
+                        Dictionary<string, string> customParams = new Dictionary<string, string>();
+                        string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
+                        string link = urlAccion + "";
+                        customParams.Add("param1", user.profile.firstName);
+                        customParams.Add("param2", link);
+                        NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_WELCOME_NETWORK);
+
+                        Session["modelNW"] = LoginModel;
                         return RedirectToAction("LoginAuth", "Auth");
                         //return RedirectToAction("Index", "Account", );
                     }
                     else
                     {
                         //Enviar notificación para activar el correo si no es por red social
-
-                        //user.tokenExpiration = System.DateTime.Now.AddDays(1);
+                        
                         string token = (user.uuid + "@");
                         token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
                         //user.token = token;
@@ -167,7 +177,6 @@ namespace MVC_Project.WebBackend.Controllers
                         string link = urlAccion + "Register/VerifyUser?token=" + token;
                         customParams.Add("param1", user.profile.firstName);
                         customParams.Add("param2", link);
-
                         NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_WELCOME);
 
                         ViewBag.Message = "Registro exitoso.";

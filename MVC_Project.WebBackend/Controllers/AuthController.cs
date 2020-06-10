@@ -397,7 +397,7 @@ namespace MVC_Project.WebBackend.Controllers
         [HttpPost]
         [AllowAnonymous]
         public JsonResult ValidateLogin(AuthViewModel model)
-        {
+        {       
             string Error = string.Empty;
             Domain.Entities.User user = null;//new Domain.Entities.User();
             bool exist = false;
