@@ -18,6 +18,7 @@ namespace MVC_Project.Domain.Services
     {
         Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, int? skip, int? take);
         Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, int accountId, int? skip, int? take);
+        User CreateUser(User user);
     }
 
     #endregion Interfaces
@@ -96,6 +97,25 @@ namespace MVC_Project.Domain.Services
             }
             var list = query.OrderBy(u => u.createdAt).Desc.List();
             return new Tuple<IEnumerable<User>, int>(list, count);
+        }
+
+        public User CreateUser(User user)
+        {
+            using (var transaction = _repository.Session.BeginTransaction())
+            {
+                try
+                {
+                    _repository.Session.Save(user.profile);
+                    _repository.Session.Save(user);
+                    transaction.Commit();
+                    return user;
+                }
+                catch(Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
+                }
+            }
         }
 
     }

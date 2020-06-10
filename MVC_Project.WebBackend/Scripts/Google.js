@@ -120,6 +120,8 @@ function login(googleUser) {
                     $("#SocialId").val(profile.getId());
                     $("#RedSocial").val(true);
                     $("#TypeRedSocial").val("Google");
+                    $("#btn-social-networks").hide();
+                    $("#form-title").text("Completa tu registro");
                 }
             } else {
                 window.location = json.Url;

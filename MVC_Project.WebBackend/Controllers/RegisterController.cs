@@ -22,9 +22,11 @@ namespace MVC_Project.WebBackend.Controllers
         private IAccountService _accountService;
         private IMembershipService _membershipService;
         private ISocialNetworkLoginService _socialNetworkLoginService;
+        private IMembershipPermissionService _membershipPermissionService;
 
         public RegisterController(IUserService userService, IRoleService roleService, IProfileService profileService,
-            IAccountService accountService, IMembershipService membershipService, ISocialNetworkLoginService socialNetworkLoginService)
+            IAccountService accountService, IMembershipService membershipService, ISocialNetworkLoginService socialNetworkLoginService,
+            IMembershipPermissionService membershipPermissionService)
         {
             _userService = userService;
             _roleService = roleService;
@@ -32,7 +34,7 @@ namespace MVC_Project.WebBackend.Controllers
             _accountService = accountService;
             _membershipService = membershipService;
             _socialNetworkLoginService = socialNetworkLoginService;
-
+            _membershipPermissionService = membershipPermissionService;
         }
 
         [AllowAnonymous]
@@ -74,10 +76,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                     string daysToExpirateDate = ConfigurationManager.AppSettings["DaysToExpirateDate"];
                     DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
-
-                    var availableRoles = _roleService.GetAll();
-                    var role = availableRoles.Where(x => x.code == SystemRoles.ACCOUNT_OWNER.ToString()).FirstOrDefault();
-
+                    
                     var profile = new Profile
                     {
                         uuid = Guid.NewGuid(),
@@ -90,8 +89,6 @@ namespace MVC_Project.WebBackend.Controllers
                         status = SystemStatus.ACTIVE.ToString(),
                     };
 
-                    _profileService.Create(profile);
-
                     var user = new User
                     {
                         uuid = Guid.NewGuid(),
@@ -100,56 +97,30 @@ namespace MVC_Project.WebBackend.Controllers
                         passwordExpiration = passwordExpiration, //validar cuando sea red social
                         createdAt = todayDate,
                         modifiedAt = todayDate,
-                        status = SystemStatus.INACTIVE.ToString(),
-                        //role = role,
+                        status = SystemStatus.UNCONFIRMED.ToString(),
                         profile = profile
                     };
 
+                    _userService.CreateUser(user);
+
+                    //var membership = new Membership
+                    //{
+                    //    user = user,
+                    //    role = role,
+                    //};
+                    
+                    //_membershipService.Create(membership);
+
+                    //List<MembershipPermission> membershipPermissions = new List<MembershipPermission>();
                     //foreach (var permission in role.permissions)
                     //{
-                    //    user.permissions.Add(permission);
+                    //    membershipPermissions.Add(new MembershipPermission
+                    //    {
+                    //        permission=permission,
+                    //        membership=membership
+                    //    });
                     //}
-
-                    _userService.Create(user);
-
-                    //StringBuilder builder = new StringBuilder();
-                    //builder.Append(model.FistName);
-                    //builder.Append(" ");
-                    //builder.Append(model.LastName);
-
-                    //var account = new Account
-                    //{
-                    //    uuid = Guid.NewGuid(),
-                    //    name = builder.ToString(),
-                    //    createdAt = todayDate,
-                    //    modifiedAt = todayDate,
-                    //    status = Status.ACTIVE.ToString(),
-                    //    //rfc = "CAYW880502FK4"
-                    //};
-
-                    ////account.users.Add(user);
-                    //_accountService.Create(account);
-
-                    var membership = new Membership
-                    {
-                        //account = account,
-                        user = user,
-                        role = role,
-                        //mebershipPermissions = role.permissions
-                    };
-
-                    foreach(var permission in role.permissions)
-                    {
-                        membership.mebershipPermissions.Add(new MembershipPermission
-                        {
-                            permission = permission
-                        });
-                    }
-
-
-                    _membershipService.Create(membership);
-                    //account.users.Add(user);
-                    //_accountService.Create(account);
+                    //_membershipPermissionService.Create(membershipPermissions);
 
                     if (model.RedSocial)
                     {
@@ -243,27 +214,26 @@ namespace MVC_Project.WebBackend.Controllers
                 var elements = desencriptaToken.Split('@');
                 Guid id = Guid.Parse(elements.First().ToString());
                 var resultado = _userService.FindBy(e => e.uuid == id).First();
-                int[] valores = new int[100];
-                for (int a = 0; a < 100; a++)
-                {
-                    valores[a] = a++;
-                }
+                
                 if (resultado != null)
                 {
                     resultado.status = SystemStatus.ACTIVE.ToString();
                     _userService.Update(resultado);
 
-                    ViewBag.Message = "Tu cuenta ha sido activada exitosamente.";
-                    return View("VerifyUser");
+                    ViewBag.Message = "¡Tu cuenta ha sido activada!.";
+                    ViewBag.Success = true;
+                    return View();
                 }
             }
             catch (Exception ex)
             {
-                ViewBag.Message = "Token ha expirado";
+                ViewBag.Error = "Token ha expirado";
+                ViewBag.Success = false;
                 return View("Login");
                 //ErrorController.SaveLogError(this, listAction.Update, "AccedeToken", ex);
             }
             ViewBag.Message = "Error en el token";
+            ViewBag.Success = false;
             return View("Login");
         }
     }

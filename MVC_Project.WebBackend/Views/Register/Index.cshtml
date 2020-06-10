@@ -22,7 +22,7 @@
 
     @Styles.Render("~/plugins/sweetAlertStyles")
     @Scripts.Render("~/plugins/sweetAlert")
-
+    <link href="~/Content/template/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
     @*<style>
             #checkTerm-error {
                 top: 90%;
@@ -39,68 +39,71 @@
 <body class="gray-bg">
 
     <div class="middle-box text-center loginscreen   animated fadeInDown">
-        <div>
-            <div>
-                @*<img src="~/Images/logos/logo_default.png" width="300" />*@
-                <img src="~/Images/logos/El20mx-logo-estes-donde-e.png" width="300" />
-            </div>
 
-            <button type="button" class="btn btn-color block full-width m-b" onclick="Loguear(false)">
-                <span><i class="fa fa-facebook"></i></span>&nbsp;&nbsp;&nbsp; Registrarte con Facebook
+        <div>
+            @*<img src="~/Images/logos/logo_default.png" width="300" />*@
+            <img src="~/Images/logos/El20mx-logo-estes-donde-e.png" width="300" />
+        </div>
+        <div id="btn-social-networks">
+            <button type="button" class="btn btn-facebook btn-block full-width m-b" onclick="Loguear(false)">
+                <span>Registrarte con &nbsp;<i class="fa fa-facebook-f"></i></span>
             </button>
+
             <div class="btn-google">
                 <div id="my-signin2" class="g-signin2" data-onsuccess="onSuccess"></div>
-                <button type="button" class="btn btn-color block full-width m-b">
-                    <span><i class="fa fa-google"></i></span>&nbsp;&nbsp;&nbsp; Resitrarte con Google
+                <button type="button" class="btn btn-google btn-block full-width m-b">
+                    <span>Resitrarte con &nbsp;<i class="fa fa-google"></i></span>
                 </button>
             </div>
 
+            <br />
             <div><h5 class="line">O</h5></div>
-            @*<h3>Register to @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</h3>*@
-            <p>Registrarte con tu correo electrónico.</p>
-
-            @if (!string.IsNullOrEmpty(ViewBag.Error))
-            {
-                <div class="col-lg-12">
-                    <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
-                </div>
-            }
-
-            @using (Html.BeginForm("CreateAccount", "Register", FormMethod.Post, new { @class = "m-t", role = "form", @id = "RegisterForm" }))
-            {
-                @Html.AntiForgeryToken()
-
-                @Html.HiddenFor(m => m.TypeRedSocial, new { Value = "" })
-                @Html.HiddenFor(m => m.RedSocial, new { Value = false })
-                @Html.HiddenFor(m => m.SocialId, new { Value = "" })
-                <div class="form-group">
-                    @Html.TextBoxFor(m => m.FistName, new { @class = "form-control", type = "text", @autocomplete = "off", placeholder = "Nombre(s)", @required = "required" })
-                </div>
-                <div class="form-group">
-                    @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", type = "text", @autocomplete = "off", placeholder = "Apellido(s)", @required = "required" })
-                </div>
-                <div class="form-group">
-                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", @autocomplete = "off", placeholder = @ViewLabels.USERNAME, @required = "required" })
-                </div>
-                <div class="form-group">
-                    @Html.TextBoxFor(m => m.MobileNumber, new { @class = "form-control", type = "number", @autocomplete = "off", placeholder = "Teléfono", @required = "required" })
-                </div>
-                <div class="form-group">
-                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.PASSWORD, @required = "required" })
-                </div>
-                <div class="form-group">
-                    @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.CONFIRM_NEW_PASSWORD, @required = "required" })
-                </div>
-                <div class="form-group">
-                    <a href="#">Acepto t&eacute;rminos y condiciones</a>
-                    @*<div class="checkbox i-checks"><label> <input type="checkbox"><i></i> Acepto t&eacute;rminos y condiciones </label></div>*@
-                </div>
-                <button type="button" class="btn btn-color block full-width m-b" onclick="validarDatos();">Registrarse</button>
-                <p class="text-center">¿Ya tienes cuenta?  <a class="" href="@Url.Action("Login", "Auth")">Iniciar Sesi&oacute;n</a></p>
-
-            }
         </div>
+        @*<h3>Register to @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</h3>*@
+        <p id="form-title">Registrarte con tu correo electrónico.</p>
+
+        @if (!string.IsNullOrEmpty(ViewBag.Error))
+        {
+            <div class="col-lg-12">
+                <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
+            </div>
+        }
+
+        @using (Html.BeginForm("CreateAccount", "Register", FormMethod.Post, new { @class = "m-t", role = "form", @id = "RegisterForm" }))
+        {
+            @Html.AntiForgeryToken()
+
+            @Html.HiddenFor(m => m.TypeRedSocial, new { Value = "" })
+            @Html.HiddenFor(m => m.RedSocial, new { Value = false })
+            @Html.HiddenFor(m => m.SocialId, new { Value = "" })
+            <div class="form-group">
+                @Html.TextBoxFor(m => m.FistName, new { @class = "form-control", type = "text", @autocomplete = "off", placeholder = "Nombre(s)", @required = "required" })
+            </div>
+            <div class="form-group">
+                @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", type = "text", @autocomplete = "off", placeholder = "Apellido(s)", @required = "required" })
+            </div>
+            <div class="form-group">
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", @autocomplete = "off", placeholder = @ViewLabels.USERNAME, @required = "required" })
+            </div>
+            <div class="form-group">
+                @Html.EditorFor(m => m.MobileNumber, new { htmlAttributes = new { @class = "form-control", type = "text", data_mask = "9999-99-99-99", removeMaskOnSubmit = true, greedy = false, @autocomplete = "off", placeholder = "Teléfono", @required = "required" } })
+            </div>
+            <div class="form-group">
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.PASSWORD, @required = "required" })
+            </div>
+            <div class="form-group">
+                @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.CONFIRM_NEW_PASSWORD, @required = "required" })
+            </div>
+            <div class="form-group">
+                <a href="#">Acepto t&eacute;rminos y condiciones</a>
+                @*<div class="checkbox i-checks"><label> <input type="checkbox"><i></i> Acepto t&eacute;rminos y condiciones </label></div>*@
+            </div>
+            <button type="button" class="btn btn-color block full-width m-b" onclick="validarDatos();">Registrarse</button>
+            <p class="text-center">¿Ya tienes cuenta?  <a class="" href="@Url.Action("Login", "Auth")">Iniciar Sesi&oacute;n</a></p>
+
+        }
     </div>
+    
 
     @*<div class="g-signin2" data-onsuccess="onSuccess"></div>*@
     <div id="custom_signin_button"></div>
@@ -128,7 +131,7 @@
     <!-- iCheck -->
     @*<script src="~/Scripts/plugins/iCheck/icheck.min.js"></script>*@
 
-
+    <script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>
     <script>
         $.validator.addMethod("PasswordTrue",
             function (value, element) {
