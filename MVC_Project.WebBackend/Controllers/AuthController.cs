@@ -13,6 +13,7 @@ using System.Linq;
 using System.Web.Mvc;
 using LogHubSDK.Models;
 using static MVC_Project.Utils.Constants;
+using Newtonsoft.Json;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -25,21 +26,37 @@ namespace MVC_Project.WebBackend.Controllers
         private IRoleService _roleService;
         private ISocialNetworkLoginService _socialNetworkLoginService;
 
-        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService,
-            IMembershipService accountUserService, IRoleService roleService, ISocialNetworkLoginService socialNetworkLoginService)
+        /*public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService,
+            IMembershipService accountUserService, IRoleService roleService, ISocialNetworkLoginService socialNetworkLoginService)*/
+            public AuthController()
         {
-            _authService = authService;
-            _userService = userService;
-            _permissionService = permissionService;
-            _accountUserService = accountUserService;
-            _roleService = roleService;
-            _socialNetworkLoginService = socialNetworkLoginService;
+            //_authService = authService;
+            //_userService = userService;
+            //_permissionService = permissionService;
+            //_accountUserService = accountUserService;
+            //_roleService = roleService;
+            //_socialNetworkLoginService = socialNetworkLoginService;
         }
 
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
             ViewBag.ReturnUrl = returnUrl;
+
+            var test = new JsonResult
+            {
+                Data = new { Mensaje = new { title = "response", error = "Error" }, data = "user", Success = "exist", Url = "url/url" },
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                MaxJsonLength = Int32.MaxValue
+            };
+
+            if (test != null)
+            {
+                var texto = test.Data;
+                var url = (String)(texto.GetType().GetProperty("Url").GetValue(texto, null));
+                string prueba = "hola";
+            }
+
             return View();
         }
 
@@ -515,7 +532,7 @@ namespace MVC_Project.WebBackend.Controllers
                 Error = ex.Message;
                 return new JsonResult
                 {
-                    Data = new { Mensaje = new { title = "Error", message = Error }, Success = exist },
+                    Data = new { Mensaje = new { title = "Error", message = Error }, Success = exist, Url = "Auth/Login" },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
                 };
@@ -592,9 +609,15 @@ namespace MVC_Project.WebBackend.Controllers
             AuthViewModel model = (AuthViewModel)Session["modelNW"];
 
             var response = ValidateLogin(model);
-            //var valor = JsonConvert.DeserializeObject<LoginModel>(response);
 
-            return RedirectToAction("Index", "Account");
+            var data = response.Data;
+            var url = "Auth/Login";
+            if(data != null)
+            {
+                url = (String)(data.GetType().GetProperty("Url").GetValue(data, null));
+            }
+                      
+            return RedirectToAction(url);
         }
     }
-}
+}   
