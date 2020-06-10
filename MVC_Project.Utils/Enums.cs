@@ -13,7 +13,9 @@ namespace MVC_Project.Utils
         [Display(Name = "ACTIVE")]
         ACTIVE,
         [Display(Name = "INACTIVE")]
-        INACTIVE
+        INACTIVE,
+        [Display(Name = "UNCONFIRMED")]
+        UNCONFIRMED
     }
 
     public enum SystemAction

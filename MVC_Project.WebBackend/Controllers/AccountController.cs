@@ -38,14 +38,17 @@ namespace MVC_Project.WebBackend.Controllers
         {
             var authUser = Authenticator.AuthenticatedUser;
             var accountViewModel = new AccountSelectViewModel { accountListViewModels = new List<AccountListViewModel>() };
-            
-            accountViewModel.accountListViewModels = _membership.FindBy(x => x.user.id == authUser.Id).Select(x => new AccountListViewModel
+            var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null);
+            if (memberships.Any())
             {
-                uuid = x.account.uuid,
-                name = x.account.name,
-                rfc = x.account.rfc,
-                role = x.role.name
-            }).ToList();
+                accountViewModel.accountListViewModels = memberships.Select(x => new AccountListViewModel
+                {
+                    uuid = x.account.uuid,
+                    name = x.account.name,
+                    rfc = x.account.rfc,
+                    role = x.role.name
+                }).ToList();
+            }
             accountViewModel.count = accountViewModel.accountListViewModels.Count;
             return PartialView("_SelectAccountModal", accountViewModel);
         }

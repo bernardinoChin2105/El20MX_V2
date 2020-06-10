@@ -42,6 +42,8 @@
                 @ViewBag.Error
             </div>
         </div>
+    </div>
+    <div style="position: absolute; top: 20px; right: 20px;">
         <div class="toast toast-info" id="info-toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
             <div class="toast-header">
                 <i class="fa fa-info-circle"> </i>
@@ -102,18 +104,23 @@
                     @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", placeholder = @ViewLabels.PASSWORD, @required = "required" })
                 </div>
                 <span class="help-block"></span>
-                <button type="submit" class="btn btn-color block full-width m-b">@ViewLabels.AUTH_LOGIN_SUBMIT</button>
+                <button type="submit" class="btn btn-color block full-width m-b"><span><i class="fa fa-sign-in-alt"></i> &nbsp;@ViewLabels.AUTH_LOGIN_SUBMIT </span></button>
                 @*<div class="fb-login-button" data-size="large" data-button-type="continue_with" data-layout="default" data-auto-logout-link="false" data-use-continue-as="false" data-width="" onclick="Loguear()"></div>*@
                 <div><h5 class="line">O</h5></div>
-                <button type="button" class="btn btn-color block full-width m-b" onclick="Loguear(true)">
-                    <span><i class="fa fa-facebook"></i></span>&nbsp;&nbsp;&nbsp; Entrar con Facebook
-                </button>
-                <div class="btn-google">
-                    @*<div id="my-signin2" class="g-signin2"></div>*@
-                    <div id="custom_signin_button" onclick=""></div>
-                    <button type="button" class="btn btn-color block full-width m-b">
-                        <span><i class="fa fa-google"></i></span>&nbsp;&nbsp;&nbsp; Entrar con Google
-                    </button>
+                <div class="row">
+                    <div class="col-md-6" style="padding-right: 2px !important;">
+                        <button type="button" class="btn btn-facebook btn-block" onclick="Loguear(true)">
+                            <span>Entrar con &nbsp;<i class="fa fa-facebook-f"></i></span>
+                        </button>
+                    </div>
+                    
+                    <div class="col-md-6 btn-google"  style="padding-left: 2px !important;">
+                        <div id="custom_signin_button" onclick=""></div>
+                        <button type="button" class="btn btn-google btn-block" style="">
+                            <span>Entrar con &nbsp;<i class="fa fa-google"></i></span>
+                        </button>
+                    </div>
+                    
                 </div>
 
                 @*<div id="signInButton"><img src="IMAGE_FILE" /></div>*@
@@ -125,7 +132,7 @@
                 <a href="javascript:void(0);" onclick="javascript:resetPassModal();" data-target="#modal-containerRecupera" data-toggle="modal"><small>@ViewLabels.AUTH_LOGIN_RECOVERPASS</small></a>
                 <br />
 
-                <p class="text-muted text-center">¿No tienes una cuenta? <a class="btn btn-sm btn-borderBlue btn-block" href="@Url.Action("Index", "Register")"><b>Regístrate</b></a></p>
+                <p class="text-muted text-center">¿No tienes una cuenta? <a class="btn btn-sm btn-default btn-block" href="@Url.Action("Index", "Register")"><span><i class="fa fa-user-plus"></i> &nbsp;Regístrate</span></a></p>
 
 
             }
@@ -139,7 +146,7 @@
     </div>
 
     @*<div id="custom_signin_button" onclick=""></div>*@
-    <a href="#" onclick="signOut();">Sign out</a>
+    @*<a href="#" onclick="signOut();">Sign out</a>*@
 
     <!-- Mainly scripts -->
     <script src="~/Scripts/jquery-3.1.1.min.js"></script>

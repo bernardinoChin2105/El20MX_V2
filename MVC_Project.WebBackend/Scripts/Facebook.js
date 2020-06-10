@@ -92,6 +92,8 @@ function GetInfo(response) {
     $("#SocialId").val(profile.id);
     $("#RedSocial").val(true);
     $("#TypeRedSocial").val("Facebook");
+    $("#btn-social-networks").hide();
+    $("#form-title").text("Completa tu registro");
 
     //$("#Email").trigger("blur");
 }
