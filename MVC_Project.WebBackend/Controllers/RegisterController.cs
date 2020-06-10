@@ -48,23 +48,11 @@ namespace MVC_Project.WebBackend.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult CreateAccount(RegisterViewModel model)
         {
-            //Falta agregar el loghub
-            //Falta Notificación para verificar usuario
-            //redireccionamiento a la cuenta si es por red social
             if (model.RedSocial)
             {
                 model.ConfirmPassword = model.SocialId.ToString();
                 model.Password = model.SocialId.ToString();                 
             }
-
-            //if (!String.IsNullOrWhiteSpace(model.ConfirmPassword)
-            //    && !String.IsNullOrWhiteSpace(model.Password))
-            //{
-            //    if (!model.Password.Equals(model.ConfirmPassword))
-            //    {
-            //        ModelState.AddModelError("ConfirmPassword", "Las contraseñas no coinciden");
-            //    }
-            //}
 
             if (ModelState.IsValid)
             {
@@ -76,51 +64,34 @@ namespace MVC_Project.WebBackend.Controllers
 
                     string daysToExpirateDate = ConfigurationManager.AppSettings["DaysToExpirateDate"];
                     DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
-                    
-                    var profile = new Profile
-                    {
-                        uuid = Guid.NewGuid(),
-                        firstName = model.FistName,
-                        lastName = model.LastName,
-                        email = model.Email,
-                        phoneNumber = model.MobileNumber,
-                        createdAt = todayDate,
-                        modifiedAt = todayDate,
-                        status = SystemStatus.ACTIVE.ToString(),
-                    };
 
                     var user = new User
                     {
                         uuid = Guid.NewGuid(),
                         name = model.Email,
-                        password = SecurityUtil.EncryptPassword(model.Password),
-                        passwordExpiration = passwordExpiration, //validar cuando sea red social
                         createdAt = todayDate,
                         modifiedAt = todayDate,
                         status = SystemStatus.UNCONFIRMED.ToString(),
-                        profile = profile
+                        profile = new Profile
+                        {
+                            uuid = Guid.NewGuid(),
+                            firstName = model.FistName,
+                            lastName = model.LastName,
+                            email = model.Email,
+                            phoneNumber = model.MobileNumber,
+                            createdAt = todayDate,
+                            modifiedAt = todayDate,
+                            status = SystemStatus.ACTIVE.ToString(),
+                        }
                     };
 
+                    if (!model.RedSocial)
+                    {
+                        user.password = SecurityUtil.EncryptPassword(model.Password);
+                        user.passwordExpiration = passwordExpiration;
+                    }
+
                     _userService.CreateUser(user);
-
-                    //var membership = new Membership
-                    //{
-                    //    user = user,
-                    //    role = role,
-                    //};
-                    
-                    //_membershipService.Create(membership);
-
-                    //List<MembershipPermission> membershipPermissions = new List<MembershipPermission>();
-                    //foreach (var permission in role.permissions)
-                    //{
-                    //    membershipPermissions.Add(new MembershipPermission
-                    //    {
-                    //        permission=permission,
-                    //        membership=membership
-                    //    });
-                    //}
-                    //_membershipPermissionService.Create(membershipPermissions);
 
                     if (model.RedSocial)
                     {
@@ -149,11 +120,6 @@ namespace MVC_Project.WebBackend.Controllers
                             SocialId = model.SocialId
                         };
 
-
-                        //Falta notificación para envio de corro cuando sea registro con redes sociales
-                        //string token = (user.uuid + "@");
-                        //token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
-                        //user.token = token;
                         Dictionary<string, string> customParams = new Dictionary<string, string>();
                         string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
                         string link = urlAccion + "";
@@ -212,29 +178,29 @@ namespace MVC_Project.WebBackend.Controllers
                     return RedirectToAction("Login");
 
                 var elements = desencriptaToken.Split('@');
-                Guid id = Guid.Parse(elements.First().ToString());
-                var resultado = _userService.FindBy(e => e.uuid == id).First();
-                
-                if (resultado != null)
-                {
-                    resultado.status = SystemStatus.ACTIVE.ToString();
-                    _userService.Update(resultado);
 
-                    ViewBag.Message = "¡Tu cuenta ha sido activada!.";
-                    ViewBag.Success = true;
-                    return View();
-                }
+                Guid id = new Guid();
+
+                if (!Guid.TryParse(elements.First().ToString(), out id))
+                    throw new Exception("El token no es válido");
+
+                var user = _userService.FindBy(e => e.uuid == id).First();
+                if (user == null)
+                    throw new Exception("Usuario no encontrado en el sistema");
+                
+                user.status = SystemStatus.ACTIVE.ToString();
+                _userService.Update(user);
+
+                ViewBag.Message = "¡Tu cuenta ha sido activada!.";
+                ViewBag.Success = true;
+                return View();
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Token ha expirado";
+                ViewBag.Error = ex.Message;
                 ViewBag.Success = false;
                 return View("Login");
-                //ErrorController.SaveLogError(this, listAction.Update, "AccedeToken", ex);
             }
-            ViewBag.Message = "Error en el token";
-            ViewBag.Success = false;
-            return View("Login");
         }
     }
 }

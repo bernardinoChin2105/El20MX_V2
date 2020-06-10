@@ -26,16 +26,15 @@ namespace MVC_Project.WebBackend.Controllers
         private IRoleService _roleService;
         private ISocialNetworkLoginService _socialNetworkLoginService;
 
-        /*public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService,
-            IMembershipService accountUserService, IRoleService roleService, ISocialNetworkLoginService socialNetworkLoginService)*/
-            public AuthController()
+        public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService,
+            IMembershipService accountUserService, IRoleService roleService, ISocialNetworkLoginService socialNetworkLoginService)
         {
-            //_authService = authService;
-            //_userService = userService;
-            //_permissionService = permissionService;
-            //_accountUserService = accountUserService;
-            //_roleService = roleService;
-            //_socialNetworkLoginService = socialNetworkLoginService;
+            _authService = authService;
+            _userService = userService;
+            _permissionService = permissionService;
+            _accountUserService = accountUserService;
+            _roleService = roleService;
+            _socialNetworkLoginService = socialNetworkLoginService;
         }
 
         [AllowAnonymous]
@@ -193,8 +192,9 @@ namespace MVC_Project.WebBackend.Controllers
                 if (resultado != null)
                 {
                     ViewBag.mensajeError = string.Empty;
-                    resultado.tokenExpiration = System.DateTime.Now.AddDays(1);
-                    string token = (resultado.uuid + "@" + DateTime.Now.AddDays(1).ToString());
+                    var expirationDate = DateTime.Now.AddDays(1);
+                    resultado.tokenExpiration = expirationDate;
+                    string token = (resultado.uuid + "@" + expirationDate.ToString());
                     token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
                     resultado.token = token;
                     Dictionary<string, string> customParams = new Dictionary<string, string>();
@@ -240,28 +240,29 @@ namespace MVC_Project.WebBackend.Controllers
                     return RedirectToAction("Login");
 
                 var elements = desencriptaToken.Split('@');
-                Guid id = Guid.Parse(elements.First().ToString());
-                var resultado = _userService.FindBy(e => e.uuid == id).First();
-                int[] valores = new int[100];
-                for (int a = 0; a < 100; a++)
-                {
-                    valores[a] = a++;
-                }
-                if (resultado != null && DateTime.Now <= resultado.tokenExpiration)
-                {
-                    ResetPassword model = new ResetPassword();
-                    model.Uuid = resultado.uuid.ToString();
-                    return View("ResetPassword", model);
-                }
+                Guid id = new Guid();
+
+                if (!Guid.TryParse(elements.First().ToString(), out id))
+                    throw new Exception("El token no es válido");
+  
+                var user = _userService.FindBy(e => e.uuid == id).First();
+
+                if (user == null)
+                    throw new Exception("Usuario no encontrado en el sistema");
+
+                if (DateTime.Now > user.tokenExpiration)
+                    throw new Exception("El token ha expirado");
+                
+                ResetPassword model = new ResetPassword();
+                model.Uuid = user.uuid.ToString();
+                return View("ResetPassword", model);
+
             }
             catch (Exception ex)
             {
-                ViewBag.Message = "Token de contraseña expirado";
+                ViewBag.Message = ex.Message;
                 return View("Login");
-                //ErrorController.SaveLogError(this, listAction.Update, "AccedeToken", ex);
             }
-            ViewBag.Message = "Error en el token";
-            return View("Login");
         }
 
         [HttpGet, AllowAnonymous]
@@ -442,9 +443,8 @@ namespace MVC_Project.WebBackend.Controllers
                             {
                                 //Asignar usuario en sesión
                                 var authUser = GetValidateUserLogin(user);
-
-                                var session = Authenticator.AuthenticatedUser;
-                                if (session != null)
+                                
+                                if (authUser != null)
                                 {
                                     exist = true;
 
@@ -550,13 +550,6 @@ namespace MVC_Project.WebBackend.Controllers
                 user.lastLoginAt = DateTime.Now;
                 _userService.Update(user);
 
-                List<Permission> permissionsUser = _permissionService.GetAll().Select(p => new Permission
-                {
-                    Action = p.action,
-                    Controller = p.controller,
-                    Module = p.module
-                }).ToList();
-
                 authUser = new AuthUser
                 {
                     Id = user.id,
@@ -567,7 +560,6 @@ namespace MVC_Project.WebBackend.Controllers
                     Uuid = user.uuid,
                     PasswordExpiration = user.passwordExpiration,
                     Avatar = user.profile.avatar,
-                    //Permissions = permissionsUser
                 };
 
                 //Set user in sesion
