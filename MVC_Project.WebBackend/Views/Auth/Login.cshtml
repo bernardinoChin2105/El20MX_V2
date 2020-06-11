@@ -113,14 +113,14 @@
                             <span>Entrar con &nbsp;<i class="fa fa-facebook-f"></i></span>
                         </button>
                     </div>
-                    
-                    <div class="col-md-6 btn-google"  style="padding-left: 2px !important;">
+
+                    <div class="col-md-6 btn-google" style="padding-left: 2px !important;">
                         <div id="custom_signin_button" onclick=""></div>
                         <button type="button" class="btn btn-google btn-block" style="">
                             <span>Entrar con &nbsp;<i class="fa fa-google"></i></span>
                         </button>
                     </div>
-                    
+
                 </div>
                 <span class="help-block"></span>
 
@@ -140,7 +140,7 @@
             <div class="modal-content"></div>
         </div>
     </div>
-    
+
 
     <!-- Mainly scripts -->
     <script src="~/Scripts/jquery-3.1.1.min.js"></script>
@@ -150,7 +150,7 @@
     <!--Configuración de facebook-->
     <script src="~/Scripts/Facebook.js"></script>
     <!--Configuración de facebook-->
-    <!--Configuración de Google-->    
+    <!--Configuración de Google-->
     <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
     <script src="~/Scripts/Google.js"></script>
     @*<a href="#" onclick="signOut();">Sign out</a>*@
@@ -159,7 +159,7 @@
         var UrlLogin = '@Url.Action("ValidateLogin", "Auth")';
         var UrlReset = '@Url.Action("ResetPassword")';
     </script>
-    <script src="~/Scripts/views/Auth/Index.js"></script>            
+    <script src="~/Scripts/views/Auth/Index.js"></script>
 
     @if (!string.IsNullOrEmpty(ViewBag.Error))
     {
@@ -174,6 +174,14 @@
             $('#info-toast').toast('show');
         </script>
     }
+
+    @*@if (Html.TieneMensaje())
+        {
+            var mensaje = @Html.ObtenerMensaje();
+            <script type="text/javascript">
+                toastr['@mensaje.Tipo']('@mensaje.Mensaje');
+            </script>
+        }*@
 </body>
 </html>
 

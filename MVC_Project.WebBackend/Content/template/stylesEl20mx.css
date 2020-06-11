@@ -21,6 +21,30 @@
         border: #002642;
     }
 
+.btn.btn-facebook {
+    background-color: #4267b2;
+    color: #ffffff !important;
+    border: #4267b2;
+}
+
+    .btn.btn-facebook:hover {
+        background: #002642;
+        color: #FFFFFF;
+        border: #002642;
+    }
+
+.btn.btn-google {
+    background-color: #ea4334;
+    color: #ffffff !important;
+    border: #ea4334;
+}
+
+    .btn.btn-google:hover {
+        background: #a71204;
+        color: #FFFFFF;
+        border: #a71204;
+    }
+
 .abcRioButton.abcRioButtonBlue {
     width: 100% !important;
 }
@@ -36,11 +60,12 @@
         width: 100% !important;
     }
 
-#my-signin2:hover + .btn.btn-color {
-    background: #002642;
-    color: #FFFFFF;
-    border: #002642;
-}
+    #custom_signin_button:hover .btn.btn-google,
+    #my-signin2:hover + .btn.btn-google {
+        background: #a71204;
+        color: #FFFFFF;
+        border: #a71204;
+    }
 
 /*.btn-google {
     position: relative;
@@ -102,27 +127,3 @@
 .chosen-container-active.chosen-with-drop .chosen-single {
     border-color: #53D5E9 !important;
 }
-
-.btn.btn-facebook {
-    background-color: #4267b2;
-    color: #ffffff !important;
-    border: #4267b2;
-}
-
-    .btn.btn-facebook:hover {
-        background: #002642;
-        color: #FFFFFF;
-        border: #002642;
-    }
-
-.btn.btn-google {
-    background-color: #ea4334;
-    color: #ffffff !important;
-    border: #ea4334;
-}
-
-    .btn.btn-google:hover {
-        background: #002642;
-        color: #FFFFFF;
-        border: #002642;
-    }
