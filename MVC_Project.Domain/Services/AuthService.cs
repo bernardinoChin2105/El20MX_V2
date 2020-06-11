@@ -27,28 +27,17 @@ namespace MVC_Project.Domain.Services
         }
 
         public User AuthenticateSocialNetwork(string username, string password, string typeSocialNetwork, string SocialId)
-        {          
-            /*var user = _repository.Session.CreateSQLQuery("exec dbo.st_user_select_by_email_password "+
-                "@Email =:Email, @Password=:Password, @TypeRedSocial=:TypeRedSocial, @SocialId=:SocialId")
+        {
+            var user = _repository.Session.CreateSQLQuery("exec dbo.st_user_select_by_email_password " +
+                "@Email =:Email, @Password=:Password, @TypeRedSocial=:TypeRedSocial, @SocialId=:SocialId")                    
+                    .AddEntity(typeof(User))
                     .SetParameter("Email", username)
                     .SetParameter("Password", password)
                     .SetParameter("TypeRedSocial", typeSocialNetwork)
                     .SetParameter("SocialId", SocialId)
-                    .SetResultTransformer(Transformers.AliasToBean(typeof(User)))
-                    .UniqueResult<User>();*/
+                    .UniqueResult<User>();
 
-            Profile profile = null;
-
-            User user = (User)_repository.Session.QueryOver<User>()            
-                        .JoinAlias(x => x.profile, () => profile);
-         
-
-
-
-            //(u => u.name == username).FirstOrDefault();
-            if (user != null) {
-                string hola = user.ToString();
-            }//return user;
+            if (user != null) return user;
             return null;
         }
     }

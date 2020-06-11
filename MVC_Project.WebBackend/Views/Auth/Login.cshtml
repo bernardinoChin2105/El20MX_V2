@@ -109,7 +109,7 @@
                 <div><h5 class="line">O</h5></div>
                 <div class="row">
                     <div class="col-md-6" style="padding-right: 2px !important;">
-                        <button type="button" class="btn btn-facebook btn-block" onclick="Loguear(true)">
+                        <button type="button" class="btn btn-facebook btn-block" onclick="Loguear()">
                             <span>Entrar con &nbsp;<i class="fa fa-facebook-f"></i></span>
                         </button>
                     </div>
@@ -122,10 +122,6 @@
                     </div>
                     
                 </div>
-
-                @*<div id="signInButton"><img src="IMAGE_FILE" /></div>*@
-
-                @*<fb:login-button scope="public_profile,email" onlogin="checkLoginState();"></fb:login-button>*@
                 <span class="help-block"></span>
 
                 <br />
@@ -144,9 +140,7 @@
             <div class="modal-content"></div>
         </div>
     </div>
-
-    @*<div id="custom_signin_button" onclick=""></div>*@
-    @*<a href="#" onclick="signOut();">Sign out</a>*@
+    
 
     <!-- Mainly scripts -->
     <script src="~/Scripts/jquery-3.1.1.min.js"></script>
@@ -156,20 +150,16 @@
     <!--Configuración de facebook-->
     <script src="~/Scripts/Facebook.js"></script>
     <!--Configuración de facebook-->
-    <!--Configuración de Google-->
-    @*<script src="https://apis.google.com/js/platform.js" async defer></script>*@
+    <!--Configuración de Google-->    
     <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
     <script src="~/Scripts/Google.js"></script>
+    @*<a href="#" onclick="signOut();">Sign out</a>*@
     <!--Configuración de Google-->
     <script>
         var UrlLogin = '@Url.Action("ValidateLogin", "Auth")';
         var UrlReset = '@Url.Action("ResetPassword")';
     </script>
-    <script src="~/Scripts/views/Auth/Index.js"></script>
-    <!--singOut-->
-    @*<a href="#" onclick="signOut();">Sign out google</a>
-        <br />
-        <a href="#" onclick="close();">Sign out facebook</a>*@
+    <script src="~/Scripts/views/Auth/Index.js"></script>            
 
     @if (!string.IsNullOrEmpty(ViewBag.Error))
     {

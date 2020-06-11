@@ -1,6 +1,7 @@
 ﻿using MVC_Project.BackendWeb.Models;
 using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Services;
+using MVC_Project.FlashMessages;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.Models;
 using System;
@@ -145,7 +146,9 @@ namespace MVC_Project.WebBackend.Controllers
                         customParams.Add("param2", link);
                         NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_WELCOME);
 
-                        ViewBag.Message = "Registro exitoso.";
+                        //ViewBag.Message = "Registro exitoso.";
+                        MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
+                            //MensajeFlashHandler.RegistrarMensaje(ImpuestoPredial.Resource.Recursos.OperacionFallida);
 
                         return RedirectToAction("Login", "Auth");
                     }

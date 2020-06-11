@@ -45,7 +45,7 @@
             <img src="~/Images/logos/El20mx-logo-estes-donde-e.png" width="300" />
         </div>
         <div id="btn-social-networks">
-            <button type="button" class="btn btn-facebook btn-block full-width m-b" onclick="Loguear(false)">
+            <button type="button" class="btn btn-facebook btn-block full-width m-b" onclick="register()">
                 <span>Registrarte con &nbsp;<i class="fa fa-facebook-f"></i></span>
             </button>
 
@@ -104,14 +104,6 @@
         }
     </div>
     
-
-    @*<div class="g-signin2" data-onsuccess="onSuccess"></div>*@
-    <div id="custom_signin_button"></div>
-
-    <a href="#" onclick="signOut();">Sign out google</a>
-    <br />
-    <a href="#" onclick="close();">Sign out facebook</a>
-
     <script>
         var UrlLogin = '@Url.Action("ValidateLogin", "Auth")';
     </script>
@@ -122,7 +114,6 @@
     @Scripts.Render("~/plugins/validate")
     <!--Configuración de Google-->
     <script src="https://apis.google.com/js/platform.js" async defer></script>
-    @*<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>*@
     <script src="~/Scripts/Google.js"></script>
     <!--Configuración de Google-->
     <!--Configuración de facebook-->

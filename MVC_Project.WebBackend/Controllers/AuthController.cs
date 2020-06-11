@@ -41,21 +41,6 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult Login(string returnUrl)
         {
             ViewBag.ReturnUrl = returnUrl;
-
-            var test = new JsonResult
-            {
-                Data = new { Mensaje = new { title = "response", error = "Error" }, data = "user", Success = "exist", Url = "url/url" },
-                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                MaxJsonLength = Int32.MaxValue
-            };
-
-            if (test != null)
-            {
-                var texto = test.Data;
-                var url = (String)(texto.GetType().GetProperty("Url").GetValue(texto, null));
-                string prueba = "hola";
-            }
-
             return View();
         }
 
@@ -244,7 +229,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (!Guid.TryParse(elements.First().ToString(), out id))
                     throw new Exception("El token no es válido");
-  
+
                 var user = _userService.FindBy(e => e.uuid == id).First();
 
                 if (user == null)
@@ -252,7 +237,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (DateTime.Now > user.tokenExpiration)
                     throw new Exception("El token ha expirado");
-                
+
                 ResetPassword model = new ResetPassword();
                 model.Uuid = user.uuid.ToString();
                 return View("ResetPassword", model);
@@ -415,7 +400,7 @@ namespace MVC_Project.WebBackend.Controllers
         [HttpPost]
         [AllowAnonymous]
         public JsonResult ValidateLogin(AuthViewModel model)
-        {       
+        {
             string Error = string.Empty;
             Domain.Entities.User user = null;//new Domain.Entities.User();
             bool exist = false;
@@ -426,9 +411,9 @@ namespace MVC_Project.WebBackend.Controllers
                 if (model.RedSocial)
                 {
                     //Existe usuario
-                    user = _authService.Authenticate(model.Email, SecurityUtil.EncryptPassword(model.Password));
-                    //Domain.Entities.User user = _authService.AuthenticateSocialNetwork(model.Email, SecurityUtil.EncryptPassword(model.Password),
-                    //model.TypeRedSocial, model.SocialId);
+                    //user = _authService.Authenticate(model.Email, SecurityUtil.EncryptPassword(model.Password));
+                    user = _authService.AuthenticateSocialNetwork(model.Email, SecurityUtil.EncryptPassword(model.Password),
+                    model.TypeRedSocial, model.SocialId);
                     //_socialNe.GetUserByEmail(model.Email);
                     if (user != null)
                     {
@@ -438,69 +423,65 @@ namespace MVC_Project.WebBackend.Controllers
                         }
                         else
                         {
-                            var network = _socialNetworkLoginService.AuthenticateSocialNetwork(user.id, model.SocialId, model.TypeRedSocial);
-                            if (network != null)
+                            //Es un usuario con red social activa
+                            //Asignar usuario en sesión
+                            var authUser = GetValidateUserLogin(user);
+
+                            if (authUser != null)
                             {
-                                //Asignar usuario en sesión
-                                var authUser = GetValidateUserLogin(user);
-                                
-                                if (authUser != null)
+                                exist = true;
+
+                                if (user.memberships.Count <= 0)//Rol invitado
                                 {
-                                    exist = true;
-
-                                    if (user.memberships.Count <= 0)//Rol invitado
+                                    var guestRole = _roleService.FindBy(x => x.code == SystemRoles.GUEST.ToString()).FirstOrDefault();
+                                    List<Permission> permissionsGest = guestRole.permissions.Select(p => new Permission
                                     {
-                                        var guestRole = _roleService.FindBy(x => x.code == SystemRoles.GUEST.ToString()).FirstOrDefault();
-                                        List<Permission> permissionsGest = guestRole.permissions.Select(p => new Permission
-                                        {
-                                            Action = p.action,
-                                            Controller = p.controller,
-                                            Module = p.module
-                                        }).ToList();
+                                        Action = p.action,
+                                        Controller = p.controller,
+                                        Module = p.module
+                                    }).ToList();
 
-                                        authUser.Role = new Role { Code = guestRole.code, Name = guestRole.name };
-                                        authUser.Permissions = permissionsGest;
-                                        Authenticator.StoreAuthenticatedUser(authUser);
-                                        url = "Account/Index";
-                                    }
-                                    else if (user.memberships.Count == 1)
-                                    {
-                                        var uniqueMembership = user.memberships.First();
-                                        //var uniqueRole = _roleService.FindBy(x => x.code == uniqueMembership.role.code).FirstOrDefault();
-                                        List<Permission> permissionsUniqueMembership = uniqueMembership.mebershipPermissions.Select(p => new Permission
-                                        {
-                                            Action = p.permission.action,
-                                            Controller = p.permission.controller,
-                                            Module = p.permission.module
-                                        }).ToList();
-
-                                        authUser.Role = new Role { Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
-                                        authUser.Permissions = permissionsUniqueMembership;
-                                        authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
-                                        Authenticator.StoreAuthenticatedUser(authUser);
-                                        url = "Home/Index";
-                                    }
-                                    else
-                                    {
-                                        List<Permission> permissionsUser = new List<Permission>();
-                                        permissionsUser.Add(new Permission
-                                        {
-                                            Action = "Index",
-                                            Controller = "Account",
-                                            Module = "Account"
-                                        });
-                                        authUser.Permissions = permissionsUser;
-                                        Authenticator.StoreAuthenticatedUser(authUser);
-                                        url = "Account/Index";
-                                        //Manda a seleccionar cuenta
-                                    }
-
+                                    authUser.Role = new Role { Code = guestRole.code, Name = guestRole.name };
+                                    authUser.Permissions = permissionsGest;
+                                    Authenticator.StoreAuthenticatedUser(authUser);
+                                    url = "/Account/Index";
                                 }
+                                else if (user.memberships.Count == 1)
+                                {
+                                    var uniqueMembership = user.memberships.First();
+                                    //var uniqueRole = _roleService.FindBy(x => x.code == uniqueMembership.role.code).FirstOrDefault();
+                                    List<Permission> permissionsUniqueMembership = uniqueMembership.mebershipPermissions.Select(p => new Permission
+                                    {
+                                        Action = p.permission.action,
+                                        Controller = p.permission.controller,
+                                        Module = p.permission.module
+                                    }).ToList();
+
+                                    authUser.Role = new Role { Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
+                                    authUser.Permissions = permissionsUniqueMembership;
+                                    authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
+                                    Authenticator.StoreAuthenticatedUser(authUser);
+                                    url = "/Home/Index";
+                                }
+                                else
+                                {
+                                    List<Permission> permissionsUser = new List<Permission>();
+                                    permissionsUser.Add(new Permission
+                                    {
+                                        Action = "Index",
+                                        Controller = "Account",
+                                        Module = "Account"
+                                    });
+                                    authUser.Permissions = permissionsUser;
+                                    Authenticator.StoreAuthenticatedUser(authUser);
+                                    url = "/Account/Index";
+                                    //Manda a seleccionar cuenta
+                                }
+
                             }
                             else
                             {
-
-                                Error = "El usuario no existe o contraseña inválida.";
+                                Error = "El usuario esta inactivo";
                             }
 
                         }
@@ -532,7 +513,7 @@ namespace MVC_Project.WebBackend.Controllers
                 Error = ex.Message;
                 return new JsonResult
                 {
-                    Data = new { Mensaje = new { title = "Error", message = Error }, Success = exist, Url = "Auth/Login" },
+                    Data = new { Mensaje = new { title = "Error", message = Error }, Success = false, Url = "" },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
                 };
@@ -603,13 +584,13 @@ namespace MVC_Project.WebBackend.Controllers
             var response = ValidateLogin(model);
 
             var data = response.Data;
-            var url = "Auth/Login";
-            if(data != null)
+            var url = "/Auth/Login";
+            if (data != null)
             {
                 url = (String)(data.GetType().GetProperty("Url").GetValue(data, null));
             }
-                      
-            return RedirectToAction(url);
+            
+            return Redirect(url);
         }
     }
-}   
+}

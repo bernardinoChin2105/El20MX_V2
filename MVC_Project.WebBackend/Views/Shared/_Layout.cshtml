@@ -6,6 +6,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="765148629644-ehqbkj60uuotg1tb7ofe66jjf7j8gaut.apps.googleusercontent.com">
+
     <title>@ViewBag.Title | @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</title>
 
     @Styles.Render("~/Content/template/css")
@@ -82,6 +85,7 @@
     <script src="~/Scripts/plugins/metisMenu/jquery.metisMenu.js"></script>
     <script src="~/Scripts/plugins/slimscroll/jquery.slimscroll.min.js"></script>
     <script src="~/Scripts/plugins/steps/jquery.steps.min.js"></script>
+    <script src="~/Scripts/plugins/toastr/toastr.min.js"></script>
 
     @Scripts.Render("~/font-awesome/js")
     @Scripts.Render("~/plugins/sweetAlert")
@@ -89,6 +93,11 @@
     <!-- Custom and plugin javascript -->
     <script src="~/Scripts/inspinia.js"></script>
     <script src="~/Scripts/plugins/pace/pace.min.js"></script>
+    <!-- Script para redes sociales-->
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="~/Scripts/Facebook.js"></script>
+    <script src="~/Scripts/Google.js"></script>
+    <!-- fin de Script para redes sociales-->
 
     @if (!string.IsNullOrEmpty(ViewBag.Error))
     {
@@ -103,6 +112,14 @@
             $('#info-toast').toast('show');
         </script>
     }
+
+    @*@if (Html.TieneMensaje())
+        {
+            var mensaje = @Html.ObtenerMensaje();
+            <script type="text/javascript">
+                toastr['@mensaje.Tipo']('@mensaje.Mensaje');
+            </script>
+        }*@
     <!-- iCheck -->
     <script src="~/Scripts/plugins/iCheck/icheck.min.js"></script>
     <script>
@@ -111,6 +128,17 @@
                 checkboxClass: 'icheckbox_square-green',
                 radioClass: 'iradio_square-green',
             });
+        });
+
+        $("#CloseSession").click(function (e) {
+            e.preventDefault()
+            console.log($(this), "quien es?")
+            //vamos a intentar cerrar sesión
+            signOut();//Cierre de google
+            close();//Cierre de facebook
+            console.log("se cerro?")
+            var url = $(this).attr("href");
+            window.location = url;
         });
     </script>
 
