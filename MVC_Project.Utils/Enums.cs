@@ -18,7 +18,7 @@ namespace MVC_Project.Utils
         UNCONFIRMED
     }
 
-    public enum SystemAction
+    public enum SystemLevelPermission
     {
         [Display(Name = "No access")]
         NO_ACCESS,
@@ -94,5 +94,11 @@ namespace MVC_Project.Utils
         {
             return Enum.GetValues(typeof(T)).Cast<T>();
         }
+    }
+
+    public enum SystemModules
+    {
+        [Display(Name = "CONFIGURATION")]
+        CONFIGURATION,
     }
 }

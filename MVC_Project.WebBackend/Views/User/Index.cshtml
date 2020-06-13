@@ -1,7 +1,12 @@
 ﻿@model  MVC_Project.WebBackend.Models.UserViewModel
-
+@using MVC_Project.WebBackend.AuthManagement
+@using MVC_Project.WebBackend.AuthManagement.Models
 @{
     ViewBag.Title = "Administración de Usuarios";
+
+    var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
+    AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
+    var hasFullAccessController = user.HasFullAccessController(controllerName);
 }
 @section styles {
     @Styles.Render("~/plugins/dataTablesStyles")
@@ -49,10 +54,13 @@
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Resultado</h5>
-                    <div class="ibox-tools">
-                        <a href="@Url.Action("Create","User")" class="btn btn-color"><span class="fas fa-plus-square"></span> Crear Nuevo</a>
-                        @*<a href="@Url.Action("Import","User")" class="btn btn-color"><span class="fas fa-file-import"></span> Importar</a>*@
-                    </div>
+                    @if (hasFullAccessController)
+                    {
+                        <div class="ibox-tools">
+                            <a href="@Url.Action("Create", "User")" class="btn btn-sm btn-color"><span class="fas fa-plus-square"></span> Crear Nuevo</a>
+                            @*<a href="@Url.Action("Import","User")" class="btn btn-color"><span class="fas fa-file-import"></span> Importar</a>*@
+                        </div>
+                    }
                 </div>
                 <div class="ibox-content">
                     <div class="table-responsive">
@@ -96,7 +104,8 @@
         $(function () {
             var tableCtrl = new UserIndexControlador('table', '@Url.Action("GetAllByFilter")',
                 '@Url.Action("ModalEditAction")', '@Url.Action("ModalDeleteAction")',
-                '@Url.Action("EditPassword")', 'modal-edit-password', 'changePassForm', 'btn-GuardarContasenia');
+                '@Url.Action("EditPassword")', 'modal-edit-password', 'changePassForm',
+                'btn-GuardarContasenia', '@hasFullAccessController' == 'True');
             tableCtrl.init();
         });
 

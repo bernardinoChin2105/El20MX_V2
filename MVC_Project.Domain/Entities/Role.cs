@@ -19,12 +19,14 @@ namespace MVC_Project.Domain.Entities {
         //public virtual IList<User> users { get; set; }
         public virtual IList<Membership> memberships { get; set; }
         public virtual IList<Permission> permissions { get; set; }
+        public virtual IList<RolePermission> rolePermissions { get; set; }
 
         public Role()
         {
             //users = new List<User>();
             memberships = new List<Membership>();
             permissions = new List<Permission>();
+            rolePermissions = new List<RolePermission>();
         }
     }
 }

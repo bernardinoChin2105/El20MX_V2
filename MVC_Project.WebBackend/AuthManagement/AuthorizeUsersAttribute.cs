@@ -55,34 +55,32 @@ namespace MVC_Project.WebBackend.AuthManagement
             }            
         }
         
-
         protected override bool AuthorizeCore(HttpContextBase httpContext)
-        {                                 
+        {
             AuthUser authenticatedUser = Authenticator.AuthenticatedUser;
-            if (authenticatedUser != null)
-            {
-                DateTime todayDate = DateUtil.GetDateTimeNow();
-                if (authenticatedUser.PasswordExpiration.HasValue && authenticatedUser.PasswordExpiration.Value.Date < todayDate.Date)
-                {
-                    return false;
-                }
-                string controller = httpContext.Request.RequestContext.RouteData.Values["controller"].ToString();
-                string action = httpContext.Request.RequestContext.RouteData.Values["action"].ToString();
-                //if (authenticatedUser.Role.Code.Equals(ConfigurationManager.AppSettings.Get("AdminKey")))
-                //{
-                //    return true;
-                //}
-                //if (authenticatedUser.Role.Code.Equals(Constants.ROLE_IT_SUPPORT))
-                //{
-                //    return true;
-                //}
-                if (authenticatedUser.Permissions.Any(permission => permission.Controller.Equals(controller) && permission.Action.Equals(action)))
-                {
-                    return true;
-                }
+
+            if (authenticatedUser == null)
                 return false;
-            }                    
-            return false;
-        }        
+
+            //if (authenticatedUser.Role.Code.Equals(ConfigurationManager.AppSettings.Get("AdminKey")))
+            //    return true;
+
+            DateTime todayDate = DateUtil.GetDateTimeNow();
+            if (authenticatedUser.PasswordExpiration.HasValue && authenticatedUser.PasswordExpiration.Value.Date < todayDate.Date)
+                return false;
+
+            string controller = httpContext.Request.RequestContext.RouteData.Values["controller"].ToString();
+            string action = httpContext.Request.RequestContext.RouteData.Values["action"].ToString();
+            
+            var permision = authenticatedUser.Permissions.FirstOrDefault(x => x.Controller.Equals(controller) && !string.IsNullOrEmpty(x.Level));
+
+            if (permision == null)
+                return false;
+
+            if (permision.Level == SystemLevelPermission.NO_ACCESS.ToString())
+                return false;
+
+            return true;
+        }
     }
 }

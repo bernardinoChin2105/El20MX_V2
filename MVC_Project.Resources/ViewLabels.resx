@@ -183,4 +183,7 @@
   <data name="LABEL_CLEAN" xml:space="preserve">
     <value>Clean</value>
   </data>
+  <data name="MODULE_CONFIGURATION" xml:space="preserve">
+    <value>Configuration</value>
+  </data>
 </root>
