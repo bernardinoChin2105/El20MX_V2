@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace MVC_Project.Utils
@@ -29,6 +30,13 @@ namespace MVC_Project.Utils
             }
 
             return result.ToString("F1") + " " + postfix;
+        }
+
+        public static string ReplaceSpecialCharactersAndWhiteSpace(string str)
+        {
+            Regex reg = new Regex("[*'\",_&#^@]");
+            str = reg.Replace(str, string.Empty);
+            return str.Trim();
         }
     }
 }

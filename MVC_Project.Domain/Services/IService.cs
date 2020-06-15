@@ -21,5 +21,7 @@ namespace MVC_Project.Domain.Services
         void Delete(int id);
 
         void Create(IEnumerable<M> entities);
+
+        M FirstOrDefault(Expression<Func<M, bool>> predicate);
     }
 }

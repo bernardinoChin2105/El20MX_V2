@@ -65,7 +65,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (membership != null)
                 {
-                    var permissions = membership.role.rolePermissions.Select(p => new Permission
+                    var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                     {
                         Action = p.permission.action,
                         Controller = p.permission.controller,

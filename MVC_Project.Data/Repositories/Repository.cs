@@ -69,5 +69,10 @@ namespace MVC_Project.Data.Repositories
                 }
             }
         }
+
+        public T FirstOrDefault(Expression<Func<T, bool>> predicate)
+        {
+            return Session.Query<T>().FirstOrDefault(predicate);
+        }
     }
 }

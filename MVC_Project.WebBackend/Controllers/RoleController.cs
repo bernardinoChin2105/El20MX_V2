@@ -89,7 +89,7 @@ namespace MVC_Project.WebBackend.Controllers
         // GET: Role/Create
         public ActionResult Create()
         {
-            var roleCreateViewModel = new RoleCreateViewModel {Features = PopulateFeatures()};
+            var roleCreateViewModel = new RoleCreateViewModel { Modules = PopulateModules() };
             return View(roleCreateViewModel);
         }
 
@@ -98,10 +98,10 @@ namespace MVC_Project.WebBackend.Controllers
             var features = _featureService.GetAll();
             var featuresViewModel = new List<FeatureViewModel>();
             var values = Enum.GetValues(typeof(SystemLevelPermission));
-            var items = new List<SelectListItem>();
+            var systemaActions = new List<SelectListItem>();
             foreach (int i in values)
             {
-                items.Add(new SelectListItem
+                systemaActions.Add(new SelectListItem
                 {
                     Text = ((SystemLevelPermission)i).GetDisplayName(),
                     Value = i.ToString()
@@ -117,7 +117,7 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         Id = x.id,
                         Name = x.description,
-                        SystemActions = items
+                        SystemActions = systemaActions
                     }).ToList()
                 });
             }
@@ -137,6 +137,39 @@ namespace MVC_Project.WebBackend.Controllers
             return permissionsVM;
         }
 
+        private List<ModuleViewModel> PopulateModules()
+        {
+            var permissions = _permissionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString()).ToList();
+            var permissionsVM = new List<ModuleViewModel>();
+            permissionsVM = permissions.GroupBy(x => x.module).Select(g => new ModuleViewModel
+            {
+                Id = (int)Enum.Parse(typeof(SystemModules), g.Key),
+                Name = ((SystemModules)Enum.Parse(typeof(SystemModules), g.Key)).GetDisplayName(),
+                Permissions = g.Select(s => new PermissionViewModel
+                {
+                    Id = s.id,
+                    Name = s.description,
+                    SystemActions = PopulateActions()
+                }).ToList()
+            }).ToList();
+            return permissionsVM;
+        }
+
+        public List<SelectListItem> PopulateActions()
+        {
+            var values = Enum.GetValues(typeof(SystemLevelPermission));
+            var systemaActions = new List<SelectListItem>();
+            foreach (int i in values)
+            {
+                systemaActions.Add(new SelectListItem
+                {
+                    Text = ((SystemLevelPermission)i).GetDisplayName(),
+                    Value = i.ToString()
+                });
+            }
+            return systemaActions;
+        }
+
         // POST: Role/Create
         //[HttpPost]
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
@@ -144,41 +177,45 @@ namespace MVC_Project.WebBackend.Controllers
         {          
             if (ModelState.IsValid)
             {
+                var code = FormatUtil.ReplaceSpecialCharactersAndWhiteSpace(roleCreateViewModel.Name);
                 var userAuth = Authenticator.AuthenticatedUser;
+
+                if (_roleService.FindBy(x => x.code == code && x.account.id == userAuth.Account.Id).Any())
+                    throw new Exception("Ya existe un rol con el nombre proporcionado");
+                
                 DateTime todayDate = DateUtil.GetDateTimeNow();      
                 var role = new Role
                 {
                     uuid = Guid.NewGuid(),
                     name = roleCreateViewModel.Name,
-                    code = roleCreateViewModel.Code,
+                    code = code,
                     description = roleCreateViewModel.Name,
                     createdAt = todayDate,
                     modifiedAt = todayDate,
                     status = SystemStatus.ACTIVE.ToString(),
                     account = new Account { id = userAuth.Account.Id }
                 };
-
-                _roleService.Create(role);
-
-                IEnumerable<RolePermission> rolesPermissions = new List<RolePermission>();
-                foreach(var feature in roleCreateViewModel.Features)
+                
+                List<RolePermission> rolesPermissions = new List<RolePermission>();
+                foreach(var modules in roleCreateViewModel.Modules)
                 {
-                    foreach (PermissionViewModel permisoNuevo in feature.Permissions)
+                    foreach (PermissionViewModel permisoNuevo in modules.Permissions)
                     {
                         RolePermission rolePermission = new RolePermission();
-                        rolePermission.role = new Role { id = role.id };
+                        rolePermission.role = role;
                         rolePermission.permission = new Permission { id = permisoNuevo.Id };
                         rolePermission.level = ((SystemLevelPermission)permisoNuevo.SystemAction).ToString();
                         rolePermission.account = new Account { id = userAuth.Account.Id };
-                        rolesPermissions.Append(rolePermission);
+                        rolesPermissions.Add(rolePermission);
                     }
                 }
-                _rolePermissionService.Create(rolesPermissions);
+
+                _roleService.CreateRole(role, rolesPermissions);
                 return RedirectToAction("Index");
             }
             else
             {
-                roleCreateViewModel = new RoleCreateViewModel { Features = PopulateFeatures() };
+                roleCreateViewModel = new RoleCreateViewModel { Modules = PopulateModules() };
                 return View("Create", roleCreateViewModel);
             }
         }
@@ -187,21 +224,34 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult Edit(string uuid)
         {
             Role role = new Role();
-            role = _roleService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
+            var userAuth = Authenticator.AuthenticatedUser;
+
+            role = _roleService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid) && x.account.id == userAuth.Account.Id);
+            if (role == null)
+                throw new Exception("El rol no se encontró en la base de datos");
+
             RoleEditViewModel model = new RoleEditViewModel();
             model.Id = role.id;
             model.Name = role.name;
             model.Code = role.code;
-            IEnumerable<PermissionViewModel> permisos = PopulatePermissions();
-            foreach (PermissionViewModel permiso in permisos)
+            List<ModuleViewModel> modules = PopulateModules();
+            
+            foreach (var module in modules)
             {
-                var match = role.permissions.FirstOrDefault(stringToCheck => stringToCheck.description.Contains(permiso.Name));
-                if (match != null)
+                foreach (var permission in module.Permissions)
                 {
-                    //permiso.Assigned = true;
+                    var match = role.rolePermissions.FirstOrDefault(x => x.permission.id == permission.Id && x.account.id == userAuth.Account.Id);
+                    if (match != null)
+                    {
+                        int level = (int)(Enum.Parse(typeof(SystemLevelPermission), match.level));
+                        permission.SystemAction = level;
+                        var action = permission.SystemActions.First(x => x.Value == level.ToString());
+                        action.Selected = true;
+                    }
                 }
             }
-            model.Permissions = permisos;
+
+            model.Modules = modules;
             return View(model);
         }
 
@@ -211,27 +261,38 @@ namespace MVC_Project.WebBackend.Controllers
         {
             try
             {
-                Role role = _roleService.FindBy(x => x.id == model.Id).First();
-                //role.Name = model.Name;
-                //role.Code = model.Code;
-                //_roleService.Update(role);
+                var userAuth = Authenticator.AuthenticatedUser;
+                Role role = _roleService.FirstOrDefault(x => x.id == model.Id && x.account.id == userAuth.Account.Id);
+                IList<RolePermission> rolePermissions = role.rolePermissions;
 
-                IList<Permission> permissions = role.permissions;
-                IList<PermissionViewModel> permisosNuevos = model.Permissions.ToList();
-                var query = permisosNuevos.Where(p => !permissions.Any(l => p.Id == l.id)); //permisosNuevos.Where(x => permissions.Contains(x.Id));
-                var query2 = permissions.Where(p => !permisosNuevos.Any(l => p.id == l.Id));
-                foreach (PermissionViewModel permisoNuevo in query)
+                List<PermissionViewModel> permissionsViewModels = new List<PermissionViewModel>();
+                foreach (var module in model.Modules)
+                    permissionsViewModels.AddRange(module.Permissions);
+
+                var news = permissionsViewModels.Where(pvm => !rolePermissions.Any(rp => pvm.Id == rp.permission.id));
+                var newRolePermissions = news.Select(x => new RolePermission
                 {
-                    RolePermission rolePermission = new RolePermission();
-                    rolePermission.role = new Role { id = role.id };
-                    rolePermission.permission = new Permission { id = permisoNuevo.Id };
-                    _rolePermissionService.Create(rolePermission);
-                }
-                foreach (Permission permisoQuitado in query2)
+                    role = new Role { id = role.id },
+                    permission = new Permission { id = x.Id },
+                    level = ((SystemLevelPermission)x.SystemAction).ToString()
+                });
+
+                var updates = from rp in rolePermissions
+                                            join pvm in permissionsViewModels on rp.permission.id equals pvm.Id
+                                            where rp.level != ((SystemLevelPermission)pvm.SystemAction).ToString()
+                                            select new { rolePermission = rp, level = ((SystemLevelPermission)pvm.SystemAction).ToString() };
+                
+                var updateRolePermissions = new List<RolePermission>();
+                foreach(var u in updates)
                 {
-                    RolePermission rolePermission = _rolePermissionService.FindBy(x => x.role.id == role.id && x.permission.id == permisoQuitado.id).FirstOrDefault();
-                    _rolePermissionService.Delete(rolePermission.id);
+                    var permision = u.rolePermission;
+                    permision.level = u.level;
+                    updateRolePermissions.Add(permision);
                 }
+
+                var oldRolePermissions = rolePermissions.Where(rp => !permissionsViewModels.Any(pvm => rp.permission.id == pvm.Id));
+
+                _rolePermissionService.UpdateRolePermissions(newRolePermissions, updateRolePermissions, oldRolePermissions);
                 return RedirectToAction("Index");
             }
             catch

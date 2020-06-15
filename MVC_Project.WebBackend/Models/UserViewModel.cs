@@ -88,7 +88,7 @@ namespace MVC_Project.WebBackend.Models
 
         public IEnumerable<SelectListItem> Roles { get; set; }
 
-        public IEnumerable<FeatureViewModel> Features { get; set; }
+        //public IEnumerable<FeatureViewModel> Features { get; set; }
     }
 
     public class UserRoleViewModel

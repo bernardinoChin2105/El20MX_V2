@@ -24,5 +24,7 @@ namespace MVC_Project.Domain.Repositories
         void Delete(int id);
 
         void Create(IEnumerable<T> entities);
+
+        T FirstOrDefault(Expression<Func<T, bool>> predicate);
     }
 }

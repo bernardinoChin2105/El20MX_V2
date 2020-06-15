@@ -88,7 +88,7 @@ namespace MVC_Project.WebBackend.Controllers
                     if (user.memberships.Count <= 0)//Rol invitado
                     {
                         var guestRole = _roleService.FindBy(x => x.code == SystemRoles.GUEST.ToString()).FirstOrDefault();
-                        List<Permission> permissionsGest = guestRole.rolePermissions.Select(p => new Permission
+                        List<Permission> permissionsGest = guestRole.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                         {
                             Action = p.permission.action,
                             Controller = p.permission.controller,
@@ -106,7 +106,7 @@ namespace MVC_Project.WebBackend.Controllers
                         var uniqueMembership = user.memberships.First();
                         //var uniqueRole = _roleService.FindBy(x => x.code == uniqueMembership.role.code).FirstOrDefault();
                         //List<Permission> permissionsUniqueMembership = uniqueMembership.mebershipPermissions.Select(p => new Permission
-                        List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Select(p => new Permission
+                        List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                         {
                             Action = p.permission.action,
                             Controller = p.permission.controller,

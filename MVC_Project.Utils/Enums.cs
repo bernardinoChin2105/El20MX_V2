@@ -98,7 +98,7 @@ namespace MVC_Project.Utils
 
     public enum SystemModules
     {
-        [Display(Name = "CONFIGURATION")]
+        [Display(Name = "Configuración")]
         CONFIGURATION,
     }
 }

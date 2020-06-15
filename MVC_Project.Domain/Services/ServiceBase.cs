@@ -38,6 +38,11 @@ namespace MVC_Project.Domain.Services
             return _baseRepository.FindBy(predicate);
         }
 
+        public M FirstOrDefault(Expression<Func<M, bool>> predicate)
+        {
+            return _baseRepository.FirstOrDefault(predicate);
+        }
+
         public IEnumerable<M> GetAll()
         {
             return _baseRepository.GetAll().ToList();

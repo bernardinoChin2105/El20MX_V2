@@ -13,6 +13,7 @@ namespace MVC_Project.Domain.Services {
     {
         IList<Role> ObtenerRoles(string filtros);
         Tuple<IEnumerable<Role>, int>  FilterBy(string filtros, int accountId, int? skip, int? take);
+        Role CreateRole(Role role, IEnumerable<RolePermission> permissions);
     }
     #endregion
 
@@ -61,6 +62,28 @@ namespace MVC_Project.Domain.Services {
 
             var list = roles.OrderBy(u => u.createdAt).Desc.List();
             return new Tuple<IEnumerable<Role>, int>(list, count);
+        }
+
+        public Role CreateRole(Role role, IEnumerable<RolePermission> permissions)
+        {
+            using (var transaction = _repository.Session.BeginTransaction())
+            {
+                try
+                {
+                    _repository.Session.Save(role);
+
+                    foreach (var permission in permissions)
+                        _repository.Session.Save(permission);
+                     
+                    transaction.Commit();
+                    return role;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
+                }
+            }
         }
     }
 }

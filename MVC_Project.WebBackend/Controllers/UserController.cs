@@ -142,7 +142,7 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult Create()
         {
             var roles = PopulateRoles();
-            var userCreateViewModel = new UserCreateViewModel { Roles = roles, Features = PopulateFeatures(int.Parse(roles.First().Value)) };
+            var userCreateViewModel = new UserCreateViewModel { Roles = roles /*, Features = PopulateFeatures(int.Parse(roles.First().Value))*/ };
             return View(userCreateViewModel);
         }
 
