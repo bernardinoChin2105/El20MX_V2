@@ -110,6 +110,14 @@ namespace MVC_Project.WebBackend
                       "~/Scripts/views/rol/Index.js"));
 
 
+            // toastr notification
+            bundles.Add(new ScriptBundle("~/plugins/toastr").Include(
+                      "~/Scripts/plugins/toastr/toastr.min.js"));
+
+            // toastr notification styles
+            bundles.Add(new StyleBundle("~/plugins/toastrStyles").Include(
+                      "~/Content/template/plugins/toastr/toastr.min.css"));
+
         }
     }
 }

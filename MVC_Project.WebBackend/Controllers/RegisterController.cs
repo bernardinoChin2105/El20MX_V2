@@ -2,6 +2,7 @@
 using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
+//using MVC_Project.FlashMessages;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.Models;
 using System;
@@ -148,7 +149,8 @@ namespace MVC_Project.WebBackend.Controllers
 
                         //ViewBag.Message = "Registro exitoso.";
                         MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
-                            //MensajeFlashHandler.RegistrarMensaje(ImpuestoPredial.Resource.Recursos.OperacionFallida);
+                        //MensajeFlash.MensajeFlashHandler.RegistrarMensaje("Prueba.", MensajeFlash.TiposMensaje.Info);
+                        //MensajeFlashHandler.RegistrarMensaje(ImpuestoPredial.Resource.Recursos.OperacionFallida);
 
                         return RedirectToAction("Login", "Auth");
                     }
