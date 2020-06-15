@@ -21,7 +21,8 @@ namespace MVC_Project.Data.Mappings {
             
             //HasMany(x => x.users).Inverse().Cascade.All().KeyColumn("roleId");
             HasMany(x => x.memberships).Inverse().Cascade.All().KeyColumn("roleId");
-            HasManyToMany(x => x.permissions).Cascade.All().Table("rolesPermissions").ParentKeyColumn("roleId").ChildKeyColumn("permissionId");
+            HasMany(x => x.rolePermissions).Inverse().Cascade.All().KeyColumn("roleId");
+            //HasManyToMany(x => x.permissions).Cascade.All().Table("rolesPermissions").ParentKeyColumn("roleId").ChildKeyColumn("permissionId");
         }
     }
 }

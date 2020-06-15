@@ -89,11 +89,12 @@ namespace MVC_Project.WebBackend.Controllers
                     if (user.memberships.Count <= 0)//Rol invitado
                     {
                         var guestRole = _roleService.FindBy(x => x.code == SystemRoles.GUEST.ToString()).FirstOrDefault();
-                        List<Permission> permissionsGest = guestRole.permissions.Select(p => new Permission
+                        List<Permission> permissionsGest = guestRole.rolePermissions.Select(p => new Permission
                         {
-                            Action = p.action,
-                            Controller = p.controller,
-                            Module = p.module
+                            Action = p.permission.action,
+                            Controller = p.permission.controller,
+                            Module = p.permission.module,
+                            Level = p.level
                         }).ToList();
 
                         authUser.Role = new Role { Code = guestRole.code, Name = guestRole.name };
@@ -106,7 +107,8 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         var uniqueMembership = user.memberships.First();
                         //var uniqueRole = _roleService.FindBy(x => x.code == uniqueMembership.role.code).FirstOrDefault();
-                        List<Permission> permissionsUniqueMembership = uniqueMembership.mebershipPermissions.Select(p => new Permission
+                        //List<Permission> permissionsUniqueMembership = uniqueMembership.mebershipPermissions.Select(p => new Permission
+                        List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Select(p => new Permission
                         {
                             Action = p.permission.action,
                             Controller = p.permission.controller,
@@ -127,7 +129,8 @@ namespace MVC_Project.WebBackend.Controllers
                         {
                             Action = "Index",
                             Controller = "Account",
-                            Module = "Account"
+                            Module = "Account",
+                            Level = SystemLevelPermission.READ_ONLY.ToString()
                         });
                         authUser.Permissions = permissionsUser;
                         Authenticator.StoreAuthenticatedUser(authUser);

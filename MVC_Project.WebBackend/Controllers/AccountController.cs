@@ -65,13 +65,13 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (membership != null)
                 {
-                    var mebershipPermissions = membership.mebershipPermissions.Select(x => x.permission);
-                    var permissions = mebershipPermissions.Select(p => new Permission
-                        {
-                            Action = p.action,
-                            Controller = p.controller,
-                            Module = p.module
-                        }).ToList();
+                    var permissions = membership.role.rolePermissions.Select(p => new Permission
+                    {
+                        Action = p.permission.action,
+                        Controller = p.permission.controller,
+                        Module = p.permission.module,
+                        Level = p.level
+                    }).ToList();
 
                     authUser.Role = new Role { Code = membership.role.code, Name = membership.role.name };
                     authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc };

@@ -18,11 +18,13 @@ namespace MVC_Project.Domain.Entities {
         public virtual Account account { get; set; }
         public virtual Feature feature { get; set; }
 
+        public virtual IList<RolePermission> rolePermissions { get; set; }
         public virtual IList<MembershipPermission> mebershipPermissions { get; set; }
 
         public Permission()
         {
             mebershipPermissions = new List<MembershipPermission>();
+            rolePermissions = new List<RolePermission>();
         }
     }
 }

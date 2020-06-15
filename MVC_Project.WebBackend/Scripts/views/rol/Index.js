@@ -1,4 +1,4 @@
-﻿var RolIndexControlador = function (htmlTableId, baseUrl, modalEditAction, modalDeleteAction) {
+﻿var RolIndexControlador = function (htmlTableId, baseUrl, modalEditAction, modalDeleteAction, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
@@ -47,7 +47,7 @@
                             '<button class="btn btn-light btn-edit"><span class="fas fa-edit"></span></button>' +
                             //'<button class="btn btn-light btn-delete" style="margin-left:5px;"><span class="fas fa-trash"></span></button>' +
                             '</div>';
-                        return buttons;
+                        return hasFullAccessController ? buttons : "";
                     }
                 }
             ],

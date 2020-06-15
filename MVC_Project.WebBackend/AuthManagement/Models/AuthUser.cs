@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MVC_Project.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -41,6 +42,16 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
             return false;
         }
 
+        public bool HasFullAccessController(string controller)
+        {
+            if (this.Permissions != null && this.Permissions.Count > 0)
+            {
+                var per = from ap in this.Permissions where ap.Controller == controller && ap.Level == SystemLevelPermission.FULL_ACCESS.ToString() select ap;
+                return per.Count<Permission>() > 0;
+            }
+            return false;
+        }
+
         public string GetControllerModule(string controller)
         {
             if (this.Permissions != null && this.Permissions.Count > 0)
@@ -63,6 +74,7 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
         public string Controller { get; set; }
         public string Action { get; set; }
         public string Module { get; set; }
+        public string Level { get; set; }
     }
 
     public class Account

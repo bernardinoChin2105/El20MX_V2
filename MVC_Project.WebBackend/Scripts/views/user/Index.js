@@ -1,9 +1,11 @@
-﻿var UserIndexControlador = function (htmlTableId, baseUrl, modalEditAction, modalDeleteAction, modelEditPasswordAction, modalEditPasswordId, formEditPasswordId, submitEditPasswordId) {
+﻿var UserIndexControlador = function (htmlTableId, baseUrl, modalEditAction, modalDeleteAction, modelEditPasswordAction, 
+    modalEditPasswordId, formEditPasswordId, submitEditPasswordId, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
     this.dataTable = {};
     this.modalEditPassword = $('#' + modalEditPasswordId);
+    this.hasFullAccessController = hasFullAccessController;
     const utils = new Utils();
     this.initModal = function () {
 
@@ -53,7 +55,7 @@
                             '<button class="btn btn-light btn-edit" title="Editar Usuario"><span class="fas fa-user-edit"></span></button>' +
                             //'<button class="btn btn-light btn-edit-password" title="Cambiar Contraseña"><span class="fas fa-key"></span></button>' +
                             '</div>';
-                        return buttons;
+                        return self.hasFullAccessController ? buttons : "";
                     }
                 }
             ],
@@ -65,6 +67,10 @@
                 });
             }
         });
+
+        /*$.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
+            console.log(message);
+        };*/
 
         $(this.htmlTable, "tbody").on('click',
             'td.personal-options .btn-group .btn-change-status',

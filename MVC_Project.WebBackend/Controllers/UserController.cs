@@ -96,31 +96,35 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 var userAuth = Authenticator.AuthenticatedUser;
                 NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
-                var results = _userService.FilterBy(filtersValues, userAuth.Account.Id, param.iDisplayStart, param.iDisplayLength);
                 IList<UserData> dataResponse = new List<UserData>();
-                foreach (var user in results.Item1)
+                int totalDisplay = 0;
+                if (userAuth.Account != null)
                 {
-                    var accountUser = user.memberships.First();
-                    //var accountUser = _accountUserService.FindBy(x => x.user.id == user.id && x.account.id == account.id).First();
-
-                    UserData userData = new UserData();
-                    userData.Name = user.profile.firstName + " " + user.profile.lastName;
-                    userData.Email = user.name;
-                    userData.RoleName = accountUser.role.name;
-                    userData.CreatedAt = user.createdAt;
-                    userData.UpdatedAt = user.modifiedAt;
-                    userData.Status = user.status==SystemStatus.ACTIVE.ToString();
-                    userData.Uuid = user.uuid.ToString();
-                    userData.LastLoginAt = user.lastLoginAt;
-                    dataResponse.Add(userData);
+                    var results = _userService.FilterBy(filtersValues, userAuth.Account.Id, param.iDisplayStart, param.iDisplayLength);
+                    totalDisplay = results.Item2;
+                    foreach (var user in results.Item1)
+                    {
+                        var accountUser = user.memberships.First();
+                        UserData userData = new UserData();
+                        userData.Name = user.profile.firstName + " " + user.profile.lastName;
+                        userData.Email = user.name;
+                        userData.RoleName = accountUser.role.name;
+                        userData.CreatedAt = user.createdAt;
+                        userData.UpdatedAt = user.modifiedAt;
+                        userData.Status = user.status == SystemStatus.ACTIVE.ToString();
+                        userData.Uuid = user.uuid.ToString();
+                        userData.LastLoginAt = user.lastLoginAt;
+                        dataResponse.Add(userData);
+                    }
                 }
                 return Json(new
                 {
                     success = true,
                     param.sEcho,
                     iTotalRecords = dataResponse.Count(),
-                    iTotalDisplayRecords = results.Item2,
-                    aaData = dataResponse
+                    iTotalDisplayRecords = totalDisplay,
+                    aaData = dataResponse,
+                    error = "Test error"
                 }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -147,13 +151,13 @@ namespace MVC_Project.WebBackend.Controllers
             var role = _roleService.FindBy(x => x.id == roleId).FirstOrDefault();
             var features = _featureService.GetAll();
             var featuresViewModel = new List<FeatureViewModel>();
-            var values = Enum.GetValues(typeof(SystemAction));
+            var values = Enum.GetValues(typeof(SystemLevelPermission));
             var items = new List<SelectListItem>();
             foreach (var i in values)
             {
                 items.Add(new SelectListItem
                 {
-                    Text = Enum.GetName(typeof(SystemAction), i),
+                    Text = Enum.GetName(typeof(SystemLevelPermission), i),
                     Value = ((int)i).ToString()
                 });
             }

@@ -1,5 +1,6 @@
 ﻿@using MVC_Project.WebBackend.AuthManagement
 @using MVC_Project.WebBackend.AuthManagement.Models
+@using MVC_Project.Utils
 @{
     AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
 }
@@ -7,6 +8,7 @@
 <nav class="navbar-default navbar-static-side" role="navigation">
     <div class="sidebar-collapse">
         <ul class="nav metismenu" id="side-menu">
+
             <li class="nav-header">
                 <div class="dropdown profile-element">
                     <img alt="image" class="rounded-circle" src="@user.Avatar" />
@@ -28,9 +30,9 @@
                 </div>
             </li>
 
-            @if (user.HasAccessToModule("admin"))
+            @if (user.HasAccessToModule(SystemModules.CONFIGURATION.ToString()))
             {
-                <li class="@Html.IsModuleSelected(user, "admin")">
+                <li class="@Html.IsModuleSelected(user, SystemModules.CONFIGURATION.ToString())">
                     <a href="#"><i class="fa fa-th-large"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_MANAGEMENT</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("User"))
                     {
@@ -40,7 +42,7 @@
                     }
                     @if (user.HasAccessController("Role"))
                     {
-                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "User", cssClass: "in")">
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Role", cssClass: "in")">
                             <li class="@Html.IsSelected(controller: "Role",action: "Index")"><a href="@Url.Action("Index", "Role")">Roles</a></li>
                         </ul>
                     }
@@ -127,21 +129,40 @@
 
 
 
-            <li class="">
-                <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
-                <ul class="nav nav-second-level collapse in">
-                    <li class="">
-                        <a href="#">Bancos <span class="fain arrow"></span></a> 
-                        <ul class="nav nav-second-level collapse">
-                            <li class=""><a href="#">Conectar</a></li>
-                            <li class=""><a href="#">Cargar movimientos</a></li>
-                        </ul>
-                    </li>
+            @*<li class="">
+            <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
+            <ul class="nav nav-second-level collapse in">
+                <li class="">
+                    <a href="#">Bancos <span class="fain arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li class=""><a href="#">Conectar</a></li>
+                        <li class=""><a href="#">Cargar movimientos</a></li>
+                    </ul>
+                </li>
 
-                </ul>
-            </li>
+            </ul>
+        </li>*@
 
 
+        </ul>
+    </div>
+
+    <div class="sidebar-collapse text-center" style="position:fixed; bottom:0px;width:inherit">
+        <ul class="nav metismenu">
+            @if (user != null && user.Account != null)
+            {
+                <li class="nav-header">
+                    <div class="profile-element text-center">
+                        <img alt="image" class="rounded-circle" src="~/Images/p3.jpg" style="width:40%" />
+                        <span class="block m-t-xs font-bold" style="color:white">@user.Account.RFC</span>
+                        <span class="text-muted text-xs block">@user.Account.Name</span>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+            }
+            
         </ul>
     </div>
 </nav>

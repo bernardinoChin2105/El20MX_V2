@@ -8,6 +8,8 @@ using MVC_Project.WebBackend.Models;
 using MVC_Project.Utils;
 using System.Configuration;
 using MVC_Project.WebBackend.AuthManagement;
+using System.Web;
+using System.Collections.Specialized;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -38,25 +40,32 @@ namespace MVC_Project.WebBackend.Controllers
         {
             try
             {
-                var roles = _roleService.ObtenerRoles(filtros);
+                var userAuth = Authenticator.AuthenticatedUser;
+                //NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
                 IList<RoleData> UsuariosResponse = new List<RoleData>();
-                foreach (var rol in roles)
+                int totalDisplay = 0;
+                if (userAuth.Account != null)
                 {
-                    RoleData userData = new RoleData();
-                    userData.Name = rol.name;
-                    userData.Description = rol.description;
-                    userData.CreatedAt = rol.createdAt;
-                    userData.UpdatedAt = rol.modifiedAt;
-                    userData.Status = rol.status==SystemStatus.ACTIVE.ToString();
-                    userData.Uuid = rol.uuid.ToString();
-                    UsuariosResponse.Add(userData);
+                    var roles = _roleService.FilterBy(filtros, userAuth.Account.Id, param.iDisplayStart, param.iDisplayLength);
+                    totalDisplay = roles.Item2;
+                    foreach (var rol in roles.Item1)
+                    {
+                        RoleData userData = new RoleData();
+                        userData.Name = rol.name;
+                        userData.Description = rol.description;
+                        userData.CreatedAt = rol.createdAt;
+                        userData.UpdatedAt = rol.modifiedAt;
+                        userData.Status = rol.status == SystemStatus.ACTIVE.ToString();
+                        userData.Uuid = rol.uuid.ToString();
+                        UsuariosResponse.Add(userData);
+                    }
                 }
                 return Json(new
                 {
                     success = true,
                     sEcho = param.sEcho,
                     iTotalRecords = UsuariosResponse.Count(),
-                    iTotalDisplayRecords = 10,
+                    iTotalDisplayRecords = totalDisplay,
                     aaData = UsuariosResponse
                 }, JsonRequestBehavior.AllowGet);
             }
@@ -88,13 +97,13 @@ namespace MVC_Project.WebBackend.Controllers
         {
             var features = _featureService.GetAll();
             var featuresViewModel = new List<FeatureViewModel>();
-            var values = Enum.GetValues(typeof(SystemAction));
+            var values = Enum.GetValues(typeof(SystemLevelPermission));
             var items = new List<SelectListItem>();
             foreach (int i in values)
             {
                 items.Add(new SelectListItem
                 {
-                    Text = ((SystemAction)i).GetDisplayName(),
+                    Text = ((SystemLevelPermission)i).GetDisplayName(),
                     Value = i.ToString()
             });
             }
@@ -159,7 +168,7 @@ namespace MVC_Project.WebBackend.Controllers
                         RolePermission rolePermission = new RolePermission();
                         rolePermission.role = new Role { id = role.id };
                         rolePermission.permission = new Permission { id = permisoNuevo.Id };
-                        rolePermission.level = ((SystemAction)permisoNuevo.SystemAction).ToString();
+                        rolePermission.level = ((SystemLevelPermission)permisoNuevo.SystemAction).ToString();
                         rolePermission.account = new Account { id = userAuth.Account.Id };
                         rolesPermissions.Append(rolePermission);
                     }
