@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using MVC_Project.FlashMessages;
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -14,6 +15,7 @@
     @Styles.Render("~/Content/template/css")
     @Styles.Render("~/font-awesome/css")
     @Styles.Render("~/plugins/sweetAlertStyles")
+    @Styles.Render("~/plugins/toastrStyles")
     <link href="~/Content/template/plugins/steps/jquery.steps.css" rel="stylesheet" />
     <link href="~/Content/template/stylesEl20mx.css" rel="stylesheet" />
     <!-- Local styles -->
@@ -51,7 +53,7 @@
             </div>
         </div>
     </div>
-    <div id="wrapper">
+    <div id="wrapper" class="@Html.PageClass()">
 
         <!-- Left navigation bar -->
         @Html.Partial("_Navigation")
@@ -77,7 +79,6 @@
 
     </div>
 
-
     <!-- Mainly scripts -->
     <script src="~/Scripts/jquery-3.1.1.min.js"></script>
     <script src="~/Scripts/popper.min.js"></script>
@@ -85,10 +86,10 @@
     <script src="~/Scripts/plugins/metisMenu/jquery.metisMenu.js"></script>
     <script src="~/Scripts/plugins/slimscroll/jquery.slimscroll.min.js"></script>
     <script src="~/Scripts/plugins/steps/jquery.steps.min.js"></script>
-    <script src="~/Scripts/plugins/toastr/toastr.min.js"></script>
 
     @Scripts.Render("~/font-awesome/js")
     @Scripts.Render("~/plugins/sweetAlert")
+    @Scripts.Render("~/plugins/toastr")
 
     <!-- Custom and plugin javascript -->
     <script src="~/Scripts/inspinia.js"></script>
@@ -98,6 +99,14 @@
     <script src="~/Scripts/Facebook.js"></script>
     <script src="~/Scripts/Google.js"></script>
     <!-- fin de Script para redes sociales-->
+
+    @if (Html.TieneMensaje())
+    {
+        var mensaje = @Html.ObtenerMensaje();
+        <script type="text/javascript">
+                toastr['@mensaje.Tipo']('@mensaje.Mensaje');
+        </script>
+    }
 
     @if (!string.IsNullOrEmpty(ViewBag.Error))
     {
@@ -113,13 +122,6 @@
         </script>
     }
 
-    @*@if (Html.TieneMensaje())
-        {
-            var mensaje = @Html.ObtenerMensaje();
-            <script type="text/javascript">
-                toastr['@mensaje.Tipo']('@mensaje.Mensaje');
-            </script>
-        }*@
     <!-- iCheck -->
     <script src="~/Scripts/plugins/iCheck/icheck.min.js"></script>
     <script>
@@ -144,6 +146,7 @@
 
     <!-- Local scripts -->
     @RenderSection("scripts", required: false)
+
 
 </body>
 

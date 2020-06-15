@@ -1,5 +1,5 @@
 ﻿using MVC_Project.Domain.Services;
-using MVC_Project.FlashMessages;
+//using MVC_Project.FlashMessages;
 using MVC_Project.Resources;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.App_Code;
@@ -80,7 +80,8 @@ namespace MVC_Project.WebBackend.Controllers
 
                                 string message = String.Format(ViewLabels.PASSWORD_EXPIRATION_MESSAGE, daysLeft);
                                 ViewBag.Message = message;
-                                MensajeFlashHandler.RegistrarMensaje(message, TiposMensaje.Info);
+                                //MensajeFlashHandler.RegistrarMensaje(message, TiposMensaje.Info);
+                                FlashMessages.MensajeFlashHandler.RegistrarMensaje(message, FlashMessages.TiposMensaje.Error);
                             }
                         }
                     }
@@ -98,6 +99,7 @@ namespace MVC_Project.WebBackend.Controllers
                         authUser.Role = new Role { Code = guestRole.code, Name = guestRole.name };
                         authUser.Permissions = permissionsGest;
                         Authenticator.StoreAuthenticatedUser(authUser);
+                        FlashMessages.MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", FlashMessages.TiposMensaje.Success);
                         return RedirectToAction("Index", "Account");
                     }
                     else if (user.memberships.Count == 1)
@@ -115,6 +117,7 @@ namespace MVC_Project.WebBackend.Controllers
                         authUser.Permissions = permissionsUniqueMembership;
                         authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
                         Authenticator.StoreAuthenticatedUser(authUser);
+                        FlashMessages.MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", FlashMessages.TiposMensaje.Success);
                         return RedirectToAction("Index", "Home");
                     }
                     else
@@ -128,6 +131,7 @@ namespace MVC_Project.WebBackend.Controllers
                         });
                         authUser.Permissions = permissionsUser;
                         Authenticator.StoreAuthenticatedUser(authUser);
+                        FlashMessages.MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", FlashMessages.TiposMensaje.Success);
                         return RedirectToAction("Index", "Account");
                         //Manda a seleccionar cuenta
                     }
@@ -140,8 +144,9 @@ namespace MVC_Project.WebBackend.Controllers
                 else
                 {
                     ViewBag.Error = "El usuario no existe o contraseña inválida.";
+                    FlashMessages.MensajeFlashHandler.RegistrarMensaje("El usuario no existe o contraseña inválida.", FlashMessages.TiposMensaje.Error);
                 }
-            }
+            }            
 
             return View(model);
         }
