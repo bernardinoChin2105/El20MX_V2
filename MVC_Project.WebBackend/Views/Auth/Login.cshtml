@@ -31,34 +31,6 @@
 </head>
 
 <body class="gray-bg">
-    <div style="position: absolute; top: 20px; right: 20px;">
-        <div class="toast toast-warning" id="warning-toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
-            <div class="toast-header">
-                <i class="fa fa-exclamation-circle"> </i>
-                <strong class="mr-auto m-l-sm">Ups</strong>
-                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="toast-body">
-                @ViewBag.Error
-            </div>
-        </div>
-    </div>
-    <div style="position: absolute; top: 20px; right: 20px;">
-        <div class="toast toast-info" id="info-toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
-            <div class="toast-header">
-                <i class="fa fa-info-circle"> </i>
-                <strong class="mr-auto m-l-sm">Info</strong>
-                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="toast-body">
-                @ViewBag.Message
-            </div>
-        </div>
-    </div>
     @*<div style="padding:5px">
             @Html.ActionLink("Español", "ChangeLanguage", "Auth", new { lang = "es-MX" }, null) | @Html.ActionLink("Inglés", "ChangeLanguage", "Auth", new { lang = "en" }, null)
         </div>*@
@@ -70,20 +42,6 @@
                 <img src="~/Images/logos/El20mx-logo-estes-donde-e.png" width="300" />
             </div>
             @*<h3>@System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</h3>*@
-
-            @*@if (!string.IsNullOrEmpty(ViewBag.Error))
-                {
-                    <div class="col-lg-12">
-                        <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
-                    </div>
-                }
-
-                @if (!string.IsNullOrEmpty(ViewBag.Message))
-                {
-                    <div class="col-lg-12">
-                        <div class="alert alert-info" role="alert">@ViewBag.Message</div>
-                    </div>
-                }*@
 
             <p>@ViewLabels.AUTH_LOGIN_TITLE</p>
             @using (Html.BeginForm("Login", "Auth", FormMethod.Post, new { @class = "m-t", role = "form", id = "Login" }))
@@ -107,7 +65,6 @@
                 </div>
                 <span class="help-block"></span>
                 <button type="submit" class="btn btn-color block full-width m-b"><span><i class="fa fa-sign-in-alt"></i> &nbsp;@ViewLabels.AUTH_LOGIN_SUBMIT </span></button>
-                @*<div class="fb-login-button" data-size="large" data-button-type="continue_with" data-layout="default" data-auto-logout-link="false" data-use-continue-as="false" data-width="" onclick="Loguear()"></div>*@
                 <div><h5 class="line">O</h5></div>
                 <div class="row">
                     <div class="col-md-6" style="padding-right: 2px !important;">
@@ -163,20 +120,6 @@
         var UrlReset = '@Url.Action("ResetPassword")';
     </script>
     <script src="~/Scripts/views/Auth/Index.js"></script>
-
-    @if (!string.IsNullOrEmpty(ViewBag.Error))
-    {
-        <script type="text/javascript">
-            $('#warning-toast').toast('show');
-        </script>
-    }
-
-    @if (!string.IsNullOrEmpty(ViewBag.Message))
-    {
-        <script type="text/javascript">
-            $('#info-toast').toast('show');
-        </script>
-    }
 
     @if (Html.TieneMensaje())
     {

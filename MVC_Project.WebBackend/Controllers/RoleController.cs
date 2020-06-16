@@ -10,6 +10,7 @@ using System.Configuration;
 using MVC_Project.WebBackend.AuthManagement;
 using System.Web;
 using System.Collections.Specialized;
+using MVC_Project.FlashMessages;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -41,7 +42,6 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 var userAuth = Authenticator.AuthenticatedUser;
-                //NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
                 IList<RoleData> UsuariosResponse = new List<RoleData>();
                 int totalDisplay = 0;
                 if (userAuth.Account != null)
@@ -89,8 +89,16 @@ namespace MVC_Project.WebBackend.Controllers
         // GET: Role/Create
         public ActionResult Create()
         {
-            var roleCreateViewModel = new RoleCreateViewModel { Modules = PopulateModules() };
-            return View(roleCreateViewModel);
+            try
+            {
+                var roleCreateViewModel = new RoleCreateViewModel { Modules = PopulateModules() };
+                return View(roleCreateViewModel);
+            }
+            catch(Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                return RedirectToAction("Index");
+            }
         }
 
         private List<FeatureViewModel> PopulateFeatures()
@@ -174,16 +182,19 @@ namespace MVC_Project.WebBackend.Controllers
         //[HttpPost]
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public ActionResult Create(RoleCreateViewModel roleCreateViewModel)
-        {          
-            if (ModelState.IsValid)
+        {
+            try
             {
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
+
                 var code = FormatUtil.ReplaceSpecialCharactersAndWhiteSpace(roleCreateViewModel.Name);
                 var userAuth = Authenticator.AuthenticatedUser;
 
                 if (_roleService.FindBy(x => x.code == code && x.account.id == userAuth.Account.Id).Any())
                     throw new Exception("Ya existe un rol con el nombre proporcionado");
-                
-                DateTime todayDate = DateUtil.GetDateTimeNow();      
+
+                DateTime todayDate = DateUtil.GetDateTimeNow();
                 var role = new Role
                 {
                     uuid = Guid.NewGuid(),
@@ -195,9 +206,9 @@ namespace MVC_Project.WebBackend.Controllers
                     status = SystemStatus.ACTIVE.ToString(),
                     account = new Account { id = userAuth.Account.Id }
                 };
-                
+
                 List<RolePermission> rolesPermissions = new List<RolePermission>();
-                foreach(var modules in roleCreateViewModel.Modules)
+                foreach (var modules in roleCreateViewModel.Modules)
                 {
                     foreach (PermissionViewModel permisoNuevo in modules.Permissions)
                     {
@@ -211,31 +222,50 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 _roleService.CreateRole(role, rolesPermissions);
+                MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
                 return RedirectToAction("Index");
+
             }
-            else
+            catch (Exception ex)
             {
-                roleCreateViewModel = new RoleCreateViewModel { Modules = PopulateModules() };
-                return View("Create", roleCreateViewModel);
+                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                roleCreateViewModel.Modules = PopulateModules();
+                return View(roleCreateViewModel);
             }
         }
 
         // GET: Role/Edit/5
         public ActionResult Edit(string uuid)
         {
-            Role role = new Role();
+            try
+            {
+                Role role = new Role();
+                var userAuth = Authenticator.AuthenticatedUser;
+
+                role = _roleService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid) && x.account.id == userAuth.Account.Id);
+                if (role == null)
+                    throw new Exception("El rol no se encontró en la base de datos");
+
+                RoleEditViewModel model = new RoleEditViewModel();
+                model.Id = role.id;
+                model.Name = role.name;
+                model.Code = role.code;
+                
+                model.Modules = PopulateModulesEdit(role);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                return RedirectToAction("Index");
+            }
+        }
+
+        private List<ModuleViewModel> PopulateModulesEdit(Role role)
+        {
             var userAuth = Authenticator.AuthenticatedUser;
-
-            role = _roleService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid) && x.account.id == userAuth.Account.Id);
-            if (role == null)
-                throw new Exception("El rol no se encontró en la base de datos");
-
-            RoleEditViewModel model = new RoleEditViewModel();
-            model.Id = role.id;
-            model.Name = role.name;
-            model.Code = role.code;
             List<ModuleViewModel> modules = PopulateModules();
-            
+
             foreach (var module in modules)
             {
                 foreach (var permission in module.Permissions)
@@ -251,18 +281,20 @@ namespace MVC_Project.WebBackend.Controllers
                 }
             }
 
-            model.Modules = modules;
-            return View(model);
+            return modules;
         }
 
         // POST: Role/Edit/5
         [HttpPost]
         public ActionResult Edit(RoleEditViewModel model)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
+            Role role = _roleService.FirstOrDefault(x => x.id == model.Id && x.account.id == userAuth.Account.Id);
             try
             {
-                var userAuth = Authenticator.AuthenticatedUser;
-                Role role = _roleService.FirstOrDefault(x => x.id == model.Id && x.account.id == userAuth.Account.Id);
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
+                
                 IList<RolePermission> rolePermissions = role.rolePermissions;
 
                 List<PermissionViewModel> permissionsViewModels = new List<PermissionViewModel>();
@@ -278,12 +310,12 @@ namespace MVC_Project.WebBackend.Controllers
                 });
 
                 var updates = from rp in rolePermissions
-                                            join pvm in permissionsViewModels on rp.permission.id equals pvm.Id
-                                            where rp.level != ((SystemLevelPermission)pvm.SystemAction).ToString()
-                                            select new { rolePermission = rp, level = ((SystemLevelPermission)pvm.SystemAction).ToString() };
-                
+                              join pvm in permissionsViewModels on rp.permission.id equals pvm.Id
+                              where rp.level != ((SystemLevelPermission)pvm.SystemAction).ToString()
+                              select new { rolePermission = rp, level = ((SystemLevelPermission)pvm.SystemAction).ToString() };
+
                 var updateRolePermissions = new List<RolePermission>();
-                foreach(var u in updates)
+                foreach (var u in updates)
                 {
                     var permision = u.rolePermission;
                     permision.level = u.level;
@@ -293,11 +325,14 @@ namespace MVC_Project.WebBackend.Controllers
                 var oldRolePermissions = rolePermissions.Where(rp => !permissionsViewModels.Any(pvm => rp.permission.id == pvm.Id));
 
                 _rolePermissionService.UpdateRolePermissions(newRolePermissions, updateRolePermissions, oldRolePermissions);
+                MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                model.Modules = PopulateModulesEdit(role);
+                return View(model);
             }
         }
 

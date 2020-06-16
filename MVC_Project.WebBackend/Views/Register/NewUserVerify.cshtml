@@ -1,0 +1,47 @@
+﻿@model MVC_Project.BackendWeb.Models.ChangePasswordViewModel
+@{
+    ViewBag.Title = "ChangePassword";
+    Layout = "/Views/Shared/_SimpleLayout.cshtml";
+}
+
+<div class="middle-box loginscreen  animated fadeInDown">
+        <div class="row">
+            <img src="~/Images/logos/El20mx-logo-estes-donde-e.png" width="300" />
+        </div>
+
+        <div class="text-center">
+            <h3>¡Bienvanido @Model.Name!</h3>
+            <h4>Establezca una contraseña para ingresar al sistema</h4>
+        </div>
+        @using (Html.BeginForm("NewUserVerify", "Register", FormMethod.Post, new { @id = "passForm", @class = "form", role = "form" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m=>m.Uuid)
+            <span class="help-block"></span>
+            <div class="form-group">
+                @Html.LabelFor(x => x.Password)
+                @Html.EditorFor(m => m.Password, new { @class = "form-control" })
+                @Html.ValidationMessageFor(x => x.Password)
+            </div>
+            <span class="help-block"></span>
+
+            <span class="help-block"></span>
+            <div class="form-group">
+
+                @Html.LabelFor(x => x.ConfirmPassword)
+                @Html.EditorFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = "Confirmar contraseña", @required = "required" })
+                @Html.ValidationMessageFor(x => x.ConfirmPassword)
+            </div>
+            <span class="help-block"></span>
+
+            <div class="form-group">
+                <span class="help-block"></span>
+                <button type="submit" class="btn btn-color block full-width m-b">Guardar</button>
+                <span class="help-block"></span>
+            </div>
+        }
+</div>
+@section scripts{
+
+    @Scripts.Render("~/plugins/validate")
+}

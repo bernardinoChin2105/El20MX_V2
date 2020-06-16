@@ -1,4 +1,5 @@
 ﻿@using MVC_Project.WebBackend.AuthManagement.Models
+@using MVC_Project.FlashMessages;
 @{
     AuthUser authUser = ViewBag.UserProfile;
 }
@@ -19,6 +20,7 @@
 
     @Styles.Render("~/plugins/sweetAlertStyles")
     @Scripts.Render("~/plugins/sweetAlert")
+    @Styles.Render("~/plugins/toastrStyles")
 
     <!-- Local styles -->
     @if (IsSectionDefined("Styles"))
@@ -41,6 +43,15 @@
     <!-- Custom and plugin javascript -->
     <script src="~/Scripts/inspinia.js"></script>
     <script src="~/Scripts/plugins/pace/pace.min.js"></script>
+    @Scripts.Render("~/plugins/toastr")
+
+    @if (Html.TieneMensaje())
+    {
+        var mensaje = @Html.ObtenerMensaje();
+        <script type="text/javascript">
+                toastr['@mensaje.Tipo']('@mensaje.Mensaje');
+        </script>
+    }
 
     <!-- Local scripts -->
     @RenderSection("scripts", required: false)

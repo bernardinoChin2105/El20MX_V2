@@ -46,9 +46,15 @@
                     data: null,
                     className: 'personal-options',
                     render: function (data) {
-                        var deshabilitarBtns = data.Status ?
-                            '<button class="btn btn-light btn-change-status" title="Desactivar" style="margin-left:5px;"><span class="far fa-check-square "></span></button>' :
-                            '<button class="btn btn-light btn-change-status" title="Activar" style="margin-left:5px;"><span class="far fa-square"></span></button>';
+                        var deshabilitarBtns = '';
+                        if (data.Status == "ACTIVE")
+                            deshabilitarBtns += '<button class="btn btn-light btn-change-status" title="Desactivar" style="margin-left:5px;"><span class="far fa-check-square "></span></button>';
+                        else if (data.Status == "INACTIVE")
+                            deshabilitarBtns += '<button class="btn btn-light btn-change-status" title="Activar" style="margin-left:5px;"><span class="far fa-square"></span></button>';
+                        else if (data.Status == "UNCONFIRMED")
+                            deshabilitarBtns += '<button class="btn btn-light btn-resend-invite" title="Reenviar invitación" style="margin-left:5px;"><span class="fa fa-paper-plane"></span></button>';
+                        else
+                            deshabilitarBtns += '';
 
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             deshabilitarBtns +
@@ -105,6 +111,52 @@
                                         })
                                     } else {
                                         swal("Registro actualizado");
+                                        self.dataTable.ajax.reload();
+                                    }
+                                },
+                                error: function (xhr) {
+                                    console.log('error');
+                                }
+                            });
+                        } else {
+                            swal.close();
+                        }
+                    });
+            });
+
+        $(this.htmlTable, "tbody").on('click',
+            'td.personal-options .btn-group .btn-resend-invite',
+            function () {
+                var tr = $(this).closest('tr');
+                var row = self.dataTable.row(tr);
+                var id = row.data().Uuid;
+
+                swal({
+                    title: "Confirmación",
+                    text: "¿Desea reenviar la invitación al usuario?",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-danger",
+                    confirmButtonText: "Aceptar",
+                    cancelButtonText: "Cancelar",
+                    closeOnConfirm: false,
+                    closeOnCancel: false
+                },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            $.ajax({
+                                type: 'POST',
+                                async: true,
+                                data: { uuid: id },
+                                url: '/User/ResendInvite',
+                                success: function (data) {
+                                    if (!data) {
+                                        swal({
+                                            type: 'error',
+                                            title: data.Mensaje.Titulo,
+                                            text: data.Mensaje.Contenido
+                                        })
+                                    } else {
+                                        swal("Invitación enviada");
                                         self.dataTable.ajax.reload();
                                     }
                                 },

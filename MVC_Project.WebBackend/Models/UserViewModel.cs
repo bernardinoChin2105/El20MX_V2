@@ -49,7 +49,7 @@ namespace MVC_Project.WebBackend.Models
         public DateTime UpdatedAt { get; set; }
         public DateTime? LastLoginAt { get; set; }
         [Display(Name = "Estatus")]
-        public bool Status { get; set; }
+        public string Status { get; set; }
     }
 
     public class UserCreateViewModel
@@ -73,11 +73,10 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Idioma")]
         public string Language { get; set; }
 
-        [Required]
         [Display(Name = "Contraseña")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
-        [Required]
+
         [Display(Name = "Confirmar contraseña")]
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; }
@@ -140,6 +139,8 @@ namespace MVC_Project.WebBackend.Models
         public int Role { get; set; }
 
         public IEnumerable<SelectListItem> Roles { get; set; }
+
+        public string Status { get; set; }
     }
     public class UserImportViewModel
     {

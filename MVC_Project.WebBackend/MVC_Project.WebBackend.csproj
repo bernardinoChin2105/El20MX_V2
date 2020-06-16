@@ -1777,6 +1777,7 @@
     <Content Include="Views\Account\_SelectAccountModal.cshtml" />
     <Content Include="Views\Register\VerifyUser.cshtml" />
     <Content Include="Views\Account\_CreateAccountModal.cshtml" />
+    <Content Include="Views\Register\NewUserVerify.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

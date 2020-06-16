@@ -1,6 +1,7 @@
 ﻿using MVC_Project.WebBackend.CustomAttributes.Validations;
 using System.ComponentModel.DataAnnotations;
 using MVC_Project.Resources;
+using System;
 
 namespace MVC_Project.BackendWeb.Models
 {
@@ -44,11 +45,17 @@ namespace MVC_Project.BackendWeb.Models
         [DataType(DataType.Password)]
         [Required(ErrorMessage = "Campo obligatorio"), MinLength(8, ErrorMessage = "{0} debe ser mínimo de {1} caracteres")]
         public string Password { get; set; }
+
         [Display(Name = "Confirmar nueva contraseña")]
         [DataType(DataType.Password)]
         [StringComparer("Password",ErrorMessage = "Las contraseñas no coinciden")]
         [Required(ErrorMessage = "Campo obligatorio"), MinLength(8, ErrorMessage = "{0} debe ser mínimo de {1} caracteres")]
         public string ConfirmPassword { get; set; }
+
+        public Guid Uuid { get; set; }
+
+        [Display(Name="Nombre")]
+        public string Name { get; set; }
     }
 
     //public class AuthLogin

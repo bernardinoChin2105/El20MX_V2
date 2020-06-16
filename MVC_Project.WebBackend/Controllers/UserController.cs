@@ -13,6 +13,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using MVC_Project.WebBackend.AuthManagement;
+using MVC_Project.FlashMessages;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -22,13 +23,17 @@ namespace MVC_Project.WebBackend.Controllers
         private IRoleService _roleService;
         private IMembershipService _accountUserService;
         private IFeatureService _featureService;
-
-        public UserController(IUserService userService, IRoleService roleService, IMembershipService accountUserService, IFeatureService featureService)
+        private IProfileService _profileService;
+        private IMembershipService _membershipService;
+        public UserController(IUserService userService, IRoleService roleService, IMembershipService accountUserService, IFeatureService featureService,
+            IProfileService profileService, IMembershipService membershipService)
         {
             _userService = userService;
             _roleService = roleService;
             _accountUserService = accountUserService;
             _featureService = featureService;
+            _profileService = profileService;
+            _membershipService = membershipService;
         }
 
         [Authorize]
@@ -111,7 +116,7 @@ namespace MVC_Project.WebBackend.Controllers
                         userData.RoleName = accountUser.role.name;
                         userData.CreatedAt = user.createdAt;
                         userData.UpdatedAt = user.modifiedAt;
-                        userData.Status = user.status == SystemStatus.ACTIVE.ToString();
+                        userData.Status = user.status;
                         userData.Uuid = user.uuid.ToString();
                         userData.LastLoginAt = user.lastLoginAt;
                         dataResponse.Add(userData);
@@ -141,9 +146,16 @@ namespace MVC_Project.WebBackend.Controllers
         [Authorize]
         public ActionResult Create()
         {
-            var roles = PopulateRoles();
-            var userCreateViewModel = new UserCreateViewModel { Roles = roles /*, Features = PopulateFeatures(int.Parse(roles.First().Value))*/ };
-            return View(userCreateViewModel);
+            try
+            {
+                var userCreateViewModel = new UserCreateViewModel { Roles = PopulateRoles() /*, Features = PopulateFeatures(int.Parse(roles.First().Value))*/ };
+                return View(userCreateViewModel);
+            }
+            catch(Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                return RedirectToAction("Index");
+            }
         }
 
         private IEnumerable<FeatureViewModel> PopulateFeatures(int roleId)
@@ -196,82 +208,126 @@ namespace MVC_Project.WebBackend.Controllers
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public ActionResult Create(UserCreateViewModel userCreateViewModel)
         {
-            if(!String.IsNullOrWhiteSpace(userCreateViewModel.ConfirmPassword) 
-                && !String.IsNullOrWhiteSpace(userCreateViewModel.Password))
+            try
             {
-                if(!userCreateViewModel.Password.Equals(userCreateViewModel.ConfirmPassword))
+                var userAuth = Authenticator.AuthenticatedUser;
+                //if(!String.IsNullOrWhiteSpace(userCreateViewModel.ConfirmPassword) 
+                //    && !String.IsNullOrWhiteSpace(userCreateViewModel.Password))
+                //{
+                //    if(!userCreateViewModel.Password.Equals(userCreateViewModel.ConfirmPassword))
+                //    {
+                //        ModelState.AddModelError("ConfirmPassword", "Las contraseñas no coinciden");
+                //    }
+                //}
+                if (ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
+
+                bool newUser = true;
+                var user = _userService.FirstOrDefault(x => x.name == userCreateViewModel.Email);
+                if (user != null)
                 {
-                    ModelState.AddModelError("ConfirmPassword", "Las contraseñas no coinciden");
+                    if (user.memberships.Any(x => x.account.id == userAuth.Account.Id))
+                        throw new Exception("El usuario ya se encuentra relacionado a la cuenta");
+                    newUser = false;
                 }
-            }
-            if (ModelState.IsValid)
-            {
-                DateTime todayDate =  DateUtil.GetDateTimeNow();
+
+                DateTime todayDate = DateUtil.GetDateTimeNow();
 
                 string daysToExpirateDate = ConfigurationManager.AppSettings["DaysToExpirateDate"];
-                
-                DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
-                var user = new User
-                {
-                    uuid = Guid.NewGuid(),
-                    //firstName = userCreateViewModel.Name,
-                    //lastName = userCreateViewModel.Apellidos,
-                    name = userCreateViewModel.Email,
-                    //phoneNumber = userCreateViewModel.MobileNumber,
-                    password = SecurityUtil.EncryptPassword(userCreateViewModel.Password),
-                    passwordExpiration = passwordExpiration,
-                    //role = new Role { id = userCreateViewModel.Role },
-                    //userName = userCreateViewModel.Username,
-                    //language = userCreateViewModel.Language,
-                    createdAt = todayDate,
-                    modifiedAt = todayDate,
-                    status = SystemStatus.ACTIVE.ToString()
-                };
-                var role = _roleService.GetById(userCreateViewModel.Role);
-                //foreach (var permission in role.permissions)
-                //{
-                //    user.permissions.Add(permission);
-                //}
-                _userService.Create(user);
 
-                /*AuthUser usuario = (AuthUser)Authenticator.AuthenticatedUser;
-                LogUtil.AddEntry(
-                   "Ingresa al Sistema",
-                   ENivelLog.Info,
-                   usuario.Id,
-                   usuario.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", usuario.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", usuario.Email, DateUtil.GetDateTimeNow())
-                );*/
+                DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
+                if (newUser)
+                {
+                    user = new User
+                    {
+                        uuid = Guid.NewGuid(),
+                        name = userCreateViewModel.Email,
+                        createdAt = todayDate,
+                        modifiedAt = todayDate,
+                        status = SystemStatus.UNCONFIRMED.ToString(),
+                        profile = new Profile
+                        {
+                            uuid = Guid.NewGuid(),
+                            firstName = userCreateViewModel.Name,
+                            lastName = userCreateViewModel.Apellidos,
+                            email = userCreateViewModel.Email,
+                            phoneNumber = userCreateViewModel.MobileNumber,
+                            createdAt = todayDate,
+                            modifiedAt = todayDate,
+                            status = SystemStatus.ACTIVE.ToString(),
+                        }
+                    };
+                }
+                var role = _roleService.GetById(userCreateViewModel.Role);
+
+                user.memberships.Add(new Membership
+                {
+                    account = new Account { id = userAuth.Account.Id },
+                    role = role,
+                    user = user
+                });
+
+                if (newUser)
+                    _userService.CreateUser(user);
+                else
+                    _userService.Update(user);
+
+                string token = (user.uuid + "@");
+                token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
+                Dictionary<string, string> customParams = new Dictionary<string, string>();
+                string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
+                string link = urlAccion + "Register/NewUserVerify?token=" + token;
+                customParams.Add("param1", user.profile.firstName);
+                customParams.Add("param2", user.name);
+                customParams.Add("param3", userAuth.Account.RFC);
+                customParams.Add("param4", link);
+                NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_NEW_USER);
+
+                if(newUser)
+                    MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
+                else
+                    MensajeFlashHandler.RegistrarMensaje("Usuario agregado a la cuenta", TiposMensaje.Success);
 
                 return RedirectToAction("Index");
+                //userCreateViewModel.Roles = PopulateRoles();
+                //return View("Create", userCreateViewModel);
             }
-            else
+            catch (Exception ex)
             {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
                 userCreateViewModel.Roles = PopulateRoles();
-                return View("Create", userCreateViewModel);
+                return View(userCreateViewModel);
             }
         }
 
         [Authorize]
         public ActionResult Edit(string uuid)
         {
-            User user = _userService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
+            try
+            {
+                User user = _userService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
+                if (user == null)
+                    throw new Exception("El usuario no se encontró en la base de datos");
 
-            var accountUser = user.memberships.First();
-            //var accountUser = _accountUserService.FindBy(x => x.user.id == user.id && x.account.id == account.id).First();
+                var userAuth = Authenticator.AuthenticatedUser;
+                var membership = user.memberships.FirstOrDefault(x => x.account.id == userAuth.Account.Id);
 
-            UserEditViewModel model = new UserEditViewModel();
-            model.Uuid = user.uuid.ToString();
-            model.Name = user.profile.firstName;
-            model.Apellidos = user.profile.lastName;
-            model.Email = user.name;
-            model.MobileNumber = user.profile.phoneNumber;
-            model.Roles = PopulateRoles();
-            model.Role = accountUser.role.id;
-            return View(model);
+                UserEditViewModel model = new UserEditViewModel();
+                model.Uuid = user.uuid.ToString();
+                model.Name = user.profile.firstName;
+                model.Apellidos = user.profile.lastName;
+                model.Email = user.name;
+                model.MobileNumber = user.profile.phoneNumber;
+                model.Roles = PopulateRoles();
+                model.Role = membership.role.id;
+                model.Status = user.status;
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                return RedirectToAction("Index");
+            }
         }
 
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
@@ -279,18 +335,32 @@ namespace MVC_Project.WebBackend.Controllers
         {
             try
             {
-                User user = _userService.FindBy(x => x.uuid == Guid.Parse(model.Uuid)).First();
-                user.name = model.Name;
-                //user.lastName = model.Apellidos;
-                //user.name = model.Email;
-                //user.phoneNumber = model.MobileNumber;
-                //user.userName = model.Username;
-                //user.language = model.Language;
+                var userAuth = Authenticator.AuthenticatedUser;
+                User user = _userService.FirstOrDefault(x => x.uuid == Guid.Parse(model.Uuid));
+                
+                if (_userService.FindBy(x => x.name == model.Email && x.id != user.id).Any())
+                    throw new Exception("El email proporcionado se encuentra registrado en otro usuario");
+                
+
+                user.name = model.Email;
+                user.profile.firstName = model.Name;
+                user.profile.lastName = model.Apellidos;
+                user.profile.phoneNumber = model.MobileNumber;
+                _profileService.Update(user.profile);
+                var membership = user.memberships.FirstOrDefault(x => x.account.id == userAuth.Account.Id);
+                if (membership.role.id != model.Role)
+                {
+                    membership.role = new Role { id = model.Role };
+                    _membershipService.Update(membership);
+                }
                 _userService.Update(user);
+                MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
-            catch
+            catch (Exception ex)
             {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                model.Roles = PopulateRoles();
                 return View(model);
             }
         }
@@ -378,8 +448,42 @@ namespace MVC_Project.WebBackend.Controllers
                 var user = _userService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
                 if (user != null)
                 {
-                    user.status = user.status;
+                    if (user.status == SystemStatus.ACTIVE.ToString())
+                        user.status = SystemStatus.INACTIVE.ToString();
+                    else if (user.status == SystemStatus.INACTIVE.ToString())
+                        user.status = SystemStatus.ACTIVE.ToString();
+
                     _userService.Update(user);
+                    return Json(true, JsonRequestBehavior.AllowGet);
+                }
+                return Json(false, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(false, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult ResendInvite(string uuid, FormCollection collection)
+        {
+            try
+            {
+                var userAuth = Authenticator.AuthenticatedUser;
+                var user = _userService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
+                if (user != null && user.status==SystemStatus.UNCONFIRMED.ToString())
+                {
+                    string token = (user.uuid + "@");
+                    token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
+                    Dictionary<string, string> customParams = new Dictionary<string, string>();
+                    string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
+                    string link = urlAccion + "Register/NewUserVerify?token=" + token;
+                    customParams.Add("param1", user.profile.firstName);
+                    customParams.Add("param2", user.name);
+                    customParams.Add("param3", userAuth.Account.RFC);
+                    customParams.Add("param4", link);
+                    NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_NEW_USER);
+
                     return Json(true, JsonRequestBehavior.AllowGet);
                 }
                 return Json(false, JsonRequestBehavior.AllowGet);

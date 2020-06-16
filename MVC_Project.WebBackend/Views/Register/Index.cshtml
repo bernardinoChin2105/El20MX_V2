@@ -1,4 +1,5 @@
 ﻿@model MVC_Project.WebBackend.Models.RegisterViewModel
+@using MVC_Project.FlashMessages;
 @{
     Layout = null;
 }
@@ -22,6 +23,7 @@
 
     @Styles.Render("~/plugins/sweetAlertStyles")
     @Scripts.Render("~/plugins/sweetAlert")
+    @Styles.Render("~/plugins/toastrStyles")
     <link href="~/Content/template/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
     @*<style>
             #checkTerm-error {
@@ -69,7 +71,7 @@
             </div>
         }
 
-        @using (Html.BeginForm("CreateAccount", "Register", FormMethod.Post, new { @class = "m-t", role = "form", @id = "RegisterForm" }))
+        @using (Html.BeginForm("CreateUser", "Register", FormMethod.Post, new { @class = "m-t", role = "form", @id = "RegisterForm" }))
         {
             @Html.AntiForgeryToken()
 
@@ -103,7 +105,7 @@
 
         }
     </div>
-    
+
     <script>
         var UrlLogin = '@Url.Action("ValidateLogin", "Auth")';
     </script>
@@ -112,6 +114,7 @@
     <script src="~/Scripts/popper.min.js"></script>
     <script src="~/Scripts/bootstrap.js"></script>
     @Scripts.Render("~/plugins/validate")
+    @Scripts.Render("~/plugins/toastr")
     <!--Configuración de Google-->
     <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script src="~/Scripts/Google.js"></script>
@@ -123,6 +126,15 @@
     @*<script src="~/Scripts/plugins/iCheck/icheck.min.js"></script>*@
 
     <script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>
+
+    @if (Html.TieneMensaje())
+    {
+        var mensaje = @Html.ObtenerMensaje();
+        <script type="text/javascript">
+                toastr['@mensaje.Tipo']('@mensaje.Mensaje');
+        </script>
+    }
+
     <script>
         $.validator.addMethod("PasswordTrue",
             function (value, element) {

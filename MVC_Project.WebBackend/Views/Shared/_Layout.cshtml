@@ -27,32 +27,6 @@
 </head>
 
 <body>
-    <div style="position: absolute; top: 20px; right: 20px;">
-        <div class="toast toast-warning" id="warning-toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
-            <div class="toast-header">
-                <i class="fa fa-exclamation-circle"> </i>
-                <strong class="mr-auto m-l-sm">Ups</strong>
-                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="toast-body">
-                @ViewBag.Error
-            </div>
-        </div>
-        <div class="toast toast-info" id="info-toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
-            <div class="toast-header">
-                <i class="fa fa-info-circle"> </i>
-                <strong class="mr-auto m-l-sm">Info</strong>
-                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="toast-body">
-                @ViewBag.Message
-            </div>
-        </div>
-    </div>
     <div id="wrapper" class="@Html.PageClass()">
 
         <!-- Left navigation bar -->
@@ -105,20 +79,6 @@
         var mensaje = @Html.ObtenerMensaje();
         <script type="text/javascript">
                 toastr['@mensaje.Tipo']('@mensaje.Mensaje');
-        </script>
-    }
-
-    @if (!string.IsNullOrEmpty(ViewBag.Error))
-    {
-        <script type="text/javascript">
-            $('#warning-toast').toast('show');
-        </script>
-    }
-
-    @if (!string.IsNullOrEmpty(ViewBag.Message))
-    {
-        <script type="text/javascript">
-            $('#info-toast').toast('show');
         </script>
     }
 

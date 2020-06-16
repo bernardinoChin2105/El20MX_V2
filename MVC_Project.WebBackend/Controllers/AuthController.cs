@@ -14,6 +14,7 @@ using System.Web.Mvc;
 using LogHubSDK.Models;
 using static MVC_Project.Utils.Constants;
 using Newtonsoft.Json;
+using MVC_Project.FlashMessages;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -49,108 +50,105 @@ namespace MVC_Project.WebBackend.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(AuthViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                Domain.Entities.User user = _authService.Authenticate(model.Email, SecurityUtil.EncryptPassword(model.Password));
-                if (user != null)
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
+
+                var user = _authService.Authenticate(model.Email, SecurityUtil.EncryptPassword(model.Password));
+
+                if (user == null)
+                    throw new Exception("El usuario no existe o contraseña inválida.");
+
+                if (user.status != SystemStatus.ACTIVE.ToString())
+                    throw new Exception(ErrorMessages.UserInactive);
+
+                //Asignar usuario en sesión
+                var authUser = GetValidateUserLogin(user);
+
+                if (user.passwordExpiration.HasValue)
                 {
-                    if (user.status != SystemStatus.ACTIVE.ToString())
+                    DateTime passwordExpiration = user.passwordExpiration.Value;
+                    DateTime todayDate = DateUtil.GetDateTimeNow();
+                    if (user.passwordExpiration.Value.Date < todayDate.Date)
                     {
-                        ViewBag.Error = Resources.ErrorMessages.UserInactive;
-                        return View(model);
+                        MensajeFlashHandler.RegistrarMensaje(ViewLabels.CONFIRM_NEW_PASSWORD, TiposMensaje.Info);
+                        return RedirectToAction("ChangePassword", "Auth");
                     }
-                    //Asignar usuario en sesión
-                    var authUser = GetValidateUserLogin(user);
-
-                    if (user.passwordExpiration.HasValue)
+                    string daysBeforeExpireToNotifyConfig = ConfigurationManager.AppSettings["DaysBeforeExpireToNotify"];
+                    int daysBeforeExpireToNotify = 0;
+                    if (Int32.TryParse(daysBeforeExpireToNotifyConfig, out daysBeforeExpireToNotify))
                     {
-                        DateTime passwordExpiration = user.passwordExpiration.Value;
-                        DateTime todayDate = DateUtil.GetDateTimeNow();
-                        if (user.passwordExpiration.Value.Date < todayDate.Date)
+                        int daysLeft = ((TimeSpan)(passwordExpiration.Date - todayDate.Date)).Days + 1;
+                        if (daysLeft <= daysBeforeExpireToNotify)
                         {
-                            return RedirectToAction("ChangePassword", "Auth");
-                        }
-                        string daysBeforeExpireToNotifyConfig = ConfigurationManager.AppSettings["DaysBeforeExpireToNotify"];
-                        int daysBeforeExpireToNotify = 0;
-                        if (Int32.TryParse(daysBeforeExpireToNotifyConfig, out daysBeforeExpireToNotify))
-                        {
-                            int daysLeft = ((TimeSpan)(passwordExpiration.Date - todayDate.Date)).Days + 1;
-                            if (daysLeft <= daysBeforeExpireToNotify)
-                            {
-
-                                string message = String.Format(ViewLabels.PASSWORD_EXPIRATION_MESSAGE, daysLeft);
-                                ViewBag.Message = message;
-                                //MensajeFlashHandler.RegistrarMensaje(message, TiposMensaje.Info);
-                                FlashMessages.MensajeFlashHandler.RegistrarMensaje(message, FlashMessages.TiposMensaje.Error);
-                            }
+                            string message = String.Format(ViewLabels.PASSWORD_EXPIRATION_MESSAGE, daysLeft);
+                            MensajeFlashHandler.RegistrarMensaje(message, TiposMensaje.Info);
                         }
                     }
+                }
 
-                    if (user.memberships.Count <= 0)//Rol invitado
+                if (user.memberships.Count <= 0)//Rol invitado
+                {
+                    var guestRole = _roleService.FirstOrDefault(x => x.code == SystemRoles.GUEST.ToString());
+                    List<Permission> permissionsGest = guestRole.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                     {
-                        var guestRole = _roleService.FindBy(x => x.code == SystemRoles.GUEST.ToString()).FirstOrDefault();
-                        List<Permission> permissionsGest = guestRole.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
-                        {
-                            Action = p.permission.action,
-                            Controller = p.permission.controller,
-                            Module = p.permission.module,
-                            Level = p.level
-                        }).ToList();
+                        Action = p.permission.action,
+                        Controller = p.permission.controller,
+                        Module = p.permission.module,
+                        Level = p.level
+                    }).ToList();
 
-                        authUser.Role = new Role { Code = guestRole.code, Name = guestRole.name };
-                        authUser.Permissions = permissionsGest;
-                        Authenticator.StoreAuthenticatedUser(authUser);
-                        FlashMessages.MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", FlashMessages.TiposMensaje.Success);
-                        return RedirectToAction("Index", "Account");
-                    }
-                    else if (user.memberships.Count == 1)
+                    authUser.Role = new Role { Code = guestRole.code, Name = guestRole.name };
+                    authUser.Permissions = permissionsGest;
+                    Authenticator.StoreAuthenticatedUser(authUser);
+                    MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
+                    return RedirectToAction("Index", "Account");
+                }
+                else if (user.memberships.Count == 1)
+                {
+                    var uniqueMembership = user.memberships.First();
+                    //var uniqueRole = _roleService.FindBy(x => x.code == uniqueMembership.role.code).FirstOrDefault();
+                    //List<Permission> permissionsUniqueMembership = uniqueMembership.mebershipPermissions.Select(p => new Permission
+                    List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                     {
-                        var uniqueMembership = user.memberships.First();
-                        //var uniqueRole = _roleService.FindBy(x => x.code == uniqueMembership.role.code).FirstOrDefault();
-                        //List<Permission> permissionsUniqueMembership = uniqueMembership.mebershipPermissions.Select(p => new Permission
-                        List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
-                        {
-                            Action = p.permission.action,
-                            Controller = p.permission.controller,
-                            Module = p.permission.module
-                        }).ToList();
+                        Action = p.permission.action,
+                        Controller = p.permission.controller,
+                        Module = p.permission.module
+                    }).ToList();
 
-                        authUser.Role = new Role { Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
-                        authUser.Permissions = permissionsUniqueMembership;
-                        authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
-                        Authenticator.StoreAuthenticatedUser(authUser);
-                        FlashMessages.MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", FlashMessages.TiposMensaje.Success);
-                        return RedirectToAction("Index", "Home");
-                    }
-                    else
-                    {
-                        List<Permission> permissionsUser = new List<Permission>();
-                        permissionsUser.Add(new Permission
-                        {
-                            Action = "Index",
-                            Controller = "Account",
-                            Module = "Account",
-                            Level = SystemLevelPermission.READ_ONLY.ToString()
-                        });
-                        authUser.Permissions = permissionsUser;
-                        Authenticator.StoreAuthenticatedUser(authUser);
-                        FlashMessages.MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", FlashMessages.TiposMensaje.Success);
-                        return RedirectToAction("Index", "Account");
-                        //Manda a seleccionar cuenta
-                    }
-                    //if (!string.IsNullOrEmpty(Request.Form["ReturnUrl"]))
-                    //{
-                    //    return Redirect(Request.Form["ReturnUrl"]);
-                    //}
-
+                    authUser.Role = new Role { Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
+                    authUser.Permissions = permissionsUniqueMembership;
+                    authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
+                    Authenticator.StoreAuthenticatedUser(authUser);
+                    MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
+                    return RedirectToAction("Index", "Home");
                 }
                 else
                 {
-                    ViewBag.Error = "El usuario no existe o contraseña inválida.";
-                    FlashMessages.MensajeFlashHandler.RegistrarMensaje("El usuario no existe o contraseña inválida.", FlashMessages.TiposMensaje.Error);
+                    List<Permission> permissionsUser = new List<Permission>();
+                    permissionsUser.Add(new Permission
+                    {
+                        Action = "Index",
+                        Controller = "Account",
+                        Module = "Account",
+                        Level = SystemLevelPermission.READ_ONLY.ToString()
+                    });
+                    authUser.Permissions = permissionsUser;
+                    Authenticator.StoreAuthenticatedUser(authUser);
+                    MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
+                    return RedirectToAction("Index", "Account");
+                    //Manda a seleccionar cuenta
                 }
-            }            
-
+                //if (!string.IsNullOrEmpty(Request.Form["ReturnUrl"]))
+                //{
+                //    return Redirect(Request.Form["ReturnUrl"]);
+                //}
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+            }
             return View(model);
         }
 
@@ -225,12 +223,12 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 if (string.IsNullOrEmpty(token))
-                    return RedirectToAction("Login");
+                    throw new Exception("El token no es válido");
 
                 var desencriptaToken = EncryptorText.DataDecrypt(token.Replace("!!", "/").Replace("$", "+"));
 
                 if (string.IsNullOrEmpty(desencriptaToken))
-                    return RedirectToAction("Login");
+                    throw new Exception("El token no es válido");
 
                 var elements = desencriptaToken.Split('@');
                 Guid id = new Guid();
@@ -253,7 +251,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                ViewBag.Message = ex.Message;
+                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
                 return View("Login");
             }
         }
