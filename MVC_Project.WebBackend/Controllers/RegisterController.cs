@@ -61,17 +61,22 @@ namespace MVC_Project.WebBackend.Controllers
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
 
-                var UserVal = _userService.FindBy(x => x.name == model.Email).FirstOrDefault();
+                var user = _userService.FindBy(x => x.name == model.Email).FirstOrDefault();
 
-                if (UserVal != null)
-                    throw new Exception("Ya existe un usuario con el email proporcionado");
+                if (user != null)
+                {
+                    if(user.status == SystemStatus.UNCONFIRMED.ToString())
+                        throw new Exception("El ususario tiene una invitación pendiente por aceptar");
+                    else
+                        throw new Exception("Ya existe un usuario con el email proporcionado");
+                }
 
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
                 string daysToExpirateDate = ConfigurationManager.AppSettings["DaysToExpirateDate"];
                 DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
 
-                var user = new User
+                user = new User
                 {
                     uuid = Guid.NewGuid(),
                     name = model.Email,
@@ -151,7 +156,7 @@ namespace MVC_Project.WebBackend.Controllers
                     customParams.Add("param2", link);
                     NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_WELCOME);
 
-                    MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
+                    MensajeFlashHandler.RegistrarMensaje("Se ha enviado un email de confirmación", TiposMensaje.Success);
 
                     return RedirectToAction("Login", "Auth");
                 }
@@ -193,12 +198,12 @@ namespace MVC_Project.WebBackend.Controllers
                 _userService.Update(user);
 
                 MensajeFlashHandler.RegistrarMensaje("¡Tu cuenta ha sido activada!", TiposMensaje.Success);
-                return View();
+                return RedirectToAction("Login","Auth");
             }
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
-                return View("Login");
+                return RedirectToAction("Login", "Auth");
             }
         }
 

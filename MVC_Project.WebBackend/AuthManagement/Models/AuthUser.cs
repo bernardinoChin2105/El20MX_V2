@@ -8,7 +8,7 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
 {
     public class AuthUser
     {
-        public int Id { get; set; }
+        public Int64 Id { get; set; }
         public string FirstName { get; set; }
         public Guid Uuid { get; set; }
         public string LastName { get; set; }
@@ -79,7 +79,7 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
 
     public class Account
     {
-        public int Id { get; set; }
+        public Int64 Id { get; set; }
         public Guid Uuid { get; set; }
         public string Name { get; set; }
         public string RFC { get; set; }

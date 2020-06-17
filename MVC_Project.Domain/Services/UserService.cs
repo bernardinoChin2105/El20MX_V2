@@ -17,7 +17,7 @@ namespace MVC_Project.Domain.Services
     public interface IUserService : IService<User>
     {
         Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, int? skip, int? take);
-        Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, int accountId, int? skip, int? take);
+        Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, Int64 accountId, int? skip, int? take);
         User CreateUser(User user);
     }
 
@@ -62,7 +62,7 @@ namespace MVC_Project.Domain.Services
             return new Tuple<IEnumerable<User>, int>(list, count);
         }
 
-        public Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, int accountId, int? skip, int? take)
+        public Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, Int64 accountId, int? skip, int? take)
         {
             string FilterName = filtersValue.Get("Name").Trim();
             int FilterStatus = Convert.ToInt32(filtersValue.Get("Status").Trim());

@@ -8,7 +8,7 @@ namespace MVC_Project.Domain.Entities
 {
     public class Process : IEntity
     {
-        public virtual int id { get; set; }
+        public virtual Int64 id { get; set; }
 
         public virtual DateTime? LastExecutionAt { get; set; }
 

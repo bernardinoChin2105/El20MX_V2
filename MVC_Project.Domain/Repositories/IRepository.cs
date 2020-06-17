@@ -15,13 +15,13 @@ namespace MVC_Project.Domain.Repositories
 
         IEnumerable<T> FindBy(Expression<Func<T, bool>> predicate);
 
-        T GetById(int id);
+        T GetById(Int64 id);
 
         void Create(T entity);
 
         void Update(T entity);
 
-        void Delete(int id);
+        void Delete(Int64 id);
 
         void Create(IEnumerable<T> entities);
 

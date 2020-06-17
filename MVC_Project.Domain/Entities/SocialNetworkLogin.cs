@@ -8,7 +8,7 @@ namespace MVC_Project.Domain.Entities
 {
     public class SocialNetworkLogin : IEntity
     {
-        public virtual int id { get; set; }
+        public virtual Int64 id { get; set; }
         public virtual Guid uuid { get; set; }
         public virtual string token { get; set; }
         public virtual string socialNetwork { get; set; }        

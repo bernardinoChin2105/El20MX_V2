@@ -8,7 +8,7 @@ namespace MVC_Project.Domain.Entities
 {
     public class ConfigParam : IEntity
     {
-        public virtual int id { get; set; }
+        public virtual Int64 id { get; set; }
         public virtual string Name { get; set; }
         public virtual string Value { get; set; }
         public virtual string Description { get; set; }

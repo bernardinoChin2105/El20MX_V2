@@ -28,7 +28,7 @@ namespace MVC_Project.Data.Repositories
             Session.Flush();
         }
 
-        public void Delete(int id)
+        public void Delete(Int64 id)
         {
             Session.Delete(Session.Load<T>(id));
             Session.Flush();
@@ -44,7 +44,7 @@ namespace MVC_Project.Data.Repositories
             return Session.Query<T>().ToList<T>();
         }
 
-        public T GetById(int id)
+        public T GetById(Int64 id)
         {
             return Session.Get<T>(id);
         }

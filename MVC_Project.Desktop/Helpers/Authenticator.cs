@@ -24,7 +24,7 @@ namespace MVC_Project.Desktop.Helpers
 
     public class AuthUser
     {
-        public int Id { get; set; }
+        public Int64 Id { get; set; }
         public string FirstName { get; set; }
         public string Uuid { get; set; }
         public string LastName { get; set; }

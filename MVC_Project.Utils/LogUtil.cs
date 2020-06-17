@@ -12,7 +12,7 @@ namespace MVC_Project.Utils
     {
         public static LogHubSDK.LogHubClient logHubClient = new LogHubSDK.LogHubClient(ConfigurationManager.AppSettings["logHub.UrlAPI"], ConfigurationManager.AppSettings["logHub.ApiKey"]);
 
-        public static void AddEntry(string descripcion, ENivelLog eLogLevel, int usuarioId, string usuario, EOperacionLog? eOperacionLog, string parametros, string modulo, string detalle)
+        public static void AddEntry(string descripcion, ENivelLog eLogLevel, Int64 usuarioId, string usuario, EOperacionLog? eOperacionLog, string parametros, string modulo, string detalle)
         {
             if (Convert.ToBoolean(ConfigurationManager.AppSettings["logHub.Enabled"]))
             {

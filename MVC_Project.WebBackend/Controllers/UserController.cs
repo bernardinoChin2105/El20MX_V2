@@ -335,6 +335,9 @@ namespace MVC_Project.WebBackend.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
+
                 var userAuth = Authenticator.AuthenticatedUser;
                 User user = _userService.FirstOrDefault(x => x.uuid == Guid.Parse(model.Uuid));
                 

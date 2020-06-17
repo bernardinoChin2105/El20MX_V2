@@ -12,7 +12,7 @@ namespace MVC_Project.Domain.Services {
     public interface IRoleService : IService<Role>
     {
         IList<Role> ObtenerRoles(string filtros);
-        Tuple<IEnumerable<Role>, int>  FilterBy(string filtros, int accountId, int? skip, int? take);
+        Tuple<IEnumerable<Role>, int>  FilterBy(string filtros, Int64 accountId, int? skip, int? take);
         Role CreateRole(Role role, IEnumerable<RolePermission> permissions);
     }
     #endregion
@@ -38,7 +38,7 @@ namespace MVC_Project.Domain.Services {
             return roles.ToList();
         }
 
-        public Tuple<IEnumerable<Role>, int> FilterBy(string filtros, int accountId, int? skip, int? take)
+        public Tuple<IEnumerable<Role>, int> FilterBy(string filtros, Int64 accountId, int? skip, int? take)
         {
             filtros = filtros.Replace("[", "").Replace("]", "").Replace("\\", "").Replace("\"", "");
             var filters = filtros.Split(',').ToList();

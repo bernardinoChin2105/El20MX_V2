@@ -8,7 +8,7 @@ namespace MVC_Project.Domain.Entities
 {
     public class OrderItems : IEntity
     {
-        public virtual int id { get; set; }
+        public virtual Int64 id { get; set; }
         public virtual Order Order { get; set; }
         public virtual Producto Producto { get; set; }
         public virtual int Cantidad {get;set;}

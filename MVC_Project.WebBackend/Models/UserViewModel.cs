@@ -118,12 +118,15 @@ namespace MVC_Project.WebBackend.Models
     {
         public string Uuid { get; set; }
 
+        [Required]
         [Display(Name = "Nombre")]
         public string Name { get; set; }
 
+        [Required]
         [Display(Name = "Apellidos")]
         public string Apellidos { get; set; }
 
+        [Required]
         public string Email { get; set; }
 
         [Display(Name = "Usuario")]
@@ -135,8 +138,9 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Idioma")]
         public string Language { get; set; }
 
+        [Required]
         [Display(Name = "Rol")]
-        public int Role { get; set; }
+        public Int64 Role { get; set; }
 
         public IEnumerable<SelectListItem> Roles { get; set; }
 

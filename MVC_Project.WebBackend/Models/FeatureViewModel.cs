@@ -8,7 +8,7 @@ namespace MVC_Project.WebBackend.Models
 {
     public class FeatureViewModel
     {
-        public int Id { get; set; }
+        public Int64 Id { get; set; }
 
         [Display(Name = "Módulo")]
         public string Name { get; set; }

@@ -27,7 +27,7 @@
                         <div class="form-group row">
                             @Html.LabelFor(model => model.Name, new { @class = "col-form-label control-label col-md-2" })
                             <div class="col-md-8">
-                                @Html.EditorFor(model => model.Name, new { @class = "form-control", MaxLength = "30", required = "required", @autocomplete = "off" })
+                                @Html.TextBoxFor(model => model.Name, new { @class = "form-control", MaxLength = "30", required = "required", @autocomplete = "off" })
                                 @Html.ValidationMessageFor(model => model.Name)
                             </div>
                         </div>

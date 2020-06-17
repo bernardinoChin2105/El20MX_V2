@@ -8,7 +8,7 @@ namespace MVC_Project.Domain.Entities
 {
     public class Profile : IEntity
     {
-        public virtual int id { get; set; }
+        public virtual Int64 id { get; set; }
         public virtual Guid uuid { get; set; }
         public virtual string firstName { get; set; }
         public virtual string lastName { get; set; }

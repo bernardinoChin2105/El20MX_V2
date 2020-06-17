@@ -67,7 +67,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                     {
-                        Action = p.permission.action,
+                        //Action = p.permission.action,
                         Controller = p.permission.controller,
                         Module = p.permission.module,
                         Level = p.level
@@ -79,7 +79,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                     Authenticator.RefreshAuthenticatedUser(authUser);
 
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "User");
                 }
             }
 

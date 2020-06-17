@@ -8,7 +8,7 @@ namespace MVC_Project.Domain.Entities
 {
     public class Store :IEntity
     {
-        public virtual int id { get; set; }
+        public virtual Int64 id { get; set; }
         public virtual string Nombre { get; set; }
         public virtual string Email { get; set; }
         public virtual string Telefono { get; set; }

@@ -43,7 +43,7 @@ namespace MVC_Project.WebBackend.Models
     }
     public class RoleEditViewModel
     {
-        public int Id { get; set; }
+        public Int64 Id { get; set; }
         [Display(Name = "Nombre")]
         public string Name { get; set; }
         [Display(Name = "Código")]
@@ -53,7 +53,7 @@ namespace MVC_Project.WebBackend.Models
     }
 
     public class PermissionViewModel {
-        public int Id { get; set; }
+        public Int64 Id { get; set; }
 
         [Display(Name = "Nombre")]
         public string Name { get; set; }

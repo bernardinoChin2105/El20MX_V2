@@ -90,10 +90,10 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (user.memberships.Count <= 0)//Rol invitado
                 {
-                    var guestRole = _roleService.FirstOrDefault(x => x.code == SystemRoles.GUEST.ToString());
+                    var guestRole = _roleService.FirstOrDefault(x => x.code == SystemRoles.LEAD.ToString());
                     List<Permission> permissionsGest = guestRole.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                     {
-                        Action = p.permission.action,
+                        //Action = p.permission.action,
                         Controller = p.permission.controller,
                         Module = p.permission.module,
                         Level = p.level
@@ -112,9 +112,10 @@ namespace MVC_Project.WebBackend.Controllers
                     //List<Permission> permissionsUniqueMembership = uniqueMembership.mebershipPermissions.Select(p => new Permission
                     List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                     {
-                        Action = p.permission.action,
+                        //Action = p.permission.action,
                         Controller = p.permission.controller,
-                        Module = p.permission.module
+                        Module = p.permission.module,
+                        Level = p.level
                     }).ToList();
 
                     authUser.Role = new Role { Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
@@ -122,7 +123,7 @@ namespace MVC_Project.WebBackend.Controllers
                     authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
                     Authenticator.StoreAuthenticatedUser(authUser);
                     MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Account");
                 }
                 else
                 {
@@ -313,11 +314,12 @@ namespace MVC_Project.WebBackend.Controllers
                             Code = membership.role.code,
                             Name = membership.role.name
                         },
-                        Permissions = membership.mebershipPermissions.Select(p => new Permission
+                        Permissions = membership.role.rolePermissions.Select(p => new Permission
                         {
-                            Action = p.permission.action,
+                            //Action = p.permission.action,
                             Controller = p.permission.controller,
-                            Module = p.permission.module
+                            Module = p.permission.module,
+                            Level = p.level
                         }).ToList()
                     };
                     Authenticator.StoreAuthenticatedUser(authUser);
@@ -365,11 +367,12 @@ namespace MVC_Project.WebBackend.Controllers
                             Code = membership.role.code,
                             Name = membership.role.name
                         },
-                        Permissions = membership.mebershipPermissions.Select(p => new Permission
+                        Permissions = membership.role.rolePermissions.Select(p => new Permission
                         {
-                            Action = p.permission.action,
+                            //Action = p.permission.action,
                             Controller = p.permission.controller,
-                            Module = p.permission.module
+                            Module = p.permission.module,
+                            Level = p.level
                         }).ToList()
                     };
                     //UnitOfWork unitOfWork = new UnitOfWork();
@@ -439,12 +442,13 @@ namespace MVC_Project.WebBackend.Controllers
 
                                 if (user.memberships.Count <= 0)//Rol invitado
                                 {
-                                    var guestRole = _roleService.FindBy(x => x.code == SystemRoles.GUEST.ToString()).FirstOrDefault();
-                                    List<Permission> permissionsGest = guestRole.permissions.Select(p => new Permission
+                                    var guestRole = _roleService.FindBy(x => x.code == SystemRoles.LEAD.ToString()).FirstOrDefault();
+                                    List<Permission> permissionsGest = guestRole.rolePermissions.Select(p => new Permission
                                     {
-                                        Action = p.action,
-                                        Controller = p.controller,
-                                        Module = p.module
+                                        //Action = p.action,
+                                        Controller = p.permission.controller,
+                                        Module = p.permission.module,
+                                        Level = p.level
                                     }).ToList();
 
                                     authUser.Role = new Role { Code = guestRole.code, Name = guestRole.name };
@@ -456,18 +460,19 @@ namespace MVC_Project.WebBackend.Controllers
                                 {
                                     var uniqueMembership = user.memberships.First();
                                     //var uniqueRole = _roleService.FindBy(x => x.code == uniqueMembership.role.code).FirstOrDefault();
-                                    List<Permission> permissionsUniqueMembership = uniqueMembership.mebershipPermissions.Select(p => new Permission
+                                    List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Select(p => new Permission
                                     {
-                                        Action = p.permission.action,
+                                        //Action = p.permission.action,
                                         Controller = p.permission.controller,
-                                        Module = p.permission.module
+                                        Module = p.permission.module,
+                                        Level = p.level
                                     }).ToList();
 
                                     authUser.Role = new Role { Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
                                     authUser.Permissions = permissionsUniqueMembership;
                                     authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
                                     Authenticator.StoreAuthenticatedUser(authUser);
-                                    url = "/Home/Index";
+                                    url = "/Account/Index";
                                 }
                                 else
                                 {

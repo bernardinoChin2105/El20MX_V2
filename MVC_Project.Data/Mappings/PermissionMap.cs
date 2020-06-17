@@ -12,7 +12,7 @@ namespace MVC_Project.Data.Mappings {
             Map(x => x.uuid).Column("uuid").Not.Nullable();
             Map(x => x.description).Column("description").Not.Nullable();
             Map(x => x.controller).Column("controller").Not.Nullable();
-            Map(x => x.action).Column("action").Not.Nullable();
+            //Map(x => x.action).Column("action").Not.Nullable();
             Map(x => x.module).Column("module").Nullable();
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
