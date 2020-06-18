@@ -8,10 +8,10 @@
 
 window.fbAsyncInit = function () {
     FB.init({
-        appId: '246375746578693', //LOCAL 
-        //appId: '675014006312332', //DEV 
-        //appId: '737753873052692', //QA
-        //appId: '1702488126725250',//PROD
+        appId: '246375746578693', //LOCAL                     
+        //appId: '2444149519209146', //DEV
+        //appId: '', //QA
+        //appId: '',//PROD
 
         //appId: '{your-app-id}',
         cookie: true,
