@@ -127,3 +127,7 @@
 .chosen-container-active.chosen-with-drop .chosen-single {
     border-color: #53D5E9 !important;
 }
+
+.form-control:focus, .single-line:focus {
+    border-color: #53D5E9
+}

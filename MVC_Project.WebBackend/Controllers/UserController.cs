@@ -195,7 +195,7 @@ namespace MVC_Project.WebBackend.Controllers
         private IEnumerable<SelectListItem> PopulateRoles()
         {
             var userAuth = Authenticator.AuthenticatedUser;
-            var availableRoles = _roleService.FindBy(x => x.account.id == userAuth.Id).OrderBy(x => x.code);
+            var availableRoles = _roleService.FindBy(x => x.account.id == userAuth.Account.Id).OrderBy(x => x.code);
             var rolesList = new List<SelectListItem>();
             rolesList = availableRoles.Select(role => new SelectListItem
             {
@@ -219,7 +219,7 @@ namespace MVC_Project.WebBackend.Controllers
                 //        ModelState.AddModelError("ConfirmPassword", "Las contraseñas no coinciden");
                 //    }
                 //}
-                if (ModelState.IsValid)
+                if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
 
                 bool newUser = true;
