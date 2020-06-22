@@ -62,6 +62,7 @@ namespace MVC_Project.WebBackend.Models
         public string Apellidos { get; set; }
 
         [Required]
+        [Display(Name = "Correo")]
         public string Email { get; set; }
 
         [Display(Name = "Usuario")]
@@ -127,6 +128,7 @@ namespace MVC_Project.WebBackend.Models
         public string Apellidos { get; set; }
 
         [Required]
+        [Display(Name = "Correo")]
         public string Email { get; set; }
 
         [Display(Name = "Usuario")]
