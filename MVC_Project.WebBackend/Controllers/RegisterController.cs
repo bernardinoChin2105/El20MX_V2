@@ -275,7 +275,7 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
-                return View("ChangePassword", model);
+                return View("NewUserVerify", model);
             }
         }
     }

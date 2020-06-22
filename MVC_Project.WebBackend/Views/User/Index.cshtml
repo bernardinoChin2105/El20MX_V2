@@ -98,8 +98,7 @@
     @Scripts.Render("~/plugins/validate")
     @Scripts.Render("~/plugins/validateUnobtrusive")
     @Scripts.Render("~/custom/Utils")
-    @Scripts.Render("~/views/user")
-
+    <script src="~/Scripts/views/user/Index.js"></script>
     <script>
         $(function () {
             var tableCtrl = new UserIndexControlador('table', '@Url.Action("GetAllByFilter")',
