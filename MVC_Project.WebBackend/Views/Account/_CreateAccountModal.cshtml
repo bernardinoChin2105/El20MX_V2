@@ -14,26 +14,37 @@
 <div class="modal-body">
     <div class="row">
         <div id="wizard" class="wizard-big">
+            <!--RFC-->
             <h1>RFC</h1>
-
-                <div class="col-md-12">
+            <div class="col-md-12">
+                <form id="RegisterRFCForm">
                     <div class="form-group">
                         <label>RCF</label>
-                        
-                        <input id="userName" name="userName" type="text" class="form-control" aria-required="true">
+                        <input id="rfc" name="rfc" type="text" class="form-control" aria-required="true">
                     </div>
                     <div class="form-group">
                         <label>Contraseña</label>
-                        
-                        <input id="password" name="password" type="text" class="form-control" aria-required="true">
+                        <div class="input-group">
+                            <div class="input-group-append viewpass">
+                                <span class="input-group-text" title="Mantener presionado para ver la contraseña">
+                                    <i class="fa fa-eye"></i>
+                                </span>
+                            </div>
+                            <input id="password" name="password" type="password" class="form-control viewpass-input" data-view="false" aria-required="true">
+                        </div>
                     </div>
-
+                    <div class="form-group text-right">
+                        <button id="btn-sat" type="button" class="btn btn-color">Conectar</button>
+                    </div>
+                </form>
             </div>
-
+            <!--Fin RFC-->
+            <!--Cuentas Bancarias-->
             <h1>Cuentas bancarias</h1>
             <div>
-
+                Contenido
             </div>
+            <!--Fin Cuentas Bancarias-->
         </div>
     </div>
 </div>

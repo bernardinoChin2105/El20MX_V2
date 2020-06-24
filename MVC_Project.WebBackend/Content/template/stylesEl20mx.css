@@ -67,10 +67,6 @@
         border: #a71204;
     }
 
-/*.btn-google {
-    position: relative;
-}*/
-
 .line {
     display: table;
     font-size: 16px;
@@ -131,3 +127,8 @@
 .form-control:focus, .single-line:focus {
     border-color: #53D5E9
 }
+
+.viewpass-input + label.error{
+    width: 100% !important;
+}
+

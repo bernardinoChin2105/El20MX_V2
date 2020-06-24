@@ -19,28 +19,13 @@
 </div>
 
 @section Scripts {
-    <script type="text/javascript">
-        
-        $(document).ready(function () {
-            selectAccountModal();
-        });
-
-        function selectAccountModal() {
-            $("#selectAccountModal").find('.modal-content').load("@Url.Action("SelectAccount")", function () {
-                $("#selectAccountModal").modal({backdrop: 'static', keyboard: false });
-            });
-        }
-        function createAccountModal() {
-            $("#selectAccountModal").modal('hide');
-            $("#createAccountModal").find('.modal-content').load("@Url.Action("CreateAccountModal")", function () {
-                $("#createAccountModal").modal({ backdrop: 'static', keyboard: false });
-            });
-            $("#createAccountModal").on('shown.bs.modal', function () {
-                $("#wizard").steps();
-            });
-            $("#createAccountModal").on('hidden.bs.modal', function () {
-                selectAccountModal();
-            });
+    @Scripts.Render("~/plugins/validate")
+    <script src="~/Scripts/views/Account/Index.js" type="text/javascript"></script>
+    <script>
+        var urls = {
+            urlSelect: "@Url.Action("SelectAccount")",
+            urlCreate: "@Url.Action("CreateAccountModal")",
+            urlCredential: "@Url.Action("CreateCredential")",
         }
     </script>
 }

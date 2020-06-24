@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\Account.cs" />
+    <Compile Include="Entities\Credential.cs" />
     <Compile Include="Entities\Feature.cs" />
     <Compile Include="Entities\Membership.cs" />
     <Compile Include="Entities\ConfigParam.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IRepository.cs" />
     <Compile Include="Services\AccountService.cs" />
+    <Compile Include="Services\CredentialService.cs" />
     <Compile Include="Services\FeatureService.cs" />
     <Compile Include="Services\MembershipPermissionService.cs" />
     <Compile Include="Services\MembershipService.cs" />

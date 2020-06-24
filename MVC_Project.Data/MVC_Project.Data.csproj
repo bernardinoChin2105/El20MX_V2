@@ -82,6 +82,7 @@
   <ItemGroup>
     <Compile Include="Helpers\UnitOfWork.cs" />
     <Compile Include="Mappings\AccountMap.cs" />
+    <Compile Include="Mappings\CredentialMap.cs" />
     <Compile Include="Mappings\FeatureMap.cs" />
     <Compile Include="Mappings\MembershipMap.cs" />
     <Compile Include="Mappings\ConfigParamMap.cs" />

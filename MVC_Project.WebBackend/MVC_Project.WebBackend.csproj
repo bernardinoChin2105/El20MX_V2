@@ -268,6 +268,7 @@
     <Compile Include="Models\ExcelImport\UserImport.cs" />
     <Compile Include="Models\FeatureViewModel.cs" />
     <Compile Include="Models\JQueryDataTableParams.cs" />
+    <Compile Include="Models\LogInSATModel.cs" />
     <Compile Include="Models\PaymentViewModel.cs" />
     <Compile Include="Models\RegisterViewModel.cs" />
     <Compile Include="Models\ReportOrdersViewModel.cs" />
@@ -1733,6 +1734,7 @@
     <Content Include="Scripts\plugins\video\responsible-video.js" />
     <Content Include="Scripts\plugins\wow\wow.min.js" />
     <Content Include="Scripts\popper.min.js" />
+    <Content Include="Scripts\views\Account\Index.js" />
     <Content Include="Scripts\views\Auth\Index.js" />
     <Content Include="Scripts\views\Payments\Index.js" />
     <Content Include="Scripts\views\PdfSignature\Index.js" />
