@@ -8,9 +8,6 @@
     AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
     var hasFullAccessController = user.HasFullAccessController(controllerName);
 }
-@section styles {
-    @Styles.Render("~/plugins/dataTablesStyles")
-}
 
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
@@ -26,14 +23,14 @@
                             <div class="col-sm-6 col-lg-4">
                                 <div class="form-group">
                                     <label>Nombre o correo electrónico</label>
-                                    @Html.TextBoxFor(m => m.Name, new { @Class = "form-control form-control-sm txtFiltro", maxlength = "100", filtro = "true", filtro_order = "1" })
+                                    @Html.TextBoxFor(m => m.Name, new { @Class = "form-control form-control-sm txtFiltro", maxlength = "100", filtro = "true", @autocomplete = "off", filtro_order = "1" })
                                 </div>
                             </div>
 
                             <div class="col-sm-6 col-lg-4">
                                 <div class="form-group">
                                     <label>Estado</label>
-                                    @Html.DropDownListFor(x => x.Status, Model.Statuses, new { @class = "selectpicker form-control", data_live_search = "true", data_style = "btn-default", style = "position: relative;", filtro = "true", filtro_order = "2" })
+                                    @Html.DropDownListFor(x => x.Status, Model.Statuses, new { @class = "chosen-select form-control", data_live_search = "true", data_style = "btn-default", style = "position: relative;", filtro = "true", filtro_order = "2" })
                                 </div>
                             </div>
 
@@ -93,14 +90,11 @@
     </div>
 </div>
 @section scripts{
-    @Scripts.Render("~/plugins/dataTables")
-    @Scripts.Render("~/plugins/fullCalendar")
-    @Scripts.Render("~/plugins/validate")
-    @Scripts.Render("~/plugins/validateUnobtrusive")
     @Scripts.Render("~/custom/Utils")
     <script src="~/Scripts/views/user/Index.js"></script>
     <script>
         $(function () {
+            $('.chosen-select').chosen({ width: '100%', "disable_search": true, no_results_text: "Sin resultados para: " });
             var tableCtrl = new UserIndexControlador('table', '@Url.Action("GetAllByFilter")',
                 '@Url.Action("ModalEditAction")', '@Url.Action("ModalDeleteAction")',
                 '@Url.Action("EditPassword")', 'modal-edit-password', 'changePassForm',

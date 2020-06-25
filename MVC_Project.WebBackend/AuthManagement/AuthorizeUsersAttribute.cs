@@ -80,6 +80,9 @@ namespace MVC_Project.WebBackend.AuthManagement
             if (permision.Level == SystemLevelPermission.NO_ACCESS.ToString())
                 return false;
 
+            if (permision.Level == SystemLevelPermission.READ_ONLY.ToString() && action != SystemActions.INDEX.GetDisplayName())
+                return false;
+
             return true;
         }
     }

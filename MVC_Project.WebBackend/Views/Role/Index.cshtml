@@ -9,9 +9,6 @@
     var hasFullAccessController = user.HasFullAccessController(controllerName);
 
 }
-@section styles {
-    @Styles.Render("~/plugins/dataTablesStyles")
-}
 
 <div class="wrapper wrapper-content animated fadeInRight">
 
@@ -28,7 +25,7 @@
                             <div class="col-sm-6 col-lg-4">
                                 <div class="form-group">
                                     <label>Rol</label>
-                                    @Html.TextBoxFor(m => m.Name, new { @Class = "form-control form-control-sm txtFiltro", maxlength = "100", filtro = "true", filtro_order = "1" })
+                                    @Html.TextBoxFor(m => m.Name, new { @Class = "form-control form-control-sm txtFiltro", maxlength = "100", filtro = "true", @autocomplete = "off", filtro_order = "1" })
                                 </div>
                             </div>
                             <div class="col-sm-6 col-lg-4">
@@ -63,8 +60,6 @@
     </div>
 </div>
 @section scripts{
-    @Scripts.Render("~/plugins/dataTables")
-    @Scripts.Render("~/plugins/fullCalendar")
     @Scripts.Render("~/custom/Utils")
     @Scripts.Render("~/views/rol")
 

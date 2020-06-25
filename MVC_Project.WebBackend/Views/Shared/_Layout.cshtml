@@ -17,8 +17,11 @@
 
     @Styles.Render("~/Content/template/css")
     @Styles.Render("~/font-awesome/css")
+    @Styles.Render("~/plugins/dataTablesStyles")
     @Styles.Render("~/plugins/sweetAlertStyles")
     @Styles.Render("~/plugins/toastrStyles")
+    @Styles.Render("~/Content/template/plugins/chosen/chosenStyles")
+    <link href="~/Content/template/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
     <link href="~/Content/template/plugins/steps/jquery.steps.css" rel="stylesheet" />
     <link href="~/Content/template/stylesEl20mx.css" rel="stylesheet" />
     <!-- Local styles -->
@@ -67,7 +70,12 @@
     @Scripts.Render("~/font-awesome/js")
     @Scripts.Render("~/plugins/sweetAlert")
     @Scripts.Render("~/plugins/toastr")
-
+    @Scripts.Render("~/plugins/chosen")
+    @Scripts.Render("~/plugins/dataTables")
+    @Scripts.Render("~/plugins/fullCalendar")
+    @Scripts.Render("~/plugins/validate")
+    
+    <script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>
     <!-- Custom and plugin javascript -->
     <script src="~/Scripts/inspinia.js"></script>
     <script src="~/Scripts/plugins/pace/pace.min.js"></script>
@@ -90,8 +98,8 @@
     <script>
         $(document).ready(function () {
             $('.i-checks').iCheck({
-                checkboxClass: 'icheckbox_square-green',
-                radioClass: 'iradio_square-green',
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
             });
         });
 
@@ -109,7 +117,44 @@
 
     <!-- Local scripts -->
     @RenderSection("scripts", required: false)
-
+    <script>
+        jQuery.extend(jQuery.validator.messages, {
+            required: "Campo requerido.",
+            remote: "Please fix this field.",
+            email: "Ingrese un correo válido.",
+            url: "Ingrese una URL válida.",
+            date: "Ingrese una fecha válida.",
+            dateISO: "Please enter a valid date (ISO).",
+            number: "Please enter a valid number.",
+            digits: "Please enter only digits.",
+            creditcard: "Please enter a valid credit card number.",
+            equalTo: "Please enter the same value again.",
+            accept: "Please enter a value with a valid extension.",
+            maxlength: jQuery.validator.format("Please enter no more than {0} characters."),
+            minlength: jQuery.validator.format("Please enter at least {0} characters."),
+            rangelength: jQuery.validator.format("Please enter a value between {0} and {1} characters long."),
+            range: jQuery.validator.format("Please enter a value between {0} and {1}."),
+            max: jQuery.validator.format("Please enter a value less than or equal to {0}."),
+            min: jQuery.validator.format("Please enter a value greater than or equal to {0}.")
+        });
+        jQuery.validator.setDefaults({
+            errorPlacement: function (error, element) {
+                if (element.is(':checkbox') || element.is(':radio')) {debugger;
+                    var controls = element.closest('is');
+                    if (controls.find(':checkbox,:radio').length > 1) controls.append(error);
+                    else error.insertAfter(".i-checks");//element.nextAll('.lbl:eq(0)').eq(0)
+                }
+                else if (element.is('.select2')) {
+                    error.insertAfter(element.siblings('[class*="select2-container"]:eq(0)'));
+                }
+                else if (element.is('.chosen-select')) {
+                    error.insertAfter(element.siblings('[class*="chosen-container"]:eq(0)'));
+                }
+                else error.insertAfter(element);
+            },
+            ignore: ":hidden:not(select)"
+        });
+    </script>
 
 </body>
 

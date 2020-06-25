@@ -163,7 +163,7 @@
     <value>Reportes</value>
   </data>
   <data name="CONFIRM_NEW_PASSWORD" xml:space="preserve">
-    <value>Confirmar nueva contraseña</value>
+    <value>Confirmar contraseña</value>
   </data>
   <data name="NEW_PASSWORD" xml:space="preserve">
     <value>Nueva contraseña</value>

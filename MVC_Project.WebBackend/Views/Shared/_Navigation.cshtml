@@ -11,7 +11,7 @@
 
             <li class="nav-header">
                 <div class="dropdown profile-element">
-                    <img alt="image" class="rounded-circle" src="@user.Avatar" />
+                    <img alt="image" class="rounded-circle" src="@user.Avatar" width="20%" />
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                         <span class="block m-t-xs font-bold">@user.FirstName</span>
                         @if (user.Role != null)
@@ -33,17 +33,17 @@
             @if (user.HasAccessToModule(SystemModules.CONFIGURATION.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.CONFIGURATION.ToString())">
-                    <a href="#"><i class="fa fa-th-large"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_MANAGEMENT</span> <span class="fain arrow"></span></a>
+                    <a href="#"><i class="fa fa-cogs"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CONFIGURATION</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("User"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "User", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "User",action: "Index")"><a href="@Url.Action("Index", "User")">Usuarios</a></li>
+                            <li class="@Html.IsSelected(controller: "User")"><a href="@Url.Action("Index", "User")">Usuarios</a></li>
                         </ul>
                     }
                     @if (user.HasAccessController("Role"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Role", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "Role",action: "Index")"><a href="@Url.Action("Index", "Role")">Roles</a></li>
+                            <li class="@Html.IsSelected(controller: "Role")"><a href="@Url.Action("Index", "Role")">Roles</a></li>
                         </ul>
                     }
                 </li>
@@ -153,7 +153,7 @@
             {
                 <li class="nav-header">
                     <div class="profile-element text-center">
-                        <img alt="image" class="rounded-circle" src="~/Images/p3.jpg" style="width:40%" />
+                        <img alt="image" class="rounded-circle" src="~/Images/p3.jpg" style="width:30%" />
                         <span class="block m-t-xs font-bold" style="color:white">@user.Account.RFC</span>
                         <span class="text-muted text-xs block">@user.Account.Name</span>
                     </div>

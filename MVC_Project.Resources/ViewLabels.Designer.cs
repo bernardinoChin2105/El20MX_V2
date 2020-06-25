@@ -257,5 +257,16 @@ namespace MVC_Project.Resources {
                 return ResourceManager.GetString("UsernameRequired", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Busca una cadena traducida similar a Username or Email is required.
+        /// </summary>
+        public static string MODULE_CONFIGURATION
+        {
+            get
+            {
+                return ResourceManager.GetString("MODULE_CONFIGURATION", resourceCulture);
+            }
+        }
     }
 }

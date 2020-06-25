@@ -29,19 +29,23 @@ namespace MVC_Project.BackendWeb.Models
     }
     public class ResetPassword
     {
-        public string Uuid { get; set; }
-        [Display(Name = "Contraseña")]
-        [Required, MinLength(8)]
+        public Guid Uuid { get; set; }
+        [Display(Name = "Nueva contraseña")]
+        [PasswordSecured(ErrorMessage = "La nueva contraseña debe contener al menos un número, mayúsculas y minúsculas")]
+        [DataType(DataType.Password)]
+        [Required(ErrorMessage = "Campo obligatorio"), MinLength(8, ErrorMessage = "{0} debe ser mínimo de {1} caracteres")]
         public string Password { get; set; }
-        [Display(Name = "Confirmar contraseña")]
-        [Required, MinLength(8)]
+        [Display(Name = "Confirmar nueva contraseña")]
+        [DataType(DataType.Password)]
+        [StringComparer("Password", ErrorMessage = "Las contraseñas no coinciden")]
+        [Required(ErrorMessage = "Campo obligatorio"), MinLength(8, ErrorMessage = "{0} debe ser mínimo de {1} caracteres")]
         public string NewPassword { get; set; }
     }
 
     public class ChangePasswordViewModel
     {
         [Display(Name = "Nueva contraseña")]
-        [PasswordSecured(ErrorMessage = "La nueva contraseña debe contener al menos un número, mayúsculas, minúsculas y caracteres especiales")]
+        [PasswordSecured(ErrorMessage = "La nueva contraseña debe contener al menos un número, mayúsculas y minúsculas")]
         [DataType(DataType.Password)]
         [Required(ErrorMessage = "Campo obligatorio"), MinLength(8, ErrorMessage = "{0} debe ser mínimo de {1} caracteres")]
         public string Password { get; set; }

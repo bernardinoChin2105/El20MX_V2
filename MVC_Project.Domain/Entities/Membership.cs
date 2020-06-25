@@ -13,6 +13,8 @@ namespace MVC_Project.Domain.Entities
         public virtual Account account { get; set; }
         public virtual User user { get; set; }
         public virtual Role role { get; set; }
+        public virtual Int64? assignedBy { get; set; }
+        public virtual string acceptUser { get; set; }
 
         public virtual IList<MembershipPermission> mebershipPermissions { get; set; }
 
