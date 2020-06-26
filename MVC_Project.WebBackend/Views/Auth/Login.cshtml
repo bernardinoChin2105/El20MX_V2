@@ -58,13 +58,23 @@
 
                 @Html.Hidden("ReturnUrl", (string)ViewBag.ReturnUrl)
                 <div class="input-group mb-3">
-                    <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                    <span class="input-group-prepend"><button class="btn btn-default" type="button"><i class="fa fa-user"></i></button></span>
                     @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", placeholder = @ViewLabels.USERNAME, @required = "required" })
                 </div>
                 <span class="help-block"></span>
                 <div class="input-group mb-3">
-                    <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                    <span class="input-group-prepend">
+                        <button id="view-password" class="btn btn-default" type="button">
+                            <i class="fa fa-lock"></i>
+                        </button>
+                    </span>
+                    @*<span class="input-group-addon"><i class="fa fa-lock"></i></span>*@
                     @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", placeholder = @ViewLabels.PASSWORD, @required = "required" })
+                    @*<span class="input-group-append">
+                        <button id="view-password" class="btn btn-default" type="button">
+                            <i class="fa fa-eye"></i>
+                        </button>
+                    </span>*@
                 </div>
                 <span class="help-block"></span>
                 <button type="submit" class="btn btn-color block full-width m-b"><span><i class="fa fa-sign-in-alt"></i> &nbsp;@ViewLabels.AUTH_LOGIN_SUBMIT </span></button>
@@ -131,6 +141,15 @@
                 toastr['@mensaje.Tipo']('@mensaje.Mensaje');
         </script>
     }
+    <script>
+        $('#view-password').on('mousedown', function () {
+            $('#Password').attr("type", "text");
+        });
+
+        $('#view-password').on('mouseup mouseleave', function () {
+            $('#Password').attr("type", "password");
+        });
+    </script>
 </body>
 </html>
 

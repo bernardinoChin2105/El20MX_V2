@@ -246,7 +246,7 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception("El token ha expirado");
 
                 ResetPassword model = new ResetPassword();
-                model.Uuid = user.uuid.ToString();
+                model.Uuid = user.uuid;
                 return View("ResetPassword", model);
 
             }
@@ -328,74 +328,36 @@ namespace MVC_Project.WebBackend.Controllers
             }
             return View("ChangePassword", model);
         }
+
         [HttpPost, AllowAnonymous]
         public ActionResult Reset(ResetPassword model)
         {
-            if (!ModelState.IsValid)
-            {
-                return Json(new
-                {
-                    success = false,
-                    issue = model,
-                    errors = ModelState.Keys.Where(k => ModelState[k].Errors.Count > 0)
-                    .Select(k => new { propertyName = k, errorMessage = ModelState[k].Errors[0].ErrorMessage })
-                });
-            }
             try
             {
-                var resultado = _userService.FindBy(e => e.uuid == Guid.Parse(model.Uuid)).First();
-                if (resultado != null)
-                {
-                    resultado.password = SecurityUtil.EncryptPassword(model.Password);
-                    DateTime todayDate = DateUtil.GetDateTimeNow();
-                    string daysToExpirateDate = ConfigurationManager.AppSettings["DaysToExpirateDate"];
-                    DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
-                    resultado.passwordExpiration = passwordExpiration;
-                    _userService.Update(resultado);
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada es incorrecto");
 
-                    var membership = resultado.memberships.First();
+                var user = _userService.FirstOrDefault(e => e.uuid == model.Uuid);
 
-                    AuthUser authUser = new AuthUser
-                    {
-                        FirstName = resultado.profile.firstName,
-                        LastName = resultado.profile.lastName,
-                        Uuid = resultado.uuid,
-                        PasswordExpiration = resultado.passwordExpiration,
-                        Email = resultado.name,
-                        Role = new Role
-                        {
-                            Code = membership.role.code,
-                            Name = membership.role.name
-                        },
-                        Permissions = membership.role.rolePermissions.Select(p => new Permission
-                        {
-                            //Action = p.permission.action,
-                            Controller = p.permission.controller,
-                            Module = p.permission.module,
-                            Level = p.level
-                        }).ToList()
-                    };
-                    //UnitOfWork unitOfWork = new UnitOfWork();
-                    //ISession session = unitOfWork.Session;
-                    //Authenticator.StoreAuthenticatedUser(authUser);
-                    return RedirectToAction("Index", "Home");
+                if (user == null)
+                    throw new Exception("El usuario no se encuentra registrado en el sistema");
 
-                }
+                user.password = SecurityUtil.EncryptPassword(model.Password);
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+                string daysToExpirateDate = ConfigurationManager.AppSettings["DaysToExpirateDate"];
+                DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
+                user.passwordExpiration = passwordExpiration;
+                _userService.Update(user);
+
+                MensajeFlashHandler.RegistrarMensaje("Contraseña actualizada", TiposMensaje.Success);
+                return RedirectToAction("Login", "Auth");
+
             }
             catch (Exception ex)
             {
-                //ErrorController.SaveLogError(this, listAction.Update, "RecuperarContrasena", ex);
+                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                return View("ResetPassword", model);
             }
-
-            ModelState.AddModelError("Password", "No se encontró ninguna cuenta con el correo proporcionado. Verifique su información.");
-            return Json(new
-            {
-                success = false,
-                issue = model,
-                errors = ModelState.Keys.Where(k => ModelState[k].Errors.Count > 0)
-                .Select(k => new { propertyName = k, errorMessage = ModelState[k].Errors[0].ErrorMessage })
-            });
-
         }
 
         [HttpGet]

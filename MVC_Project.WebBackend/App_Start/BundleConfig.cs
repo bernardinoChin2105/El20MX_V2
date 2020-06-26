@@ -11,7 +11,8 @@ namespace MVC_Project.WebBackend
             // CSS style (bootstrap/inspinia)
             bundles.Add(new StyleBundle("~/Content/template/css").Include(
                           "~/Content/template/bootstrap.min.css",
-                          "~/Content/template/plugins/iCheck/custom.css",
+                          "~/Content/template/plugins/iCheck/square/blue.css",
+
                           "~/Content/template/animate.css",
                           "~/Content/template/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css",
                           "~/Content/template/style.css",

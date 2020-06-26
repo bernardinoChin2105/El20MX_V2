@@ -11,37 +11,90 @@
 
         <div class="text-center">
             <h3>¡Bienvenido @Model.Name!</h3>
-            <h4>Establezca una contraseña para ingresar al sistema</h4>
-        </div>
+            <h5>Establezca una contraseña para ingresar al sistema</h5>
+        </div><br />
         @using (Html.BeginForm("NewUserVerify", "Register", FormMethod.Post, new { @id = "passForm", @class = "form", role = "form" }))
         {
             @Html.AntiForgeryToken()
             @Html.HiddenFor(m=>m.Uuid)
-            <span class="help-block"></span>
-            <div class="form-group">
-                @Html.LabelFor(x => x.Password)
-                @Html.EditorFor(m => m.Password, new { @class = "form-control" })
+            <div class="input-group mb-3">
+                <span class="input-group-prepend"><button id="view-password" class="btn btn-default" type="button"><i class="fa fa-eye"></i></button></span>
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.PASSWORD })
                 @Html.ValidationMessageFor(x => x.Password)
             </div>
-            <span class="help-block"></span>
-
-            <span class="help-block"></span>
-            <div class="form-group">
-
-                @Html.LabelFor(x => x.ConfirmPassword)
-                @Html.EditorFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = "Confirmar contraseña", @required = "required" })
+            <div class="input-group mb-3">
+                <span class="input-group-prepend"><button id="view-password-confirm" class="btn btn-default" type="button"><i class="fa fa-eye"></i></button></span>
+                @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.CONFIRM_NEW_PASSWORD })
                 @Html.ValidationMessageFor(x => x.ConfirmPassword)
             </div>
-            <span class="help-block"></span>
 
             <div class="form-group">
                 <span class="help-block"></span>
-                <button type="submit" class="btn btn-color block full-width m-b">Guardar</button>
+                <button type="button" class="btn btn-color block full-width m-b" onclick="validarDatos();">Guardar</button>
                 <span class="help-block"></span>
             </div>
         }
 </div>
 @section scripts{
 
-    @Scripts.Render("~/plugins/validate")
+    <script>
+        $(document).ready(function () {
+            $.validator.addMethod("PasswordTrue",
+                function (value, element) {
+                    //return value.match(/^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/); // contraseña con caracter especial
+                    return value.match(/^(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/);
+                }, "La contraseña debe contener un número, mayúsculas y minúsculas"
+            );
+            $.validator.addMethod("ConfirmPassEqPassword",
+                function (value, element) {
+                    return value == $("#Password").val();
+                }, "Las contraseñas no coinciden"
+            );
+            $("#passForm").validate({
+                rules: {
+                    Password: {
+                        PasswordTrue: true,
+                        ConfirmPassEqPassword: true,
+                        required: true,
+                        minlength: 8
+                    },
+                    ConfirmPassword: {
+                        ConfirmPassEqPassword: true,
+                        required: true,
+                    }
+                }
+                ,
+                messages: {
+                    Password: {
+                        required: "Campo obligatorio",
+                        minlength: "La contraseña debe ser mínimo de 8 caracteres",
+                    },
+                    ConfirmPassword: {
+                        required: "Campo obligatorio",
+                    }
+                }
+            });
+            $('#view-password').on('mousedown', function () {
+                $('#Password').attr("type", "text");
+            });
+
+            $('#view-password').on('mouseup mouseleave', function () {
+                $('#Password').attr("type", "password");
+            });
+
+            $('#view-password-confirm').on('mousedown', function () {
+                $('#ConfirmPassword').attr("type", "text");
+            });
+
+            $('#view-password-confirm').on('mouseup mouseleave', function () {
+                $('#ConfirmPassword').attr("type", "password");
+            });
+        });
+        function validarDatos() {
+            if (!$('#passForm').valid()) {
+                return;
+            }
+            $('#passForm').submit();
+        }
+    </script>
 }

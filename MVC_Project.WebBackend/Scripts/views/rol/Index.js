@@ -16,7 +16,7 @@
             columns: [
                 { data: 'Id', title: "Id", visible: false },
                 { data: 'Name', title: "Nombre" },
-                { data: 'Description', title: "Descripción" },
+                //{ data: 'Description', title: "Descripción" },
                 {
                     data: null, orderName: "CreatedAt", title: "Fecha Creación", autoWidth: false, className: "dt-center td-actions thead-dark",
                     render: function (data, type, row, meta) {

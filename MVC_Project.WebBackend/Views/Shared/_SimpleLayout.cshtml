@@ -55,5 +55,25 @@
 
     <!-- Local scripts -->
     @RenderSection("scripts", required: false)
+
+    <script src="~/Scripts/jquery-3.1.1.min.js"></script>
+    <script src="~/Scripts/popper.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="~/Scripts/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="~/Scripts/plugins/steps/jquery.steps.min.js"></script>
+
+    @Scripts.Render("~/font-awesome/js")
+    @Scripts.Render("~/plugins/sweetAlert")
+    @Scripts.Render("~/plugins/toastr")
+    @Scripts.Render("~/plugins/chosen")
+    @Scripts.Render("~/plugins/dataTables")
+    @Scripts.Render("~/plugins/fullCalendar")
+    @Scripts.Render("~/plugins/validate")
+
+    <script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>
+    <!-- Custom and plugin javascript -->
+    <script src="~/Scripts/inspinia.js"></script>
+    <script src="~/Scripts/plugins/pace/pace.min.js"></script>
 </body>
 </html>

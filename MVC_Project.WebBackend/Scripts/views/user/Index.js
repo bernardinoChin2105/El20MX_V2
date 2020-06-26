@@ -21,7 +21,7 @@
             ordering: false,
             columns: [
                 { data: 'Id', title: "Id", visible: false },
-                { data: 'Email', title: "Email" },
+                { data: 'Email', title: "Correo" },
                 { data: 'RoleName', title: "Rol" },
                 { data: 'Name', title: "Nombre" },
                 {
@@ -42,6 +42,7 @@
                         return '';
                     }
                 },
+                { data: 'Status', title: "Estatus" },
                 {
                     data: null,
                     className: 'personal-options',

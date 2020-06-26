@@ -24,7 +24,8 @@ namespace MVC_Project.WebBackend.CustomAttributes.Validations
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            Regex regex = new Regex(@"^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$");
+            //Regex regex = new Regex(@"^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$");
+            Regex regex = new Regex(@"^(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$");
             string valueString = Convert.ToString(value);
             Match match = regex.Match(valueString);
             if (match.Success)

@@ -17,6 +17,8 @@ namespace MVC_Project.Data.Mappings
             References(x => x.account).Column("accountId").Nullable();
             References(x => x.user).Column("userId");
             References(x => x.role).Column("roleId");
+            Map(x => x.assignedBy).Column("assignedBy").Nullable();
+            Map(x => x.acceptUser).Column("acceptUser").Nullable();
 
             HasMany(x => x.mebershipPermissions).Inverse().Cascade.All().KeyColumn("membershipId");
 

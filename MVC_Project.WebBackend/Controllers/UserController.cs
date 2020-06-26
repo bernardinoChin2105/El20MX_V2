@@ -245,6 +245,7 @@ namespace MVC_Project.WebBackend.Controllers
                         createdAt = todayDate,
                         modifiedAt = todayDate,
                         status = SystemStatus.UNCONFIRMED.ToString(),
+                        
                         profile = new Profile
                         {
                             uuid = Guid.NewGuid(),
@@ -255,6 +256,7 @@ namespace MVC_Project.WebBackend.Controllers
                             createdAt = todayDate,
                             modifiedAt = todayDate,
                             status = SystemStatus.ACTIVE.ToString(),
+                            avatar = "/Images/default_avatar.jpg"
                         }
                     };
                 }
@@ -264,7 +266,9 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     account = new Account { id = userAuth.Account.Id },
                     role = role,
-                    user = user
+                    user = user,
+                    assignedBy = userAuth.Id,
+                    acceptUser = userCreateViewModel.AcceptUser ? TermsAndConditions.ACCEPT.ToString() : TermsAndConditions.DECLINE.ToString(),
                 });
 
                 if (newUser)

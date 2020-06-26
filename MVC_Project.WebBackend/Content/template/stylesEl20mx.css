@@ -132,3 +132,15 @@
     width: 100% !important;
 }
 
+.input-group > .custom-select:not(:first-child), .input-group > .form-control:not(:first-child) {
+    width: auto;
+}
+
+.form-group {
+    text-align: initial;
+}
+
+.mb-3, .my-3 {
+    text-align: initial;
+}
+

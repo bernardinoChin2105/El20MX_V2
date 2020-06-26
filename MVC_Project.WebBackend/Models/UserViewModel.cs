@@ -62,6 +62,7 @@ namespace MVC_Project.WebBackend.Models
         public string Apellidos { get; set; }
 
         [Required]
+        [Display(Name = "Correo")]
         public string Email { get; set; }
 
         [Display(Name = "Usuario")]
@@ -86,6 +87,8 @@ namespace MVC_Project.WebBackend.Models
         public int Role { get; set; }
 
         public IEnumerable<SelectListItem> Roles { get; set; }
+        [Display(Name="Acepto al usuario")]
+        public bool AcceptUser { get; set; }
 
         //public IEnumerable<FeatureViewModel> Features { get; set; }
     }
@@ -127,6 +130,7 @@ namespace MVC_Project.WebBackend.Models
         public string Apellidos { get; set; }
 
         [Required]
+        [Display(Name = "Correo")]
         public string Email { get; set; }
 
         [Display(Name = "Usuario")]

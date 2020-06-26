@@ -101,4 +101,22 @@ namespace MVC_Project.Utils
         [Display(Name = "Configuración")]
         CONFIGURATION,
     }
+
+    public enum TermsAndConditions
+    {
+        [Display(Name = "Accept")]
+        ACCEPT,
+        [Display(Name = "Decline")]
+        DECLINE
+    }
+
+    public enum SystemActions
+    {
+        [Display(Name = "Index")]
+        INDEX,
+        [Display(Name = "Create")]
+        CREATE,
+        [Display(Name = "Edit")]
+        EDIT
+    }
 }
