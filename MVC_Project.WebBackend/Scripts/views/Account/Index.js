@@ -117,10 +117,12 @@ function initCreate() {
                 console.log(json, "respuesta");
                 if (!json.Success) {
                     $("#validacionSat").val(json.Success);
-                    toastr['success']('Cuenta registrada');                    
+                    //toastr['success']('Cuenta registrada');                    
+                    toastr[json.Type](json.Mensaje);   
                 } else {
                     btn.attr("disabled", false);
-                    toastr['error']('Ocurrió un error, intente nuevamente');
+                    //toastr['error']('Ocurrió un error, intente nuevamente');
+                    toastr[json.Type](json.Mensaje);   
                     //if (json.Url !== "") {
                     //    window.location = json.Url;
                     //}

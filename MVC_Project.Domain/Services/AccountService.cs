@@ -10,6 +10,7 @@ namespace MVC_Project.Domain.Services
 {
     public interface IAccountService : IService<Account>
     {
+        Account ValidateRFC(string rfc);
     }
 
     public class AccountService : ServiceBase<Account>, IAccountService
@@ -18,6 +19,18 @@ namespace MVC_Project.Domain.Services
         public AccountService(IRepository<Account> baseRepository) : base(baseRepository)
         {
             _repository = baseRepository;
+        }
+
+        public Account ValidateRFC(string rfc)
+        {
+            var account = _repository.Session.CreateSQLQuery("exec dbo.st_account_rfc " +
+               "@RFC =:RFC")
+                   .AddEntity(typeof(Account))
+                   .SetParameter("RFC", rfc)
+                   .UniqueResult<Account>();
+
+            if (account != null) return account;
+            return null;
         }
     }
 }
