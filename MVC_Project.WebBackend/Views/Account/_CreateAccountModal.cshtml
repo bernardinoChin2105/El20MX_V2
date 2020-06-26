@@ -18,9 +18,11 @@
             <h1>RFC</h1>
             <div class="col-md-12">
                 <form id="RegisterRFCForm">
+                    <p>Ingrese su RFC, haremos una consulta directa al SAT para validarlo.</p>
+                    <input type="hidden" value="false" name="validacionSat" id="validacionSat"/>
                     <div class="form-group">
                         <label>RCF</label>
-                        <input id="rfc" name="rfc" type="text" class="form-control" aria-required="true">
+                        <input id="rfc" name="rfc" type="text" class="form-control required" aria-required="true">
                     </div>
                     <div class="form-group">
                         <label>Contraseña</label>
@@ -30,11 +32,11 @@
                                     <i class="fa fa-eye"></i>
                                 </span>
                             </div>
-                            <input id="password" name="password" type="password" class="form-control viewpass-input" data-view="false" aria-required="true">
+                            <input id="password" name="password" type="password" class="form-control required viewpass-input" data-view="false" aria-required="true">
                         </div>
                     </div>
                     <div class="form-group text-right">
-                        <button id="btn-sat" type="button" class="btn btn-color">Conectar</button>
+                        <button id="btn-sat" type="button" class="btn btn-color">Validar RFC</button>
                     </div>
                 </form>
             </div>

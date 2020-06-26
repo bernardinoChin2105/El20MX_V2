@@ -18,12 +18,17 @@ namespace MVC_Project.WebBackend.Controllers
         private IMembershipService _membership;
         private IAccountService _accountService;
         private ICredentialService _credentialService;
+        private IRoleService _roleService;
+        private IUserService _userService;
 
-        public AccountController(IMembershipService accountUserService, IAccountService accountService, ICredentialService credentialService)
+        public AccountController(IMembershipService accountUserService, IAccountService accountService, 
+            ICredentialService credentialService, IRoleService roleService, IUserService userService)
         {
             _membership = accountUserService;
             _accountService = accountService;
             _credentialService = credentialService;
+            _roleService = roleService;
+            _userService = userService;
         }
 
         // GET: Account
@@ -103,7 +108,8 @@ namespace MVC_Project.WebBackend.Controllers
         public JsonResult CreateCredential(LogInSATModel dataSat)
         {
             try
-            {                
+            {
+                bool result = false;
                 //Realizar la captura de la información
                 //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
                 var responseSat = SATws.CallServiceSATws("credentials", dataSat, "Post");
@@ -112,37 +118,72 @@ namespace MVC_Project.WebBackend.Controllers
 
                 //Guardar la información si el llamado del servicio es exitoso
                 var authUser = Authenticator.AuthenticatedUser;
-                var account = _accountService.FindBy(x => x.uuid == authUser.Uuid).FirstOrDefault();
+                //var user = _accountService.FindBy(x => x.uuid == authUser.Uuid).FirstOrDefault();
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
-                Domain.Entities.Credential credential = new Domain.Entities.Credential()
+                //vamos a crear el account y memberships. Pendiente a que me confirme William los memberships
+                #region Cración de la cuenta (Account)
+
+                var roleD= _roleService.FindBy(x => x.code == SystemRoles.ACCOUNT_OWNER.ToString()).FirstOrDefault();
+                var userD = _userService.FindBy(x => x.uuid == authUser.Uuid).FirstOrDefault();
+
+                Domain.Entities.Account account = new Domain.Entities.Account()
                 {
-                    account = account,
-                    provider = "SAT.ws",
-                    idCredentialProvider = model.id,
-                    statusProvider = model.status,
+                    uuid = Guid.NewGuid(),
+                    name = authUser.FirstName + " " + authUser.LastName,
+                    rfc = dataSat.rfc,
                     createdAt = todayDate,
                     modifiedAt = todayDate,
                     status = SystemStatus.ACTIVE.ToString()
                 };
 
-                _credentialService.Create(credential);
+                account.memberships.Add(new Domain.Entities.Membership
+                {
+                   account = account,
+                   user = userD,
+                   role = roleD
+                });
+
+                _accountService.Create(account);
+                #endregion
+
+                Domain.Entities.Credential credential = new Domain.Entities.Credential();
+                if (account.id > 0)
+                {
+                    credential = new Domain.Entities.Credential()
+                    {
+                        account = account,
+                        provider = "SAT.ws",
+                        idCredentialProvider = model.id,
+                        statusProvider = model.status,
+                        createdAt = todayDate,
+                        modifiedAt = todayDate,
+                        status = SystemStatus.ACTIVE.ToString()
+                    };
+
+                    _credentialService.Create(credential);
+                }
+                
                 //Retornar la información
-                string idCredential = credential.id.ToString();
+                //string idCredential = credential.id.ToString();
+                if (credential.id > 0)
+                {
+                    result = true;
+                }
 
                 return new JsonResult
                 {
-                    //data = { },
-                    Data = new { Mensaje = new { title = "response", error = "" },  Success = true, Url = "" },
+                    Data = new { Mensaje = new { title = "response", error = "" }, Success = result },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
                 };
             }
             catch (Exception ex)
-            {                
+            {
+                string error = ex.Message.ToString();
                 return new JsonResult
                 {
-                    Data = new { Mensaje = new { title = "Error", message = ex.Message.ToString() }, Success = false, Url = "" },
+                    Data = new { Mensaje = new { title = "Error", message = ex.Message.ToString() }, Success = false },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
                 };

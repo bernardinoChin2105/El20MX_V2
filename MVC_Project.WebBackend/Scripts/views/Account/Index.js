@@ -2,6 +2,42 @@
     selectAccountModal();
 });
 
+var settings = {
+    headerTag: "h1",
+    content: "div",
+    enableContentCache: true,
+    enableAllSteps: false,
+    labels: {
+        current: "paso actual:",
+        pagination: "Paginación",
+        finish: "Finalizar",
+        next: "Siguente",
+        previous: "Anterior",
+        loading: "Cargando ..."
+    },
+    onStepChanging: function (event, currentIndex, newIndex) {
+        console.log(event, currentIndex, newIndex, "cambiando");
+        if (currentIndex === 0) {
+            var valid = $("#validacionSat").val();
+            console.log(valid, "que trajo");
+            if (valid === "false") {
+                validate();
+                return false;
+            }
+        }
+        return true;
+    },
+    onFinishing: function (event, currentIndex) {
+        console.log(event, currentIndex, "finalizando");
+        return true;
+    },
+    onFinished: function (event, currentIndex) {
+        console.log(event, currentIndex, "finalizado");
+        //$("#wizard").steps('reset');
+        $("#createAccountModal").modal("hide");
+    }
+};
+
 function selectAccountModal() {
     $("#selectAccountModal").find('.modal-content').load(urls.urlSelect, function () {
         $("#selectAccountModal").modal({ backdrop: 'static', keyboard: false });
@@ -13,12 +49,21 @@ function createAccountModal() {
         $("#createAccountModal").modal({ backdrop: 'static', keyboard: false });
     });
     $("#createAccountModal").on('shown.bs.modal', function () {
-        $("#wizard").steps();
-        initCreate();
+        //$("#wizard").steps();   
+        if (!$("#wizard").hasClass("wizard-big wizard clearfix")) {
+            $("#wizard").steps(settings);
+            initCreate();
+        }
     });
     $("#createAccountModal").on('hidden.bs.modal', function () {
         selectAccountModal();
     });
+}
+
+function validate() {
+    if (!$('#RegisterRFCForm').valid()) {
+        return;
+    }
 }
 
 function initCreate() {
@@ -45,14 +90,20 @@ function initCreate() {
 
     $("#btn-sat").on("click", function () {
         console.log("estoy en el evento");
+        var rfc = $("#rfc");
+        var pass = $("#password");
+        var btn = $(this);
+
+        $(this).attr("disabled", true);
 
         if (!$('#RegisterRFCForm').valid()) {
+            btn.attr("disabled", false);
             return;
         }
 
         var data = {
-            rfc: $("#rfc").val(),
-            password: $("#password").val()
+            rfc: rfc.val(),
+            password: pass.val()
         };
 
         console.log("datos", data);
@@ -64,13 +115,16 @@ function initCreate() {
             dataType: 'json',
             success: function (json) {
                 console.log(json, "respuesta");
-                //if (!json.Success) {
-                //    window.location = "/Register";
-                //} else {
-                //    if (json.Url !== "") {
-                //        window.location = json.Url;
-                //    }
-                //}
+                if (!json.Success) {
+                    $("#validacionSat").val(json.Success);
+                    toastr['success']('Cuenta registrada');                    
+                } else {
+                    btn.attr("disabled", false);
+                    toastr['error']('Ocurrió un error, intente nuevamente');
+                    //if (json.Url !== "") {
+                    //    window.location = json.Url;
+                    //}
+                }
             },
             error: function (xhr, status) {
                 console.log(xhr, status, "error");
