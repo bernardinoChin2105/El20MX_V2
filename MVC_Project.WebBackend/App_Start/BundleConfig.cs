@@ -109,6 +109,8 @@ namespace MVC_Project.WebBackend
                       "~/Scripts/views/user/Index.js"));
             bundles.Add(new ScriptBundle("~/views/rol").Include(
                       "~/Scripts/views/rol/Index.js"));
+            bundles.Add(new ScriptBundle("~/views/diagnosticIndex").Include(
+                      "~/Scripts/views/Diagnostic/Index.js"));
 
 
             // toastr notification
@@ -118,6 +120,14 @@ namespace MVC_Project.WebBackend
             // toastr notification styles
             bundles.Add(new StyleBundle("~/plugins/toastrStyles").Include(
                       "~/Content/template/plugins/toastr/toastr.min.css"));
+
+            // daterangepicker
+            bundles.Add(new ScriptBundle("~/plugins/daterangepicker").Include(
+                      "~/Scripts/plugins/daterangepicker/daterangepicker.js"));
+
+            // daterangepicker styles
+            bundles.Add(new StyleBundle("~/plugins/daterangepickerStyles").Include(
+                      "~/Content/template/plugins/daterangepicker/daterangepicker-bs3.css"));
 
         }
     }
