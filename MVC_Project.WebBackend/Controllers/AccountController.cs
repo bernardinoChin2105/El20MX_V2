@@ -117,7 +117,7 @@ namespace MVC_Project.WebBackend.Controllers
                 //Validar que no se repita el rfc
                 var accountExist = _accountService.ValidateRFC(dataSat.rfc);
 
-                if (accountExist != null)
+                if (accountExist == null)
                 {
                     //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
                     var responseSat = SATws.CallServiceSATws("credentials", dataSat, "Post");
