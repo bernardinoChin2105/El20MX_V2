@@ -1,4 +1,5 @@
 ﻿using MVC_Project.Domain.Services;
+using MVC_Project.Integrations.SAT;
 using MVC_Project.WebBackend.AuthManagement;
 using MVC_Project.WebBackend.Models;
 using System;
@@ -35,6 +36,31 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult DiagnosticDetail()
         {
             return View();
+        }
+
+        public JsonResult GenerateDx0()
+        {
+            try
+            {
+                //Obtener la credencial por la cuenta logeada
+                //Obtener 
+                //var responseSat = SATws.CallServiceSATws("credentials", dataSat, "Get");
+
+                return Json(new
+                {
+                    success = true,
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return new JsonResult
+                {
+                    Data = new { Mensaje = new { title = "Error", message = ex.Message } },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
+            }
+            
         }
 
         [HttpGet, AllowAnonymous]

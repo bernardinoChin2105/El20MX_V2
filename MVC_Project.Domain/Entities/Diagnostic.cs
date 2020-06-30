@@ -13,7 +13,7 @@ namespace MVC_Project.Domain.Entities
         public virtual Account account { get; set; }
         public virtual string businessName { get; set; }
         public virtual string commercialCAD { get; set; }
-        public virtual string plan { get; set; } 
+        public virtual string plans { get; set; } 
         public virtual DateTime createdAt { get; set; }      
 
         public Diagnostic()
