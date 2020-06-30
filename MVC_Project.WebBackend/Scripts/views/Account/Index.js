@@ -94,10 +94,14 @@ function initCreate() {
         var pass = $("#password");
         var btn = $(this);
 
-        $(this).attr("disabled", true);
+        btn.attr("disabled", true);
+        rfc.attr("disabled", true);
+        pass.attr("disabled", true);
 
-        if (!$('#RegisterRFCForm').valid()) {
+        if (!$('#RegisterRFCForm').valid()) {           
             btn.attr("disabled", false);
+            rfc.attr("disabled", false);
+            pass.attr("disabled", false);
             return;
         }
 
@@ -115,22 +119,23 @@ function initCreate() {
             dataType: 'json',
             success: function (json) {
                 console.log(json, "respuesta");
-                if (!json.Success) {
+                console.log(json.Success, !json.Success, "que respuesta trae");
+                if (json.Success) {
                     $("#validacionSat").val(json.Success);
                     //toastr['success']('Cuenta registrada');                    
                     toastr[json.Type](json.Mensaje);   
                 } else {
+                    rfc.attr("disabled", false);
+                    pass.attr("disabled", false);
                     btn.attr("disabled", false);
                     //toastr['error']('Ocurrió un error, intente nuevamente');
                     toastr[json.Type](json.Mensaje);   
-                    //if (json.Url !== "") {
-                    //    window.location = json.Url;
-                    //}
                 }
             },
             error: function (xhr, status) {
-                console.log(xhr, status, "error");
                 //alert('Disculpe, existió un problema');
+                console.log(xhr, status, "error");
+                btn.attr("disabled", false);
                 toastr['error']('Ocurrió un error, intente nuevamente');
             }
         });

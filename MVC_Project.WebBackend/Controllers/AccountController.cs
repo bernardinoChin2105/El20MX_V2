@@ -56,8 +56,24 @@ namespace MVC_Project.WebBackend.Controllers
                     uuid = x.account.uuid,
                     name = x.account.name,
                     rfc = x.account.rfc,
-                    role = x.role.name
+                    role = x.role.name,
+                    accountId = x.account.id
                 }).ToList();
+
+                #region Obtener información de la credencial para saber si esta ya activo
+                foreach (var item in accountViewModel.accountListViewModels)
+                {
+                    var credential = _credentialService.FindBy(x => x.account.id != item.accountId).FirstOrDefault();                    
+                    if (credential.statusProvider == "pending")
+                    {                        
+                        var responseSat = SATws.CallServiceSATws("credentials/"+credential.idCredentialProvider, null, "Get");
+                        var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
+                        credential.statusProvider = model.status;
+                        _credentialService.Update(credential);
+                    } 
+                    item.statusValidate = credential.statusProvider;
+                }
+                #endregion
             }
             accountViewModel.count = accountViewModel.accountListViewModels.Count;
             return PartialView("_SelectAccountModal", accountViewModel);
@@ -71,7 +87,7 @@ namespace MVC_Project.WebBackend.Controllers
 
             if (account != null)
             {
-                var membership = _membership.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id).FirstOrDefault();
+                var membership = _membership.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id).FirstOrDefault();               
 
                 if (membership != null)
                 {
