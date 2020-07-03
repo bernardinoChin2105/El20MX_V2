@@ -17,7 +17,7 @@ namespace MVC_Project.Data.Mappings
             References(x => x.diagnostic).Column("diagnosticId").Nullable();
             Map(x => x.year).Column("year").Not.Nullable();
             Map(x => x.month).Column("month").Not.Nullable();
-            Map(x => x.type).Column("type").Nullable();
+            Map(x => x.typeTaxPayer).Column("typeTaxPayer").Nullable();
             Map(x => x.numberCFDI).Column("numberCFDI").Nullable();
             Map(x => x.totalAmount).Column("totalAmount").Nullable();
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();

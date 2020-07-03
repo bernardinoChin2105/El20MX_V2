@@ -268,5 +268,16 @@ namespace MVC_Project.Resources {
                 return ResourceManager.GetString("MODULE_CONFIGURATION", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Busca una cadena traducida similar a Prospects.
+        /// </summary>
+        public static string MODULE_PROSPECTS
+        {
+            get
+            {
+                return ResourceManager.GetString("MODULE_PROSPECTS", resourceCulture);
+            }
+        }
     }
 }

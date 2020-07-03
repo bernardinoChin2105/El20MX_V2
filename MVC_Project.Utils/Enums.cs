@@ -100,6 +100,8 @@ namespace MVC_Project.Utils
     {
         [Display(Name = "Configuración")]
         CONFIGURATION,
+        [Display(Name = "Prospectos")]
+        PROSPECTS
     }
 
     public enum TermsAndConditions
@@ -118,5 +120,13 @@ namespace MVC_Project.Utils
         CREATE,
         [Display(Name = "Edit")]
         EDIT
+    }
+
+    public enum TypeIssuerReceiver
+    {
+        [Display(Name = "Issuer")]
+        ISSUER,
+        [Display(Name = "Receiver")]
+        RECEIVER,
     }
 }

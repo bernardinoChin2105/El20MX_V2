@@ -186,4 +186,7 @@
   <data name="MODULE_CONFIGURATION" xml:space="preserve">
     <value>Configuración</value>
   </data>
+  <data name="MODULE_PROSPECTS" xml:space="preserve">
+    <value>Prospectos</value>
+  </data>
 </root>

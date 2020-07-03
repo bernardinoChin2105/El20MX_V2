@@ -26,7 +26,7 @@
                     </ul>
                 </div>
                 <div class="logo-element">
-                    IN+
+                    @*IN+*@
                 </div>
             </li>
 
@@ -46,6 +46,13 @@
                             <li class="@Html.IsSelected(controller: "Role")"><a href="@Url.Action("Index", "Role")">Roles</a></li>
                         </ul>
                     }
+                </li>
+            }
+
+            @if (user.HasAccessToModule(SystemModules.PROSPECTS.ToString()))
+            {
+                <li class="@Html.IsModuleSelected(user, SystemModules.PROSPECTS.ToString())">
+                    <a href="#"><i class="fa fa-file"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_PROSPECTS</span> <span class="fain arrow"></span></a>                 
                     @if (user.HasAccessController("Diagnostic"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Diagnostic", cssClass: "in")">
@@ -136,18 +143,18 @@
 
 
             @*<li class="">
-                    <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
-                    <ul class="nav nav-second-level collapse in">
-                        <li class="">
-                            <a href="#">Bancos <span class="fain arrow"></span></a>
-                            <ul class="nav nav-second-level collapse">
-                                <li class=""><a href="#">Conectar</a></li>
-                                <li class=""><a href="#">Cargar movimientos</a></li>
-                            </ul>
-                        </li>
-
+            <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
+            <ul class="nav nav-second-level collapse in">
+                <li class="">
+                    <a href="#">Bancos <span class="fain arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li class=""><a href="#">Conectar</a></li>
+                        <li class=""><a href="#">Cargar movimientos</a></li>
                     </ul>
-                </li>*@
+                </li>
+
+            </ul>
+        </li>*@
 
 
         </ul>

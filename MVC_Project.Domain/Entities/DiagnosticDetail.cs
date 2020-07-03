@@ -11,11 +11,11 @@ namespace MVC_Project.Domain.Entities
         public virtual Int64 id { get; set; }
         //public virtual Guid uuid { get; set; }
         public virtual Diagnostic diagnostic { get; set; }
-        public virtual string year { get; set; }
+        public virtual int year { get; set; }
         public virtual string month { get; set; }
-        public virtual string type { get; set; }
-        public virtual string numberCFDI { get; set; }
-        public virtual string totalAmount { get; set; }
+        public virtual string typeTaxPayer { get; set; }
+        public virtual int numberCFDI { get; set; }
+        public virtual decimal totalAmount { get; set; }
         public virtual DateTime createdAt { get; set; }
 
 

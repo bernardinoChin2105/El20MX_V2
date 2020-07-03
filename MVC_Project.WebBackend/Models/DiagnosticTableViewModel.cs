@@ -6,7 +6,7 @@ using System.Web;
 
 namespace MVC_Project.WebBackend.Models
 {
-    public class DiagnosticModel
+    public class DiagnosticTableViewModel
     {
         public int Id { get; set; }
 

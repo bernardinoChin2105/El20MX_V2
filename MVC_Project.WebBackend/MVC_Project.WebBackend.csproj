@@ -266,7 +266,8 @@
     <Compile Include="Models\AuthViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
     <Compile Include="Models\DataTableModel.cs" />
-    <Compile Include="Models\DiagnosticModel.cs" />
+    <Compile Include="Models\DiagnosticTableViewModel.cs" />
+    <Compile Include="Models\DiagnosticViewModel.cs" />
     <Compile Include="Models\ExcelImport\UserImport.cs" />
     <Compile Include="Models\FeatureViewModel.cs" />
     <Compile Include="Models\JQueryDataTableParams.cs" />
@@ -1880,6 +1881,7 @@
     <Content Include="Views\Account\_CreateAccountModal.cshtml" />
     <Content Include="Views\Register\NewUserVerify.cshtml" />
     <Content Include="Views\Diagnostic\Index.cshtml" />
+    <Content Include="Views\Diagnostic\DiagnosticDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

@@ -1,0 +1,213 @@
+﻿@model MVC_Project.WebBackend.Models.DiagnosticViewModel
+
+@{
+    ViewBag.Title = "Detalle del Diagnóstico";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Datos de Prospecto</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="form-horizontal">
+                        <div class="form-group row">
+                            <div class="col-12 col-md-4">
+                                @Html.LabelFor(m => m.id, new { @class = "col-form-label control-label" })
+                                @Html.TextBoxFor(m => m.id, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            <div class="col-12 col-md-4">
+                                @Html.LabelFor(m => m.createdAt, new { @class = "col-form-label control-label" })
+                                @Html.TextBoxFor(m => m.createdAt, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            <div class="col-12 col-md-4">
+                                @Html.LabelFor(m => m.plans, new { @class = "col-form-label control-label" })
+                                @Html.TextBoxFor(m => m.plans, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-12 col-md-4">
+                                @Html.LabelFor(m => m.businessName, new { @class = "col-form-label control-label" })
+                                @Html.TextBoxFor(m => m.businessName, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            <div class="col-12 col-md-4">
+                                @Html.LabelFor(m => m.rfc, new { @class = "col-form-label control-label" })
+                                @Html.TextBoxFor(m => m.rfc, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            <div class="col-12 col-md-4">
+                                @Html.LabelFor(m => m.email, new { @class = "col-form-label control-label" })
+                                @Html.TextBoxFor(m => m.email, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-12 col-md-4">
+                                @Html.LabelFor(m => m.commercialCAD, new { @class = "col-form-label control-label" })
+                                @Html.TextBoxFor(m => m.commercialCAD, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Información de la Constancia</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="form-horizontal">
+                        <div class="form-group row">
+                            <div class="col-12 col-md-4">
+                                @Html.LabelFor(m => m.businessName, new { @class = "col-form-label control-label" })
+                                @Html.TextBoxFor(m => m.businessName, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            <div class="col-12 col-md-4">
+                                @Html.LabelFor(m => m.statusSAT, new { @class = "col-form-label control-label" })
+                                @Html.TextBoxFor(m => m.statusSAT, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            <div class="col-12 col-md-4">
+                                @Html.LabelFor(m => m.taxRegime, new { @class = "col-form-label control-label" })
+                                @Html.TextBoxFor(m => m.taxRegime, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-12 col-md-4">
+                                @Html.LabelFor(m => m.economicActivities, new { @class = "col-form-label control-label" })
+                                @Html.TextBoxFor(m => m.economicActivities, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            <div class="col-12 col-md-4">
+                                @Html.LabelFor(m => m.fiscalObligations, new { @class = "col-form-label control-label" })
+                                @Html.TextBoxFor(m => m.fiscalObligations, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            <div class="col-12 col-md-4">
+                                @Html.LabelFor(m => m.taxMailboxEmail, new { @class = "col-form-label control-label" })
+                                @Html.TextBoxFor(m => m.taxMailboxEmail, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Opinión de Cumplimiento</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="form-horizontal">
+                        <div class="form-group row">
+                            <div class="col-12">
+                                <table id="table" class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Respuesta Opinión</th>
+                                            <th>Declaración</th>
+                                            <th>Tipo de Declaración</th>
+                                            <th>Obligación Pendiente</th>
+                                            <th>Periodo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Positiva</td>
+                                            <td>Declaración informativa de IVA con la anual de  ISR</td>
+                                            <td>Anual</td>
+                                            <td>0</td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td>Pago provicional trimestral de ISR de personas morales</td>
+                                            <td>Mensual</td>
+                                            <td>12</td>
+                                            <td>01/18 a 12/18</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Facturación Últimos 3 Meses</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="form-horizontal">
+                        <div class="form-group row">
+                            <div class="col-12">
+                                <table id="table" class="table table-striped table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th colspan="2">Emitidas(Clientes)</th>
+                                            <th colspan="2">Recibidas(Proveedores)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @section Scripts {
+
+        <script type="text/javascript">
+                                                            //$(document).ready(function () {
+                                                            //    $('.chosen-select').chosen({ width: '100%', "disable_search": true });
+                                                            //    $("#CreateForm").validate({
+                                                            //        rules: {
+                                                            //            Name: {
+                                                            //                required: true,
+                                                            //                maxlength: 50
+                                                            //            },
+                                                            //            Code: {
+                                                            //                required: true,
+                                                            //                maxlength: 20
+                                                            //            }
+                                                            //        }
+                                                            //        ,
+                                                            //        messages: {
+                                                            //            Name: {
+                                                            //                required: "Campo obligatorio",
+                                                            //                maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres."),
+                                                            //            },
+                                                            //            Code: {
+                                                            //                required: "Campo obligatorio",
+                                                            //                maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres."),
+                                                            //            }
+                                                            //        }
+                                                            //    })
+                                                            //});
+                                                            //function validarDatos() {
+                                                            //    if (!$('#CreateForm').valid()) {
+                                                            //        return;
+                                                            //    }
+                                                            //    $('#CreateForm').submit();
+                                                            //}
+        </script>
+    }

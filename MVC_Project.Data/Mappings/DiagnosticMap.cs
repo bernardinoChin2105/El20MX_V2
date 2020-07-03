@@ -14,11 +14,15 @@ namespace MVC_Project.Data.Mappings
         {
             Table("diagnostics");
             Id(x => x.id).GeneratedBy.Identity().Column("id");
+            Map(x => x.uuid).Column("uuid").Not.Nullable();
             Map(x => x.businessName).Column("businessName").Not.Nullable();
             Map(x => x.commercialCAD).Column("commercialCAD").Nullable();
             Map(x => x.plans).Column("plans").Nullable();
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             References(x => x.account).Column("accountId").Not.Nullable();
+
+            HasMany(x => x.details).Inverse().Cascade.All().KeyColumn("diagnosticId");
+            HasMany(x => x.taxStatus).Inverse().Cascade.All().KeyColumn("diagnosticId");
         }
     }
 }
