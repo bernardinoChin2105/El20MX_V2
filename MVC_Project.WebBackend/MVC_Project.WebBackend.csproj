@@ -74,6 +74,9 @@
     <Reference Include="Remotion.Linq.EagerFetching, Version=2.2.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
       <HintPath>..\packages\Remotion.Linq.EagerFetching.2.2.0\lib\net45\Remotion.Linq.EagerFetching.dll</HintPath>
     </Reference>
+    <Reference Include="Rotativa, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rotativa.1.7.4-rc\lib\net45\Rotativa.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
@@ -291,6 +294,7 @@
     <Content Include="Content\template\animate.css" />
     <Content Include="Content\template\bootstrap.css" />
     <Content Include="Content\template\bootstrap.min.css" />
+    <Content Include="Content\template\bootstrap3\bootstrap.min.css" />
     <Content Include="Content\template\patterns\1.png" />
     <Content Include="Content\template\patterns\2.png" />
     <Content Include="Content\template\patterns\3.png" />
@@ -1403,6 +1407,10 @@
     <Content Include="Libs\gsdll32.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Rotativa\help-wkhtmltoimage.txt" />
+    <Content Include="Rotativa\help-wkhtmltopdf.txt" />
+    <Content Include="Rotativa\wkhtmltoimage.exe" />
+    <Content Include="Rotativa\wkhtmltopdf.exe" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\custom\jquery.validate.unobtrusive.min.js" />
@@ -1828,6 +1836,7 @@
     <Content Include="fonts\webfonts\fa-solid-900.ttf" />
     <Content Include="fonts\webfonts\fa-solid-900.woff" />
     <Content Include="fonts\webfonts\fa-solid-900.woff2" />
+    <Content Include="App_Browsers\qt.browser" />
     <None Include="packages.config" />
     <Content Include="Scripts\api\typehead_collection.json" />
     <Content Include="Scripts\bootstrap.js.map" />
@@ -1882,6 +1891,7 @@
     <Content Include="Views\Register\NewUserVerify.cshtml" />
     <Content Include="Views\Diagnostic\Index.cshtml" />
     <Content Include="Views\Diagnostic\DiagnosticDetail.cshtml" />
+    <Content Include="Views\Diagnostic\DiagnosticZeroDownload.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

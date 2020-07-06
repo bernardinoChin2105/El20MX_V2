@@ -169,7 +169,7 @@ namespace MVC_Project.Utils
 
         public static string GetMonthName(DateTime endMonth, string language)
         {
-            return endMonth.ToString("MMM");
+            return endMonth.ToString("MMMM");
         }
     }
 }

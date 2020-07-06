@@ -1,0 +1,198 @@
+﻿@model MVC_Project.WebBackend.Models.DiagnosticViewModel
+@using MVC_Project.WebBackend.Controllers
+@using MVC_Project.WebBackend.Models
+@{
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="utf-8">
+    @*<meta name="viewport" content="width=device-width">*@
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    @Styles.Render("~/Content/templatepdf/css")
+
+    @*@Styles.Render("~/font-awesome/css")
+        @Scripts.Render("~/font-awesome/js")*@
+
+    <link href="~/Content/template/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .img-responsive {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="reporteDiagnostico" class="container">
+        <!--Imagen de la pagina de inicio-->
+        <section>
+            <div class="row">
+                <div class="col-lg-12">
+                    <img class="img-responsive mg-pdf img-inicio" src="~/Images/gallery/11.jpg" />
+                    <h1>DIAGNÓSTICO FISCAL</h1>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2><b>DIAGNÓSTICO FISCAL <span>AL 3 DE JULIO DE 2020</span></b></h2>
+            <hr />
+            <p>El <b>Diagnóstico Fiscal</b> es el resultado de la investigación que hacemos para conocer tu estatus ante el SAT.</p>
+            <p>Esta investigación se realiza con la infromación que el SAT tiene, la ordenamos y analizamos para implementar la mejor manera de ayudarte.</p>
+
+            <h2>ESTATUS DEL DIAGNÓSTICO</h2>
+            <hr />
+            <div class="row">
+                <div class="col-xs-6">
+                    <img class="img-responsive" src="~/Images/gallery/11.jpg" />
+                </div>
+                <div class="col-xs-6">
+                    <div>
+                        <span>cuadrito</span>
+                        <p>El cumplimiento de tus obligaciones ante el SAT es <s>BUENA</s> <b>¡CONTINUA ASÍ!</b></p>
+                    </div>
+                    <br />
+                    <div>
+                        <span>cuadrito</span>
+                        <p>El cumplimiento de tus obligaciones ante el SAT es <s>REGULAR</s> ¡MANOS A LA OBRA!</p>
+                    </div>
+                    <br />
+                    <div>
+                        <span>cuadrito</span>
+                        <p>El cumplimiento de tus obligaciones ante el SAT es <s>MALA</s> ¡ARREGLEMOS ESTO!</p>
+                    </div>
+                </div>
+            </div>
+
+            <h2>INFORMACIÓN</h2>
+            <hr />
+            <div class="row">
+                <div class="col-xs-6">
+                    <span>Icono</span>
+                    <h5>NOMBRE O RAZÓN SOCIAL</h5>
+                    <p>@Model.businessName</p>
+                </div>
+
+                <div class="col-xs-6">
+                    <span>Icono</span>
+                    <h5>RFC</h5>
+                    <p>@Model.rfc</p>
+                </div>
+
+                <div class="col-xs-6">
+                    <span>Icono</span>
+                    <h5>ESTATUS ANTE EL SAT</h5>
+                    <p class="azul">@Model.statusSAT</p>
+                </div>
+
+                <div class="col-xs-6">
+                    <span>Icono</span>
+                    <h5>RÉGIMEN FISCAL</h5>
+                    <p>@Model.taxRegime</p>
+                </div>
+
+                <div class="col-xs-6">
+                    <span>Icono</span>
+                    <h5>ACTIVIDADES ECONÓMICAS</h5>
+                    <p>@Model.economicActivities</p>
+                </div>
+
+                <div class="col-xs-6">
+                    <span>Icono</span>
+                    <h5>CORREO BUZÓN TRIBUTARIO</h5>
+                    <p>@Model.taxMailboxEmail</p>
+                </div>
+
+                <div class="col-xs-6">
+                    <span>Icono</span>
+                    <h5>DIRECCIÓN FISCAL</h5>
+                    <p>
+                        TECNOLOGICO 76, CASA44, COL. LA GAVIA I,<br />
+                        METEPEC, C.P. 52149, ESTADO DE MÉXICO
+                    </p>
+                </div>
+
+                <div class="col-xs-6">
+                    <span>Icono</span>
+                    <h5>FECHA DE ALTA ANTE EL SAT</h5>
+                    <p>15 DE OCTUBRE DE 2014</p>
+                </div>
+
+                <div class="col-xs-6">
+                    <span>Icono</span>
+                    <h5>OBLIGACIONES FISCALES</h5>
+                    <p>@Model.fiscalObligations</p>
+                </div>
+
+                <div class="col-xs-6">
+                    <h3>EL SAT TIENE UNA OPINIÓN*</h3>
+                    <div>NEGATIVO</div>
+                    <h3>DEL CUMPLIMIENTO DE TUS OBLIGACIONES FISCALES</h3>
+                    <span>carita</span>
+                    <span>carita</span>
+                    <p class="pequenio">*Opinión de cumplimiento de obligaciones fiscales basado en el artículo 32-D del código fiscal de la federación.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2><b>OBLIGACIONES FISCALES PENDIENTES POR CUMPLIR</b></h2>
+            <hr />
+            <table>
+                <thead>
+                    <tr>
+                        <th>DECLARACIÓN</th>
+                        <th>TIPO</th>
+                        <th>N° O.P.</th>
+                        <th>PERIODO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Pago definitivo bimestral del RIF</td>
+                        <td>Bimestral</td>
+                        <td>12</td>
+                        <td>Del 4to. Bimestre 2018 al 3er Bimestre 2019</td>
+                    </tr>
+                    <tr>
+                        <td>Pago definitivo bimestral del IVA</td>
+                        <td>Bimestral</td>
+                        <td>12</td>
+                        <td>Del 4to. Bimestre 2018 al 3er Bimestre 2019</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>*N° O.P.(Número de obligaciones pendientes)</p>
+        </section>
+
+        <section>
+            <h2>
+                Estas eligiendo la mejor solución integral,
+                donde se conjuga la Asesoría Fiscal – Financiera y
+                elaboración de tu contabilidad.
+            </h2>
+
+            <h2><span><b>"Deja de cumplir solo con tus Obligaciones Fiscales"</b></span></h2>
+            <h3>Ahora podrás tener información al día, clara e indispensable para la mejor toma de decisiones que te permitan un óptimo y eficiente pago de impuestos.</h3>
+            <img src="~/Images/logos/logo_icon.png" />
+            <h4>... y lo ¡MEJOR!</h4>
+            <h3>Te darás la oportunidad de que trabaje para ti, una institución que su máximo interés es que sus clientes se sacundan las preocupaciones y/o pendientes fiscales, optimicen el pago de sus impuestos y alcancen un crecimiento financiero.</h3>
+            <footer>
+                <h5>CONTACTO CAD COMERCIAL | PATRICIA REYES</h5>
+                <p>55 41 01 80 05 <b>| Cadatención1@el20.mx |</b> Carretera México - Toluca #5780, Local 32</p>
+                <p>Col. Abdías García Soto. Cuajimalpa, CDMX.</p>
+            </footer>
+        </section>
+
+        <!--Imagen de la pagina de inicio-->
+        <section>
+            <img class"img-pdf img-final" src="~/Images/gallery/2.jpg" />
+        </section>
+    </div>
+</body>
+</html>

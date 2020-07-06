@@ -44,36 +44,85 @@ namespace MVC_Project.WebBackend.Controllers
             };
             return View();
         }
+
         [AllowAnonymous]
         public ActionResult DiagnosticDetail(string id)
         {
+            var authUser = Authenticator.AuthenticatedUser;
+            DiagnosticViewModel model = new DiagnosticViewModel();
+            var diagnostic = _diagnosticService.FindBy(x => x.uuid.ToString() == id).FirstOrDefault();
 
+            if (diagnostic != null)
+            {
+                model.id = id;
+                model.rfc = diagnostic.account.rfc;
+                model.businessName = diagnostic.businessName;
+                model.commercialCAD = diagnostic.commercialCAD;
+                model.plans = diagnostic.plans;
+                model.email = authUser.Email;
+                model.createdAt = diagnostic.createdAt;
 
-            return View();
+                var diagTax = diagnostic.taxStatus.FirstOrDefault();
+                if (diagTax != null)
+                {
+                    model.statusSAT = diagTax.statusSAT;
+                    model.taxRegime = diagTax.taxRegime;
+                    model.economicActivities = diagTax.economicActivities;
+                    model.fiscalObligations = diagTax.fiscalObligations;
+                    model.taxMailboxEmail = diagTax.taxMailboxEmail;
+                }
+
+                var diagDetails = diagnostic.details;
+
+                if (diagDetails != null)
+                {
+                    //List<DiagnosticDetailsViewModel> details = new List<DiagnosticDetailsViewModel>();
+                    model.diagnosticDetails = new List<InvoicesGroup>();
+                    
+                    string date = DateUtil.GetMonthName(DateTime.Now, "es");
+
+                    //Asignar datos de diagnostico
+                    List<InvoicesGroup> invoicePeriod = diagDetails.GroupBy(x => new
+                    {
+                        x.year,
+                        x.month,
+                    })
+                    .Select(b => new InvoicesGroup
+                    {
+                        year = b.Key.year,
+                        month = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(b.Key.month),
+                        issuer = new IssuerReceiverGroup()
+                        {
+                            type = TypeIssuerReceiver.ISSUER.ToString(),
+                            amountTotal = b.Where(x => x.typeTaxPayer == TypeIssuerReceiver.ISSUER.ToString()).Select(x => x.totalAmount).FirstOrDefault(),
+                            numberTotal = b.Where(x => x.typeTaxPayer == TypeIssuerReceiver.ISSUER.ToString()).Select(x => x.numberCFDI).FirstOrDefault(),
+                        },
+                        receiver = new IssuerReceiverGroup()
+                        {
+                            type = TypeIssuerReceiver.RECEIVER.ToString(),
+                            amountTotal = b.Where(x => x.typeTaxPayer == TypeIssuerReceiver.RECEIVER.ToString()).Select(x => x.totalAmount).FirstOrDefault(),
+                            numberTotal = b.Where(x => x.typeTaxPayer == TypeIssuerReceiver.RECEIVER.ToString()).Select(x => x.numberCFDI).FirstOrDefault(),
+                        }
+                    }).ToList();
+
+                    model.diagnosticDetails = invoicePeriod;
+                }
+            }
+
+            return View(model);
         }
 
         public ActionResult GenerateDx0()
         {
+            Diagnostic diagn = new Diagnostic();
             try
             {
-                //Información del sat datos del usuario
-                //Obtener obtener información por periodos
-                //obtener numero de cfdis emitidas(cliente)
-                //Obtener numero de cfdis recibidas(proveedores)
-                //Obtener el año y meses
-                //Obtener montos de los cfdis
-
                 var authUser = Authenticator.AuthenticatedUser;
 
-                //paso1 Obtener los datos del cliente
-                //https://api.sandbox.sat.ws/links
-                //https://api.sandbox.sat.ws/credentials/{id}
-                //https://api.sat.ws/links/90d3053f-2a35-4154-871d-bc4161de3f50
-                //var responseInfoUser = SATws.CallServiceSATws("links/{id}", null, "Get");
-                //var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
-
-                //Paso1 crear la extracción del periodo
-                //https://api.sandbox.sat.ws/extractions //crear extracción
+                //Paso1 crear la extracción del periodo y retorna la información del contribuyente
+                //Ajustar tiempo para que la información sea más precisa
+                //Estos ajuste de horario solo funcion para satws, para otros proveedores dependera del horario que manejen
+                //https://api.sandbox.sat.ws/extractions 
                 DateTime today = DateTime.Now;
                 DateTime dateFrom = today.AddMonths(-4);
                 DateTime dateTo = today.AddMonths(-1);
@@ -90,23 +139,17 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var responseExtraction = SATws.CallServiceSATws("extractions", filter, "Post");
                 var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseExtraction);
-
-                //falta probar si esto mapea
                 var option = model.First(x => x.Key == "taxpayer").Value;
-
                 JObject rItemValueJson = (JObject)option;
                 TaxpayerInfo infoTaxpayer = JsonConvert.DeserializeObject<TaxpayerInfo>(rItemValueJson.ToString());
 
-                //TaxpayerInfo infoTaxpayer = new TaxpayerInfo();
-                //infoTaxpayer.id = model.First(x => x.Key == "id").Value.ToString();
 
                 //paso2 llamar los cfdis de los que voy a usar
-                //https://api.sandbox.sat.ws/invoices/cbefca30-abc3-47ec-9744-4bb6e09b4092
+                //https://api.sandbox.sat.ws/invoices/{cfdi} // retorna el item de la lista
                 //https://api.sandbox.sat.ws/taxpayers/{id}/invoices  //lista de todos los cfdi's
-                //https://api.sat.ws/invoices/8ce08c2e-6113-4c4a-890e-6459df90a337/cfdi
+                //https://api.sat.ws/invoices/{cfdi}/cfdi // retonna el cfdi original
                 var responseCFDIS = SATws.CallServiceSATws("/taxpayers/" + authUser.Account.RFC + "/invoices", null, "Get");
                 var modelInvoices = JsonConvert.DeserializeObject<List<InvoicesInfo>>(responseCFDIS);
-
 
                 //separar los cfdis por año, mes, recibidas, emitidas
                 List<InvoicesGroup> invoicePeriod = modelInvoices.GroupBy(x => new
@@ -132,12 +175,12 @@ namespace MVC_Project.WebBackend.Controllers
                     }
                 }).ToList();
 
-                //Preguntar como se generara la información del CAD
+                //pendiente generara la información del CAD
 
                 Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
                 List<DiagnosticDetail> details = new List<DiagnosticDetail>();
-                //Guardar información
-                Diagnostic diagn = new Diagnostic()
+                //Armado de modelos para guardar información
+                diagn = new Diagnostic()
                 {
                     uuid = Guid.NewGuid(),
                     account = account,
@@ -196,7 +239,7 @@ namespace MVC_Project.WebBackend.Controllers
                 string error = ex.Message.ToString();
             }
 
-            return View("DiagnosticDetail");
+            return View("DiagnosticDetail", diagn.uuid.ToString());
         }
 
         [HttpGet, AllowAnonymous]
@@ -205,12 +248,11 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 var userAuth = Authenticator.AuthenticatedUser;
-                
-                //Falta asignar los filtros en el modelo
+
                 filtros = filtros.Replace("[", "").Replace("]", "").Replace("\\", "").Replace("\"", "");
                 var filters = filtros.Split(',').ToList();
 
-                var pagination = new BasePagination();                
+                var pagination = new BasePagination();
                 pagination.PageSize = param.iDisplayLength;
                 pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
                 if (filters[0] != "") pagination.CreatedOnStart = Convert.ToDateTime(filters[0]);
@@ -218,8 +260,9 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var DiagnosticsResponse = _diagnosticService.DiagnosticList(userAuth.Account.Uuid.ToString(), pagination);
 
+                //Corroborar los campos iTotalRecords y iTotalDisplayRecords
                 int totalDisplay = DiagnosticsResponse[0].Total;
-              
+
                 return Json(new
                 {
                     success = true,
@@ -238,6 +281,76 @@ namespace MVC_Project.WebBackend.Controllers
                     MaxJsonLength = Int32.MaxValue
                 };
             }
+        }
+
+        [HttpGet, AllowAnonymous]
+        public ActionResult GetDiagnosticDownload(string id)
+        {            
+            var authUser = Authenticator.AuthenticatedUser;
+            DiagnosticViewModel model = new DiagnosticViewModel();
+            var diagnostic = _diagnosticService.FindBy(x => x.uuid.ToString() == id).FirstOrDefault();
+
+            if (diagnostic != null)
+            {
+                model.id = id;
+                model.rfc = diagnostic.account.rfc;
+                model.businessName = diagnostic.businessName;
+                model.commercialCAD = diagnostic.commercialCAD;
+                model.plans = diagnostic.plans;
+                model.email = authUser.Email;
+                model.createdAt = diagnostic.createdAt;
+
+                var diagTax = diagnostic.taxStatus.FirstOrDefault();
+                if (diagTax != null)
+                {
+                    model.statusSAT = diagTax.statusSAT;
+                    model.taxRegime = diagTax.taxRegime;
+                    model.economicActivities = diagTax.economicActivities;
+                    model.fiscalObligations = diagTax.fiscalObligations;
+                    model.taxMailboxEmail = diagTax.taxMailboxEmail;
+                }
+
+                var diagDetails = diagnostic.details;
+
+                if (diagDetails != null)
+                {
+                    //List<DiagnosticDetailsViewModel> details = new List<DiagnosticDetailsViewModel>();
+                    model.diagnosticDetails = new List<InvoicesGroup>();
+
+                    string date = DateUtil.GetMonthName(DateTime.Now, "es");
+
+                    //Asignar datos de diagnostico
+                    List<InvoicesGroup> invoicePeriod = diagDetails.GroupBy(x => new
+                    {
+                        x.year,
+                        x.month,
+                    })
+                    .Select(b => new InvoicesGroup
+                    {
+                        year = b.Key.year,
+                        month = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(b.Key.month),
+                        issuer = new IssuerReceiverGroup()
+                        {
+                            type = TypeIssuerReceiver.ISSUER.ToString(),
+                            amountTotal = b.Where(x => x.typeTaxPayer == TypeIssuerReceiver.ISSUER.ToString()).Select(x => x.totalAmount).FirstOrDefault(),
+                            numberTotal = b.Where(x => x.typeTaxPayer == TypeIssuerReceiver.ISSUER.ToString()).Select(x => x.numberCFDI).FirstOrDefault(),
+                        },
+                        receiver = new IssuerReceiverGroup()
+                        {
+                            type = TypeIssuerReceiver.RECEIVER.ToString(),
+                            amountTotal = b.Where(x => x.typeTaxPayer == TypeIssuerReceiver.RECEIVER.ToString()).Select(x => x.totalAmount).FirstOrDefault(),
+                            numberTotal = b.Where(x => x.typeTaxPayer == TypeIssuerReceiver.RECEIVER.ToString()).Select(x => x.numberCFDI).FirstOrDefault(),
+                        }
+                    }).ToList();
+
+                    model.diagnosticDetails = invoicePeriod;
+                }
+            }
+
+            string rfc = authUser.Account.RFC;
+            //PageSize = Rotativa.Options.Size.Letter, 
+            //return View(model);
+            return new Rotativa.ViewAsPdf("DiagnosticZeroDownload", model) {FileName = rfc + "_D0.pdf" };
         }
     }
 }

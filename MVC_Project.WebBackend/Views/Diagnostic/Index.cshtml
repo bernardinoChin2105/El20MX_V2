@@ -62,9 +62,8 @@
                 <div class="ibox-title">
                     <h5>Resultado</h5>
                     @*@if (hasFullAccessController){}*@
-                    <div class="ibox-tools">
-                        <a href="@Url.Action("DiagnosticDetail", "Diagnostic")" class="btn btn-sm btn-color"><span class="fas fa-plus-square"></span> Diagnostico</a>
-                        <a href="@Url.Action("GenerateDx0", "Diagnostic")" class="btn btn-sm btn-color"><span class="fas fa-plus-square"></span> Generar Dx Cero</a>
+                    <div class="ibox-tools">                        
+                        <a href="@Url.Action("GenerateDx0", "Diagnostic")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Generar Dx Cero</a>
                     </div>
                 </div>
                 <div class="ibox-content">
@@ -82,20 +81,20 @@
         @Scripts.Render("~/plugins/dataTables")*@
     @Scripts.Render("~/plugins/daterangepicker")
 
-    <script>
+<script>
         window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
         $(function () {
             var diagnostic = new DianosticIndexControlador('table',
                 '@Url.Action("ObtenerDiagnostic")',
                 '@Url.Action("DiagnosticDetail")',
-                '@Url.Action("ModalDeleteAction")',
+                '@Url.Action("GetDiagnosticDownload")',
                 'True'
                 @*//, '@hasFullAccessController' == 'True'*@
             );
             diagnostic.init();
         });
 
-    </script>
+</script>
     @Scripts.Render("~/views/diagnosticIndex")
 
 }

@@ -43,11 +43,12 @@ $(".btn-filter-rol").click(function () {
 });
 
 
-var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, modalDeleteAction, hasFullAccessController) {
+var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downloadUrl, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
     this.detailUrl = detailUrl;
+    this.downloadUrl = downloadUrl;
     this.dataTable = {};
 
     this.init = function () {
@@ -79,7 +80,8 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, modal
                     render: function (data) {
                         //console.log(data)
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<a href="' + self.baseUrl+'/' + self.detailUrl + '?id='+data.uuid+'" class="btn btn-light btn-view"><span class="fas fa-file"></span></a>' +
+                            '<a href="' + self.detailUrl + '?id=' + data.uuid + '" class="btn btn-light btn-view" title="Ver detalles"><span class="fas fa-file"></span></a>' +
+                            '<a href="' + self.downloadUrl + '?id=' + data.uuid + '" class="btn btn-light btn-download" title="Descargar Detalle de Diagnóstico"><span class="fas fa-print"></i></span>'+
                             //'<button class="btn btn-light btn-delete" style="margin-left:5px;"><span class="fas fa-trash"></span></button>' +
                             '</div>';
                         return hasFullAccessController ? buttons : "";
@@ -91,7 +93,10 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, modal
                 aoData.push({ "name": "filtros", "value": getFiltros("form#SearchForm") });
 
                 $.getJSON(sSource, aoData, function (json) {
-                    console.log(json)
+                    //console.log(json);
+                    if (json.iTotalRecords > 0) {
+                        $(".btn-d0").css("display", "none");
+                    }
                     //if (json.success === true)
                     fnCallback(json);
                     //else

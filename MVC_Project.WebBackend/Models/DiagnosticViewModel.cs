@@ -9,7 +9,7 @@ namespace MVC_Project.WebBackend.Models
     public class DiagnosticViewModel
     {
         [Display(Name = "Id")]
-        public Int64 id { get; set; }
+        public string id { get; set; }
 
         [Display(Name = "RFC")]
         public string rfc { get; set; }
@@ -44,7 +44,8 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Email Buzón Tributario")]
         public string taxMailboxEmail { get; set; }
 
-        public List<DiagnosticDetailsViewModel> taxDetails { get; set; }
+        //public List<DiagnosticDetailsViewModel> diagnosticDetails { get; set; }
+        public List<InvoicesGroup> diagnosticDetails { get; set; }
     }
 
     public class DiagnosticDetailsViewModel
