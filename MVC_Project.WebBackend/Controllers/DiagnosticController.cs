@@ -13,6 +13,7 @@ using System.Web.Mvc;
 using MVC_Project.Domain.Entities;
 using Newtonsoft.Json.Linq;
 using MVC_Project.Domain.Model;
+using System.Collections.Specialized;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -123,10 +124,11 @@ namespace MVC_Project.WebBackend.Controllers
                 //Ajustar tiempo para que la información sea más precisa
                 //Estos ajuste de horario solo funcion para satws, para otros proveedores dependera del horario que manejen
                 //https://api.sandbox.sat.ws/extractions 
-                DateTime today = DateTime.Now;
-                DateTime dateFrom = today.AddMonths(-4);
-                DateTime dateTo = today.AddMonths(-1);
-                dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month));
+                //DateTime today = DateTime.Now;
+                DateTime todayUTC = DateTime.UtcNow; // se utiliza esté tipo de horario porque SAT.ws maneja esos horarios en sus registros
+                DateTime dateFrom = todayUTC.AddMonths(-4);
+                DateTime dateTo = todayUTC.AddMonths(-1);
+                dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
                 dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
 
                 ExtractionsFilter filter = new ExtractionsFilter()
@@ -148,7 +150,12 @@ namespace MVC_Project.WebBackend.Controllers
                 //https://api.sandbox.sat.ws/invoices/{cfdi} // retorna el item de la lista
                 //https://api.sandbox.sat.ws/taxpayers/{id}/invoices  //lista de todos los cfdi's
                 //https://api.sat.ws/invoices/{cfdi}/cfdi // retonna el cfdi original
-                var responseCFDIS = SATws.CallServiceSATws("/taxpayers/" + authUser.Account.RFC + "/invoices", null, "Get");
+
+                //2020-06-01 06:00:00&issuedAt[before]=2020-06-30 23:59:59
+                string from = dateFrom.ToString("yyyy-MM-dd HH:mm:ss");
+                string to = dateTo.ToString("yyyy-MM-dd HH:mm:ss");
+                string url = "/taxpayers/" + authUser.Account.RFC + "/invoices?issuedAt[after]="+from+ "&issuedAt[before]=" + to;
+                var responseCFDIS = SATws.CallServiceSATws(url, null, "Get");
                 var modelInvoices = JsonConvert.DeserializeObject<List<InvoicesInfo>>(responseCFDIS);
 
                 //separar los cfdis por año, mes, recibidas, emitidas
@@ -238,8 +245,8 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 string error = ex.Message.ToString();
             }
-
-            return View("DiagnosticDetail", diagn.uuid.ToString());
+            
+            return RedirectToAction("DiagnosticDetail", new { id = diagn.uuid.ToString() });
         }
 
         [HttpGet, AllowAnonymous]
@@ -248,26 +255,32 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 var userAuth = Authenticator.AuthenticatedUser;
-
-                filtros = filtros.Replace("[", "").Replace("]", "").Replace("\\", "").Replace("\"", "");
-                var filters = filtros.Split(',').ToList();
+                NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
+                string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
+                string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
 
                 var pagination = new BasePagination();
                 pagination.PageSize = param.iDisplayLength;
                 pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
-                if (filters[0] != "") pagination.CreatedOnStart = Convert.ToDateTime(filters[0]);
-                if (filters[1] != "") pagination.CreatedOnEnd = Convert.ToDateTime(filters[1]);
+                if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
+                if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
 
                 var DiagnosticsResponse = _diagnosticService.DiagnosticList(userAuth.Account.Uuid.ToString(), pagination);
 
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
-                int totalDisplay = DiagnosticsResponse[0].Total;
+                int totalDisplay = 0;
+                int total = 0;
+                if (DiagnosticsResponse.Count() > 0)
+                {
+                    totalDisplay = DiagnosticsResponse[0].Total;
+                    total = DiagnosticsResponse.Count();
+                }
 
                 return Json(new
                 {
                     success = true,
                     sEcho = param.sEcho,
-                    iTotalRecords = totalDisplay,
+                    iTotalRecords = total,
                     iTotalDisplayRecords = totalDisplay,
                     aaData = DiagnosticsResponse
                 }, JsonRequestBehavior.AllowGet);

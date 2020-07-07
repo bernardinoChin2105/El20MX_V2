@@ -89,8 +89,8 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
                 }
             ],
             "fnServerData": function (sSource, aoData, fnCallback) {
-                aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
-                aoData.push({ "name": "filtros", "value": getFiltros("form#SearchForm") });
+                aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });                
+                aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
 
                 $.getJSON(sSource, aoData, function (json) {
                     //console.log(json);
@@ -104,130 +104,5 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
                 });
             }
         });
-
-        function getFiltros(form) {
-            var $inputs = $(form + ' [filtro="true"]');
-            var nFiltros = $inputs.length;
-            var filtros = [];
-            for (i = 1; i <= nFiltros; i++) {
-                var input = $.each($inputs, function (item) { return $(item).attr('filtro-order') === i; });
-                filtros.push($(input).val());
-            }
-
-            return JSON.stringify(filtros);
-        }
-
-        //$(this.htmlTable, "tbody").on('click',
-        //    'td.personal-options .btn-group .btn-active',
-        //    function () {
-        //        var tr = $(this).closest('tr');
-        //        var row = self.dataTable.row(tr);
-        //        var id = row.data().Uuid;
-
-        //        swal({
-        //            title: "Confirmación",
-        //            text: "¿Desea activar el rol?",
-        //            showCancelButton: true,
-        //            confirmButtonClass: "btn-danger",
-        //            confirmButtonText: "Aceptar",
-        //            cancelButtonText: "Cancelar",
-        //            closeOnConfirm: false,
-        //            closeOnCancel: false
-        //        },
-        //            function (isConfirm) {
-        //                if (isConfirm) {
-        //                    $.ajax({
-        //                        type: 'POST',
-        //                        async: true,
-        //                        data: { uuid: id },
-        //                        url: '/Role/Delete',
-        //                        success: function (data) {
-        //                            if (!data) {
-        //                                swal({
-        //                                    type: 'error',
-        //                                    title: data.Mensaje.Titulo,
-        //                                    text: data.Mensaje.Contenido
-        //                                })
-        //                            } else {
-        //                                swal("Estatus cambiado!");
-        //                                self.dataTable.ajax.reload();
-        //                            }
-        //                        },
-        //                        error: function (xhr) {
-        //                            console.log('error');
-        //                        }
-        //                    });
-        //                } else {
-        //                    swal("Cancelado", "Operación cancelada", "error");
-        //                }
-        //            });
-        //    });
-
-        //$(this.htmlTable, "tbody").on('click',
-        //    'td.personal-options .btn-group .btn-delete',
-        //    function () {
-        //        var tr = $(this).closest('tr');
-        //        var row = self.dataTable.row(tr);
-        //        var id = row.data().Uuid;
-
-        //        swal({
-        //            title: "Confirmación",
-        //            text: "¿Desea inactivar el rol?",
-        //            showCancelButton: true,
-        //            confirmButtonClass: "btn-danger",
-        //            confirmButtonText: "Aceptar",
-        //            cancelButtonText: "Cancelar",
-        //            closeOnConfirm: false,
-        //            closeOnCancel: false
-        //        },
-        //            function (isConfirm) {
-        //                if (isConfirm) {
-        //                    $.ajax({
-        //                        type: 'POST',
-        //                        async: true,
-        //                        data: { uuid: id },
-        //                        url: '/Role/Delete',
-        //                        success: function (data) {
-        //                            if (!data) {
-        //                                swal({
-        //                                    type: 'error',
-        //                                    title: data.Mensaje.Titulo,
-        //                                    text: data.Mensaje.Contenido
-        //                                })
-        //                            } else {
-        //                                swal("Estatus cambiado!");
-        //                                self.dataTable.ajax.reload();
-        //                            }
-        //                        },
-        //                        error: function (xhr) {
-        //                            console.log('error');
-        //                        }
-        //                    });
-        //                } else {
-        //                    swal("Cancelado", "Operación cancelada", "error");
-        //                }
-        //            });
-        //    });
-
-        //$(self.htmlTable, "tbody").on('click',
-        //    'td.personal-options .btn-group .btn-edit',
-        //    function () {
-        //        var tr = $(this).closest('tr');
-        //        var row = self.dataTable.row(tr);
-        //        var uuid = row.data().Uuid;
-
-        //        var form = document.createElement('form');
-        //        document.body.appendChild(form);
-        //        form.method = 'GET';
-        //        form.action = "/Role/Edit?uuid=" + uuid;
-
-        //        var input = document.createElement('input');
-        //        input.type = 'hidden';
-        //        input.name = "uuid";
-        //        input.value = uuid;
-        //        form.appendChild(input);
-        //        form.submit();
-        //    });
-
     };
 };
