@@ -67,6 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Paybook\Paybook.cs" />
     <Compile Include="SAT\SATws.cs" />
     <Compile Include="Storage\AWSBlobService.cs" />
     <Compile Include="Storage\AzureBlobService.cs" />
