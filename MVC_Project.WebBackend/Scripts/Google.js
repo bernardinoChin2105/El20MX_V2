@@ -43,6 +43,8 @@ function onSuccess(googleUser) {
     $("#Email").val(profile.getEmail()).attr("readonly", true);
     $("#Password").val(profile.getId() + "Go.").attr("readonly", true);
     $("#ConfirmPassword").val(profile.getId() + "Go.").attr("readonly", true);
+    document.getElementById('view-password').disabled = true;
+    document.getElementById('view-password-confirm').disabled = true;
 
     $("#SocialId").val(profile.getId());
     $("#RedSocial").val(true);
