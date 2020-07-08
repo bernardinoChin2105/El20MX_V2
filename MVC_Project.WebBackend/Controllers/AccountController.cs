@@ -63,15 +63,18 @@ namespace MVC_Project.WebBackend.Controllers
                 #region Obtener información de la credencial para saber si esta ya activo
                 foreach (var item in accountViewModel.accountListViewModels)
                 {
-                    var credential = _credentialService.FindBy(x => x.account.id != item.accountId).FirstOrDefault();                    
-                    if (credential.statusProvider == "pending")
-                    {                        
-                        var responseSat = SATws.CallServiceSATws("credentials/"+credential.idCredentialProvider, null, "Get");
-                        var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
-                        credential.statusProvider = model.status;
-                        _credentialService.Update(credential);
-                    } 
-                    item.statusValidate = credential.statusProvider;
+                    var credential = _credentialService.FindBy(x => x.account.id == item.accountId).FirstOrDefault();
+                    if (credential != null)
+                    {
+                        if (credential.statusProvider == "pending")
+                        {
+                            var responseSat = SATws.CallServiceSATws("credentials/" + credential.idCredentialProvider, null, "Get");
+                            var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
+                            credential.statusProvider = model.status;
+                            _credentialService.Update(credential);
+                        }
+                        item.statusValidate = credential.statusProvider;
+                    }
                 }
                 #endregion
             }
@@ -87,7 +90,7 @@ namespace MVC_Project.WebBackend.Controllers
 
             if (account != null)
             {
-                var membership = _membership.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id).FirstOrDefault();               
+                var membership = _membership.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id).FirstOrDefault();
 
                 if (membership != null)
                 {
