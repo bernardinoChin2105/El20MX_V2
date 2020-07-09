@@ -57,7 +57,8 @@ namespace MVC_Project.WebBackend.Controllers
                     name = x.account.name,
                     rfc = x.account.rfc,
                     role = x.role.name,
-                    accountId = x.account.id
+                    accountId = x.account.id,
+                    imagen = x.account.imagen
                 }).ToList();
 
                 #region Obtener información de la credencial para saber si esta ya activo
@@ -161,6 +162,7 @@ namespace MVC_Project.WebBackend.Controllers
                         rfc = dataSat.rfc,
                         createdAt = todayDate,
                         modifiedAt = todayDate,
+                        imagen = "/Images/p1.jpg",
                         status = SystemStatus.ACTIVE.ToString()
                     };
 
