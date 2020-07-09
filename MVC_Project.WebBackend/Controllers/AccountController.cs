@@ -1,4 +1,5 @@
 ﻿using MVC_Project.Domain.Services;
+using MVC_Project.Integrations.Paybook;
 using MVC_Project.Integrations.SAT;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
@@ -228,6 +229,44 @@ namespace MVC_Project.WebBackend.Controllers
                 };
             }
 
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public JsonResult getToken()
+        {
+            try
+            {
+
+                //Obtener usuario                 
+                var responseUsers = Paybook.CallServicePaybook("users", null, "Get");
+
+                var dataUser = new Object();
+                //{
+                //    id_external = "{{sync_user_id_external}}",
+                //    name = "{{sync_user_name}}"
+                //};
+
+                //Crea un usuario
+                var responseUserPost = Paybook.CallServicePaybook("users", dataUser, "Post");
+
+                return new JsonResult
+                {
+                    //Data = new { Mensaje = message, Type = typeNoti, Success = result },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message.ToString();
+                return new JsonResult
+                {
+                    Data = new { Mensaje = ex.Message.ToString(), Type = "error", Success = false },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
+            }
         }
     }
 }

@@ -1,12 +1,12 @@
-﻿@model MVC_Project.WebBackend.Models.DiagnosticTableViewModel
+﻿@*@model MVC_Project.WebBackend.Models.DiagnosticTableViewModel*@
 @using MVC_Project.WebBackend.AuthManagement
 @using MVC_Project.WebBackend.AuthManagement.Models
 @{
-    ViewBag.Title = "Díagnosticos";
+    ViewBag.Title = "Clientes";
 
-    var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
-    AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
-    var hasFullAccessController = user.HasFullAccessController(controllerName);
+    //var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
+    //AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
+    //var hasFullAccessController = user.HasFullAccessController(controllerName);
 }
 
 @section styles {
@@ -57,12 +57,10 @@
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Resultado</h5>
-                    @if (hasFullAccessController)
-                    {
-                        <div class="ibox-tools">
-                            <a href="@Url.Action("GenerateDx0", "Diagnostic")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Generar Dx Cero</a>
-                        </div>
-                    }
+                    @*@if (hasFullAccessController){}*@
+                    <div class="ibox-tools">
+                        <a href="@Url.Action("GenerateDx0", "Diagnostic")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Generar Dx Cero</a>
+                    </div>
                 </div>
                 <div class="ibox-content">
                     <div class="table-responsive">
@@ -75,7 +73,8 @@
 </div>
 @section scripts{
     @Scripts.Render("~/custom/Utils")
-    @*@Scripts.Render("~/plugins/dataTables")*@
+    @*@Scripts.Render("~/plugins/dataPicker")
+        @Scripts.Render("~/plugins/dataTables")*@
     @Scripts.Render("~/plugins/daterangepicker")
 
     <script>
@@ -85,8 +84,8 @@
                 '@Url.Action("ObtenerDiagnostic")',
                 '@Url.Action("DiagnosticDetail")',
                 '@Url.Action("GetDiagnosticDownload")',
-                //'True'
-                '@hasFullAccessController' == 'True'
+                'True'
+                @*//, '@hasFullAccessController' == 'True'*@
             );
             diagnostic.init();
         });

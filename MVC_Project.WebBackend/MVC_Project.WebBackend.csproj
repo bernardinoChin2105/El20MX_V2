@@ -259,6 +259,7 @@
     <Compile Include="Controllers\RoleController.cs" />
     <Compile Include="Controllers\StorageController.cs" />
     <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Controllers\CustomerController.cs" />
     <Compile Include="CustomAttributes\Validations\PasswordSecuredAttribute.cs" />
     <Compile Include="CustomAttributes\Validations\StringComparerAttribute.cs" />
     <Compile Include="Global.asax.cs">
@@ -1430,6 +1431,7 @@
     <Content Include="Scripts\inspinia.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-3.1.1.min.js" />
+    <Content Include="Scripts\Paybook.js" />
     <Content Include="Scripts\plugins\blueimp\jquery.blueimp-gallery.min.js" />
     <Content Include="Scripts\plugins\bootstrap-markdown\bootstrap-markdown.js" />
     <Content Include="Scripts\plugins\bootstrap-markdown\markdown.js" />
@@ -1892,6 +1894,7 @@
     <Content Include="Views\Diagnostic\Index.cshtml" />
     <Content Include="Views\Diagnostic\DiagnosticDetail.cshtml" />
     <Content Include="Views\Diagnostic\DiagnosticZeroDownload.cshtml" />
+    <Content Include="Views\Customer\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
@@ -1929,6 +1932,7 @@
   <ItemGroup>
     <Folder Include="Content\img\gallery\" />
     <Folder Include="Content\img\landing\" />
+    <Folder Include="Views\Webhook\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
