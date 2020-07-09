@@ -17,6 +17,7 @@ namespace MVC_Project.WebBackend.Models
         public string role { get; set; }
         public Int64 accountId { get; set; }
         public string statusValidate { get; set; }
+        public string imagen { get; set; }
     }
 
     public class AccountSelectViewModel
