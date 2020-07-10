@@ -70,7 +70,11 @@
                 aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
                 aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
                 $.getJSON(sSource, aoData, function (json) {
-                    fnCallback(json);
+                    if (json.success == false) {
+                        toastr['error'](json.Mensaje.message);
+                    } else {
+                        fnCallback(json);
+                    }
                 });
             }
         });

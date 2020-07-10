@@ -136,7 +136,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 return new JsonResult
                 {
-                    Data = new { Mensaje = new { title = "Error", message = ex.Message } },
+                    Data = new { success = false, Mensaje = new { title = "Error", message = ex.Message } },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
                 };
