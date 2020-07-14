@@ -68,7 +68,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Paybook\Paybook.cs" />
+    <Compile Include="SAT\SATwsViewModel.cs" />
     <Compile Include="SAT\SATws.cs" />
+    <Compile Include="SAT\satwsService.cs" />
     <Compile Include="Storage\AWSBlobService.cs" />
     <Compile Include="Storage\AzureBlobService.cs" />
     <Compile Include="Payments\IPaymentServiceProvider.cs" />

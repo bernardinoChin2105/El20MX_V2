@@ -64,7 +64,7 @@ namespace MVC_Project.WebBackend
             container.RegisterType<IFeatureService, FeatureService>();
             container.RegisterType<ICredentialService, CredentialService>();
             container.RegisterType<IDiagnosticService, DiagnosticService>();
-            //container.RegisterType<IDiagnosticDetailService, DiagnosticDetailService>();
+            container.RegisterType<ICustomerService, CustomerService>();
             //container.RegisterType<IDiagnosticTaxStatusService, DiagnosticTaxStatusService>();
         }
     }

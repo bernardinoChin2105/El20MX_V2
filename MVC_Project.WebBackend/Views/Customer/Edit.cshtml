@@ -1,0 +1,168 @@
+﻿@model MVC_Project.WebBackend.Models.CustomerViewModel
+@using MVC_Project.Utils
+
+@{ #line 3 "C:\Users\YelmyPech\Documents\Visual Studio 2017\Projects\el20mx\El20mx-PlataformaV2\MVC_Project.WebBackend\Views\Customer\Create.cshtml"
+    /**/
+
+    ViewBag.Title = "Nuevo Cliente";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        @using (Html.BeginForm("Edit", "Customer", FormMethod.Post, new { role = "form", @id = "EditForm" }))
+            {
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>Datos del Cliente</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="form-horizontal">
+                                <div class="form-group row">
+                                    <div class="col-12 col-md-4">
+                                        @Html.LabelFor(m => m.FistName, new { @class = "col-form-label control-label" })
+                                        @Html.TextBoxFor(m => m.FistName, new { @class = "form-control" })
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        @Html.LabelFor(m => m.LastName, new { @class = "col-form-label control-label" })
+                                        @Html.TextBoxFor(m => m.LastName, new { @class = "form-control" })
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        @Html.LabelFor(m => m.RFC, new { @class = "col-form-label control-label" })
+                                        @Html.TextBoxFor(m => m.RFC, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-12 col-md-4">
+                                        @Html.LabelFor(m => m.CURP, new { @class = "col-form-label control-label" })
+                                        @Html.TextBoxFor(m => m.CURP, new { @class = "form-control" })
+                                    </div>
+                                    <div class="col-12 col-md-8">
+                                        @Html.LabelFor(m => m.BusinessName, new { @class = "col-form-label control-label" })
+                                        @Html.TextBoxFor(m => m.BusinessName, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-12 col-md-4">
+                                        @Html.LabelFor(m => m.taxRegime, new { @class = "col-form-label control-label" })
+                                        @Html.TextBoxFor(m => m.taxRegime, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>Domicilio de Ubicación (Domicilio Fiscal)</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="form-horizontal">
+                                <div class="form-group row">
+                                    <div class="col-12 col-md-8">
+                                        @Html.LabelFor(m => m.Street, new { @class = "col-form-label control-label" })
+                                        @Html.TextBoxFor(m => m.Street, new { @class = "form-control" })
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        @Html.LabelFor(m => m.OutdoorNumber, new { @class = "col-form-label control-label" })
+                                        @Html.TextBoxFor(m => m.OutdoorNumber, new { @class = "form-control" })
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-12 col-md-4">
+                                        @Html.LabelFor(m => m.InteriorNumber, new { @class = "col-form-label control-label" })
+                                        @Html.TextBoxFor(m => m.InteriorNumber, new { @class = "form-control" })
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        @Html.LabelFor(m => m.ZipCode, new { @class = "col-form-label control-label" })
+                                        @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control" })
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        @Html.LabelFor(m => m.Colony, new { @class = "col-form-label control-label" })
+                                        @Html.DropDownListFor(m => m.Colony, new SelectList(Model.ListColony, "Key_Colony", "Name"), "Seleccione...", new { @class = "form-control" })
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-12 col-md-8">
+                                        @Html.LabelFor(m => m.Municipality, new { @class = "col-form-label control-label" })
+                                        @Html.DropDownListFor(m => m.Municipality, new SelectList(Model.ListMunicipality, "Key_Municipality", "Name"), "Seleccione...", new { @class = "form-control" })
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        @Html.LabelFor(m => m.State, new { @class = "col-form-label control-label" })
+                                        @Html.DropDownListFor(m => m.State, new SelectList(Model.ListState, "Key_State", "Name"), "Seleccione...", new { @class = "form-control" })
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-12 col-md-8">
+                                        <label class="col-form-label control-label">Domicilio Comercial</label>
+                                        <div class="form-group">
+                                            <input id="DeliveryAddress" name="DeliveryAddress" type="checkbox" class="" value="1"> <label for="DeliveryAddress">Mismo que domicilio Fiscal</label>
+                                            @*<input id="" name="DeliveryAddress" type="checkbox" class="" value="1" @(Model.MEMBRESIA_EDITAR.DESCUENTO_TEC == 1 ? "checked" : "")> <label for="descuentoTec">Exclusivo para Empleados Tec</label>*@
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>Datos de Contacto</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="form-horizontal">
+                                <div class="form-group row">
+                                    <div class="col-12 col-md-6">
+                                        <div class="row" id="ListEmails">
+                                            <div class="col-12 col-md-10">
+                                                <label class="col-form-label control-label">Email 1</label>
+                                                <input type="hidden" name="Emails.TypeContact" value="@TypeContact.EMAIL.ToString()" />
+                                                <input type="email" class="form-control emails" name="Emails.EmailOrPhone" />
+                                            </div>
+                                            <div class="col-12 col-md-2">
+                                                <button type="button" class="btn btn-color btn-add-email" value="email">+</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="row" id="ListPhones">
+                                            <div class="col-12 col-md-10">
+                                                <label class="col-form-label control-label">Teléfono 1</label>
+                                                <input type="hidden" name="Phones.TypeContact" value="@TypeContact.PHONE.ToString()" />
+                                                <input type="text" class="form-control phones" name="Phones.EmailOrPhone" data_mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />
+                                            </div>
+                                            <div class="col-12 col-md-2">
+                                                <button type="button" class="btn btn-color btn-add-phone" value="phone">+</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row pull-right">
+                                    <div class="col-md-8 offset-2 text-right">
+                                        <a href='@Url.Action("Index", "Customer")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
+                                        <button type="submit" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            }
+
+    </div>
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/plugins/validate")
+    @Scripts.Render("~/plugins/toastr")
+    <script src="~/Scripts/views/Customer/Edit.js"></script>
+}

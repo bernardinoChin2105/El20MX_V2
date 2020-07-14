@@ -233,6 +233,9 @@ namespace MVC_Project.WebBackend.Controllers
 
         }
 
+
+
+        //Llamadas para paybook
         [HttpGet]
         [AllowAnonymous]
         public JsonResult getToken()

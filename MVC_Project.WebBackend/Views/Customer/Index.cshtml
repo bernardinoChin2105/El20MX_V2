@@ -1,4 +1,4 @@
-﻿@model MVC_Project.WebBackend.Models.CustumerViewModel
+﻿@model MVC_Project.WebBackend.Models.CustomerFilterViewModel
 @using MVC_Project.WebBackend.AuthManagement
 @using MVC_Project.WebBackend.AuthManagement.Models
 @{
@@ -68,7 +68,7 @@
                     <h5>Resultado</h5>
                     @*@if (hasFullAccessController){}*@
                     <div class="ibox-tools">
-                        <a href="@Url.Action("NewCustumer", "Custumer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Nuevo Cliente</a>
+                        <a href="@Url.Action("Create", "Custumer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Nuevo Cliente</a>
                         <a href="@Url.Action("Import", "Custumer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-upload"></span> Importar</a>
                         <a href="@Url.Action("Export", "Custumer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-download"></span> Exportar</a>
                     </div>
@@ -89,18 +89,18 @@
 
     <script>       
         $(function () {
-            var custumer = new CustumerIndexControlador('table',
-                '@Url.Action("GetCustumers")',
-                '@Url.Action("EditCustumer")',
-                '@Url.Action("CustumerDownload")',
-                '@Url.Action("CustumerUpload")',
+            var customer = new CustomerIndexControlador('table',
+                '@Url.Action("GetCustomers")',
+                '@Url.Action("EditCustomer")',
+                '@Url.Action("CustomerDownload")',
+                '@Url.Action("CustomerUpload")',
                 'True'
                 @*//, '@hasFullAccessController' == 'True'*@
             );
-            custumer.init();
+            customer.init();
         });
 
     </script>
-    @Scripts.Render("~/views/custumerIndex")
 
+    @Scripts.Render("~/views/customerIndex")
 }

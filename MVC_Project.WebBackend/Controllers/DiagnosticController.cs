@@ -14,24 +14,24 @@ using MVC_Project.Domain.Entities;
 using Newtonsoft.Json.Linq;
 using MVC_Project.Domain.Model;
 using System.Collections.Specialized;
+using MVC_Project.FlashMessages;
 
 namespace MVC_Project.WebBackend.Controllers
 {
     public class DiagnosticController : Controller
     {
-        //private IUserService _userService;
         private IAccountService _accountService;
         private ICredentialService _credentialService;
         private IDiagnosticService _diagnosticService;
+        private ICustomerService _customerService;
 
-
-        // IUserService userService,
-        public DiagnosticController(IAccountService accountService, ICredentialService credentialService, IDiagnosticService diagnosticService)
+        public DiagnosticController(IAccountService accountService, ICredentialService credentialService,
+            IDiagnosticService diagnosticService, ICustomerService customerService)
         {
-            //_userService = userService;
             _accountService = accountService;
             _credentialService = credentialService;
             _diagnosticService = diagnosticService;
+            _customerService = customerService;
         }
 
         // GET: Diagnostic
@@ -79,7 +79,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     //List<DiagnosticDetailsViewModel> details = new List<DiagnosticDetailsViewModel>();
                     model.diagnosticDetails = new List<InvoicesGroup>();
-                    
+
                     string date = DateUtil.GetMonthName(DateTime.Now, "es");
 
                     //Asignar datos de diagnostico
@@ -119,6 +119,7 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 var authUser = Authenticator.AuthenticatedUser;
+                Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
 
                 //Paso1 crear la extracción del periodo y retorna la información del contribuyente
                 //Ajustar tiempo para que la información sea más precisa
@@ -154,9 +155,47 @@ namespace MVC_Project.WebBackend.Controllers
                 //2020-06-01 06:00:00&issuedAt[before]=2020-06-30 23:59:59
                 string from = dateFrom.ToString("yyyy-MM-dd HH:mm:ss");
                 string to = dateTo.ToString("yyyy-MM-dd HH:mm:ss");
-                string url = "/taxpayers/" + authUser.Account.RFC + "/invoices?issuedAt[after]="+from+ "&issuedAt[before]=" + to;
-                var responseCFDIS = SATws.CallServiceSATws(url, null, "Get");
-                var modelInvoices = JsonConvert.DeserializeObject<List<InvoicesInfo>>(responseCFDIS);
+                string url = "/taxpayers/" + authUser.Account.RFC + "/invoices?issuedAt[after]=" + from + "&issuedAt[before]=" + to;
+                var responseInvoices = SATws.CallServiceSATws(url, null, "Get");
+                var modelInvoices = JsonConvert.DeserializeObject<List<InvoicesInfo>>(responseInvoices);
+
+                #region Obtener la información de los clientes y proveedores para guardarlos
+                foreach (var item in modelInvoices)
+                {
+                    string cfdi = "/invoices/" + item.id + "/cfdi";
+                    var responseCFDI = SATws.CallServiceSATws(url, null, "Get");
+                    var modelCFDI = JsonConvert.DeserializeObject<List<Object>>(responseCFDI);
+
+                    var zipCode = (String)(modelCFDI.GetType().GetProperty("LugarExpedicion").GetValue(modelCFDI, null));
+
+                    //Estamos buscando mis clientes
+                    if (item.issuer.rfc == authUser.Account.RFC)
+                    {
+                        Customer customer = new Customer()
+                        {
+                            uuid = Guid.NewGuid(),
+                            account = account,
+                            zipCode = zipCode
+                        };
+                        var myCustomer = (modelCFDI.GetType().GetProperty("Receptor").GetValue(modelCFDI, null));
+                        customer.businessName = (String)(myCustomer.GetType().GetProperty("Nombre").GetValue(myCustomer, null));
+                        customer.rfc = (String)(myCustomer.GetType().GetProperty("Rfc").GetValue(myCustomer, null));
+
+                        //Complemento -> Receptor
+                        _customerService.Create(customer);
+                    }
+
+                    ////Estamos buscando mis proveedores
+                    //if (item.receiver.rfc == authUser.Account.RFC)
+                    //{
+                    //    var myProvider = (modelCFDI.GetType().GetProperty("Emisor").GetValue(modelCFDI, null));
+                    //    customer.regimen = (String)(myProvider.GetType().GetProperty("RegimenFiscal").GetValue(myProvider, null));
+                    //    customer.businessName = (String)(myProvider.GetType().GetProperty("Nombre").GetValue(myProvider, null));
+                    //    customer.rfc = (String)(myProvider.GetType().GetProperty("Rfc").GetValue(myProvider, null));
+                    //}
+
+                }
+                #endregion
 
                 //separar los cfdis por año, mes, recibidas, emitidas
                 List<InvoicesGroup> invoicePeriod = modelInvoices.GroupBy(x => new
@@ -184,7 +223,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 //pendiente generara la información del CAD
 
-                Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
+
                 List<DiagnosticDetail> details = new List<DiagnosticDetail>();
                 //Armado de modelos para guardar información
                 diagn = new Diagnostic()
@@ -239,14 +278,16 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 _diagnosticService.Create(diagn);
-
+                MensajeFlashHandler.RegistrarMensaje("¡Diagnóstico realizado!", TiposMensaje.Success);
+                return RedirectToAction("DiagnosticDetail", new { id = diagn.uuid.ToString() });
             }
             catch (Exception ex)
             {
                 string error = ex.Message.ToString();
+                //MensajeFlashHandler.RegistrarMensaje("¡Ocurrio un error en al realizar el diagnóstico!", TiposMensaje.Error);
+                MensajeFlashHandler.RegistrarMensaje(error, TiposMensaje.Error);
+                return RedirectToAction("Index");
             }
-            
-            return RedirectToAction("DiagnosticDetail", new { id = diagn.uuid.ToString() });
         }
 
         [HttpGet, AllowAnonymous]
@@ -289,7 +330,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 return new JsonResult
                 {
-                    Data = new { Mensaje = new { title = "Error", message = ex.Message } },
+                    Data = new { success = false, Mensaje = new { title = "Error", message = ex.Message } },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
                 };
@@ -298,7 +339,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         [HttpGet, AllowAnonymous]
         public ActionResult GetDiagnosticDownload(string id)
-        {            
+        {
             var authUser = Authenticator.AuthenticatedUser;
             DiagnosticViewModel model = new DiagnosticViewModel();
             var diagnostic = _diagnosticService.FindBy(x => x.uuid.ToString() == id).FirstOrDefault();
@@ -363,7 +404,7 @@ namespace MVC_Project.WebBackend.Controllers
             string rfc = authUser.Account.RFC;
             //PageSize = Rotativa.Options.Size.Letter, 
             //return View(model);
-            return new Rotativa.ViewAsPdf("DiagnosticZeroDownload", model) {FileName = rfc + "_D0.pdf" };
+            return new Rotativa.ViewAsPdf("DiagnosticZeroDownload", model) { FileName = rfc + "_D0.pdf" };
         }
     }
 }
