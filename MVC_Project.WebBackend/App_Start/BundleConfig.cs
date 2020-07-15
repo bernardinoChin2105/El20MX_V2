@@ -116,6 +116,8 @@ namespace MVC_Project.WebBackend
                       "~/Scripts/views/rol/Index.js"));
             bundles.Add(new ScriptBundle("~/views/diagnosticIndex").Include(
                       "~/Scripts/views/Diagnostic/Index.js"));
+            bundles.Add(new ScriptBundle("~/views/customerIndex").Include(
+                      "~/Scripts/views/Customer/Index.js"));
 
 
             // toastr notification

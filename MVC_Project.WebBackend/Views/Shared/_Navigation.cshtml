@@ -52,11 +52,24 @@
             @if (user.HasAccessToModule(SystemModules.PROSPECTS.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.PROSPECTS.ToString())">
-                    <a href="#"><i class="fa fa-file"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_PROSPECTS</span> <span class="fain arrow"></span></a>                 
+                    <a href="#"><i class="fa fa-file"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_PROSPECTS</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("Diagnostic"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Diagnostic", cssClass: "in")">
                             <li class="@Html.IsSelected(controller: "Diagnostic")"><a href="@Url.Action("Index", "Diagnostic")">Diagnósticos</a></li>
+                        </ul>
+                    }
+                </li>
+            }
+
+            @if (user.HasAccessToModule(SystemModules.CUSTOMERS.ToString()))
+            {
+                <li class="@Html.IsModuleSelected(user, SystemModules.CUSTOMERS.ToString())">
+                    <a href="#"><i class="fa fa-user"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CUSTOMERS</span> <span class="fain arrow"></span></a>
+                    @if (user.HasAccessController("Customer"))
+                    {
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Customer", cssClass: "in")">
+                            <li class="@Html.IsSelected(controller: "Customer")"><a href="@Url.Action("Index", "Customer")">Clientes</a></li>
                         </ul>
                     }
                 </li>

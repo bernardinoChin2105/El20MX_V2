@@ -8,23 +8,34 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Data.Mappings
 {
-    //public class CustomerMap : ClassMap<Customer>
-    //{
-    //    public CustomerMap()
-    //    {
-    //        Schema("sales");
-    //        Table("customers");
-    //        Id(x => x.id).GeneratedBy.Identity().Column("customer_id");
-    //        Map(x => x.FirstName).Column("first_name").Not.Nullable();
-    //        Map(x => x.LastName).Column("last_name").Nullable();
-    //        Map(x => x.Email).Column("email").Not.Nullable();
-    //        Map(x => x.Telefono).Column("phone").Not.Nullable();
-    //        Map(x => x.Direccion).Column("street").Nullable();
-    //        Map(x => x.Ciudad).Column("city").Not.Nullable();
-    //        Map(x => x.ZipCode).Column("zip_code").Not.Nullable();
-    //    }
+    public class CustomerMap : ClassMap<Customer>
+    {
+        public CustomerMap()
+        {
+            //Schema("sales");
+            Table("customers");
+            Id(x => x.id).GeneratedBy.Identity().Column("id");
+            Map(x => x.uuid).Column("uuid").Not.Nullable();
+            Map(x => x.firstName).Column("first_name").Nullable();
+            Map(x => x.lastName).Column("last_name").Nullable();
+            Map(x => x.rfc).Column("rfc").Not.Nullable();
+            Map(x => x.curp).Column("curp").Nullable();
+            Map(x => x.businessName).Column("businessName").Nullable();
+            Map(x => x.street).Column("street").Nullable();
+            Map(x => x.interiorNumber).Column("interiorNumber").Nullable();
+            Map(x => x.outdoorNumber).Column("outdoorNumber").Nullable();
+            Map(x => x.colony).Column("colony").Nullable();
+            Map(x => x.zipCode).Column("zipCode").Nullable();
+            Map(x => x.municipality).Column("municipality").Nullable();
+            Map(x => x.state).Column("state").Nullable();
+            Map(x => x.deliveryAddress).Column("deliveryAddress").Nullable();
+            Map(x => x.createdAt).Column("createdAt").Not.Nullable();
+            Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
+            Map(x => x.status).Column("status").Nullable();
 
-
-    //} 
+            References(x => x.account).Column("accountId").Not.Nullable();
+            HasMany(x => x.customerContacts).Inverse().Cascade.All().KeyColumn("customerId");
+        }
+    }
 }
 

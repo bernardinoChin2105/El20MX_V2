@@ -101,7 +101,9 @@ namespace MVC_Project.Utils
         [Display(Name = "Configuración")]
         CONFIGURATION,
         [Display(Name = "Prospectos")]
-        PROSPECTS
+        PROSPECTS,
+        [Display(Name = "Clientes")]
+        CUSTOMERS
     }
 
     public enum TermsAndConditions
@@ -129,4 +131,49 @@ namespace MVC_Project.Utils
         [Display(Name = "Receiver")]
         RECEIVER,
     }
+
+    public enum TypeContact
+    {
+        [Display(Name = "Email")]
+        EMAIL,
+        [Display(Name = "Phone")]
+        PHONE,
+    }
+
+    public enum TypeTaxRegimen
+    {
+        [Display(Name = "Persona Física")]
+        MORALPERSONSREGIME,
+        [Display(Name = "Persona Moral")]
+        NATURALPERSONSREGIME,
+    }
+
+    //public enum MoralPersonsRegime
+    //{
+    //    Regime601 = 601,
+    //    Regime603 = 603,
+    //    Regime607 = 607,
+    //    Regime609 = 609,
+    //    Regime620 = 620,
+    //    Regime622 = 622,
+    //    Regime623 = 623,
+    //    Regime624 = 624,
+    //    Regime628 = 628,
+    //}
+
+    //public enum NaturalPersonsRegime
+    //{
+    //    Regime605 = 605,
+    //    Regime606 = 606,
+    //    Regime608 = 608,
+    //    Regime611 = 611,
+    //    Regime612 = 612,
+    //    Regime614 = 614,
+    //    Regime615 = 615,
+    //    Regime616 = 616,
+    //    Regime621 = 621,
+    //    Regime622 = 622,
+    //    Regime629 = 626,
+    //    Regime630 = 630,
+    //}
 }

@@ -269,6 +269,7 @@
     <Compile Include="Models\AccountViewModel.cs" />
     <Compile Include="Models\AuthViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
+    <Compile Include="Models\CustomerViewModel.cs" />
     <Compile Include="Models\DataTableModel.cs" />
     <Compile Include="Models\DiagnosticTableViewModel.cs" />
     <Compile Include="Models\DiagnosticViewModel.cs" />
@@ -1786,6 +1787,9 @@
     <Content Include="Scripts\popper.min.js" />
     <Content Include="Scripts\views\Account\Index.js" />
     <Content Include="Scripts\views\Auth\Index.js" />
+    <Content Include="Scripts\views\Customer\Edit.js" />
+    <Content Include="Scripts\views\Customer\Create.js" />
+    <Content Include="Scripts\views\Customer\Index.js" />
     <Content Include="Scripts\views\Diagnostic\Index.js" />
     <Content Include="Scripts\views\Payments\Index.js" />
     <Content Include="Scripts\views\PdfSignature\Index.js" />
@@ -1895,6 +1899,9 @@
     <Content Include="Views\Diagnostic\DiagnosticDetail.cshtml" />
     <Content Include="Views\Diagnostic\DiagnosticZeroDownload.cshtml" />
     <Content Include="Views\Customer\Index.cshtml" />
+    <Content Include="Views\Customer\CreateOld.cshtml" />
+    <Content Include="Views\Customer\Edit.cshtml" />
+    <Content Include="Views\Customer\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

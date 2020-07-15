@@ -1,7 +1,9 @@
 ﻿@model MVC_Project.WebBackend.Models.RegisterViewModel
 @using MVC_Project.FlashMessages;
 @{
-    Layout = null;
+                /**/
+
+                Layout = null;
 }
 <!DOCTYPE html>
 <html>
@@ -88,24 +90,24 @@
                 @*<span class="input-group-addon"><i class="fa fa-user"></i></span>*@
                 @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", type = "text", @autocomplete = "off", placeholder = "Apellido(s)" })
             </div>
-           
-                <div class="form-group">
-                    @*<span class="input-group-addon"><i class="fa fa-envelope"></i></span>*@
-                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control col-md-12", type = "email", @autocomplete = "off", placeholder = @ViewLabels.USERNAME })
-                </div>
-           
-                <div class="form-group">
-                    @*<span class="input-group-addon"><i class="fa fa-phone"></i></span>*@
-                    @Html.EditorFor(m => m.MobileNumber, new { htmlAttributes = new { @class = "form-control", type = "text", data_mask = "9999-99-99-99", removeMaskOnSubmit = true, greedy = false, @autocomplete = "off", placeholder = "Teléfono"} })
-                </div>
-                <div class="input-group mb-3">
-                    <span class="input-group-prepend"><button id="view-password" class="btn btn-default" type="button"><i class="fa fa-eye"></i></button></span>
-                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.PASSWORD })
-                </div>
-                <div class="input-group mb-3">
-                    <span class="input-group-prepend"><button id="view-password-confirm" class="btn btn-default" type="button"><i class="fa fa-eye"></i></button></span>
-                    @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.CONFIRM_NEW_PASSWORD })
-                </div>
+
+            <div class="form-group">
+                @*<span class="input-group-addon"><i class="fa fa-envelope"></i></span>*@
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control col-md-12", type = "email", @autocomplete = "off", placeholder = @ViewLabels.USERNAME })
+            </div>
+
+            <div class="form-group">
+                @*<span class="input-group-addon"><i class="fa fa-phone"></i></span>*@
+                @Html.EditorFor(m => m.MobileNumber, new { htmlAttributes = new { @class = "form-control", type = "text", data_mask = "9999-99-99-99", removeMaskOnSubmit = true, greedy = false, @autocomplete = "off", placeholder = "Teléfono" } })
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-prepend"><button id="view-password" class="btn btn-default" type="button"><i class="fa fa-eye"></i></button></span>
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.PASSWORD })
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-prepend"><button id="view-password-confirm" class="btn btn-default" type="button"><i class="fa fa-eye"></i></button></span>
+                @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.CONFIRM_NEW_PASSWORD })
+            </div>
             <div class="form-group">
                 <a href="https://www.el20.mx/privacidad" target="_blank">Acepto t&eacute;rminos y condiciones</a>
                 @*<div class="checkbox i-checks"><label> <input type="checkbox"><i></i> Acepto t&eacute;rminos y condiciones </label></div>*@
@@ -145,140 +147,140 @@
         </script>
     }
 
-        <script>
-            $.validator.addMethod("PasswordTrue",
-                function (value, element) {
-                    //return value.match(/^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/); // contraseña con caracter especial
-                    return value.match(/^(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/);
-                }, "La contraseña debe contener un número, mayúsculas y minúsculas"
-            );
-            //$.validator.addMethod("PhoneTrue",
-            //    function (value, element) {
-            //        return value.match(/^[0-9]{10}$/);
-            //    }, "El teléfono no es válido"
-            //);
-            $.validator.addMethod("ConfirmPassEqPassword",
-                function (value, element) {
-                    return value == $("#Password").val();
-                }, "Las contraseñas no coinciden"
-            );
-            $.validator.addMethod("ConfirmTermTrue",
-                function (value, element) {
-                    return $("input[type='checkbox']").is(":checked")
-                }, ""
-            );
+    <script>
+        $.validator.addMethod("PasswordTrue",
+            function (value, element) {
+                //return value.match(/^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/); // contraseña con caracter especial
+                return value.match(/^(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/);
+            }, "La contraseña debe contener un número, mayúsculas y minúsculas"
+        );
+        //$.validator.addMethod("PhoneTrue",
+        //    function (value, element) {
+        //        return value.match(/^[0-9]{10}$/);
+        //    }, "El teléfono no es válido"
+        //);
+        $.validator.addMethod("ConfirmPassEqPassword",
+            function (value, element) {
+                return value == $("#Password").val();
+            }, "Las contraseñas no coinciden"
+        );
+        $.validator.addMethod("ConfirmTermTrue",
+            function (value, element) {
+                return $("input[type='checkbox']").is(":checked")
+            }, ""
+        );
 
-            $("#RegisterForm").validate({
-                rules: {
-                    FistName: {
-                        required: true,
-                    },
-                    LastName: {
-                        required: true,
-                    },
-                    Email: {
-                        required: true,
-                    },
-                    MobileNumber: {
-                        required: true,
-                    },
-                    Password: {
-                        PasswordTrue: true,
-                        ConfirmPassEqPassword: true,
-                        required: true,
-                        minlength: 8
-                    },
-                    ConfirmPassword: {
-                        ConfirmPassEqPassword: true,
-                        required: true,
-                    },
+        $("#RegisterForm").validate({
+            rules: {
+                FistName: {
+                    required: true,
+                },
+                LastName: {
+                    required: true,
+                },
+                Email: {
+                    required: true,
+                },
+                MobileNumber: {
+                    required: true,
+                },
+                Password: {
+                    PasswordTrue: true,
+                    ConfirmPassEqPassword: true,
+                    required: true,
+                    minlength: 8
+                },
+                ConfirmPassword: {
+                    ConfirmPassEqPassword: true,
+                    required: true,
+                },
 
-                    //checkTerm: {
-                    //    ConfirmTermTrue: true,
-                    //    required: true,
-                    //}
-                }
-                ,
-                messages: {
-                    FistName: {
-                        required: "Campo obligatorio",
-                    },
-                    LastName: {
-                        required: "Campo obligatorio",
-                    },
-                    Email: {
-                        required: "Campo obligatorio",
-                        email: "Ingrese un correo válido"
-                    },
-                    MobileNumber: {
-                        required: "Campo obligatorio",
-                    },
-                    Password: {
-                        required: "Campo obligatorio",
-                        minlength: "La contraseña debe ser mínimo de 8 caracteres",
-                    },
-                    ConfirmPassword: {
-                        required: "Campo obligatorio",
-                    },
-
-                    //checkTerm: {
-                    //    required: "Campo obligatorio",
-                    //}
-                }
-            });
-
-            $(document).ready(function () {
-                //$('.i-checks').iCheck({
-                //    checkboxClass: 'icheckbox_square-green',
-                //    radioClass: 'iradio_square-green',
-                //});
-
-                //$("input[type='checkbox']").attr({ "id": "checkTerm", "name": "checkTerm" });
-
-                $('#view-password').on('mousedown', function () {
-                    $('#Password').attr("type", "text");
-                });
-
-                $('#view-password').on('mouseup mouseleave', function () {
-                    $('#Password').attr("type", "password");
-                });
-
-                $('#view-password-confirm').on('mousedown', function () {
-                    $('#ConfirmPassword').attr("type", "text");
-                });
-
-                $('#view-password-confirm').on('mouseup mouseleave', function () {
-                    $('#ConfirmPassword').attr("type", "password");
-                });
-                
-            });
-
-            function validarDatos() {
-                if (!$('#RegisterForm').valid()) {
-                    return;
-                }
-                $('#RegisterForm').submit();
+                //checkTerm: {
+                //    ConfirmTermTrue: true,
+                //    required: true,
+                //}
             }
-            
-        //jQuery.extend(jQuery.validator.messages, {
-            //required: "This field is required.",
-            //remote: "Please fix this field.",
-            //email: "Ingrese un correo válido.",
-            //url: "Please enter a valid URL.",
-            //date: "Please enter a valid date.",
-            //dateISO: "Please enter a valid date (ISO).",
-            //number: "Please enter a valid number.",
-            //digits: "Please enter only digits.",
-            //creditcard: "Please enter a valid credit card number.",
-            //equalTo: "Please enter the same value again.",
-            //accept: "Please enter a value with a valid extension.",
-            //maxlength: jQuery.validator.format("Please enter no more than {0} characters."),
-            //minlength: jQuery.validator.format("Please enter at least {0} characters."),
-            //rangelength: jQuery.validator.format("Please enter a value between {0} and {1} characters long."),
-            //range: jQuery.validator.format("Please enter a value between {0} and {1}."),
-            //max: jQuery.validator.format("Please enter a value less than or equal to {0}."),
-            //min: jQuery.validator.format("Please enter a value greater than or equal to {0}.")
-        //});
+            ,
+            messages: {
+                FistName: {
+                    required: "Campo obligatorio",
+                },
+                LastName: {
+                    required: "Campo obligatorio",
+                },
+                Email: {
+                    required: "Campo obligatorio",
+                    email: "Ingrese un correo válido"
+                },
+                MobileNumber: {
+                    required: "Campo obligatorio",
+                },
+                Password: {
+                    required: "Campo obligatorio",
+                    minlength: "La contraseña debe ser mínimo de 8 caracteres",
+                },
+                ConfirmPassword: {
+                    required: "Campo obligatorio",
+                },
+
+                //checkTerm: {
+                //    required: "Campo obligatorio",
+                //}
+            }
+        });
+
+        $(document).ready(function () {
+            //$('.i-checks').iCheck({
+            //    checkboxClass: 'icheckbox_square-green',
+            //    radioClass: 'iradio_square-green',
+            //});
+
+            //$("input[type='checkbox']").attr({ "id": "checkTerm", "name": "checkTerm" });
+
+            $('#view-password').on('mousedown', function () {
+                $('#Password').attr("type", "text");
+            });
+
+            $('#view-password').on('mouseup mouseleave', function () {
+                $('#Password').attr("type", "password");
+            });
+
+            $('#view-password-confirm').on('mousedown', function () {
+                $('#ConfirmPassword').attr("type", "text");
+            });
+
+            $('#view-password-confirm').on('mouseup mouseleave', function () {
+                $('#ConfirmPassword').attr("type", "password");
+            });
+
+        });
+
+        function validarDatos() {
+            if (!$('#RegisterForm').valid()) {
+                return;
+            }
+            $('#RegisterForm').submit();
+        }
+
+            //jQuery.extend(jQuery.validator.messages, {
+                //required: "This field is required.",
+                //remote: "Please fix this field.",
+                //email: "Ingrese un correo válido.",
+                //url: "Please enter a valid URL.",
+                //date: "Please enter a valid date.",
+                //dateISO: "Please enter a valid date (ISO).",
+                //number: "Please enter a valid number.",
+                //digits: "Please enter only digits.",
+                //creditcard: "Please enter a valid credit card number.",
+                //equalTo: "Please enter the same value again.",
+                //accept: "Please enter a value with a valid extension.",
+                //maxlength: jQuery.validator.format("Please enter no more than {0} characters."),
+                //minlength: jQuery.validator.format("Please enter at least {0} characters."),
+                //rangelength: jQuery.validator.format("Please enter a value between {0} and {1} characters long."),
+                //range: jQuery.validator.format("Please enter a value between {0} and {1}."),
+                //max: jQuery.validator.format("Please enter a value less than or equal to {0}."),
+                //min: jQuery.validator.format("Please enter a value greater than or equal to {0}.")
+            //});
     </script>
 
 </body>
