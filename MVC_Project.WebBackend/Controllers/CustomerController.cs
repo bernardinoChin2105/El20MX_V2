@@ -1,6 +1,8 @@
-﻿using MVC_Project.Domain.Model;
+﻿using MVC_Project.Domain.Entities;
+using MVC_Project.Domain.Model;
 using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
+using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
 using MVC_Project.WebBackend.Models;
 using System;
@@ -49,7 +51,7 @@ namespace MVC_Project.WebBackend.Controllers
                 if (rfc != "") filters.rfc = rfc;
                 if (businessName != "") filters.businessName = businessName;
                 if (email != "") filters.email = email;
-                
+
                 var listResponse = _customerService.CustomerList(pagination, filters);
 
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
@@ -73,7 +75,7 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 return new JsonResult
-                {                    
+                {
                     Data = new { success = false, Mensaje = new { title = "Error", message = ex.Message } },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
@@ -86,10 +88,18 @@ namespace MVC_Project.WebBackend.Controllers
         {
             try
             {
-                var createCustomer = new CustomerViewModel(); // { Modules = PopulateModules() };
+                var createCustomer = new CustomerViewModel(); 
                 var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
                 stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
 
+                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
+                    .Select(e => new SelectListItem
+                    {
+                        Value = e.ToString(),
+                        Text = EnumUtils.GetDisplayName(e)
+                    });
+
+                createCustomer.ListRegimen = new SelectList(regimenList);
                 createCustomer.ListState = new SelectList(stateList);
                 return View(createCustomer);
             }
@@ -106,19 +116,45 @@ namespace MVC_Project.WebBackend.Controllers
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public ActionResult Create(CustomerViewModel model)
         {
-            //MensajeFlashHandler.RegistrarMensaje("¡Diagnóstico realizado!", TiposMensaje.Success);
+            MensajeFlashHandler.RegistrarMensaje("¡Registro de Cliente realizado!", TiposMensaje.Success);
             //try
             //{
-            //    if (!ModelState.IsValid)
-            //        throw new Exception("El modelo de entrada no es válido");
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
 
-            //    var code = FormatUtil.ReplaceSpecialCharactersAndWhiteSpace(roleCreateViewModel.Name);
-            //    var userAuth = Authenticator.AuthenticatedUser;
+                var authUser = Authenticator.AuthenticatedUser;
 
-            //    if (_roleService.FindBy(x => x.code == code && x.account.id == userAuth.Account.Id).Any())
-            //        throw new Exception("Ya existe un rol con el nombre proporcionado");
+                if (_customerService.FindBy(x => x.rfc == model.RFC && x.account.id == authUser.Account.Id).Any())
+                    throw new Exception("Ya existe un Cliente con el RFC proporcionado");
+                
+                Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
 
             //    DateTime todayDate = DateUtil.GetDateTimeNow();
+            //    Customer customer = new Customer()
+            //    {
+
+            //        public virtual Int64 id { get; set; }
+            //        public virtual Guid uuid { get; set; }
+            //        public virtual Account account { get; set; }
+            //        public virtual string firstName { get; set; }
+            //        public virtual string lastName { get; set; }
+            //        public virtual string rfc { get; set; }
+            //        public virtual string curp { get; set; }
+            //        public virtual string businessName { get; set; }
+            //        public virtual string taxRegime { get; set; }
+            //        public virtual string street { get; set; }
+            //        public virtual string interiorNumber { get; set; }
+            //        public virtual string outdoorNumber { get; set; }
+            //        public virtual Int64 colony { get; set; }
+            //        public virtual string zipCode { get; set; }
+            //        public virtual Int64 municipality { get; set; }
+            //        public virtual Int64 state { get; set; }
+            //        public virtual bool deliveryAddress { get; set; }
+            //        public virtual DateTime createdAt { get; set; }
+            //        public virtual DateTime modifiedAt { get; set; }
+            //        public virtual string status { get; set; }
+            //    };
+
             //    var role = new Role
             //    {
             //        uuid = Guid.NewGuid(),
@@ -130,6 +166,26 @@ namespace MVC_Project.WebBackend.Controllers
             //        status = SystemStatus.ACTIVE.ToString(),
             //        account = new Account { id = userAuth.Account.Id }
             //    };
+
+            //    /*public string FistName { get; set; }
+            //    public string LastName { get; set; }
+            //    public string RFC { get; set; }
+            //    public string CURP { get; set; }
+            //    public string BusinessName { get; set; }
+            //    public string taxRegime { get; set; }
+            //    public string Street { get; set; }        
+            //    public string OutdoorNumber { get; set; }        
+            //    public string InteriorNumber { get; set; }
+            //    public int? Colony { get; set; }
+            //    public string ZipCode { get; set; }
+            //    public int? Municipality { get; set; }
+            //    public int? State { get; set; }        
+            //    public bool DeliveryAddress { get; set; }
+
+            //    public List<CustomerContact> Emails { get; set; }
+            //    public List<CustomerContact> Phones { get; set; }*/
+
+
 
             //    List<RolePermission> rolesPermissions = new List<RolePermission>();
             //    foreach (var modules in roleCreateViewModel.Modules)
@@ -157,6 +213,29 @@ namespace MVC_Project.WebBackend.Controllers
             //    return View(roleCreateViewModel);
             //}
             return View();
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetLocations(string zipCode)
+        {
+            try
+            {
+                var listResponse = _stateService.GetLocationList(zipCode);
+
+                return Json(new
+                {
+                    Data = new { success = true, data = listResponse },
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult
+                {
+                    Data = new { success = false, Mensaje = new { title = "Error", message = ex.Message } },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
+            }
         }
 
         // GET: Role/Edit/5
@@ -194,47 +273,47 @@ namespace MVC_Project.WebBackend.Controllers
             CustomerViewModel customer = new CustomerViewModel(); //_customerService.FirstOrDefault(x => x.id == model.Id && x.account.id == userAuth.Account.Id);
             try
             {
-        //        if (!ModelState.IsValid)
-        //            throw new Exception("El modelo de entrada no es válido");
+                //        if (!ModelState.IsValid)
+                //            throw new Exception("El modelo de entrada no es válido");
 
-        //        IList<RolePermission> rolePermissions = role.rolePermissions;
+                //        IList<RolePermission> rolePermissions = role.rolePermissions;
 
-        //        List<PermissionViewModel> permissionsViewModels = new List<PermissionViewModel>();
-        //        foreach (var module in model.Modules)
-        //            permissionsViewModels.AddRange(module.Permissions);
+                //        List<PermissionViewModel> permissionsViewModels = new List<PermissionViewModel>();
+                //        foreach (var module in model.Modules)
+                //            permissionsViewModels.AddRange(module.Permissions);
 
-        //        var news = permissionsViewModels.Where(pvm => !rolePermissions.Any(rp => pvm.Id == rp.permission.id));
-        //        var newRolePermissions = news.Select(x => new RolePermission
-        //        {
-        //            role = new Role { id = role.id },
-        //            permission = new Permission { id = x.Id },
-        //            level = ((SystemLevelPermission)x.SystemAction).ToString()
-        //        });
+                //        var news = permissionsViewModels.Where(pvm => !rolePermissions.Any(rp => pvm.Id == rp.permission.id));
+                //        var newRolePermissions = news.Select(x => new RolePermission
+                //        {
+                //            role = new Role { id = role.id },
+                //            permission = new Permission { id = x.Id },
+                //            level = ((SystemLevelPermission)x.SystemAction).ToString()
+                //        });
 
-        //        var updates = from rp in rolePermissions
-        //                      join pvm in permissionsViewModels on rp.permission.id equals pvm.Id
-        //                      where rp.level != ((SystemLevelPermission)pvm.SystemAction).ToString()
-        //                      select new { rolePermission = rp, level = ((SystemLevelPermission)pvm.SystemAction).ToString() };
+                //        var updates = from rp in rolePermissions
+                //                      join pvm in permissionsViewModels on rp.permission.id equals pvm.Id
+                //                      where rp.level != ((SystemLevelPermission)pvm.SystemAction).ToString()
+                //                      select new { rolePermission = rp, level = ((SystemLevelPermission)pvm.SystemAction).ToString() };
 
-        //        var updateRolePermissions = new List<RolePermission>();
-        //        foreach (var u in updates)
-        //        {
-        //            var permision = u.rolePermission;
-        //            permision.level = u.level;
-        //            updateRolePermissions.Add(permision);
-        //        }
+                //        var updateRolePermissions = new List<RolePermission>();
+                //        foreach (var u in updates)
+                //        {
+                //            var permision = u.rolePermission;
+                //            permision.level = u.level;
+                //            updateRolePermissions.Add(permision);
+                //        }
 
-        //        var oldRolePermissions = rolePermissions.Where(rp => !permissionsViewModels.Any(pvm => rp.permission.id == pvm.Id));
+                //        var oldRolePermissions = rolePermissions.Where(rp => !permissionsViewModels.Any(pvm => rp.permission.id == pvm.Id));
 
-        //        _rolePermissionService.UpdateRolePermissions(newRolePermissions, updateRolePermissions, oldRolePermissions);
-        //        MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
+                //        _rolePermissionService.UpdateRolePermissions(newRolePermissions, updateRolePermissions, oldRolePermissions);
+                //        MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
                 return RedirectToAction("Index");
-           }
+            }
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
-        //        model.Modules = PopulateModulesEdit(role);
-               return View(model);
+                //        model.Modules = PopulateModulesEdit(role);
+                return View(model);
             }
         }
 

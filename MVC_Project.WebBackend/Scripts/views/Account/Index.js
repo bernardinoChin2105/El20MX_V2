@@ -93,17 +93,17 @@ function initCreate() {
         var rfc = $("#rfc");
         var pass = $("#password");
         var btn = $(this);
-
-        btn.attr("disabled", true);
-        rfc.attr("disabled", true);
-        pass.attr("disabled", true);
-
+       
         if (!$('#RegisterRFCForm').valid()) {           
             btn.attr("disabled", false);
             rfc.attr("disabled", false);
             pass.attr("disabled", false);
             return;
         }
+
+        btn.attr("disabled", true);
+        rfc.attr("disabled", true);
+        pass.attr("disabled", true);
 
         var data = {
             rfc: rfc.val(),

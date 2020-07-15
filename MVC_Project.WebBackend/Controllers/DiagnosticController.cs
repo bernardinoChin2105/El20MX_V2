@@ -178,7 +178,10 @@ namespace MVC_Project.WebBackend.Controllers
                             {
                                 uuid = Guid.NewGuid(),
                                 account = account,
-                                zipCode = zipCode
+                                zipCode = zipCode,
+                                createdAt = DateUtil.GetDateTimeNow(),
+                                modifiedAt = DateUtil.GetDateTimeNow(),
+                                status = SystemStatus.ACTIVE.ToString()
                             };
 
                             //var myCustomer = (modelCFDI.GetType().GetProperty("Receptor").GetValue(modelCFDI, null));                        

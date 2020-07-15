@@ -47,7 +47,8 @@ namespace MVC_Project.WebBackend.Models
         public string BusinessName { get; set; }
 
         [Display(Name = "Tipo Régimen Fiscal")]
-        public string taxRegime { get; set; }        
+        public string taxRegime { get; set; }
+        public SelectList ListRegimen { get; set; }
 
         [Display(Name = "Calle y Cruzamientos")]
         public string Street { get; set; }

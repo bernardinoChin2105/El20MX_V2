@@ -53,7 +53,8 @@
                             <div class="form-group row">
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.taxRegime, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.taxRegime, new { @class = "form-control" })
+                                    @*@Html.TextBoxFor(m => m.taxRegime, new { @class = "form-control" })*@
+                                    @Html.DropDownListFor(m => m.taxRegime, Model.ListRegimen.Items as List<SelectListItem>, new { @class = "form-control" })
                                 </div>
                             </div>
                         </div>
@@ -175,4 +176,7 @@
     @Scripts.Render("~/plugins/validate")
     @Scripts.Render("~/plugins/toastr")
     <script src="~/Scripts/views/Customer/Create.js"></script>
+    <script>
+        var urlGetLocation = '@Url.Action("GetLocations")';
+    </script>
 }

@@ -38,6 +38,6 @@ namespace MVC_Project.Domain.Services
 
             if (list != null) return list.ToList();
             return null;
-        }
+        }        
     }
 }

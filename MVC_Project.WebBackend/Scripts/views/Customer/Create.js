@@ -10,10 +10,7 @@
             return value.match(/^([A-Z&]|[a-z&]{1})([AEIOU]|[aeiou]{1})([A-Z&]|[a-z&]{1})([A-Z&]|[a-z&]{1})([0-9]{2})(0[1-9]|1[0-2])(0[1-9]|1[0-9]|2[0-9]|3[0-1])([HM]|[hm]{1})([AS|as|BC|bc|BS|bs|CC|cc|CS|cs|CH|ch|CL|cl|CM|cm|DF|df|DG|dg|GT|gt|GR|gr|HG|hg|JC|jc|MC|mc|MN|mn|MS|ms|NT|nt|NL|nl|OC|oc|PL|pl|QT|qt|QR|qr|SP|sp|SL|sl|SR|sr|TC|tc|TS|ts|TL|tl|VZ|vz|YN|yn|ZS|zs|NE|ne]{2})([^A|a|E|e|I|i|O|o|U|u]{1})([^A|a|E|e|I|i|O|o|U|u]{1})([^A|a|E|e|I|i|O|o|U|u]{1})([0-9]{2})$/g);
         }, "Debe ser un CURP válido"
     );
-    
-
-    
-
+       
     $("#CreateForm").validate({
         rules: {
             FistName: {
@@ -34,7 +31,7 @@
                 maxlength: 20
             }, 
             ZipCode: {
-                required: true,
+                required: true
             }
         }
         ,
@@ -61,6 +58,7 @@
         }
     });
 });
+
 function validarDatos() {
     if (!$('#CreateForm').valid()) {
         return;
@@ -88,4 +86,44 @@ $(".btn-add-phone").click(function () {
         '<input type="text" class="form-control phones" name="Phones.EmailOrPhone" data_mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
         '</div>';
     $("#ListPhones").append(item);
+});
+
+$("#ZipCode").blur(function () {
+    console.log("perdio el focus");
+    var value = $(this).val();
+    var cmbColony = $("#Colony");
+    var cmbMunicipality = $("#Municipality");
+    //var cmbMunicipality = $("#Municipality");
+    console.log("valor", value);
+
+    $.ajax({
+        type: 'Get',
+        async: true,
+        data: { zipCode: value },
+        url: urlGetLocation,
+        success: function (data) {
+            console.log(data, "respuesta");
+
+            //LlenarComboSorteos(result.source);
+            //self.filtros.Celebracion.html('<option value="">Seleccione una Celebración...</option>');
+            //self.filtros.Celebracion.append(result.source.map(function (data, index) {
+            //    return $('<option value="' + data.ID_SORTEO + '">' + data.NOMBRE_SORTEO + '</option>');
+            //}));
+            //self.filtros.Celebracion.trigger("chosen:updated");
+
+            //if (!data) {
+            //    swal({
+            //        type: 'error',
+            //        title: data.Mensaje.Titulo,
+            //        text: data.Mensaje.Contenido
+            //    })
+            //} else {
+            //    swal("Estatus cambiado!");
+            //    self.dataTable.ajax.reload();
+            //}
+        },
+        error: function (xhr) {
+            console.log('error');
+        }
+    });
 });
