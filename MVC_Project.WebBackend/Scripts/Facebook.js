@@ -72,6 +72,8 @@ function GetInfo(response) {
     $("#Email").val(profile.email).attr("readonly", true);
     $("#Password").val(profile.id + "Fe.").attr("readonly", true);
     $("#ConfirmPassword").val(profile.id + "Fe.").attr("readonly", true);
+    document.getElementById('view-password').disabled = true;
+    document.getElementById('view-password-confirm').disabled = true;
 
     $("#SocialId").val(profile.id);
     $("#RedSocial").val(true);

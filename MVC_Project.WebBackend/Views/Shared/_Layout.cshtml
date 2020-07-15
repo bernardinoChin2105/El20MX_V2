@@ -1,4 +1,5 @@
 ﻿@using MVC_Project.FlashMessages;
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,6 +16,7 @@
 
     <title>@ViewBag.Title | @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</title>
 
+
     @Styles.Render("~/Content/template/css")
     @Styles.Render("~/font-awesome/css")
     @Styles.Render("~/plugins/dataTablesStyles")
@@ -24,6 +26,8 @@
     <link href="~/Content/template/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
     <link href="~/Content/template/plugins/steps/jquery.steps.css" rel="stylesheet" />
     <link href="~/Content/template/stylesEl20mx.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://www.paybook.com/sync/widget/v2/widget.css" />
+
     <!-- Local styles -->
     @if (IsSectionDefined("Styles"))
     {
@@ -56,7 +60,7 @@
             @Html.Partial("_Footer")
 
         </div>
-
+        @*<div id="widget"></div>*@
     </div>
 
     <!-- Mainly scripts -->
@@ -74,7 +78,7 @@
     @Scripts.Render("~/plugins/dataTables")
     @Scripts.Render("~/plugins/fullCalendar")
     @Scripts.Render("~/plugins/validate")
-    
+    <script type="text/javascript" src="https://www.paybook.com/sync/widget/v2/widget.js"></script>
     <script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>
     <!-- Custom and plugin javascript -->
     <script src="~/Scripts/inspinia.js"></script>
@@ -84,6 +88,7 @@
     <script src="~/Scripts/Facebook.js"></script>
     <script src="~/Scripts/Google.js"></script>
     <!-- fin de Script para redes sociales-->
+    <!--<script src="~/Scripts/Paybook.js"></script>-->
 
     @if (Html.TieneMensaje())
     {
@@ -139,7 +144,8 @@
         });
         jQuery.validator.setDefaults({
             errorPlacement: function (error, element) {
-                if (element.is(':checkbox') || element.is(':radio')) {debugger;
+                if (element.is(':checkbox') || element.is(':radio')) {
+                    debugger;
                     var controls = element.closest('is');
                     if (controls.find(':checkbox,:radio').length > 1) controls.append(error);
                     else error.insertAfter(".i-checks");//element.nextAll('.lbl:eq(0)').eq(0)

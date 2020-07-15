@@ -15,6 +15,7 @@ namespace MVC_Project.Domain.Entities
         public virtual DateTime createdAt { get; set; }
         public virtual DateTime modifiedAt { get; set; }
         public virtual string status { get; set; }
+        public virtual string imagen { get; set; }
 
         //public virtual IList<User> users { get; set; }
         public virtual IList<Membership> memberships { get; set; }

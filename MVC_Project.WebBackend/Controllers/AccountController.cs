@@ -1,4 +1,5 @@
 ﻿using MVC_Project.Domain.Services;
+using MVC_Project.Integrations.Paybook;
 using MVC_Project.Integrations.SAT;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
@@ -57,21 +58,25 @@ namespace MVC_Project.WebBackend.Controllers
                     name = x.account.name,
                     rfc = x.account.rfc,
                     role = x.role.name,
-                    accountId = x.account.id
+                    accountId = x.account.id,
+                    imagen = x.account.imagen
                 }).ToList();
 
                 #region Obtener información de la credencial para saber si esta ya activo
                 foreach (var item in accountViewModel.accountListViewModels)
                 {
-                    var credential = _credentialService.FindBy(x => x.account.id != item.accountId).FirstOrDefault();                    
-                    if (credential.statusProvider == "pending")
-                    {                        
-                        var responseSat = SATws.CallServiceSATws("credentials/"+credential.idCredentialProvider, null, "Get");
-                        var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
-                        credential.statusProvider = model.status;
-                        _credentialService.Update(credential);
-                    } 
-                    item.statusValidate = credential.statusProvider;
+                    var credential = _credentialService.FindBy(x => x.account.id == item.accountId).FirstOrDefault();
+                    if (credential != null)
+                    {
+                        if (credential.statusProvider == "pending")
+                        {
+                            var responseSat = SATws.CallServiceSATws("credentials/" + credential.idCredentialProvider, null, "Get");
+                            var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
+                            credential.statusProvider = model.status;
+                            _credentialService.Update(credential);
+                        }
+                        item.statusValidate = credential.statusProvider;
+                    }
                 }
                 #endregion
             }
@@ -87,7 +92,7 @@ namespace MVC_Project.WebBackend.Controllers
 
             if (account != null)
             {
-                var membership = _membership.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id).FirstOrDefault();               
+                var membership = _membership.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id).FirstOrDefault();
 
                 if (membership != null)
                 {
@@ -158,6 +163,7 @@ namespace MVC_Project.WebBackend.Controllers
                         rfc = dataSat.rfc,
                         createdAt = todayDate,
                         modifiedAt = todayDate,
+                        imagen = "/Images/p1.jpg",
                         status = SystemStatus.ACTIVE.ToString()
                     };
 
@@ -225,6 +231,47 @@ namespace MVC_Project.WebBackend.Controllers
                 };
             }
 
+        }
+
+
+
+        //Llamadas para paybook
+        [HttpGet]
+        [AllowAnonymous]
+        public JsonResult getToken()
+        {
+            try
+            {
+
+                //Obtener usuario                 
+                var responseUsers = Paybook.CallServicePaybook("users", null, "Get");
+
+                var dataUser = new Object();
+                //{
+                //    id_external = "{{sync_user_id_external}}",
+                //    name = "{{sync_user_name}}"
+                //};
+
+                //Crea un usuario
+                var responseUserPost = Paybook.CallServicePaybook("users", dataUser, "Post");
+
+                return new JsonResult
+                {
+                    //Data = new { Mensaje = message, Type = typeNoti, Success = result },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message.ToString();
+                return new JsonResult
+                {
+                    Data = new { Mensaje = ex.Message.ToString(), Type = "error", Success = false },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
+            }
         }
     }
 }

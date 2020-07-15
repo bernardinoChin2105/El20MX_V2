@@ -25,7 +25,7 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Plan")]
         public string Plan { get; set; }
 
-        [Display(Name = "UsuarioEmail")]
+        [Display(Name = "Usuario(Email")]
         public string Email { get; set; }
 
         [Display(Name = "CAD Comercial")]

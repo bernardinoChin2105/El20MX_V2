@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Threading;
 using System.Linq;
 using System.Web;
+using MVC_Project.Resources;
 
 namespace MVC_Project.WebBackend.App_Code
 {
@@ -37,6 +38,7 @@ namespace MVC_Project.WebBackend.App_Code
                 var cultureInfo = new CultureInfo(lang);
                 Thread.CurrentThread.CurrentUICulture = cultureInfo;
                 Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(cultureInfo.Name);
+                ViewLabels.Culture = cultureInfo;
                 HttpCookie langCookie = new HttpCookie("culture", lang);
                 langCookie.Expires = DateTime.Now.AddYears(1);
                 HttpContext.Current.Response.Cookies.Add(langCookie);

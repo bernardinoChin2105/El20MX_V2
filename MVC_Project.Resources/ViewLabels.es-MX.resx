@@ -127,7 +127,7 @@
     <value>Iniciar sesión</value>
   </data>
   <data name="PASSWORD" xml:space="preserve">
-    <value>Constraseña</value>
+    <value>Contraseña</value>
   </data>
   <data name="PasswordRequired" xml:space="preserve">
     <value>Contraseña es requerida</value>
@@ -188,5 +188,8 @@
   </data>
   <data name="MODULE_PROSPECTS" xml:space="preserve">
     <value>Prospectos</value>
+  </data>
+  <data name="MODULE_CUSTOMERS" xml:space="preserve">
+    <value>Clientes</value>
   </data>
 </root>

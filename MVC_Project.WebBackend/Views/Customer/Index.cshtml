@@ -1,8 +1,8 @@
-﻿@model MVC_Project.WebBackend.Models.DiagnosticTableViewModel
+﻿@model MVC_Project.WebBackend.Models.CustomerFilterViewModel
 @using MVC_Project.WebBackend.AuthManagement
 @using MVC_Project.WebBackend.AuthManagement.Models
 @{
-    ViewBag.Title = "Díagnosticos";
+    ViewBag.Title = "Clientes";
 
     var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
     AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
@@ -10,7 +10,7 @@
 }
 
 @section styles {
-    @*@Styles.Render("~/plugins/dataPickerStyles")
+    @*
         @Styles.Render("~/plugins/dataTablesStyles")*@
     @Styles.Render("~/plugins/daterangepickerStyles")
 
@@ -26,23 +26,32 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="ibox float-e-margins">
-                @using (Html.BeginForm("ObtenerDiagnostic", "Diagnostic", FormMethod.Post, new { @id = "SearchForm" }))
+                @using (Html.BeginForm("GetCustumers", "Custumer", FormMethod.Post, new { @id = "SearchForm" }))
                 {
                     <div class="ibox-title">
                         <h5>Búsqueda</h5>
                     </div>
                     <div class="ibox-content clearfix">
                         <div class="row">
-                            <div class="col-sm-6 col-lg-4">
+                            <div class="col-12 col-sm-4">
                                 <div class="form-group">
-                                    @*col-form-label control-label col-md-2*@
-                                    @Html.LabelFor(m => m.RegisterAt, new { @class = "" })
-                                    @Html.TextBoxFor(m => m.RegisterAt, new { @Class = "form-control form-control-sm txtFiltro", @readonly = "readonly" })
-                                    @Html.EditorFor(x => x.FilterInitialDate, new { htmlAttributes = new { @Class = "form-control-sm form-control hide", id = "FilterInitialDate", @readonly = "readonly", filtro = "true", filtro_order = "1" } })
-                                    @Html.EditorFor(x => x.FilterEndDate, new { htmlAttributes = new { @Class = "form-control-sm form-control hide", id = "FilterEndDate", @readonly = "readonly", filtro = "true", filtro_order = "2" } })
+                                    @Html.LabelFor(m => m.RFC, new { @class = "" })
+                                    @Html.TextBoxFor(m => m.RFC, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1" })
                                 </div>
                             </div>
-                            <div class="col-sm-6 col-lg-4">
+                            <div class="col-12 col-sm-4">
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.BusinessName, new { @class = "" })
+                                    @Html.TextBoxFor(m => m.BusinessName, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1" })
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-4">
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.Email, new { @class = "" })
+                                    @Html.TextBoxFor(m => m.Email, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1" })
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-4 col-lg-4">
                                 <br />
                                 <button type="button" class="btn btn-sm btn-color btn-filter-rol"><i class="fas fa-search"></i> Buscar</button>
                                 &nbsp;
@@ -60,7 +69,9 @@
                     @if (hasFullAccessController)
                     {
                         <div class="ibox-tools">
-                            <a href="@Url.Action("GenerateDx0", "Diagnostic")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Generar Dx Cero</a>
+                            <a href="@Url.Action("Create", "Customer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Nuevo Cliente</a>
+                            <a href="@Url.Action("Import", "Customer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-upload"></span> Importar</a>
+                            <a href="@Url.Action("Export", "Customer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-download"></span> Exportar</a>
                         </div>
                     }
                 </div>
@@ -75,23 +86,24 @@
 </div>
 @section scripts{
     @Scripts.Render("~/custom/Utils")
-    @*@Scripts.Render("~/plugins/dataTables")*@
+    @Scripts.Render("~/plugins/dataTables")
     @Scripts.Render("~/plugins/daterangepicker")
 
     <script>
-        window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
+
         $(function () {
-            var diagnostic = new DianosticIndexControlador('table',
-                '@Url.Action("ObtenerDiagnostic")',
-                '@Url.Action("DiagnosticDetail")',
-                '@Url.Action("GetDiagnosticDownload")',
-                //'True'
-                '@hasFullAccessController' == 'True'
+            var customer = new CustomerIndexControlador('table',
+                '@Url.Action("GetCustomers")',
+                '@Url.Action("EditCustomer")',
+                '@Url.Action("CustomerDownload")',
+                '@Url.Action("CustomerUpload")',
+                'True'
+                @*//, '@hasFullAccessController' == 'True'*@
             );
-            diagnostic.init();
+            customer.init();
         });
 
     </script>
-    @Scripts.Render("~/views/diagnosticIndex")
 
+    @Scripts.Render("~/views/customerIndex")
 }
