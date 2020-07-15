@@ -16,11 +16,13 @@ namespace MVC_Project.WebBackend.Controllers
     {
         private IAccountService _accountService;
         private ICustomerService _customerService;
+        private IStateService _stateService;
 
-        public CustomerController(IAccountService accountService, ICustomerService customerService)
+        public CustomerController(IAccountService accountService, ICustomerService customerService, IStateService stateService)
         {
             _accountService = accountService;
             _customerService = customerService;
+            _stateService = stateService;
         }
 
         [AllowAnonymous]
@@ -85,11 +87,15 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 var createCustomer = new CustomerViewModel(); // { Modules = PopulateModules() };
+                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
+                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
+
+                createCustomer.ListState = new SelectList(stateList);
                 return View(createCustomer);
             }
             catch (Exception ex)
             {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Index");
             }
             // return View();

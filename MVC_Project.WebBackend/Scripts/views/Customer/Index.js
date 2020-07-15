@@ -39,41 +39,30 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, download
                 { data: 'id', title: "Id", visible: false },
                 { data: 'rfc', title: "RFC" },
                 { data: 'businessName', title: "Nombre/Razón Social" },
-                { data: 'cellPhone', title: "Celular" },
+                { data: 'phone', title: "Celular" },
                 { data: 'email', title: "Email" },
-                //{
-                //    data: null, orderName: "createdAt", title: "Fecha Registro", autoWidth: false, className: "dt-center td-actions thead-dark",
-                //    render: function (data, type, row, meta) {
-                //        if (data.RegisterAt !== null && data.RegisterAt !== "") {
-                //            return moment(data.RegisterAt).format('DD-MMM-YYYY');
-                //        }
-                //        return '';
-                //    }
-                //},
                 {
                     data: null,
+                    title: "+ de Mis Clientes",
                     className: 'menu-options',
                     render: function (data) {
                         //Menu para más opciones de cliente
                         //console.log(data)
-                        var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<a href="' + self.detailUrl + '?id=' + data.uuid + '" class="btn btn-light btn-view" title="Ver detalles"><span class="fas fa-file"></span></a>' +
-                            '<a href="' + self.downloadUrl + '?id=' + data.uuid + '" class="btn btn-light btn-download" title="Descargar Detalle de Diagnóstico"><span class="fas fa-print"></i></span>' +
-                            //'<button class="btn btn-light btn-delete" style="margin-left:5px;"><span class="fas fa-trash"></span></button>' +
+                        var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +                            
+                            '<button class="btn btn-light btn-delete" style="margin-left:5px;"><span class="fas fa-ellipsis-h"></span></button>' +
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }
                 },
                 {
                     data: null,
+                    title: "Trabajar con Mis Clientes",
                     className: 'work-options',
                     render: function (data) {
                         //menu para el cliente work
                         //console.log(data)
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<a href="' + self.detailUrl + '?id=' + data.uuid + '" class="btn btn-light btn-view" title="Ver detalles"><span class="fas fa-file"></span></a>' +
-                            '<a href="' + self.downloadUrl + '?id=' + data.uuid + '" class="btn btn-light btn-download" title="Descargar Detalle de Diagnóstico"><span class="fas fa-print"></i></span>' +
-                            //'<button class="btn btn-light btn-delete" style="margin-left:5px;"><span class="fas fa-trash"></span></button>' +
+                            '<button class="btn btn-light btn-delete" style="margin-left:5px;"><span class="fas fa-ellipsis-h"></span></button>' +
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }

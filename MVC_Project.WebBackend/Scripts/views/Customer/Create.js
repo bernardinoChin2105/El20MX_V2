@@ -29,10 +29,12 @@
                 RFCTrue: true,
                 maxlength: 20
             },
-            CURP: {
-                required: true,
+            CURP: {                
                 CURPTrue: true,
                 maxlength: 20
+            }, 
+            ZipCode: {
+                required: true,
             }
         }
         ,
@@ -50,8 +52,11 @@
                 maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
             },
             CURP: {
-                required: "Campo obligatorio",
+                //required: "Campo obligatorio",
                 maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
+            },
+            ZipCode: {
+                required: "Campo obligatorio"
             }
         }
     });
@@ -65,22 +70,22 @@ function validarDatos() {
 
 var itemNumberEmail = 1;
 var itemNumberPhone = 1;
-$(".btn-add-email").click(function () {
+$(".btn-add-email").click(function () {    
     itemNumberEmail++;
     var item = '<div class="col-12 col-md-10">' +
-        '<label class="col-form-label control-label">Email ' + itemNumber+'</label>' +
+        '<label class="col-form-label control-label">Email ' + itemNumberEmail+'</label>' +
         '<input type="hidden" name="Emails.TypeContact[]" value="EMAIL" />' +
         '<input type="email" class="form-control emails" name="Emails.EmailOrPhone[]" />' +
         '</div>';
-    $(".ListEmails").append(item);
+    $("#ListEmails").append(item);
 });
 
 $(".btn-add-phone").click(function () {
     itemNumberPhone++;
     var item = '<div class="col-12 col-md-10">' +
-        '<label class="col-form-label control-label">Teléfono ' + itemNumber + '</label>' +
+        '<label class="col-form-label control-label">Teléfono ' + itemNumberPhone + '</label>' +
         '<input type="hidden" name="Phones.TypeContact[]" value="PHONE)" />' +
         '<input type="text" class="form-control phones" name="Phones.EmailOrPhone" data_mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
         '</div>';
-    $(".ListPhones").append(item);
+    $("#ListPhones").append(item);
 });

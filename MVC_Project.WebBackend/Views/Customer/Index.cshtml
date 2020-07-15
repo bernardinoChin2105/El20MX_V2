@@ -4,14 +4,14 @@
 @{
     ViewBag.Title = "Clientes";
 
-    //var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
-    //AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
-    //var hasFullAccessController = user.HasFullAccessController(controllerName);
+    var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
+    AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
+    var hasFullAccessController = user.HasFullAccessController(controllerName);
 }
 
 @section styles {
     @*
-    @Styles.Render("~/plugins/dataTablesStyles")*@
+        @Styles.Render("~/plugins/dataTablesStyles")*@
     @Styles.Render("~/plugins/daterangepickerStyles")
 
     <style>
@@ -66,12 +66,14 @@
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Resultado</h5>
-                    @*@if (hasFullAccessController){}*@
-                    <div class="ibox-tools">
-                        <a href="@Url.Action("Create", "Custumer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Nuevo Cliente</a>
-                        <a href="@Url.Action("Import", "Custumer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-upload"></span> Importar</a>
-                        <a href="@Url.Action("Export", "Custumer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-download"></span> Exportar</a>
-                    </div>
+                    @if (hasFullAccessController)
+                    {
+                        <div class="ibox-tools">
+                            <a href="@Url.Action("Create", "Customer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Nuevo Cliente</a>
+                            <a href="@Url.Action("Import", "Customer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-upload"></span> Importar</a>
+                            <a href="@Url.Action("Export", "Customer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-download"></span> Exportar</a>
+                        </div>
+                    }
                 </div>
                 <div class="ibox-content">
                     <div class="table-responsive">
@@ -87,7 +89,8 @@
     @Scripts.Render("~/plugins/dataTables")
     @Scripts.Render("~/plugins/daterangepicker")
 
-    <script>       
+    <script>
+
         $(function () {
             var customer = new CustomerIndexControlador('table',
                 '@Url.Action("GetCustomers")',

@@ -162,28 +162,43 @@ namespace MVC_Project.WebBackend.Controllers
                 #region Obtener la información de los clientes y proveedores para guardarlos
                 foreach (var item in modelInvoices)
                 {
-                    string cfdi = "/invoices/" + item.id + "/cfdi";
-                    var responseCFDI = SATws.CallServiceSATws(url, null, "Get");
-                    var modelCFDI = JsonConvert.DeserializeObject<List<Object>>(responseCFDI);
-
-                    var zipCode = (String)(modelCFDI.GetType().GetProperty("LugarExpedicion").GetValue(modelCFDI, null));
-
-                    //Estamos buscando mis clientes
-                    if (item.issuer.rfc == authUser.Account.RFC)
+                    try
                     {
-                        Customer customer = new Customer()
-                        {
-                            uuid = Guid.NewGuid(),
-                            account = account,
-                            zipCode = zipCode
-                        };
-                        var myCustomer = (modelCFDI.GetType().GetProperty("Receptor").GetValue(modelCFDI, null));
-                        customer.businessName = (String)(myCustomer.GetType().GetProperty("Nombre").GetValue(myCustomer, null));
-                        customer.rfc = (String)(myCustomer.GetType().GetProperty("Rfc").GetValue(myCustomer, null));
+                        string cfdi = "/invoices/" + item.id + "/cfdi";
+                        var responseCFDI = SATws.CallServiceSATws(cfdi, null, "Get");
+                        var modelCFDI = JsonConvert.DeserializeObject<IDictionary<string, object>>(responseCFDI);
 
-                        //Complemento -> Receptor
-                        _customerService.Create(customer);
+                        var zipCode = (String)modelCFDI["LugarExpedicion"];
+
+                        //Estamos buscando mis clientes
+                        if (item.issuer.rfc == authUser.Account.RFC)
+                        {
+
+                            Customer customer = new Customer()
+                            {
+                                uuid = Guid.NewGuid(),
+                                account = account,
+                                zipCode = zipCode
+                            };
+
+                            //var myCustomer = (modelCFDI.GetType().GetProperty("Receptor").GetValue(modelCFDI, null));                        
+                            var myCustomer = JsonConvert.DeserializeObject<IDictionary<string, object>>(modelCFDI["Receptor"].ToString());
+                            customer.businessName = (String)myCustomer["Nombre"];
+                            customer.rfc = (String)myCustomer["Rfc"];
+
+                            var validRFC = _customerService.FindBy(x => x.rfc == customer.rfc).FirstOrDefault();
+                            if (validRFC == null)
+                            {
+                                //Complemento -> Receptor
+                                _customerService.Create(customer);
+                            }
+                        }
                     }
+                    catch(Exception ex)
+                    {
+                        string error = ex.Message.ToString();
+                    }
+                    
 
                     ////Estamos buscando mis proveedores
                     //if (item.receiver.rfc == authUser.Account.RFC)

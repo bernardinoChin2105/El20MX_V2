@@ -1899,8 +1899,9 @@
     <Content Include="Views\Diagnostic\DiagnosticDetail.cshtml" />
     <Content Include="Views\Diagnostic\DiagnosticZeroDownload.cshtml" />
     <Content Include="Views\Customer\Index.cshtml" />
-    <Content Include="Views\Customer\Create.cshtml" />
+    <Content Include="Views\Customer\CreateOld.cshtml" />
     <Content Include="Views\Customer\Edit.cshtml" />
+    <Content Include="Views\Customer\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

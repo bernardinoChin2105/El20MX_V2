@@ -78,6 +78,16 @@ namespace MVC_Project.WebBackend.Models
 
         public List<CustomerContact> Emails { get; set; }
         public List<CustomerContact> Phones { get; set; }
+
+        public CustomerViewModel()
+        {
+            var list = new List<SelectListItem>();
+            list.Add(new SelectListItem() { Text = "Seleccione...", Value = "-1" });
+
+            ListColony = new SelectList(list);
+            ListState = new SelectList(list);
+            ListMunicipality = new SelectList(list);
+        }
     }
 
     public class CustomerContact
