@@ -63,21 +63,7 @@ namespace MVC_Project.WebBackend.Controllers
                 }).ToList();
 
                 #region Obtener información de la credencial para saber si esta ya activo
-                foreach (var item in accountViewModel.accountListViewModels)
-                {
-                    var credential = _credentialService.FindBy(x => x.account.id == item.accountId).FirstOrDefault();
-                    if (credential != null)
-                    {
-                        if (credential.statusProvider == "pending")
-                        {
-                            var responseSat = SATws.CallServiceSATws("credentials/" + credential.idCredentialProvider, null, "Get");
-                            var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
-                            credential.statusProvider = model.status;
-                            _credentialService.Update(credential);
-                        }
-                        item.statusValidate = credential.statusProvider;
-                    }
-                }
+                ValidarSat(accountViewModel);
                 #endregion
             }
             accountViewModel.count = accountViewModel.accountListViewModels.Count;
@@ -271,6 +257,77 @@ namespace MVC_Project.WebBackend.Controllers
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
                 };
+            }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public JsonResult SelectLastAccount()
+        {
+            try
+            {
+                bool result = false;
+                string message = string.Empty;
+                string typeNoti = string.Empty;
+                Guid uuid = new Guid();
+                var authUser = Authenticator.AuthenticatedUser;
+                var accountViewModel = new AccountSelectViewModel { accountListViewModels = new List<AccountListViewModel>() };
+                var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null).OrderByDescending(x => x.account.id).FirstOrDefault();
+                if (memberships != null)
+                {
+                    accountViewModel.accountListViewModels.Add(new AccountListViewModel
+                    {
+                        uuid = memberships.account.uuid,
+                        name = memberships.account.name,
+                        rfc = memberships.account.rfc,
+                        role = memberships.role.name,
+                        accountId = memberships.account.id,
+                        imagen = memberships.account.imagen
+                    });
+
+                    ValidarSat(accountViewModel);
+                    if (accountViewModel.accountListViewModels[0].statusValidate == "valid")
+                    {
+                        result = true;
+                    }
+                    message = "Cuenta con estatus: " + accountViewModel.accountListViewModels[0].statusValidate;
+                    uuid = accountViewModel.accountListViewModels[0].uuid;
+                }
+
+                return new JsonResult
+                {
+                    Data = new { Success = result, Mensaje = message, uuid, Type = typeNoti },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult
+                {
+                    Data = new { success = false, Mensaje = new { title = "Error", message = ex.Message } },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
+            }
+        }
+
+        private void ValidarSat(AccountSelectViewModel accountViewModel)
+        {
+            foreach (var item in accountViewModel.accountListViewModels)
+            {
+                var credential = _credentialService.FindBy(x => x.account.id == item.accountId).FirstOrDefault();
+                if (credential != null)
+                {
+                    if (credential.statusProvider == "pending")
+                    {
+                        var responseSat = SATws.CallServiceSATws("credentials/" + credential.idCredentialProvider, null, "Get");
+                        var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
+                        credential.statusProvider = model.status;
+                        _credentialService.Update(credential);
+                    }
+                    item.statusValidate = credential.statusProvider;
+                }
             }
         }
     }

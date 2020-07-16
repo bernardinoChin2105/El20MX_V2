@@ -35,6 +35,7 @@ var settings = {
         console.log(event, currentIndex, "finalizado");
         //$("#wizard").steps('reset');
         $("#createAccountModal").modal("hide");
+        selectLastAccount();
     }
 };
 
@@ -57,6 +58,25 @@ function createAccountModal() {
     });
     $("#createAccountModal").on('hidden.bs.modal', function () {
         selectAccountModal();
+    });
+}
+
+function selectLastAccount() {
+    $.ajax({
+        type: 'get',
+        dataType: 'json',
+        url: urls.urlSelectLastAccount,
+        success: function (json) {
+            if (json.Success) {
+                $("#selectAccountModal").modal('hide');
+                window.location = urls.urlSetAccount + "?uuid=" + json.uuid;
+            } else {
+                toastr[json.Type](json.Mensaje);
+            }
+        },
+        error: function (xhr) {
+            toastr['error']('Ocurrió un error, intente nuevamente');
+        }
     });
 }
 
