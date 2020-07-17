@@ -20,6 +20,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.lastName).Column("last_name").Nullable();
             Map(x => x.rfc).Column("rfc").Not.Nullable();
             Map(x => x.curp).Column("curp").Nullable();
+            Map(x => x.taxRegime).Column("taxRegime").Nullable();
             Map(x => x.businessName).Column("businessName").Nullable();
             Map(x => x.street).Column("street").Nullable();
             Map(x => x.interiorNumber).Column("interiorNumber").Nullable();

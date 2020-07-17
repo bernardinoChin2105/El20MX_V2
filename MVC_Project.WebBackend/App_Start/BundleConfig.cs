@@ -136,6 +136,10 @@ namespace MVC_Project.WebBackend
             bundles.Add(new StyleBundle("~/plugins/daterangepickerStyles").Include(
                       "~/Content/template/plugins/daterangepicker/daterangepicker-bs3.css"));
 
+            // toastr notification
+            bundles.Add(new ScriptBundle("~/plugins/jqueryFileDownload.js").Include(
+                      "~/Scripts/jquery.fileDownload.js"));
+
         }
     }
 }

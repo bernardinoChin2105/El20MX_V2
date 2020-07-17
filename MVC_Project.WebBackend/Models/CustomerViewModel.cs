@@ -26,7 +26,7 @@ namespace MVC_Project.WebBackend.Models
 
     public class CustomerViewModel
     {
-        public int Id { get; set; }
+        public Int64 Id { get; set; }
 
         [Required]
         [Display(Name = "Nombre(s)")]
@@ -60,25 +60,25 @@ namespace MVC_Project.WebBackend.Models
         public string InteriorNumber { get; set; }
 
         [Display(Name = "Colonia")]
-        public int? Colony { get; set; }
+        public Int64? Colony { get; set; }
         public SelectList ListColony { get; set; }
 
         [Display(Name = "C.P.")]
         public string ZipCode { get; set; }
 
         [Display(Name = "Alcaldía/Municipio")]
-        public int? Municipality { get; set; }
+        public Int64? Municipality { get; set; }
         public SelectList ListMunicipality { get; set; }
 
         [Display(Name = "Estado")]
-        public int? State { get; set; }
+        public Int64? State { get; set; }
         public SelectList ListState { get; set; }
 
         //[Display(Name = "Nombre/Razón Social")]
         public bool DeliveryAddress { get; set; }
 
-        public List<CustomerContact> Emails { get; set; }
-        public List<CustomerContact> Phones { get; set; }
+        public List<CustomerContactsViewModel> Emails { get; set; }
+        public List<CustomerContactsViewModel> Phones { get; set; }
 
         public CustomerViewModel()
         {
@@ -91,7 +91,7 @@ namespace MVC_Project.WebBackend.Models
         }
     }
 
-    public class CustomerContact
+    public class CustomerContactsViewModel
     {
         public Int64 Id { get; set; }
         public string TypeContact { get; set; }

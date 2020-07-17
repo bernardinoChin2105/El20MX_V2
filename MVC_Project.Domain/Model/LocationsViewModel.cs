@@ -8,6 +8,7 @@ namespace MVC_Project.Domain.Model
 {
     public class LocationsViewModel
     {
+        public Int64 id { get; set; }
         public Int64 municipalityId { get; set; }
         public Int64 settlementTypeId { get; set; }
         public Int64 stateId { get; set; }

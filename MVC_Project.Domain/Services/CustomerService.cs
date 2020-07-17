@@ -12,6 +12,7 @@ namespace MVC_Project.Domain.Services
     public interface ICustomerService : IService<Customer>
     {
         List<CustomerList> CustomerList(BasePagination pagination, CustomerFilter filter);
+        List<ExportListCustomer> ExportListCustomer(CustomerFilter filter);
     }
 
     public class CustomerService : ServiceBase<Customer>, ICustomerService 
@@ -25,8 +26,7 @@ namespace MVC_Project.Domain.Services
         public List<CustomerList> CustomerList(BasePagination pagination, CustomerFilter filter)
         {
             var list = _repository.Session.CreateSQLQuery("exec dbo.st_customerList " +
-                "@PageNum =:PageNum, @PageSize =:PageSize, @uuid =:uuid, @rfc=:rfc, @businessName=:businessName, @email=:email ")
-                    //.AddEntity(typeof(DiagnosticList))
+                "@PageNum =:PageNum, @PageSize =:PageSize, @uuid =:uuid, @rfc=:rfc, @businessName=:businessName, @email=:email ")                    
                     .SetParameter("PageNum", pagination.PageNum)
                     .SetParameter("PageSize", pagination.PageSize)
                     .SetParameter("uuid", filter.uuid)
@@ -38,6 +38,23 @@ namespace MVC_Project.Domain.Services
 
             if (list != null) return list.ToList();
             return null;
-        }        
+        }
+
+        public List<ExportListCustomer> ExportListCustomer(CustomerFilter filter)
+        {
+            var list = _repository.Session.CreateSQLQuery("exec dbo.st_exportListCustomer " +
+                "@uuid =:uuid, @rfc=:rfc, @businessName=:businessName, @email=:email ")
+                    .SetParameter("uuid", filter.uuid)
+                    .SetParameter("rfc", filter.rfc)
+                    .SetParameter("businessName", filter.businessName)
+                    .SetParameter("email", filter.email)
+                    .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(ExportListCustomer)))
+                    .List<ExportListCustomer>();
+
+            if (list != null) return list.ToList();
+            return null;
+        }
+
+        
     }
 }

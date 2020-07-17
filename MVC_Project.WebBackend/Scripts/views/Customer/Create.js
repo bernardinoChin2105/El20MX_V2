@@ -10,7 +10,7 @@
             return value.match(/^([A-Z&]|[a-z&]{1})([AEIOU]|[aeiou]{1})([A-Z&]|[a-z&]{1})([A-Z&]|[a-z&]{1})([0-9]{2})(0[1-9]|1[0-2])(0[1-9]|1[0-9]|2[0-9]|3[0-1])([HM]|[hm]{1})([AS|as|BC|bc|BS|bs|CC|cc|CS|cs|CH|ch|CL|cl|CM|cm|DF|df|DG|dg|GT|gt|GR|gr|HG|hg|JC|jc|MC|mc|MN|mn|MS|ms|NT|nt|NL|nl|OC|oc|PL|pl|QT|qt|QR|qr|SP|sp|SL|sl|SR|sr|TC|tc|TS|ts|TL|tl|VZ|vz|YN|yn|ZS|zs|NE|ne]{2})([^A|a|E|e|I|i|O|o|U|u]{1})([^A|a|E|e|I|i|O|o|U|u]{1})([^A|a|E|e|I|i|O|o|U|u]{1})([0-9]{2})$/g);
         }, "Debe ser un CURP válido"
     );
-       
+
     $("#CreateForm").validate({
         rules: {
             FistName: {
@@ -26,10 +26,10 @@
                 RFCTrue: true,
                 maxlength: 20
             },
-            CURP: {                
+            CURP: {
                 CURPTrue: true,
                 maxlength: 20
-            }, 
+            },
             ZipCode: {
                 required: true
             }
@@ -68,24 +68,24 @@ function validarDatos() {
 
 var itemNumberEmail = 1;
 var itemNumberPhone = 1;
-$(".btn-add-email").click(function () {    
-    itemNumberEmail++;
+$(".btn-add-email").click(function () {
     var item = '<div class="col-12 col-md-10">' +
-        '<label class="col-form-label control-label">Email ' + itemNumberEmail+'</label>' +
-        '<input type="hidden" name="Emails.TypeContact[]" value="EMAIL" />' +
-        '<input type="email" class="form-control emails" name="Emails.EmailOrPhone[]" />' +
+        '<label class="col-form-label control-label">Email ' + itemNumberEmail+1 + '</label>' +
+        '<input type="hidden" name="Emails[' + itemNumberEmail+'].TypeContact" value="EMAIL" />' +
+        '<input type="email" class="form-control emails" name="Emails[' + itemNumberEmail +'].EmailOrPhone" />' +
         '</div>';
     $("#ListEmails").append(item);
+    itemNumberEmail++;
 });
 
 $(".btn-add-phone").click(function () {
-    itemNumberPhone++;
     var item = '<div class="col-12 col-md-10">' +
-        '<label class="col-form-label control-label">Teléfono ' + itemNumberPhone + '</label>' +
-        '<input type="hidden" name="Phones.TypeContact[]" value="PHONE)" />' +
-        '<input type="text" class="form-control phones" name="Phones.EmailOrPhone" data_mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
+        '<label class="col-form-label control-label">Teléfono ' + itemNumberPhone+1 + '</label>' +
+        '<input type="hidden" name="Phones[' + itemNumberPhone +'].TypeContact" value="PHONE)" />' +
+        '<input type="text" class="form-control phones" name="Phones[' + itemNumberPhone +'].EmailOrPhone" data_mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
         '</div>';
     $("#ListPhones").append(item);
+    itemNumberPhone++;
 });
 
 $("#ZipCode").blur(function () {
@@ -93,7 +93,7 @@ $("#ZipCode").blur(function () {
     var value = $(this).val();
     var cmbColony = $("#Colony");
     var cmbMunicipality = $("#Municipality");
-    //var cmbMunicipality = $("#Municipality");
+    var cmbState = $("#State");
     console.log("valor", value);
 
     $.ajax({
@@ -101,8 +101,29 @@ $("#ZipCode").blur(function () {
         async: true,
         data: { zipCode: value },
         url: urlGetLocation,
-        success: function (data) {
-            console.log(data, "respuesta");
+        success: function (json) {
+            console.log(json, "respuesta");
+            if (json.Data.success) {
+                var datos = json.Data.data;
+                console.log(datos, "que esta aquí");
+                cmbState.val(datos[0].stateId);
+
+                //Llenado de municipios
+                console.log(datos[0], "registro 0");
+                cmbMunicipality.html('<option value="-1">Seleccione...</option>');
+                cmbMunicipality.append('<option value="' + datos[0].municipalityId + '">' + datos[0].nameMunicipality + '</option>');
+                cmbMunicipality.val(datos[0].municipalityId);
+
+                //Llenado de colonias
+                cmbColony.html('<option value="-1">Seleccione...</option>');
+                cmbColony.append(datos.map(function (data, index) {
+                    return $('<option value="' + data.id + '">' + data.nameSettlementType + ' ' + data.nameSettlement + '</option>');
+                }));
+                cmbColony.val(datos[0].id);
+
+            } else {
+                toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
+            }
 
             //LlenarComboSorteos(result.source);
             //self.filtros.Celebracion.html('<option value="">Seleccione una Celebración...</option>');

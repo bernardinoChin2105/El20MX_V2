@@ -51,7 +51,7 @@
                                     @Html.TextBoxFor(m => m.Email, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1" })
                                 </div>
                             </div>
-                            <div class="col-12 col-sm-4 col-lg-4">
+                            <div class="col-12 offset-8 col-sm-4 col-lg-4">
                                 <br />
                                 <button type="button" class="btn btn-sm btn-color btn-filter-rol"><i class="fas fa-search"></i> Buscar</button>
                                 &nbsp;
@@ -71,7 +71,7 @@
                         <div class="ibox-tools">
                             <a href="@Url.Action("Create", "Customer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Nuevo Cliente</a>
                             <a href="@Url.Action("Import", "Customer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-upload"></span> Importar</a>
-                            <a href="@Url.Action("Export", "Customer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-download"></span> Exportar</a>
+                            <button type="button" class="btn btn-sm btn-color btn-export"><span class="fas fa-download"></span> Exportar</button>
                         </div>
                     }
                 </div>
@@ -88,14 +88,15 @@
     @Scripts.Render("~/custom/Utils")
     @Scripts.Render("~/plugins/dataTables")
     @Scripts.Render("~/plugins/daterangepicker")
-
+    @Scripts.Render("~/plugins/jqueryFileDownload.js")
+    
     <script>
 
         $(function () {
             var customer = new CustomerIndexControlador('table',
                 '@Url.Action("GetCustomers")',
-                '@Url.Action("EditCustomer")',
-                '@Url.Action("CustomerDownload")',
+                '@Url.Action("Edit")',
+                '@Url.Action("ExportListCustomer")',
                 '@Url.Action("CustomerUpload")',
                 'True'
                 @*//, '@hasFullAccessController' == 'True'*@
