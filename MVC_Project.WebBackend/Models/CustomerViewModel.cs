@@ -79,6 +79,7 @@ namespace MVC_Project.WebBackend.Models
 
         public List<CustomerContactsViewModel> Emails { get; set; }
         public List<CustomerContactsViewModel> Phones { get; set; }
+        public string dataContacts { get; set; }
 
         public CustomerViewModel()
         {

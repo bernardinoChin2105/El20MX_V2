@@ -165,7 +165,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return View("Index", model);
             }
         }
@@ -203,7 +203,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Login", "Auth");
             }
         }
@@ -245,7 +245,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return View("Login");
             }
         }
@@ -275,7 +275,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return View("NewUserVerify", model);
             }
         }

@@ -295,7 +295,7 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         Value = e.ToString(),
                         Text = EnumUtils.GetDisplayName(e)
-                    });
+                    }).ToList();
 
                 model.ListRegimen = new SelectList(regimenList);
                 model.ListState = new SelectList(stateList);
@@ -329,7 +329,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Index");
             }
         }
@@ -349,8 +349,6 @@ namespace MVC_Project.WebBackend.Controllers
                 var authUser = Authenticator.AuthenticatedUser;
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
-                //var customer = _customerService.FindBy(x => x.rfc == model.RFC && x.account.id == authUser.Account.Id).FirstOrDefault();
-
                 customerData.firstName = model.FistName;
                 customerData.lastName = model.LastName;
                 customerData.rfc = model.RFC;
@@ -362,7 +360,6 @@ namespace MVC_Project.WebBackend.Controllers
                 customerData.outdoorNumber = model.OutdoorNumber;
                 customerData.zipCode = model.ZipCode;
                 customerData.deliveryAddress = model.DeliveryAddress;
-                customerData.createdAt = todayDate;
                 customerData.modifiedAt = todayDate;
                 customerData.status = SystemStatus.ACTIVE.ToString();
 
@@ -373,54 +370,89 @@ namespace MVC_Project.WebBackend.Controllers
                 if (model.State.Value > 0)
                     customerData.state = model.State.Value;
 
-                //if (model.Emails.Count() > 0)
-                //{
-                //    for (int i = 0; i < model.Emails.Count(); i++)
-                //    {
-                //        if (model.Emails[0].EmailOrPhone.Trim() != "")
-                //        {
-                //            CustomerContact email = new CustomerContact()
-                //            {
-                //                emailOrPhone = model.Emails[0].EmailOrPhone,
-                //                typeContact = model.Emails[0].TypeContact,
-                //                customer = customer,
-                //                createdAt = todayDate,
-                //                modifiedAt = todayDate,
-                //                status = SystemStatus.ACTIVE.ToString()
-                //            };
+                #region Actualizar registros de las listas de emails y teléfonos 
+                if (model.Emails.Count() > 0)
+                {
+                    for (int i = 0; i < model.Emails.Count(); i++)
+                    {
+                        if (model.Emails[i].EmailOrPhone.Trim() != "")
+                        {
+                            if (model.Emails[i].Id > 0)
+                            {
+                                //actualizar lista
+                                var contact = customerData.customerContacts.Where(x => x.id == model.Emails[i].Id).FirstOrDefault();
+                                contact.emailOrPhone = model.Emails[i].EmailOrPhone;
+                                contact.modifiedAt = todayDate;
+                            }
+                            else
+                            {
+                                CustomerContact email = new CustomerContact()
+                                {
+                                    emailOrPhone = model.Emails[i].EmailOrPhone,
+                                    typeContact = model.Emails[i].TypeContact,
+                                    customer = customerData,
+                                    createdAt = todayDate,
+                                    modifiedAt = todayDate,
+                                    status = SystemStatus.ACTIVE.ToString()
+                                };
 
-                //            customer.customerContacts.Add(email);
-                //        }
-                //    }
-                //}
+                                customerData.customerContacts.Add(email);
+                            }
+                        }
+                    }
+                }
 
-                //if (model.Phones.Count() > 0)
-                //{
-                //    for (int i = 0; i < model.Phones.Count(); i++)
-                //    {
-                //        if (model.Phones[0].EmailOrPhone.Trim() != "")
-                //        {
-                //            CustomerContact phone = new CustomerContact()
-                //            {
-                //                emailOrPhone = model.Phones[0].EmailOrPhone,
-                //                typeContact = model.Phones[0].TypeContact,
-                //                customer = customer,
-                //                createdAt = todayDate,
-                //                modifiedAt = todayDate,
-                //                status = SystemStatus.ACTIVE.ToString()
-                //            };
+                if (model.Phones.Count() > 0)
+                {
+                    for (int i = 0; i < model.Phones.Count(); i++)
+                    {
+                        if (model.Phones[0].EmailOrPhone.Trim() != "")
+                        {
+                            if (model.Phones[i].Id > 0)
+                            {
+                                //actualizar lista
+                                var contact = customerData.customerContacts.Where(x => x.id == model.Phones[i].Id).FirstOrDefault();
+                                contact.emailOrPhone = model.Phones[i].EmailOrPhone;
+                                contact.modifiedAt = todayDate;
+                            }
+                            else
+                            {
+                                CustomerContact phone = new CustomerContact()
+                                {
+                                    emailOrPhone = model.Phones[i].EmailOrPhone,
+                                    typeContact = model.Phones[i].TypeContact,
+                                    customer = customerData,
+                                    createdAt = todayDate,
+                                    modifiedAt = todayDate,
+                                    status = SystemStatus.ACTIVE.ToString()
+                                };
 
-                //            customer.customerContacts.Add(phone);
-                //        }
-                //    }
-                //}
+                                customerData.customerContacts.Add(phone);
+                            }
+                        }
+                    }
+                }
 
+                //Eliminar registros de la lista
+                var list = model.dataContacts.Split(',');
+                if (list.Count() > 0)
+                {
+                    foreach (var item in list)
+                    {
+                        var itemToRemove = customerData.customerContacts.SingleOrDefault(r => r.id == Convert.ToInt64(item));
+                        if (itemToRemove != null)
+                            customerData.customerContacts.Remove(itemToRemove);
+                    }
+                }
+                #endregion
+
+                _customerService.Update(customerData);
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
                 stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
 
@@ -544,8 +576,6 @@ namespace MVC_Project.WebBackend.Controllers
                         campo.Cells["S" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                         rowIndex++;
                     }
-
-
 
                     campo.Cells[campo.Dimension.Address].AutoFitColumns();
                     byte[] bin = pck.GetAsByteArray();

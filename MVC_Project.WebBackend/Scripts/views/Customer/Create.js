@@ -70,7 +70,7 @@ var itemNumberEmail = 1;
 var itemNumberPhone = 1;
 $(".btn-add-email").click(function () {
     var item = '<div class="col-12 col-md-10">' +
-        '<label class="col-form-label control-label">Email ' + itemNumberEmail+1 + '</label>' +
+        '<label class="col-form-label control-label">Email ' + (itemNumberEmail+1) + '</label>' +
         '<input type="hidden" name="Emails[' + itemNumberEmail+'].TypeContact" value="EMAIL" />' +
         '<input type="email" class="form-control emails" name="Emails[' + itemNumberEmail +'].EmailOrPhone" />' +
         '</div>';
@@ -80,7 +80,7 @@ $(".btn-add-email").click(function () {
 
 $(".btn-add-phone").click(function () {
     var item = '<div class="col-12 col-md-10">' +
-        '<label class="col-form-label control-label">Teléfono ' + itemNumberPhone+1 + '</label>' +
+        '<label class="col-form-label control-label">Teléfono ' + (itemNumberPhone+1) + '</label>' +
         '<input type="hidden" name="Phones[' + itemNumberPhone +'].TypeContact" value="PHONE)" />' +
         '<input type="text" class="form-control phones" name="Phones[' + itemNumberPhone +'].EmailOrPhone" data_mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
         '</div>';
@@ -105,43 +105,31 @@ $("#ZipCode").blur(function () {
             console.log(json, "respuesta");
             if (json.Data.success) {
                 var datos = json.Data.data;
-                console.log(datos, "que esta aquí");
-                cmbState.val(datos[0].stateId);
+                if (datos.length > 0) {
+                    console.log(datos, "que esta aquí");
+                    cmbState.val(datos[0].stateId);
 
-                //Llenado de municipios
-                console.log(datos[0], "registro 0");
-                cmbMunicipality.html('<option value="-1">Seleccione...</option>');
-                cmbMunicipality.append('<option value="' + datos[0].municipalityId + '">' + datos[0].nameMunicipality + '</option>');
-                cmbMunicipality.val(datos[0].municipalityId);
+                    //Llenado de municipios
+                    console.log(datos[0], "registro 0");
+                    cmbMunicipality.html('<option value="-1">Seleccione...</option>');
+                    cmbMunicipality.append('<option value="' + datos[0].municipalityId + '">' + datos[0].nameMunicipality + '</option>');
+                    cmbMunicipality.val(datos[0].municipalityId);
 
-                //Llenado de colonias
-                cmbColony.html('<option value="-1">Seleccione...</option>');
-                cmbColony.append(datos.map(function (data, index) {
-                    return $('<option value="' + data.id + '">' + data.nameSettlementType + ' ' + data.nameSettlement + '</option>');
-                }));
-                cmbColony.val(datos[0].id);
+                    //Llenado de colonias
+                    cmbColony.html('<option value="-1">Seleccione...</option>');
+                    cmbColony.append(datos.map(function (data, index) {
+                        return $('<option value="' + data.id + '">' + data.nameSettlementType + ' ' + data.nameSettlement + '</option>');
+                    }));
+                    cmbColony.val(datos[0].id);
+                } else {
+                    toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
+                }
+
 
             } else {
                 toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
             }
 
-            //LlenarComboSorteos(result.source);
-            //self.filtros.Celebracion.html('<option value="">Seleccione una Celebración...</option>');
-            //self.filtros.Celebracion.append(result.source.map(function (data, index) {
-            //    return $('<option value="' + data.ID_SORTEO + '">' + data.NOMBRE_SORTEO + '</option>');
-            //}));
-            //self.filtros.Celebracion.trigger("chosen:updated");
-
-            //if (!data) {
-            //    swal({
-            //        type: 'error',
-            //        title: data.Mensaje.Titulo,
-            //        text: data.Mensaje.Contenido
-            //    })
-            //} else {
-            //    swal("Estatus cambiado!");
-            //    self.dataTable.ajax.reload();
-            //}
         },
         error: function (xhr) {
             console.log('error');
