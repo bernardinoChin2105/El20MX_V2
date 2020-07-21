@@ -54,5 +54,7 @@ namespace MVC_Project.Domain.Model
         public string nameMunicipality { get; set; }
         public string nameSettlementType { get; set; }
         public string nameSettlement { get; set; }
+
+        public string Observaciones { get; set; }
     }
 }

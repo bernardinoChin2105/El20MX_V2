@@ -69,23 +69,61 @@ function validarDatos() {
 var itemNumberEmail = 1;
 var itemNumberPhone = 1;
 $(".btn-add-email").click(function () {
-    var item = '<div class="col-12 col-md-10">' +
-        '<label class="col-form-label control-label">Email ' + (itemNumberEmail+1) + '</label>' +
-        '<input type="hidden" name="Emails[' + itemNumberEmail+'].TypeContact" value="EMAIL" />' +
-        '<input type="email" class="form-control emails" name="Emails[' + itemNumberEmail +'].EmailOrPhone" />' +
+    console.log("que paso?")
+    var item = '<div class="row">'+
+        '<div class="col-12 col-md-10" > ' +
+        '<label class="col-form-label control-label">Email ' + (itemNumberEmail + 1) + '</label>' +
+        '<input type="hidden" name="Emails[' + itemNumberEmail + '].TypeContact" value="EMAIL" />' +
+        '<input type="email" class="form-control emails" name="Emails[' + itemNumberEmail + '].EmailOrPhone" />' +
+        '</div>' +
+        '<div class="col-12 col-md-2">' +
+        '<label class="col-form-label control-label heightLabel"></label>' +
+        ' <button type="button" class="btn btn-color btn-remove-phone btn-remove" data-element="EMAIL" value="' + itemNumberEmail + '"><i class="fa fa-trash"></i></button>' +
+        '</div>' +
         '</div>';
     $("#ListEmails").append(item);
     itemNumberEmail++;
 });
 
 $(".btn-add-phone").click(function () {
-    var item = '<div class="col-12 col-md-10">' +
-        '<label class="col-form-label control-label">Teléfono ' + (itemNumberPhone+1) + '</label>' +
-        '<input type="hidden" name="Phones[' + itemNumberPhone +'].TypeContact" value="PHONE)" />' +
-        '<input type="text" class="form-control phones" name="Phones[' + itemNumberPhone +'].EmailOrPhone" data_mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
+    var item = '<div class="row"><div class="col-12 col-md-10">' +
+        '<label class="col-form-label control-label">Teléfono ' + (itemNumberPhone + 1) + '</label>' +
+        '<input type="hidden" name="Phones[' + itemNumberPhone + '].TypeContact" value="PHONE)" />' +
+        '<input type="text" class="form-control phones" name="Phones[' + itemNumberPhone + '].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
+        '</div>' +
+        '<div class="col-12 col-md-2">' +
+        '<label class="col-form-label control-label heightLabel"></label>' +
+        ' <button type="button" class="btn btn-color btn-remove-phone btn-remove" data-element="PHONE" value="' + itemNumberPhone + '"><i class="fa fa-trash"></i></button>' +
+        '</div>' +
         '</div>';
-    $("#ListPhones").append(item);
+        $("#ListPhones").append(item);
     itemNumberPhone++;
+});
+
+var itemsRemoveP = [];
+var itemsRemoveE = [];
+$('.listContacts').on('click', '.btn-remove', function () {
+    var removePhone = $("#indexPhone");
+    var removeEmail = $("#indexEmail");
+    console.log(this, "elementos");
+
+    var item = $(this).val();
+    var data = $(this).data("element");
+    console.log(item, item.trim(), "valor del elemento");
+
+    if (data === "PHONE") {
+        itemsRemoveP.push(item);
+        removePhone.val(itemsRemoveP);
+    } else {
+        itemsRemoveE.push(item);
+        removeEmail.val(itemsRemoveE);
+    }
+
+    console.log($(this).parent().parent(), "valor del elemento");
+    $(this).parent().parent().addClass("hidden");
+
+    //<input type="hidden" name="indexPhone[]" id="indexPhone" />
+    //    <input type="hidden" name="indexEmail[]" id="indexEmail" />
 });
 
 $("#ZipCode").blur(function () {

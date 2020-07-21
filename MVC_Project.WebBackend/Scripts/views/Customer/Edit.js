@@ -77,7 +77,8 @@ $(".btn-add-email").click(function () {
         '</div>' +
         '<div class="col-12 col-md-2">' +
         '<label class="col-form-label control-label heightLabel"></label>' +
-        ' <button type="button" class="btn btn-color btn-remove-email btn-remove" value=""><i class="fa fa-trash"></i></button>' +
+        ' <button type="button" class="btn btn-color btn-remove-email btn-remove" data-element="EMAIL" value="' + itemNumberEmail + '"><i class="fa fa-trash"></i></button>' +
+        '<input type="hidden" value=""/>' +
         '</div>' +
         '</div>';
     $("#ListEmails").append(item);
@@ -88,30 +89,47 @@ $(".btn-add-phone").click(function () {
     var item = '<div class="row">' +
         '<div class="col-12 col-md-10">' +
         '<label class="col-form-label control-label">Teléfono ' + (itemNumberPhone + 1) + '</label>' +
-        '<input type="hidden" name="Phones[' + itemNumberPhone + '].TypeContact" value="PHONE)" />' +
-        '<input type="text" class="form-control phones" name="Phones[' + itemNumberPhone + '].EmailOrPhone" data_mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
+        '<input type="hidden" name="Phones[' + itemNumberPhone + '].TypeContact" value="PHONE" />' +
+        '<input type="text" class="form-control phones" name="Phones[' + itemNumberPhone + '].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
         '</div>' +
         '<div class="col-12 col-md-2">' +
         '<label class="col-form-label control-label heightLabel"></label>' +
-        ' <button type="button" class="btn btn-color btn-remove-phone btn-remove" value=""><i class="fa fa-trash"></i></button>' +
+        ' <button type="button" class="btn btn-color btn-remove-phone btn-remove" data-element="PHONE" value="' + itemNumberPhone + '"><i class="fa fa-trash"></i></button>' +
+        '<input type="hidden" value=""/>' +
         '</div>' +
         '</div>';
     $("#ListPhones").append(item);
     itemNumberPhone++;
 });
 
-var itemsRemove = [];
+var itemsIdRemoves = [];
+var itemsRemoveP = [];
+var itemsRemoveE = [];
 $('.listContacts').on('click', '.btn-remove', function () {
     var removeId = $("#dataContacts");
+    var removePhone = $("#indexPhone");
+    var removeEmail = $("#indexEmail");
     console.log(this, "elementos");
+
     var item = $(this).val();
-    console.log(item, item.trim(), "valor del elemento");
-    if (item.trim() !== "") {
-        itemsRemove.push(item);
-        removeId.val(itemsRemove);
+    var data = $(this).data("element");
+    var itemValue = $(this).siblings().val();
+    console.log(item, item.trim(), itemValue, "valor del elemento");
+
+    if (data === "PHONE") {
+        itemsRemoveP.push(item);
+        removePhone.val(itemsRemoveP);
+    } else {
+        itemsRemoveE.push(item);
+        removeEmail.val(itemsRemoveE);
+    }
+
+    if (itemValue.trim() !== "") {
+        itemsIdRemoves.push(itemValue);
+        removeId.val(itemsIdRemoves);
     }
     console.log($(this).parent().parent(), "valor del elemento");
-    $(this).parent().parent().remove();
+    $(this).parent().parent().addClass("hidden");
 });
 
 $("#ZipCode").blur(function () {

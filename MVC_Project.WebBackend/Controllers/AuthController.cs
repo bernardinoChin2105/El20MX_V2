@@ -200,23 +200,26 @@ namespace MVC_Project.WebBackend.Controllers
                     ViewBag.Message = "Solicitud realizada";
                     return View("Login");
 
-                }
+                }                    
             }
             catch (Exception ex)
             {
                 //ErrorController.SaveLogError(this, listAction.Update, "RecuperarContrasena", ex);
             }
 
-            ModelState.AddModelError("Email", "No se encontró ninguna cuenta con el correo proporcionado. Verifique su información.");
-            return Json(new
-            {
-                success = false,
-                issue = model,
-                errors = ModelState.Keys.Where(k => ModelState[k].Errors.Count > 0)
-                .Select(k => new { propertyName = k, errorMessage = ModelState[k].Errors[0].ErrorMessage })
-            });
+            ModelState.AddModelError("Email", "No se encontró ninguna cuenta con el correo proporcionado. Verifique su información.");            
+            MensajeFlashHandler.RegistrarMensaje("No se encontró ninguna cuenta con el correo proporcionado. Verifique su información.", TiposMensaje.Error);
+            return View("Login");
+            //return Json(new
+            //{
+            //    success = false,
+            //    issue = model,
+            //    errors = ModelState.Keys.Where(k => ModelState[k].Errors.Count > 0)
+            //    .Select(k => new { propertyName = k, errorMessage = ModelState[k].Errors[0].ErrorMessage })
+            //});
 
         }
+
         [HttpGet]
         [AllowAnonymous]
         public ActionResult AccedeToken(string token)
@@ -564,6 +567,12 @@ namespace MVC_Project.WebBackend.Controllers
             }
             
             return Redirect(url);
+        }
+
+        //Para mantener la sesión
+        public ActionResult KeepAlive()
+        {
+            return Json("OK", JsonRequestBehavior.AllowGet);
         }
     }
 }

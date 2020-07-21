@@ -18,6 +18,7 @@
 
 
     @Styles.Render("~/Content/template/css")
+    @Styles.Render("~/Scripts/plugins/jquery-ui/jqueryuiStyles")
     @Styles.Render("~/font-awesome/css")
     @Styles.Render("~/plugins/dataTablesStyles")
     @Styles.Render("~/plugins/sweetAlertStyles")
@@ -38,6 +39,22 @@
 
 <body>
     <div id="wrapper" class="@Html.PageClass()">
+
+        @*Modal para cargador*@
+        <div class="modal modal-backdrop" id="CargadorPantalla" tabindex="-1" role="dialog" aria-hidden="false">
+            <div class="modal-dialog modal-sm" style="width:100%; height:100%;display: block;">
+                <div class="modal-body" style="width:100%;height:100%;">
+                    <img id="imgLoadingLayout" height="100" width="100" src="~/Images/logos/loading_animate.svg" style="
+                    top: 50%;
+                    left: 50%;
+                    position: relative;
+                    transform: translate(-50%,-50%);
+                    zoom: 4;
+                    " />
+                </div>
+            </div>
+        </div>
+
 
         <!-- Left navigation bar -->
         @Html.Partial("_Navigation")
@@ -70,6 +87,8 @@
     <script src="~/Scripts/plugins/metisMenu/jquery.metisMenu.js"></script>
     <script src="~/Scripts/plugins/slimscroll/jquery.slimscroll.min.js"></script>
     <script src="~/Scripts/plugins/steps/jquery.steps.min.js"></script>
+    @Scripts.Render("~/bundles/jqueryui")
+    <script src="~/Scripts/timeout-dialog.js"></script>
 
     @Scripts.Render("~/font-awesome/js")
     @Scripts.Render("~/plugins/sweetAlert")
@@ -123,6 +142,30 @@
     <!-- Local scripts -->
     @RenderSection("scripts", required: false)
     <script>
+        $(function () {
+            var SESSIONTIMEOUT = '@Session.Timeout';
+            var fnTimeOut = function () {
+                jQuery.timeoutDialog.setupDialogTimer({
+                    timeout: (SESSIONTIMEOUT*60),
+                    countdown: 60,
+                    title: '¡Tu sesión esta a punto de caducar!',
+                    message: 'Se desconectará en {0} segundos.',
+                    question: '¿Quieres estar conectado?',
+                    keep_alive_button_text: 'Sí, mantenerme sesión',
+                    sign_out_button_text: 'No, cerrar sesión',
+                    logout_redirect_url: '@Url.Action("Logout", "Auth")',
+                    keep_alive_url: '@Url.Action("KeepAlive", "Auth")',
+                    dialog_width: 400,
+                    keep_alive_function: function () {
+                        $("body").css("overflow", "auto");
+                    },
+                    logout_function: function () {
+                        El20Utils.mostrarCargador();
+                    }
+                });
+            };
+            fnTimeOut();
+        });
         jQuery.extend(jQuery.validator.messages, {
             required: "Campo requerido.",
             remote: "Please fix this field.",

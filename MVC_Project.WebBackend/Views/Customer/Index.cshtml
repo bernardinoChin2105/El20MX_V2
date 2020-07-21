@@ -70,7 +70,7 @@
                     {
                         <div class="ibox-tools">
                             <a href="@Url.Action("Create", "Customer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Nuevo Cliente</a>
-                            <a href="@Url.Action("Import", "Customer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-upload"></span> Importar</a>
+                            <button type="button" class="btn btn-sm btn-color btn-import" data-toggle="modal" data-target="#ModalImporterClients"><span class="fas fa-upload"></span> Importar</button>
                             <button type="button" class="btn btn-sm btn-color btn-export"><span class="fas fa-download"></span> Exportar</button>
                         </div>
                     }
@@ -83,27 +83,91 @@
             </div>
         </div>
     </div>
+    <div id="ModalImporterClients" class="modal fade hidden-print" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <h3>Selecciona la cuenta que quieres usar</h3>
+                    </div>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h4>El excel debe contener los siguientes columnas</h4>
+                            <ul>
+                                <li>Id (Celda sin contenido)</li>
+                                <li>Nombre(s) (*Obligatorio)</li>
+                                <li>Apellido(s) (*Obligatorio)</li>
+                                <li>RFC (*Obligatorio)</li>
+                                <li>CURP</li>
+                                <li>Nombre/Razón Social (*Obligatorio)</li>
+                                <li>Tipo Régimen Fiscal ("Persona Física" o "Persona Moral")</li>
+                                <li>Calle y Cruzamientos</li>
+                                <li>Número Exterior</li>
+                                <li>Número Interior</li>
+                                <li>C.P. (*Obligatorio)</li>
+                                <li>Colonia</li>
+                                <li>Alcaldía/Municipio</li>
+                                <li>Estado</li>
+                                <li>Domicilio Comercial </li>
+                                <li>Email</li>
+                                <li>Teléfono</li>
+                                <li>Fecha Creación (Celda sin contenido)</li>
+                                <li>uuid Cuenta (Celda sin contenido)</li>
+                            </ul>
+
+                            <br />
+
+                            @using (Html.BeginForm("ImportExcelCustomer", "Customer", FormMethod.Post, new { @id = "postImportar" }))
+                            {
+                                <div class="row">
+                                    <div class="col-12 col-md-10">
+                                        <div class="form-group">
+                                            <label for="exampleFormControlFile1">Archivo Excel</label>
+                                            <input type="file" name="Excel" class="form-control-file" id="exampleFormControlFile1">
+                                            @*<input type="file"  onchange="loadFile(event, 'rutaExcel', this)" />*@
+                                        </div>                                     
+                                        @*<label>Nombre del Archivo: </label>*@
+                                        <span class="hide" id="rutaExcel"></span>                                       
+                                    </div>
+                                    <div class="col-12 col-md-2">
+                                        <label></label>
+                                        <button type="button" class="btn btn-color btn-save-import" onclick="Guardar(event);"><span class="fas fa-upload"></span> Importar</button>
+                                    </div>
+                                </div>
+                            }                       
+                        </div>
+                    </div>
+                </div>
+                @*<div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="btn-CloseModal" data-dismiss="modal"><i class="fa fa-close"></i> Cerrar</button>
+                    </div>*@
+            </div>
+        </div>
+    </div>
 </div>
 @section scripts{
     @Scripts.Render("~/custom/Utils")
     @Scripts.Render("~/plugins/dataTables")
     @Scripts.Render("~/plugins/daterangepicker")
     @Scripts.Render("~/plugins/jqueryFileDownload.js")
-    
-    <script>
 
+    <script>
         $(function () {
             var customer = new CustomerIndexControlador('table',
                 '@Url.Action("GetCustomers")',
                 '@Url.Action("Edit")',
                 '@Url.Action("ExportListCustomer")',
                 '@Url.Action("CustomerUpload")',
-                'True'
-                @*//, '@hasFullAccessController' == 'True'*@
+                '@hasFullAccessController' == 'True'
             );
             customer.init();
         });
-
     </script>
 
     @Scripts.Render("~/views/customerIndex")

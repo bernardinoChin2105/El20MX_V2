@@ -12,7 +12,7 @@ namespace MVC_Project.WebBackend
             bundles.Add(new StyleBundle("~/Content/template/css").Include(
                           "~/Content/template/bootstrap.min.css",
                           "~/Content/template/plugins/iCheck/square/blue.css",
-
+                          "~/Content/template/timeout-dialog.css",
                           "~/Content/template/animate.css",
                           "~/Content/template/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css",
                           "~/Content/template/style.css",
@@ -139,6 +139,14 @@ namespace MVC_Project.WebBackend
             // toastr notification
             bundles.Add(new ScriptBundle("~/plugins/jqueryFileDownload.js").Include(
                       "~/Scripts/jquery.fileDownload.js"));
+
+            // jQueryUI CSS
+            bundles.Add(new StyleBundle("~/Scripts/plugins/jquery-ui/jqueryuiStyles").Include(
+                        "~/Scripts/plugins/jquery-ui/jquery-ui.min.css"));
+
+            // jQueryUI 
+            bundles.Add(new ScriptBundle("~/bundles/jqueryui").Include(
+                        "~/Scripts/plugins/jquery-ui/jquery-ui.min.js"));
 
         }
     }

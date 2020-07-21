@@ -63,6 +63,7 @@ namespace MVC_Project.WebBackend.Models
         public Int64? Colony { get; set; }
         public SelectList ListColony { get; set; }
 
+        [Required]
         [Display(Name = "C.P.")]
         public string ZipCode { get; set; }
 
@@ -80,6 +81,8 @@ namespace MVC_Project.WebBackend.Models
         public List<CustomerContactsViewModel> Emails { get; set; }
         public List<CustomerContactsViewModel> Phones { get; set; }
         public string dataContacts { get; set; }
+        public string indexPhone { get; set; }
+        public string indexEmail { get; set; }
 
         public CustomerViewModel()
         {
@@ -97,5 +100,11 @@ namespace MVC_Project.WebBackend.Models
         public Int64 Id { get; set; }
         public string TypeContact { get; set; }
         public string EmailOrPhone { get; set; }
+    }
+
+    public class Duplicates
+    {
+        public string RFCS { get; set; }
+        public int Repetitions { get; set; }
     }
 }

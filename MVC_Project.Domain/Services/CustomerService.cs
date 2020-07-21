@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace MVC_Project.Domain.Services
 {
@@ -13,6 +14,7 @@ namespace MVC_Project.Domain.Services
     {
         List<CustomerList> CustomerList(BasePagination pagination, CustomerFilter filter);
         List<ExportListCustomer> ExportListCustomer(CustomerFilter filter);
+        List<string> ValidateRFC(List<string> rfcs, Int64 id);
     }
 
     public class CustomerService : ServiceBase<Customer>, ICustomerService 
@@ -55,6 +57,16 @@ namespace MVC_Project.Domain.Services
             return null;
         }
 
-        
+        public List<string> ValidateRFC(List<string> rfcs, Int64 id)
+        {
+            List<string> result = new List<string>();
+
+            var response = _repository.Session.QueryOver<Customer>()
+                //.JoinAlias(x => x.account, () => accountAlias)
+                .Where(x => x.account.id == id && rfcs.Contains(x.rfc))
+                .Select(x => x.rfc);
+
+            return result.ToList();
+        }
     }
 }

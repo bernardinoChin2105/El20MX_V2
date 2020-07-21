@@ -54,6 +54,14 @@
     <Reference Include="EPPlus">
       <HintPath>..\packages\EPPlus.4.1.1\lib\net40\EPPlus.dll</HintPath>
     </Reference>
+    <Reference Include="ExcelDataReader, Version=3.5.0.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ExcelDataReader.3.5.0\lib\net45\ExcelDataReader.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelDataReader.DataSet, Version=3.5.0.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ExcelDataReader.DataSet.3.5.0\lib\net35\ExcelDataReader.DataSet.dll</HintPath>
+    </Reference>
     <Reference Include="Iesi.Collections, Version=4.0.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <HintPath>..\packages\Iesi.Collections.4.0.4\lib\net461\Iesi.Collections.dll</HintPath>
     </Reference>
@@ -1311,6 +1319,7 @@
     <Content Include="Content\img\flags\64\Zambia.png" />
     <Content Include="Content\img\flags\64\Zimbabwe.png" />
     <Content Include="Content\template\stylesEl20mx.css" />
+    <Content Include="Content\template\timeout-dialog.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\font-awesome\all.css" />
     <Content Include="fonts\font-awesome\all.js" />
@@ -1385,9 +1394,10 @@
     <Content Include="Images\landing\iphone.jpg" />
     <Content Include="Images\landing\laptop.png" />
     <Content Include="Images\landing\perspective.png" />
-    <Content Include="Images\logos\logo_default.png" />
-    <Content Include="Images\logos\logo_default2.png" />
-    <Content Include="Images\logos\logo_icon.png" />
+    <Content Include="Images\logos\El20mx-logo-estes-donde-e.png" />
+    <Content Include="Images\logos\loading_animate.svg" />
+    <Content Include="Images\logos\logo-blanco.png" />
+    <Content Include="Images\logos\logo_sin_texto.png" />
     <Content Include="Images\logo_el20mx.png" />
     <Content Include="Images\off_canvas.jpg" />
     <Content Include="Images\p1.jpg" />
@@ -1791,6 +1801,7 @@
     <Content Include="Scripts\plugins\video\responsible-video.js" />
     <Content Include="Scripts\plugins\wow\wow.min.js" />
     <Content Include="Scripts\popper.min.js" />
+    <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
     <Content Include="Scripts\views\Auth\Index.js" />
     <Content Include="Scripts\views\Customer\Edit.js" />

@@ -1,4 +1,5 @@
-﻿using MVC_Project.BackendWeb.Attributes;
+﻿using ExcelDataReader;
+using MVC_Project.BackendWeb.Attributes;
 using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Model;
 using MVC_Project.Domain.Services;
@@ -11,6 +12,8 @@ using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Data;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -171,16 +174,20 @@ namespace MVC_Project.WebBackend.Controllers
                 if (model.State.Value > 0)
                     customer.state = model.State.Value;
 
+
+                string[] indexsP = model.indexPhone.Split(',');
+                string[] indexsE = model.indexEmail.Split(',');
+
                 if (model.Emails.Count() > 0)
                 {
                     for (int i = 0; i < model.Emails.Count(); i++)
                     {
-                        if (model.Emails[0].EmailOrPhone.Trim() != "")
+                        if (model.Emails[i].EmailOrPhone.Trim() != "" && !indexsE.Contains(i.ToString()))
                         {
                             CustomerContact email = new CustomerContact()
                             {
-                                emailOrPhone = model.Emails[0].EmailOrPhone,
-                                typeContact = model.Emails[0].TypeContact,
+                                emailOrPhone = model.Emails[i].EmailOrPhone,
+                                typeContact = model.Emails[i].TypeContact,
                                 customer = customer,
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
@@ -196,12 +203,12 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     for (int i = 0; i < model.Phones.Count(); i++)
                     {
-                        if (model.Phones[0].EmailOrPhone.Trim() != "")
+                        if (model.Phones[i].EmailOrPhone.Trim() != "" && !indexsP.Contains(i.ToString()))
                         {
                             CustomerContact phone = new CustomerContact()
                             {
-                                emailOrPhone = model.Phones[0].EmailOrPhone,
-                                typeContact = model.Phones[0].TypeContact,
+                                emailOrPhone = model.Phones[i].EmailOrPhone,
+                                typeContact = model.Phones[i].TypeContact,
                                 customer = customer,
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
@@ -277,7 +284,6 @@ namespace MVC_Project.WebBackend.Controllers
                 model.RFC = customer.rfc;
                 model.CURP = customer.curp;
                 model.BusinessName = customer.businessName;
-                model.taxRegime = customer.taxRegime;
                 model.Street = customer.street;
                 model.OutdoorNumber = customer.outdoorNumber;
                 model.InteriorNumber = customer.interiorNumber;
@@ -286,6 +292,7 @@ namespace MVC_Project.WebBackend.Controllers
                 model.Municipality = customer.municipality;
                 model.State = customer.state;
                 model.DeliveryAddress = customer.deliveryAddress;
+                model.taxRegime = ((TypeTaxRegimen)Enum.Parse(typeof(TypeTaxRegimen), customer.taxRegime)).ToString();
 
                 var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
                 stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
@@ -371,11 +378,15 @@ namespace MVC_Project.WebBackend.Controllers
                     customerData.state = model.State.Value;
 
                 #region Actualizar registros de las listas de emails y teléfonos 
+
+                string[] indexsP = model.indexPhone.Split(',');
+                string[] indexsE = model.indexEmail.Split(',');
+
                 if (model.Emails.Count() > 0)
                 {
                     for (int i = 0; i < model.Emails.Count(); i++)
                     {
-                        if (model.Emails[i].EmailOrPhone.Trim() != "")
+                        if (model.Emails[i].EmailOrPhone.Trim() != "" && !indexsE.Contains(i.ToString()))
                         {
                             if (model.Emails[i].Id > 0)
                             {
@@ -406,7 +417,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     for (int i = 0; i < model.Phones.Count(); i++)
                     {
-                        if (model.Phones[0].EmailOrPhone.Trim() != "")
+                        if (model.Phones[0].EmailOrPhone.Trim() != "" && !indexsP.Contains(i.ToString()))
                         {
                             if (model.Phones[i].Id > 0)
                             {
@@ -435,6 +446,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 //Eliminar registros de la lista
                 var list = model.dataContacts.Split(',');
+                //string[] dataIds = model.dataContacts.Split(',');
                 if (list.Count() > 0)
                 {
                     foreach (var item in list)
@@ -489,7 +501,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 using (ExcelPackage pck = new ExcelPackage())
                 {
-                    ExcelWorksheet campo = pck.Workbook.Worksheets.Add("CUADRO PAGOS DIARIOS");
+                    ExcelWorksheet campo = pck.Workbook.Worksheets.Add("LISTA DE CLIENTES");
 
                     campo.Cells["A1:Z1"].Style.Font.Bold = true;
 
@@ -513,10 +525,10 @@ namespace MVC_Project.WebBackend.Controllers
                     campo.Cells["R1"].Value = "Fecha Creación";
                     campo.Cells["S1"].Value = "uuid Cuenta";
 
-
                     int rowIndex = 2;
                     for (int i = 0; i < listResponse.Count(); i++)
                     {
+                        string enumFiscal = string.Empty;
                         string rowIndexString = rowIndex.ToString();
                         campo.Cells["A" + rowIndexString].Value = listResponse[i].id;
                         campo.Cells["A" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
@@ -536,8 +548,15 @@ namespace MVC_Project.WebBackend.Controllers
                         campo.Cells["F" + rowIndexString].Value = listResponse[i].businessName;
                         campo.Cells["F" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
-                        campo.Cells["G" + rowIndexString].Value = listResponse[i].taxRegime;
+                        if (listResponse[i].taxRegime != null)
+                        {
+                            enumFiscal = ((TypeTaxRegimen)Enum.Parse(typeof(TypeTaxRegimen), listResponse[i].taxRegime)).GetDisplayName();
+                            //var pal2 = EnumUtils.GetValueFromDescription<TypeTaxRegimen>(enumFiscal);//funciona cuando obtenemos la descripción
+                        }
+
+                        campo.Cells["G" + rowIndexString].Value = enumFiscal;
                         campo.Cells["G" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+
 
                         campo.Cells["H" + rowIndexString].Value = listResponse[i].street;
                         campo.Cells["H" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -581,23 +600,271 @@ namespace MVC_Project.WebBackend.Controllers
                     byte[] bin = pck.GetAsByteArray();
                     return File(bin, "application/vnd.ms-excel", "ListaClientes_(" + DateTime.Now.ToString("G") + ").xlsx");
                 }
-
-
-                //return Json(new
-                //{
-                //    draw = Filtros.draw,
-                //    recordsFiltered = GridData.TOTAL_ELEMENTOS,
-                //    recordsTotal = GridData.TOTAL_ELEMENTOS,
-                //    data = GridData.Datos,
-                //}, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                //return Json(new
-                //{
-                //    error = ex.GetBaseException().Message
-                //});
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 throw;
+            }
+        }
+
+        [HttpPost, AllowAnonymous]
+        public JsonResult ImportExcelCustomer(HttpPostedFileBase Excel)
+        {
+
+            List<object> Errores = new List<object>();
+            List<ExportListCustomer> datosErroneos = new List<ExportListCustomer>();
+            List<ExportListCustomer> datos = new List<ExportListCustomer>();
+            try
+            {
+                var authUser = Authenticator.AuthenticatedUser;
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+
+                if (Excel != null && Excel.ContentLength > 0)
+                {
+                    Stream stream = Excel.InputStream;
+                    IExcelDataReader reader = null;
+
+                    if (Excel.FileName.EndsWith(".xls"))
+                    {
+                        reader = ExcelReaderFactory.CreateBinaryReader(stream);
+                    }
+                    else if (Excel.FileName.EndsWith(".xlsx"))
+                    {
+                        reader = ExcelReaderFactory.CreateOpenXmlReader(stream);
+                    }
+
+                    //reader.IsFirstRowAsColumnNames = true;
+                    DataSet result = reader.AsDataSet();
+                    var tabla = result.Tables[0];
+
+                    if (tabla.Rows.Count > 0)
+                    {
+                        for (int i = 0; i < tabla.Rows.Count; i++)
+                        {
+                            if (i > 0)
+                            {
+                                try
+                                {
+                                    if (!tabla.Rows[i].IsNull(1)
+                                        || !tabla.Rows[i].IsNull(2)
+                                        || !tabla.Rows[i].IsNull(3)
+                                        || !tabla.Rows[i].IsNull(5)
+                                        || !tabla.Rows[i].IsNull(10))
+                                    {
+                                        //Validar
+                                        string taxRegime = string.Empty;
+                                        if (!tabla.Rows[i].IsNull(6))
+                                        {
+                                            var taxRegimeEnum = EnumUtils.GetValueFromDescription<TypeTaxRegimen>(tabla.Rows[i].ItemArray[6].ToString());//funciona cuando obtenemos la descripción
+                                            taxRegime = taxRegimeEnum.ToString();
+                                        }
+
+                                        //deliveryAddress = tabla.Rows[i].ItemArray[14].ToString(),
+                                        ExportListCustomer customers = new ExportListCustomer
+                                        {
+                                            first_name = tabla.Rows[i].ItemArray[1].ToString(),
+                                            last_name = tabla.Rows[i].ItemArray[2].ToString(),
+                                            rfc = tabla.Rows[i].ItemArray[3].ToString(),
+                                            curp = tabla.Rows[i].ItemArray[4].ToString(),
+                                            businessName = tabla.Rows[i].ItemArray[5].ToString(),
+                                            taxRegime = taxRegime,
+                                            street = tabla.Rows[i].ItemArray[7].ToString(),
+                                            interiorNumber = tabla.Rows[i].ItemArray[8].ToString(),
+                                            outdoorNumber = tabla.Rows[i].ItemArray[9].ToString(),
+                                            zipCode = tabla.Rows[i].ItemArray[10].ToString(),
+                                            nameSettlement = tabla.Rows[i].ItemArray[11].ToString(),
+                                            nameMunicipality = tabla.Rows[i].ItemArray[12].ToString(),
+                                            nameState = tabla.Rows[i].ItemArray[13].ToString(),
+                                            //deliveryAddress = tabla.Rows[i].ItemArray[14].ToString(),
+                                            email = tabla.Rows[i].ItemArray[16].ToString(),
+                                            phone = tabla.Rows[i].ItemArray[17].ToString(),
+                                            createdAt = todayDate,
+                                            modifiedAt = todayDate,
+                                            status = SystemStatus.ACTIVE.ToString(),
+                                            uuid = Guid.NewGuid(),
+                                            accountId = authUser.Account.Id,
+                                            uuidAccount = authUser.Account.Uuid
+                                        };
+
+                                        datos.Add(customers);
+                                    }
+                                }
+                                catch (Exception Error)
+                                {
+                                    Errores.Add(new { Error = Error.Message.ToString(), Elemento = tabla.Rows[i].ItemArray });
+                                }
+                            }
+                            else
+                            {
+                                object[] encabezado = tabla.Rows[0].ItemArray;
+
+                                try
+                                {
+                                    if (encabezado[0].ToString() != "Id") throw new Exception("Título de columna inválida");
+                                    if (encabezado[1].ToString() != "Nombre(s)") throw new Exception("Título de columna inválida");
+                                    if (encabezado[2].ToString() != "Apellido(s)") throw new Exception("Título de columna inválida");
+                                    if (encabezado[3].ToString() != "RFC") throw new Exception("Título de columna inválida");
+                                    if (encabezado[4].ToString() != "CURP") throw new Exception("Título de columna inválida");
+                                    if (encabezado[5].ToString() != "Nombre/Razón Social") throw new Exception("Título de columna inválida");
+                                    if (encabezado[6].ToString() != "Tipo Régimen Fiscal") throw new Exception("Título de columna inválida");
+                                    if (encabezado[7].ToString() != "Calle y Cruzamientos") throw new Exception("Título de columna inválida");
+                                    if (encabezado[8].ToString() != "Número Exterior") throw new Exception("Título de columna inválida");
+                                    if (encabezado[9].ToString() != "Número Interior") throw new Exception("Título de columna inválida");
+                                    if (encabezado[10].ToString() != "C.P.") throw new Exception("Título de columna inválida");
+                                    if (encabezado[11].ToString() != "Colonia") throw new Exception("Título de columna inválida");
+                                    if (encabezado[12].ToString() != "Alcaldía/Municipio") throw new Exception("Título de columna inválida");
+                                    if (encabezado[13].ToString() != "Estado") throw new Exception("Título de columna inválida");
+                                    if (encabezado[14].ToString() != "Domicilio Comercial") throw new Exception("Título de columna inválida");
+                                    if (encabezado[15].ToString() != "Email") throw new Exception("Título de columna inválida");
+                                    if (encabezado[16].ToString() != "Teléfono") throw new Exception("Título de columna inválida");
+                                    if (encabezado[17].ToString() != "Fecha Creación") throw new Exception("Título de columna inválida");
+                                    if (encabezado[18].ToString() != "uuid Cuenta") throw new Exception("Título de columna inválida");
+                                }
+                                catch (Exception Error)
+                                {
+                                    Errores.Add(new
+                                    {
+                                        Error = Error,
+                                        elemento = tabla.Rows[0].ItemArray
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    if (Errores.Count > 0)
+                    {
+                        throw new Exception("¡Verifica el archivo, no se cuentan con los datos obligatorios!");
+                        //return Json(new { Success = false, Mensaje =, Tipo = 0 }, JsonRequestBehavior.AllowGet);
+                    }
+
+                    /*
+                     * - Validar si el usuario existe
+                     * - sino existe no guarda el archivo 
+                     **/
+
+                    // Validar usuarios duplicados
+                    List<string> rfcs = datos.Select(c => c.rfc).ToList();
+                    List<Duplicates> records = (from item in rfcs
+                                                group item by item into g
+                                                select new Duplicates
+                                                {
+                                                    RFCS = g.Key,
+                                                    Repetitions = g.Count()
+                                                }).ToList();
+
+                    List<Duplicates> RDuplicates = (from d in records where d.Repetitions > 1 select d).ToList();
+                    if (RDuplicates.Count > 0)
+                    {
+                        List<string> RFCDuplicates = (from d in RDuplicates select d.RFCS).ToList();
+                        IEnumerable<ExportListCustomer> SinRegistros = from d in datos where RFCDuplicates.Contains(d.rfc) select d;
+                        SinRegistros = SinRegistros.Select(c => { c.Observaciones = "RFC con registro duplicados en el archivo."; return c; }).ToList();
+                        datosErroneos = datosErroneos.Union(SinRegistros).ToList();
+                    }
+
+                    //Validar rfc
+                    var Existen = _customerService.ValidateRFC(rfcs, authUser.Account.Id);
+
+                    List<string> NoExisten = rfcs.Except(Existen).ToList();
+
+                    if (Existen.Count > 0)
+                    {
+                        IEnumerable<ExportListCustomer> SiExisteRegistros = from d in datos where Existen.Contains(d.rfc) select d;
+                        SiExisteRegistros = SiExisteRegistros.Select(c => { c.Observaciones = "Existe registrado el RFC de el cliente."; return c; }).ToList();
+                        datosErroneos = datosErroneos.Union(SiExisteRegistros).ToList();
+                        //return Json(new { Success = false, Mensaje = "¡Verifica el archivo, hay usuarios que no existen!", Tipo = 3, SinGuardar = SinRegistros }, JsonRequestBehavior.AllowGet);
+                    }
+
+                    if (datosErroneos.Count > 0)
+                    {
+                        return Json(new { Success = false, Mensaje = "¡Verifica el archivo, hay clientes ya existentes o estan duplicados!", Tipo = 1, SinGuardar = datosErroneos }, JsonRequestBehavior.AllowGet);
+                    }
+
+                    reader.Close();
+
+                    //Guardado de información
+                    List<Customer> clientes = new List<Customer>();
+                    List<string> clientesNoRegistrados = new List<string>();
+                    foreach (var item in datos)
+                    {
+                        try
+                        {
+                            Customer nuevo = new Customer()
+                            {
+                                uuid = Guid.NewGuid(),
+                                account = new Account { id = authUser.Account.Id },
+                                firstName = item.first_name,
+                                lastName = item.last_name,
+                                rfc = item.rfc,
+                                curp = item.curp,
+                                businessName = item.businessName,
+                                street = item.street,
+                                interiorNumber = item.interiorNumber,
+                                outdoorNumber = item.outdoorNumber,
+                                zipCode = item.zipCode,
+                                createdAt = todayDate,
+                                modifiedAt = todayDate,
+                                status = SystemStatus.ACTIVE.ToString()
+                                //string taxRegime { get; set;}
+                                //Int64 colony { get; set; }
+                                //Int64 municipality { get; set; }
+                                //Int64 state { get; set; }
+                                //bool deliveryAddress { get; set; }
+                            };
+
+                            CustomerContact email = new CustomerContact()
+                            {
+                                emailOrPhone = item.email,
+                                typeContact = TypeContact.EMAIL.ToString(),
+                                customer = nuevo,
+                                createdAt = todayDate,
+                                modifiedAt = todayDate,
+                                status = SystemStatus.ACTIVE.ToString()
+                            };
+
+                            nuevo.customerContacts.Add(email);
+
+                            CustomerContact phone = new CustomerContact()
+                            {
+                                emailOrPhone = item.phone,
+                                typeContact = TypeContact.PHONE.ToString(),
+                                customer = nuevo,
+                                createdAt = todayDate,
+                                modifiedAt = todayDate,
+                                status = SystemStatus.ACTIVE.ToString()
+                            };
+                            nuevo.customerContacts.Add(phone);
+
+                            _customerService.Create(nuevo);
+                            clientes.Add(nuevo);
+                        }
+                        catch (Exception ex)
+                        {
+                            clientesNoRegistrados.Add(item.rfc);
+                        }
+                    }
+
+                    if (clientes.Count() > 0)
+                    {
+                        //LogHub de bitacora
+                        return Json(new
+                        {
+                            Success = true,
+                            Mensaje = "¡" + clientes.Count() + " Registros guardados exitosamente!",
+                            //Tipo = 2,
+                            SinGuardar = clientesNoRegistrados,
+                        }, JsonRequestBehavior.AllowGet);
+                    }
+
+                    return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente!", Tipo = 0 }, JsonRequestBehavior.AllowGet);
+                }
+
+                return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente! Archivo no válido", Tipo = 0 }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception Error)
+            {
+                return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente!", Tipo = 0, Error = Error.Message.ToString() }, JsonRequestBehavior.AllowGet);
             }
         }
 
