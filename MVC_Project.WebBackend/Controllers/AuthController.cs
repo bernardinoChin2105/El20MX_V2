@@ -100,7 +100,7 @@ namespace MVC_Project.WebBackend.Controllers
                         Level = p.level
                     }).ToList();
 
-                    authUser.Role = new Role { Code = guestRole.code, Name = guestRole.name };
+                    authUser.Role = new Role { Id = guestRole.id, Code = guestRole.code, Name = guestRole.name };
                     authUser.Permissions = permissionsGest;
                     Authenticator.StoreAuthenticatedUser(authUser);
                     MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
@@ -119,9 +119,9 @@ namespace MVC_Project.WebBackend.Controllers
                         Level = p.level
                     }).ToList();
 
-                    authUser.Role = new Role { Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
+                    authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
                     authUser.Permissions = permissionsUniqueMembership;
-                    authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
+                    authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image=uniqueMembership.account.imagen };
                     Authenticator.StoreAuthenticatedUser(authUser);
                     MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
                     return RedirectToAction("Index", "Account");
@@ -390,7 +390,7 @@ namespace MVC_Project.WebBackend.Controllers
                                         Level = p.level
                                     }).ToList();
 
-                                    authUser.Role = new Role { Code = guestRole.code, Name = guestRole.name };
+                                    authUser.Role = new Role { Id = guestRole.id, Code = guestRole.code, Name = guestRole.name };
                                     authUser.Permissions = permissionsGest;
                                     Authenticator.StoreAuthenticatedUser(authUser);
                                     url = "/Account/Index";
@@ -407,7 +407,7 @@ namespace MVC_Project.WebBackend.Controllers
                                         Level = p.level
                                     }).ToList();
 
-                                    authUser.Role = new Role { Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
+                                    authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
                                     authUser.Permissions = permissionsUniqueMembership;
                                     authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
                                     Authenticator.StoreAuthenticatedUser(authUser);

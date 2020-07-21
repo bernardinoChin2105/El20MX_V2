@@ -146,7 +146,7 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Rol")]
         public Int64 Role { get; set; }
 
-        public IEnumerable<SelectListItem> Roles { get; set; }
+        public List<SelectListItem> Roles { get; set; }
 
         public string Status { get; set; }
     }

@@ -65,6 +65,7 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
 
     public class Role
     {
+        public Int64 Id { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }
     }

@@ -192,7 +192,7 @@ namespace MVC_Project.WebBackend.Controllers
             return featuresViewModel;
         }
 
-        private IEnumerable<SelectListItem> PopulateRoles()
+        private List<SelectListItem> PopulateRoles()
         {
             var userAuth = Authenticator.AuthenticatedUser;
             var availableRoles = _roleService.FindBy(x => x.account.id == userAuth.Account.Id).OrderBy(x => x.code);
@@ -202,7 +202,7 @@ namespace MVC_Project.WebBackend.Controllers
                 Value = role.id.ToString(),
                 Text = role.name
             }).ToList();
-            return rolesList;
+            return rolesList.ToList();
         }
 
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
@@ -323,12 +323,12 @@ namespace MVC_Project.WebBackend.Controllers
                 model.Email = user.name;
                 model.MobileNumber = user.profile.phoneNumber;
                 model.Roles = PopulateRoles();
-                if (!model.Roles.Any(x => x.Value == membership.role.id.ToString()))
+                if (!model.Roles.Any(x => x.Value == userAuth.Role.Id.ToString()))
                 {
-                    model.Roles.Append(new SelectListItem
+                    model.Roles.Add(new SelectListItem
                     {
-                        Text = userAuth.Role.Code,
-                        Value = userAuth.Role.Name
+                        Text = userAuth.Role.Name,
+                        Value = userAuth.Role.Id.ToString()
                     });
                 }
                 model.Role = membership.role.id;
