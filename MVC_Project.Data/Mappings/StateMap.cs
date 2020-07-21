@@ -15,7 +15,7 @@ namespace MVC_Project.Data.Mappings
             Table("states");
             Id(x => x.id).GeneratedBy.Identity().Column("id");
             Map(x => x.nameState).Column("nameState").Not.Nullable();
-            Map(x => x.keyState).Column("last_name").Not.Nullable();
+            Map(x => x.keyState).Column("keyState").Not.Nullable();
 
             HasMany(x => x.municipalities).Inverse().Cascade.All().KeyColumn("stateId");
         }

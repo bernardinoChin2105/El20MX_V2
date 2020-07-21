@@ -327,8 +327,8 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     model.Roles.Append(new SelectListItem
                     {
-                        Text = userAuth.Role.Code,
-                        Value = userAuth.Role.Name
+                        Text = userAuth.Role.Name,
+                        Value = membership.role.id.ToString()
                     });
                 }
                 model.Role = membership.role.id;

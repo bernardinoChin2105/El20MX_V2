@@ -255,7 +255,7 @@ namespace MVC_Project.WebBackend.Controllers
                         imagen = memberships.account.imagen
                     });
 
-                    ValidarSat(accountViewModel);
+                    accountViewModel = ValidarSat(accountViewModel);
                     if (accountViewModel.accountListViewModels[0].statusValidate == "valid")
                     {
                         result = true;
@@ -282,7 +282,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
-        private void ValidarSat(AccountSelectViewModel accountViewModel)
+        private AccountSelectViewModel ValidarSat(AccountSelectViewModel accountViewModel)
         {
             foreach (var item in accountViewModel.accountListViewModels)
             {
@@ -299,6 +299,7 @@ namespace MVC_Project.WebBackend.Controllers
                     item.statusValidate = credential.statusProvider;
                 }
             }
+            return accountViewModel;
         }
     }
 }
