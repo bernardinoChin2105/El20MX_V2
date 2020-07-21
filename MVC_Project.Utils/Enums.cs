@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
@@ -143,8 +144,10 @@ namespace MVC_Project.Utils
     public enum TypeTaxRegimen
     {
         [Display(Name = "Persona Física")]
+        [Description("Persona Física")]
         MORALPERSONSREGIME,
         [Display(Name = "Persona Moral")]
+        [Description("Persona Moral")]
         NATURALPERSONSREGIME,
     }
 

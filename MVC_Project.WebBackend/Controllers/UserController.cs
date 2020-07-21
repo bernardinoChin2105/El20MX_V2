@@ -153,7 +153,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch(Exception ex)
             {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Index");
             }
         }
@@ -298,7 +298,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 userCreateViewModel.Roles = PopulateRoles();
                 return View(userCreateViewModel);
             }
@@ -329,7 +329,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Index");
             }
         }
@@ -366,7 +366,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 model.Roles = PopulateRoles();
                 return View(model);
             }

@@ -15,6 +15,7 @@ using Newtonsoft.Json.Linq;
 using MVC_Project.Domain.Model;
 using System.Collections.Specialized;
 using MVC_Project.FlashMessages;
+using LogHubSDK.Models;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -197,11 +198,11 @@ namespace MVC_Project.WebBackend.Controllers
                             }
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         string error = ex.Message.ToString();
                     }
-                    
+
 
                     ////Estamos buscando mis proveedores
                     //if (item.receiver.rfc == authUser.Account.RFC)
@@ -360,10 +361,14 @@ namespace MVC_Project.WebBackend.Controllers
         {
             var authUser = Authenticator.AuthenticatedUser;
             DiagnosticViewModel model = new DiagnosticViewModel();
-            var diagnostic = _diagnosticService.FindBy(x => x.uuid.ToString() == id).FirstOrDefault();
 
-            if (diagnostic != null)
+            try
             {
+                var diagnostic = _diagnosticService.FindBy(x => x.uuid.ToString() == id).FirstOrDefault();
+
+                if (diagnostic == null)
+                    throw new Exception("No se encontro el registro del diagnóstico");
+
                 model.id = id;
                 model.rfc = diagnostic.account.rfc;
                 model.businessName = diagnostic.businessName;
@@ -417,12 +422,41 @@ namespace MVC_Project.WebBackend.Controllers
 
                     model.diagnosticDetails = invoicePeriod;
                 }
+
+
+                LogUtil.AddEntry(
+                       "Se descarga el Dx0 del cliente",
+                       ENivelLog.Info,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
+
+                MensajeFlashHandler.RegistrarMensaje("Descargando...", TiposMensaje.Success);
+                string rfc = authUser.Account.RFC;
+                //PageSize = Rotativa.Options.Size.Letter, 
+                //return View(model);
+                return new Rotativa.ViewAsPdf("DiagnosticZeroDownload", model) { FileName = rfc + "_D0.pdf" };
+            }
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(
+                       "Error al descargar el diagnostico: " + ex.Message.ToString(),
+                       ENivelLog.Error,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return View();
             }
 
-            string rfc = authUser.Account.RFC;
-            //PageSize = Rotativa.Options.Size.Letter, 
-            //return View(model);
-            return new Rotativa.ViewAsPdf("DiagnosticZeroDownload", model) { FileName = rfc + "_D0.pdf" };
         }
     }
 }
