@@ -323,6 +323,14 @@ namespace MVC_Project.WebBackend.Controllers
                 model.Email = user.name;
                 model.MobileNumber = user.profile.phoneNumber;
                 model.Roles = PopulateRoles();
+                if (!model.Roles.Any(x => x.Value == membership.role.id.ToString()))
+                {
+                    model.Roles.Append(new SelectListItem
+                    {
+                        Text = userAuth.Role.Code,
+                        Value = userAuth.Role.Name
+                    });
+                }
                 model.Role = membership.role.id;
                 model.Status = user.status;
                 return View(model);
