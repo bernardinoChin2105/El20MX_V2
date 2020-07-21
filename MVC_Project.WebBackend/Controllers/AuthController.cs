@@ -71,10 +71,11 @@ namespace MVC_Project.WebBackend.Controllers
                     DateTime passwordExpiration = user.passwordExpiration.Value;
                     DateTime todayDate = DateUtil.GetDateTimeNow();
                     if (user.passwordExpiration.Value.Date < todayDate.Date)
-                    {
-                        MensajeFlashHandler.RegistrarMensaje(ViewLabels.CONFIRM_NEW_PASSWORD, TiposMensaje.Info);
-                        return RedirectToAction("ChangePassword", "Auth");
-                    }
+                        return RedirectToAction("ChangePassword", "Auth", new { userUuid = user.uuid });
+                    //{
+                    //    MensajeFlashHandler.RegistrarMensaje(ViewLabels.CONFIRM_NEW_PASSWORD, TiposMensaje.Info);
+                    //    return RedirectToAction("ChangePassword", "Auth", new { userUuid = user.uuid });
+                    //}
                     string daysBeforeExpireToNotifyConfig = ConfigurationManager.AppSettings["DaysBeforeExpireToNotify"];
                     int daysBeforeExpireToNotify = 0;
                     if (Int32.TryParse(daysBeforeExpireToNotifyConfig, out daysBeforeExpireToNotify))
@@ -258,75 +259,48 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         [HttpGet, AllowAnonymous]
-        public ActionResult ChangePassword()
+        public ActionResult ChangePassword(Guid userUuid)
         {
             AuthUser authenticatedUser = Authenticator.AuthenticatedUser;
-            if (authenticatedUser == null)
-            {
-                return RedirectToAction("Login", "Auth");
-            }
-            return View("ChangePassword");
+            //if (authenticatedUser == null)
+            //{
+            //    return RedirectToAction("Login", "Auth");
+            //}
+            ChangePasswordViewModel model = new ChangePasswordViewModel();
+            model.Uuid = userUuid;
+            return View("ChangePassword", model);
         }
 
         [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
         public ActionResult ChangePassword(ChangePasswordViewModel model)
         {
-
-            AuthUser authenticatedUser = Authenticator.AuthenticatedUser;
-
-            if (authenticatedUser == null)
+            try
             {
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada es incorrecto");
+
+                var user = _userService.FirstOrDefault(e => e.uuid == model.Uuid);
+
+                if (user == null)
+                    throw new Exception("El usuario no se encuentra registrado en el sistema");
+
+                user.password = SecurityUtil.EncryptPassword(model.Password);
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+                string daysToExpirateDate = ConfigurationManager.AppSettings["DaysToExpirateDate"];
+                DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
+                user.passwordExpiration = passwordExpiration;
+                _userService.Update(user);
+
+                MensajeFlashHandler.RegistrarMensaje("Contraseña actualizada", TiposMensaje.Success);
                 return RedirectToAction("Login", "Auth");
-            }
-            var user = _userService.FindBy(e => e.uuid == authenticatedUser.Uuid).First();
 
-            if (!String.IsNullOrWhiteSpace(model.Password) && user != null)
+            }
+            catch (Exception ex)
             {
-                string encriptedPass = SecurityUtil.EncryptPassword(model.Password);
-                if (user.password == encriptedPass)
-                {
-                    ModelState.AddModelError("Password", "La contraseña ya ha sido utilizada");
-                }
+                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                return View("ChangePassword", model);
             }
-            if (ModelState.IsValid)
-            {
-                if (user != null)
-                {
-                    user.password = SecurityUtil.EncryptPassword(model.Password);
-                    DateTime todayDate = DateUtil.GetDateTimeNow();
-                    string daysToExpirateDate = ConfigurationManager.AppSettings["DaysToExpirateDate"];
-                    DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
-                    user.passwordExpiration = passwordExpiration;
-                    _userService.Update(user);
-
-                    var membership = user.memberships.First();
-                    //var accountUser = _accountUserService.FindBy(x => x.user.id == user.id && x.account.id == account.id).First();
-
-                    AuthUser authUser = new AuthUser
-                    {
-                        FirstName = user.profile.firstName,
-                        LastName = user.profile.lastName,
-                        Email = user.name,
-                        Uuid = user.uuid,
-                        PasswordExpiration = user.passwordExpiration,
-                        Role = new Role
-                        {
-                            Code = membership.role.code,
-                            Name = membership.role.name
-                        },
-                        Permissions = membership.role.rolePermissions.Select(p => new Permission
-                        {
-                            //Action = p.permission.action,
-                            Controller = p.permission.controller,
-                            Module = p.permission.module,
-                            Level = p.level
-                        }).ToList()
-                    };
-                    Authenticator.StoreAuthenticatedUser(authUser);
-                    return RedirectToAction("Index", "Home");
-                }
-            }
-            return View("ChangePassword", model);
+            
         }
 
         [HttpPost, AllowAnonymous]
@@ -517,7 +491,7 @@ namespace MVC_Project.WebBackend.Controllers
                 };
 
                 //Set user in sesion
-                Authenticator.StoreAuthenticatedUser(authUser);
+                //Authenticator.StoreAuthenticatedUser(authUser);
 
                 LogUtil.AddEntry(
                    "Ingresa al Sistema",

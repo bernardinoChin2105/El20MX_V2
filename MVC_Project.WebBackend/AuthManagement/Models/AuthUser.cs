@@ -83,6 +83,7 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
         public Guid Uuid { get; set; }
         public string Name { get; set; }
         public string RFC { get; set; }
+        public string Image { get; set; }
     }
     
 }

@@ -10,7 +10,7 @@ namespace MVC_Project.Domain.Services
 {
     public interface ICredentialService : IService<Credential>
     {
-        //Credential SaveCredential();
+        Credential CreateCredentialAccount(Credential credential);
     }
 
     public class CredentialService : ServiceBase<Credential>, ICredentialService
@@ -20,10 +20,23 @@ namespace MVC_Project.Domain.Services
         {
             _repository = baseRepository;
         }
-
-        //public Credential SaveCredential()
-        //{
-
-        //}
+        public Credential CreateCredentialAccount(Credential credential)
+        {
+            using (var transaction = _repository.Session.BeginTransaction())
+            {
+                try
+                {
+                    _repository.Session.Save(credential.account);
+                    _repository.Session.Save(credential);
+                    transaction.Commit();
+                    return credential;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
+                }
+            }
+        }
     }
 }

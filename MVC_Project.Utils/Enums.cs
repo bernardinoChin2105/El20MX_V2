@@ -148,6 +148,16 @@ namespace MVC_Project.Utils
         NATURALPERSONSREGIME,
     }
 
+    public enum SystemProviders
+    {
+        [Display(Name = "Syncfy")]
+        SYNCFY,
+        [Display(Name = "SAT.ws")]
+        SATWS,
+        [Display(Name ="Finerio")]
+        FINERIO
+    }
+
     //public enum MoralPersonsRegime
     //{
     //    Regime601 = 601,

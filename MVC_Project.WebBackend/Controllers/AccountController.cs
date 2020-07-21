@@ -91,7 +91,7 @@ namespace MVC_Project.WebBackend.Controllers
                     }).ToList();
 
                     authUser.Role = new Role { Code = membership.role.code, Name = membership.role.name };
-                    authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc };
+                    authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.imagen };
                     authUser.Permissions = permissions;
 
                     Authenticator.RefreshAuthenticatedUser(authUser);
@@ -114,97 +114,67 @@ namespace MVC_Project.WebBackend.Controllers
         //[Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public JsonResult CreateCredential(LogInSATModel dataSat)
         {
-            bool result = false;
-            string message = string.Empty;
-            string typeNoti = string.Empty;
-
             try
             {
                 //Realizar la captura de la información
                 //Validar que no se repita el rfc
                 var accountExist = _accountService.ValidateRFC(dataSat.rfc);
 
-                if (accountExist == null)
+                if (accountExist != null)
+                    throw new Exception("Existe una cuenta registrada con este RFC.");
+                
+                //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
+                var responseSat = SATws.CallServiceSATws("credentials", dataSat, "Post");
+
+                var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
+
+                //Guardar la información si el llamado del servicio es exitoso
+                var authUser = Authenticator.AuthenticatedUser;
+                //var user = _accountService.FindBy(x => x.uuid == authUser.Uuid).FirstOrDefault();
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+
+                //vamos a crear el account y memberships. Pendiente a que me confirme William los memberships
+
+                var roleD = _roleService.FirstOrDefault(x => x.code == SystemRoles.ACCOUNT_OWNER.ToString());
+                var userD = _userService.FirstOrDefault(x => x.uuid == authUser.Uuid);
+
+                Domain.Entities.Account account = new Domain.Entities.Account()
                 {
-                    //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
-                    var responseSat = SATws.CallServiceSATws("credentials", dataSat, "Post");
+                    uuid = Guid.NewGuid(),
+                    name = authUser.FirstName + " " + authUser.LastName,
+                    rfc = dataSat.rfc,
+                    createdAt = todayDate,
+                    modifiedAt = todayDate,
+                    imagen = "/Images/p1.jpg",
+                    status = SystemStatus.ACTIVE.ToString()
+                };
 
-                    var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
-
-                    //Guardar la información si el llamado del servicio es exitoso
-                    var authUser = Authenticator.AuthenticatedUser;
-                    //var user = _accountService.FindBy(x => x.uuid == authUser.Uuid).FirstOrDefault();
-                    DateTime todayDate = DateUtil.GetDateTimeNow();
-
-                    //vamos a crear el account y memberships. Pendiente a que me confirme William los memberships
-                    #region Cración de la cuenta (Account)
-
-                    var roleD = _roleService.FindBy(x => x.code == SystemRoles.ACCOUNT_OWNER.ToString()).FirstOrDefault();
-                    var userD = _userService.FindBy(x => x.uuid == authUser.Uuid).FirstOrDefault();
-
-                    Domain.Entities.Account account = new Domain.Entities.Account()
-                    {
-                        uuid = Guid.NewGuid(),
-                        name = authUser.FirstName + " " + authUser.LastName,
-                        rfc = dataSat.rfc,
-                        createdAt = todayDate,
-                        modifiedAt = todayDate,
-                        imagen = "/Images/p1.jpg",
-                        status = SystemStatus.ACTIVE.ToString()
-                    };
-
-                    account.memberships.Add(new Domain.Entities.Membership
-                    {
-                        account = account,
-                        user = userD,
-                        role = roleD
-                    });
-
-                    _accountService.Create(account);
-                    #endregion
-
-                    Domain.Entities.Credential credential = new Domain.Entities.Credential();
-                    if (account.id > 0)
-                    {
-                        credential = new Domain.Entities.Credential()
-                        {
-                            account = account,
-                            provider = "SAT.ws",
-                            idCredentialProvider = model.id,
-                            statusProvider = model.status,
-                            createdAt = todayDate,
-                            modifiedAt = todayDate,
-                            status = SystemStatus.ACTIVE.ToString()
-                        };
-
-                        _credentialService.Create(credential);
-                    }
-
-                    //Retornar la información
-                    //string idCredential = credential.id.ToString();
-                    if (credential.id > 0)
-                    {
-                        result = true;
-                        message = "Cuenta registrada";
-                        typeNoti = "success";
-                    }
-                    else
-                    {
-                        //borrar registros o conexiones en satws si no se creo la credencial o la cuenta
-                    }
-                }
-                else
+                account.memberships.Add(new Domain.Entities.Membership
                 {
-                    message = "Existe una cuenta registrada con este RFC.";
-                    typeNoti = "error";
-                }
+                    account = account,
+                    user = userD,
+                    role = roleD
+                });
+
+                Domain.Entities.Credential credential = new Domain.Entities.Credential()
+                {
+                    account = account,
+                    provider = SystemProviders.SATWS.ToString(), //"SAT.ws",
+                    idCredentialProvider = model.id,
+                    statusProvider = model.status,
+                    createdAt = todayDate,
+                    modifiedAt = todayDate,
+                    status = SystemStatus.ACTIVE.ToString()
+                };
+
+                _credentialService.CreateCredentialAccount(credential);
 
                 return new JsonResult
                 {
-                    Data = new { Mensaje = message, Type = typeNoti, Success = result },
+                    Data = new { Mensaje = "Cuenta registrada", Type = "success", Success = true },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
-                };
+                };        
             }
             catch (Exception ex)
             {
