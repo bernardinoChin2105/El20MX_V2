@@ -325,7 +325,7 @@ namespace MVC_Project.WebBackend.Controllers
                 model.Roles = PopulateRoles();
                 if (!model.Roles.Any(x => x.Value == membership.role.id.ToString()))
                 {
-                    model.Roles.Append(new SelectListItem
+                    model.Roles = model.Roles.Append(new SelectListItem
                     {
                         Text = userAuth.Role.Name,
                         Value = membership.role.id.ToString()

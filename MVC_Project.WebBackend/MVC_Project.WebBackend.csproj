@@ -1916,7 +1916,6 @@
     <Content Include="Views\Diagnostic\DiagnosticDetail.cshtml" />
     <Content Include="Views\Diagnostic\DiagnosticZeroDownload.cshtml" />
     <Content Include="Views\Customer\Index.cshtml" />
-    <Content Include="Views\Customer\CreateOld.cshtml" />
     <Content Include="Views\Customer\Edit.cshtml" />
     <Content Include="Views\Customer\Create.cshtml" />
   </ItemGroup>
