@@ -88,7 +88,7 @@ $(".btn-add-email").click(function () {
 $(".btn-add-phone").click(function () {
     var item = '<div class="row"><div class="col-12 col-md-10">' +
         '<label class="col-form-label control-label">Teléfono ' + (itemNumberPhone + 1) + '</label>' +
-        '<input type="hidden" name="Phones[' + itemNumberPhone + '].TypeContact" value="PHONE)" />' +
+        '<input type="hidden" name="Phones[' + itemNumberPhone + '].TypeContact" value="PHONE" />' +
         '<input type="text" class="form-control phones" name="Phones[' + itemNumberPhone + '].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
         '</div>' +
         '<div class="col-12 col-md-2">' +
@@ -105,11 +105,11 @@ var itemsRemoveE = [];
 $('.listContacts').on('click', '.btn-remove', function () {
     var removePhone = $("#indexPhone");
     var removeEmail = $("#indexEmail");
-    console.log(this, "elementos");
+    //console.log(this, "elementos");
 
     var item = $(this).val();
     var data = $(this).data("element");
-    console.log(item, item.trim(), "valor del elemento");
+    //console.log(item, item.trim(), "valor del elemento");
 
     if (data === "PHONE") {
         itemsRemoveP.push(item);
@@ -119,20 +119,17 @@ $('.listContacts').on('click', '.btn-remove', function () {
         removeEmail.val(itemsRemoveE);
     }
 
-    console.log($(this).parent().parent(), "valor del elemento");
+    //console.log($(this).parent().parent(), "valor del elemento");
     $(this).parent().parent().addClass("hidden");
-
-    //<input type="hidden" name="indexPhone[]" id="indexPhone" />
-    //    <input type="hidden" name="indexEmail[]" id="indexEmail" />
 });
 
 $("#ZipCode").blur(function () {
-    console.log("perdio el focus");
+    //console.log("perdio el focus");
     var value = $(this).val();
     var cmbColony = $("#Colony");
     var cmbMunicipality = $("#Municipality");
     var cmbState = $("#State");
-    console.log("valor", value);
+    //console.log("valor", value);
 
     $.ajax({
         type: 'Get',
@@ -140,15 +137,15 @@ $("#ZipCode").blur(function () {
         data: { zipCode: value },
         url: urlGetLocation,
         success: function (json) {
-            console.log(json, "respuesta");
+            //console.log(json, "respuesta");
             if (json.Data.success) {
                 var datos = json.Data.data;
                 if (datos.length > 0) {
-                    console.log(datos, "que esta aquí");
+                    //console.log(datos, "que esta aquí");
                     cmbState.val(datos[0].stateId);
 
                     //Llenado de municipios
-                    console.log(datos[0], "registro 0");
+                    //console.log(datos[0], "registro 0");
                     cmbMunicipality.html('<option value="-1">Seleccione...</option>');
                     cmbMunicipality.append('<option value="' + datos[0].municipalityId + '">' + datos[0].nameMunicipality + '</option>');
                     cmbMunicipality.val(datos[0].municipalityId);
@@ -160,17 +157,24 @@ $("#ZipCode").blur(function () {
                     }));
                     cmbColony.val(datos[0].id);
                 } else {
+                    cmbState.val(-1);
+                    cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
+                    cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
                     toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
                 }
-
-
             } else {
+                cmbState.val(-1);
+                cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
+                cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
                 toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
             }
 
         },
         error: function (xhr) {
             console.log('error');
+            cmbState.val(-1);
+            cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
+            cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
         }
     });
 });

@@ -1,5 +1,7 @@
 ﻿$(document).ready(function () {
-    //$('.chosen-select').chosen({ width: '100%', "disable_search": true });
+
+    $("#ZipCode").trigger("blur");
+
     $.validator.addMethod("RFCTrue",
         function (value, element) {
             return value.match(/^([A-ZÑ&]{3,4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])) ?(?:- ?)?([A-Z\d]{2})([A\d])$/);
@@ -109,11 +111,12 @@ $('.listContacts').on('click', '.btn-remove', function () {
     var removeId = $("#dataContacts");
     var removePhone = $("#indexPhone");
     var removeEmail = $("#indexEmail");
-    console.log(this, "elementos");
+    //console.log(this, "elementos");
 
     var item = $(this).val();
     var data = $(this).data("element");
-    var itemValue = $(this).siblings().val();
+    console.log($(this).next(), "hermano")
+    var itemValue = $(this).next().val();
     console.log(item, item.trim(), itemValue, "valor del elemento");
 
     if (data === "PHONE") {
@@ -128,17 +131,17 @@ $('.listContacts').on('click', '.btn-remove', function () {
         itemsIdRemoves.push(itemValue);
         removeId.val(itemsIdRemoves);
     }
-    console.log($(this).parent().parent(), "valor del elemento");
+    //console.log($(this).parent().parent(), "valor del elemento");
     $(this).parent().parent().addClass("hidden");
 });
 
 $("#ZipCode").blur(function () {
-    console.log("perdio el focus");
+    //console.log("perdio el focus");
     var value = $(this).val();
     var cmbColony = $("#Colony");
     var cmbMunicipality = $("#Municipality");
     var cmbState = $("#State");
-    console.log("valor", value);
+    //console.log("valor", value);
 
     $.ajax({
         type: 'Get',
@@ -146,15 +149,15 @@ $("#ZipCode").blur(function () {
         data: { zipCode: value },
         url: urlGetLocation,
         success: function (json) {
-            console.log(json, "respuesta");
+            //console.log(json, "respuesta");
             if (json.Data.success) {
                 var datos = json.Data.data;
                 if (datos.length > 0) {
-                    console.log(datos, "que esta aquí");
+                    //console.log(datos, "que esta aquí");
                     cmbState.val(datos[0].stateId);
 
                     //Llenado de municipios
-                    console.log(datos[0], "registro 0");
+                    //console.log(datos[0], "registro 0");
                     cmbMunicipality.html('<option value="-1">Seleccione...</option>');
                     cmbMunicipality.append('<option value="' + datos[0].municipalityId + '">' + datos[0].nameMunicipality + '</option>');
                     cmbMunicipality.val(datos[0].municipalityId);
@@ -166,15 +169,24 @@ $("#ZipCode").blur(function () {
                     }));
                     cmbColony.val(datos[0].id);
                 } else {
+                    cmbState.val(-1);
+                    cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
+                    cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
                     toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
                 }
 
             } else {
+                cmbState.val(-1);
+                cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
+                cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
                 toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
             }
 
         },
         error: function (xhr) {
+            cmbState.val(-1);
+            cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
+            cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
             console.log('error');
         }
     });

@@ -2,7 +2,7 @@
 @using MVC_Project.WebBackend.AuthManagement
 @using MVC_Project.WebBackend.AuthManagement.Models
 @{
-    ViewBag.Title = "Díagnosticos";
+    ViewBag.Title = "Diagnósticos";
 
     var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
     AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;

@@ -14,7 +14,8 @@
         .heightLabel {
             height: 55px;
         }
-        .hidden{
+
+        .hidden {
             display: none;
         }
     </style>
@@ -143,30 +144,47 @@
                                 <div class="col-12 col-md-6">
                                     <div class="row listContacts">
                                         <div class="col-12" id="ListEmails">
-                                            @for (var i = 0; i < Model.Emails.Count; i++)
+                                            @if (Model.Emails.Count > 0)
+                                            {
+                                                for (var i = 0; i < Model.Emails.Count; i++)
+                                                {
+                                                    <div class="row">
+                                                        <div class="col-12 col-md-10">
+                                                            <label class="col-form-label control-label">Email @(i + 1)</label>
+                                                            <input type="hidden" name="Emails[@i].Id" value="@Model.Emails[i].Id" />
+                                                            <input type="hidden" name="Emails[@i].TypeContact" value="@TypeContact.EMAIL.ToString()" />
+                                                            <input type="email" class="form-control emails" name="Emails[@i].EmailOrPhone" value="@Model.Emails[i].EmailOrPhone" />
+                                                        </div>
+                                                        @if (i == 0)
+                                                        {
+                                                            <div class="col-12 col-md-2">
+                                                                <label class="col-form-label control-label heightLabel"></label>
+                                                                <button type="button" class="btn btn-color btn-add-email" value="email">+</button>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-12 col-md-2">
+                                                                <label class="col-form-label control-label heightLabel"></label>
+                                                                <button type="button" class="btn btn-color btn-remove-email btn-remove" data-element="EMAIL" value="@i"><i class="fa fa-trash"></i></button>
+                                                                <input type="hidden" value="@Model.Emails[i].Id" />
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                            }
+                                            else
                                             {
                                                 <div class="row">
                                                     <div class="col-12 col-md-10">
-                                                        <label class="col-form-label control-label">Email @(i + 1)</label>
-                                                        <input type="hidden" name="Emails[@i].Id" value="@Model.Emails[i].Id" />
-                                                        <input type="hidden" name="Emails[@i].TypeContact" value="@TypeContact.EMAIL.ToString()" />
-                                                        <input type="email" class="form-control emails" name="Emails[@i].EmailOrPhone" value="@Model.Emails[i].EmailOrPhone" />
+                                                        <label class="col-form-label control-label">Email 1</label>
+                                                        <input type="hidden" name="Emails[0].TypeContact" value="@TypeContact.EMAIL.ToString()" />
+                                                        <input type="email" class="form-control emails" name="Emails[0].EmailOrPhone" />
                                                     </div>
-                                                    @if (i == 0)
-                                                    {
-                                                        <div class="col-12 col-md-2">
-                                                            <label class="col-form-label control-label heightLabel"></label>
-                                                            <button type="button" class="btn btn-color btn-add-email" value="email">+</button>
-                                                        </div>
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="col-12 col-md-2">
-                                                            <label class="col-form-label control-label heightLabel"></label>
-                                                            <button type="button" class="btn btn-color btn-remove-email btn-remove" data-element="EMAIL" value="@i"><i class="fa fa-trash"></i></button>
-                                                            <input type="hidden" value="@Model.Emails[i].Id" />
-                                                        </div>
-                                                    }
+                                                    <div class="col-12 col-md-2">
+                                                        <label class="col-form-label control-label heightLabel"></label>
+                                                        <button type="button" class="btn btn-color btn-add-email" value="email">+</button>
+                                                    </div>
                                                 </div>
                                             }
                                         </div>
@@ -175,30 +193,47 @@
                                 <div class="col-12 col-md-6">
                                     <div class="row listContacts">
                                         <div class="col-12" id="ListPhones">
-                                            @for (var i = 0; i < Model.Phones.Count; i++)
+                                            @if (Model.Phones.Count > 0)
+                                            {
+                                                for (var i = 0; i < Model.Phones.Count; i++)
+                                                {
+                                                    <div class="row">
+                                                        <div class="col-12 col-md-10">
+                                                            <label class="col-form-label control-label">Teléfono @(i + 1)</label>
+                                                            <input type="hidden" name="Phones[@i].Id" value="@Model.Phones[i].Id" />
+                                                            <input type="hidden" name="Phones[@i].TypeContact" value="@TypeContact.PHONE.ToString()" />
+                                                            <input type="text" class="form-control phones" name="Phones[@i].EmailOrPhone" value="@Model.Phones[i].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />
+                                                        </div>
+                                                        @if (i == 0)
+                                                        {
+                                                            <div class="col-12 col-md-2">
+                                                                <label class="col-form-label control-label heightLabel"></label>
+                                                                <button type="button" class="btn btn-color btn-add-phone" value="phone">+</button>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-12 col-md-2">
+                                                                <label class="col-form-label control-label heightLabel"></label>
+                                                                <button type="button" class="btn btn-color btn-remove-phone btn-remove" data-element="PHONE" value="@i"><i class="fa fa-trash"></i></button>
+                                                                <input type="hidden" value="@Model.Phones[i].Id" />
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                            }
+                                            else
                                             {
                                                 <div class="row">
                                                     <div class="col-12 col-md-10">
-                                                        <label class="col-form-label control-label">Teléfono @(i + 1)</label>
-                                                        <input type="hidden" name="Phones[@i].Id" value="@Model.Phones[i].Id" />
-                                                        <input type="hidden" name="Phones[@i].TypeContact" value="@TypeContact.PHONE.ToString()" />
-                                                        <input type="text" class="form-control phones" name="Phones[@i].EmailOrPhone" value="@Model.Phones[i].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />
+                                                        <label class="col-form-label control-label">Teléfono 1</label>
+                                                        <input type="hidden" name="Phones[0].TypeContact" value="@TypeContact.PHONE.ToString()" />
+                                                        <input type="text" class="form-control phones" name="Phones[0].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />
                                                     </div>
-                                                    @if (i == 0)
-                                                    {
-                                                        <div class="col-12 col-md-2">
-                                                            <label class="col-form-label control-label heightLabel"></label>
-                                                            <button type="button" class="btn btn-color btn-add-phone" value="phone">+</button>
-                                                        </div>
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="col-12 col-md-2">
-                                                            <label class="col-form-label control-label heightLabel"></label>
-                                                            <button type="button" class="btn btn-color btn-remove-phone btn-remove" data-element="PHONE" value="@i"><i class="fa fa-trash"></i></button>
-                                                            <input type="hidden" value="@Model.Phones[i].Id" />
-                                                        </div>
-                                                    }
+                                                    <div class="col-12 col-md-2">
+                                                        <label class="col-form-label control-label heightLabel">   </label>
+                                                        <button type="button" class="btn btn-color btn-add-phone" value="phone">+</button>
+                                                    </div>
                                                 </div>
                                             }
                                         </div>

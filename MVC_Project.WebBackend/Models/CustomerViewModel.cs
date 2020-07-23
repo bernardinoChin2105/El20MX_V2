@@ -92,6 +92,8 @@ namespace MVC_Project.WebBackend.Models
             ListColony = new SelectList(list);
             ListState = new SelectList(list);
             ListMunicipality = new SelectList(list);
+            Emails = new List<CustomerContactsViewModel>();
+            Phones = new List<CustomerContactsViewModel>();
         }
     }
 

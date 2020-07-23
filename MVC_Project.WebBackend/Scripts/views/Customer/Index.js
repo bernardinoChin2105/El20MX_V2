@@ -30,78 +30,78 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();
         }).DataTable({
-                language: { url: 'Scripts/custom/dataTableslang.es_MX.json' },
-                "bProcessing": true,
-                "bServerSide": true,
-                "sAjaxSource": this.baseUrl,
-                orderMulti: false,
-                searching: false,
-                ordering: false,
-                columns: [
-                    { data: 'id', title: "Id", visible: false },
-                    { data: 'rfc', title: "RFC" },
-                    { data: 'businessName', title: "Nombre/Razón Social" },
-                    { data: 'phone', title: "Teléfono" },
-                    { data: 'email', title: "Email" },
-                    {
-                        data: null,
-                        title: "+ de Mis Clientes",
-                        className: 'menu-options',
-                        render: function (data) {
-                            //Menu para más opciones de cliente
-                            //console.log(data)
-                            var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                                '<div class="dropdown">' +
-                                '<button class="btn btn-light btn-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-ellipsis-h"></span></button>' +
-                                '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
-                                '<a class="dropdown-item" href="' + self.editUrl + '?uuid=' + data.uuid + '">Perfil Completo del Cliente</a>' +
-                                '<a class="dropdown-item" href="#">Estado de Cuenta</a>' +
-                                '<a class="dropdown-item" href="#">Lista de FActuras(CFDI\'s)</a>' +
-                                '</div>' +
-                                '</div>' +
-                                '</div>';
-                            return hasFullAccessController ? buttons : "";
-                        }
-                    },
-                    {
-                        data: null,
-                        title: "Trabajar con Mis Clientes",
-                        className: 'work-options',
-                        render: function (data) {
-                            //menu para el cliente work
-                            //console.log(data)
-                            //style="margin-left:5px;"
-                            var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                                '<div class="dropdown">' +
-                                '<button class="btn btn-light btn-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-ellipsis-h"></span></button>' +
-                                '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
-                                '<a class="dropdown-item" href="' + self.editUrl + '?uuid=' + data.uuid + '">Hacer CFDI</a>' +
-                                '</div>' +
-                                '</div>' +
-                                '</div>';
-                            return hasFullAccessController ? buttons : "";
-                        }
+            language: { url: 'Scripts/custom/dataTableslang.es_MX.json' },
+            "bProcessing": true,
+            "bServerSide": true,
+            "sAjaxSource": this.baseUrl,
+            orderMulti: false,
+            searching: false,
+            ordering: false,
+            columns: [
+                { data: 'id', title: "Id", visible: false },
+                { data: 'rfc', title: "RFC" },
+                { data: 'businessName', title: "Nombre/Razón Social" },
+                { data: 'phone', title: "Teléfono" },
+                { data: 'email', title: "Email" },
+                {
+                    data: null,
+                    title: "+ de Mis Clientes",
+                    className: 'menu-options',
+                    render: function (data) {
+                        //Menu para más opciones de cliente
+                        //console.log(data)
+                        var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
+                            '<div class="dropdown">' +
+                            '<button class="btn btn-light btn-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-ellipsis-h"></span></button>' +
+                            '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
+                            '<a class="dropdown-item" href="' + self.editUrl + '?uuid=' + data.uuid + '">Perfil Completo del Cliente</a>' +
+                            '<a class="dropdown-item" href="#">Estado de Cuenta</a>' +
+                            '<a class="dropdown-item" href="#">Lista de FActuras(CFDI\'s)</a>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>';
+                        return hasFullAccessController ? buttons : "";
                     }
-                ],
-                "fnServerData": function (sSource, aoData, fnCallback) {
-                    //console.log(aoData, "que es?")
-                    aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
-                    aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
-
-                    $.getJSON(sSource, aoData, function (json) {
-                        //console.log(json)
-
-                        if (json.success === false) {
-                            toastr['error'](json.Mensaje.message);
-                            console.log(json.Mensaje + " Error al obtener los elementos");
-                        } else {
-                            fnCallback(json);
-                        }
-                    });
+                },
+                {
+                    data: null,
+                    title: "Trabajar con Mis Clientes",
+                    className: 'work-options',
+                    render: function (data) {
+                        //menu para el cliente work
+                        //console.log(data)
+                        //style="margin-left:5px;"
+                        var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
+                            '<div class="dropdown">' +
+                            '<button class="btn btn-light btn-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-ellipsis-h"></span></button>' +
+                            '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
+                            '<a class="dropdown-item" href="' + self.editUrl + '?uuid=' + data.uuid + '">Hacer CFDI</a>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>';
+                        return hasFullAccessController ? buttons : "";
+                    }
                 }
-            }).on('xhr.dt', function (e, settings, data) {
-                El20Utils.ocultarCargador();
-            });
+            ],
+            "fnServerData": function (sSource, aoData, fnCallback) {
+                //console.log(aoData, "que es?")
+                aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
+                aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
+
+                $.getJSON(sSource, aoData, function (json) {
+                    //console.log(json)
+
+                    if (json.success === false) {
+                        toastr['error'](json.Mensaje.message);
+                        console.log(json.Mensaje + " Error al obtener los elementos");
+                    } else {
+                        fnCallback(json);
+                    }
+                });
+            }
+        }).on('xhr.dt', function (e, settings, data) {
+            El20Utils.ocultarCargador();
+        });
 
 
         $(".btn-export").click(function () {
@@ -123,7 +123,7 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
             } catch (e) {
                 throw 'CustomerIndexControlador -> Exportar: ' + e;
             }
-        });             
+        });
     };
 };
 
@@ -134,15 +134,15 @@ var loadFile = function (event, imgid, input) {
         var sFileName = input.value;
         if (sFileName.length > 0) {
             var blnValid = false;
-            console.log("aqui dentro")
             for (var j = 0; j < _validFileExtensions.length; j++) {
                 var sCurExtension = _validFileExtensions[j];
-                if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() === sCurExtension.toLowerCase()) {
                     blnValid = true;
                     //var output = document.getElementById(imgid).innerHTML(sFileName);
                     //output.src = URL.createObjectURL(event.target.files[0]);
                     var salida = sFileName.split("\\");
                     document.getElementById(imgid).innerHTML = salida[salida.length - 1];
+                    $(".btn-save-import").attr("disabled", false);
                     break;
                 }
             }
@@ -151,11 +151,12 @@ var loadFile = function (event, imgid, input) {
                 toastr["error"]('Favor de seleccionar un formato de Excel permitido.');
 
                 input.value = "";
+                $(".btn-save-import").attr("disabled", true);
 
                 return false;
             }
         } else {
-            console.log("aqui")
+            $(".btn-save-import").attr("disabled", true);
             document.getElementById(imgid).innerHTML = sFileName;
         }
     }
@@ -184,6 +185,11 @@ function Guardar(e) {
             console.log("result", result);
             if (!result.Success) {
                 toastr["error"](result.Mensaje);
+            } else {
+                toastr["success"](result.Mensaje);
+                $("input[name='Excel']").val("");
+                $(".btn-save-import").attr("disabled", true);
+                $('#table').DataTable().draw();
             }
             El20Utils.ocultarCargador();
             $("#ModalImporterClients").modal("show");
@@ -224,7 +230,7 @@ function Guardar(e) {
             //El20Utils.ocultarCargador();
             //loading.hideloading();
         }
-    }).always(function () {        
+    }).always(function () {
     });
 }
 
