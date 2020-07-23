@@ -12,7 +12,7 @@
     }
     this.init = function () {
         self.dataTable = this.htmlTable.DataTable({
-            language: { url: 'Scripts/custom/dataTableslang.es_MX.json' },
+            language: { url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json' },//Scripts/custom/dataTableslang.es_MX.json
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": this.baseUrl,
