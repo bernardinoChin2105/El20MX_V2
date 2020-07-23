@@ -83,19 +83,9 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                //new { success = false, Mensaje = new { title = "Error", message = ex.Message }
                 return new JsonResult
                 {
-                    Data =
-                    new
-                    {
-                        success = true,
-                        sEcho = param.sEcho,
-                        iTotalRecords = 0,
-                        iTotalDisplayRecords = 0,
-                        aaData = new List<CustomerList>()
-                    },
-                    //},
+                    Data = new { success = false, message = ex.Message },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
                 };

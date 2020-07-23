@@ -11,7 +11,9 @@
 
     }
     this.init = function () {
-        self.dataTable = this.htmlTable.DataTable({
+        self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
+            El20Utils.mostrarCargador();
+        }).DataTable({
             language: { url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json' },//Scripts/custom/dataTableslang.es_MX.json
             "bProcessing": true,
             "bServerSide": true,
@@ -70,13 +72,15 @@
                 aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
                 aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
                 $.getJSON(sSource, aoData, function (json) {
-                    if (json.success == false) {
-                        toastr['error'](json.Mensaje.message);
-                    } else {
+                    if (json.success) {
                         fnCallback(json);
+                    } else {
+                        toastr['error'](json.message);
                     }
                 });
             }
+        }).on('xhr.dt', function (e, settings, data) {
+            El20Utils.ocultarCargador();
         });
 
         /*$.fn.dataTable.ext.errMode = function (settings, helpPage, message) {

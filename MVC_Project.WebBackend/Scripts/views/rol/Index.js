@@ -5,7 +5,9 @@
     this.dataTable = {};
 
     this.init = function () {
-        self.dataTable = this.htmlTable.DataTable({
+        self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
+            El20Utils.mostrarCargador();
+        }).DataTable({
             language: { url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json' },
             "bProcessing": true,
             "bServerSide": true,
@@ -56,13 +58,17 @@
                 aoData.push({ "name": "filtros", "value": getFiltros("form#SearchForm") });
 
                 $.getJSON(sSource, aoData, function (json) {
-                    //if (json.success === true)
-                    fnCallback(json);
-                    //else
-                    //    console.log(json.Mensaje + " Error al obtener los elementos");
+                    if (json.success) {
+                        fnCallback(json);
+                    }
+                    else {
+                        toastr['error'](json.message);
+                    }
                 });
             }
-        });
+        }).on('xhr.dt', function (e, settings, data) {
+            El20Utils.ocultarCargador();
+        });;
 
         $(this.htmlTable, "tbody").on('click',
             'td.personal-options .btn-group .btn-active',

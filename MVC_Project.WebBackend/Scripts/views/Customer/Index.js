@@ -89,13 +89,10 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                 aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
 
                 $.getJSON(sSource, aoData, function (json) {
-                    //console.log(json)
-
-                    if (json.success === false) {
-                        toastr['error'](json.Mensaje.message);
-                        console.log(json.Mensaje + " Error al obtener los elementos");
-                    } else {
+                    if (json.success) {
                         fnCallback(json);
+                    } else {
+                        toastr['error'](json.message);
                     }
                 });
             }
@@ -129,6 +126,12 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
 
 
 var _validFileExtensions = [".xlsx", ".xls"];
+$('.custom-file-input').on('change', function () {
+    let fileName = $(this).val().split('\\').pop();
+    $(this).next('.custom-file-label').addClass("selected").html(fileName);
+    $(".btn-save-import").attr("disabled", false);
+}); 
+
 var loadFile = function (event, imgid, input) {
     if (input.type === "file") {
         var sFileName = input.value;

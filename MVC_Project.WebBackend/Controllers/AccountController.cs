@@ -59,7 +59,7 @@ namespace MVC_Project.WebBackend.Controllers
                     rfc = x.account.rfc,
                     role = x.role.name,
                     accountId = x.account.id,
-                    imagen = x.account.imagen
+                    imagen = x.account.avatar
                 }).ToList();
 
                 #region Obtener información de la credencial para saber si esta ya activo
@@ -91,7 +91,7 @@ namespace MVC_Project.WebBackend.Controllers
                     }).ToList();
 
                     authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
-                    authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.imagen };
+                    authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
                     authUser.Permissions = permissions;
 
                     Authenticator.RefreshAuthenticatedUser(authUser);
@@ -145,7 +145,7 @@ namespace MVC_Project.WebBackend.Controllers
                     rfc = dataSat.rfc,
                     createdAt = todayDate,
                     modifiedAt = todayDate,
-                    imagen = "/Images/p1.jpg",
+                    avatar = "/Images/p1.jpg",
                     status = SystemStatus.ACTIVE.ToString()
                 };
 
@@ -252,7 +252,7 @@ namespace MVC_Project.WebBackend.Controllers
                         rfc = memberships.account.rfc,
                         role = memberships.role.name,
                         accountId = memberships.account.id,
-                        imagen = memberships.account.imagen
+                        imagen = memberships.account.avatar
                     });
 
                     accountViewModel = ValidarSat(accountViewModel);

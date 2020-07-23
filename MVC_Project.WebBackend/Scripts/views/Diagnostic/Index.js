@@ -52,7 +52,9 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
     this.dataTable = {};
 
     this.init = function () {
-        self.dataTable = this.htmlTable.DataTable({
+        self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
+            El20Utils.mostrarCargador();
+        }).DataTable({
             language: { url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json' },
             "bProcessing": true,
             "bServerSide": true,
@@ -94,15 +96,20 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
 
                 $.getJSON(sSource, aoData, function (json) {
                     //console.log(json);
-                    if (json.iTotalRecords > 0) {
-                        $(".btn-d0").css("display", "none");
+
+                    if (json.success) {
+                        if (json.iTotalRecords > 0) {
+                            $(".btn-d0").css("display", "none");
+                        }
+                        fnCallback(json);
                     }
-                    //if (json.success === true)
-                    fnCallback(json);
-                    //else
-                    //    console.log(json.Mensaje + " Error al obtener los elementos");
+                    else {
+                        toastr['error'](json.message);
+                    }
                 });
             }
+        }).on('xhr.dt', function (e, settings, data) {
+            El20Utils.ocultarCargador();
         });
     };
 };

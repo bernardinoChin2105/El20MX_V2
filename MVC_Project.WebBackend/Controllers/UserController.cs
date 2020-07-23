@@ -129,14 +129,13 @@ namespace MVC_Project.WebBackend.Controllers
                     iTotalRecords = dataResponse.Count(),
                     iTotalDisplayRecords = totalDisplay,
                     aaData = dataResponse,
-                    error = "Test error"
                 }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 return new JsonResult
                 {
-                    Data = new { success = false, Mensaje = new { title = "Error", message = ex.Message } },
+                    Data = new { success = false, message = ex.Message },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
                 };
