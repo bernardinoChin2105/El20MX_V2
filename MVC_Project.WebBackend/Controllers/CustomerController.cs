@@ -24,12 +24,15 @@ namespace MVC_Project.WebBackend.Controllers
     {
         private IAccountService _accountService;
         private ICustomerService _customerService;
+        private ICustomerContactService _customerContactService;
         private IStateService _stateService;
 
-        public CustomerController(IAccountService accountService, ICustomerService customerService, IStateService stateService)
+        public CustomerController(IAccountService accountService, ICustomerService customerService, IStateService stateService,
+            ICustomerContactService customerContactService)
         {
             _accountService = accountService;
             _customerService = customerService;
+            _customerContactService = customerContactService;
             _stateService = stateService;
         }
 
@@ -174,15 +177,20 @@ namespace MVC_Project.WebBackend.Controllers
                 if (model.State.Value > 0)
                     customer.state = model.State.Value;
 
+                List<string> indexsP = new List<string>();
+                List<string> indexsE = new List<string>();
 
-                string[] indexsP = model.indexPhone.Split(',');
-                string[] indexsE = model.indexEmail.Split(',');
+                if (model.indexPhone != null)
+                    indexsP = model.indexPhone.Split(',').ToList();
+
+                if (model.indexEmail != null)
+                    indexsE = model.indexEmail.Split(',').ToList();
 
                 if (model.Emails.Count() > 0)
                 {
                     for (int i = 0; i < model.Emails.Count(); i++)
                     {
-                        if (model.Emails[i].EmailOrPhone.Trim() != "" && !indexsE.Contains(i.ToString()))
+                        if (model.Phones[i].EmailOrPhone != null && model.Emails[i].EmailOrPhone.Trim() != "" && !indexsE.Contains(i.ToString()))
                         {
                             CustomerContact email = new CustomerContact()
                             {
@@ -203,7 +211,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     for (int i = 0; i < model.Phones.Count(); i++)
                     {
-                        if (model.Phones[i].EmailOrPhone.Trim() != "" && !indexsP.Contains(i.ToString()))
+                        if (model.Phones[i].EmailOrPhone != null && model.Phones[i].EmailOrPhone.Trim() != "" && !indexsP.Contains(i.ToString()))
                         {
                             CustomerContact phone = new CustomerContact()
                             {
@@ -292,7 +300,8 @@ namespace MVC_Project.WebBackend.Controllers
                 model.Municipality = customer.municipality;
                 model.State = customer.state;
                 model.DeliveryAddress = customer.deliveryAddress;
-                model.taxRegime = ((TypeTaxRegimen)Enum.Parse(typeof(TypeTaxRegimen), customer.taxRegime)).ToString();
+                if (customer.taxRegime != null)
+                    model.taxRegime = ((TypeTaxRegimen)Enum.Parse(typeof(TypeTaxRegimen), customer.taxRegime)).ToString();
 
                 var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
                 stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
@@ -307,7 +316,7 @@ namespace MVC_Project.WebBackend.Controllers
                 model.ListRegimen = new SelectList(regimenList);
                 model.ListState = new SelectList(stateList);
 
-                var emails = customer.customerContacts.Where(x => x.typeContact == TypeContact.EMAIL.ToString())
+                var emails = customer.customerContacts.Where(x => x.typeContact == TypeContact.EMAIL.ToString() && x.status == SystemStatus.ACTIVE.ToString())
                             .Select(x => new CustomerContactsViewModel
                             {
                                 Id = x.id,
@@ -320,7 +329,7 @@ namespace MVC_Project.WebBackend.Controllers
                     model.Emails = emails;
                 }
 
-                var phones = customer.customerContacts.Where(x => x.typeContact == TypeContact.PHONE.ToString())
+                var phones = customer.customerContacts.Where(x => x.typeContact == TypeContact.PHONE.ToString() && x.status == SystemStatus.ACTIVE.ToString())
                             .Select(x => new CustomerContactsViewModel
                             {
                                 Id = x.id,
@@ -378,15 +387,20 @@ namespace MVC_Project.WebBackend.Controllers
                     customerData.state = model.State.Value;
 
                 #region Actualizar registros de las listas de emails y teléfonos 
+                List<string> indexsP = new List<string>();
+                List<string> indexsE = new List<string>();
 
-                string[] indexsP = model.indexPhone.Split(',');
-                string[] indexsE = model.indexEmail.Split(',');
+                if (model.indexPhone != null)
+                    indexsP = model.indexPhone.Split(',').ToList();
+
+                if (model.indexEmail != null)
+                    indexsE = model.indexEmail.Split(',').ToList();
 
                 if (model.Emails.Count() > 0)
                 {
                     for (int i = 0; i < model.Emails.Count(); i++)
                     {
-                        if (model.Emails[i].EmailOrPhone.Trim() != "" && !indexsE.Contains(i.ToString()))
+                        if (model.Emails[i].EmailOrPhone != null && model.Emails[i].EmailOrPhone.Trim() != "" && !indexsE.Contains(i.ToString()))
                         {
                             if (model.Emails[i].Id > 0)
                             {
@@ -417,7 +431,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     for (int i = 0; i < model.Phones.Count(); i++)
                     {
-                        if (model.Phones[0].EmailOrPhone.Trim() != "" && !indexsP.Contains(i.ToString()))
+                        if (model.Phones[0].EmailOrPhone != null && model.Phones[0].EmailOrPhone.Trim() != "" && !indexsP.Contains(i.ToString()))
                         {
                             if (model.Phones[i].Id > 0)
                             {
@@ -445,15 +459,21 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 //Eliminar registros de la lista
-                var list = model.dataContacts.Split(',');
-                //string[] dataIds = model.dataContacts.Split(',');
+                List<string> list = new List<string>();
+
+                if (model.dataContacts != null)
+                    list = model.dataContacts.Split(',').ToList();
+
                 if (list.Count() > 0)
                 {
                     foreach (var item in list)
                     {
                         var itemToRemove = customerData.customerContacts.SingleOrDefault(r => r.id == Convert.ToInt64(item));
                         if (itemToRemove != null)
-                            customerData.customerContacts.Remove(itemToRemove);
+                        {
+                            itemToRemove.status = SystemStatus.INACTIVE.ToString();
+                            //customerData.customerContacts.Remove(itemToRemove);
+                        }
                     }
                 }
                 #endregion
@@ -633,6 +653,10 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         reader = ExcelReaderFactory.CreateOpenXmlReader(stream);
                     }
+                    else
+                    {
+                        throw new Exception("Favor de seleccionar un formato de Excel permitido.");
+                    }
 
                     //reader.IsFirstRowAsColumnNames = true;
                     DataSet result = reader.AsDataSet();
@@ -677,8 +701,8 @@ namespace MVC_Project.WebBackend.Controllers
                                             nameMunicipality = tabla.Rows[i].ItemArray[12].ToString(),
                                             nameState = tabla.Rows[i].ItemArray[13].ToString(),
                                             //deliveryAddress = tabla.Rows[i].ItemArray[14].ToString(),
-                                            email = tabla.Rows[i].ItemArray[16].ToString(),
-                                            phone = tabla.Rows[i].ItemArray[17].ToString(),
+                                            email = tabla.Rows[i].ItemArray[15].ToString(),
+                                            phone = tabla.Rows[i].ItemArray[16].ToString(),
                                             createdAt = todayDate,
                                             modifiedAt = todayDate,
                                             status = SystemStatus.ACTIVE.ToString(),

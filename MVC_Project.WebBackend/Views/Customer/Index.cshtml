@@ -120,7 +120,6 @@
                                 <li>Fecha Creación (Celda sin contenido)</li>
                                 <li>uuid Cuenta (Celda sin contenido)</li>
                             </ul>
-
                             <br />
 
                             @using (Html.BeginForm("ImportExcelCustomer", "Customer", FormMethod.Post, new { @id = "postImportar" }))
@@ -129,15 +128,15 @@
                                     <div class="col-12 col-md-10">
                                         <div class="form-group">
                                             <label for="exampleFormControlFile1">Archivo Excel</label>
-                                            <input type="file" name="Excel" class="form-control-file" id="exampleFormControlFile1">
-                                            @*<input type="file"  onchange="loadFile(event, 'rutaExcel', this)" />*@
+                                            <input type="file" name="Excel" class="form-control-file" id="exampleFormControlFile1" onchange="loadFile(event, 'rutaExcel', this)">
+                                            @*<input type="file"   />*@
                                         </div>                                     
                                         @*<label>Nombre del Archivo: </label>*@
                                         <span class="hide" id="rutaExcel"></span>                                       
                                     </div>
                                     <div class="col-12 col-md-2">
                                         <label></label>
-                                        <button type="button" class="btn btn-color btn-save-import" onclick="Guardar(event);"><span class="fas fa-upload"></span> Importar</button>
+                                        <button type="button" class="btn btn-color btn-save-import" disabled="disabled" onclick="Guardar(event);"><span class="fas fa-upload"></span> Importar</button>
                                     </div>
                                 </div>
                             }                       

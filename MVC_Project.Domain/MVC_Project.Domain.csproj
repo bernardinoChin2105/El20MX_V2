@@ -91,6 +91,7 @@
     <Compile Include="Repositories\IRepository.cs" />
     <Compile Include="Services\AccountService.cs" />
     <Compile Include="Services\CredentialService.cs" />
+    <Compile Include="Services\CustomerContactService.cs" />
     <Compile Include="Services\CustomerService.cs" />
     <Compile Include="Services\DiagnosticDetailService.cs" />
     <Compile Include="Services\DiagnosticService.cs" />
