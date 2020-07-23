@@ -104,7 +104,9 @@ namespace MVC_Project.Utils
         [Display(Name = "Prospectos")]
         PROSPECTS,
         [Display(Name = "Clientes")]
-        CUSTOMERS
+        CUSTOMERS,
+        [Display(Name = "Proveedores")]
+        PROVIDERS
     }
 
     public enum TermsAndConditions
@@ -157,7 +159,7 @@ namespace MVC_Project.Utils
         SYNCFY,
         [Display(Name = "SAT.ws")]
         SATWS,
-        [Display(Name ="Finerio")]
+        [Display(Name = "Finerio")]
         FINERIO
     }
 

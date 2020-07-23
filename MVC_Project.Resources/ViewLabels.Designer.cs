@@ -290,5 +290,16 @@ namespace MVC_Project.Resources {
                 return ResourceManager.GetString("MODULE_CUSTOMERS", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Busca una cadena traducida similar a proveedores.
+        /// </summary>
+        public static string MODULE_PROVIDERS
+        {
+            get
+            {
+                return ResourceManager.GetString("MODULE_PROVIDERS", resourceCulture);
+            }
+        }
     }
 }

@@ -43,33 +43,38 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         [HttpGet, AllowAnonymous]
-        public JsonResult GetCustomers(JQueryDataTableParams param, string filtros)
+        public JsonResult GetCustomers(JQueryDataTableParams param, string filtros, bool first)
         {
             try
             {
-                var userAuth = Authenticator.AuthenticatedUser;
-                NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
-                string rfc = filtersValues.Get("RFC").Trim();
-                string businessName = filtersValues.Get("BusinessName").Trim();
-                string email = filtersValues.Get("Email").Trim();
-
-                var pagination = new BasePagination();
-                var filters = new CustomerFilter() { uuid = userAuth.Account.Uuid.ToString() };
-                pagination.PageSize = param.iDisplayLength;
-                pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
-                if (rfc != "") filters.rfc = rfc;
-                if (businessName != "") filters.businessName = businessName;
-                if (email != "") filters.email = email;
-
-                var listResponse = _customerService.CustomerList(pagination, filters);
-
-                //Corroborar los campos iTotalRecords y iTotalDisplayRecords
                 int totalDisplay = 0;
                 int total = 0;
-                if (listResponse.Count() > 0)
+                var listResponse = new List<CustomerList>();
+                if (!first)
                 {
-                    totalDisplay = listResponse[0].Total;
-                    total = listResponse.Count();
+                    var userAuth = Authenticator.AuthenticatedUser;
+                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
+                    string rfc = filtersValues.Get("RFC").Trim();
+                    string businessName = filtersValues.Get("BusinessName").Trim();
+                    string email = filtersValues.Get("Email").Trim();
+
+                    var pagination = new BasePagination();
+                    var filters = new CustomerFilter() { uuid = userAuth.Account.Uuid.ToString() };
+                    pagination.PageSize = param.iDisplayLength;
+                    pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
+                    if (rfc != "") filters.rfc = rfc;
+                    if (businessName != "") filters.businessName = businessName;
+                    if (email != "") filters.email = email;
+
+                    listResponse = _customerService.CustomerList(pagination, filters);
+
+                    //Corroborar los campos iTotalRecords y iTotalDisplayRecords
+
+                    if (listResponse.Count() > 0)
+                    {
+                        totalDisplay = listResponse[0].Total;
+                        total = listResponse.Count();
+                    }
                 }
 
                 return Json(new
