@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Entities
 {
-    public class Customer : IEntity
+    public class Provider : IEntity
     {
         public virtual Int64 id { get; set; }
         public virtual Guid uuid { get; set; }
@@ -30,11 +30,11 @@ namespace MVC_Project.Domain.Entities
         public virtual DateTime modifiedAt { get; set; }
         public virtual string status { get; set; }
 
-        public virtual IList<CustomerContact> customerContacts { get; set; }
+        public virtual IList<ProviderContact> providerContacts { get; set; }
 
-        public Customer()
-        {            
-            customerContacts = new List<CustomerContact>();
+        public Provider()
+        {
+            providerContacts = new List<ProviderContact>();
         }        
     }
 }

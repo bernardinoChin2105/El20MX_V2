@@ -15,16 +15,16 @@ namespace MVC_Project.WebBackend.Controllers
     public class ProviderController : Controller
     {
         private IAccountService _accountService;
-        private ICustomerService _customerService;
-        private ICustomerContactService _customerContactService;
+        private IProviderService _providerService;
         private IStateService _stateService;
+        //private IProviderContactService _providerContactService;
 
-        public ProviderController(IAccountService accountService, IStateService stateService)
+        public ProviderController(IAccountService accountService, IProviderService providerService, IStateService stateService)
         {
             _accountService = accountService;
-            //_customerService = customerService;
-            //_customerContactService = customerContactService;
+            _providerService = providerService;
             _stateService = stateService;
+            //_customerContactService = customerContactService;
         }
 
         // GET: Provider

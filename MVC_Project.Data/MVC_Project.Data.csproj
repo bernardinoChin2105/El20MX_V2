@@ -83,7 +83,9 @@
     <Compile Include="Helpers\UnitOfWork.cs" />
     <Compile Include="Mappings\AccountMap.cs" />
     <Compile Include="Mappings\CredentialMap.cs" />
+    <Compile Include="Mappings\ProviderContactMap.cs" />
     <Compile Include="Mappings\CustomerContactMap.cs" />
+    <Compile Include="Mappings\ProviderMap.cs" />
     <Compile Include="Mappings\DiagnosticDetailMap.cs" />
     <Compile Include="Mappings\DiagnosticMap.cs" />
     <Compile Include="Mappings\DiagnosticTaxStatusMap.cs" />
@@ -109,6 +111,7 @@
     <Compile Include="Mappings\SettlementTypeMap.cs" />
     <Compile Include="Mappings\SocialNetworkLoginMap.cs" />
     <Compile Include="Mappings\StaffMap.cs" />
+    <Compile Include="Mappings\CountryMap.cs" />
     <Compile Include="Mappings\StateMap.cs" />
     <Compile Include="Mappings\StoreMap.cs" />
     <Compile Include="Mappings\UserMap.cs" />

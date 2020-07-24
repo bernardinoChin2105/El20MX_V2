@@ -11,7 +11,6 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using MVC_Project.Domain.Entities;
-using Newtonsoft.Json.Linq;
 using MVC_Project.Domain.Model;
 using System.Collections.Specialized;
 using MVC_Project.FlashMessages;
@@ -25,14 +24,16 @@ namespace MVC_Project.WebBackend.Controllers
         private ICredentialService _credentialService;
         private IDiagnosticService _diagnosticService;
         private ICustomerService _customerService;
+        private IProviderService _providerService;
 
         public DiagnosticController(IAccountService accountService, ICredentialService credentialService,
-            IDiagnosticService diagnosticService, ICustomerService customerService)
+            IDiagnosticService diagnosticService, ICustomerService customerService, IProviderService providerService)
         {
             _accountService = accountService;
             _credentialService = credentialService;
             _diagnosticService = diagnosticService;
             _customerService = customerService;
+            _providerService = providerService;
         }
 
         // GET: Diagnostic
@@ -133,91 +134,61 @@ namespace MVC_Project.WebBackend.Controllers
                 dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
                 dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
 
-                ExtractionsFilter filter = new ExtractionsFilter()
+                var modelInvoices = SATwsService.GetInformationByExtractions(authUser.Account.RFC, dateFrom, dateTo);
+                if (!modelInvoices.Success)
+                    throw new Exception(modelInvoices.Message);
+
+                //crear clientes
+                List<string> customerRfcs = modelInvoices.Customers.Select(c => c.rfc).ToList();
+                var ExistC = _customerService.ValidateRFC(customerRfcs, authUser.Account.Id);
+                List<string> NoExistC = customerRfcs.Except(ExistC).ToList();
+
+                if (NoExistC.Count > 0)
                 {
-                    taxpayer = "/taxpayers/" + authUser.Account.RFC,
-                    extractor = "invoice",
-                    periodFrom = dateFrom.ToString("s") + "Z",
-                    periodTo = dateTo.ToString("s") + "Z"
-                };
-
-                var responseExtraction = SATws.CallServiceSATws("extractions", filter, "Post");
-                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseExtraction);
-                var option = model.First(x => x.Key == "taxpayer").Value;
-                JObject rItemValueJson = (JObject)option;
-                TaxpayerInfo infoTaxpayer = JsonConvert.DeserializeObject<TaxpayerInfo>(rItemValueJson.ToString());
-
-
-                //paso2 llamar los cfdis de los que voy a usar
-                //https://api.sandbox.sat.ws/invoices/{cfdi} // retorna el item de la lista
-                //https://api.sandbox.sat.ws/taxpayers/{id}/invoices  //lista de todos los cfdi's
-                //https://api.sat.ws/invoices/{cfdi}/cfdi // retonna el cfdi original
-
-                //2020-06-01 06:00:00&issuedAt[before]=2020-06-30 23:59:59
-                string from = dateFrom.ToString("yyyy-MM-dd HH:mm:ss");
-                string to = dateTo.ToString("yyyy-MM-dd HH:mm:ss");
-                string url = "/taxpayers/" + authUser.Account.RFC + "/invoices?issuedAt[after]=" + from + "&issuedAt[before]=" + to;
-                var responseInvoices = SATws.CallServiceSATws(url, null, "Get");
-                var modelInvoices = JsonConvert.DeserializeObject<List<InvoicesInfo>>(responseInvoices);
-
-                #region Obtener la información de los clientes y proveedores para guardarlos
-                foreach (var item in modelInvoices)
-                {
-                    try
-                    {
-                        string cfdi = "/invoices/" + item.id + "/cfdi";
-                        var responseCFDI = SATws.CallServiceSATws(cfdi, null, "Get");
-                        var modelCFDI = JsonConvert.DeserializeObject<IDictionary<string, object>>(responseCFDI);
-
-                        var zipCode = (String)modelCFDI["LugarExpedicion"];
-
-                        //Estamos buscando mis clientes
-                        if (item.issuer.rfc == authUser.Account.RFC)
+                    List<Customer> customers = modelInvoices.Customers
+                        .Where(x => NoExistC.Contains(x.rfc))
+                        .Select(x => new Customer
                         {
+                            uuid = Guid.NewGuid(),
+                            account = account,
+                            zipCode = x.zipCode,
+                            businessName = x.businessName,
+                            rfc = x.rfc,
+                            createdAt = DateUtil.GetDateTimeNow(),
+                            modifiedAt = DateUtil.GetDateTimeNow(),
+                            status = SystemStatus.ACTIVE.ToString()
+                        }).ToList();
 
-                            Customer customer = new Customer()
-                            {
-                                uuid = Guid.NewGuid(),
-                                account = account,
-                                zipCode = zipCode,
-                                createdAt = DateUtil.GetDateTimeNow(),
-                                modifiedAt = DateUtil.GetDateTimeNow(),
-                                status = SystemStatus.ACTIVE.ToString()
-                            };
-
-                            //var myCustomer = (modelCFDI.GetType().GetProperty("Receptor").GetValue(modelCFDI, null));                        
-                            var myCustomer = JsonConvert.DeserializeObject<IDictionary<string, object>>(modelCFDI["Receptor"].ToString());
-                            customer.businessName = (String)myCustomer["Nombre"];
-                            customer.rfc = (String)myCustomer["Rfc"];
-
-                            var validRFC = _customerService.FindBy(x => x.rfc == customer.rfc).FirstOrDefault();
-                            if (validRFC == null)
-                            {
-                                //Complemento -> Receptor
-                                _customerService.Create(customer);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        string error = ex.Message.ToString();
-                    }
-
-
-                    ////Estamos buscando mis proveedores
-                    //if (item.receiver.rfc == authUser.Account.RFC)
-                    //{
-                    //    var myProvider = (modelCFDI.GetType().GetProperty("Emisor").GetValue(modelCFDI, null));
-                    //    customer.regimen = (String)(myProvider.GetType().GetProperty("RegimenFiscal").GetValue(myProvider, null));
-                    //    customer.businessName = (String)(myProvider.GetType().GetProperty("Nombre").GetValue(myProvider, null));
-                    //    customer.rfc = (String)(myProvider.GetType().GetProperty("Rfc").GetValue(myProvider, null));
-                    //}
-
+                    _customerService.Create(customers);
                 }
-                #endregion
+
+                //crear proveedores
+
+                List<string> providersRfcs = modelInvoices.Providers.Select(c => c.rfc).ToList();
+                var ExistP = _providerService.ValidateRFC(providersRfcs, authUser.Account.Id);
+                List<string> NoExistP = providersRfcs.Except(ExistP).ToList();
+
+                if (NoExistC.Count > 0)
+                {
+                    List<Provider> providers = modelInvoices.Providers
+                    .Select(x => new Provider
+                    {
+                        uuid = Guid.NewGuid(),
+                        account = account,
+                        zipCode = x.zipCode,
+                        businessName = x.businessName,
+                        rfc = x.rfc,
+                        //taxRegime = 
+                        createdAt = DateUtil.GetDateTimeNow(),
+                        modifiedAt = DateUtil.GetDateTimeNow(),
+                        status = SystemStatus.ACTIVE.ToString()
+                    }).ToList();
+
+                    _providerService.Create(providers);
+                }
 
                 //separar los cfdis por año, mes, recibidas, emitidas
-                List<InvoicesGroup> invoicePeriod = modelInvoices.GroupBy(x => new
+                List<InvoicesGroup> invoicePeriod = modelInvoices.Invoices.GroupBy(x => new
                 {
                     x.issuedAt.Year,
                     x.issuedAt.Month,
@@ -249,7 +220,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     uuid = Guid.NewGuid(),
                     account = account,
-                    businessName = infoTaxpayer.name,
+                    businessName = modelInvoices.Taxpayer.name,
                     commercialCAD = "",
                     plans = "",
                     createdAt = DateUtil.GetDateTimeNow()
@@ -258,7 +229,7 @@ namespace MVC_Project.WebBackend.Controllers
                 DiagnosticTaxStatus taxStatus = new DiagnosticTaxStatus()
                 {
                     diagnostic = diagn,
-                    businessName = infoTaxpayer.name,
+                    businessName = modelInvoices.Taxpayer.name,
                     createdAt = DateUtil.GetDateTimeNow()
                     //statusSAT = "",
                     //taxRegime = "",

@@ -7,7 +7,7 @@ using System.Web.Mvc;
 
 namespace MVC_Project.WebBackend.Models
 {
-    public class CustomerFilterViewModel
+    public class ProviderFilterViewModel
     {
         public int Id { get; set; }
 
@@ -20,11 +20,11 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Email")]
         public string Email { get; set; }
      
-        [Display(Name = "Celular")]
-        public string CellPhone { get; set; }
+        [Display(Name = "Teléfono")]
+        public string Phone { get; set; }
     }
 
-    public class CustomerViewModel
+    public class ProviderViewModel
     {
         public Int64 Id { get; set; }
 
@@ -43,7 +43,7 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "CURP")]
         public string CURP { get; set; }
 
-        [Display(Name = "Nombre/Razón Social")]
+        [Display(Name = "Razón Social")]
         public string BusinessName { get; set; }
 
         [Display(Name = "Tipo Régimen Fiscal")]
@@ -78,17 +78,16 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "País")]
         public Int64? country { get; set; }
         public SelectList Listcountry { get; set; }
-
-        //[Display(Name = "Nombre/Razón Social")]
+        
         public bool DeliveryAddress { get; set; }
 
-        public List<CustomerContactsViewModel> Emails { get; set; }
-        public List<CustomerContactsViewModel> Phones { get; set; }
+        public List<ProviderContactsViewModel> Emails { get; set; }
+        public List<ProviderContactsViewModel> Phones { get; set; }
         public string dataContacts { get; set; }
         public string indexPhone { get; set; }
         public string indexEmail { get; set; }
 
-        public CustomerViewModel()
+        public ProviderViewModel()
         {
             var list = new List<SelectListItem>();
             list.Add(new SelectListItem() { Text = "Seleccione...", Value = "-1" });
@@ -96,21 +95,15 @@ namespace MVC_Project.WebBackend.Models
             ListColony = new SelectList(list);
             ListState = new SelectList(list);
             ListMunicipality = new SelectList(list);
-            Emails = new List<CustomerContactsViewModel>();
-            Phones = new List<CustomerContactsViewModel>();
+            Emails = new List<ProviderContactsViewModel>();
+            Phones = new List<ProviderContactsViewModel>();
         }
     }
 
-    public class CustomerContactsViewModel
+    public class ProviderContactsViewModel
     {
         public Int64 Id { get; set; }
         public string TypeContact { get; set; }
         public string EmailOrPhone { get; set; }
-    }
-
-    public class Duplicates
-    {
-        public string RFCS { get; set; }
-        public int Repetitions { get; set; }
     }
 }

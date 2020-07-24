@@ -477,7 +477,6 @@ namespace MVC_Project.WebBackend.Controllers
                         if (itemToRemove != null)
                         {
                             itemToRemove.status = SystemStatus.INACTIVE.ToString();
-                            //customerData.customerContacts.Remove(itemToRemove);
                         }
                     }
                 }

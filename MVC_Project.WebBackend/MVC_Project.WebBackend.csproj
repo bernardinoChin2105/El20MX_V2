@@ -283,6 +283,7 @@
     <Compile Include="Models\AccountViewModel.cs" />
     <Compile Include="Models\AuthViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
+    <Compile Include="Models\ProviderViewModel.cs" />
     <Compile Include="Models\CustomerViewModel.cs" />
     <Compile Include="Models\DataTableModel.cs" />
     <Compile Include="Models\DiagnosticTableViewModel.cs" />
