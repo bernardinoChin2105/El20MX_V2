@@ -147,7 +147,13 @@ namespace MVC_Project.WebBackend.Controllers
         {
             try
             {
-                var userCreateViewModel = new UserCreateViewModel { Roles = PopulateRoles() /*, Features = PopulateFeatures(int.Parse(roles.First().Value))*/ };
+                var roles = PopulateRoles();
+                if (!roles.Any())
+                {
+                    MensajeFlashHandler.RegistrarMensaje("Registre un rol antes de crear al usuario", TiposMensaje.Warning);
+                    return RedirectToAction("Index");
+                }
+                var userCreateViewModel = new UserCreateViewModel { Roles = PopulateRoles() };
                 return View(userCreateViewModel);
             }
             catch(Exception ex)
@@ -210,14 +216,7 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 var userAuth = Authenticator.AuthenticatedUser;
-                //if(!String.IsNullOrWhiteSpace(userCreateViewModel.ConfirmPassword) 
-                //    && !String.IsNullOrWhiteSpace(userCreateViewModel.Password))
-                //{
-                //    if(!userCreateViewModel.Password.Equals(userCreateViewModel.ConfirmPassword))
-                //    {
-                //        ModelState.AddModelError("ConfirmPassword", "Las contraseñas no coinciden");
-                //    }
-                //}
+
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
 
@@ -275,16 +274,7 @@ namespace MVC_Project.WebBackend.Controllers
                 else
                     _userService.Update(user);
 
-                string token = (user.uuid + "@");
-                token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
-                Dictionary<string, string> customParams = new Dictionary<string, string>();
-                string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
-                string link = urlAccion + "Register/NewUserVerify?token=" + token;
-                customParams.Add("param1", user.profile.firstName);
-                customParams.Add("param2", user.name);
-                customParams.Add("param3", userAuth.Account.RFC);
-                customParams.Add("param4", link);
-                NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_NEW_USER);
+                SendWelcomeMail(user, userAuth.Account);
 
                 if(newUser)
                     MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
@@ -301,6 +291,20 @@ namespace MVC_Project.WebBackend.Controllers
                 userCreateViewModel.Roles = PopulateRoles();
                 return View(userCreateViewModel);
             }
+        }
+
+        private void SendWelcomeMail(User user, AuthManagement.Models.Account account)
+        {
+            string token = (user.uuid + "@");
+            token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
+            Dictionary<string, string> customParams = new Dictionary<string, string>();
+            string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
+            string link = urlAccion + "Register/NewUserVerify?token=" + token;
+            customParams.Add("param1", user.profile.firstName);
+            customParams.Add("param2", user.name);
+            customParams.Add("param3", account.RFC);
+            customParams.Add("param4", link);
+            NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_NEW_USER);
         }
 
         [Authorize]
@@ -356,7 +360,7 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception("El email proporcionado se encuentra registrado en otro usuario");
                 
 
-                user.name = model.Email;
+                
                 user.profile.firstName = model.Name;
                 user.profile.lastName = model.Apellidos;
                 user.profile.phoneNumber = model.MobileNumber;
@@ -366,6 +370,11 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     membership.role = new Role { id = model.Role };
                     _membershipService.Update(membership);
+                }
+                if (!user.name.Equals(model.Email))
+                {
+                    user.name = model.Email;
+                    SendWelcomeMail(user, userAuth.Account);
                 }
                 _userService.Update(user);
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);

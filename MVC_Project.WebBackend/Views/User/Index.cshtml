@@ -113,6 +113,7 @@
             $("#SearchForm").each(function () {
                 this.reset();
             });
+            $('#Status').val('-1').trigger('chosen:updated');
             $('#table').DataTable().draw();
         });
 

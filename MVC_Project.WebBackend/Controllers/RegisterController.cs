@@ -234,7 +234,7 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception("Usuario no encontrado en el sistema");
 
                 if (user.status == SystemStatus.ACTIVE.ToString())
-                    throw new Exception("El usuario se encuentra activo, restablezca su contraseña");
+                    throw new Exception("El usuario se encuentra activo, ingrese al sistema o restablezca su contraseña");
 
                 var userViewModel = new ChangePasswordViewModel
                 {
@@ -246,7 +246,7 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                return View("Login");
+                return RedirectToAction("Login", "Auth");
             }
         }
 
