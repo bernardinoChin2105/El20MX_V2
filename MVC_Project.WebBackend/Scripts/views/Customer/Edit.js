@@ -70,10 +70,12 @@ function validarDatos() {
 
 var itemNumberEmail = numEmail;
 var itemNumberPhone = numPhones;
+var indexEmail = numEmail;
+var indexPhone = numPhones;
 $(".btn-add-email").click(function () {
     var item = '<div class="row">' +
         '<div class="col-12 col-md-10"> ' +
-        '<label class="col-form-label control-label">Email ' + (itemNumberEmail + 1) + '</label>' +
+        '<label class="col-form-label control-label">Email ' + (indexEmail + 1) + '</label>' +
         '<input type="hidden" name="Emails[' + itemNumberEmail + '].TypeContact" value="EMAIL" />' +
         '<input type="email" class="form-control emails" name="Emails[' + itemNumberEmail + '].EmailOrPhone" />' +
         '</div>' +
@@ -85,12 +87,13 @@ $(".btn-add-email").click(function () {
         '</div>';
     $("#ListEmails").append(item);
     itemNumberEmail++;
+    indexEmail++;
 });
 
 $(".btn-add-phone").click(function () {
     var item = '<div class="row">' +
         '<div class="col-12 col-md-10">' +
-        '<label class="col-form-label control-label">Teléfono ' + (itemNumberPhone + 1) + '</label>' +
+        '<label class="col-form-label control-label">Teléfono ' + (indexPhone + 1) + '</label>' +
         '<input type="hidden" name="Phones[' + itemNumberPhone + '].TypeContact" value="PHONE" />' +
         '<input type="text" class="form-control phones" name="Phones[' + itemNumberPhone + '].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
         '</div>' +
@@ -102,6 +105,7 @@ $(".btn-add-phone").click(function () {
         '</div>';
     $("#ListPhones").append(item);
     itemNumberPhone++;
+    indexPhone++;
 });
 
 var itemsIdRemoves = [];
@@ -122,9 +126,11 @@ $('.listContacts').on('click', '.btn-remove', function () {
     if (data === "PHONE") {
         itemsRemoveP.push(item);
         removePhone.val(itemsRemoveP);
+        indexPhone--;
     } else {
         itemsRemoveE.push(item);
         removeEmail.val(itemsRemoveE);
+        indexEmail--;
     }
 
     if (itemValue.trim() !== "") {
