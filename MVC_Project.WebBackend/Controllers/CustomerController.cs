@@ -515,7 +515,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                     campo.Cells["A1:Z1"].Style.Font.Bold = true;
 
-                    campo.Cells["A1"].Value = "Id";
+                    campo.Cells["A1"].Value = "No.";
                     campo.Cells["B1"].Value = "Nombre(s)";
                     campo.Cells["C1"].Value = "Apellido(s)";
                     campo.Cells["D1"].Value = "RFC";
@@ -533,14 +533,14 @@ namespace MVC_Project.WebBackend.Controllers
                     campo.Cells["P1"].Value = "Email";
                     campo.Cells["Q1"].Value = "Teléfono";
                     campo.Cells["R1"].Value = "Fecha Creación";
-                    campo.Cells["S1"].Value = "uuid Cuenta";
+                    campo.Cells["S1"].Value = "RFC Cuenta";
 
                     int rowIndex = 2;
                     for (int i = 0; i < listResponse.Count(); i++)
                     {
                         string enumFiscal = string.Empty;
                         string rowIndexString = rowIndex.ToString();
-                        campo.Cells["A" + rowIndexString].Value = listResponse[i].id;
+                        campo.Cells["A" + rowIndexString].Value = i+1;
                         campo.Cells["A" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
                         campo.Cells["B" + rowIndexString].Value = listResponse[i].first_name;
@@ -601,7 +601,7 @@ namespace MVC_Project.WebBackend.Controllers
                         campo.Cells["R" + rowIndexString].Value = listResponse[i].createdAt.ToShortDateString();
                         campo.Cells["R" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
-                        campo.Cells["S" + rowIndexString].Value = listResponse[i].uuidAccount;
+                        campo.Cells["S" + rowIndexString].Value = listResponse[i].rfc;
                         campo.Cells["S" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                         rowIndex++;
                     }
@@ -715,7 +715,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                                 try
                                 {
-                                    if (encabezado[0].ToString() != "Id") throw new Exception("Título de columna inválida");
+                                    if (encabezado[0].ToString() != "No.") throw new Exception("Título de columna inválida");
                                     if (encabezado[1].ToString() != "Nombre(s)") throw new Exception("Título de columna inválida");
                                     if (encabezado[2].ToString() != "Apellido(s)") throw new Exception("Título de columna inválida");
                                     if (encabezado[3].ToString() != "RFC") throw new Exception("Título de columna inválida");
@@ -733,7 +733,7 @@ namespace MVC_Project.WebBackend.Controllers
                                     if (encabezado[15].ToString() != "Email") throw new Exception("Título de columna inválida");
                                     if (encabezado[16].ToString() != "Teléfono") throw new Exception("Título de columna inválida");
                                     if (encabezado[17].ToString() != "Fecha Creación") throw new Exception("Título de columna inválida");
-                                    if (encabezado[18].ToString() != "uuid Cuenta") throw new Exception("Título de columna inválida");
+                                    if (encabezado[18].ToString() != "RFC Cuenta") throw new Exception("Título de columna inválida");
                                 }
                                 catch (Exception Error)
                                 {
@@ -799,75 +799,97 @@ namespace MVC_Project.WebBackend.Controllers
 
                     //Guardado de información
                     List<Customer> clientes = new List<Customer>();
-                    List<string> clientesNoRegistrados = new List<string>();
-                    foreach (var item in datos)
+                    //List<string> clientesNoRegistrados = new List<string>();
+
+                    clientes = datos.Select(x => new Customer
                     {
-                        try
-                        {
-                            Customer nuevo = new Customer()
-                            {
-                                uuid = Guid.NewGuid(),
-                                account = new Account { id = authUser.Account.Id },
-                                firstName = item.first_name,
-                                lastName = item.last_name,
-                                rfc = item.rfc,
-                                curp = item.curp,
-                                businessName = item.businessName,
-                                street = item.street,
-                                interiorNumber = item.interiorNumber,
-                                outdoorNumber = item.outdoorNumber,
-                                zipCode = item.zipCode,
-                                createdAt = todayDate,
-                                modifiedAt = todayDate,
-                                status = SystemStatus.ACTIVE.ToString()
-                                //string taxRegime { get; set;}
-                                //Int64 colony { get; set; }
-                                //Int64 municipality { get; set; }
-                                //Int64 state { get; set; }
-                                //bool deliveryAddress { get; set; }
-                            };
-
-                            CustomerContact email = new CustomerContact()
-                            {
-                                emailOrPhone = item.email,
+                        uuid = Guid.NewGuid(),
+                        account = new Account { id = authUser.Account.Id },
+                        firstName = x.first_name,
+                        lastName = x.last_name,
+                        rfc = x.rfc,
+                        curp = x.curp,
+                        businessName = x.businessName,
+                        street = x.street,
+                        interiorNumber = x.interiorNumber,
+                        outdoorNumber = x.outdoorNumber,
+                        zipCode = x.zipCode,
+                        createdAt = todayDate,
+                        modifiedAt = todayDate,
+                        status = SystemStatus.ACTIVE.ToString(),
+                        deliveryAddress = x.deliveryAddress,
+                        customerContacts = new List<CustomerContact> {
+                            x.email != null? new CustomerContact{
+                                emailOrPhone = x.email,
                                 typeContact = TypeContact.EMAIL.ToString(),
-                                customer = nuevo,
+                                //customer = x,
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
-                                status = SystemStatus.ACTIVE.ToString()
-                            };
-
-                            nuevo.customerContacts.Add(email);
-
-                            CustomerContact phone = new CustomerContact()
-                            {
-                                emailOrPhone = item.phone,
+                                status = SystemStatus.ACTIVE.ToString()}: null,
+                            x.phone != null? new CustomerContact{ emailOrPhone = x.phone,
                                 typeContact = TypeContact.PHONE.ToString(),
-                                customer = nuevo,
+                                //customer = nuevo,
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
-                                status = SystemStatus.ACTIVE.ToString()
-                            };
-                            nuevo.customerContacts.Add(phone);
+                                status = SystemStatus.ACTIVE.ToString()}: null
+                        }
+                    }).ToList();
 
-                            _customerService.Create(nuevo);
-                            clientes.Add(nuevo);
-                        }
-                        catch (Exception ex)
-                        {
-                            clientesNoRegistrados.Add(item.rfc);
-                        }
-                    }
+                    //foreach (var item in datos)
+                    //{
+                    //    try
+                    //    {
+                    //        Customer nuevo = new Customer()
+                    //        {
+
+                    //            //string taxRegime { get; set;}
+                    //            //Int64 colony { get; set; }
+                    //            //Int64 municipality { get; set; }
+                    //            //Int64 state { get; set; }
+                    //        };
+
+                    //        CustomerContact email = new CustomerContact()
+                    //        {
+                    //            emailOrPhone = item.email,
+                    //            typeContact = TypeContact.EMAIL.ToString(),
+                    //            customer = nuevo,
+                    //            createdAt = todayDate,
+                    //            modifiedAt = todayDate,
+                    //            status = SystemStatus.ACTIVE.ToString()
+                    //        };
+
+                    //        nuevo.customerContacts.Add(email);
+
+                    //        CustomerContact phone = new CustomerContact()
+                    //        {
+                    //            emailOrPhone = item.phone,
+                    //            typeContact = TypeContact.PHONE.ToString(),
+                    //            customer = nuevo,
+                    //            createdAt = todayDate,
+                    //            modifiedAt = todayDate,
+                    //            status = SystemStatus.ACTIVE.ToString()
+                    //        };
+                    //        nuevo.customerContacts.Add(phone);
+
+                    //        _customerService.Create(nuevo);
+                    //        clientes.Add(nuevo);
+                    //    }
+                    //    catch (Exception ex)
+                    //    {
+                    //        clientesNoRegistrados.Add(item.rfc);
+                    //    }
+                    //}
 
                     if (clientes.Count() > 0)
                     {
+                        _customerService.Create(clientes);
                         //LogHub de bitacora
                         return Json(new
                         {
                             Success = true,
                             Mensaje = "¡" + clientes.Count() + " Registros guardados exitosamente!",
                             //Tipo = 2,
-                            SinGuardar = clientesNoRegistrados,
+                            //SinGuardar = clientesNoRegistrados,
                         }, JsonRequestBehavior.AllowGet);
                     }
 
