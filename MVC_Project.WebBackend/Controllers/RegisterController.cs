@@ -134,7 +134,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                     Dictionary<string, string> customParams = new Dictionary<string, string>();
                     string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
-                    string link = urlAccion + "";
+                    string link = urlAccion + "Auth/Login";
                     customParams.Add("param1", user.profile.firstName);
                     customParams.Add("param2", link);
                     NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_WELCOME_NETWORK);
@@ -223,23 +223,45 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception("El token no es válido");
 
                 var elements = desencriptaToken.Split('@');
+                if (elements.Count() != 4)
+                    throw new Exception("El token no es válido");
 
                 Guid id = new Guid();
 
-                if (!Guid.TryParse(elements.First().ToString(), out id))
+                if (!Guid.TryParse(elements[0], out id))
                     throw new Exception("El token no es válido");
 
                 var user = _userService.FirstOrDefault(e => e.uuid == id);
                 if (user == null)
-                    throw new Exception("Usuario no encontrado en el sistema");
+                    throw new Exception("El usuario no se encontró en el sistema");
 
+                if (!user.name.Equals(elements[2] + "@" + elements[3]))
+                    throw new Exception("El correo de origen no corresponde al correo registrado en el sistema");
+
+                if (!Guid.TryParse(elements[1], out id))
+                    throw new Exception("El token no es válido");
+
+                var account = _accountService.FirstOrDefault(e => e.uuid == id);
+                if (account == null)
+                    throw new Exception("La cuenta no se encontró en el sistema");
+
+                var membership = _membershipService.FirstOrDefault(x => x.user.id == user.id && x.account.id == account.id);
+
+                if (membership == null)
+                    throw new Exception("La suscripcion no se encontró en el sistema");
+                
                 if (user.status == SystemStatus.ACTIVE.ToString())
-                    throw new Exception("El usuario se encuentra activo, ingrese al sistema o restablezca su contraseña");
+                {
+                    membership.status = SystemStatus.ACTIVE.ToString();
+                    _membershipService.Update(membership);
+                    return RedirectToAction("Login", "Auth");
+                }
 
                 var userViewModel = new ChangePasswordViewModel
                 {
-                    Uuid=user.uuid,
+                    Uuid = user.uuid,
                     Name = user.name,
+                    AcccountUuid = account.uuid
                 };
                 return View(userViewModel);
             }
@@ -258,10 +280,21 @@ namespace MVC_Project.WebBackend.Controllers
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada es incorrecto");
 
-                var user = _userService.FindBy(e => e.uuid == model.Uuid).First();
-
+                var user = _userService.FirstOrDefault(e => e.uuid == model.Uuid);
                 if (user == null)
                     throw new Exception("El usuario no se encuentra registrado en el sistema");
+
+                var account = _accountService.FirstOrDefault(e => e.uuid == model.AcccountUuid);
+                if (account == null)
+                    throw new Exception("La cuenta no se encuentra registrada en el sistema");
+
+                var membership = _membershipService.FirstOrDefault(x => x.user.id == user.id && x.account.id == account.id);
+
+                if (membership == null)
+                    throw new Exception("La suscripcion no se encontró en el sistema");
+                
+                membership.status = SystemStatus.ACTIVE.ToString();
+                _membershipService.Update(membership);
 
                 user.password = SecurityUtil.EncryptPassword(model.Password);
                 DateTime todayDate = DateUtil.GetDateTimeNow();
@@ -270,6 +303,7 @@ namespace MVC_Project.WebBackend.Controllers
                 user.passwordExpiration = passwordExpiration;
                 user.status = SystemStatus.ACTIVE.ToString();
                 _userService.Update(user);
+
                 MensajeFlashHandler.RegistrarMensaje("Usuario activado", TiposMensaje.Success);
                 return RedirectToAction("Login", "Auth");
             }

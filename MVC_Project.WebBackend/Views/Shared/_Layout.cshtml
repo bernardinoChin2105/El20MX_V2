@@ -137,13 +137,6 @@
     <!-- iCheck -->
     <script src="~/Scripts/plugins/iCheck/icheck.min.js"></script>
     <script>
-        $(document).ready(function () {
-            $('.i-checks').iCheck({
-                checkboxClass: 'icheckbox_square-blue',
-                radioClass: 'iradio_square-blue',
-            });
-        });
-
         $("#CloseSession").click(function (e) {
             e.preventDefault()
             console.log($(this), "quien es?")
@@ -182,6 +175,11 @@
                 });
             };
             fnTimeOut();
+
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
+            });
         });
         jQuery.extend(jQuery.validator.messages, {
             required: "Campo requerido.",

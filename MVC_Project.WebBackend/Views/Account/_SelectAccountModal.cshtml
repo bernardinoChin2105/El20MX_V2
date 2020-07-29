@@ -37,11 +37,14 @@
 
         <div class="col-md-4" style="padding-bottom: 15px; padding-top: 15px;">
             <div class="ibox-content text-center">
-                <h4>Nueva cuenta</h4>
+                <h4>Registrar RFC</h4>
                 <div class="m-b-sm">
-                    <button id="btnCreateAccount" onclick="createAccountModal()" class="btn btn-color btn-circle btn-lg">
+                    <a class="btn btn-color btn-circle btn-lg" href='@Url.Action("CreateAccount")'>
                         <i class="fa fa-plus"></i>
-                    </button>
+                    </a>
+                    @*<button id="btnCreateAccount" onclick="createAccountModal()" class="btn btn-color btn-circle btn-lg">
+                        <i class="fa fa-plus"></i>
+                    </button>*@
                 </div>
             </div>
         </div>

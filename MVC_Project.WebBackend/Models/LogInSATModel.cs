@@ -26,4 +26,10 @@ namespace MVC_Project.WebBackend.Models
         public string createdAt { get; set; }
         public string updatedAt { get; set; }
     }
+
+    public class LoginSATViewModel
+    {
+        public string RFC { get; set; }
+        public string CIEC { get; set; }
+    }
 }

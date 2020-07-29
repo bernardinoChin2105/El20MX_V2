@@ -84,11 +84,11 @@ namespace MVC_Project.Domain.Services
             if (FilterStatus != Constants.SEARCH_ALL)
             {
                 if (FilterStatus == (int)SystemStatus.ACTIVE)
-                    query = query.Where(user => user.status == SystemStatus.ACTIVE.ToString());
+                    query = query.Where(() => membershipAlias.status == SystemStatus.ACTIVE.ToString());
                 else if (FilterStatus == (int)SystemStatus.INACTIVE)
-                    query = query.Where(user => user.status == SystemStatus.INACTIVE.ToString());
+                    query = query.Where(() => membershipAlias.status == SystemStatus.INACTIVE.ToString());
                 else if (FilterStatus == (int)SystemStatus.UNCONFIRMED)
-                    query = query.Where(user => user.status == SystemStatus.UNCONFIRMED.ToString());
+                    query = query.Where(() => membershipAlias.status == SystemStatus.UNCONFIRMED.ToString());
             }
             var count = query.RowCount();
 

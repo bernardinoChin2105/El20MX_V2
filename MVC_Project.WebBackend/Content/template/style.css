@@ -3351,9 +3351,11 @@ div.dt-button-info {
 }
 /* Validation */
 label.error {
-  color: #cc5965;
-  display: inline-block;
-  margin-left: 5px;
+    color: #cc5965;
+    display: inline-block;
+    margin-left: 5px;
+    font-style: italic;
+    font-weight: inherit !important;
 }
 .form-control.error {
   border: 1px dotted #cc5965;

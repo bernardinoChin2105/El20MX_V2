@@ -60,6 +60,8 @@ namespace MVC_Project.BackendWeb.Models
 
         [Display(Name="Nombre")]
         public string Name { get; set; }
+
+        public Guid AcccountUuid { get; set; }
     }
 
     //public class AuthLogin

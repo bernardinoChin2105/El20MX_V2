@@ -104,7 +104,9 @@ namespace MVC_Project.Utils
         [Display(Name = "Prospectos")]
         PROSPECTS,
         [Display(Name = "Clientes")]
-        CUSTOMERS
+        CUSTOMERS,
+        [Display(Name = "Proveedores")]
+        PROVIDERS
     }
 
     public enum TermsAndConditions
