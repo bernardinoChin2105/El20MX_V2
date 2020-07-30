@@ -65,21 +65,26 @@ namespace MVC_Project.WebBackend.Controllers
                 model.email = authUser.Email;
                 model.createdAt = diagnostic.createdAt;
 
-                var diagTax = diagnostic.taxStatus.FirstOrDefault();
+                var diagTax = diagnostic.taxStatus;
                 if (diagTax != null)
                 {
-                    model.statusSAT = diagTax.statusSAT;
-                    model.taxRegime = diagTax.taxRegime;
-                    model.economicActivities = diagTax.economicActivities;
-                    model.fiscalObligations = diagTax.fiscalObligations;
-                    model.taxMailboxEmail = diagTax.taxMailboxEmail;
+                    model.diagnosticTaxStatus = new List<DiagnosticTaxStatusViewModel>();
+                    var taxStatus = diagTax.Select(x => new DiagnosticTaxStatusViewModel {
+                        businessName = x.businessName,
+                        statusSAT = x.statusSAT,
+                        taxRegime = x.taxRegime != null? x.taxRegime.Split(',').ToList() : null,
+                        economicActivities = x.economicActivities != null ? x.economicActivities.Split(',').ToList() : null,
+                        fiscalObligations = x.fiscalObligations != null ? x.fiscalObligations.Split(',').ToList() : null,
+                        taxMailboxEmail = x.taxMailboxEmail
+                    });
+
+                    model.diagnosticTaxStatus = taxStatus.ToList();
                 }
 
                 var diagDetails = diagnostic.details;
 
                 if (diagDetails != null)
-                {
-                    //List<DiagnosticDetailsViewModel> details = new List<DiagnosticDetailsViewModel>();
+                {                    
                     model.diagnosticDetails = new List<InvoicesGroup>();
 
                     string date = DateUtil.GetMonthName(DateTime.Now, "es");
@@ -151,7 +156,7 @@ namespace MVC_Project.WebBackend.Controllers
                         {
                             uuid = Guid.NewGuid(),
                             account = account,
-                            zipCode = x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault() != null? x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault().zipCode : null,
+                            zipCode = x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault() != null ? x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault().zipCode : null,
                             businessName = x.Key.businessName,
                             rfc = x.Key.rfc,
                             createdAt = DateUtil.GetDateTimeNow(),
@@ -163,7 +168,6 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 //crear proveedores
-
                 List<string> providersRfcs = modelInvoices.Providers.Select(c => c.rfc).Distinct().ToList();
                 var ExistP = _providerService.ValidateRFC(providersRfcs, authUser.Account.Id);
                 List<string> NoExistP = providersRfcs.Except(ExistP).ToList();
@@ -176,7 +180,7 @@ namespace MVC_Project.WebBackend.Controllers
                         {
                             uuid = Guid.NewGuid(),
                             account = account,
-                            zipCode = x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault() != null ? x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault().zipCode : null,                            
+                            zipCode = x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault() != null ? x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault().zipCode : null,
                             businessName = x.Key.businessName,
                             rfc = x.Key.rfc,
                             //taxRegime = 
@@ -227,19 +231,32 @@ namespace MVC_Project.WebBackend.Controllers
                     createdAt = DateUtil.GetDateTimeNow()
                 };
 
-                DiagnosticTaxStatus taxStatus = new DiagnosticTaxStatus()
+                //Obtener la constancia Fiscal
+                try
                 {
-                    diagnostic = diagn,
-                    businessName = modelInvoices.Taxpayer.name,
-                    createdAt = DateUtil.GetDateTimeNow()
-                    //statusSAT = "",
-                    //taxRegime = "",
-                    //economicActivities = "",
-                    //fiscalObligations = "",
-                    //taxMailboxEmail = "",
-                };
+                    var taxStatusModel = SATwsService.GetTaxStatus(authUser.Account.RFC);
+                    if (!taxStatusModel.Success)
+                        throw new Exception(taxStatusModel.Message);
 
-                diagn.taxStatus.Add(taxStatus);
+                    var taxStatus = taxStatusModel.TaxStatus
+                        .Select(x => new DiagnosticTaxStatus
+                        {
+                            diagnostic = diagn,
+                            createdAt = DateUtil.GetDateTimeNow(),
+                            statusSAT = x.status,
+                            businessName = x.person != null ? x.person.fullName : x.company.tradeName,
+                            taxMailboxEmail = x.email,
+                            taxRegime = x.taxRegimes.Count>0? String.Join(",", x.taxRegimes.Select(y => y.name).ToArray()) : null,
+                            economicActivities = x.economicActivities.Count> 0? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null
+                            //fiscalObligations = ""
+                        }).ToList();
+
+                    diagn.taxStatus = taxStatus;
+                }
+                catch (Exception ex)
+                {
+                    string error = ex.Message.ToString();
+                }
 
                 foreach (var item in invoicePeriod)
                 {
@@ -349,14 +366,21 @@ namespace MVC_Project.WebBackend.Controllers
                 model.email = authUser.Email;
                 model.createdAt = diagnostic.createdAt;
 
-                var diagTax = diagnostic.taxStatus.FirstOrDefault();
+                var diagTax = diagnostic.taxStatus;
                 if (diagTax != null)
                 {
-                    model.statusSAT = diagTax.statusSAT;
-                    model.taxRegime = diagTax.taxRegime;
-                    model.economicActivities = diagTax.economicActivities;
-                    model.fiscalObligations = diagTax.fiscalObligations;
-                    model.taxMailboxEmail = diagTax.taxMailboxEmail;
+                    model.diagnosticTaxStatus = new List<DiagnosticTaxStatusViewModel>();
+                    var taxStatus = diagTax.Select(x => new DiagnosticTaxStatusViewModel
+                    {
+                        businessName = x.businessName,
+                        statusSAT = x.statusSAT,
+                        taxRegime = x.taxRegime != null ? x.taxRegime.Split(',').ToList() : null,
+                        economicActivities = x.economicActivities != null ? x.economicActivities.Split(',').ToList() : null,
+                        fiscalObligations = x.fiscalObligations != null ? x.fiscalObligations.Split(',').ToList() : null,
+                        taxMailboxEmail = x.taxMailboxEmail
+                    });
+
+                    model.diagnosticTaxStatus = taxStatus.ToList();
                 }
 
                 var diagDetails = diagnostic.details;
