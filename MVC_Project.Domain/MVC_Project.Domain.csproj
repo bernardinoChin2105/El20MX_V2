@@ -52,6 +52,8 @@
   <ItemGroup>
     <Compile Include="Entities\Account.cs" />
     <Compile Include="Entities\Credential.cs" />
+    <Compile Include="Entities\Provider.cs" />
+    <Compile Include="Entities\ProviderContact.cs" />
     <Compile Include="Entities\CustomerContact.cs" />
     <Compile Include="Entities\Diagnostic.cs" />
     <Compile Include="Entities\DiagnosticDetail.cs" />
@@ -78,12 +80,14 @@
     <Compile Include="Entities\SettlementType.cs" />
     <Compile Include="Entities\SocialNetworkLogin.cs" />
     <Compile Include="Entities\Staff.cs" />
+    <Compile Include="Entities\Country.cs" />
     <Compile Include="Entities\State.cs" />
     <Compile Include="Entities\Store.cs" />
     <Compile Include="Entities\DiagnosticTaxStatus.cs" />
     <Compile Include="Entities\User.cs" />
     <Compile Include="Helpers\IUnitOfWork.cs" />
     <Compile Include="Model\BasePagination.cs" />
+    <Compile Include="Model\ListProviders.cs" />
     <Compile Include="Model\CustomerList.cs" />
     <Compile Include="Model\DiagnosticList.cs" />
     <Compile Include="Model\LocationsViewModel.cs" />
@@ -92,6 +96,7 @@
     <Compile Include="Services\AccountService.cs" />
     <Compile Include="Services\CredentialService.cs" />
     <Compile Include="Services\CustomerContactService.cs" />
+    <Compile Include="Services\ProviderService.cs" />
     <Compile Include="Services\CustomerService.cs" />
     <Compile Include="Services\DiagnosticDetailService.cs" />
     <Compile Include="Services\DiagnosticService.cs" />

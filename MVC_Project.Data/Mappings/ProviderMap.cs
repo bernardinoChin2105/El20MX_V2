@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Data.Mappings
 {
-    public class CustomerMap : ClassMap<Customer>
+    public class ProviderMap : ClassMap<Provider>
     {
-        public CustomerMap()
+        public ProviderMap()
         {
             //Schema("sales");
-            Table("customers");
+            Table("providers");
             Id(x => x.id).GeneratedBy.Identity().Column("id");
             Map(x => x.uuid).Column("uuid").Not.Nullable();
             Map(x => x.firstName).Column("first_name").Nullable();
@@ -36,7 +36,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.country).Column("country").Nullable();
 
             References(x => x.account).Column("accountId").Not.Nullable();
-            HasMany(x => x.customerContacts).Inverse().Cascade.All().KeyColumn("customerId");
+            HasMany(x => x.providerContacts).Inverse().Cascade.All().KeyColumn("providerId");
         }
     }
 }
