@@ -147,10 +147,10 @@ namespace MVC_Project.Utils
     {
         [Display(Name = "Persona Física")]
         [Description("Persona Física")]
-        MORALPERSONSREGIME,
+        NATURALPERSONSREGIME,
         [Display(Name = "Persona Moral")]
         [Description("Persona Moral")]
-        NATURALPERSONSREGIME,
+        MORALPERSONSREGIME,        
     }
 
     public enum SystemProviders
@@ -159,36 +159,36 @@ namespace MVC_Project.Utils
         SYNCFY,
         [Display(Name = "SAT.ws")]
         SATWS,
-        [Display(Name ="Finerio")]
+        [Display(Name = "Finerio")]
         FINERIO
     }
 
-    //public enum MoralPersonsRegime
-    //{
-    //    Regime601 = 601,
-    //    Regime603 = 603,
-    //    Regime607 = 607,
-    //    Regime609 = 609,
-    //    Regime620 = 620,
-    //    Regime622 = 622,
-    //    Regime623 = 623,
-    //    Regime624 = 624,
-    //    Regime628 = 628,
-    //}
+    public enum MoralPersonsRegime
+    {
+        Regime601 = 601,
+        Regime603 = 603,
+        Regime607 = 607,
+        Regime609 = 609,
+        Regime620 = 620,
+        Regime622 = 622,
+        Regime623 = 623,
+        Regime624 = 624,
+        Regime628 = 628,
+    }
 
-    //public enum NaturalPersonsRegime
-    //{
-    //    Regime605 = 605,
-    //    Regime606 = 606,
-    //    Regime608 = 608,
-    //    Regime611 = 611,
-    //    Regime612 = 612,
-    //    Regime614 = 614,
-    //    Regime615 = 615,
-    //    Regime616 = 616,
-    //    Regime621 = 621,
-    //    Regime622 = 622,
-    //    Regime629 = 626,
-    //    Regime630 = 630,
-    //}
+    public enum NaturalPersonsRegime
+    {
+        Regime605 = 605,
+        Regime606 = 606,
+        Regime608 = 608,
+        Regime611 = 611,
+        Regime612 = 612,
+        Regime614 = 614,
+        Regime615 = 615,
+        Regime616 = 616,
+        Regime621 = 621,
+        Regime622 = 622,
+        Regime629 = 626,
+        Regime630 = 630,
+    }
 }

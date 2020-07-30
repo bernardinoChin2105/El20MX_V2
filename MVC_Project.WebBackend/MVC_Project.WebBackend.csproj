@@ -95,11 +95,6 @@
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.IO, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.IO.4.3.0\lib\net462\System.IO.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
     </Reference>
@@ -268,6 +263,7 @@
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\PaymentsController.cs" />
+    <Compile Include="Controllers\ProviderController.cs" />
     <Compile Include="Controllers\RegisterController.cs" />
     <Compile Include="Controllers\RoleController.cs" />
     <Compile Include="Controllers\StorageController.cs" />
@@ -282,6 +278,7 @@
     <Compile Include="Models\AccountViewModel.cs" />
     <Compile Include="Models\AuthViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
+    <Compile Include="Models\ProviderViewModel.cs" />
     <Compile Include="Models\CustomerViewModel.cs" />
     <Compile Include="Models\DataTableModel.cs" />
     <Compile Include="Models\DiagnosticTableViewModel.cs" />
@@ -1804,6 +1801,9 @@
     <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
     <Content Include="Scripts\views\Auth\Index.js" />
+    <Content Include="Scripts\views\Provider\Create.js" />
+    <Content Include="Scripts\views\Provider\Edit.js" />
+    <Content Include="Scripts\views\Provider\Index.js" />
     <Content Include="Scripts\views\Customer\Edit.js" />
     <Content Include="Scripts\views\Customer\Create.js" />
     <Content Include="Scripts\views\Customer\Index.js" />
@@ -1919,6 +1919,9 @@
     <Content Include="Views\Customer\Edit.cshtml" />
     <Content Include="Views\Customer\Create.cshtml" />
     <Content Include="Views\Account\CreateAccount.cshtml" />
+    <Content Include="Views\Provider\Index.cshtml" />
+    <Content Include="Views\Provider\Create.cshtml" />
+    <Content Include="Views\Provider\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

@@ -12,10 +12,12 @@ namespace MVC_Project.Domain.Model
         public Int64 municipalityId { get; set; }
         public Int64 settlementTypeId { get; set; }
         public Int64 stateId { get; set; }
+        public Int64 countryId { get; set; }
         public string nameSettlement { get; set; }
         public string zipCode { get; set; }
         public string nameSettlementType { get; set; }
         public string nameMunicipality { get; set; }
         public string nameState { get; set; }
+        public string nameCountry { get; set; }
     }
 }

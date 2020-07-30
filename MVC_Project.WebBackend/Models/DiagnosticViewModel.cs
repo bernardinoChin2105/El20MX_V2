@@ -57,16 +57,7 @@ namespace MVC_Project.WebBackend.Models
         public int numberCFDI { get; set; }
         public decimal totalAmount { get; set; }
         public DateTime createdAt { get; set; }
-    }
-
-    public class ExtractionsFilter
-    {
-        public string taxpayer { get; set; }
-        public string extractor { get; set; }
-        public string periodFrom { get; set; }
-        public string periodTo { get; set; }
-        public string status { get; set; }
-    }
+    }   
 
     public class InvoicesGroup
     {

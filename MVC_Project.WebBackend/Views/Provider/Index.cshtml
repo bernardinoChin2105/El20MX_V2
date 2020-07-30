@@ -1,25 +1,21 @@
-﻿@model MVC_Project.WebBackend.Models.CustomerFilterViewModel
+﻿@model MVC_Project.WebBackend.Models.ProviderFilterViewModel
 @using MVC_Project.WebBackend.AuthManagement
 @using MVC_Project.WebBackend.AuthManagement.Models
 @{
-    ViewBag.Title = "Clientes";
+    ViewBag.Title = "Proveedores";
 
     var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
     AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
     var hasFullAccessController = user.HasFullAccessController(controllerName);
 }
 
-@section styles {
-    @*
-        @Styles.Render("~/plugins/dataTablesStyles")*@
-    @*@Styles.Render("~/plugins/daterangepickerStyles")*@
-
+@section styles {   
     <style>
         .hide {
             display: none;
         }
-        .custom-file-label::after{
-            content:"Buscar"
+        .custom-file-label::after {
+            content: "Buscar"
         }
     </style>
 }
@@ -29,7 +25,7 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="ibox float-e-margins">
-                @using (Html.BeginForm("GetCustumers", "Custumer", FormMethod.Post, new { @id = "SearchForm" }))
+                @using (Html.BeginForm("GetProviders", "Provider", FormMethod.Post, new { @id = "SearchForm" }))
                 {
                     <div class="ibox-title">
                         <h5>Búsqueda</h5>
@@ -72,7 +68,7 @@
                     @if (hasFullAccessController)
                     {
                         <div class="ibox-tools">
-                            <a href="@Url.Action("Create", "Customer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Nuevo Cliente</a>
+                            <a href="@Url.Action("Create", "Provider")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Nuevo Proveedor</a>
                             <button type="button" class="btn btn-sm btn-color btn-import" data-toggle="modal" data-target="#ModalImporterClients"><span class="fas fa-upload"></span> Importar</button>
                             <button type="button" class="btn btn-sm btn-color btn-export"><span class="fas fa-download"></span> Exportar</button>
                         </div>
@@ -91,7 +87,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <div class="modal-title">
-                        <h3>Importar clientes</h3>
+                        <h3>Selecciona la cuenta que quieres usar</h3>
                     </div>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                         <span aria-hidden="true">&times;</span>
@@ -117,6 +113,7 @@
                                 <li>Colonia</li>
                                 <li>Alcaldía/Municipio</li>
                                 <li>Estado</li>
+                                <li>País</li>
                                 <li>Domicilio Comercial </li>
                                 <li>Email</li>
                                 <li>Teléfono</li>
@@ -125,7 +122,7 @@
                             </ul>
                             <br />
 
-                            @using (Html.BeginForm("ImportExcelCustomer", "Customer", FormMethod.Post, new { @id = "postImportar" }))
+                            @using (Html.BeginForm("ImportExcelProvider", "Provider", FormMethod.Post, new { @id = "postImportar" }))
                             {
                                 <div class="row">
                                     <div class="col-12 col-md-10">
@@ -133,14 +130,20 @@
                                             <input type="file" name="Excel" class="custom-file-input" id="exampleFormControlFile1" onchange="loadFile(event, 'rutaExcel', this)"
                                                    accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
                                             <label class="custom-file-label" id="rutaExcel" for="exampleFormControlFile1">Seleccione el archivo...</label>
-                                        </div>                                  
+                                        </div>
+
+                                        @*<div class="form-group">
+                                            <label for="exampleFormControlFile1">Archivo Excel</label>
+                                            <input type="file" name="Excel" class="form-control-file" id="exampleFormControlFile1" onchange="loadFile(event, 'rutaExcel', this)">                                           
+                                        </div>                                        
+                                        <span class="hide" ></span>*@
                                     </div>
                                     <div class="col-12 col-md-2">
                                         <label></label>
                                         <button type="button" class="btn btn-color btn-save-import" disabled="disabled" onclick="Guardar(event);"><span class="fas fa-upload"></span> Importar</button>
                                     </div>
                                 </div>
-                            }                       
+                            }
                         </div>
                     </div>
                 </div>
@@ -156,16 +159,16 @@
 
     <script>
         $(function () {
-            var customer = new CustomerIndexControlador('table',
-                '@Url.Action("GetCustomers")',
+            var provider = new ProviderIndexControlador('table',
+                '@Url.Action("GetProviders")',
                 '@Url.Action("Edit")',
-                '@Url.Action("ExportListCustomer")',
-                '@Url.Action("CustomerUpload")',
+                '@Url.Action("ExportListProvider")',
+                '@Url.Action("UploadProvider")',
                 '@hasFullAccessController' == 'True'
             );
-            customer.init();
+            provider.init();
         });
     </script>
 
-    @Scripts.Render("~/views/customerIndex")
+    <script src="~/Scripts/views/Provider/Index.js"></script>
 }

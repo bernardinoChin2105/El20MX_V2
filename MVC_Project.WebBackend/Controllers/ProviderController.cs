@@ -20,81 +20,26 @@ using System.Web.Mvc;
 
 namespace MVC_Project.WebBackend.Controllers
 {
-    public class CustomerController : Controller
+    public class ProviderController : Controller
     {
         private IAccountService _accountService;
-        private ICustomerService _customerService;
-        private ICustomerContactService _customerContactService;
+        private IProviderService _providerService;
         private IStateService _stateService;
+        //private IProviderContactService _providerContactService;
 
-        public CustomerController(IAccountService accountService, ICustomerService customerService, IStateService stateService,
-            ICustomerContactService customerContactService)
+        public ProviderController(IAccountService accountService, IProviderService providerService, IStateService stateService)
         {
             _accountService = accountService;
-            _customerService = customerService;
-            _customerContactService = customerContactService;
+            _providerService = providerService;
             _stateService = stateService;
+            //_customerContactService = customerContactService;
         }
 
+        // GET: Provider
         [AllowAnonymous]
         public ActionResult Index()
         {
             return View();
-        }
-
-        [HttpGet, AllowAnonymous]
-        public JsonResult GetCustomers(JQueryDataTableParams param, string filtros, bool first)
-        {
-            try
-            {
-                int totalDisplay = 0;
-                int total = 0;
-                var listResponse = new List<CustomerList>();
-                if (!first)
-                {
-                    var userAuth = Authenticator.AuthenticatedUser;
-                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
-                    string rfc = filtersValues.Get("RFC").Trim();
-                    string businessName = filtersValues.Get("BusinessName").Trim();
-                    string email = filtersValues.Get("Email").Trim();
-
-                    var pagination = new BasePagination();
-                    var filters = new CustomerFilter() { uuid = userAuth.Account.Uuid.ToString() };
-                    pagination.PageSize = param.iDisplayLength;
-                    pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
-                    if (rfc != "") filters.rfc = rfc;
-                    if (businessName != "") filters.businessName = businessName;
-                    if (email != "") filters.email = email;
-
-                    listResponse = _customerService.CustomerList(pagination, filters);
-
-                    //Corroborar los campos iTotalRecords y iTotalDisplayRecords
-
-                    if (listResponse.Count() > 0)
-                    {
-                        totalDisplay = listResponse[0].Total;
-                        total = listResponse.Count();
-                    }
-                }
-
-                return Json(new
-                {
-                    success = true,
-                    sEcho = param.sEcho,
-                    iTotalRecords = total,
-                    iTotalDisplayRecords = totalDisplay,
-                    aaData = listResponse
-                }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return new JsonResult
-                {
-                    Data = new { success = false, message = ex.Message },
-                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                    MaxJsonLength = Int32.MaxValue
-                };
-            }
         }
 
         [AllowAnonymous]
@@ -102,7 +47,7 @@ namespace MVC_Project.WebBackend.Controllers
         {
             try
             {
-                var createCustomer = new CustomerViewModel();
+                var createProvider = new ProviderViewModel();
                 var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
                 stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
 
@@ -113,9 +58,9 @@ namespace MVC_Project.WebBackend.Controllers
                         Text = EnumUtils.GetDisplayName(e)
                     }).ToList();
 
-                createCustomer.ListRegimen = new SelectList(regimenList);
-                createCustomer.ListState = new SelectList(stateList);
-                return View(createCustomer);
+                createProvider.ListRegimen = new SelectList(regimenList);
+                createProvider.ListState = new SelectList(stateList);
+                return View(createProvider);
             }
             catch (Exception ex)
             {
@@ -125,11 +70,10 @@ namespace MVC_Project.WebBackend.Controllers
             // return View();
         }
 
-        // POST: Customer/Create
-        //[HttpPost]
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
-        public ActionResult Create(CustomerViewModel model)
+        public ActionResult Create(ProviderViewModel model)
         {
+            //MensajeFlashHandler.RegistrarMensaje("¡Registro de Cliente realizado!", TiposMensaje.Success);
             try
             {
                 if (!ModelState.IsValid)
@@ -137,13 +81,13 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var authUser = Authenticator.AuthenticatedUser;
 
-                if (_customerService.FindBy(x => x.rfc == model.RFC && x.account.id == authUser.Account.Id).Any())
-                    throw new Exception("Ya existe un Cliente con el RFC proporcionado");
+                if (_providerService.FindBy(x => x.rfc == model.RFC && x.account.id == authUser.Account.Id).Any())
+                    throw new Exception("Ya existe un Proveedor con el RFC proporcionado");
 
                 //Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
-                Customer customer = new Customer()
+                Provider provider = new Provider()
                 {
 
                     uuid = Guid.NewGuid(),
@@ -165,13 +109,13 @@ namespace MVC_Project.WebBackend.Controllers
                 };
 
                 if (model.Colony.Value > 0)
-                    customer.colony = model.Colony.Value;
+                    provider.colony = model.Colony.Value;
                 if (model.Municipality.Value > 0)
-                    customer.municipality = model.Municipality.Value;
+                    provider.municipality = model.Municipality.Value;
                 if (model.State.Value > 0)
-                    customer.state = model.State.Value;
+                    provider.state = model.State.Value;
                 if (model.Country.Value > 0)
-                    customer.country = model.Country.Value;
+                    provider.country = model.Country.Value;
 
                 List<string> indexsP = new List<string>();
                 List<string> indexsE = new List<string>();
@@ -188,17 +132,17 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         if (model.Phones[i].EmailOrPhone != null && model.Emails[i].EmailOrPhone.Trim() != "" && !indexsE.Contains(i.ToString()))
                         {
-                            CustomerContact email = new CustomerContact()
+                            ProviderContact email = new ProviderContact()
                             {
                                 emailOrPhone = model.Emails[i].EmailOrPhone,
                                 typeContact = model.Emails[i].TypeContact,
-                                customer = customer,
+                                provider = provider,
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
                                 status = SystemStatus.ACTIVE.ToString()
                             };
 
-                            customer.customerContacts.Add(email);
+                            provider.providerContacts.Add(email);
                         }
                     }
                 }
@@ -209,22 +153,22 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         if (model.Phones[i].EmailOrPhone != null && model.Phones[i].EmailOrPhone.Trim() != "" && !indexsP.Contains(i.ToString()))
                         {
-                            CustomerContact phone = new CustomerContact()
+                            ProviderContact phone = new ProviderContact()
                             {
                                 emailOrPhone = model.Phones[i].EmailOrPhone,
                                 typeContact = model.Phones[i].TypeContact,
-                                customer = customer,
+                                provider = provider,
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
                                 status = SystemStatus.ACTIVE.ToString()
                             };
 
-                            customer.customerContacts.Add(phone);
+                            provider.providerContacts.Add(phone);
                         }
                     }
                 }
 
-                _customerService.Create(customer);
+                _providerService.Create(provider);
                 MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
@@ -244,6 +188,297 @@ namespace MVC_Project.WebBackend.Controllers
                 model.ListRegimen = new SelectList(regimenList);
                 model.ListState = new SelectList(stateList);
                 return View(model);
+            }
+        }
+
+        public ActionResult Edit(string uuid)
+        {
+            try
+            {
+                ProviderViewModel model = new ProviderViewModel();
+                var userAuth = Authenticator.AuthenticatedUser;
+
+
+                var provider = _providerService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid) && x.account.id == userAuth.Account.Id);
+                if (provider == null)
+                    throw new Exception("El registro de Proveedor no se encontró en la base de datos");
+
+                model.Id = provider.id;
+                model.FistName = provider.firstName;
+                model.LastName = provider.lastName;
+                model.RFC = provider.rfc;
+                model.CURP = provider.curp;
+                model.BusinessName = provider.businessName;
+                model.Street = provider.street;
+                model.OutdoorNumber = provider.outdoorNumber;
+                model.InteriorNumber = provider.interiorNumber;
+                model.ZipCode = provider.zipCode;
+                model.Colony = provider.colony;
+                model.Municipality = provider.municipality;
+                model.State = provider.state;
+                model.Country = provider.country;
+                model.DeliveryAddress = provider.deliveryAddress;
+                if (provider.taxRegime != null)
+                    model.taxRegime = ((TypeTaxRegimen)Enum.Parse(typeof(TypeTaxRegimen), provider.taxRegime)).ToString();
+
+                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
+                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
+
+                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
+                    .Select(e => new SelectListItem
+                    {
+                        Value = e.ToString(),
+                        Text = EnumUtils.GetDisplayName(e)
+                    }).ToList();
+
+                model.ListRegimen = new SelectList(regimenList);
+                model.ListState = new SelectList(stateList);
+
+                var emails = provider.providerContacts.Where(x => x.typeContact == TypeContact.EMAIL.ToString() && x.status == SystemStatus.ACTIVE.ToString())
+                            .Select(x => new ProviderContactsViewModel
+                            {
+                                Id = x.id,
+                                TypeContact = x.typeContact,
+                                EmailOrPhone = x.emailOrPhone
+                            }).ToList();
+
+                if (emails.Count() > 0)
+                {
+                    model.Emails = emails;
+                }
+
+                var phones = provider.providerContacts.Where(x => x.typeContact == TypeContact.PHONE.ToString() && x.status == SystemStatus.ACTIVE.ToString())
+                            .Select(x => new ProviderContactsViewModel
+                            {
+                                Id = x.id,
+                                TypeContact = x.typeContact,
+                                EmailOrPhone = x.emailOrPhone
+                            }).ToList();
+                if (phones.Count() > 0)
+                {
+                    model.Phones = phones;
+                }
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpPost]
+        public ActionResult Edit(ProviderViewModel model)
+        {
+            var userAuth = Authenticator.AuthenticatedUser;
+            ProviderViewModel provider = new ProviderViewModel();
+            var providerData = _providerService.FirstOrDefault(x => x.id == model.Id && x.account.id == userAuth.Account.Id);
+            try
+            {
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
+
+                var authUser = Authenticator.AuthenticatedUser;
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+
+                providerData.firstName = model.FistName;
+                providerData.lastName = model.LastName;
+                providerData.rfc = model.RFC;
+                providerData.curp = model.CURP;
+                providerData.businessName = model.BusinessName;
+                providerData.taxRegime = model.taxRegime;
+                providerData.street = model.Street;
+                providerData.interiorNumber = model.InteriorNumber;
+                providerData.outdoorNumber = model.OutdoorNumber;
+                providerData.zipCode = model.ZipCode;
+                providerData.deliveryAddress = model.DeliveryAddress;
+                providerData.modifiedAt = todayDate;
+                providerData.status = SystemStatus.ACTIVE.ToString();
+
+                if (model.Colony.Value > 0)
+                    providerData.colony = model.Colony.Value;
+                if (model.Municipality.Value > 0)
+                    providerData.municipality = model.Municipality.Value;
+                if (model.State.Value > 0)
+                    providerData.state = model.State.Value;
+                if (model.Country.Value > 0)
+                    providerData.country = model.Country.Value;
+
+                #region Actualizar registros de las listas de emails y teléfonos 
+                List<string> indexsP = new List<string>();
+                List<string> indexsE = new List<string>();
+
+                if (model.indexPhone != null)
+                    indexsP = model.indexPhone.Split(',').ToList();
+
+                if (model.indexEmail != null)
+                    indexsE = model.indexEmail.Split(',').ToList();
+
+                if (model.Emails.Count() > 0)
+                {
+                    for (int i = 0; i < model.Emails.Count(); i++)
+                    {
+                        if (model.Emails[i].EmailOrPhone != null && model.Emails[i].EmailOrPhone.Trim() != "" && !indexsE.Contains(i.ToString()))
+                        {
+                            if (model.Emails[i].Id > 0)
+                            {
+                                //actualizar lista
+                                var contact = providerData.providerContacts.Where(x => x.id == model.Emails[i].Id).FirstOrDefault();
+                                contact.emailOrPhone = model.Emails[i].EmailOrPhone;
+                                contact.modifiedAt = todayDate;
+                            }
+                            else
+                            {
+                                ProviderContact email = new ProviderContact()
+                                {
+                                    emailOrPhone = model.Emails[i].EmailOrPhone,
+                                    typeContact = model.Emails[i].TypeContact,
+                                    provider = providerData,
+                                    createdAt = todayDate,
+                                    modifiedAt = todayDate,
+                                    status = SystemStatus.ACTIVE.ToString()
+                                };
+
+                                providerData.providerContacts.Add(email);
+                            }
+                        }
+                    }
+                }
+
+                if (model.Phones.Count() > 0)
+                {
+                    for (int i = 0; i < model.Phones.Count(); i++)
+                    {
+                        if (model.Phones[0].EmailOrPhone != null && model.Phones[0].EmailOrPhone.Trim() != "" && !indexsP.Contains(i.ToString()))
+                        {
+                            if (model.Phones[i].Id > 0)
+                            {
+                                //actualizar lista
+                                var contact = providerData.providerContacts.Where(x => x.id == model.Phones[i].Id).FirstOrDefault();
+                                contact.emailOrPhone = model.Phones[i].EmailOrPhone;
+                                contact.modifiedAt = todayDate;
+                            }
+                            else
+                            {
+                                ProviderContact phone = new ProviderContact()
+                                {
+                                    emailOrPhone = model.Phones[i].EmailOrPhone,
+                                    typeContact = model.Phones[i].TypeContact,
+                                    provider = providerData,
+                                    createdAt = todayDate,
+                                    modifiedAt = todayDate,
+                                    status = SystemStatus.ACTIVE.ToString()
+                                };
+
+                                providerData.providerContacts.Add(phone);
+                            }
+                        }
+                    }
+                }
+
+                //Eliminar registros de la lista
+                List<string> list = new List<string>();
+
+                if (model.dataContacts != null)
+                    list = model.dataContacts.Split(',').ToList();
+
+                if (list.Count() > 0)
+                {
+                    foreach (var item in list)
+                    {
+                        var itemToRemove = providerData.providerContacts.SingleOrDefault(r => r.id == Convert.ToInt64(item));
+                        if (itemToRemove != null)
+                        {
+                            itemToRemove.status = SystemStatus.INACTIVE.ToString();
+                        }
+                    }
+                }
+                #endregion
+
+                _providerService.Update(providerData);
+                MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
+                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
+
+                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
+                    .Select(e => new SelectListItem
+                    {
+                        Value = e.ToString(),
+                        Text = EnumUtils.GetDisplayName(e)
+                    });
+
+                model.ListRegimen = new SelectList(regimenList);
+                model.ListState = new SelectList(stateList);
+                return View(model);
+            }
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetProviders(JQueryDataTableParams param, string filtros, bool first)
+        {
+            try
+            {
+                int totalDisplay = 0;
+                int total = 0;
+                var listResponse = new List<ListProviders>();
+                if (!first)
+                {
+                    var userAuth = Authenticator.AuthenticatedUser;
+                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
+                    string rfc = filtersValues.Get("RFC").Trim();
+                    string businessName = filtersValues.Get("BusinessName").Trim();
+                    string email = filtersValues.Get("Email").Trim();
+
+                    var pagination = new BasePagination();
+                    var filters = new FilterProvider() { uuid = userAuth.Account.Uuid.ToString() };
+                    pagination.PageSize = param.iDisplayLength;
+                    pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
+                    if (rfc != "") filters.rfc = rfc;
+                    if (businessName != "") filters.businessName = businessName;
+                    if (email != "") filters.email = email;
+
+                    listResponse = _providerService.ListProvider(pagination, filters);
+
+                    //Corroborar los campos iTotalRecords y iTotalDisplayRecords
+                    if (listResponse.Count() > 0)
+                    {
+                        totalDisplay = listResponse[0].Total;
+                        total = listResponse.Count();
+                    }
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    sEcho = param.sEcho,
+                    iTotalRecords = total,
+                    iTotalDisplayRecords = totalDisplay,
+                    aaData = listResponse
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult
+                {
+                    Data =
+                    new
+                    {
+                        success = true,
+                        message = ex.Message.ToString(),
+                        sEcho = param.sEcho,
+                        iTotalRecords = 0,
+                        iTotalDisplayRecords = 0,
+                        aaData = new List<CustomerList>()
+                    },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
             }
         }
 
@@ -270,237 +505,8 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
-        // GET: Customer/Edit/5
-        public ActionResult Edit(string uuid)
-        {
-            try
-            {
-                CustomerViewModel model = new CustomerViewModel();
-                var userAuth = Authenticator.AuthenticatedUser;
-
-                var customer = _customerService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid) && x.account.id == userAuth.Account.Id);
-                if (customer == null)
-                    throw new Exception("El registro de Cliente no se encontró en la base de datos");
-
-                model.Id = customer.id;
-                model.FistName = customer.firstName;
-                model.LastName = customer.lastName;
-                model.RFC = customer.rfc;
-                model.CURP = customer.curp;
-                model.BusinessName = customer.businessName;
-                model.Street = customer.street;
-                model.OutdoorNumber = customer.outdoorNumber;
-                model.InteriorNumber = customer.interiorNumber;
-                model.ZipCode = customer.zipCode;
-                model.Colony = customer.colony;
-                model.Municipality = customer.municipality;
-                model.State = customer.state;
-                model.Country = customer.country;
-                model.DeliveryAddress = customer.deliveryAddress;
-                if (customer.taxRegime != null)
-                    model.taxRegime = ((TypeTaxRegimen)Enum.Parse(typeof(TypeTaxRegimen), customer.taxRegime)).ToString();
-
-                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
-
-                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.ToString(),
-                        Text = EnumUtils.GetDisplayName(e)
-                    }).ToList();
-
-                model.ListRegimen = new SelectList(regimenList);
-                model.ListState = new SelectList(stateList);
-
-                var emails = customer.customerContacts.Where(x => x.typeContact == TypeContact.EMAIL.ToString() && x.status == SystemStatus.ACTIVE.ToString())
-                            .Select(x => new CustomerContactsViewModel
-                            {
-                                Id = x.id,
-                                TypeContact = x.typeContact,
-                                EmailOrPhone = x.emailOrPhone
-                            }).ToList();
-
-                if (emails.Count() > 0)
-                {
-                    model.Emails = emails;
-                }
-
-                var phones = customer.customerContacts.Where(x => x.typeContact == TypeContact.PHONE.ToString() && x.status == SystemStatus.ACTIVE.ToString())
-                            .Select(x => new CustomerContactsViewModel
-                            {
-                                Id = x.id,
-                                TypeContact = x.typeContact,
-                                EmailOrPhone = x.emailOrPhone
-                            }).ToList();
-                if (phones.Count() > 0)
-                {
-                    model.Phones = phones;
-                }
-
-                return View(model);
-            }
-            catch (Exception ex)
-            {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                return RedirectToAction("Index");
-            }
-        }
-
-        // POST: Customer/Edit/5
-        [HttpPost]
-        public ActionResult Edit(CustomerViewModel model)
-        {
-            var userAuth = Authenticator.AuthenticatedUser;
-            CustomerViewModel customer = new CustomerViewModel();
-            var customerData = _customerService.FirstOrDefault(x => x.id == model.Id && x.account.id == userAuth.Account.Id);
-            try
-            {
-                if (!ModelState.IsValid)
-                    throw new Exception("El modelo de entrada no es válido");
-
-                var authUser = Authenticator.AuthenticatedUser;
-                DateTime todayDate = DateUtil.GetDateTimeNow();
-
-                customerData.firstName = model.FistName;
-                customerData.lastName = model.LastName;
-                customerData.rfc = model.RFC;
-                customerData.curp = model.CURP;
-                customerData.businessName = model.BusinessName;
-                customerData.taxRegime = model.taxRegime;
-                customerData.street = model.Street;
-                customerData.interiorNumber = model.InteriorNumber;
-                customerData.outdoorNumber = model.OutdoorNumber;
-                customerData.zipCode = model.ZipCode;
-                customerData.deliveryAddress = model.DeliveryAddress;
-                customerData.modifiedAt = todayDate;
-                customerData.status = SystemStatus.ACTIVE.ToString();
-
-                if (model.Colony.Value > 0)
-                    customerData.colony = model.Colony.Value;
-                if (model.Municipality.Value > 0)
-                    customerData.municipality = model.Municipality.Value;
-                if (model.State.Value > 0)
-                    customerData.state = model.State.Value;
-                if (model.Country.Value > 0)
-                    customerData.country = model.Country.Value;
-
-                #region Actualizar registros de las listas de emails y teléfonos 
-                List<string> indexsP = new List<string>();
-                List<string> indexsE = new List<string>();
-
-                if (model.indexPhone != null)
-                    indexsP = model.indexPhone.Split(',').ToList();
-
-                if (model.indexEmail != null)
-                    indexsE = model.indexEmail.Split(',').ToList();
-
-                if (model.Emails.Count() > 0)
-                {
-                    for (int i = 0; i < model.Emails.Count(); i++)
-                    {
-                        if (model.Emails[i].EmailOrPhone != null && model.Emails[i].EmailOrPhone.Trim() != "" && !indexsE.Contains(i.ToString()))
-                        {
-                            if (model.Emails[i].Id > 0)
-                            {
-                                //actualizar lista
-                                var contact = customerData.customerContacts.Where(x => x.id == model.Emails[i].Id).FirstOrDefault();
-                                contact.emailOrPhone = model.Emails[i].EmailOrPhone;
-                                contact.modifiedAt = todayDate;
-                            }
-                            else
-                            {
-                                CustomerContact email = new CustomerContact()
-                                {
-                                    emailOrPhone = model.Emails[i].EmailOrPhone,
-                                    typeContact = model.Emails[i].TypeContact,
-                                    customer = customerData,
-                                    createdAt = todayDate,
-                                    modifiedAt = todayDate,
-                                    status = SystemStatus.ACTIVE.ToString()
-                                };
-
-                                customerData.customerContacts.Add(email);
-                            }
-                        }
-                    }
-                }
-
-                if (model.Phones.Count() > 0)
-                {
-                    for (int i = 0; i < model.Phones.Count(); i++)
-                    {
-                        if (model.Phones[0].EmailOrPhone != null && model.Phones[0].EmailOrPhone.Trim() != "" && !indexsP.Contains(i.ToString()))
-                        {
-                            if (model.Phones[i].Id > 0)
-                            {
-                                //actualizar lista
-                                var contact = customerData.customerContacts.Where(x => x.id == model.Phones[i].Id).FirstOrDefault();
-                                contact.emailOrPhone = model.Phones[i].EmailOrPhone;
-                                contact.modifiedAt = todayDate;
-                            }
-                            else
-                            {
-                                CustomerContact phone = new CustomerContact()
-                                {
-                                    emailOrPhone = model.Phones[i].EmailOrPhone,
-                                    typeContact = model.Phones[i].TypeContact,
-                                    customer = customerData,
-                                    createdAt = todayDate,
-                                    modifiedAt = todayDate,
-                                    status = SystemStatus.ACTIVE.ToString()
-                                };
-
-                                customerData.customerContacts.Add(phone);
-                            }
-                        }
-                    }
-                }
-
-                //Eliminar registros de la lista
-                List<string> list = new List<string>();
-
-                if (model.dataContacts != null)
-                    list = model.dataContacts.Split(',').ToList();
-
-                if (list.Count() > 0)
-                {
-                    foreach (var item in list)
-                    {
-                        var itemToRemove = customerData.customerContacts.SingleOrDefault(r => r.id == Convert.ToInt64(item));
-                        if (itemToRemove != null)
-                        {
-                            itemToRemove.status = SystemStatus.INACTIVE.ToString();
-                        }
-                    }
-                }
-                #endregion
-
-                _customerService.Update(customerData);
-                MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
-                return RedirectToAction("Index");
-            }
-            catch (Exception ex)
-            {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
-
-                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.ToString(),
-                        Text = EnumUtils.GetDisplayName(e)
-                    });
-
-                model.ListRegimen = new SelectList(regimenList);
-                model.ListState = new SelectList(stateList);
-                return View(model);
-            }
-        }
-
         [HttpPost, AllowAnonymous, FileDownload]
-        public FileResult ExportListCustomer(string filtros)
+        public FileResult ExportListProvider(string filtros)
         {
             try
             {
@@ -510,16 +516,16 @@ namespace MVC_Project.WebBackend.Controllers
                 string businessName = filtersValues.Get("BusinessName").Trim();
                 string email = filtersValues.Get("Email").Trim();
 
-                var filters = new CustomerFilter() { uuid = userAuth.Account.Uuid.ToString() };
+                var filters = new FilterProvider() { uuid = userAuth.Account.Uuid.ToString() };
                 if (rfc != "") filters.rfc = rfc;
                 if (businessName != "") filters.businessName = businessName;
                 if (email != "") filters.email = email;
 
-                var listResponse = _customerService.ExportListCustomer(filters);
+                var listResponse = _providerService.ExportListProvider(filters);
 
                 using (ExcelPackage pck = new ExcelPackage())
                 {
-                    ExcelWorksheet campo = pck.Workbook.Worksheets.Add("LISTA DE CLIENTES");
+                    ExcelWorksheet campo = pck.Workbook.Worksheets.Add("LISTA DE PROVEEDORES");
 
                     campo.Cells["A1:Z1"].Style.Font.Bold = true;
 
@@ -549,7 +555,7 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         string enumFiscal = string.Empty;
                         string rowIndexString = rowIndex.ToString();
-                        campo.Cells["A" + rowIndexString].Value = i+1;
+                        campo.Cells["A" + rowIndexString].Value = i + 1;
                         campo.Cells["A" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
                         campo.Cells["B" + rowIndexString].Value = listResponse[i].first_name;
@@ -569,7 +575,8 @@ namespace MVC_Project.WebBackend.Controllers
 
                         if (listResponse[i].taxRegime != null)
                         {
-                            enumFiscal = ((TypeTaxRegimen)Enum.Parse(typeof(TypeTaxRegimen), listResponse[i].taxRegime)).GetDisplayName();                            
+                            enumFiscal = ((TypeTaxRegimen)Enum.Parse(typeof(TypeTaxRegimen), listResponse[i].taxRegime)).GetDisplayName();
+                            //var pal2 = EnumUtils.GetValueFromDescription<TypeTaxRegimen>(enumFiscal);//funciona cuando obtenemos la descripción
                         }
 
                         campo.Cells["G" + rowIndexString].Value = enumFiscal;
@@ -619,7 +626,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                     campo.Cells[campo.Dimension.Address].AutoFitColumns();
                     byte[] bin = pck.GetAsByteArray();
-                    return File(bin, "application/vnd.ms-excel", "ListaClientes_(" + DateTime.Now.ToString("G") + ").xlsx");
+                    return File(bin, "application/vnd.ms-excel", "ListaProveedores_(" + DateTime.Now.ToString("G") + ").xlsx");
                 }
             }
             catch (Exception ex)
@@ -630,12 +637,11 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         [HttpPost, AllowAnonymous]
-        public JsonResult ImportExcelCustomer(HttpPostedFileBase Excel)
+        public JsonResult ImportExcelProvider(HttpPostedFileBase Excel)
         {
-
             List<object> Errores = new List<object>();
-            List<ExportListCustomer> datosErroneos = new List<ExportListCustomer>();
-            List<ExportListCustomer> datos = new List<ExportListCustomer>();
+            List<ExportListProviders> datosErroneos = new List<ExportListProviders>();
+            List<ExportListProviders> datos = new List<ExportListProviders>();
             try
             {
                 var authUser = Authenticator.AuthenticatedUser;
@@ -691,7 +697,7 @@ namespace MVC_Project.WebBackend.Controllers
                                             deliveryAddress = Convert.ToBoolean(tabla.Rows[i].ItemArray[15].ToString());
                                         }
 
-                                        ExportListCustomer customers = new ExportListCustomer
+                                        ExportListProviders providers = new ExportListProviders
                                         {
                                             first_name = tabla.Rows[i].ItemArray[1].ToString(),
                                             last_name = tabla.Rows[i].ItemArray[2].ToString(),
@@ -715,9 +721,10 @@ namespace MVC_Project.WebBackend.Controllers
                                             status = SystemStatus.ACTIVE.ToString(),
                                             uuid = Guid.NewGuid(),
                                             accountId = authUser.Account.Id,
+                                            //uuidAccount = authUser.Account.Uuid
                                         };
 
-                                        datos.Add(customers);
+                                        datos.Add(providers);
                                     }
                                 }
                                 catch (Exception Error)
@@ -789,19 +796,19 @@ namespace MVC_Project.WebBackend.Controllers
                     if (RDuplicates.Count > 0)
                     {
                         List<string> RFCDuplicates = (from d in RDuplicates select d.RFCS).ToList();
-                        IEnumerable<ExportListCustomer> SinRegistros = from d in datos where RFCDuplicates.Contains(d.rfc) select d;
+                        IEnumerable<ExportListProviders> SinRegistros = from d in datos where RFCDuplicates.Contains(d.rfc) select d;
                         SinRegistros = SinRegistros.Select(c => { c.Observaciones = "RFC con registro duplicados en el archivo."; return c; }).ToList();
                         datosErroneos = datosErroneos.Union(SinRegistros).ToList();
                     }
 
                     //Validar rfc
-                    var Existen = _customerService.ValidateRFC(rfcs, authUser.Account.Id);
+                    var Existen = _providerService.ValidateRFC(rfcs, authUser.Account.Id);
 
                     List<string> NoExisten = rfcs.Except(Existen).ToList();
 
                     if (Existen.Count > 0)
                     {
-                        IEnumerable<ExportListCustomer> SiExisteRegistros = from d in datos where Existen.Contains(d.rfc) select d;
+                        IEnumerable<ExportListProviders> SiExisteRegistros = from d in datos where Existen.Contains(d.rfc) select d;
                         SiExisteRegistros = SiExisteRegistros.Select(c => { c.Observaciones = "Existe registrado el RFC de el cliente."; return c; }).ToList();
                         datosErroneos = datosErroneos.Union(SiExisteRegistros).ToList();
                         //return Json(new { Success = false, Mensaje = "¡Verifica el archivo, hay usuarios que no existen!", Tipo = 3, SinGuardar = SinRegistros }, JsonRequestBehavior.AllowGet);
@@ -815,9 +822,9 @@ namespace MVC_Project.WebBackend.Controllers
                     reader.Close();
 
                     //Guardado de información
-                    List<Customer> clientes = new List<Customer>();
+                    List<Provider> proveedores = new List<Provider>();
 
-                    clientes = datos.Select(x => new Customer
+                    proveedores = datos.Select(x => new Provider
                     {
                         uuid = Guid.NewGuid(),
                         account = new Account { id = authUser.Account.Id },
@@ -834,17 +841,18 @@ namespace MVC_Project.WebBackend.Controllers
                         modifiedAt = todayDate,
                         status = SystemStatus.ACTIVE.ToString(),
                         deliveryAddress = x.deliveryAddress,
-                        customerContacts = new List<CustomerContact>
-                        {
-                            x.email != ""? new CustomerContact
-                            {
+                        providerContacts = new List<ProviderContact>
+                        {                            
+                            x.email != ""? new ProviderContact
+                            {            
+                                //provider = pro,
                                 emailOrPhone = x.email,
                                 typeContact = TypeContact.EMAIL.ToString(),
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
                                 status = SystemStatus.ACTIVE.ToString()
                             }: null,
-                            x.phone != ""? new CustomerContact
+                            x.phone != ""? new ProviderContact
                             {
                                 emailOrPhone = x.phone,
                                 typeContact = TypeContact.PHONE.ToString(),
@@ -855,20 +863,19 @@ namespace MVC_Project.WebBackend.Controllers
                         }
                     }).ToList();
 
-                    clientes = clientes.Select(x => {
-                        x.customerContacts = x.customerContacts.Where(b => b != null)
-                        .Select(b => { b.customer = x; return b; }).ToList();
-                        return x;
-                    }).ToList();
+                    proveedores = proveedores.Select(x => {
+                        x.providerContacts = x.providerContacts.Where(b => b != null)
+                        .Select(b => { b.provider = x; return b; }).ToList();                        
+                        return x; }).ToList();                                
 
-                    if (clientes.Count() > 0)
+                    if (proveedores.Count() > 0)
                     {
-                        _customerService.Create(clientes);
+                        _providerService.Create(proveedores);
                         //LogHub de bitacora
                         return Json(new
                         {
                             Success = true,
-                            Mensaje = "¡" + clientes.Count() + " Registros guardados exitosamente!",
+                            Mensaje = "¡" + proveedores.Count() + " Registros guardados exitosamente!",
                             //Tipo = 2,
                             //SinGuardar = clientesNoRegistrados,
                         }, JsonRequestBehavior.AllowGet);

@@ -189,4 +189,10 @@
   <data name="MODULE_PROSPECTS" xml:space="preserve">
     <value>Prospects</value>
   </data>
+  <data name="MODULE_CUSTOMERS" xml:space="preserve">
+    <value>Customers</value>
+  </data>
+  <data name="MODULE_PROVIDERS" xml:space="preserve">
+    <value>Providers</value>
+  </data>
 </root>

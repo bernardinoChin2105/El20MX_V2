@@ -121,7 +121,7 @@ $('.listContacts').on('click', '.btn-remove', function () {
 
     var item = $(this).val();
     var data = $(this).data("element");
-    console.log($(this).next(), "hermano")
+    //console.log($(this).next(), "hermano");
     var itemValue = $(this).next().val();
     console.log(item, item.trim(), itemValue, "valor del elemento");
 

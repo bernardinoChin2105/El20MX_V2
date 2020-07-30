@@ -17,7 +17,7 @@ $(".btn-filter-rol").click(function () {
 });
 
 
-var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUrl, uploadUrl, hasFullAccessController) {
+var ProviderIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUrl, uploadUrl, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
@@ -32,7 +32,7 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();
         }).DataTable({
-            language: { url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json' },
+            language: { url: 'Scripts/custom/dataTableslang.es_MX.json' },
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": this.baseUrl,
@@ -42,12 +42,12 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
             columns: [
                 { data: 'id', title: "Id", visible: false },
                 { data: 'rfc', title: "RFC" },
-                { data: 'businessName', title: "Nombre/Razón Social" },
+                { data: 'businessName', title: "Nombre Colaborador" },
                 { data: 'phone', title: "Teléfono" },
                 { data: 'email', title: "Email" },
                 {
                     data: null,
-                    title: "+ de Mis Clientes",
+                    title: "+ de Mi Colaborador",
                     className: 'menu-options',
                     render: function (data) {
                         //Menu para más opciones de cliente
@@ -56,28 +56,9 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                             '<div class="dropdown">' +
                             '<button class="btn btn-light btn-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-ellipsis-h"></span></button>' +
                             '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
-                            '<a class="dropdown-item" href="' + self.editUrl + '?uuid=' + data.uuid + '">Perfil Completo del Cliente</a>' +
+                            '<a class="dropdown-item" href="' + self.editUrl + '?uuid=' + data.uuid + '">Perfil Completo del Colaborador</a>' +
                             '<a class="dropdown-item" href="#">Estado de Cuenta</a>' +
-                            '<a class="dropdown-item" href="#">Lista de Facturas(CFDI\'s)</a>' +
-                            '</div>' +
-                            '</div>' +
-                            '</div>';
-                        return hasFullAccessController ? buttons : "";
-                    }
-                },
-                {
-                    data: null,
-                    title: "Trabajar con Mis Clientes",
-                    className: 'work-options',
-                    render: function (data) {
-                        //menu para el cliente work
-                        //console.log(data)
-                        //style="margin-left:5px;"
-                        var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<div class="dropdown">' +
-                            '<button class="btn btn-light btn-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-ellipsis-h"></span></button>' +
-                            '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
-                            '<a class="dropdown-item" href="' + self.editUrl + '?uuid=' + data.uuid + '">Hacer CFDI</a>' +
+                            '<a class="dropdown-item" href="#">Lista de (CFDI\'s)</a>' +
                             '</div>' +
                             '</div>' +
                             '</div>';
@@ -124,7 +105,7 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
 
                 /////////////////////////////////////////////////////
             } catch (e) {
-                throw 'CustomerIndexControlador -> Exportar: ' + e;
+                throw 'ProviderIndexControlador -> Exportar: ' + e;
             }
         });
     };
@@ -132,12 +113,6 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
 
 
 var _validFileExtensions = [".xlsx", ".xls"];
-$('.custom-file-input').on('change', function () {
-    let fileName = $(this).val().split('\\').pop();
-    $(this).next('.custom-file-label').addClass("selected").html(fileName);
-    $(".btn-save-import").attr("disabled", false);
-}); 
-
 var loadFile = function (event, imgid, input) {
     if (input.type === "file") {
         var sFileName = input.value;

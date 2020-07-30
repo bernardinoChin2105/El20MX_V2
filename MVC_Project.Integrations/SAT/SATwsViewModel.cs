@@ -10,6 +10,15 @@ namespace MVC_Project.Integrations.SAT
     {
     }
 
+    public class ExtractionsFilter
+    {
+        public string taxpayer { get; set; }
+        public string extractor { get; set; }
+        public string periodFrom { get; set; }
+        public string periodTo { get; set; }
+        public string status { get; set; }
+    }
+
     public class InvoicesInfo
     {
         public string id { get; set; }
@@ -62,10 +71,40 @@ namespace MVC_Project.Integrations.SAT
         public string name { get; set; }
     }
 
-    public class CustumersInfo {
+    public class CustomersInfo
+    {
         public string rfc { get; set; }
-        public string name { get; set; }
+        public string businessName { get; set; }
         public string zipCode { get; set; }
-        public string regime { get; set; }
-    }    
+        public int regime { get; set; }
+    }
+
+    public class ProvidersInfo
+    {
+        public string rfc { get; set; }
+        public string businessName { get; set; }
+        public string zipCode { get; set; }
+        public Int32 regime { get; set; }
+    }
+
+    //Información fiscal del contribuyente
+    public class TaxpayerInfo
+    {
+        public string id { get; set; }
+        public string personType { get; set; }
+        public string registrationDate { get; set; }
+        public string name { get; set; }
+        public string status { get; set; }
+    }
+
+    //Modelo de retorno para el DX0 y clientes
+    public class InvoicesModel
+    {
+        public TaxpayerInfo Taxpayer { get; set; }
+        public List<InvoicesInfo> Invoices { get; set; }        
+        public List<ProvidersInfo> Providers { get; set; }
+        public List<CustomersInfo> Customers { get; set; }
+        public string Message { get; set; }
+        public bool Success { get; set; }
+    }
 }
