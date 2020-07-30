@@ -130,7 +130,6 @@ namespace MVC_Project.WebBackend.Controllers
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public ActionResult Create(CustomerViewModel model)
         {
-            //MensajeFlashHandler.RegistrarMensaje("¡Registro de Cliente realizado!", TiposMensaje.Success);
             try
             {
                 if (!ModelState.IsValid)
@@ -571,7 +570,6 @@ namespace MVC_Project.WebBackend.Controllers
                         if (listResponse[i].taxRegime != null)
                         {
                             enumFiscal = ((TypeTaxRegimen)Enum.Parse(typeof(TypeTaxRegimen), listResponse[i].taxRegime)).GetDisplayName();
-                            //var pal2 = EnumUtils.GetValueFromDescription<TypeTaxRegimen>(enumFiscal);//funciona cuando obtenemos la descripción
                         }
 
                         campo.Cells["G" + rowIndexString].Value = enumFiscal;
@@ -887,41 +885,5 @@ namespace MVC_Project.WebBackend.Controllers
                 return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente! "+ Error.Message.ToString(), Tipo = 0, Error = Error.Message.ToString() }, JsonRequestBehavior.AllowGet);
             }
         }
-
-
-        //// GET: Role/Delete/5
-        //public ActionResult Delete(int id)
-        //{
-        //    return View();
-        //}
-
-        //// POST: Role/Delete/5
-        //[HttpPost]
-        //public ActionResult Delete(string uuid, FormCollection collection)
-        //{
-        //    try
-        //    {
-        //        var rol = _roleService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
-        //        if (rol != null)
-        //        {
-        //            if (rol.status == SystemStatus.ACTIVE.ToString())
-        //            {
-        //                rol.status = SystemStatus.INACTIVE.ToString();
-        //            }
-        //            else
-        //            {
-        //                rol.status = SystemStatus.ACTIVE.ToString();
-        //            }
-
-        //        }
-        //        _roleService.Update(rol);
-        //        return Json(true, JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(false, JsonRequestBehavior.AllowGet);
-        //    }
-        //}
-        //}
     }
 }
