@@ -147,10 +147,10 @@ namespace MVC_Project.Utils
     {
         [Display(Name = "Persona Física")]
         [Description("Persona Física")]
-        MORALPERSONSREGIME,
+        NATURALPERSONSREGIME,
         [Display(Name = "Persona Moral")]
         [Description("Persona Moral")]
-        NATURALPERSONSREGIME,
+        MORALPERSONSREGIME,        
     }
 
     public enum SystemProviders

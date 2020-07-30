@@ -1,4 +1,4 @@
-﻿@model MVC_Project.WebBackend.Models.CustomerFilterViewModel
+﻿@model MVC_Project.WebBackend.Models.ProviderFilterViewModel
 @using MVC_Project.WebBackend.AuthManagement
 @using MVC_Project.WebBackend.AuthManagement.Models
 @{
@@ -9,14 +9,13 @@
     var hasFullAccessController = user.HasFullAccessController(controllerName);
 }
 
-@section styles {
-    @*
-        @Styles.Render("~/plugins/dataTablesStyles")*@
-    @Styles.Render("~/plugins/daterangepickerStyles")
-
+@section styles {   
     <style>
         .hide {
             display: none;
+        }
+        .custom-file-label::after {
+            content: "Buscar"
         }
     </style>
 }
@@ -100,7 +99,7 @@
                         <div class="col-md-12">
                             <h4>El excel debe contener los siguientes columnas</h4>
                             <ul>
-                                <li>Id (Celda sin contenido)</li>
+                                <li>No. (Celda sin contenido)</li>
                                 <li>Nombre(s) (*Obligatorio)</li>
                                 <li>Apellido(s) (*Obligatorio)</li>
                                 <li>RFC (*Obligatorio)</li>
@@ -114,25 +113,30 @@
                                 <li>Colonia</li>
                                 <li>Alcaldía/Municipio</li>
                                 <li>Estado</li>
+                                <li>País</li>
                                 <li>Domicilio Comercial </li>
                                 <li>Email</li>
                                 <li>Teléfono</li>
                                 <li>Fecha Creación (Celda sin contenido)</li>
-                                <li>uuid Cuenta (Celda sin contenido)</li>
+                                <li>RFC Cuenta (Celda sin contenido)</li>
                             </ul>
                             <br />
 
-                            @using (Html.BeginForm("ImportExcelCustomer", "Provider", FormMethod.Post, new { @id = "postImportar" }))
+                            @using (Html.BeginForm("ImportExcelProvider", "Provider", FormMethod.Post, new { @id = "postImportar" }))
                             {
                                 <div class="row">
                                     <div class="col-12 col-md-10">
-                                        <div class="form-group">
-                                            <label for="exampleFormControlFile1">Archivo Excel</label>
-                                            <input type="file" name="Excel" class="form-control-file" id="exampleFormControlFile1" onchange="loadFile(event, 'rutaExcel', this)">
-                                            @*<input type="file"   />*@
+                                        <div class="custom-file">
+                                            <input type="file" name="Excel" class="custom-file-input" id="exampleFormControlFile1" onchange="loadFile(event, 'rutaExcel', this)"
+                                                   accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                            <label class="custom-file-label" id="rutaExcel" for="exampleFormControlFile1">Seleccione el archivo...</label>
                                         </div>
-                                        @*<label>Nombre del Archivo: </label>*@
-                                        <span class="hide" id="rutaExcel"></span>
+
+                                        @*<div class="form-group">
+                                            <label for="exampleFormControlFile1">Archivo Excel</label>
+                                            <input type="file" name="Excel" class="form-control-file" id="exampleFormControlFile1" onchange="loadFile(event, 'rutaExcel', this)">                                           
+                                        </div>                                        
+                                        <span class="hide" ></span>*@
                                     </div>
                                     <div class="col-12 col-md-2">
                                         <label></label>
@@ -143,9 +147,6 @@
                         </div>
                     </div>
                 </div>
-                @*<div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" id="btn-CloseModal" data-dismiss="modal"><i class="fa fa-close"></i> Cerrar</button>
-                    </div>*@
             </div>
         </div>
     </div>

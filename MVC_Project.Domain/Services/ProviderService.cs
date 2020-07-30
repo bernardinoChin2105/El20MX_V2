@@ -13,8 +13,8 @@ namespace MVC_Project.Domain.Services
 {
     public interface IProviderService : IService<Provider>
     {
-        //List<CustomerList> CustomerList(BasePagination pagination, CustomerFilter filter);
-        //List<ExportListCustomer> ExportListCustomer(CustomerFilter filter);
+        List<ListProviders> ListProvider(BasePagination pagination, FilterProvider filter);
+        List<ExportListProviders> ExportListProvider(FilterProvider filter);
         List<string> ValidateRFC(List<string> rfcs, Int64 id);
     }
 
@@ -26,37 +26,37 @@ namespace MVC_Project.Domain.Services
             _repository = baseRepository;
         }
 
-        //public List<CustomerList> CustomerList(BasePagination pagination, CustomerFilter filter)
-        //{
-        //    var list = _repository.Session.CreateSQLQuery("exec dbo.st_customerList " +
-        //        "@PageNum =:PageNum, @PageSize =:PageSize, @uuid =:uuid, @rfc=:rfc, @businessName=:businessName, @email=:email ")                    
-        //            .SetParameter("PageNum", pagination.PageNum)
-        //            .SetParameter("PageSize", pagination.PageSize)
-        //            .SetParameter("uuid", filter.uuid)
-        //            .SetParameter("rfc", filter.rfc)
-        //            .SetParameter("businessName", filter.businessName)
-        //            .SetParameter("email", filter.email)
-        //            .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(CustomerList)))
-        //            .List<CustomerList>();
+        public List<ListProviders> ListProvider(BasePagination pagination, FilterProvider filter)
+        {
+            var list = _repository.Session.CreateSQLQuery("exec dbo.st_listProvider " +
+                "@PageNum =:PageNum, @PageSize =:PageSize, @uuid =:uuid, @rfc=:rfc, @businessName=:businessName, @email=:email ")
+                    .SetParameter("PageNum", pagination.PageNum)
+                    .SetParameter("PageSize", pagination.PageSize)
+                    .SetParameter("uuid", filter.uuid)
+                    .SetParameter("rfc", filter.rfc)
+                    .SetParameter("businessName", filter.businessName)
+                    .SetParameter("email", filter.email)
+                    .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(ListProviders)))
+                    .List<ListProviders>();
 
-        //    if (list != null) return list.ToList();
-        //    return null;
-        //}
+            if (list != null) return list.ToList();
+            return null;
+        }
 
-        //public List<ExportListCustomer> ExportListCustomer(CustomerFilter filter)
-        //{
-        //    var list = _repository.Session.CreateSQLQuery("exec dbo.st_exportListCustomer " +
-        //        "@uuid =:uuid, @rfc=:rfc, @businessName=:businessName, @email=:email ")
-        //            .SetParameter("uuid", filter.uuid)
-        //            .SetParameter("rfc", filter.rfc)
-        //            .SetParameter("businessName", filter.businessName)
-        //            .SetParameter("email", filter.email)
-        //            .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(ExportListCustomer)))
-        //            .List<ExportListCustomer>();
+        public List<ExportListProviders> ExportListProvider(FilterProvider filter)
+        {
+            var list = _repository.Session.CreateSQLQuery("exec dbo.st_exportListProvider " +
+                "@uuid =:uuid, @rfc=:rfc, @businessName=:businessName, @email=:email ")
+                    .SetParameter("uuid", filter.uuid)
+                    .SetParameter("rfc", filter.rfc)
+                    .SetParameter("businessName", filter.businessName)
+                    .SetParameter("email", filter.email)
+                    .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(ExportListProviders)))
+                    .List<ExportListProviders>();
 
-        //    if (list != null) return list.ToList();
-        //    return null;
-        //}
+            if (list != null) return list.ToList();
+            return null;
+        }
 
         public List<string> ValidateRFC(List<string> rfcs, Int64 id)
         {

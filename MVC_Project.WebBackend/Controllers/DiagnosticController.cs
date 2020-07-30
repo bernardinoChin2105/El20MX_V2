@@ -139,21 +139,21 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception(modelInvoices.Message);
 
                 //crear clientes
-                List<string> customerRfcs = modelInvoices.Customers.Select(c => c.rfc).ToList();
+                List<string> customerRfcs = modelInvoices.Customers.Select(c => c.rfc).Distinct().ToList();
                 var ExistC = _customerService.ValidateRFC(customerRfcs, authUser.Account.Id);
                 List<string> NoExistC = customerRfcs.Except(ExistC).ToList();
 
                 if (NoExistC.Count > 0)
                 {
                     List<Customer> customers = modelInvoices.Customers
-                        .Where(x => NoExistC.Contains(x.rfc))
+                        .Where(x => NoExistC.Contains(x.rfc)).GroupBy(x => new { x.rfc, x.businessName })
                         .Select(x => new Customer
                         {
                             uuid = Guid.NewGuid(),
                             account = account,
-                            zipCode = x.zipCode,
-                            businessName = x.businessName,
-                            rfc = x.rfc,
+                            zipCode = x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault() != null? x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault().zipCode : null,
+                            businessName = x.Key.businessName,
+                            rfc = x.Key.rfc,
                             createdAt = DateUtil.GetDateTimeNow(),
                             modifiedAt = DateUtil.GetDateTimeNow(),
                             status = SystemStatus.ACTIVE.ToString()
@@ -164,25 +164,26 @@ namespace MVC_Project.WebBackend.Controllers
 
                 //crear proveedores
 
-                List<string> providersRfcs = modelInvoices.Providers.Select(c => c.rfc).ToList();
+                List<string> providersRfcs = modelInvoices.Providers.Select(c => c.rfc).Distinct().ToList();
                 var ExistP = _providerService.ValidateRFC(providersRfcs, authUser.Account.Id);
                 List<string> NoExistP = providersRfcs.Except(ExistP).ToList();
 
-                if (NoExistC.Count > 0)
+                if (NoExistP.Count > 0)
                 {
                     List<Provider> providers = modelInvoices.Providers
-                    .Select(x => new Provider
-                    {
-                        uuid = Guid.NewGuid(),
-                        account = account,
-                        zipCode = x.zipCode,
-                        businessName = x.businessName,
-                        rfc = x.rfc,
-                        //taxRegime = 
-                        createdAt = DateUtil.GetDateTimeNow(),
-                        modifiedAt = DateUtil.GetDateTimeNow(),
-                        status = SystemStatus.ACTIVE.ToString()
-                    }).ToList();
+                        .Where(x => NoExistP.Contains(x.rfc)).GroupBy(x => new { x.rfc, x.businessName })
+                        .Select(x => new Provider
+                        {
+                            uuid = Guid.NewGuid(),
+                            account = account,
+                            zipCode = x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault() != null ? x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault().zipCode : null,                            
+                            businessName = x.Key.businessName,
+                            rfc = x.Key.rfc,
+                            //taxRegime = 
+                            createdAt = DateUtil.GetDateTimeNow(),
+                            modifiedAt = DateUtil.GetDateTimeNow(),
+                            status = SystemStatus.ACTIVE.ToString()
+                        }).Distinct().ToList();
 
                     _providerService.Create(providers);
                 }

@@ -56,9 +56,9 @@ var ProviderIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                             '<div class="dropdown">' +
                             '<button class="btn btn-light btn-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-ellipsis-h"></span></button>' +
                             '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
-                            '<a class="dropdown-item" href="' + self.editUrl + '?uuid=' + data.uuid + '">Perfil Completo del Cliente</a>' +
+                            '<a class="dropdown-item" href="' + self.editUrl + '?uuid=' + data.uuid + '">Perfil Completo del Colaborador</a>' +
                             '<a class="dropdown-item" href="#">Estado de Cuenta</a>' +
-                            '<a class="dropdown-item" href="#">Lista de FActuras(CFDI\'s)</a>' +
+                            '<a class="dropdown-item" href="#">Lista de (CFDI\'s)</a>' +
                             '</div>' +
                             '</div>' +
                             '</div>';
@@ -141,7 +141,7 @@ var loadFile = function (event, imgid, input) {
             }
         } else {
             $(".btn-save-import").attr("disabled", true);
-            document.getElementById(imgid).innerHTML = sFileName;
+            document.getElementById(imgid).innerHTML = "Seleccione el archivo...";//sFileName;
         }
     }
     return true;

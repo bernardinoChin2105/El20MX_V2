@@ -10,31 +10,6 @@ namespace MVC_Project.Integrations.SAT
 {
     public class SATwsService
     {
-        /*Método para obtener la información de los clientes y proveedores*/
-        //public List<IssuerReceiver> GetIssuersReceivers(string accountRFC, string typePerson, string DateOnStart, string DateOnEnd)
-        //{
-
-        //    List<IssuerReceiver> list = new List<IssuerReceiver>();
-
-        //    string url = "/taxpayers/" + accountRFC + "/invoices?issuedAt[after]=" + DateOnStart + "&issuedAt[before]=" + DateOnEnd;
-        //    var responseCFDIS = SATws.CallServiceSATws(url, null, "Get");
-        //    var modelInvoices = JsonConvert.DeserializeObject<List<InvoicesInfo>>(responseCFDIS);
-
-        //    //separar recibidas, emitidas
-        //    //foreach
-        //    if (typePerson == "issuer")
-        //    {
-        //        list = modelInvoices.Where(x => x.issuer.rfc == accountRFC).Select(x => x.receiver).ToList();
-        //    }
-
-        //    if (typePerson == "receiver")
-        //    {
-        //        list = modelInvoices.Where(x => x.receiver.rfc == accountRFC).Select(x => x.issuer).ToList();
-        //    }
-
-        //    return list;
-        //}
-
         /*
          * Realiza la extracción por el rfc y obtiene información de los CFDIs
          */
@@ -69,40 +44,25 @@ namespace MVC_Project.Integrations.SAT
                 modelInvoices = JsonConvert.DeserializeObject<List<InvoicesInfo>>(responseInvoices);
 
                 #region Obtener la información de los clientes y proveedores para guardarlos
-                foreach (var item in modelInvoices)
-                {
 
-                    string cfdi = "/invoices/" + item.id + "/cfdi";
-                    var responseCFDI = SATws.CallServiceSATws(cfdi, null, "Get");
-                    var modelCFDI = JsonConvert.DeserializeObject<IDictionary<string, object>>(responseCFDI);
-
-                    var zipCode = (String)modelCFDI["LugarExpedicion"];
-
-                    //Estamos buscando mis clientes
-                    if (item.issuer.rfc == RFC)
+                //Estamos buscando mis clientes
+                customers = modelInvoices.Where(x => x.issuer.rfc == RFC)
+                    .Select(x => new CustomersInfo
                     {
-                        CustomersInfo customer = new CustomersInfo();
-                        customer.zipCode = zipCode;
+                        rfc = x.receiver.rfc,
+                        businessName = x.receiver.name
+                        //regime = x.
+                    }).ToList();
 
-                        var myCustomer = JsonConvert.DeserializeObject<IDictionary<string, object>>(modelCFDI["Receptor"].ToString());
-                        customer.businessName = (String)myCustomer["Nombre"];
-                        customer.rfc = (String)myCustomer["Rfc"];
-                        customers.Add(customer);
-                    }
-
-                    //Estamos buscando mis proveedores
-                    if (item.receiver.rfc == RFC)
+                //Estamos buscando mis proveedores
+                providers = modelInvoices.Where(x => x.receiver.rfc == RFC)
+                    .Select(x => new ProvidersInfo
                     {
-                        ProvidersInfo provider = new ProvidersInfo();
-                        provider.zipCode = zipCode;
-
-                        var myProvider = JsonConvert.DeserializeObject<IDictionary<string, object>>(modelCFDI["Emisor"].ToString());
-                        provider.businessName = (String)myProvider["Nombre"];
-                        provider.rfc = (String)myProvider["Rfc"];
-                        provider.regime = Convert.ToInt32(myProvider["RegimenFiscal"]);
-                        providers.Add(provider);
-                    }
-                }
+                        zipCode = x.placeOfIssue,
+                        businessName = x.issuer.name,
+                        rfc = x.issuer.rfc
+                        //regime =             
+                    }).ToList();                
                 #endregion
 
                 return new InvoicesModel
@@ -125,7 +85,7 @@ namespace MVC_Project.Integrations.SAT
                     Providers = providers,
                     Customers = customers
                 };
-            }                        
+            }
         }
     }
 }

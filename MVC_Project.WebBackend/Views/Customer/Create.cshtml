@@ -104,13 +104,17 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-12 col-md-8">
+                                <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.Municipality, new { @class = "col-form-label control-label" })
                                     @Html.DropDownListFor(m => m.Municipality, Model.ListMunicipality.Items as List<SelectListItem>, new { @class = "form-control" })
                                 </div>
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.State, new { @class = "col-form-label control-label" })
                                     @Html.DropDownListFor(m => m.State, Model.ListState.Items as List<SelectListItem>, new { @class = "form-control" })
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    @Html.LabelFor(m => m.Country, new { @class = "col-form-label control-label" })
+                                    @Html.DropDownListFor(m => m.Country, Model.ListCountry.Items as List<SelectListItem>, new { @class = "form-control" })
                                 </div>
                             </div>
 

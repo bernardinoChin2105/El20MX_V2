@@ -181,6 +181,8 @@ namespace MVC_Project.WebBackend.Controllers
                     customer.municipality = model.Municipality.Value;
                 if (model.State.Value > 0)
                     customer.state = model.State.Value;
+                if (model.Country.Value > 0)
+                    customer.country = model.Country.Value;
 
                 List<string> indexsP = new List<string>();
                 List<string> indexsE = new List<string>();
@@ -304,6 +306,7 @@ namespace MVC_Project.WebBackend.Controllers
                 model.Colony = customer.colony;
                 model.Municipality = customer.municipality;
                 model.State = customer.state;
+                model.Country = customer.country;
                 model.DeliveryAddress = customer.deliveryAddress;
                 if (customer.taxRegime != null)
                     model.taxRegime = ((TypeTaxRegimen)Enum.Parse(typeof(TypeTaxRegimen), customer.taxRegime)).ToString();
@@ -390,6 +393,8 @@ namespace MVC_Project.WebBackend.Controllers
                     customerData.municipality = model.Municipality.Value;
                 if (model.State.Value > 0)
                     customerData.state = model.State.Value;
+                if (model.Country.Value > 0)
+                    customerData.country = model.Country.Value;
 
                 #region Actualizar registros de las listas de emails y teléfonos 
                 List<string> indexsP = new List<string>();
@@ -529,7 +534,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                     campo.Cells["A1:Z1"].Style.Font.Bold = true;
 
-                    campo.Cells["A1"].Value = "Id";
+                    campo.Cells["A1"].Value = "No.";
                     campo.Cells["B1"].Value = "Nombre(s)";
                     campo.Cells["C1"].Value = "Apellido(s)";
                     campo.Cells["D1"].Value = "RFC";
@@ -543,11 +548,12 @@ namespace MVC_Project.WebBackend.Controllers
                     campo.Cells["L1"].Value = "Colonia";
                     campo.Cells["M1"].Value = "Alcaldía/Municipio";
                     campo.Cells["N1"].Value = "Estado";
-                    campo.Cells["O1"].Value = "Domicilio Comercial";
-                    campo.Cells["P1"].Value = "Email";
-                    campo.Cells["Q1"].Value = "Teléfono";
-                    campo.Cells["R1"].Value = "Fecha Creación";
-                    campo.Cells["S1"].Value = "uuid Cuenta";
+                    campo.Cells["O1"].Value = "País";
+                    campo.Cells["P1"].Value = "Domicilio Comercial";
+                    campo.Cells["Q1"].Value = "Email";
+                    campo.Cells["R1"].Value = "Teléfono";
+                    campo.Cells["S1"].Value = "Fecha Creación";
+                    campo.Cells["T1"].Value = "RFC Cuenta";
 
                     int rowIndex = 2;
                     for (int i = 0; i < listResponse.Count(); i++)
@@ -603,20 +609,23 @@ namespace MVC_Project.WebBackend.Controllers
                         campo.Cells["N" + rowIndexString].Value = listResponse[i].nameState;
                         campo.Cells["N" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
-                        campo.Cells["O" + rowIndexString].Value = listResponse[i].deliveryAddress;
+                        campo.Cells["O" + rowIndexString].Value = listResponse[i].nameCountry;
                         campo.Cells["O" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
-                        campo.Cells["P" + rowIndexString].Value = listResponse[i].email;
+                        campo.Cells["P" + rowIndexString].Value = listResponse[i].deliveryAddress;
                         campo.Cells["P" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
-                        campo.Cells["Q" + rowIndexString].Value = listResponse[i].phone;
+                        campo.Cells["Q" + rowIndexString].Value = listResponse[i].email;
                         campo.Cells["Q" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
-                        campo.Cells["R" + rowIndexString].Value = listResponse[i].createdAt.ToShortDateString();
+                        campo.Cells["R" + rowIndexString].Value = listResponse[i].phone;
                         campo.Cells["R" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
-                        campo.Cells["S" + rowIndexString].Value = listResponse[i].uuidAccount;
+                        campo.Cells["S" + rowIndexString].Value = listResponse[i].createdAt.ToShortDateString();
                         campo.Cells["S" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+
+                        campo.Cells["T" + rowIndexString].Value = listResponse[i].rfcAccount;
+                        campo.Cells["T" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                         rowIndex++;
                     }
 
@@ -682,13 +691,18 @@ namespace MVC_Project.WebBackend.Controllers
                                     {
                                         //Validar
                                         string taxRegime = string.Empty;
-                                        if (!tabla.Rows[i].IsNull(6))
+                                        if (!tabla.Rows[i].IsNull(6) && tabla.Rows[i].ItemArray[6].ToString() != "")
                                         {
                                             var taxRegimeEnum = EnumUtils.GetValueFromDescription<TypeTaxRegimen>(tabla.Rows[i].ItemArray[6].ToString());//funciona cuando obtenemos la descripción
                                             taxRegime = taxRegimeEnum.ToString();
                                         }
 
-                                        //deliveryAddress = tabla.Rows[i].ItemArray[14].ToString(),
+                                        bool deliveryAddress = false;
+                                        if (!tabla.Rows[i].IsNull(15) && tabla.Rows[i].ItemArray[15].ToString() != "")
+                                        {
+                                            deliveryAddress = Convert.ToBoolean(tabla.Rows[i].ItemArray[15].ToString());
+                                        }
+
                                         ExportListCustomer customers = new ExportListCustomer
                                         {
                                             first_name = tabla.Rows[i].ItemArray[1].ToString(),
@@ -704,15 +718,15 @@ namespace MVC_Project.WebBackend.Controllers
                                             nameSettlement = tabla.Rows[i].ItemArray[11].ToString(),
                                             nameMunicipality = tabla.Rows[i].ItemArray[12].ToString(),
                                             nameState = tabla.Rows[i].ItemArray[13].ToString(),
-                                            //deliveryAddress = tabla.Rows[i].ItemArray[14].ToString(),
-                                            email = tabla.Rows[i].ItemArray[15].ToString(),
-                                            phone = tabla.Rows[i].ItemArray[16].ToString(),
+                                            nameCountry = tabla.Rows[i].ItemArray[14].ToString(),
+                                            deliveryAddress = deliveryAddress,
+                                            email = tabla.Rows[i].ItemArray[16].ToString(),
+                                            phone = tabla.Rows[i].ItemArray[17].ToString(),
                                             createdAt = todayDate,
                                             modifiedAt = todayDate,
                                             status = SystemStatus.ACTIVE.ToString(),
                                             uuid = Guid.NewGuid(),
                                             accountId = authUser.Account.Id,
-                                            uuidAccount = authUser.Account.Uuid
                                         };
 
                                         datos.Add(customers);
@@ -729,7 +743,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                                 try
                                 {
-                                    if (encabezado[0].ToString() != "Id") throw new Exception("Título de columna inválida");
+                                    if (encabezado[0].ToString() != "No.") throw new Exception("Título de columna inválida");
                                     if (encabezado[1].ToString() != "Nombre(s)") throw new Exception("Título de columna inválida");
                                     if (encabezado[2].ToString() != "Apellido(s)") throw new Exception("Título de columna inválida");
                                     if (encabezado[3].ToString() != "RFC") throw new Exception("Título de columna inválida");
@@ -743,11 +757,12 @@ namespace MVC_Project.WebBackend.Controllers
                                     if (encabezado[11].ToString() != "Colonia") throw new Exception("Título de columna inválida");
                                     if (encabezado[12].ToString() != "Alcaldía/Municipio") throw new Exception("Título de columna inválida");
                                     if (encabezado[13].ToString() != "Estado") throw new Exception("Título de columna inválida");
-                                    if (encabezado[14].ToString() != "Domicilio Comercial") throw new Exception("Título de columna inválida");
-                                    if (encabezado[15].ToString() != "Email") throw new Exception("Título de columna inválida");
-                                    if (encabezado[16].ToString() != "Teléfono") throw new Exception("Título de columna inválida");
-                                    if (encabezado[17].ToString() != "Fecha Creación") throw new Exception("Título de columna inválida");
-                                    if (encabezado[18].ToString() != "uuid Cuenta") throw new Exception("Título de columna inválida");
+                                    if (encabezado[14].ToString() != "País") throw new Exception("Título de columna inválida");
+                                    if (encabezado[15].ToString() != "Domicilio Comercial") throw new Exception("Título de columna inválida");
+                                    if (encabezado[16].ToString() != "Email") throw new Exception("Título de columna inválida");
+                                    if (encabezado[17].ToString() != "Teléfono") throw new Exception("Título de columna inválida");
+                                    if (encabezado[18].ToString() != "Fecha Creación") throw new Exception("Título de columna inválida");
+                                    if (encabezado[19].ToString() != "RFC Cuenta") throw new Exception("Título de columna inválida");
                                 }
                                 catch (Exception Error)
                                 {
@@ -813,75 +828,61 @@ namespace MVC_Project.WebBackend.Controllers
 
                     //Guardado de información
                     List<Customer> clientes = new List<Customer>();
-                    List<string> clientesNoRegistrados = new List<string>();
-                    foreach (var item in datos)
+
+                    clientes = datos.Select(x => new Customer
                     {
-                        try
+                        uuid = Guid.NewGuid(),
+                        account = new Account { id = authUser.Account.Id },
+                        firstName = x.first_name,
+                        lastName = x.last_name,
+                        rfc = x.rfc,
+                        curp = x.curp,
+                        businessName = x.businessName,
+                        street = x.street,
+                        interiorNumber = x.interiorNumber,
+                        outdoorNumber = x.outdoorNumber,
+                        zipCode = x.zipCode,
+                        createdAt = todayDate,
+                        modifiedAt = todayDate,
+                        status = SystemStatus.ACTIVE.ToString(),
+                        deliveryAddress = x.deliveryAddress,
+                        customerContacts = new List<CustomerContact>
                         {
-                            Customer nuevo = new Customer()
+                            x.email != ""? new CustomerContact
                             {
-                                uuid = Guid.NewGuid(),
-                                account = new Account { id = authUser.Account.Id },
-                                firstName = item.first_name,
-                                lastName = item.last_name,
-                                rfc = item.rfc,
-                                curp = item.curp,
-                                businessName = item.businessName,
-                                street = item.street,
-                                interiorNumber = item.interiorNumber,
-                                outdoorNumber = item.outdoorNumber,
-                                zipCode = item.zipCode,
-                                createdAt = todayDate,
-                                modifiedAt = todayDate,
-                                status = SystemStatus.ACTIVE.ToString()
-                                //string taxRegime { get; set;}
-                                //Int64 colony { get; set; }
-                                //Int64 municipality { get; set; }
-                                //Int64 state { get; set; }
-                                //bool deliveryAddress { get; set; }
-                            };
-
-                            CustomerContact email = new CustomerContact()
-                            {
-                                emailOrPhone = item.email,
+                                emailOrPhone = x.email,
                                 typeContact = TypeContact.EMAIL.ToString(),
-                                customer = nuevo,
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
                                 status = SystemStatus.ACTIVE.ToString()
-                            };
-
-                            nuevo.customerContacts.Add(email);
-
-                            CustomerContact phone = new CustomerContact()
+                            }: null,
+                            x.phone != ""? new CustomerContact
                             {
-                                emailOrPhone = item.phone,
+                                emailOrPhone = x.phone,
                                 typeContact = TypeContact.PHONE.ToString(),
-                                customer = nuevo,
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
                                 status = SystemStatus.ACTIVE.ToString()
-                            };
-                            nuevo.customerContacts.Add(phone);
+                            }: null
+                        }
+                    }).ToList();
 
-                            _customerService.Create(nuevo);
-                            clientes.Add(nuevo);
-                        }
-                        catch (Exception ex)
-                        {
-                            clientesNoRegistrados.Add(item.rfc);
-                        }
-                    }
+                    clientes = clientes.Select(x => {
+                        x.customerContacts = x.customerContacts.Where(b => b != null)
+                        .Select(b => { b.customer = x; return b; }).ToList();
+                        return x;
+                    }).ToList();
 
                     if (clientes.Count() > 0)
                     {
+                        _customerService.Create(clientes);
                         //LogHub de bitacora
                         return Json(new
                         {
                             Success = true,
                             Mensaje = "¡" + clientes.Count() + " Registros guardados exitosamente!",
                             //Tipo = 2,
-                            SinGuardar = clientesNoRegistrados,
+                            //SinGuardar = clientesNoRegistrados,
                         }, JsonRequestBehavior.AllowGet);
                     }
 
@@ -892,7 +893,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception Error)
             {
-                return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente!", Tipo = 0, Error = Error.Message.ToString() }, JsonRequestBehavior.AllowGet);
+                return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente! "+ Error.Message.ToString(), Tipo = 0, Error = Error.Message.ToString() }, JsonRequestBehavior.AllowGet);
             }
         }
 

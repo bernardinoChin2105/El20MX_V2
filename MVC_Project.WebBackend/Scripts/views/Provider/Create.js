@@ -31,7 +31,8 @@
                 maxlength: 20
             },
             ZipCode: {
-                required: true
+                required: true,
+                maxlength: 5
             }
         }
         ,
@@ -53,7 +54,8 @@
                 maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
             },
             ZipCode: {
-                required: "Campo obligatorio"
+                required: "Campo obligatorio",
+                maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
             }
         }
     });
@@ -68,11 +70,12 @@ function validarDatos() {
 
 var itemNumberEmail = 1;
 var itemNumberPhone = 1;
-$(".btn-add-email").click(function () {
-    console.log("que paso?")
+var indexEmail = 1;
+var indexPhone = 1;
+$(".btn-add-email").click(function () {    
     var item = '<div class="row">'+
         '<div class="col-12 col-md-10" > ' +
-        '<label class="col-form-label control-label">Email ' + (itemNumberEmail + 1) + '</label>' +
+        '<label class="col-form-label control-label">Email ' + (indexEmail + 1) + '</label>' +
         '<input type="hidden" name="Emails[' + itemNumberEmail + '].TypeContact" value="EMAIL" />' +
         '<input type="email" class="form-control emails" name="Emails[' + itemNumberEmail + '].EmailOrPhone" />' +
         '</div>' +
@@ -83,11 +86,12 @@ $(".btn-add-email").click(function () {
         '</div>';
     $("#ListEmails").append(item);
     itemNumberEmail++;
+    indexEmail++;
 });
 
 $(".btn-add-phone").click(function () {
     var item = '<div class="row"><div class="col-12 col-md-10">' +
-        '<label class="col-form-label control-label">Teléfono ' + (itemNumberPhone + 1) + '</label>' +
+        '<label class="col-form-label control-label">Teléfono ' + (indexPhone + 1) + '</label>' +
         '<input type="hidden" name="Phones[' + itemNumberPhone + '].TypeContact" value="PHONE" />' +
         '<input type="text" class="form-control phones" name="Phones[' + itemNumberPhone + '].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
         '</div>' +
@@ -98,6 +102,7 @@ $(".btn-add-phone").click(function () {
         '</div>';
         $("#ListPhones").append(item);
     itemNumberPhone++;
+    indexPhone++;
 });
 
 var itemsRemoveP = [];
@@ -114,9 +119,11 @@ $('.listContacts').on('click', '.btn-remove', function () {
     if (data === "PHONE") {
         itemsRemoveP.push(item);
         removePhone.val(itemsRemoveP);
+        indexPhone--;
     } else {
         itemsRemoveE.push(item);
         removeEmail.val(itemsRemoveE);
+        indexEmail--;
     }
 
     //console.log($(this).parent().parent(), "valor del elemento");
@@ -129,6 +136,7 @@ $("#ZipCode").blur(function () {
     var cmbColony = $("#Colony");
     var cmbMunicipality = $("#Municipality");
     var cmbState = $("#State");
+    var cmbCountry = $("#Country");
     //console.log("valor", value);
 
     $.ajax({
@@ -144,6 +152,11 @@ $("#ZipCode").blur(function () {
                     //console.log(datos, "que esta aquí");
                     cmbState.val(datos[0].stateId);
 
+                    //Llenado de Países
+                    cmbCountry.html('<option value="-1">Seleccione...</option>');
+                    cmbCountry.append('<option value="' + datos[0].countryId + '">' + datos[0].nameCountry + '</option>');                    
+                    cmbCountry.val(datos[0].countryId);
+
                     //Llenado de municipios
                     //console.log(datos[0], "registro 0");
                     cmbMunicipality.html('<option value="-1">Seleccione...</option>');
@@ -158,12 +171,14 @@ $("#ZipCode").blur(function () {
                     cmbColony.val(datos[0].id);
                 } else {
                     cmbState.val(-1);
+                    cmbCountry.html('<option value="-1">Seleccione...</option>').val(-1);
                     cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
                     cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
                     toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
                 }
             } else {
                 cmbState.val(-1);
+                cmbCountry.html('<option value="-1">Seleccione...</option>').val(-1);
                 cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
                 cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
                 toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
@@ -173,6 +188,7 @@ $("#ZipCode").blur(function () {
         error: function (xhr) {
             console.log('error');
             cmbState.val(-1);
+            cmbCountry.html('<option value="-1">Seleccione...</option>').val(-1);
             cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
             cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
         }

@@ -76,8 +76,8 @@ namespace MVC_Project.WebBackend.Models
         public SelectList ListState { get; set; }
 
         [Display(Name = "País")]
-        public Int64? country { get; set; }
-        public SelectList Listcountry { get; set; }
+        public Int64? Country { get; set; }
+        public SelectList ListCountry { get; set; }
 
         //[Display(Name = "Nombre/Razón Social")]
         public bool DeliveryAddress { get; set; }
@@ -95,6 +95,7 @@ namespace MVC_Project.WebBackend.Models
 
             ListColony = new SelectList(list);
             ListState = new SelectList(list);
+            ListCountry = new SelectList(list);
             ListMunicipality = new SelectList(list);
             Emails = new List<CustomerContactsViewModel>();
             Phones = new List<CustomerContactsViewModel>();
