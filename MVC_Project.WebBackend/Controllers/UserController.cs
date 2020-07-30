@@ -116,7 +116,7 @@ namespace MVC_Project.WebBackend.Controllers
                         userData.RoleName = membership.role.name;
                         userData.CreatedAt = user.createdAt;
                         userData.UpdatedAt = user.modifiedAt;
-                        userData.Status = membership.status;
+                        userData.Status = ((SystemStatus) Enum.Parse(typeof(SystemStatus), membership.status)).GetDisplayName();
                         userData.Uuid = user.uuid.ToString();
                         userData.LastLoginAt = user.lastLoginAt;
                         dataResponse.Add(userData);

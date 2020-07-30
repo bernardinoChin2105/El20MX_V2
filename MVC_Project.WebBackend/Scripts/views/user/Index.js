@@ -50,11 +50,11 @@
                     className: 'personal-options',
                     render: function (data) {
                         var deshabilitarBtns = '';
-                        if (data.Status == "ACTIVE")
+                        if (data.Status == "Activo")
                             deshabilitarBtns += '<button class="btn btn-light btn-change-status" title="Desactivar" style="margin-left:5px;"><span class="far fa-check-square "></span></button>';
-                        else if (data.Status == "INACTIVE")
+                        else if (data.Status == "Inactivo")
                             deshabilitarBtns += '<button class="btn btn-light btn-change-status" title="Activar" style="margin-left:5px;"><span class="far fa-square"></span></button>';
-                        else if (data.Status == "UNCONFIRMED")
+                        else if (data.Status == "No confirmado")
                             deshabilitarBtns += '<button class="btn btn-light btn-resend-invite" title="Reenviar invitación" style="margin-left:5px;"><span class="fa fa-paper-plane"></span></button>';
                         else
                             deshabilitarBtns += '';
