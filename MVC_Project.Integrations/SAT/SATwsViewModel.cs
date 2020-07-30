@@ -100,11 +100,77 @@ namespace MVC_Project.Integrations.SAT
     //Modelo de retorno para el DX0 y clientes
     public class InvoicesModel
     {
+
+        public List<TaxStatus> TaxStatus { get; set; }
         public TaxpayerInfo Taxpayer { get; set; }
-        public List<InvoicesInfo> Invoices { get; set; }        
+        public List<InvoicesInfo> Invoices { get; set; }
         public List<ProvidersInfo> Providers { get; set; }
         public List<CustomersInfo> Customers { get; set; }
         public string Message { get; set; }
         public bool Success { get; set; }
+    }
+
+    public class TaxStatus
+    {
+        public string id { get; set; }
+        public string rfc { get; set; }
+        public Person person { get; set; }
+        public Company company { get; set; }
+        public string email { get; set; }
+        public string phone { get; set; }
+        public Address address { get; set; }
+        public List<EconomicActivities> economicActivities { get; set; }
+        public List<TaxRegimes> taxRegimes { get; set; }
+        public DateTime startedOperationsAt { get; set; }
+        public string status { get; set; }
+        public DateTime statusUpdatedAt { get; set; }
+        public DateTime createdAt { get; set; }
+        public DateTime updatedAt { get; set; }
+    }
+
+    public class Company
+    {
+        public string legalName { get; set; }
+        public string tradeName { get; set; }
+        public string entityType { get; set; }
+    }
+
+    public class Person
+    {
+        public string fullName { get; set; }
+        public string firstName { get; set; }
+        public string middleName { get; set; }
+        public string lastName { get; set; }
+        public string curp { get; set; }
+    }
+
+    public class Address
+    {
+        public List<string> streetReferences { get; set; }
+        public string streetNumber { get; set; }
+        public string buildingNumber { get; set; }
+        public string locality { get; set; }
+        public string municipality { get; set; }
+        public string postalCode { get; set; }
+        public string state { get; set; }
+        public string streetName { get; set; }
+        public string streetType { get; set; }
+        public string neighborhood { get; set; }
+    }
+
+    public class EconomicActivities
+    {
+        public string name { get; set; }
+        public string order { get; set; }
+        public string endDate { get; set; }
+        public string startDate { get; set; }
+        public string percentage { get; set; }
+    }
+
+    public class TaxRegimes
+    {
+        public string name { get; set; }
+        public string endDate { get; set; }
+        public string startDate { get; set; }
     }
 }

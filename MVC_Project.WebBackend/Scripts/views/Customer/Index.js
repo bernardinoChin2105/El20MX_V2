@@ -97,8 +97,6 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     } else {
                         fnCallback(json);
-                    } else {
-                        toastr['error'](json.message);
                     }
                 });
             }
@@ -157,7 +155,7 @@ var loadFile = function (event, imgid, input) {
             }
 
             if (!blnValid) {
-                toastr["error"]('Favor de seleccionar un formato de Excel permitido.');
+                toastr["error"]('Favor de seleccionar un formato de Excel permitido (".xlsx", ".xls").');
 
                 input.value = "";
                 $(".btn-save-import").attr("disabled", true);
