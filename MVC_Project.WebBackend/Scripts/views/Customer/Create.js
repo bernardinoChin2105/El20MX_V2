@@ -11,6 +11,13 @@
         }, "Debe ser un CURP válido"
     );
 
+    $("#CURP").keyup(function () {
+        this.value = this.value.toUpperCase();
+    });
+    $("#RFC").keyup(function () {
+        this.value = this.value.toUpperCase();
+    });
+
     $("#CreateForm").validate({
         rules: {
             FistName: {
@@ -24,11 +31,11 @@
             RFC: {
                 required: true,
                 RFCTrue: true,
-                maxlength: 20
+                maxlength: 13
             },
             CURP: {
                 CURPTrue: true,
-                maxlength: 20
+                maxlength: 18
             },
             ZipCode: {
                 required: true,
@@ -76,7 +83,7 @@ $(".btn-add-email").click(function () {
     //console.log("que paso?")
     var item = '<div class="row">'+
         '<div class="col-12 col-md-10" > ' +
-        '<label class="col-form-label control-label">Email ' + (indexEmail + 1) + '</label>' +
+        '<label class="col-form-label control-label">Otro Email</label>' +
         '<input type="hidden" name="Emails[' + itemNumberEmail + '].TypeContact" value="EMAIL" />' +
         '<input type="email" class="form-control emails" name="Emails[' + itemNumberEmail + '].EmailOrPhone" />' +
         '</div>' +
@@ -92,7 +99,7 @@ $(".btn-add-email").click(function () {
 
 $(".btn-add-phone").click(function () {
     var item = '<div class="row"><div class="col-12 col-md-10">' +
-        '<label class="col-form-label control-label">Teléfono ' + (itemNumberPhone + 1) + '</label>' +
+        '<label class="col-form-label control-label">Otro Teléfono</label>' +
         '<input type="hidden" name="Phones[' + itemNumberPhone + '].TypeContact" value="PHONE" />' +
         '<input type="text" class="form-control phones" name="Phones[' + itemNumberPhone + '].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
         '</div>' +
