@@ -192,4 +192,7 @@
   <data name="MODULE_CUSTOMERS" xml:space="preserve">
     <value>Clientes</value>
   </data>
+  <data name="MODULE_PROVIDERS" xml:space="preserve">
+    <value>Proveedores</value>
+  </data>
 </root>

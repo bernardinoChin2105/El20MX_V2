@@ -79,7 +79,7 @@ var itemNumberEmail = 1;
 var itemNumberPhone = 1;
 var indexEmail = 1;
 var indexPhone = 1;
-$(".btn-add-email").click(function () {
+$(".btn-add-email").click(function () {    
     var item = '<div class="row">'+
         '<div class="col-12 col-md-10" > ' +
         '<label class="col-form-label control-label">Otro Email</label>' +
@@ -161,7 +161,7 @@ $("#ZipCode").blur(function () {
 
                     //Llenado de Países
                     cmbCountry.html('<option value="-1">Seleccione...</option>');
-                    cmbCountry.append('<option value="' + datos[0].countryId + '">' + datos[0].nameCountry + '</option>');
+                    cmbCountry.append('<option value="' + datos[0].countryId + '">' + datos[0].nameCountry + '</option>');                    
                     cmbCountry.val(datos[0].countryId);
 
                     //Llenado de municipios
@@ -178,6 +178,7 @@ $("#ZipCode").blur(function () {
                     cmbColony.val(datos[0].id);
                 } else {
                     cmbState.val(-1);
+                    cmbCountry.html('<option value="-1">Seleccione...</option>').val(-1);
                     cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
                     cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
                     toastr["error"]("El registro de Código Postal no se encontró en la base de datos");

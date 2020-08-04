@@ -9,6 +9,7 @@ namespace MVC_Project.Domain.Entities
     public class State : IEntity
     {
         public virtual Int64 id { get; set; }
+        public virtual Country country { get; set; }
         public virtual string nameState { get; set; }
         public virtual string keyState { get; set; }
 

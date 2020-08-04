@@ -524,7 +524,6 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         [AllowAnonymous]
-        //[ValidateAntiForgeryToken]
         public ActionResult LoginAuth()
         {
             //Falta validar si el resultado es falso
@@ -544,6 +543,7 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         //Para mantener la sesión
+        [AllowAnonymous]
         public ActionResult KeepAlive()
         {
             return Json("OK", JsonRequestBehavior.AllowGet);

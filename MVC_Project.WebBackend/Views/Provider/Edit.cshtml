@@ -1,10 +1,10 @@
-﻿@model MVC_Project.WebBackend.Models.CustomerViewModel
+﻿@model MVC_Project.WebBackend.Models.ProviderViewModel
 @using MVC_Project.Utils
 
 @{
     /**/
 
-    ViewBag.Title = "Editar Cliente";
+    ViewBag.Title = "Nuevo Proveedor";
 }
 
 
@@ -23,7 +23,7 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
-        @using (Html.BeginForm("Edit", "Customer", FormMethod.Post, new { role = "form", @id = "EditForm", @class = "row" }))
+        @using (Html.BeginForm("Edit", "Provider", FormMethod.Post, new { role = "form", @id = "EditForm", @class = "row" }))
         {
             <div class="col-lg-12">
                 @Html.AntiForgeryToken()
@@ -154,7 +154,7 @@
                                                 {
                                                     <div class="row">
                                                         <div class="col-12 col-md-10">
-                                                            <label class="col-form-label control-label">@(i > 0 ? "Otro" : "") Email</label>
+                                                            <label class="col-form-label control-label">@(i > 0 ? "Otro": "") Email</label>
                                                             <input type="hidden" name="Emails[@i].Id" value="@Model.Emails[i].Id" />
                                                             <input type="hidden" name="Emails[@i].TypeContact" value="@TypeContact.EMAIL.ToString()" />
                                                             <input type="email" class="form-control emails" name="Emails[@i].EmailOrPhone" value="@Model.Emails[i].EmailOrPhone" />
@@ -181,7 +181,7 @@
                                             {
                                                 <div class="row">
                                                     <div class="col-12 col-md-10">
-                                                        <label class="col-form-label control-label">Email 1</label>
+                                                        <label class="col-form-label control-label">Email</label>
                                                         <input type="hidden" name="Emails[0].TypeContact" value="@TypeContact.EMAIL.ToString()" />
                                                         <input type="email" class="form-control emails" name="Emails[0].EmailOrPhone" />
                                                     </div>
@@ -230,7 +230,7 @@
                                             {
                                                 <div class="row">
                                                     <div class="col-12 col-md-10">
-                                                        <label class="col-form-label control-label">Teléfono 1</label>
+                                                        <label class="col-form-label control-label">Teléfono</label>
                                                         <input type="hidden" name="Phones[0].TypeContact" value="@TypeContact.PHONE.ToString()" />
                                                         <input type="text" class="form-control phones" name="Phones[0].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />
                                                     </div>
@@ -246,7 +246,7 @@
                             </div>
                             <div class="form-group row pull-right">
                                 <div class="col-md-10 offset-2 text-right">
-                                    <a href='@Url.Action("Index", "Customer")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
+                                    <a href='@Url.Action("Index", "Provider")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
                                     <button type="submit" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
                                 </div>
                             </div>
@@ -270,5 +270,5 @@
         var numPhones = @(Model.Phones.Count > 0 ? Model.Phones.Count : 0);
         var urlGetLocation = '@Url.Action("GetLocations")';
     </script>
-    <script src="~/Scripts/views/Customer/Edit.js"></script>
+    <script src="~/Scripts/views/Provider/Edit.js"></script>
 }

@@ -1,5 +1,13 @@
 ﻿$(document).ready(function () {
-    //$('.chosen-select').chosen({ width: '100%', "disable_search": true });
+
+    $("#ZipCode").trigger("blur");
+    $("#CURP").keyup(function () {
+        this.value = this.value.toUpperCase();
+    });
+    $("#RFC").keyup(function () {
+        this.value = this.value.toUpperCase();
+    });
+
     $.validator.addMethod("RFCTrue",
         function (value, element) {
             return value.match(/^([A-ZÑ&]{3,4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])) ?(?:- ?)?([A-Z\d]{2})([A\d])$/);
@@ -11,14 +19,7 @@
         }, "Debe ser un CURP válido"
     );
 
-    $("#CURP").keyup(function () {
-        this.value = this.value.toUpperCase();
-    });
-    $("#RFC").keyup(function () {
-        this.value = this.value.toUpperCase();
-    });
-
-    $("#CreateForm").validate({
+    $("#EditForm").validate({
         rules: {
             FistName: {
                 required: true,
@@ -69,26 +70,27 @@
 });
 
 function validarDatos() {
-    if (!$('#CreateForm').valid()) {
+    if (!$('#EditForm').valid()) {
         return;
     }
-    $('#CreateForm').submit();
+    $('#EditForm').submit();
 }
 
-var itemNumberEmail = 1;
-var itemNumberPhone = 1;
-var indexEmail = 1;
-var indexPhone = 1;
+var itemNumberEmail = numEmail;
+var itemNumberPhone = numPhones;
+var indexEmail = numEmail;
+var indexPhone = numPhones;
 $(".btn-add-email").click(function () {
-    var item = '<div class="row">'+
-        '<div class="col-12 col-md-10" > ' +
+    var item = '<div class="row">' +
+        '<div class="col-12 col-md-10"> ' +
         '<label class="col-form-label control-label">Otro Email</label>' +
         '<input type="hidden" name="Emails[' + itemNumberEmail + '].TypeContact" value="EMAIL" />' +
         '<input type="email" class="form-control emails" name="Emails[' + itemNumberEmail + '].EmailOrPhone" />' +
         '</div>' +
         '<div class="col-12 col-md-2">' +
         '<label class="col-form-label control-label heightLabel"></label>' +
-        ' <button type="button" class="btn btn-color btn-remove-phone btn-remove" data-element="EMAIL" value="' + itemNumberEmail + '"><i class="fa fa-trash"></i></button>' +
+        ' <button type="button" class="btn btn-color btn-remove-email btn-remove" data-element="EMAIL" value="' + itemNumberEmail + '"><i class="fa fa-trash"></i></button>' +
+        '<input type="hidden" value=""/>' +
         '</div>' +
         '</div>';
     $("#ListEmails").append(item);
@@ -97,7 +99,8 @@ $(".btn-add-email").click(function () {
 });
 
 $(".btn-add-phone").click(function () {
-    var item = '<div class="row"><div class="col-12 col-md-10">' +
+    var item = '<div class="row">' +
+        '<div class="col-12 col-md-10">' +
         '<label class="col-form-label control-label">Otro Teléfono</label>' +
         '<input type="hidden" name="Phones[' + itemNumberPhone + '].TypeContact" value="PHONE" />' +
         '<input type="text" class="form-control phones" name="Phones[' + itemNumberPhone + '].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
@@ -105,23 +108,28 @@ $(".btn-add-phone").click(function () {
         '<div class="col-12 col-md-2">' +
         '<label class="col-form-label control-label heightLabel"></label>' +
         ' <button type="button" class="btn btn-color btn-remove-phone btn-remove" data-element="PHONE" value="' + itemNumberPhone + '"><i class="fa fa-trash"></i></button>' +
+        '<input type="hidden" value=""/>' +
         '</div>' +
         '</div>';
-        $("#ListPhones").append(item);
+    $("#ListPhones").append(item);
     itemNumberPhone++;
     indexPhone++;
 });
 
+var itemsIdRemoves = [];
 var itemsRemoveP = [];
 var itemsRemoveE = [];
 $('.listContacts').on('click', '.btn-remove', function () {
+    var removeId = $("#dataContacts");
     var removePhone = $("#indexPhone");
     var removeEmail = $("#indexEmail");
     //console.log(this, "elementos");
 
     var item = $(this).val();
     var data = $(this).data("element");
-    //console.log(item, item.trim(), "valor del elemento");
+    //console.log($(this).next(), "hermano");
+    var itemValue = $(this).next().val();
+    console.log(item, item.trim(), itemValue, "valor del elemento");
 
     if (data === "PHONE") {
         itemsRemoveP.push(item);
@@ -133,6 +141,10 @@ $('.listContacts').on('click', '.btn-remove', function () {
         indexEmail--;
     }
 
+    if (itemValue.trim() !== "") {
+        itemsIdRemoves.push(itemValue);
+        removeId.val(itemsIdRemoves);
+    }
     //console.log($(this).parent().parent(), "valor del elemento");
     $(this).parent().parent().addClass("hidden");
 });
@@ -178,10 +190,12 @@ $("#ZipCode").blur(function () {
                     cmbColony.val(datos[0].id);
                 } else {
                     cmbState.val(-1);
+                    cmbCountry.html('<option value="-1">Seleccione...</option>').val(-1);
                     cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
                     cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
                     toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
                 }
+
             } else {
                 cmbState.val(-1);
                 cmbCountry.html('<option value="-1">Seleccione...</option>').val(-1);
@@ -192,11 +206,11 @@ $("#ZipCode").blur(function () {
 
         },
         error: function (xhr) {
-            console.log('error');
             cmbState.val(-1);
             cmbCountry.html('<option value="-1">Seleccione...</option>').val(-1);
             cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
             cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
+            console.log('error');
         }
     });
 });

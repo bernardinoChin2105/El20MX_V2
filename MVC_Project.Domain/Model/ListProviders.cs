@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Model
 {
-    public class CustomerList
+    public class ListProviders
     {
         public Int64 id { get; set; }
         public Guid uuid { get; set; }
@@ -17,7 +17,7 @@ namespace MVC_Project.Domain.Model
         public Int32 Total { get; set; }
     }
 
-    public class CustomerFilter
+    public class FilterProvider
     {
         public string uuid { get; set; }
         public string rfc { get; set; }
@@ -25,7 +25,7 @@ namespace MVC_Project.Domain.Model
         public string email { get; set; }
     }
 
-    public class ExportListCustomer
+    public class ExportListProviders
     {
         public Int64 id { get; set; }
         public Guid uuid { get; set; }

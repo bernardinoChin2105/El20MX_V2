@@ -16,8 +16,12 @@ $(".btn-filter-rol").click(function () {
     $('#table').DataTable().draw();
 });
 
+$("#RFC").keyup(function () {
+    this.value = this.value.toUpperCase();
+});
 
-var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUrl, uploadUrl, hasFullAccessController) {
+
+var ProviderIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUrl, uploadUrl, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
@@ -32,7 +36,7 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();
         }).DataTable({
-            language: { url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json' },
+            language: { url: 'Scripts/custom/dataTableslang.es_MX.json' },
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": this.baseUrl,
@@ -42,12 +46,12 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
             columns: [
                 { data: 'id', title: "Id", visible: false },
                 { data: 'rfc', title: "RFC" },
-                { data: 'businessName', title: "Nombre/Razón Social" },
+                { data: 'businessName', title: "Nombre Colaborador" },
                 { data: 'phone', title: "Teléfono" },
                 { data: 'email', title: "Email" },
                 {
                     data: null,
-                    title: "+ de Mis Clientes",
+                    title: "+ de Mi Colaborador",
                     className: 'menu-options',
                     render: function (data) {
                         //Menu para más opciones de cliente
@@ -56,28 +60,9 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                             '<div class="dropdown">' +
                             '<button class="btn btn-light btn-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-ellipsis-h"></span></button>' +
                             '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
-                            '<a class="dropdown-item" href="' + self.editUrl + '?uuid=' + data.uuid + '">Perfil Completo del Cliente</a>' +
+                            '<a class="dropdown-item" href="' + self.editUrl + '?uuid=' + data.uuid + '">Perfil Completo del Colaborador</a>' +
                             '<a class="dropdown-item" href="#">Estado de Cuenta</a>' +
-                            '<a class="dropdown-item" href="#">Lista de Facturas(CFDI\'s)</a>' +
-                            '</div>' +
-                            '</div>' +
-                            '</div>';
-                        return hasFullAccessController ? buttons : "";
-                    }
-                },
-                {
-                    data: null,
-                    title: "Trabajar con Mis Clientes",
-                    className: 'work-options',
-                    render: function (data) {
-                        //menu para el cliente work
-                        //console.log(data)
-                        //style="margin-left:5px;"
-                        var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<div class="dropdown">' +
-                            '<button class="btn btn-light btn-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-ellipsis-h"></span></button>' +
-                            '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
-                            '<a class="dropdown-item" href="' + self.editUrl + '?uuid=' + data.uuid + '">Hacer CFDI</a>' +
+                            '<a class="dropdown-item" href="#">Lista de (CFDI\'s)</a>' +
                             '</div>' +
                             '</div>' +
                             '</div>';
@@ -99,7 +84,7 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     } else {
                         fnCallback(json);
-                    } 
+                    }
                 });
             }
         }).on('xhr.dt', function (e, settings, data) {
@@ -124,23 +109,14 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
 
                 /////////////////////////////////////////////////////
             } catch (e) {
-                throw 'CustomerIndexControlador -> Exportar: ' + e;
+                throw 'ProviderIndexControlador -> Exportar: ' + e;
             }
         });
     };
 };
 
-$("#RFC").keyup(function () {
-    this.value = this.value.toUpperCase();
-});
 
 var _validFileExtensions = [".xlsx", ".xls"];
-$('.custom-file-input').on('change', function () {
-    let fileName = $(this).val().split('\\').pop();
-    $(this).next('.custom-file-label').addClass("selected").html(fileName);
-    $(".btn-save-import").attr("disabled", false);
-}); 
-
 var loadFile = function (event, imgid, input) {
     if (input.type === "file") {
         var sFileName = input.value;
@@ -204,7 +180,38 @@ function Guardar(e) {
                 $('#table').DataTable().draw();
             }
             El20Utils.ocultarCargador();
-            $("#ModalImporterClients").modal("show");            
+            $("#ModalImporterClients").modal("show");
+
+            //if ($.fn.DataTable.isDataTable('#clientesExcel')) {
+            //    $('#clientesExcel').DataTable().destroy();
+            //}
+            //$('#clientesExcel tbody').empty();
+
+            //$("div.alert").addClass("hide")
+            //if (result != null && result.Success) {
+            //    if (result.Tipo == 2 && result.SinGuardar.length > 0) {
+            //        $(".alert-success").html(result.Mensaje).removeClass("hide");
+            //        cargarTabla(result.SinGuardar);
+            //        setTimeout(function () {
+            //            $(".alert-success").addClass("hide");
+            //        }, 7000);
+            //    }
+            //} else {
+            //    if (result != null && result.Tipo == 0) {
+            //        $(".alert-danger").html(result.Mensaje).removeClass("hide");
+            //        //IntranetUtils.ocultarCargador();
+            //        loading.hideloading();
+            //        setTimeout(function () {
+            //            $(".alert-danger").addClass("hide");
+            //        }, 7000);
+            //    } else if (result != null && result.Tipo == 1 && result.SinGuardar.length > 0) {
+            //        $(".alert-warning").html(result.Mensaje).removeClass("hide");
+            //        cargarTabla(result.SinGuardar);
+            //        setTimeout(function () {
+            //            $(".alert-warning").addClass("hide");
+            //        }, 7000);
+            //    }
+            //}
         },
         error: function (xhr) {
             //console.log("error: " + xhr);
@@ -215,21 +222,21 @@ function Guardar(e) {
     });
 }
 
-//function cargarTabla(jsonObject) {
-//    table = $('#clientesExcel').DataTable({
-//        "aaData": jsonObject,
-//        //"lengthMenu": [[50, 100, 200, 300, 400, 500], [50, 100, 200, 300, 400, 500]],
-//        "lengthMenu": IntranetUtils.GRID_TOTAL_ITEMS,
-//        "columns": [
-//            { title: "ID_CLIENTE", "data": "ID_CLIENTE" },
-//            { title: "NOMBRE", "data": "NOMBRE" },
-//            { title: "CORREO_ELECTRONICO", "data": "CORREO_ELECTRONICO" },
-//            { title: "PRESUPUESTO_ASIGNADO", "data": "PRESUPUESTO" },
-//            { title: "OBSERVACIONES", "data": "OBSERVACIONES" }
-//        ],
-//        "initComplete": function (settings, json) {
-//            //IntranetUtils.ocultarCargador();
-//            loading.hideloading();
-//        }
-//    });
-//}
+function cargarTabla(jsonObject) {
+    table = $('#clientesExcel').DataTable({
+        "aaData": jsonObject,
+        //"lengthMenu": [[50, 100, 200, 300, 400, 500], [50, 100, 200, 300, 400, 500]],
+        "lengthMenu": IntranetUtils.GRID_TOTAL_ITEMS,
+        "columns": [
+            { title: "ID_CLIENTE", "data": "ID_CLIENTE" },
+            { title: "NOMBRE", "data": "NOMBRE" },
+            { title: "CORREO_ELECTRONICO", "data": "CORREO_ELECTRONICO" },
+            { title: "PRESUPUESTO_ASIGNADO", "data": "PRESUPUESTO" },
+            { title: "OBSERVACIONES", "data": "OBSERVACIONES" }
+        ],
+        "initComplete": function (settings, json) {
+            //IntranetUtils.ocultarCargador();
+            loading.hideloading();
+        }
+    });
+}
