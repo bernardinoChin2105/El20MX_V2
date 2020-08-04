@@ -101,8 +101,8 @@ namespace MVC_Project.Utils
     {
         [Display(Name = "Configuración")]
         CONFIGURATION,
-        [Display(Name = "Prospectos")]
-        PROSPECTS,
+        [Display(Name = "Reportes")]
+        REPORTS,
         [Display(Name = "Clientes")]
         CUSTOMERS,
         [Display(Name = "Proveedores")]
