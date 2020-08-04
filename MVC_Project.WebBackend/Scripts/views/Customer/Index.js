@@ -85,19 +85,16 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                 }
             ],
             "fnServerData": function (sSource, aoData, fnCallback) {
-                //console.log(aoData, "que es?")
                 aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
                 aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
                 aoData.push({ "name": "first", "value": primeravez });
 
                 $.getJSON(sSource, aoData, function (json) {
-                    //console.log(json)
                     primeravez = false;
                     if (json.success === false) {
                         toastr['error'](json.Mensaje.message);
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     } else {
-
                         fnCallback(json);
                     } 
                 });
@@ -160,7 +157,7 @@ var loadFile = function (event, imgid, input) {
             }
 
             if (!blnValid) {
-                toastr["error"]('Favor de seleccionar un formato de Excel permitido.');
+                toastr["error"]('Favor de seleccionar un formato de Excel permitido (".xlsx", ".xls").');
 
                 input.value = "";
                 $(".btn-save-import").attr("disabled", true);

@@ -79,7 +79,8 @@ var itemNumberEmail = 1;
 var itemNumberPhone = 1;
 var indexEmail = 1;
 var indexPhone = 1;
-$(".btn-add-email").click(function () {
+
+$(".btn-add-email").click(function () {    
     var item = '<div class="row">'+
         '<div class="col-12 col-md-10" > ' +
         '<label class="col-form-label control-label">Otro Email</label>' +

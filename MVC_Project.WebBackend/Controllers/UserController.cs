@@ -109,14 +109,14 @@ namespace MVC_Project.WebBackend.Controllers
                     totalDisplay = results.Item2;
                     foreach (var user in results.Item1)
                     {
-                        var accountUser = user.memberships.First();
+                        var membership = user.memberships.First(x => x.account.id == userAuth.Account.Id);
                         UserData userData = new UserData();
                         userData.Name = user.profile.firstName + " " + user.profile.lastName;
                         userData.Email = user.name;
-                        userData.RoleName = accountUser.role.name;
+                        userData.RoleName = membership.role.name;
                         userData.CreatedAt = user.createdAt;
                         userData.UpdatedAt = user.modifiedAt;
-                        userData.Status = user.status;
+                        userData.Status = ((SystemStatus) Enum.Parse(typeof(SystemStatus), membership.status)).GetDisplayName();
                         userData.Uuid = user.uuid.ToString();
                         userData.LastLoginAt = user.lastLoginAt;
                         dataResponse.Add(userData);
@@ -147,7 +147,13 @@ namespace MVC_Project.WebBackend.Controllers
         {
             try
             {
-                var userCreateViewModel = new UserCreateViewModel { Roles = PopulateRoles() /*, Features = PopulateFeatures(int.Parse(roles.First().Value))*/ };
+                var roles = PopulateRoles();
+                if (!roles.Any())
+                {
+                    MensajeFlashHandler.RegistrarMensaje("Registre un rol antes de crear al usuario", TiposMensaje.Warning);
+                    return RedirectToAction("Index");
+                }
+                var userCreateViewModel = new UserCreateViewModel { Roles = PopulateRoles() };
                 return View(userCreateViewModel);
             }
             catch(Exception ex)
@@ -210,14 +216,7 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 var userAuth = Authenticator.AuthenticatedUser;
-                //if(!String.IsNullOrWhiteSpace(userCreateViewModel.ConfirmPassword) 
-                //    && !String.IsNullOrWhiteSpace(userCreateViewModel.Password))
-                //{
-                //    if(!userCreateViewModel.Password.Equals(userCreateViewModel.ConfirmPassword))
-                //    {
-                //        ModelState.AddModelError("ConfirmPassword", "Las contraseñas no coinciden");
-                //    }
-                //}
+
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
 
@@ -268,6 +267,7 @@ namespace MVC_Project.WebBackend.Controllers
                     user = user,
                     assignedBy = userAuth.Id,
                     acceptUser = userCreateViewModel.AcceptUser ? TermsAndConditions.ACCEPT.ToString() : TermsAndConditions.DECLINE.ToString(),
+                    status = SystemStatus.UNCONFIRMED.ToString()
                 });
 
                 if (newUser)
@@ -275,16 +275,7 @@ namespace MVC_Project.WebBackend.Controllers
                 else
                     _userService.Update(user);
 
-                string token = (user.uuid + "@");
-                token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
-                Dictionary<string, string> customParams = new Dictionary<string, string>();
-                string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
-                string link = urlAccion + "Register/NewUserVerify?token=" + token;
-                customParams.Add("param1", user.profile.firstName);
-                customParams.Add("param2", user.name);
-                customParams.Add("param3", userAuth.Account.RFC);
-                customParams.Add("param4", link);
-                NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_NEW_USER);
+                SendWelcomeMail(user, userAuth.Account);
 
                 if(newUser)
                     MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
@@ -292,8 +283,6 @@ namespace MVC_Project.WebBackend.Controllers
                     MensajeFlashHandler.RegistrarMensaje("Usuario agregado a la cuenta", TiposMensaje.Success);
 
                 return RedirectToAction("Index");
-                //userCreateViewModel.Roles = PopulateRoles();
-                //return View("Create", userCreateViewModel);
             }
             catch (Exception ex)
             {
@@ -301,6 +290,20 @@ namespace MVC_Project.WebBackend.Controllers
                 userCreateViewModel.Roles = PopulateRoles();
                 return View(userCreateViewModel);
             }
+        }
+
+        private void SendWelcomeMail(User user, AuthManagement.Models.Account account)
+        {
+            string token = (user.uuid + "@" + account.Uuid + "@" + user.name);
+            token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
+            Dictionary<string, string> customParams = new Dictionary<string, string>();
+            string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
+            string link = urlAccion + "Register/NewUserVerify?token=" + token;
+            customParams.Add("param1", user.profile.firstName);
+            customParams.Add("param2", user.name);
+            customParams.Add("param3", account.RFC);
+            customParams.Add("param4", link);
+            NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_NEW_USER);
         }
 
         [Authorize]
@@ -356,7 +359,7 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception("El email proporcionado se encuentra registrado en otro usuario");
                 
 
-                user.name = model.Email;
+                
                 user.profile.firstName = model.Name;
                 user.profile.lastName = model.Apellidos;
                 user.profile.phoneNumber = model.MobileNumber;
@@ -366,6 +369,11 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     membership.role = new Role { id = model.Role };
                     _membershipService.Update(membership);
+                }
+                if (!user.name.Equals(model.Email))
+                {
+                    user.name = model.Email;
+                    SendWelcomeMail(user, userAuth.Account);
                 }
                 _userService.Update(user);
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
@@ -453,22 +461,28 @@ namespace MVC_Project.WebBackend.Controllers
             }
             return View(model);
         }
-        
+
         [HttpPost, Authorize]
         public ActionResult ChangeStatus(string uuid, FormCollection collection)
         {
             try
             {
-                var user = _userService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
+                var userAuth = Authenticator.AuthenticatedUser;
+                var user = _userService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
+
                 if (user != null)
                 {
-                    if (user.status == SystemStatus.ACTIVE.ToString())
-                        user.status = SystemStatus.INACTIVE.ToString();
-                    else if (user.status == SystemStatus.INACTIVE.ToString())
-                        user.status = SystemStatus.ACTIVE.ToString();
+                    var membership = _membershipService.FirstOrDefault(x => x.user.id == user.id && x.account.id == userAuth.Account.Id);
+                    if (membership != null)
+                    {
+                        if (membership.status == SystemStatus.ACTIVE.ToString())
+                            membership.status = SystemStatus.INACTIVE.ToString();
+                        else if (membership.status == SystemStatus.INACTIVE.ToString())
+                            membership.status = SystemStatus.ACTIVE.ToString();
 
-                    _userService.Update(user);
-                    return Json(true, JsonRequestBehavior.AllowGet);
+                        _membershipService.Update(membership);
+                        return Json(true, JsonRequestBehavior.AllowGet);
+                    }
                 }
                 return Json(false, JsonRequestBehavior.AllowGet);
             }
@@ -485,20 +499,14 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 var userAuth = Authenticator.AuthenticatedUser;
                 var user = _userService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
-                if (user != null && user.status==SystemStatus.UNCONFIRMED.ToString())
+                if (user != null)
                 {
-                    string token = (user.uuid + "@");
-                    token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
-                    Dictionary<string, string> customParams = new Dictionary<string, string>();
-                    string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
-                    string link = urlAccion + "Register/NewUserVerify?token=" + token;
-                    customParams.Add("param1", user.profile.firstName);
-                    customParams.Add("param2", user.name);
-                    customParams.Add("param3", userAuth.Account.RFC);
-                    customParams.Add("param4", link);
-                    NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_NEW_USER);
-
-                    return Json(true, JsonRequestBehavior.AllowGet);
+                    var membership = _membershipService.FirstOrDefault(x => x.user.id == user.id && x.account.id == userAuth.Account.Id);
+                    if (membership != null && membership.status == SystemStatus.UNCONFIRMED.ToString())
+                    {
+                        SendWelcomeMail(user, userAuth.Account);
+                        return Json(true, JsonRequestBehavior.AllowGet);
+                    }
                 }
                 return Json(false, JsonRequestBehavior.AllowGet);
             }

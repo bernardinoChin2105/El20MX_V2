@@ -11,11 +11,11 @@ namespace MVC_Project.Utils
 {
     public enum SystemStatus
     {
-        [Display(Name = "ACTIVE")]
+        [Display(Name = "Activo")]
         ACTIVE,
-        [Display(Name = "INACTIVE")]
+        [Display(Name = "Inactivo")]
         INACTIVE,
-        [Display(Name = "UNCONFIRMED")]
+        [Display(Name = "No confirmado")]
         UNCONFIRMED
     }
 
@@ -101,8 +101,8 @@ namespace MVC_Project.Utils
     {
         [Display(Name = "Configuración")]
         CONFIGURATION,
-        [Display(Name = "Prospectos")]
-        PROSPECTS,
+        [Display(Name = "Reportes")]
+        REPORTS,
         [Display(Name = "Clientes")]
         CUSTOMERS,
         [Display(Name = "Proveedores")]

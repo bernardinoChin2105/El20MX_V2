@@ -59,7 +59,7 @@
                 @Html.Hidden("ReturnUrl", (string)ViewBag.ReturnUrl)
                 <div class="input-group mb-3">
                     <span class="input-group-prepend"><button class="btn btn-default" type="button"><i class="fa fa-user"></i></button></span>
-                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", placeholder = @ViewLabels.USERNAME, @required = "required" })
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", placeholder = @ViewLabels.USERNAME })
                 </div>
                 <span class="help-block"></span>
                 <div class="input-group mb-3">
@@ -69,7 +69,7 @@
                         </button>
                     </span>
                     @*<span class="input-group-addon"><i class="fa fa-lock"></i></span>*@
-                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", placeholder = @ViewLabels.PASSWORD, @required = "required" })
+                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", placeholder = @ViewLabels.PASSWORD })
                     @*<span class="input-group-append">
                         <button id="view-password" class="btn btn-default" type="button">
                             <i class="fa fa-eye"></i>
@@ -142,6 +142,44 @@
         </script>
     }
     <script>
+        $(document).ready(function () {
+            $.validator.addMethod("PasswordTrue",
+                function (value, element) {
+                    //return value.match(/^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/); // contraseña con caracter especial
+                    return value.match(/^(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/);
+                }, "La contraseña debe contener un número, mayúsculas y minúsculas"
+            );
+            $("#Login").validate({
+                rules: {
+                    Email: {
+                        required: true,
+                    },
+                    Password: {
+                        PasswordTrue: true,
+                        required: true,
+                        minlength: 8
+                    }
+                },
+                messages: {
+                    Email: {
+                        required: "Campo obligatorio",
+                        email: "Ingrese un correo válido"
+                    },
+                    Password: {
+                        required: "Campo obligatorio",
+                        minlength: "La contraseña debe ser mínimo de 8 caracteres",
+                    }
+                }
+            });
+        });
+
+        $("#Login").submit(function (event) {
+            if (!$('#Login').valid()) {
+                event.preventDefault();
+                return;
+            }
+        });
+
         $('#view-password').on('mousedown', function () {
             $('#Password').attr("type", "text");
         });

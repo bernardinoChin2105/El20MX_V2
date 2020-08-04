@@ -87,5 +87,35 @@ namespace MVC_Project.Integrations.SAT
                 };
             }
         }
+
+        /*
+         * Obtener la Constancia de Situación Fisca
+         * */
+         public static InvoicesModel GetTaxStatus (string RFC)
+        {
+            List<TaxStatus> taxStatus = new List<TaxStatus>();
+            try
+            {                
+                string url = "/taxpayers/" + RFC + "/tax-status";
+                var responseInvoices = SATws.CallServiceSATws(url, null, "Get");
+                taxStatus = JsonConvert.DeserializeObject<List<TaxStatus>>(responseInvoices);
+
+                return new InvoicesModel
+                {
+                    Success = true,
+                    TaxStatus = taxStatus
+                };
+            }
+            catch (Exception ex)
+            {
+                return new InvoicesModel
+                {
+                    Success = false,
+                    Message = ex.Message.ToString(),
+                    TaxStatus = taxStatus,                    
+                };
+            }
+        }
+
     }
 }

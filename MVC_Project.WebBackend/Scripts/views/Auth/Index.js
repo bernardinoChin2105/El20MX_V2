@@ -15,7 +15,6 @@
     });
 }
 function MessageAlert(d) {
-    debugger;
     var rslt = $.parseJSON(d.responseText);
     if (rslt.statusCode == 200) {
         $().toastmessage("showSuccessToast", rslt.status);

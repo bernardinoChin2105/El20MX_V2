@@ -1,4 +1,5 @@
 ﻿using MVC_Project.Domain.Services;
+using MVC_Project.FlashMessages;
 using MVC_Project.Integrations.Paybook;
 using MVC_Project.Integrations.SAT;
 using MVC_Project.Utils;
@@ -103,30 +104,42 @@ namespace MVC_Project.WebBackend.Controllers
             return RedirectToAction("Login", "Auth");
         }
 
+        private void SetMembership(Domain.Entities.Membership membership)
+        {
+
+
+        }
+
         [AllowAnonymous]
         public ActionResult CreateAccountModal()
         {
             return PartialView("_CreateAccountModal");
         }
 
+        [AllowAnonymous]
+        public ActionResult CreateAccount()
+        {
+            return View();
+        }
+
         [HttpPost]
         [AllowAnonymous]
         //[Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
-        public JsonResult CreateCredential(LogInSATModel dataSat)
+        public ActionResult CreateCredential(LoginSATViewModel model)
         {
             try
             {
                 //Realizar la captura de la información
                 //Validar que no se repita el rfc
-                var accountExist = _accountService.ValidateRFC(dataSat.rfc);
+                var accountExist = _accountService.ValidateRFC(model.RFC);
 
                 if (accountExist != null)
                     throw new Exception("Existe una cuenta registrada con este RFC.");
-                
+                var loginSat = new LogInSATModel { rfc = model.RFC, password = model.CIEC, type = "ciec" };
                 //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
-                var responseSat = SATws.CallServiceSATws("credentials", dataSat, "Post");
+                var responseSat = SATws.CallServiceSATws("credentials", loginSat, "Post");
 
-                var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
+                var satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
 
                 //Guardar la información si el llamado del servicio es exitoso
                 var authUser = Authenticator.AuthenticatedUser;
@@ -142,26 +155,28 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     uuid = Guid.NewGuid(),
                     name = authUser.FirstName + " " + authUser.LastName,
-                    rfc = dataSat.rfc,
+                    rfc = model.RFC,
                     createdAt = todayDate,
                     modifiedAt = todayDate,
                     avatar = "/Images/p1.jpg",
                     status = SystemStatus.ACTIVE.ToString()
                 };
 
-                account.memberships.Add(new Domain.Entities.Membership
+                var membership = new Domain.Entities.Membership
                 {
                     account = account,
                     user = userD,
-                    role = roleD
-                });
+                    role = roleD,
+                    status = SystemStatus.ACTIVE.ToString()
+                };
+                account.memberships.Add(membership);
 
                 Domain.Entities.Credential credential = new Domain.Entities.Credential()
                 {
                     account = account,
                     provider = SystemProviders.SATWS.ToString(), //"SAT.ws",
-                    idCredentialProvider = model.id,
-                    statusProvider = model.status,
+                    idCredentialProvider = satModel.id,
+                    statusProvider = satModel.status,
                     createdAt = todayDate,
                     modifiedAt = todayDate,
                     status = SystemStatus.ACTIVE.ToString()
@@ -169,22 +184,39 @@ namespace MVC_Project.WebBackend.Controllers
 
                 _credentialService.CreateCredentialAccount(credential);
 
-                return new JsonResult
+                var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                 {
-                    Data = new { Mensaje = "Cuenta registrada", Type = "success", Success = true },
-                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                    MaxJsonLength = Int32.MaxValue
-                };        
+                    //Action = p.permission.action,
+                    Controller = p.permission.controller,
+                    Module = p.permission.module,
+                    Level = p.level
+                }).ToList();
+
+                authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
+                authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
+                authUser.Permissions = permissions;
+
+                Authenticator.RefreshAuthenticatedUser(authUser);
+                MensajeFlashHandler.RegistrarMensaje("Cuenta registrada correctamente", TiposMensaje.Success);
+                return RedirectToAction("Index", "User");
+                //return new JsonResult
+                //{
+                //    Data = new { Mensaje = "Cuenta registrada", Type = "success", Success = true },
+                //    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                //    MaxJsonLength = Int32.MaxValue
+                //};        
             }
             catch (Exception ex)
             {
-                string error = ex.Message.ToString();
-                return new JsonResult
-                {
-                    Data = new { Mensaje = ex.Message.ToString(), Type = "error", Success = false },
-                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                    MaxJsonLength = Int32.MaxValue
-                };
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return View();
+                //string error = ex.Message.ToString();
+                //return new JsonResult
+                //{
+                //    Data = new { Mensaje = ex.Message.ToString(), Type = "error", Success = false },
+                //    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                //    MaxJsonLength = Int32.MaxValue
+                //};
             }
 
         }

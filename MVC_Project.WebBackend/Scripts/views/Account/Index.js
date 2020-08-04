@@ -51,14 +51,15 @@ function createAccountModal() {
     });
     $("#createAccountModal").on('shown.bs.modal', function () {
         //$("#wizard").steps();   
-        if (!$("#wizard").hasClass("wizard-big wizard clearfix")) {
-            $("#wizard").steps(settings);
-            initCreate();
-        }
+        //if (!$("#wizard").hasClass("wizard-big wizard clearfix")) {
+        //    $("#wizard").steps(settings);
+        //    initCreate();
+        //}
+        initCreate();
     });
-    $("#createAccountModal").on('hidden.bs.modal', function () {
-        selectAccountModal();
-    });
+    //$("#createAccountModal").on('hidden.bs.modal', function () {
+    //    selectAccountModal();
+    //});
 }
 
 function selectLastAccount() {
@@ -88,15 +89,6 @@ function validate() {
 
 function initCreate() {
 
-    //$(".viewpass").on("click", function () {
-    //    var input = $(".viewpass-input");
-    //    console.log(input.val(), "valor");
-    //    if (input.val() !== "") {
-    //        var view = input.data("view");
-    //        !view ? input.attr('type', 'text').data("view", true) : input.attr('type', 'password').data("view", false);
-    //    }
-    //});
-
     var input = $(".viewpass-input");
     $(".viewpass")
         .mouseup(function () {
@@ -108,8 +100,12 @@ function initCreate() {
             }
         });
 
+    $("#btn-sat-cancel").on("click", function () {
+        $("#createAccountModal").modal("hide");
+        selectAccountModal();
+    });
+
     $("#btn-sat").on("click", function () {
-        console.log("estoy en el evento");
         var rfc = $("#rfc");
         var pass = $("#password");
         var btn = $(this);
@@ -130,30 +126,24 @@ function initCreate() {
             password: pass.val()
         };
 
-        console.log("datos", data);
-
         $.ajax({
             url: urls.urlCredential,
             data: data,
             type: 'POST',
             dataType: 'json',
             success: function (json) {
-                console.log(json, "respuesta");
-                console.log(json.Success, !json.Success, "que respuesta trae");
                 if (json.Success) {
                     $("#validacionSat").val(json.Success);
-                    //toastr['success']('Cuenta registrada');                    
                     toastr[json.Type](json.Mensaje);   
+                    selectLastAccount();
                 } else {
                     rfc.attr("disabled", false);
                     pass.attr("disabled", false);
                     btn.attr("disabled", false);
-                    //toastr['error']('Ocurrió un error, intente nuevamente');
                     toastr[json.Type](json.Mensaje);   
                 }
             },
             error: function (xhr, status) {
-                //alert('Disculpe, existió un problema');
                 console.log(xhr, status, "error");
                 btn.attr("disabled", false);
                 toastr['error']('Ocurrió un error, intente nuevamente');
@@ -176,15 +166,6 @@ function initCreate() {
             password: {
                 required: true
                 //minlength: 8
-            }
-        },
-        messages: {
-            rfc: {
-                required: "Campo obligatorio"
-            },
-            password: {
-                required: "Campo obligatorio"
-                //minlength: "La contraseña debe ser mínimo de 8 caracteres",
             }
         }
     });

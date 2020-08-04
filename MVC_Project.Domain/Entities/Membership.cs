@@ -15,6 +15,7 @@ namespace MVC_Project.Domain.Entities
         public virtual Role role { get; set; }
         public virtual Int64? assignedBy { get; set; }
         public virtual string acceptUser { get; set; }
+        public virtual string status { get; set; }
 
         public virtual IList<MembershipPermission> mebershipPermissions { get; set; }
 

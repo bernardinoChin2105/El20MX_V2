@@ -69,20 +69,26 @@ namespace MVC_Project.Domain.Services
 
             Membership membershipAlias = null;
             Account accountAlias = null;
+            Profile profileAlias = null;
 
             var query = _repository.Session.QueryOver<User>()
+                .JoinAlias(x => x.profile, () => profileAlias)
                 .JoinAlias(x => x.memberships, () => membershipAlias)
                 .JoinAlias(() => membershipAlias.account, () => accountAlias)
                 .Where(() => accountAlias.id == accountId);
 
             if (!string.IsNullOrWhiteSpace(FilterName))
             {
-                query = query.Where(user => user.name.IsInsensitiveLike("%" + FilterName + "%") || user.profile.firstName.IsInsensitiveLike("%" + FilterName + "%") || user.profile.lastName.IsInsensitiveLike("%" + FilterName + "%"));
+                query = query.Where(user => user.name.IsInsensitiveLike("%" + FilterName + "%") || profileAlias.firstName.IsInsensitiveLike("%" + FilterName + "%") || profileAlias.lastName.IsInsensitiveLike("%" + FilterName + "%"));
             }
             if (FilterStatus != Constants.SEARCH_ALL)
             {
-                string FilterStatusBool = SystemStatus.ACTIVE.ToString();
-                query = query.Where(user => user.status == FilterStatusBool);
+                if (FilterStatus == (int)SystemStatus.ACTIVE)
+                    query = query.Where(() => membershipAlias.status == SystemStatus.ACTIVE.ToString());
+                else if (FilterStatus == (int)SystemStatus.INACTIVE)
+                    query = query.Where(() => membershipAlias.status == SystemStatus.INACTIVE.ToString());
+                else if (FilterStatus == (int)SystemStatus.UNCONFIRMED)
+                    query = query.Where(() => membershipAlias.status == SystemStatus.UNCONFIRMED.ToString());
             }
             var count = query.RowCount();
 

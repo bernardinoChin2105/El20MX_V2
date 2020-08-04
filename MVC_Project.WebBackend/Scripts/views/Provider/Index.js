@@ -140,7 +140,7 @@ var loadFile = function (event, imgid, input) {
             }
 
             if (!blnValid) {
-                toastr["error"]('Favor de seleccionar un formato de Excel permitido.');
+                toastr["error"]('Favor de seleccionar un formato de Excel permitido (".xlsx", ".xls").');
 
                 input.value = "";
                 $(".btn-save-import").attr("disabled", true);

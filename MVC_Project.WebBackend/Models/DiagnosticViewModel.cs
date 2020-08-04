@@ -29,23 +29,33 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Fecha Registro")]
         public DateTime createdAt { get; set; }
 
-        [Display(Name = "Estatus ante SAT")]
-        public string statusSAT { get; set; }
+        //[Display(Name = "Estatus ante SAT")]
+        //public string statusSAT { get; set; }
 
-        [Display(Name = "Régimen Fiscal")]
-        public string taxRegime { get; set; }
+        //[Display(Name = "Régimen Fiscal")]
+        //public string taxRegime { get; set; }
 
-        [Display(Name = "Actividades Económicas")]
-        public string economicActivities { get; set; }
+        //[Display(Name = "Actividades Económicas")]
+        //public string economicActivities { get; set; }
 
-        [Display(Name = "Obligaciones Fiscales")]
-        public string fiscalObligations { get; set; }
+        //[Display(Name = "Obligaciones Fiscales")]
+        //public string fiscalObligations { get; set; }
 
-        [Display(Name = "Email Buzón Tributario")]
-        public string taxMailboxEmail { get; set; }
+        //[Display(Name = "Email Buzón Tributario")]
+        //public string taxMailboxEmail { get; set; }
 
-        //public List<DiagnosticDetailsViewModel> diagnosticDetails { get; set; }
+        public List<DiagnosticTaxStatusViewModel> diagnosticTaxStatus { get; set; }
         public List<InvoicesGroup> diagnosticDetails { get; set; }
+    }
+
+    public class DiagnosticTaxStatusViewModel
+    {
+        public string businessName { get; set; }
+        public string statusSAT { get; set; }        
+        public List<string> taxRegime { get; set; }        
+        public List<string> economicActivities { get; set; }        
+        public List<string> fiscalObligations { get; set; }        
+        public string taxMailboxEmail { get; set; }
     }
 
     public class DiagnosticDetailsViewModel

@@ -13,12 +13,11 @@
 </div>
 <div class="modal-body">
     <div class="row">
-        <div id="wizard" class="wizard-big">
+        @*<div id="wizard" class="wizard-big">*@
             <!--RFC-->
-            <h1>RFC</h1>
-            <div class="col-md-12">
+            <div class="col-md-8 offset-2">
                 <form id="RegisterRFCForm">
-                    <p>Ingrese su RFC, haremos una consulta directa al SAT para validarlo.</p>
+                    <h4>Ingrese su RFC y CIEC, haremos una consulta al SAT para validarlo.</h4>
                     <input type="hidden" value="false" name="validacionSat" id="validacionSat"/>
                     <div class="form-group">
                         <label>RCF</label>
@@ -36,6 +35,7 @@
                         </div>
                     </div>
                     <div class="form-group text-right">
+                        <button id="btn-sat-cancel" type="button" class="btn btn-secondary">Cancelar</button>
                         <button id="btn-sat" type="button" class="btn btn-color">Validar RFC</button>
                     </div>
                 </form>
@@ -47,6 +47,6 @@
                 Contenido
             </div>*@
             <!--Fin Cuentas Bancarias-->
-        </div>
+        @*</div>*@
     </div>
 </div>
