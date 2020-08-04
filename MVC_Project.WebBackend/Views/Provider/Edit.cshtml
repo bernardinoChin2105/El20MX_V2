@@ -154,7 +154,7 @@
                                                 {
                                                     <div class="row">
                                                         <div class="col-12 col-md-10">
-                                                            <label class="col-form-label control-label">Email @(i + 1)</label>
+                                                            <label class="col-form-label control-label">@(i > 0 ? "Otro": "") Email</label>
                                                             <input type="hidden" name="Emails[@i].Id" value="@Model.Emails[i].Id" />
                                                             <input type="hidden" name="Emails[@i].TypeContact" value="@TypeContact.EMAIL.ToString()" />
                                                             <input type="email" class="form-control emails" name="Emails[@i].EmailOrPhone" value="@Model.Emails[i].EmailOrPhone" />
@@ -181,7 +181,7 @@
                                             {
                                                 <div class="row">
                                                     <div class="col-12 col-md-10">
-                                                        <label class="col-form-label control-label">Email 1</label>
+                                                        <label class="col-form-label control-label">Email</label>
                                                         <input type="hidden" name="Emails[0].TypeContact" value="@TypeContact.EMAIL.ToString()" />
                                                         <input type="email" class="form-control emails" name="Emails[0].EmailOrPhone" />
                                                     </div>
@@ -203,7 +203,7 @@
                                                 {
                                                     <div class="row">
                                                         <div class="col-12 col-md-10">
-                                                            <label class="col-form-label control-label">Teléfono @(i + 1)</label>
+                                                            <label class="col-form-label control-label">@(i > 0 ? "Otro" : "") Teléfono</label>
                                                             <input type="hidden" name="Phones[@i].Id" value="@Model.Phones[i].Id" />
                                                             <input type="hidden" name="Phones[@i].TypeContact" value="@TypeContact.PHONE.ToString()" />
                                                             <input type="text" class="form-control phones" name="Phones[@i].EmailOrPhone" value="@Model.Phones[i].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />
@@ -230,7 +230,7 @@
                                             {
                                                 <div class="row">
                                                     <div class="col-12 col-md-10">
-                                                        <label class="col-form-label control-label">Teléfono 1</label>
+                                                        <label class="col-form-label control-label">Teléfono</label>
                                                         <input type="hidden" name="Phones[0].TypeContact" value="@TypeContact.PHONE.ToString()" />
                                                         <input type="text" class="form-control phones" name="Phones[0].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />
                                                     </div>

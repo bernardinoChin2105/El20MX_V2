@@ -14,7 +14,7 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "RFC")]
         public string RFC { get; set; }
 
-        [Display(Name = "Razón Social")]
+        [Display(Name = "Nombre/Razón Social")]
         public string BusinessName { get; set; }
 
         [Display(Name = "Email")]

@@ -13,6 +13,10 @@
         }, "Debe ser un CURP válido"
     );
 
+    $("#CURP").keyup(function () {
+        this.value = this.value.toUpperCase();
+    });
+
     $("#EditForm").validate({
         rules: {
             FistName: {
@@ -26,11 +30,11 @@
             RFC: {
                 required: true,
                 RFCTrue: true,
-                maxlength: 20
+                maxlength: 13
             },
             CURP: {
                 CURPTrue: true,
-                maxlength: 20
+                maxlength: 18
             },
             ZipCode: {
                 required: true,
@@ -77,7 +81,7 @@ var indexPhone = numPhones;
 $(".btn-add-email").click(function () {
     var item = '<div class="row">' +
         '<div class="col-12 col-md-10"> ' +
-        '<label class="col-form-label control-label">Email ' + (indexEmail + 1) + '</label>' +
+        '<label class="col-form-label control-label">Otro Email</label>' +
         '<input type="hidden" name="Emails[' + itemNumberEmail + '].TypeContact" value="EMAIL" />' +
         '<input type="email" class="form-control emails" name="Emails[' + itemNumberEmail + '].EmailOrPhone" />' +
         '</div>' +
@@ -95,7 +99,7 @@ $(".btn-add-email").click(function () {
 $(".btn-add-phone").click(function () {
     var item = '<div class="row">' +
         '<div class="col-12 col-md-10">' +
-        '<label class="col-form-label control-label">Teléfono ' + (indexPhone + 1) + '</label>' +
+        '<label class="col-form-label control-label">Otro Teléfono</label>' +
         '<input type="hidden" name="Phones[' + itemNumberPhone + '].TypeContact" value="PHONE" />' +
         '<input type="text" class="form-control phones" name="Phones[' + itemNumberPhone + '].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
         '</div>' +
@@ -121,9 +125,9 @@ $('.listContacts').on('click', '.btn-remove', function () {
 
     var item = $(this).val();
     var data = $(this).data("element");
-    console.log($(this).next(), "hermano")
+    //console.log($(this).next(), "hermano")
     var itemValue = $(this).next().val();
-    console.log(item, item.trim(), itemValue, "valor del elemento");
+    //console.log(item, item.trim(), itemValue, "valor del elemento");
 
     if (data === "PHONE") {
         itemsRemoveP.push(item);

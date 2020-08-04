@@ -16,6 +16,10 @@ $(".btn-filter-rol").click(function () {
     $('#table').DataTable().draw();
 });
 
+$("#RFC").keyup(function () {
+    this.value = this.value.toUpperCase();
+});
+
 
 var ProviderIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUrl, uploadUrl, hasFullAccessController) {
     var self = this;
