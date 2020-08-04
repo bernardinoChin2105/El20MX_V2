@@ -83,13 +83,14 @@ function validateRFC() {
     var FistName = $("#FistName");
     var LastName = $("#LastName");
     var BusinessName = $("#BusinessName");
+    var taxRegime = $("#taxRegime");    
     var RFC = $("#RFC").val();
 
     var valid = RFC.match(re);
-    var str = value.slice(0, 4);
+    var str = RFC.slice(0, 4);
 
     //Si pasa la validación entonces es un             
-    if (value.length === 12 && str.match(/^([A-ZÑ&]{3})[0-9]$/g) !== null) {
+    if (RFC.length === 12 && str.match(/^([A-ZÑ&]{3})[0-9]$/g) !== null) {
         $(".businessName").removeClass("hidden");
         taxRegime.val("MORALPERSONSREGIME");
         FistName.rules("add", {
