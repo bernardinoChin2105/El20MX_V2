@@ -16,7 +16,6 @@ $(".btn-filter-rol").click(function () {
     $('#table').DataTable().draw();
 });
 
-
 var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUrl, uploadUrl, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
@@ -98,6 +97,7 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                         toastr['error'](json.Mensaje.message);
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     } else {
+
                         fnCallback(json);
                     } 
                 });
