@@ -66,7 +66,7 @@ namespace MVC_Project.WebBackend.Controllers
                 if (user != null)
                 {
                     if(user.status == SystemStatus.UNCONFIRMED.ToString())
-                        throw new Exception("El ususario tiene una invitación pendiente por aceptar");
+                        throw new Exception("El usuario tiene una invitación pendiente por aceptar");
                     else
                         throw new Exception("Ya existe un usuario con el email proporcionado");
                 }
@@ -146,7 +146,6 @@ namespace MVC_Project.WebBackend.Controllers
                 else
                 {
                     //Enviar notificación para activar el correo si no es por red social
-
                     string token = (user.uuid + "@");
                     token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
                     //user.token = token;
