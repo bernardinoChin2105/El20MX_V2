@@ -1,10 +1,69 @@
 ﻿$(document).ready(function () {
     //$('.chosen-select').chosen({ width: '100%', "disable_search": true });
+    var FistName = $("#FistName");
+    var LastName = $("#LastName");
+    var BusinessName = $("#BusinessName");
+    var taxRegime = $("#taxRegime");
+
     $.validator.addMethod("RFCTrue",
         function (value, element) {
-            return value.match(/^([A-ZÑ&]{3,4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])) ?(?:- ?)?([A-Z\d]{2})([A\d])$/);
+            const re = /^([A-ZÑ&]{3,4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])) ?(?:- ?)?([A-Z\d]{2})([A\d])$/;
+            var valid = value.match(re);
+
+            if (valid === null)
+                return false;
+
+            var str = value.slice(0, 4);
+
+            //Si pasa la validación entonces es un             
+            if (value.length === 12 && str.match(/^([A-ZÑ&]{3})[0-9]$/g) !== null) {
+                $(".businessName").removeClass("hidden");
+                taxRegime.val("MORALPERSONSREGIME");
+                FistName.rules("add", {
+                    required: false,
+                    //messages: {
+                    //    required: "Campo obligatorio"
+                    //}
+                });
+                LastName.rules("add", {
+                    required: false,
+                    //messages: {
+                    //    required: "Campo obligatorio"
+                    //}
+                });
+                BusinessName.rules("add", {
+                    required: true,
+                    messages: {
+                        required: "Campo obligatorio"
+                    }
+                });
+            } else {
+                $(".businessName").addClass("hidden");
+                taxRegime.val("NATURALPERSONSREGIME");
+                FistName.rules("add", {
+                    required: true,
+                    messages: {
+                        required: "Campo obligatorio"
+                    }
+                });
+                LastName.rules("add", {
+                    required: true,
+                    messages: {
+                        required: "Campo obligatorio"
+                    }
+                });
+                BusinessName.rules("add", {
+                    required: false,
+                    //messages: {
+                    //    required: "Campo obligatorio"
+                    //}
+                });
+            }
+
+            return true;
         }, "Debe ser un RFC válido"
     );
+
     $.validator.addMethod("CURPTrue",
         function (value, element) {
             return value.match(/^([A-Z&]|[a-z&]{1})([AEIOU]|[aeiou]{1})([A-Z&]|[a-z&]{1})([A-Z&]|[a-z&]{1})([0-9]{2})(0[1-9]|1[0-2])(0[1-9]|1[0-9]|2[0-9]|3[0-1])([HM]|[hm]{1})([AS|as|BC|bc|BS|bs|CC|cc|CS|cs|CH|ch|CL|cl|CM|cm|DF|df|DG|dg|GT|gt|GR|gr|HG|hg|JC|jc|MC|mc|MN|mn|MS|ms|NT|nt|NL|nl|OC|oc|PL|pl|QT|qt|QR|qr|SP|sp|SL|sl|SR|sr|TC|tc|TS|ts|TL|tl|VZ|vz|YN|yn|ZS|zs|NE|ne]{2})([^A|a|E|e|I|i|O|o|U|u]{1})([^A|a|E|e|I|i|O|o|U|u]{1})([^A|a|E|e|I|i|O|o|U|u]{1})([0-9]{2})$/g);
@@ -22,11 +81,11 @@
         rules: {
             FistName: {
                 required: true,
-                maxlength: 50
+                //maxlength: 50
             },
             LastName: {
                 required: true,
-                maxlength: 50
+                //maxlength: 50
             },
             RFC: {
                 required: true,
@@ -46,11 +105,11 @@
         messages: {
             FistName: {
                 required: "Campo obligatorio",
-                maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
+                //maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
             },
             LastName: {
                 required: "Campo obligatorio",
-                maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
+                //maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
             },
             RFC: {
                 required: "Campo obligatorio",
