@@ -532,11 +532,11 @@ var El20Utils = El20Utils || {};
     x.PAGE_LENGTH_INIT = 50;
     x.GRID_LANG_SPANISH = {
         "sProcessing": "Procesando...",
-        "sLengthMenu": " Mostrar _MENU_ registros ",
+        "sLengthMenu": "Mostrar _MENU_ registros",
         "sZeroRecords": "No se encontraron resultados",
-        "sEmptyTable": " No hay registros disponibles en la tabla ",
-        "sInfo": " Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros ",
-        "sInfoEmpty": " Mostrando registros del 0 al 0 de un total de 0 registros ",
+        "sEmptyTable": "Ningún dato disponible en esta tabla",
+        "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+        "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
         "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
         "sInfoPostFix": "",
         "sSearch": "Buscar:",
@@ -553,12 +553,46 @@ var El20Utils = El20Utils || {};
             "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
             "sSortDescending": ": Activar para ordenar la columna de manera descendente"
         },
-        "loadingRecords": "Please wait - loading..."
+        "buttons": {
+            "copy": "Copiar",
+            "colvis": "Visibilidad"
+        }
     };
 
 
     //Date.
     x.DATE_FORMAT = 'DD/MM/YYYY';
+
+    x.lenguajeTabla = function (messages) {
+        return {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": messages.emptyTable ? messages.emptyTable : "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            },
+            "buttons": {
+                "copy": "Copiar",
+                "colvis": "Visibilidad"
+            }
+        }
+    };
 
     //Methods
     x.mostrarCargador = function () {

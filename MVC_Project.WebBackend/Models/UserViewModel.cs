@@ -50,6 +50,7 @@ namespace MVC_Project.WebBackend.Models
         public DateTime? LastLoginAt { get; set; }
         [Display(Name = "Estatus")]
         public string Status { get; set; }
+        public bool IsOwner { get; set; }
     }
 
     public class UserCreateViewModel
@@ -149,6 +150,8 @@ namespace MVC_Project.WebBackend.Models
         public List<SelectListItem> Roles { get; set; }
 
         public string Status { get; set; }
+
+        public string RoleCode { get; set; }
     }
     public class UserImportViewModel
     {

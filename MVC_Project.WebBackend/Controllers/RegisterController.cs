@@ -254,6 +254,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     membership.status = SystemStatus.ACTIVE.ToString();
                     _membershipService.Update(membership);
+                    MensajeFlashHandler.RegistrarMensaje("El usuario a sido agregado a la cuenta", TiposMensaje.Success);
                     return RedirectToAction("Login", "Auth");
                 }
 
@@ -302,6 +303,7 @@ namespace MVC_Project.WebBackend.Controllers
                 DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
                 user.passwordExpiration = passwordExpiration;
                 user.status = SystemStatus.ACTIVE.ToString();
+                user.agreeTerms = model.AgreeTerms;
                 _userService.Update(user);
 
                 MensajeFlashHandler.RegistrarMensaje("Usuario activado", TiposMensaje.Success);

@@ -14,7 +14,7 @@
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();
         }).DataTable({
-            language: { url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json' },//Scripts/custom/dataTableslang.es_MX.json
+            language: El20Utils.lenguajeTabla({ emptyTable: "No hay usuarios adicionales" } ),//Scripts/custom/dataTableslang.es_MX.json
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": this.baseUrl,
@@ -50,14 +50,16 @@
                     className: 'personal-options',
                     render: function (data) {
                         var deshabilitarBtns = '';
-                        if (data.Status == "Activo")
-                            deshabilitarBtns += '<button class="btn btn-light btn-change-status" title="Desactivar" style="margin-left:5px;"><span class="far fa-check-square "></span></button>';
-                        else if (data.Status == "Inactivo")
-                            deshabilitarBtns += '<button class="btn btn-light btn-change-status" title="Activar" style="margin-left:5px;"><span class="far fa-square"></span></button>';
-                        else if (data.Status == "No confirmado")
-                            deshabilitarBtns += '<button class="btn btn-light btn-resend-invite" title="Reenviar invitación" style="margin-left:5px;"><span class="fa fa-paper-plane"></span></button>';
-                        else
-                            deshabilitarBtns += '';
+                        if (!data.IsOwner) {
+                            if (data.Status == "Activo")
+                                deshabilitarBtns += '<button class="btn btn-light btn-change-status" title="Desactivar" style="margin-left:5px;"><span class="far fa-check-square "></span></button>';
+                            else if (data.Status == "Inactivo")
+                                deshabilitarBtns += '<button class="btn btn-light btn-change-status" title="Activar" style="margin-left:5px;"><span class="far fa-square"></span></button>';
+                            else if (data.Status == "No confirmado")
+                                deshabilitarBtns += '<button class="btn btn-light btn-resend-invite" title="Reenviar invitación" style="margin-left:5px;"><span class="fa fa-paper-plane"></span></button>';
+                            else
+                                deshabilitarBtns += '';
+                        }
 
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             deshabilitarBtns +

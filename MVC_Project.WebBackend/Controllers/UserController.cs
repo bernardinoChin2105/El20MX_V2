@@ -119,6 +119,7 @@ namespace MVC_Project.WebBackend.Controllers
                         userData.Status = ((SystemStatus) Enum.Parse(typeof(SystemStatus), membership.status)).GetDisplayName();
                         userData.Uuid = user.uuid.ToString();
                         userData.LastLoginAt = user.lastLoginAt;
+                        userData.IsOwner = membership.role.code == SystemRoles.ACCOUNT_OWNER.ToString();
                         dataResponse.Add(userData);
                     }
                 }
@@ -335,6 +336,7 @@ namespace MVC_Project.WebBackend.Controllers
                 }
                 model.Role = membership.role.id;
                 model.Status = user.status;
+                model.RoleCode = membership.role.code;
                 return View(model);
             }
             catch (Exception ex)
