@@ -61,7 +61,26 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception("El usuario no existe o contraseña inválida.");
 
                 if (user.status != SystemStatus.ACTIVE.ToString())
-                    throw new Exception(ErrorMessages.UserInactive);
+                {
+                    string msgReactivation = "";
+                    if (user.status == SystemStatus.UNCONFIRMED.ToString())
+                    {
+                        //Enviar notificación para activar el correo si no es por red social
+                        string token = (user.uuid + "@");
+                        token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
+                        //user.token = token;
+                        Dictionary<string, string> customParams = new Dictionary<string, string>();
+                        string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
+                        string link = urlAccion + "Register/VerifyUser?token=" + token;
+                        customParams.Add("param1", user.profile.firstName);
+                        customParams.Add("param2", link);
+                        NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_WELCOME);
+
+                        msgReactivation = ". Se ha enviado un email de confirmación.";                       
+                    }
+                    //Sino confirmado se reenviara el correo de confirmación
+                    throw new Exception(ErrorMessages.UserInactive + msgReactivation);
+                }
 
                 //Asignar usuario en sesión
                 var authUser = GetValidateUserLogin(user);
