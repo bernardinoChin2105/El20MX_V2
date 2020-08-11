@@ -28,15 +28,15 @@ namespace MVC_Project.WebBackend.Models
     {
         public Int64 Id { get; set; }
 
-        [Required]
+        //[Required]
         [Display(Name = "Nombre(s)")]
         public string FistName { get; set; }
 
-        [Required]
+        //[Required]
         [Display(Name = "Apellido(s)")]
         public string LastName { get; set; }
 
-        [Required]
+        //[Required]
         [Display(Name = "RFC")]
         public string RFC { get; set; }
 
@@ -63,7 +63,7 @@ namespace MVC_Project.WebBackend.Models
         public Int64? Colony { get; set; }
         public SelectList ListColony { get; set; }
 
-        [Required]
+        //[Required]
         [Display(Name = "C.P.")]
         public string ZipCode { get; set; }
 

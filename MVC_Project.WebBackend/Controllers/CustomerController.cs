@@ -575,7 +575,6 @@ namespace MVC_Project.WebBackend.Controllers
                         campo.Cells["G" + rowIndexString].Value = enumFiscal;
                         campo.Cells["G" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
-
                         campo.Cells["H" + rowIndexString].Value = listResponse[i].street;
                         campo.Cells["H" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
@@ -834,7 +833,6 @@ namespace MVC_Project.WebBackend.Controllers
                         modifiedAt = todayDate,
                         status = SystemStatus.ACTIVE.ToString(),
                         deliveryAddress = x.deliveryAddress,
-
                         customerContacts = new List<CustomerContact>
                         {
                             x.email != ""? new CustomerContact

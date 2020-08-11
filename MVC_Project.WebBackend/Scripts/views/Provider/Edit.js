@@ -22,11 +22,11 @@
     $("#EditForm").validate({
         rules: {
             FistName: {
-                required: true,
+                //required: true,
                 maxlength: 50
             },
             LastName: {
-                required: true,
+                //required: true,
                 maxlength: 50
             },
             RFC: {
@@ -46,15 +46,15 @@
         ,
         messages: {
             FistName: {
-                required: "Campo obligatorio",
+                //required: "Campo obligatorio",
                 maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
             },
             LastName: {
-                required: "Campo obligatorio",
+                //required: "Campo obligatorio",
                 maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
             },
             RFC: {
-                required: "Campo obligatorio",
+                //required: "Campo obligatorio",
                 maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
             },
             CURP: {
@@ -67,7 +67,66 @@
             }
         }
     });
+
+    validateRFC();
 });
+
+function validateRFC() {
+    const re = /^([A-ZÑ&]{3,4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])) ?(?:- ?)?([A-Z\d]{2})([A\d])$/;
+    var FistName = $("#FistName");
+    var LastName = $("#LastName");
+    var BusinessName = $("#BusinessName"); 
+    var taxRegime = $("#taxRegime");    
+    var RFC = $("#RFC").val(); 
+
+    var valid = RFC.match(re);    
+    var str = RFC.slice(0, 4);
+
+    //Si pasa la validación entonces es un             
+    if (RFC.length === 12 && str.match(/^([A-ZÑ&]{3})[0-9]$/g) !== null) {
+        $(".businessName").removeClass("hidden");
+        taxRegime.val("MORALPERSONSREGIME");
+        FistName.rules("add", {
+            required: false,
+            //messages: {
+            //    required: "Campo obligatorio"
+            //}
+        });
+        LastName.rules("add", {
+            required: false,
+            //messages: {
+            //    required: "Campo obligatorio"
+            //}
+        });
+        BusinessName.rules("add", {
+            required: true,
+            messages: {
+                required: "Campo obligatorio"
+            }
+        });
+    } else {
+        $(".businessName").addClass("hidden");
+        taxRegime.val("NATURALPERSONSREGIME");
+        FistName.rules("add", {
+            required: true,
+            messages: {
+                required: "Campo obligatorio"
+            }
+        });
+        LastName.rules("add", {
+            required: true,
+            messages: {
+                required: "Campo obligatorio"
+            }
+        });
+        BusinessName.rules("add", {
+            required: false,
+            //messages: {
+            //    required: "Campo obligatorio"
+            //}
+        });
+    }
+}
 
 function validarDatos() {
     if (!$('#EditForm').valid()) {

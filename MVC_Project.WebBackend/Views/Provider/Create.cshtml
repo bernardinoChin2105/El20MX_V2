@@ -38,11 +38,11 @@
                             <div class="form-group row">
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.FistName, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.FistName, new { @class = "form-control" })
+                                    @Html.TextBoxFor(m => m.FistName, new { @class = "form-control", @maxlength ="50" })
                                 </div>
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.LastName, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.LastName, new { @class = "form-control" })
+                                    @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", @maxlength = "50" })
                                 </div>
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.RFC, new { @class = "col-form-label control-label" })
@@ -54,12 +54,12 @@
                                     @Html.LabelFor(m => m.CURP, new { @class = "col-form-label control-label" })
                                     @Html.TextBoxFor(m => m.CURP, new { @class = "form-control" })
                                 </div>
-                                <div class="col-12 col-md-8">
+                                <div class="col-12 col-md-8 businessName hidden">
                                     @Html.LabelFor(m => m.BusinessName, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.BusinessName, new { @class = "form-control" })
+                                    @Html.TextBoxFor(m => m.BusinessName, new { @class = "form-control", @maxlength = "250" })
                                 </div>
-                            </div>
-                            <div class="form-group row">
+                            @*</div>
+                            <div class="form-group row">*@
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.taxRegime, new { @class = "col-form-label control-label" })
                                     @*@Html.TextBoxFor(m => m.taxRegime, new { @class = "form-control" })*@
@@ -81,18 +81,18 @@
                             <div class="form-group row">
                                 <div class="col-12 col-md-8">
                                     @Html.LabelFor(m => m.Street, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.Street, new { @class = "form-control" })
+                                    @Html.TextBoxFor(m => m.Street, new { @class = "form-control", @maxlength = "250" })
                                 </div>
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.OutdoorNumber, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.OutdoorNumber, new { @class = "form-control" })
+                                    @Html.TextBoxFor(m => m.OutdoorNumber, new { @class = "form-control", @maxlength = "100" })
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.InteriorNumber, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.InteriorNumber, new { @class = "form-control" })
+                                    @Html.TextBoxFor(m => m.InteriorNumber, new { @class = "form-control", @maxlength = "20" })
                                 </div>
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.ZipCode, new { @class = "col-form-label control-label" })
