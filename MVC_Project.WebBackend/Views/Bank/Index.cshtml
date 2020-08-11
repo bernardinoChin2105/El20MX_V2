@@ -1,0 +1,59 @@
+﻿@{
+    /**/
+
+    ViewBag.Title = "";
+}
+
+@section Styles{
+    @*<script src="/cdn-cgi/apps/head/WQmwVNy7cJBcUXJRyXTp5ycrDp4.js"></script>*@
+    <link rel="stylesheet" href="https://www.paybook.com/sync/widget/v2/widget.css" />
+}
+
+<div id="widget"></div>
+
+@section Scripts {
+    @Scripts.Render("~/plugins/validate")
+
+    <script>
+        var params = {
+            // Set up the token you created in the Quickstart:
+            token: 'd9e2879cc10cfde6924573a8ecd64489f1f5e7dba21d461cbfbf1e58b3b962df',
+            config: {
+                // Set up the language to use:
+                locale: 'es',
+                entrypoint: {
+                    // Set up the country to start:
+                    country: 'MX',
+                    // Set up the site organization type to start:
+                    siteOrganizationType: '56cf4f5b784806cf028b4568'
+                },
+                navigation: {
+                    displayStatusInToast: true,
+                    // Hide the site 'Renapo'
+                    //"hideSites": ["Renapo"],
+                    // Hide the 'Blockchain' and 'Digital Wallets' organization types.
+                    "hideSiteOrganizationTypes": ["Blockchain", "Digital Wallet", "Government", "Utility"]
+                }
+            }
+        };
+        var syncWidget = new SyncWidget(params);
+        syncWidget.open();
+
+        syncWidget.$on("success", function (credential) {
+            console.log(credential, "credencial")
+            // do something on success
+        });
+
+    </script>
+
+    @*<script src="~/Scripts/views/Account/Index.js" type="text/javascript"></script>
+        <script>
+            var urls = {
+                urlSelect: "@Url.Action("SelectAccount")",
+                urlCreate: "@Url.Action("CreateAccountModal")",
+                urlCredential: "@Url.Action("CreateCredential")",
+                urlSelectLastAccount: "@Url.Action("SelectLastAccount")",
+                urlSetAccount: "@Url.Action("SetAccount")",
+            }
+        </script>*@
+}
