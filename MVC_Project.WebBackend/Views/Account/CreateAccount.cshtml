@@ -18,8 +18,11 @@
                         <div class="form-horizontal">
                             @Html.ValidationSummary(true)
                             <div class="form-group row">
-                                @Html.LabelFor(model => model.RFC, new { @class = "col-form-label col-md-2 control-label" })
-                                <div class="col-md-8">
+                                @*@Html.LabelFor(model => model.RFC, new { @class = "col-form-label col-md-2 control-label" })*@
+                                <label class="col-form-label col-md-2 control-label">
+                                    RFC <abbr title="RFC"><i class="fa fa-question-circle"></i></abbr>
+                                </label>
+                                <div class="col-md-8">                                    
                                     @Html.TextBoxFor(model => model.RFC, new { @class = "form-control", @autocomplete = "off" })
                                     @Html.ValidationMessageFor(model => model.RFC)
                                     @*<input id="rfc" name="rfc" type="text" class="form-control required" aria-required="true" autocomplete="off" onkeyup="javascript:this.value=this.value.toUpperCase();">*@
@@ -28,15 +31,18 @@
                             </div>
 
                             <div class="form-group row">
-                                @Html.LabelFor(model => model.CIEC, new { @class = "col-form-label col-md-2 control-label" })
-                                <div class="col-md-8">
+                                <label class="col-form-label col-md-2 control-label">
+                                    CIEC <abbr title="Esta es la contraseña o CIEC fortalecida"><i class="fa fa-question-circle"></i></abbr>
+                                </label>
+                                @*@Html.LabelFor(model => model.CIEC, new { @class = "col-form-label col-md-2 control-label" })*@
+                                <div class="col-md-8">                                    
                                     <div class="input-group">
                                         <div class="input-group-append viewpass">
                                             <span class="input-group-text" title="Ver contraseña">
                                                 <i class="fa fa-eye"></i>
                                             </span>
                                         </div>
-                                        @Html.PasswordFor(model => model.CIEC, new { @class = "form-control viewpass-input", @autocomplete = "off", @minlength = "8",  @maxlength = "20" })
+                                        @Html.PasswordFor(model => model.CIEC, new { @class = "form-control viewpass-input", @autocomplete = "off", @minlength = "8", @maxlength = "20" })
                                         @Html.ValidationMessageFor(model => model.CIEC)
                                         @*<input id="password" name="password" type="password" class="form-control required viewpass-input" data-view="false" aria-required="true" minlength="8" maxlength="20">*@
                                     </div>
