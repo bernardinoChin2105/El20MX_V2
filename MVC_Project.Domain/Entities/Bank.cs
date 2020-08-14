@@ -6,25 +6,24 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Entities
 {
-    public class Account : IEntity
+    public class Bank
     {
         public virtual Int64 id { get; set; }
         public virtual Guid uuid { get; set; }
+
         public virtual string name { get; set; }
-        public virtual string rfc { get; set; }
+        public virtual string providerId { get; set; }
+
         public virtual DateTime createdAt { get; set; }
         public virtual DateTime modifiedAt { get; set; }
         public virtual string status { get; set; }
-        public virtual string avatar { get; set; }
-        
-        public virtual IList<Membership> memberships { get; set; }
-        public virtual IList<BankCredential> bankCredentials { get; set; }
+
+        public virtual IList<BankCredential> bankCredential { get; set; }
         public virtual IList<BankAccount> bankAccounts { get; set; }
 
-        public Account()
+        public Bank()
         {
-            memberships = new List<Membership>();
-            bankCredentials = new List<BankCredential>();
+            bankCredential = new List<BankCredential>();
             bankAccounts = new List<BankAccount>();
         }
     }
