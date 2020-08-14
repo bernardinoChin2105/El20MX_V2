@@ -14,6 +14,8 @@ using System.Web;
 using System.Web.Mvc;
 using MVC_Project.WebBackend.AuthManagement;
 using MVC_Project.FlashMessages;
+using LogHubSDK.Models;
+using Newtonsoft.Json;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -39,23 +41,49 @@ namespace MVC_Project.WebBackend.Controllers
         [Authorize]
         public ActionResult Index()
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             UserViewModel model = new UserViewModel
             {
                 UserList = new UserData(),
                 Status = FilterStatusEnum.ALL.Id,
                 Statuses = FilterStatusEnum.GetSelectListItems()
             };
+
+            LogUtil.AddEntry(
+               "Usuario: " + JsonConvert.SerializeObject(model),
+               ENivelLog.Info,
+               userAuth.Id,
+               userAuth.Email,
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+            );
+
             return View(model);
         }
         [Authorize]
         public ActionResult Import()
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             UserImportViewModel model = new UserImportViewModel();
+            LogUtil.AddEntry(
+               "Importar usuarios: " + JsonConvert.SerializeObject(model),
+               ENivelLog.Info,
+               userAuth.Id,
+               userAuth.Email,
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+            );
             return View("Import", model);
         }
+
         [HttpPost, Authorize, ValidateAntiForgeryToken]
         public ActionResult Import(UserImportViewModel model)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             if (ModelState.IsValid)
             {
                 ResultExcelImporter<UserImport> result = ExcelImporterMapper.ReadExcel<UserImport>(new ExcelFileInputData
@@ -84,22 +112,34 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         userRowImportResultViewModel.Messages = userRowImportResultViewModel.Messages.Concat(rowResult.ErrorMessages).ToList();
                     }
-                    if(!rowResult.HasError && !hasCustomError)
+                    if (!rowResult.HasError && !hasCustomError)
                     {
-                        
+
                         userRowImportResultViewModel.Messages.Add("Usuario registrado satisfactoriamente");
                     }
                 }
             }
+
+            LogUtil.AddEntry(
+               "Importar usuarios: " + JsonConvert.SerializeObject(model),
+               ENivelLog.Info,
+               userAuth.Id,
+               userAuth.Email,
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+            );
+
             return View("Import", model);
         }
 
         [HttpGet, AllowAnonymous]
         public JsonResult GetAllByFilter(JQueryDataTableParams param, string filtros)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
-                var userAuth = Authenticator.AuthenticatedUser;
                 NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
                 IList<UserData> dataResponse = new List<UserData>();
                 int totalDisplay = 0;
@@ -116,12 +156,24 @@ namespace MVC_Project.WebBackend.Controllers
                         userData.RoleName = membership.role.name;
                         userData.CreatedAt = user.createdAt;
                         userData.UpdatedAt = user.modifiedAt;
-                        userData.Status = ((SystemStatus) Enum.Parse(typeof(SystemStatus), membership.status)).GetDisplayName();
+                        userData.Status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), membership.status)).GetDisplayName();
                         userData.Uuid = user.uuid.ToString();
                         userData.LastLoginAt = user.lastLoginAt;
                         dataResponse.Add(userData);
                     }
                 }
+
+                LogUtil.AddEntry(
+                   "Lista de clientes totalDisplay: " + totalDisplay + ", total: " + dataResponse.Count(),
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return Json(new
                 {
                     success = true,
@@ -133,6 +185,16 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
                 return new JsonResult
                 {
                     Data = new { success = false, message = ex.Message },
@@ -145,6 +207,7 @@ namespace MVC_Project.WebBackend.Controllers
         [Authorize]
         public ActionResult Create()
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
                 var roles = PopulateRoles();
@@ -154,10 +217,32 @@ namespace MVC_Project.WebBackend.Controllers
                     return RedirectToAction("Index");
                 }
                 var userCreateViewModel = new UserCreateViewModel { Roles = PopulateRoles() };
+
+                LogUtil.AddEntry(
+                   "Crear usuario: " + JsonConvert.SerializeObject(userCreateViewModel),
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return View(userCreateViewModel);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Index");
             }
@@ -165,6 +250,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         private IEnumerable<FeatureViewModel> PopulateFeatures(int roleId)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             var role = _roleService.FindBy(x => x.id == roleId).FirstOrDefault();
             var features = _featureService.GetAll();
             var featuresViewModel = new List<FeatureViewModel>();
@@ -194,6 +280,17 @@ namespace MVC_Project.WebBackend.Controllers
                 });
             }
 
+            LogUtil.AddEntry(
+               "Caracteristicas: " + JsonConvert.SerializeObject(featuresViewModel),
+               ENivelLog.Info,
+               userAuth.Id,
+               userAuth.Email,
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+            );
+
             return featuresViewModel;
         }
 
@@ -207,16 +304,27 @@ namespace MVC_Project.WebBackend.Controllers
                 Value = role.id.ToString(),
                 Text = role.name
             }).ToList();
+
+            LogUtil.AddEntry(
+               "Roles populares: " + JsonConvert.SerializeObject(rolesList),
+               ENivelLog.Info,
+               userAuth.Id,
+               userAuth.Email,
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+            );
+
             return rolesList.ToList();
         }
 
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public ActionResult Create(UserCreateViewModel userCreateViewModel)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
-                var userAuth = Authenticator.AuthenticatedUser;
-
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
 
@@ -243,7 +351,7 @@ namespace MVC_Project.WebBackend.Controllers
                         createdAt = todayDate,
                         modifiedAt = todayDate,
                         status = SystemStatus.UNCONFIRMED.ToString(),
-                        
+
                         profile = new Profile
                         {
                             uuid = Guid.NewGuid(),
@@ -277,15 +385,37 @@ namespace MVC_Project.WebBackend.Controllers
 
                 SendWelcomeMail(user, userAuth.Account);
 
-                if(newUser)
+                if (newUser)
                     MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
                 else
                     MensajeFlashHandler.RegistrarMensaje("Usuario agregado a la cuenta", TiposMensaje.Success);
+
+                LogUtil.AddEntry(
+                   "Crea nuevo usuario: " + JsonConvert.SerializeObject(user),
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
 
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 userCreateViewModel.Roles = PopulateRoles();
                 return View(userCreateViewModel);
@@ -309,13 +439,13 @@ namespace MVC_Project.WebBackend.Controllers
         [Authorize]
         public ActionResult Edit(string uuid)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
                 User user = _userService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
                 if (user == null)
                     throw new Exception("El usuario no se encontró en la base de datos");
 
-                var userAuth = Authenticator.AuthenticatedUser;
                 var membership = user.memberships.FirstOrDefault(x => x.account.id == userAuth.Account.Id);
 
                 UserEditViewModel model = new UserEditViewModel();
@@ -335,10 +465,32 @@ namespace MVC_Project.WebBackend.Controllers
                 }
                 model.Role = membership.role.id;
                 model.Status = user.status;
+
+                LogUtil.AddEntry(
+                   "Editar Cliente: " + JsonConvert.SerializeObject(model),
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return View(model);
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Index");
             }
@@ -347,19 +499,17 @@ namespace MVC_Project.WebBackend.Controllers
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public ActionResult Edit(UserEditViewModel model, FormCollection collection)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
 
-                var userAuth = Authenticator.AuthenticatedUser;
                 User user = _userService.FirstOrDefault(x => x.uuid == Guid.Parse(model.Uuid));
-                
+
                 if (_userService.FindBy(x => x.name == model.Email && x.id != user.id).Any())
                     throw new Exception("El email proporcionado se encuentra registrado en otro usuario");
-                
 
-                
                 user.profile.firstName = model.Name;
                 user.profile.lastName = model.Apellidos;
                 user.profile.phoneNumber = model.MobileNumber;
@@ -376,16 +526,39 @@ namespace MVC_Project.WebBackend.Controllers
                     SendWelcomeMail(user, userAuth.Account);
                 }
                 _userService.Update(user);
+
+                LogUtil.AddEntry(
+                   "Editar Usuario: " + JsonConvert.SerializeObject(user),
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 model.Roles = PopulateRoles();
                 return View(model);
             }
         }
+
         [HttpGet]
         public ActionResult EditPassword(string uuid)
         {
@@ -395,39 +568,101 @@ namespace MVC_Project.WebBackend.Controllers
                 string message = Resources.ErrorMessages.UserNotAvailable;
                 if (Request.IsAjaxRequest())
                 {
+                    LogUtil.AddEntry(
+                       "Editar password: " + JsonConvert.SerializeObject(model),
+                       ENivelLog.Info,
+                       0,
+                       "",
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
+                    );
                     return JsonStatusGone(message);
                 }
                 else
                 {
+                    LogUtil.AddEntry(
+                       "Editar password: " + JsonConvert.SerializeObject(model),
+                       ENivelLog.Info,
+                       0,
+                       "",
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
+                    );
                     FlashMessages.MensajeFlashHandler.RegistrarMensaje(message, FlashMessages.TiposMensaje.Error);
                     return RedirectToAction("Index");
                 }
             }
-            UserChangePasswordViewModel model = new UserChangePasswordViewModel {
+            UserChangePasswordViewModel model = new UserChangePasswordViewModel
+            {
                 Uuid = uuid,
                 Password = null,
                 ConfirmPassword = null
             };
             if (Request.IsAjaxRequest())
             {
+                LogUtil.AddEntry(
+                   "Editar password: " + JsonConvert.SerializeObject(model),
+                   ENivelLog.Info,
+                   0,
+                   "",
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
+                );
                 return PartialView(model);
             }
 
+            LogUtil.AddEntry(
+               "Editar password: " + JsonConvert.SerializeObject(model),
+               ENivelLog.Info,
+               0,
+               "",
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
+            );
             return View(model);
         }
+
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult EditPassword(UserChangePasswordViewModel model)
         {
             var user = _userService.FindBy(e => e.uuid == Guid.Parse(model.Uuid)).FirstOrDefault();
-            if(user == null)
+            if (user == null)
             {
                 string message = Resources.ErrorMessages.UserNotAvailable;
                 if (Request.IsAjaxRequest())
                 {
+                    LogUtil.AddEntry(
+                       "Editar password: " + JsonConvert.SerializeObject(model),
+                       ENivelLog.Info,
+                       0,
+                       "",
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
+                    );
                     return JsonStatusGone(message);
                 }
                 else
                 {
+                    LogUtil.AddEntry(
+                        "Editar password: " + JsonConvert.SerializeObject(model),
+                        ENivelLog.Info,
+                        0,
+                        "",
+                        EOperacionLog.ACCESS,
+                        string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
+                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                        string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
+                     );
                     FlashMessages.MensajeFlashHandler.RegistrarMensaje(message, FlashMessages.TiposMensaje.Error);
                     return RedirectToAction("Index");
                 }
@@ -442,10 +677,22 @@ namespace MVC_Project.WebBackend.Controllers
                 string successMessage = Resources.Messages.UserPasswordUpdated;
                 if (Request.IsAjaxRequest())
                 {
-                    return Json(new {
+                    return Json(new
+                    {
                         Message = successMessage
                     });
                 }
+
+                LogUtil.AddEntry(
+                   "Editar password: " + JsonConvert.SerializeObject(model),
+                   ENivelLog.Info,
+                   0,
+                   "",
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
+                );
                 FlashMessages.MensajeFlashHandler.RegistrarMensaje(successMessage, FlashMessages.TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
@@ -459,15 +706,25 @@ namespace MVC_Project.WebBackend.Controllers
                     .Select(k => new { propertyName = k, errorMessage = ModelState[k].Errors[0].ErrorMessage })
                 });
             }
+            LogUtil.AddEntry(
+               "Editar password: " + JsonConvert.SerializeObject(model),
+               ENivelLog.Info,
+               0,
+               "",
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
+            );
             return View(model);
         }
 
         [HttpPost, Authorize]
         public ActionResult ChangeStatus(string uuid, FormCollection collection)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
-                var userAuth = Authenticator.AuthenticatedUser;
                 var user = _userService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
 
                 if (user != null)
@@ -481,13 +738,43 @@ namespace MVC_Project.WebBackend.Controllers
                             membership.status = SystemStatus.ACTIVE.ToString();
 
                         _membershipService.Update(membership);
+                        LogUtil.AddEntry(
+                           "Cambio de estatus: " + JsonConvert.SerializeObject(membership),
+                           ENivelLog.Info,
+                           userAuth.Id,
+                           userAuth.Email,
+                           EOperacionLog.ACCESS,
+                           string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                           string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                        );
                         return Json(true, JsonRequestBehavior.AllowGet);
                     }
                 }
+                LogUtil.AddEntry(
+                   "Cambio de estatus no exitoso " + uuid,
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
                 return Json(false, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
                 return Json(false, JsonRequestBehavior.AllowGet);
             }
         }
@@ -495,9 +782,9 @@ namespace MVC_Project.WebBackend.Controllers
         [HttpPost, Authorize]
         public ActionResult ResendInvite(string uuid, FormCollection collection)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
-                var userAuth = Authenticator.AuthenticatedUser;
                 var user = _userService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
                 if (user != null)
                 {
@@ -505,13 +792,44 @@ namespace MVC_Project.WebBackend.Controllers
                     if (membership != null && membership.status == SystemStatus.UNCONFIRMED.ToString())
                     {
                         SendWelcomeMail(user, userAuth.Account);
+                        LogUtil.AddEntry(
+                           "Se reenvio la invitación al usuario: " + uuid,
+                           ENivelLog.Info,
+                           userAuth.Id,
+                           userAuth.Email,
+                           EOperacionLog.ACCESS,
+                           string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                           string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                        );
+
                         return Json(true, JsonRequestBehavior.AllowGet);
                     }
                 }
+                LogUtil.AddEntry(
+                   "No se puso reenviar la invitación: " + JsonConvert.SerializeObject(uuid),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
                 return Json(false, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
                 return Json(false, JsonRequestBehavior.AllowGet);
             }
         }

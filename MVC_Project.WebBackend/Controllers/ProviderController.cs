@@ -1,4 +1,5 @@
 ﻿using ExcelDataReader;
+using LogHubSDK.Models;
 using MVC_Project.BackendWeb.Attributes;
 using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Model;
@@ -7,6 +8,7 @@ using MVC_Project.FlashMessages;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
 using MVC_Project.WebBackend.Models;
+using Newtonsoft.Json;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System;
@@ -25,14 +27,12 @@ namespace MVC_Project.WebBackend.Controllers
         private IAccountService _accountService;
         private IProviderService _providerService;
         private IStateService _stateService;
-        //private IProviderContactService _providerContactService;
 
         public ProviderController(IAccountService accountService, IProviderService providerService, IStateService stateService)
         {
             _accountService = accountService;
             _providerService = providerService;
             _stateService = stateService;
-            //_customerContactService = customerContactService;
         }
 
         // GET: Provider
@@ -45,6 +45,7 @@ namespace MVC_Project.WebBackend.Controllers
         [AllowAnonymous]
         public ActionResult Create()
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
                 var createProvider = new ProviderViewModel();
@@ -60,11 +61,33 @@ namespace MVC_Project.WebBackend.Controllers
 
                 createProvider.ListRegimen = new SelectList(regimenList);
                 createProvider.ListState = new SelectList(stateList);
+
+                LogUtil.AddEntry(
+                   "Crea nuevo proveedor: " + JsonConvert.SerializeObject(createProvider),
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return View(createProvider);
             }
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                LogUtil.AddEntry(
+                  "Se encontro un error: " + ex.Message.ToString(),
+                  ENivelLog.Error,
+                  userAuth.Id,
+                  userAuth.Email,
+                  EOperacionLog.ACCESS,
+                  string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                  ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                  string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+               );
                 return RedirectToAction("Index");
             }
             // return View();
@@ -73,13 +96,12 @@ namespace MVC_Project.WebBackend.Controllers
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public ActionResult Create(ProviderViewModel model)
         {
-            //MensajeFlashHandler.RegistrarMensaje("¡Registro de Cliente realizado!", TiposMensaje.Success);
+            var authUser = Authenticator.AuthenticatedUser;
             try
             {
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
 
-                var authUser = Authenticator.AuthenticatedUser;
 
                 if (_providerService.FindBy(x => x.rfc == model.RFC && x.account.id == authUser.Account.Id).Any())
                     throw new Exception("Ya existe un Proveedor con el RFC proporcionado");
@@ -169,6 +191,16 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 _providerService.Create(provider);
+                LogUtil.AddEntry(
+                    "Crea nuevo proveedor: " + JsonConvert.SerializeObject(provider),
+                    ENivelLog.Info,
+                    authUser.Id,
+                    authUser.Email,
+                    EOperacionLog.ACCESS,
+                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
                 MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
@@ -187,16 +219,28 @@ namespace MVC_Project.WebBackend.Controllers
 
                 model.ListRegimen = new SelectList(regimenList);
                 model.ListState = new SelectList(stateList);
+
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return View(model);
             }
         }
 
         public ActionResult Edit(string uuid)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
                 ProviderViewModel model = new ProviderViewModel();
-                var userAuth = Authenticator.AuthenticatedUser;
 
 
                 var provider = _providerService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid) && x.account.id == userAuth.Account.Id);
@@ -259,10 +303,31 @@ namespace MVC_Project.WebBackend.Controllers
                     model.Phones = phones;
                 }
 
+                LogUtil.AddEntry(
+                   "Editar Proveedor: " + JsonConvert.SerializeObject(model),
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return View(model);
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                  "Se encontro un error: " + ex.Message.ToString(),
+                  ENivelLog.Error,
+                  userAuth.Id,
+                  userAuth.Email,
+                  EOperacionLog.ACCESS,
+                  string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                  ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                  string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+               );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Index");
             }
@@ -397,6 +462,18 @@ namespace MVC_Project.WebBackend.Controllers
                 #endregion
 
                 _providerService.Update(providerData);
+
+                LogUtil.AddEntry(
+                   "Editar cliente: " + JsonConvert.SerializeObject(providerData),
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
@@ -415,6 +492,17 @@ namespace MVC_Project.WebBackend.Controllers
 
                 model.ListRegimen = new SelectList(regimenList);
                 model.ListState = new SelectList(stateList);
+
+                LogUtil.AddEntry(
+                  "Se encontro un error: " + ex.Message.ToString(),
+                  ENivelLog.Error,
+                  userAuth.Id,
+                  userAuth.Email,
+                  EOperacionLog.ACCESS,
+                  string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                  ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                  string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+               );
                 return View(model);
             }
         }
@@ -422,6 +510,7 @@ namespace MVC_Project.WebBackend.Controllers
         [HttpGet, AllowAnonymous]
         public JsonResult GetProviders(JQueryDataTableParams param, string filtros, bool first)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
                 int totalDisplay = 0;
@@ -429,7 +518,6 @@ namespace MVC_Project.WebBackend.Controllers
                 var listResponse = new List<ListProviders>();
                 if (!first)
                 {
-                    var userAuth = Authenticator.AuthenticatedUser;
                     NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
                     string rfc = filtersValues.Get("RFC").Trim();
                     string businessName = filtersValues.Get("BusinessName").Trim();
@@ -453,6 +541,17 @@ namespace MVC_Project.WebBackend.Controllers
                     }
                 }
 
+                LogUtil.AddEntry(
+                   "Lista de clientes totaldisplay: " + totalDisplay + ", total: " + total,
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return Json(new
                 {
                     success = true,
@@ -464,6 +563,17 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return new JsonResult
                 {
                     Data =
@@ -508,9 +618,9 @@ namespace MVC_Project.WebBackend.Controllers
         [HttpPost, AllowAnonymous, FileDownload]
         public FileResult ExportListProvider(string filtros)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
-                var userAuth = Authenticator.AuthenticatedUser;
                 NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
                 string rfc = filtersValues.Get("RFC").Trim();
                 string businessName = filtersValues.Get("BusinessName").Trim();
@@ -624,6 +734,17 @@ namespace MVC_Project.WebBackend.Controllers
                         rowIndex++;
                     }
 
+                    LogUtil.AddEntry(
+                      "Descarga de proveedores filtros: " + filtros,
+                      ENivelLog.Info,
+                      userAuth.Id,
+                      userAuth.Email,
+                      EOperacionLog.ACCESS,
+                      string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                      ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                      string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                   );
+
                     campo.Cells[campo.Dimension.Address].AutoFitColumns();
                     byte[] bin = pck.GetAsByteArray();
                     return File(bin, "application/vnd.ms-excel", "ListaProveedores_(" + DateTime.Now.ToString("G") + ").xlsx");
@@ -631,6 +752,16 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 throw;
             }
@@ -642,9 +773,9 @@ namespace MVC_Project.WebBackend.Controllers
             List<object> Errores = new List<object>();
             List<ExportListProviders> datosErroneos = new List<ExportListProviders>();
             List<ExportListProviders> datos = new List<ExportListProviders>();
+            var authUser = Authenticator.AuthenticatedUser;
             try
             {
-                var authUser = Authenticator.AuthenticatedUser;
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
                 if (Excel != null && Excel.ContentLength > 0)
@@ -842,7 +973,7 @@ namespace MVC_Project.WebBackend.Controllers
                         status = SystemStatus.ACTIVE.ToString(),
                         deliveryAddress = x.deliveryAddress,
                         providerContacts = new List<ProviderContact>
-                        {                            
+                        {
                             x.email != ""? new ProviderContact
                             {            
                                 //provider = pro,
@@ -863,15 +994,28 @@ namespace MVC_Project.WebBackend.Controllers
                         }
                     }).ToList();
 
-                    proveedores = proveedores.Select(x => {
+                    proveedores = proveedores.Select(x =>
+                    {
                         x.providerContacts = x.providerContacts.Where(b => b != null)
-                        .Select(b => { b.provider = x; return b; }).ToList();                        
-                        return x; }).ToList();                                
+                        .Select(b => { b.provider = x; return b; }).ToList();
+                        return x;
+                    }).ToList();
 
                     if (proveedores.Count() > 0)
                     {
                         _providerService.Create(proveedores);
                         //LogHub de bitacora
+                        LogUtil.AddEntry(
+                          "Carga de archivo excel de proveedores ¡" + proveedores.Count() + " Registros guardados exitosamente!",
+                          ENivelLog.Info,
+                          authUser.Id,
+                          authUser.Email,
+                          EOperacionLog.ACCESS,
+                          string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                          ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                          string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                       );
+
                         return Json(new
                         {
                             Success = true,
@@ -881,14 +1025,44 @@ namespace MVC_Project.WebBackend.Controllers
                         }, JsonRequestBehavior.AllowGet);
                     }
 
+                    LogUtil.AddEntry(
+                       "¡Intentelo nuevamente!",
+                       ENivelLog.Error,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
                     return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente!", Tipo = 0 }, JsonRequestBehavior.AllowGet);
                 }
 
+                LogUtil.AddEntry(
+                   "¡Intentelo nuevamente! Archivo no válido",
+                   ENivelLog.Error,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
                 return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente! Archivo no válido", Tipo = 0 }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception Error)
             {
-                return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente! "+ Error.Message.ToString(), Tipo = 0, Error = Error.Message.ToString() }, JsonRequestBehavior.AllowGet);
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + Error.Message.ToString(),
+                   ENivelLog.Error,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+                return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente! " + Error.Message.ToString(), Tipo = 0, Error = Error.Message.ToString() }, JsonRequestBehavior.AllowGet);
             }
         }
     }

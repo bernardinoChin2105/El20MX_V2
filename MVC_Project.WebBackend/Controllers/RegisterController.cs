@@ -1,10 +1,12 @@
-﻿using MVC_Project.BackendWeb.Models;
+﻿using LogHubSDK.Models;
+using MVC_Project.BackendWeb.Models;
 using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
 //using MVC_Project.FlashMessages;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -65,7 +67,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (user != null)
                 {
-                    if(user.status == SystemStatus.UNCONFIRMED.ToString())
+                    if (user.status == SystemStatus.UNCONFIRMED.ToString())
                         throw new Exception("El ususario tiene una invitación pendiente por aceptar");
                     else
                         throw new Exception("Ya existe un usuario con el email proporcionado");
@@ -140,6 +142,18 @@ namespace MVC_Project.WebBackend.Controllers
                     NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_WELCOME_NETWORK);
 
                     Session["modelNW"] = LoginModel;
+
+                    LogUtil.AddEntry(
+                       "Nuevo usuario registrado por red social: " + JsonConvert.SerializeObject(model),
+                       ENivelLog.Info,
+                       user.id,
+                       user.name,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow())
+                    );
+
                     return RedirectToAction("LoginAuth", "Auth");
                     //return RedirectToAction("Index", "Account", );
                 }
@@ -159,6 +173,16 @@ namespace MVC_Project.WebBackend.Controllers
 
                     MensajeFlashHandler.RegistrarMensaje("Se ha enviado un email de confirmación", TiposMensaje.Success);
 
+                    LogUtil.AddEntry(
+                       "Nuevo usuario registrado: " + JsonConvert.SerializeObject(model),
+                       ENivelLog.Info,
+                       user.id,
+                       user.name,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow())
+                    );
                     return RedirectToAction("Login", "Auth");
                 }
 
@@ -166,6 +190,16 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   0,
+                   "",
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
+                );
                 return View("Index", model);
             }
         }
@@ -194,15 +228,36 @@ namespace MVC_Project.WebBackend.Controllers
                 var user = _userService.FindBy(e => e.uuid == id).First();
                 if (user == null)
                     throw new Exception("Usuario no encontrado en el sistema");
-                
+
                 user.status = SystemStatus.ACTIVE.ToString();
                 _userService.Update(user);
 
+                LogUtil.AddEntry(
+                   "Verificar Usuario con el token " + token,
+                   ENivelLog.Info,
+                   user.id,
+                   user.name,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow())
+                );
+
                 MensajeFlashHandler.RegistrarMensaje("¡Tu cuenta ha sido activada!", TiposMensaje.Success);
-                return RedirectToAction("Login","Auth");
+                return RedirectToAction("Login", "Auth");
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   0,
+                   "",
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
+                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Login", "Auth");
             }
@@ -249,7 +304,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (membership == null)
                     throw new Exception("La suscripcion no se encontró en el sistema");
-                
+
                 if (user.status == SystemStatus.ACTIVE.ToString())
                 {
                     membership.status = SystemStatus.ACTIVE.ToString();
@@ -263,10 +318,32 @@ namespace MVC_Project.WebBackend.Controllers
                     Name = user.name,
                     AcccountUuid = account.uuid
                 };
+
+                LogUtil.AddEntry(
+                   "Verificar nuevo usuario " + token,
+                   ENivelLog.Info,
+                   user.id,
+                   user.name,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow())
+                );
+
                 return View(userViewModel);
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   0,
+                   "",
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
+                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Login", "Auth");
             }
@@ -292,7 +369,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (membership == null)
                     throw new Exception("La suscripcion no se encontró en el sistema");
-                
+
                 membership.status = SystemStatus.ACTIVE.ToString();
                 _membershipService.Update(membership);
 
@@ -304,11 +381,32 @@ namespace MVC_Project.WebBackend.Controllers
                 user.status = SystemStatus.ACTIVE.ToString();
                 _userService.Update(user);
 
+                LogUtil.AddEntry(
+                   "Verificar nuevo usuario " + JsonConvert.SerializeObject(model),
+                   ENivelLog.Info,
+                   user.id,
+                   user.name,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow())
+                );
+
                 MensajeFlashHandler.RegistrarMensaje("Usuario activado", TiposMensaje.Success);
                 return RedirectToAction("Login", "Auth");
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   0,
+                   "",
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
+                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return View("NewUserVerify", model);
             }

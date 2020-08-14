@@ -195,4 +195,7 @@
   <data name="MODULE_PROVIDERS" xml:space="preserve">
     <value>Proveedores</value>
   </data>
+  <data name="MODULE_BANKS" xml:space="preserve">
+    <value>Bancos</value>
+  </data>
 </root>
