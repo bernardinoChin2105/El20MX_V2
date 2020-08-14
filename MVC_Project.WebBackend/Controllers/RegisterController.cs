@@ -68,7 +68,7 @@ namespace MVC_Project.WebBackend.Controllers
                 if (user != null)
                 {
                     if (user.status == SystemStatus.UNCONFIRMED.ToString())
-                        throw new Exception("El ususario tiene una invitación pendiente por aceptar");
+                        throw new Exception("El usuario tiene una invitación pendiente por aceptar");
                     else
                         throw new Exception("Ya existe un usuario con el email proporcionado");
                 }
@@ -160,7 +160,6 @@ namespace MVC_Project.WebBackend.Controllers
                 else
                 {
                     //Enviar notificación para activar el correo si no es por red social
-
                     string token = (user.uuid + "@");
                     token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
                     //user.token = token;
@@ -309,6 +308,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     membership.status = SystemStatus.ACTIVE.ToString();
                     _membershipService.Update(membership);
+                    MensajeFlashHandler.RegistrarMensaje("El usuario a sido agregado a la cuenta", TiposMensaje.Success);
                     return RedirectToAction("Login", "Auth");
                 }
 
@@ -379,6 +379,7 @@ namespace MVC_Project.WebBackend.Controllers
                 DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
                 user.passwordExpiration = passwordExpiration;
                 user.status = SystemStatus.ACTIVE.ToString();
+                user.agreeTerms = model.AgreeTerms;
                 _userService.Update(user);
 
                 LogUtil.AddEntry(

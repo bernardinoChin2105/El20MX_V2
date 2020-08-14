@@ -97,6 +97,7 @@
     @Scripts.Render("~/plugins/dataTables")
     @Scripts.Render("~/plugins/fullCalendar")
     @Scripts.Render("~/plugins/validate")
+    @Scripts.Render("~/custom/Utils")
     <script type="text/javascript" src="https://www.paybook.com/sync/widget/v2/widget.js"></script>
     <script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>
     <!-- Custom and plugin javascript -->
@@ -193,7 +194,7 @@
             creditcard: "Ingrese un número de tarjeta válido.",
             equalTo: "Ingrese el mismo valor nuevamente.",
             accept: "Ingrese un valor con una extensión válida.",
-            maxlength: jQuery.validator.format("Ingrese a lo mas {0} caracteres."),
+            maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres."),
             minlength: jQuery.validator.format("Ingrese a lo menos {0} caracteres."),
             rangelength: jQuery.validator.format("Ingrese un valor entre {0} y {1} caracteres de longitud."),
             range: jQuery.validator.format("Ingrese un valor entre {0} y {1}."),

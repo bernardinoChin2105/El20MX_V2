@@ -35,19 +35,19 @@
                             <div class="col-12 col-sm-4">
                                 <div class="form-group">
                                     @Html.LabelFor(m => m.RFC, new { @class = "" })
-                                    @Html.TextBoxFor(m => m.RFC, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1" })
+                                    @Html.TextBoxFor(m => m.RFC, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "13" })
                                 </div>
                             </div>
                             <div class="col-12 col-sm-4">
                                 <div class="form-group">
                                     @Html.LabelFor(m => m.BusinessName, new { @class = "" })
-                                    @Html.TextBoxFor(m => m.BusinessName, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1" })
+                                    @Html.TextBoxFor(m => m.BusinessName, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "100" })
                                 </div>
                             </div>
                             <div class="col-12 col-sm-4">
                                 <div class="form-group">
                                     @Html.LabelFor(m => m.Email, new { @class = "" })
-                                    @Html.TextBoxFor(m => m.Email, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1" })
+                                    @Html.TextBoxFor(m => m.Email, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "100" })
                                 </div>
                             </div>
                             <div class="col-12 offset-8 col-sm-4 col-lg-4">
@@ -151,8 +151,7 @@
         </div>
     </div>
 </div>
-@section scripts{
-    @Scripts.Render("~/custom/Utils")
+@section scripts{    
     @Scripts.Render("~/plugins/dataTables")
     @Scripts.Render("~/plugins/daterangepicker")
     @Scripts.Render("~/plugins/jqueryFileDownload.js")

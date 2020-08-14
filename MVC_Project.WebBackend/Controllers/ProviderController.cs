@@ -100,7 +100,7 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 if (!ModelState.IsValid)
-                    throw new Exception("El modelo de entrada no es válido");
+                    throw new Exception("El registro de proveedor no es válido");
 
 
                 if (_providerService.FindBy(x => x.rfc == model.RFC && x.account.id == authUser.Account.Id).Any())
@@ -342,7 +342,7 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 if (!ModelState.IsValid)
-                    throw new Exception("El modelo de entrada no es válido");
+                    throw new Exception("El registro de proveedor no es válido");
 
                 var authUser = Authenticator.AuthenticatedUser;
                 DateTime todayDate = DateUtil.GetDateTimeNow();
@@ -793,7 +793,7 @@ namespace MVC_Project.WebBackend.Controllers
                     }
                     else
                     {
-                        throw new Exception("Favor de seleccionar un formato de Excel permitido.");
+                        throw new Exception("Favor de seleccionar un formato de Excel permitido (\".xlsx\", \".xls\").");
                     }
 
                     //reader.IsFirstRowAsColumnNames = true;

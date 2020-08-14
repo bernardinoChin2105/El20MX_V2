@@ -92,6 +92,10 @@
 
             $('.chosen-select').chosen({ width: '100%', "disable_search": true, no_results_text: "Sin resultados para: " });
 
+            if ('@Model.RoleCode' == '@SystemRoles.ACCOUNT_OWNER.ToString()') {
+                $('#Role').prop('disabled', true).trigger("chosen:updated");
+            }
+
             $.validator.addMethod("PasswordTrue",
                 function (value, element) {
                     return value.match(/^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/);
@@ -118,6 +122,7 @@
             if (!$('#EditForm').valid()) {
                 return;
             }
+            $('#Role').prop('disabled', false).trigger("chosen:updated");
             $('#EditForm').submit();
         }
     </script>

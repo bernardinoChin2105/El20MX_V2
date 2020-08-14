@@ -55,7 +55,7 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();
         }).DataTable({
-            language: { url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json' },
+            language: El20Utils.lenguajeTabla({}),
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": this.baseUrl,

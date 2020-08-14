@@ -18,6 +18,10 @@
         .hide {
             display: none;
         }
+
+        .custom-file-label::after {
+            content: "Buscar"
+        }
     </style>
 }
 
@@ -36,19 +40,19 @@
                             <div class="col-12 col-sm-4">
                                 <div class="form-group">
                                     @Html.LabelFor(m => m.RFC, new { @class = "" })
-                                    @Html.TextBoxFor(m => m.RFC, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1" })
+                                    @Html.TextBoxFor(m => m.RFC, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "13" })
                                 </div>
                             </div>
                             <div class="col-12 col-sm-4">
                                 <div class="form-group">
                                     @Html.LabelFor(m => m.BusinessName, new { @class = "" })
-                                    @Html.TextBoxFor(m => m.BusinessName, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1" })
+                                    @Html.TextBoxFor(m => m.BusinessName, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "100" })
                                 </div>
                             </div>
                             <div class="col-12 col-sm-4">
                                 <div class="form-group">
                                     @Html.LabelFor(m => m.Email, new { @class = "" })
-                                    @Html.TextBoxFor(m => m.Email, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1" })
+                                    @Html.TextBoxFor(m => m.Email, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "100" })
                                 </div>
                             </div>
                             <div class="col-12 offset-8 col-sm-4 col-lg-4">
@@ -88,7 +92,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <div class="modal-title">
-                        <h3>Selecciona la cuenta que quieres usar</h3>
+                        <h3>Importar clientes</h3>
                     </div>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                         <span aria-hidden="true">&times;</span>
@@ -100,7 +104,7 @@
                         <div class="col-md-12">
                             <h4>El excel debe contener los siguientes columnas</h4>
                             <ul>
-                                <li>Id (Celda sin contenido)</li>
+                                <li>No. (Celda sin contenido)</li>
                                 <li>Nombre(s) (*Obligatorio)</li>
                                 <li>Apellido(s) (*Obligatorio)</li>
                                 <li>RFC (*Obligatorio)</li>
@@ -118,7 +122,7 @@
                                 <li>Email</li>
                                 <li>Teléfono</li>
                                 <li>Fecha Creación (Celda sin contenido)</li>
-                                <li>uuid Cuenta (Celda sin contenido)</li>
+                                <li>RFC Cuenta (Celda sin contenido)</li>
                             </ul>
                             <br />
 
@@ -130,14 +134,14 @@
                                             <input type="file" name="Excel" class="custom-file-input" id="exampleFormControlFile1" onchange="loadFile(event, 'rutaExcel', this)"
                                                    accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
                                             <label class="custom-file-label" id="rutaExcel" for="exampleFormControlFile1">Seleccione el archivo...</label>
-                                        </div>                                  
+                                        </div>
                                     </div>
                                     <div class="col-12 col-md-2">
                                         <label></label>
                                         <button type="button" class="btn btn-color btn-save-import" disabled="disabled" onclick="Guardar(event);"><span class="fas fa-upload"></span> Importar</button>
                                     </div>
                                 </div>
-                            }                       
+                            }
                         </div>
                     </div>
                 </div>

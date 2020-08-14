@@ -16,7 +16,6 @@ $(".btn-filter-rol").click(function () {
     $('#table').DataTable().draw();
 });
 
-
 var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUrl, uploadUrl, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
@@ -32,7 +31,7 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();
         }).DataTable({
-            language: { url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json' },
+            language: El20Utils.lenguajeTabla({}),
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": this.baseUrl,
@@ -97,7 +96,7 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     } else {
                         fnCallback(json);
-                    }
+                    } 
                 });
             }
         }).on('xhr.dt', function (e, settings, data) {
@@ -128,6 +127,9 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
     };
 };
 
+$("#RFC").keyup(function () {
+    this.value = this.value.toUpperCase();
+});
 
 var _validFileExtensions = [".xlsx", ".xls"];
 $('.custom-file-input').on('change', function () {
@@ -199,38 +201,7 @@ function Guardar(e) {
                 $('#table').DataTable().draw();
             }
             El20Utils.ocultarCargador();
-            $("#ModalImporterClients").modal("show");
-
-            //if ($.fn.DataTable.isDataTable('#clientesExcel')) {
-            //    $('#clientesExcel').DataTable().destroy();
-            //}
-            //$('#clientesExcel tbody').empty();
-
-            //$("div.alert").addClass("hide")
-            //if (result != null && result.Success) {
-            //    if (result.Tipo == 2 && result.SinGuardar.length > 0) {
-            //        $(".alert-success").html(result.Mensaje).removeClass("hide");
-            //        cargarTabla(result.SinGuardar);
-            //        setTimeout(function () {
-            //            $(".alert-success").addClass("hide");
-            //        }, 7000);
-            //    }
-            //} else {
-            //    if (result != null && result.Tipo == 0) {
-            //        $(".alert-danger").html(result.Mensaje).removeClass("hide");
-            //        //IntranetUtils.ocultarCargador();
-            //        loading.hideloading();
-            //        setTimeout(function () {
-            //            $(".alert-danger").addClass("hide");
-            //        }, 7000);
-            //    } else if (result != null && result.Tipo == 1 && result.SinGuardar.length > 0) {
-            //        $(".alert-warning").html(result.Mensaje).removeClass("hide");
-            //        cargarTabla(result.SinGuardar);
-            //        setTimeout(function () {
-            //            $(".alert-warning").addClass("hide");
-            //        }, 7000);
-            //    }
-            //}
+            $("#ModalImporterClients").modal("show");            
         },
         error: function (xhr) {
             //console.log("error: " + xhr);
@@ -241,21 +212,21 @@ function Guardar(e) {
     });
 }
 
-function cargarTabla(jsonObject) {
-    table = $('#clientesExcel').DataTable({
-        "aaData": jsonObject,
-        //"lengthMenu": [[50, 100, 200, 300, 400, 500], [50, 100, 200, 300, 400, 500]],
-        "lengthMenu": IntranetUtils.GRID_TOTAL_ITEMS,
-        "columns": [
-            { title: "ID_CLIENTE", "data": "ID_CLIENTE" },
-            { title: "NOMBRE", "data": "NOMBRE" },
-            { title: "CORREO_ELECTRONICO", "data": "CORREO_ELECTRONICO" },
-            { title: "PRESUPUESTO_ASIGNADO", "data": "PRESUPUESTO" },
-            { title: "OBSERVACIONES", "data": "OBSERVACIONES" }
-        ],
-        "initComplete": function (settings, json) {
-            //IntranetUtils.ocultarCargador();
-            loading.hideloading();
-        }
-    });
-}
+//function cargarTabla(jsonObject) {
+//    table = $('#clientesExcel').DataTable({
+//        "aaData": jsonObject,
+//        //"lengthMenu": [[50, 100, 200, 300, 400, 500], [50, 100, 200, 300, 400, 500]],
+//        "lengthMenu": IntranetUtils.GRID_TOTAL_ITEMS,
+//        "columns": [
+//            { title: "ID_CLIENTE", "data": "ID_CLIENTE" },
+//            { title: "NOMBRE", "data": "NOMBRE" },
+//            { title: "CORREO_ELECTRONICO", "data": "CORREO_ELECTRONICO" },
+//            { title: "PRESUPUESTO_ASIGNADO", "data": "PRESUPUESTO" },
+//            { title: "OBSERVACIONES", "data": "OBSERVACIONES" }
+//        ],
+//        "initComplete": function (settings, json) {
+//            //IntranetUtils.ocultarCargador();
+//            loading.hideloading();
+//        }
+//    });
+//}

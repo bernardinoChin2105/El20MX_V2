@@ -1,6 +1,12 @@
 ﻿$(document).ready(function () {
 
     $("#ZipCode").trigger("blur");
+    $("#CURP").keyup(function () {
+        this.value = this.value.toUpperCase();
+    });
+    $("#RFC").keyup(function () {
+        this.value = this.value.toUpperCase();
+    });
 
     $.validator.addMethod("RFCTrue",
         function (value, element) {
@@ -16,21 +22,21 @@
     $("#EditForm").validate({
         rules: {
             FistName: {
-                required: true,
+                //required: true,
                 maxlength: 50
             },
             LastName: {
-                required: true,
+                //required: true,
                 maxlength: 50
             },
             RFC: {
                 required: true,
                 RFCTrue: true,
-                maxlength: 20
+                maxlength: 13
             },
             CURP: {
                 CURPTrue: true,
-                maxlength: 20
+                maxlength: 18
             },
             ZipCode: {
                 required: true,
@@ -40,15 +46,15 @@
         ,
         messages: {
             FistName: {
-                required: "Campo obligatorio",
+                //required: "Campo obligatorio",
                 maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
             },
             LastName: {
-                required: "Campo obligatorio",
+                //required: "Campo obligatorio",
                 maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
             },
             RFC: {
-                required: "Campo obligatorio",
+                //required: "Campo obligatorio",
                 maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
             },
             CURP: {
@@ -61,7 +67,66 @@
             }
         }
     });
+
+    validateRFC();
 });
+
+function validateRFC() {
+    const re = /^([A-ZÑ&]{3,4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])) ?(?:- ?)?([A-Z\d]{2})([A\d])$/;
+    var FistName = $("#FistName");
+    var LastName = $("#LastName");
+    var BusinessName = $("#BusinessName"); 
+    var taxRegime = $("#taxRegime");    
+    var RFC = $("#RFC").val(); 
+
+    var valid = RFC.match(re);    
+    var str = RFC.slice(0, 4);
+
+    //Si pasa la validación entonces es un             
+    if (RFC.length === 12 && str.match(/^([A-ZÑ&]{3})[0-9]$/g) !== null) {
+        $(".businessName").removeClass("hidden");
+        taxRegime.val("MORALPERSONSREGIME");
+        FistName.rules("add", {
+            required: false,
+            //messages: {
+            //    required: "Campo obligatorio"
+            //}
+        });
+        LastName.rules("add", {
+            required: false,
+            //messages: {
+            //    required: "Campo obligatorio"
+            //}
+        });
+        BusinessName.rules("add", {
+            required: true,
+            messages: {
+                required: "Campo obligatorio"
+            }
+        });
+    } else {
+        $(".businessName").addClass("hidden");
+        taxRegime.val("NATURALPERSONSREGIME");
+        FistName.rules("add", {
+            required: true,
+            messages: {
+                required: "Campo obligatorio"
+            }
+        });
+        LastName.rules("add", {
+            required: true,
+            messages: {
+                required: "Campo obligatorio"
+            }
+        });
+        BusinessName.rules("add", {
+            required: false,
+            //messages: {
+            //    required: "Campo obligatorio"
+            //}
+        });
+    }
+}
 
 function validarDatos() {
     if (!$('#EditForm').valid()) {
@@ -77,7 +142,7 @@ var indexPhone = numPhones;
 $(".btn-add-email").click(function () {
     var item = '<div class="row">' +
         '<div class="col-12 col-md-10"> ' +
-        '<label class="col-form-label control-label">Email ' + (indexEmail + 1) + '</label>' +
+        '<label class="col-form-label control-label">Otro Email</label>' +
         '<input type="hidden" name="Emails[' + itemNumberEmail + '].TypeContact" value="EMAIL" />' +
         '<input type="email" class="form-control emails" name="Emails[' + itemNumberEmail + '].EmailOrPhone" />' +
         '</div>' +
@@ -95,7 +160,7 @@ $(".btn-add-email").click(function () {
 $(".btn-add-phone").click(function () {
     var item = '<div class="row">' +
         '<div class="col-12 col-md-10">' +
-        '<label class="col-form-label control-label">Teléfono ' + (indexPhone + 1) + '</label>' +
+        '<label class="col-form-label control-label">Otro Teléfono</label>' +
         '<input type="hidden" name="Phones[' + itemNumberPhone + '].TypeContact" value="PHONE" />' +
         '<input type="text" class="form-control phones" name="Phones[' + itemNumberPhone + '].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
         '</div>' +
