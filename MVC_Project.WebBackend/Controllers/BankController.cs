@@ -104,22 +104,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
-
-        ////Llamadas para paybook
-
-        //public JsonResult getToken()
-        //{
-        //    try
-        //    {
-
-        //       
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //    }
-        //}
-
+        //Llamadas para paybook
         [HttpGet, AllowAnonymous]
         public JsonResult GetToken()
         {
@@ -127,7 +112,6 @@ namespace MVC_Project.WebBackend.Controllers
 
             try
             {
-
                 #region Crear credencial el usuario de la cuenta rfc, si aun no ha sido creada
                 //Crear usuario si aun no ha sido creado
                 //Obtener idUsuario

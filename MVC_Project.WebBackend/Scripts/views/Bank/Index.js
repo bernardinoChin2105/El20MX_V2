@@ -17,11 +17,12 @@
 //});
 
 //  exportUrl, uploadUrl,
-var BankIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAccessController) {
+var BankIndexControlador = function (htmlTableId, baseUrl, editUrl, getToken, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
     this.editUrl = editUrl;
+    this.getToken = getToken;
     //this.exportUrl = exportUrl;
     //this.uploadUrl = uploadUrl;
     this.dataTable = {};
@@ -52,8 +53,8 @@ var BankIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAcces
                     render: function (data) {
                         //Menu para más opciones de cliente
                         //console.log(data)
-                        var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +                                            
-                            '<a class="link" href="' + self.editUrl + '?uuid=' + data.uuid + '">Ver más</a>' +                                                                                
+                        var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
+                            '<a class="link" href="' + self.editUrl + '?uuid=' + data.uuid + '">Ver más</a>' +
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }
@@ -64,8 +65,8 @@ var BankIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAcces
                     className: 'work-options',
                     render: function (data) {
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            
-                            '<button class="btn btn-light btn-desvincular" id=""><span class="fa fa-trash"></span></button>' +                                                        
+
+                            '<button class="btn btn-light btn-desvincular" id=""><span class="fa fa-trash"></span></button>' +
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }
@@ -120,95 +121,40 @@ var BankIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAcces
         //    console.log(credential, "credencial")
         //    // do something on success
         //});
-        //$(".btn-export").click(function () {
-        //    try {
-
-        //        var aoData = [];
-        //        aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
-
-        //        El20Utils.mostrarCargador();
-
-        //        $.fileDownload(self.exportUrl, {
-        //            httpMethod: "POST",
-        //            data: aoData
-        //        }).done(function () { El20Utils.ocultarCargador(); })
-        //            .fail(function () { El20Utils.ocultarCargador(); });
 
 
-        //        /////////////////////////////////////////////////////
-        //    } catch (e) {
-        //        throw 'CustomerIndexControlador -> Exportar: ' + e;
-        //    }
-        //});
+        $(".btn-token").click(function () {
+            El20Utils.mostrarCargador();
+            try {
+                $.ajax({
+                    type: 'POST',
+                    contentType: 'application/json',
+                    async: true,
+                    url: self.getToken,
+                    success: function (result) {
+                        console.log("result", result);
+                        //if (!result.Success) {
+                        //    toastr["error"](result.Mensaje);
+                        //} else {
+                        //    toastr["success"](result.Mensaje);
+                        //    $("input[name='Excel']").val("");
+                        //    $(".btn-save-import").attr("disabled", true);
+                        //    $('#table').DataTable().draw();
+                        //}
+                        El20Utils.ocultarCargador();
+                        //$("#ModalImporterClients").modal("show");                       
+                    },
+                    error: function (xhr) {
+                        //console.log("error: " + xhr);
+                        El20Utils.ocultarCargador();
+                        //loading.hideloading();
+                    }
+                }).always(function () {
+                });
+
+            } catch (e) {
+                throw 'BankIndexControlador -> GetToken: ' + e;
+            }
+        });
     };
 };
-
-//function Guardar(e) {
-//    if (!$('#postImportar').valid()) return;
-//    $("#ModalImporterClients").modal("hide");
-//    El20Utils.mostrarCargador();
-
-//    var data_ = new FormData($("#postImportar")[0]);
-//    var url = $("#postImportar").attr("action");
-//    $.ajax({
-//        type: 'POST',
-//        //contentType: 'application/json',
-//        data: data_,
-//        processData: false,
-//        contentType: false,
-//        async: true,
-//        beforeSend: function () {
-//        },
-//        url: url,
-//        success: function (result) {
-//            console.log("result", result);
-//            if (!result.Success) {
-//                toastr["error"](result.Mensaje);
-//            } else {
-//                toastr["success"](result.Mensaje);
-//                $("input[name='Excel']").val("");
-//                $(".btn-save-import").attr("disabled", true);
-//                $('#table').DataTable().draw();
-//            }
-//            El20Utils.ocultarCargador();
-//            $("#ModalImporterClients").modal("show");
-
-//            //if ($.fn.DataTable.isDataTable('#clientesExcel')) {
-//            //    $('#clientesExcel').DataTable().destroy();
-//            //}
-//            //$('#clientesExcel tbody').empty();
-
-//            //$("div.alert").addClass("hide")
-//            //if (result != null && result.Success) {
-//            //    if (result.Tipo == 2 && result.SinGuardar.length > 0) {
-//            //        $(".alert-success").html(result.Mensaje).removeClass("hide");
-//            //        cargarTabla(result.SinGuardar);
-//            //        setTimeout(function () {
-//            //            $(".alert-success").addClass("hide");
-//            //        }, 7000);
-//            //    }
-//            //} else {
-//            //    if (result != null && result.Tipo == 0) {
-//            //        $(".alert-danger").html(result.Mensaje).removeClass("hide");
-//            //        //IntranetUtils.ocultarCargador();
-//            //        loading.hideloading();
-//            //        setTimeout(function () {
-//            //            $(".alert-danger").addClass("hide");
-//            //        }, 7000);
-//            //    } else if (result != null && result.Tipo == 1 && result.SinGuardar.length > 0) {
-//            //        $(".alert-warning").html(result.Mensaje).removeClass("hide");
-//            //        cargarTabla(result.SinGuardar);
-//            //        setTimeout(function () {
-//            //            $(".alert-warning").addClass("hide");
-//            //        }, 7000);
-//            //    }
-//            //}
-//        },
-//        error: function (xhr) {
-//            //console.log("error: " + xhr);
-//            //El20Utils.ocultarCargador();
-//            //loading.hideloading();
-//        }
-//    }).always(function () {
-//    });
-//}
