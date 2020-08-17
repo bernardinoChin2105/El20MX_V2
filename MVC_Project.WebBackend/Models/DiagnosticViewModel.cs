@@ -27,6 +27,7 @@ namespace MVC_Project.WebBackend.Models
         public string email { get; set; }
 
         [Display(Name = "Fecha Registro")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime createdAt { get; set; }
 
         //[Display(Name = "Estatus ante SAT")]

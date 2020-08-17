@@ -76,7 +76,7 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                             '<div class="dropdown">' +
                             '<button class="btn btn-light btn-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-ellipsis-h"></span></button>' +
                             '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
-                            '<a class="dropdown-item" href="' + self.editUrl + '?uuid=' + data.uuid + '">Hacer CFDI</a>' +
+                            '<a class="dropdown-item" href="#">Hacer CFDI</a>' +
                             '</div>' +
                             '</div>' +
                             '</div>';
@@ -197,11 +197,11 @@ function Guardar(e) {
             } else {
                 toastr["success"](result.Mensaje);
                 $("input[name='Excel']").val("");
-                $(".btn-save-import").attr("disabled", true);
-                $('#table').DataTable().draw();
+                $(".btn-save-import").attr("disabled", true);    
             }
+            $('#table').DataTable().draw();
             El20Utils.ocultarCargador();
-            $("#ModalImporterClients").modal("show");            
+            //$("#ModalImporterClients").modal("show");            
         },
         error: function (xhr) {
             //console.log("error: " + xhr);

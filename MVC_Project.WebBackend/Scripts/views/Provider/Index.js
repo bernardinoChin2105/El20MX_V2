@@ -181,10 +181,10 @@ function Guardar(e) {
                 toastr["success"](result.Mensaje);
                 $("input[name='Excel']").val("");
                 $(".btn-save-import").attr("disabled", true);
-                $('#table').DataTable().draw();
             }
+            $('#table').DataTable().draw();
             El20Utils.ocultarCargador();
-            $("#ModalImporterClients").modal("show");          
+            //$("#ModalImporterClients").modal("show");          
         },
         error: function (xhr) {
             //console.log("error: " + xhr);
