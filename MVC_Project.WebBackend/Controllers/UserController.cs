@@ -570,7 +570,7 @@ namespace MVC_Project.WebBackend.Controllers
                 if (Request.IsAjaxRequest())
                 {
                     LogUtil.AddEntry(
-                       "Editar password: " + JsonConvert.SerializeObject(model),
+                       "Editar password: " + JsonConvert.SerializeObject(user),
                        ENivelLog.Info,
                        0,
                        "",
@@ -584,7 +584,7 @@ namespace MVC_Project.WebBackend.Controllers
                 else
                 {
                     LogUtil.AddEntry(
-                       "Editar password: " + JsonConvert.SerializeObject(model),
+                       "Editar password: " + JsonConvert.SerializeObject(user),
                        ENivelLog.Info,
                        0,
                        "",

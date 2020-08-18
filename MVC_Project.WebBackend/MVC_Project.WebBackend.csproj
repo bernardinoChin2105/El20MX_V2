@@ -1925,6 +1925,7 @@
     <Content Include="Views\Provider\Create.cshtml" />
     <Content Include="Views\Provider\Edit.cshtml" />
     <Content Include="Views\Bank\Index.cshtml" />
+    <Content Include="Views\Bank\AccountList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

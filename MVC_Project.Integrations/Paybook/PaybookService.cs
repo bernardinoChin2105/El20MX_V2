@@ -40,7 +40,7 @@ namespace MVC_Project.Integrations.Paybook
         }
 
         //Obtener lista de usuarios en paybook
-        public static List<UserPaybook> GetAllUsers()
+        public static List<UserPaybook> GetAllUsers(string token)
         {
             List<UserPaybook> users = new List<UserPaybook>();
             try
@@ -71,8 +71,28 @@ namespace MVC_Project.Integrations.Paybook
                     id_user = idUser
                 };
 
-                var responseUsers = Paybook.CallServicePaybook(url, dataUser, "Post", true);
-                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseUsers);
+                var response = Paybook.CallServicePaybook(url, dataUser, "Post", true);
+                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
+                var option = model.First(x => x.Key == "response").Value;
+                token = (string)option;
+                //users = JsonConvert.DeserializeObject<List<UserPaybook>>(rItemValueJson.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message.ToString());
+            }
+            return token;
+        }
+
+        //Obtener token del usuario en paybook si este ya fue creado anteriormente
+        public static string GetVarifyToken(string token)
+        {            
+            try
+            {                
+                string url = "/sessions/"+token+ "/ verify";
+
+                var response = Paybook.CallServicePaybook(url, null, "Get", true);
+                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
                 var option = model.First(x => x.Key == "response").Value;
                 token = (string)option;
                 //users = JsonConvert.DeserializeObject<List<UserPaybook>>(rItemValueJson.ToString());
@@ -85,20 +105,22 @@ namespace MVC_Project.Integrations.Paybook
         }
 
         //Obtener lista de credenciales en paybook
-        public static List<CredentialsPaybook> GetCredentials(string idCredential, string organization, string token)
+        // string organization,
+        public static List<CredentialsPaybook> GetCredentials(string idCredential, string token)
         {
             List<CredentialsPaybook> credentials = new List<CredentialsPaybook>();
             try
             {
+
                 var dataCredential = new
                 {
-                    id_credential = idCredential,
-                    id_site_organization = organization
+                    id_credential = idCredential
+                    //,id_site_organization = organization
                 };
 
                 string url = "/credentials";
-                var responseUsers = Paybook.CallServicePaybook(url, dataCredential, "Get", false, token);
-                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseUsers);
+                var response = Paybook.CallServicePaybook(url, dataCredential, "Get", false, token);
+                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
                 var option = model.First(x => x.Key == "response").Value;
                 JObject rItemValueJson = (JObject)option;
                 credentials = JsonConvert.DeserializeObject<List<CredentialsPaybook>>(rItemValueJson.ToString());
@@ -108,6 +130,26 @@ namespace MVC_Project.Integrations.Paybook
                 throw new Exception(ex.Message.ToString());
             }
             return credentials;
+        }
+
+        //Eliminar credenciales de las cuentas en paybook
+        public static bool DeleteCredential(string idCredential, string token)
+        {
+            bool responseDelete = false;
+            try
+            {
+                string url = "/credentials/"+idCredential;
+                var response = Paybook.CallServicePaybook(url, null, "Get", false, token);
+                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
+                var option = model.First(x => x.Key == "response").Value;
+                JObject rItemValueJson = (JObject)option;
+                responseDelete = (bool)rItemValueJson;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message.ToString());
+            }
+            return responseDelete;
         }
 
         //Obtener lista de cuentas en paybook
@@ -122,8 +164,8 @@ namespace MVC_Project.Integrations.Paybook
                 };
 
                 string url = "/accounts";
-                var responseUsers = Paybook.CallServicePaybook(url, dataCredential, "Get", false, token);
-                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseUsers);
+                var response = Paybook.CallServicePaybook(url, dataCredential, "Get", false, token);
+                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
                 var option = model.First(x => x.Key == "response").Value;
                 JObject rItemValueJson = (JObject)option;
                 accounts = JsonConvert.DeserializeObject<List<AccountsPaybook>>(rItemValueJson.ToString());
@@ -155,8 +197,8 @@ namespace MVC_Project.Integrations.Paybook
                 };
 
                 string url = "/transactions";
-                var responseUsers = Paybook.CallServicePaybook(url, dataAccount, "Get", false, token);
-                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseUsers);
+                var response = Paybook.CallServicePaybook(url, dataAccount, "Get", false, token);
+                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
                 var option = model.First(x => x.Key == "response").Value;
                 JObject rItemValueJson = (JObject)option;
                 transactions = JsonConvert.DeserializeObject<List<TransactionsPaybook>>(rItemValueJson.ToString());

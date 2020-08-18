@@ -196,13 +196,12 @@ namespace MVC_Project.WebBackend.Controllers
                 if (accountExist != null)
                     throw new Exception("Existe una cuenta registrada con este RFC.");
                 var loginSat = new LogInSATModel { rfc = model.RFC, password = model.CIEC, type = "ciec" };
+                var satModel = SATwsService.CreateCredentialSat(loginSat);
                 //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
-                var responseSat = SATws.CallServiceSATws("credentials", loginSat, "Post");
+                //var responseSat = SATws.CallServiceSATws("credentials", loginSat, "Post");
 
-                var satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
+                //var satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
 
-                //Guardar la información si el llamado del servicio es exitoso
-                //var user = _accountService.FindBy(x => x.uuid == authUser.Uuid).FirstOrDefault();
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
                 //vamos a crear el account y memberships. Pendiente a que me confirme William los memberships
@@ -233,7 +232,7 @@ namespace MVC_Project.WebBackend.Controllers
                 Domain.Entities.Credential credential = new Domain.Entities.Credential()
                 {
                     account = account,
-                    provider = SystemProviders.SATWS.ToString(), //"SAT.ws",
+                    provider = SystemProviders.SATWS.GetDisplayName(), //"SAT.ws",
                     idCredentialProvider = satModel.id,
                     statusProvider = satModel.status,
                     createdAt = todayDate,
@@ -268,7 +267,7 @@ namespace MVC_Project.WebBackend.Controllers
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                 );
 
-                return RedirectToAction("Index", "User");        
+                return RedirectToAction("Index", "User");
             }
             catch (Exception ex)
             {
@@ -363,6 +362,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         private AccountSelectViewModel ValidarSat(AccountSelectViewModel accountViewModel)
         {
+            var authUser = Authenticator.AuthenticatedUser;
             foreach (var item in accountViewModel.accountListViewModels)
             {
                 var credential = _credentialService.FindBy(x => x.account.id == item.accountId).FirstOrDefault();
@@ -370,10 +370,38 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     if (credential.statusProvider == "pending")
                     {
-                        var responseSat = SATws.CallServiceSATws("credentials/" + credential.idCredentialProvider, null, "Get");
-                        var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
-                        credential.statusProvider = model.status;
-                        _credentialService.Update(credential);
+                        try
+                        {
+                            //var responseSat = SATws.CallServiceSATws("credentials/" + credential.idCredentialProvider, null, "Get");
+                            //var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
+                            var model = SATwsService.GetCredentialSat(credential.idCredentialProvider);
+                            credential.statusProvider = model.status;
+                            _credentialService.Update(credential);
+
+                            LogUtil.AddEntry(
+                               "Se actualizo el estatus del sat: "+ JsonConvert.SerializeObject(credential),
+                               ENivelLog.Info,
+                               authUser.Id,
+                               authUser.Email,
+                               EOperacionLog.ACCESS,
+                               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                            );
+                        }
+                        catch (Exception ex)
+                        {
+                            LogUtil.AddEntry(
+                              "Se encontro un error: " + ex.Message.ToString(),
+                              ENivelLog.Error,
+                              authUser.Id,
+                              authUser.Email,
+                              EOperacionLog.ACCESS,
+                              string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                              ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                              string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                           );
+                        }
                     }
                     item.statusValidate = credential.statusProvider;
                 }

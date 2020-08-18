@@ -17,15 +17,16 @@
 //});
 
 //  exportUrl, uploadUrl,
-var BankIndexControlador = function (htmlTableId, baseUrl, editUrl, getToken, hasFullAccessController) {
+var BankIndexControlador = function (htmlTableId, baseUrl, editUrl, getTokenUrl, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
     this.editUrl = editUrl;
-    this.getToken = getToken;
+    this.getTokenUrl = getTokenUrl;
     //this.exportUrl = exportUrl;
     //this.uploadUrl = uploadUrl;
     this.dataTable = {};
+    this.token = "";
 
     this.init = function () {
         var primeravez = true;
@@ -117,30 +118,57 @@ var BankIndexControlador = function (htmlTableId, baseUrl, editUrl, getToken, ha
         var syncWidget = new SyncWidget(params);
         //syncWidget.open();
 
-        //syncWidget.$on("success", function (credential) {
-        //    console.log(credential, "credencial")
-        //    // do something on success
-        //});
+        syncWidget.$on("success", function (credential) {
+            console.log(credential, "credencial")
+            // do something on success
+            //$.ajax({
+            //    type: 'GET',
+            //    contentType: 'application/json',
+            //    async: true,
+            //    data: { token = self.token },
+            //    url: self.getTokenUrl,
+            //    success: function (result) {
+            //        console.log("result", result);
+
+            //        if (!result.Success) {
+            //            toastr["error"](result.Mensaje);
+            //        } else {
+            //            toastr["success"](result.Mensaje);
+            //            syncWidget.setToken(result.Data);
+            //            syncWidget.open();
+            //        }
+            //        El20Utils.ocultarCargador();
+            //        //$("#ModalImporterClients").modal("show");                       
+            //    },
+            //    error: function (xhr) {
+            //        //console.log("error: " + xhr);
+            //        El20Utils.ocultarCargador();
+            //        //loading.hideloading();
+            //    }
+            //}).always(function () {
+            //});
+        });
 
 
         $(".btn-token").click(function () {
             El20Utils.mostrarCargador();
             try {
                 $.ajax({
-                    type: 'POST',
+                    type: 'GET',
                     contentType: 'application/json',
                     async: true,
-                    url: self.getToken,
+                    data: { token = self.token },
+                    url: self.getTokenUrl,
                     success: function (result) {
                         console.log("result", result);
-                        //if (!result.Success) {
-                        //    toastr["error"](result.Mensaje);
-                        //} else {
-                        //    toastr["success"](result.Mensaje);
-                        //    $("input[name='Excel']").val("");
-                        //    $(".btn-save-import").attr("disabled", true);
-                        //    $('#table').DataTable().draw();
-                        //}
+
+                        if (!result.Success) {
+                            toastr["error"](result.Mensaje);
+                        } else {
+                            toastr["success"](result.Mensaje);
+                            syncWidget.setToken(result.Data);
+                            syncWidget.open();
+                        }
                         El20Utils.ocultarCargador();
                         //$("#ModalImporterClients").modal("show");                       
                     },

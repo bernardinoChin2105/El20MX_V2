@@ -117,5 +117,50 @@ namespace MVC_Project.Integrations.SAT
             }
         }
 
+        //Crear la cuenta del registro de RFC en SATws
+        public static SatAuthResponseModel CreateCredentialSat(LogInSATModel model)
+        {
+            SatAuthResponseModel satModel = new SatAuthResponseModel();
+            try
+            {
+                string url = "/credentials";                
+                
+                //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
+                var responseSat = SATws.CallServiceSATws(url, model, "Post");
+
+                satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
+                
+                //return new InvoicesModel
+                //{
+                //    Success = true,
+                //    TaxStatus = taxStatus
+                //};
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message.ToString());
+            }
+            return satModel;
+        }
+
+        //Obtener idCredencial del RFC
+        public static SatAuthResponseModel GetCredentialSat(string idCredential)
+        {
+            SatAuthResponseModel satModel = new SatAuthResponseModel();
+            try
+            {
+                string url = "/credentials";
+
+                //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
+                var responseSat = SATws.CallServiceSATws(url, null, "Get");
+
+                satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message.ToString());
+            }
+            return satModel;
+        }
     }
 }
