@@ -65,8 +65,7 @@
     <Reference Include="Iesi.Collections, Version=4.0.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <HintPath>..\packages\Iesi.Collections.4.0.4\lib\net461\Iesi.Collections.dll</HintPath>
     </Reference>
-    <Reference Include="LogHubSDK, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="LogHubSDK">
       <HintPath>..\dlls\LogHubSDK.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -1802,6 +1801,7 @@
     <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
     <Content Include="Scripts\views\Auth\Index.js" />
+    <Content Include="Scripts\views\Bank\BankAccount.js" />
     <Content Include="Scripts\views\Bank\Index.js" />
     <Content Include="Scripts\views\Provider\Create.js" />
     <Content Include="Scripts\views\Provider\Edit.js" />
@@ -1925,7 +1925,7 @@
     <Content Include="Views\Provider\Create.cshtml" />
     <Content Include="Views\Provider\Edit.cshtml" />
     <Content Include="Views\Bank\Index.cshtml" />
-    <Content Include="Views\Bank\AccountList.cshtml" />
+    <Content Include="Views\Bank\BanksAccount.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

@@ -30,7 +30,6 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
 
     this.init = function () {
         //var primeravez = true;
-
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();
         }).DataTable({
@@ -43,26 +42,37 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
             ordering: false,
             columns: [
                 { data: 'id', title: "Id", visible: false },
-                { data: 'bank', title: "Bancos" },
-                { data: 'status', title: "Estatus" },
-                //{ data: 'phone', title: "Teléfono" },
-                //{ data: 'email', title: "Email" },
+                //{ data: 'bank', title: "" },
                 {
                     data: null,
-                    title: "Configuración de Bancos",
+                    title: "Estatus de la Cuenta",
                     className: 'menu-options',
                     render: function (data) {
                         //Menu para más opciones de cliente
-                        //console.log(data)
+                        console.log(data)
+                        //<div class="onoffswitch">
+                        //    <input type="checkbox" checked="" disabled="" class="onoffswitch-checkbox" id="example3">
+                        //        <label class="onoffswitch-label" for="example3">
+                        //            <span class="onoffswitch-inner"></span>
+                        //            <span class="onoffswitch-switch"></span>
+                        //        </label>
+                        //</div>
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<a class="link" href="' + self.bankAccountsUrl + '?uuid=' + data.uuid + '">Ver más</a>' +
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }
                 },
+                { data: 'bank', title: "Nombre de la Cuenta" },
+                { data: 'bank', title: "Número de la Cuenta" },
+                { data: 'bank', title: "Clabe" },
+                { data: 'bank', title: "Moneda" },
+                //{data: 'phone', title: "Fecha Saldo Inicial" },
+                { data: 'email', title: "Saldo Inicial" },
+                { data: 'status', title: "Estatus de Conexión" },
                 {
                     data: null,
-                    title: "Desvincular",
+                    title: "Acciones",
                     className: 'work-options',
                     render: function (data) {
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
@@ -72,21 +82,21 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     }
                 }
             ],
-            //"fnServerData": function (sSource, aoData, fnCallback) {
-            //    aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
-            //    aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
-            //    aoData.push({ "name": "first", "value": primeravez });
+            "fnServerData": function (sSource, aoData, fnCallback) {
+                aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
+                aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
+                //aoData.push({ "name": "first", "value": primeravez });
 
-            //    $.getJSON(sSource, aoData, function (json) {
-            //        primeravez = false;
-            //        if (json.success === false) {
-            //            toastr['error'](json.Mensaje.message);
-            //            console.log(json.Mensaje + " Error al obtener los elementos");
-            //        } else {
-            //            fnCallback(json);
-            //        }
-            //    });
-            //}
+                $.getJSON(sSource, aoData, function (json) {
+                    primeravez = false;
+                    if (json.success === false) {
+                        toastr['error'](json.Mensaje.message);
+                        console.log(json.Mensaje + " Error al obtener los elementos");
+                    } else {
+                        fnCallback(json);
+                    }
+                });
+            }
         }).on('xhr.dt', function (e, settings, data) {
             El20Utils.ocultarCargador();
         });
@@ -136,7 +146,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                         toastr["success"](result.Mensaje);
                         self.dataTable.DataTable().draw();
                     }
-                    El20Utils.ocultarCargador();                      
+                    El20Utils.ocultarCargador();
                 },
                 error: function (xhr) {
                     //console.log("error: " + xhr);
@@ -182,7 +192,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                 throw 'BankIndexControlador -> GetToken: ' + e;
             }
         });
-        
+
         $(".btn-desvincular").click(function () {
             var uuid = $(this).data("uuid");
             El20Utils.mostrarCargador();
@@ -202,7 +212,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                             toastr["success"](result.Mensaje);
                             self.dataTable.DataTable().draw();
                         }
-                        El20Utils.ocultarCargador();                      
+                        El20Utils.ocultarCargador();
                     },
                     error: function (xhr) {
                         //console.log("error: " + xhr);

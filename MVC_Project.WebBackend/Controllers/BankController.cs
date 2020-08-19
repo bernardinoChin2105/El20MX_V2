@@ -10,6 +10,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using MVC_Project.Domain.Model;
+using Newtonsoft.Json;
+using System.Collections.Specialized;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -18,12 +21,17 @@ namespace MVC_Project.WebBackend.Controllers
         private IAccountService _accountService;
         private ICredentialService _credentialService;
         private IBankService _bankService;
+        private IBankCredentialService _bankCredentialService;
+        private IBankAccountService _bankAccountService;
 
-        public BankController(IAccountService accountService, ICredentialService credentialService, IBankService bankService)
+        public BankController(IAccountService accountService, ICredentialService credentialService, IBankService bankService,
+            IBankCredentialService bankCredentialService, IBankAccountService bankAccountService)
         {
             _accountService = accountService;
             _credentialService = credentialService;
             _bankService = bankService;
+            _bankCredentialService = bankCredentialService;
+            _bankAccountService = bankAccountService;
         }
 
         // GET: Bank
@@ -34,39 +42,23 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         [HttpGet, AllowAnonymous]
-        public JsonResult GetBanks(JQueryDataTableParams param, string filtros, bool first)
+        public JsonResult GetBanks(JQueryDataTableParams param)
         {
             var userAuth = Authenticator.AuthenticatedUser;
             try
             {
                 int totalDisplay = 0;
                 int total = 0;
-                var listResponse = new List<Object>();//List<CustomerList>();
-                //if (!first)
-                //{
-                //    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
-                //    string rfc = filtersValues.Get("RFC").Trim();
-                //    string businessName = filtersValues.Get("BusinessName").Trim();
-                //    string email = filtersValues.Get("Email").Trim();
+                var listResponse = new List<BankCredentialsList>();
 
-                //    var pagination = new BasePagination();
-                //    var filters = new CustomerFilter() { uuid = userAuth.Account.Uuid.ToString() };
-                //    pagination.PageSize = param.iDisplayLength;
-                //    pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
-                //    if (rfc != "") filters.rfc = rfc;
-                //    if (businessName != "") filters.businessName = businessName;
-                //    if (email != "") filters.email = email;
+                listResponse = _bankCredentialService.GetBankCredentials(userAuth.Account.Id);
 
-                //    listResponse = _customerService.CustomerList(pagination, filters);
-
-                //    //Corroborar los campos iTotalRecords y iTotalDisplayRecords
-
-                //    if (listResponse.Count() > 0)
-                //    {
-                //        totalDisplay = listResponse[0].Total;
-                //        total = listResponse.Count();
-                //    }
-                //}
+                //Corroborar los campos iTotalRecords y iTotalDisplayRecords
+                if (listResponse.Count() > 0)
+                {
+                    totalDisplay = listResponse[0].Total;
+                    total = listResponse.Count();
+                }
 
                 LogUtil.AddEntry(
                    "Lista de Bancos total: " + totalDisplay + ", totalDisplay: " + total,
@@ -115,9 +107,9 @@ namespace MVC_Project.WebBackend.Controllers
             var authUser = Authenticator.AuthenticatedUser;
             string token = (string)Session["token"];
             string tokenUser = string.Empty;
-            if (token != null)
+            if (token != null && token != "")
             {
-                tokenUser = PaybookService.GetVarifyToken(token);
+                tokenUser = PaybookService.GetVarifyToken(token) ? token : null;
             }
 
             if (tokenUser == null)
@@ -140,12 +132,12 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 string token = (string)Session["token"];
                 string tokenUser = string.Empty;
-                if (token != null)
+                if (token != null && token != "")
                 {
-                    tokenUser = PaybookService.GetVarifyToken(token);
+                    tokenUser = PaybookService.GetVarifyToken(token) ? token : null;
                 }
 
-                if (tokenUser == null)
+                if (tokenUser == null || tokenUser == "")
                 {
                     #region Crear credencial el usuario de la cuenta rfc, si aun no ha sido creada
                     //Crear usuario si aun no ha sido creado
@@ -188,10 +180,11 @@ namespace MVC_Project.WebBackend.Controllers
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                 );
 
-                return Json(new
+                return new JsonResult
                 {
                     Data = new { success = true, data = tokenUser },
-                }, JsonRequestBehavior.AllowGet);
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
+                };
             }
             catch (Exception ex)
             {
@@ -233,19 +226,24 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     foreach (var itemBank in newBanks)
                     {
+                        //Buscar el banco
+                        var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site);
+
                         //Guardar los listado de bancos nuevos
                         BankCredential newBankCred = new BankCredential()
                         {
                             uuid = Guid.NewGuid(),
                             account = new Account { id = authUser.Account.Id },
-                            credentailProviderId = itemBank.id_credential,
+                            credentialProviderId = itemBank.id_credential,
                             createdAt = todayDate,
                             modifiedAt = todayDate,
-                            status = itemBank.is_authorized.ToString(),
-                            bank = new Bank { id = 0 } // Cambiar por los bancos del catalogo
+                            status = itemBank.is_authorized.ToString()
                         };
 
-                        //Preguntarle por el guardado
+                        if (bank != null)
+                        {
+                            newBankCred.bank = new Bank { id = bank.id };
+                        }
 
                         //Obtener las cuentas de los bancos nuevos
                         var bankAccounts = PaybookService.GetAccounts(itemBank.id_credential, token);
@@ -254,20 +252,26 @@ namespace MVC_Project.WebBackend.Controllers
                             BankAccount newBankAcc = new BankAccount()
                             {
                                 uuid = Guid.NewGuid(),
+                                bankCredential = newBankCred,
 
                                 accountProviderId = itemAccount.id_account,
                                 accountProviderType = itemAccount.account_type,
                                 name = itemAccount.name,
                                 currency = itemAccount.currency,
-                                //refreshAt = itemAccount.dt_refresh,
+                                balance = itemAccount.balance,
+                                number = itemAccount.number,
+                                isDisable = itemAccount.is_disable,
+                                //refreshAt = itemAccount.dt_refresh,                                
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
-                                status = itemAccount.is_disable.ToString(),
-                                //bankAccount = newBankCred, //Falta este dato 
-                                //Account account { get; set; } //Preguntarle porque esta relación
-                                //Bank bank { get; set; }
+                                status = itemAccount.is_disable.ToString()
                             };
+
+                            newBankCred.bankAccount.Add(newBankAcc);
                         }
+
+                        //Preguntarle por el guardado
+                        _bankCredentialService.Create(newBankCred);
 
                         //--Obtener las transacciones de las cuentas nuevas
                     }
@@ -284,10 +288,11 @@ namespace MVC_Project.WebBackend.Controllers
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                 );
 
-                return Json(new
+                return new JsonResult
                 {
                     Data = new { success = true, data = "" },
-                }, JsonRequestBehavior.AllowGet);
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
+                };
             }
             catch (Exception ex)
             {
@@ -311,17 +316,204 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
-        public ActionResult AccountList(string idBankCredential)
+        [HttpGet, AllowAnonymous]
+        public JsonResult UnlinkBank(string uuid)
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+
+            try
+            {
+                string token = Token();
+
+                BankCredential credential = _bankCredentialService.FirstOrDefault(x => x.uuid.ToString() == uuid);
+                if (credential == null)
+                    throw new Exception("No se encontro la credencial del banco en los registros.");
+
+                var unlinkCredential = PaybookService.DeleteCredential(credential.credentialProviderId, token);
+                if (!unlinkCredential)
+                    throw new Exception("Error al desvincular la credencial del banco con el servicio.");
+
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+                credential.modifiedAt = todayDate;
+                credential.status = SystemStatus.INACTIVE.ToString();
+
+                _bankCredentialService.Update(credential);
+
+                LogUtil.AddEntry(
+                   "Desvinculando la credencial de la cuenta: " + JsonConvert.SerializeObject(credential),
+                   ENivelLog.Info,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+
+                return new JsonResult
+                {
+                    Data = new { success = true, data =  },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
+                };
+            }
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+
+                return new JsonResult
+                {
+                    Data = new { success = false, Mensaje = new { title = "Error", message = ex.Message } },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
+            }
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult EditBankClabe(string uuid, string clabe)
         {
             var authUser = Authenticator.AuthenticatedUser;
             try
-            {
-                var bankAccounts = _bankService.GetBanksAccounts(idBankCredential);
-                return View(bankAccounts);
+            {                
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+                var updateBankAccount = _bankAccountService.FirstOrDefault(x => x.uuid.ToString() == uuid);
+
+                if (updateBankAccount == null)
+                    throw new Exception("Error al intentar buscar la cuenta.");
+
+                updateBankAccount.clabe = clabe;
+                updateBankAccount.modifiedAt = todayDate;
+
+                _bankAccountService.Update(updateBankAccount);              
+
+                LogUtil.AddEntry(
+                   "Se actualizo la clave de la cuenta del banco: " + JsonConvert.SerializeObject(updateBankAccount),
+                   ENivelLog.Info,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+
+                return new JsonResult
+                {
+                    Data = new { success = true, data = "" },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
+                };
             }
-            catch(Exception ex)
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+
+                return new JsonResult
+                {
+                    Data = new { success = false, Mensaje = new { title = "Error", message = ex.Message } },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
+            }
+        }
+
+        public ActionResult BanksAccount(string idBankCredential)
+        {
+            //var authUser = Authenticator.AuthenticatedUser;
+            try
+            {
+                //var bankAccounts = _bankCredentialService.GetBanksAccounts(idBankCredential);
+                ViewBag.IdBankCredential = idBankCredential;
+                return View();
+            }
+            catch (Exception ex)
             {
                 return View("Index");
+            }
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetBankAccounts(JQueryDataTableParams param, string filter)
+        {
+            var userAuth = Authenticator.AuthenticatedUser;
+            try
+            {
+                int totalDisplay = 0;
+                int total = 0;
+                var listResponse = new List<BankAccountsList>();
+
+                NameValueCollection filtersValues = HttpUtility.ParseQueryString(filter);
+                string filterCredential = filtersValues.Get("IdCredential").Trim();
+
+                var bankCredential = _bankCredentialService.FirstOrDefault(x => x.uuid.ToString() == filterCredential);
+                if (bankCredential == null)
+                    throw new Exception("Error al traer registros de la cuenta.");
+
+                listResponse = _bankCredentialService.GetBanksAccounts(bankCredential.id);
+
+                //Corroborar los campos iTotalRecords y iTotalDisplayRecords
+                if (listResponse.Count() > 0)
+                {
+                    totalDisplay = listResponse[0].Total;
+                    total = listResponse.Count();
+                }
+
+                LogUtil.AddEntry(
+                   "Lista de Bancos total: " + totalDisplay + ", totalDisplay: " + total,
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
+                return Json(new
+                {
+                    success = true,
+                    sEcho = param.sEcho,
+                    iTotalRecords = total,
+                    iTotalDisplayRecords = totalDisplay,
+                    aaData = listResponse
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
+                return new JsonResult
+                {
+                    Data = new { success = false, message = ex.Message },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
             }
         }
     }

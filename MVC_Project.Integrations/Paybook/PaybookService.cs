@@ -74,8 +74,8 @@ namespace MVC_Project.Integrations.Paybook
                 var response = Paybook.CallServicePaybook(url, dataUser, "Post", true);
                 var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
                 var option = model.First(x => x.Key == "response").Value;
-                token = (string)option;
-                //users = JsonConvert.DeserializeObject<List<UserPaybook>>(rItemValueJson.ToString());
+                PaybookViewModel tokenModel = JsonConvert.DeserializeObject<PaybookViewModel>(option.ToString());
+                token = tokenModel.token;
             }
             catch (Exception ex)
             {
@@ -85,23 +85,24 @@ namespace MVC_Project.Integrations.Paybook
         }
 
         //Obtener token del usuario en paybook si este ya fue creado anteriormente
-        public static string GetVarifyToken(string token)
-        {            
+        public static bool GetVarifyToken(string token)
+        {
+            bool responseB = false;
             try
             {                
-                string url = "/sessions/"+token+ "/ verify";
+                string url = "/sessions/"+token+ "/verify";
 
                 var response = Paybook.CallServicePaybook(url, null, "Get", true);
                 var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
                 var option = model.First(x => x.Key == "response").Value;
-                token = (string)option;
+                responseB = option != null ? Convert.ToBoolean(option) : false;
                 //users = JsonConvert.DeserializeObject<List<UserPaybook>>(rItemValueJson.ToString());
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message.ToString());
             }
-            return token;
+            return responseB;
         }
 
         //Obtener lista de credenciales en paybook

@@ -4,6 +4,7 @@ using LogHubSDK.Models;
 using MVC_Project.Resources;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
+using Newtonsoft.Json;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -86,14 +87,14 @@ namespace MVC_Project.WebBackend.Controllers
             string msg = Convert.ToString(Session["Global.ErrorMessage"]);
             TempData["ErrorMessage"] = String.Format("La página solicitada no existe: {0}", msg);
             LogUtil.AddEntry(
-             TempData["ErrorMessage"].ToString(),
+              JsonConvert.SerializeObject(authUser) + " " + TempData["ErrorMessage"].ToString(),
               ENivelLog.Error,
-              authUser.Id,
-              authUser.Email,
+              0,
+              "",
               EOperacionLog.ACCESS,
-              string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+              string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-              string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+              string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
            );
             return View("GenericError");
         }
@@ -104,14 +105,14 @@ namespace MVC_Project.WebBackend.Controllers
             string msg = Convert.ToString(Session["Global.ErrorMessage"]);
             TempData["ErrorMessage"] = String.Format("Error de procesamiento interno en servidor: {0}", msg);
             LogUtil.AddEntry(
-             TempData["ErrorMessage"].ToString(),
+             JsonConvert.SerializeObject(authUser)+" "+ TempData["ErrorMessage"].ToString(),
               ENivelLog.Error,
-              authUser.Id,
-              authUser.Email,
+              0,
+              "",
               EOperacionLog.ACCESS,
-              string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+              string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-              string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+              string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
            );
             return View("GenericError");
         }

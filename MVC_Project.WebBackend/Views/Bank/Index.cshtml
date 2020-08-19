@@ -16,50 +16,17 @@
 <div class="wrapper wrapper-content animated fadeInRight">
 
     <div class="row">
-        <div class="col-lg-12">
+        @*<div class="col-lg-12">
             <div class="ibox float-e-margins">
-                @*@using (Html.BeginForm("GetCustumers", "Custumer", FormMethod.Post, new { @id = "SearchForm" }))
-                    {
-                        <div class="ibox-title">
-                            <h5>Búsqueda</h5>
-                        </div>
-                        <div class="ibox-content clearfix">
-                            <div class="row">
-                                <div class="col-12 col-sm-4">
-                                    <div class="form-group">
-                                        @Html.LabelFor(m => m.RFC, new { @class = "" })
-                                        @Html.TextBoxFor(m => m.RFC, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1" })
-                                    </div>
-                                </div>
-                                <div class="col-12 col-sm-4">
-                                    <div class="form-group">
-                                        @Html.LabelFor(m => m.BusinessName, new { @class = "" })
-                                        @Html.TextBoxFor(m => m.BusinessName, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1" })
-                                    </div>
-                                </div>
-                                <div class="col-12 col-sm-4">
-                                    <div class="form-group">
-                                        @Html.LabelFor(m => m.Email, new { @class = "" })
-                                        @Html.TextBoxFor(m => m.Email, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1" })
-                                    </div>
-                                </div>
-                                <div class="col-12 offset-8 col-sm-4 col-lg-4">
-                                    <br />
-                                    <button type="button" class="btn btn-sm btn-color btn-filter-rol"><i class="fas fa-search"></i> Buscar</button>
-                                    &nbsp;
-                                    <button type="button" id="btnClearForm" class="btn btn-sm btn-default"><i class="fas fa-eraser "></i> Limpiar</button>
-                                </div>
-                            </div>
-                        </div>
-                    }*@
+                
             </div>
-        </div>
+        </div>*@
         <div class="col-lg-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>Resultado</h5>
+                    <h5>Conectar tu Banco</h5>
                     <div class="ibox-tools">
-                        <button type="button" class="btn btn-sm btn-color btn-token"><span class="fas fa-download"></span> Conectar a Banco</button>
+                        <button type="button" class="btn btn-sm btn-color btn-token"><span class="fas fa-link"></span> Conectar a Banco</button>
                     </div>
                     @*@if (hasFullAccessController)
                         {
@@ -84,19 +51,19 @@
     @*@Scripts.Render("~/plugins/daterangepicker")
         @Scripts.Render("~/plugins/jqueryFileDownload.js")*@
     @Scripts.Render("~/plugins/validate")
+    @Scripts.Render("~/views/bankIndex")
 
     <script>
         $(function () {
             var bank = new BankIndexControlador('table',
                 '@Url.Action("GetBanks")',
-                '@Url.Action("Edit")',
+                '@Url.Action("BanksAccount")',
                 '@Url.Action("GetToken")',
-                //'@Url.Action("ExportListCustomer")',
-                //'@Url.Action("CustomerUpload")',
+                '@Url.Action("UnlinkBank")',
+                '@Url.Action("CreateCredentialBank")',
                 '@hasFullAccessController' == 'True'
             );
             bank.init();
         });
     </script>
-    @Scripts.Render("~/views/bankIndex")
 }

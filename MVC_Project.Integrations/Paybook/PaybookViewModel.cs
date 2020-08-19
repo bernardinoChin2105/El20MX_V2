@@ -8,6 +8,7 @@ namespace MVC_Project.Integrations.Paybook
 {
     public class PaybookViewModel
     {
+        public string token { get; set; }
     }
 
     public class UserPaybook
@@ -57,7 +58,7 @@ namespace MVC_Project.Integrations.Paybook
         public int is_disable { get; set; }
         public string name { get; set; }
         public string number { get; set; }
-        public int balance { get; set; }
+        public double balance { get; set; }
         public string currency { get; set; }
         public string account_type { get; set; }
         public SitePaybook site { get; set; }

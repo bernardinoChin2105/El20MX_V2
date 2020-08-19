@@ -16,7 +16,7 @@ namespace MVC_Project.Data.Mappings
             Id(x => x.id).GeneratedBy.Identity().Column("id");
             Map(x => x.uuid).Column("uuid").Not.Nullable();
 
-            Map(x => x.credentailProviderId).Column("credentailProviderId").Not.Nullable();
+            Map(x => x.credentialProviderId).Column("credentialProviderId").Not.Nullable();
 
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
