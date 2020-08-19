@@ -290,5 +290,16 @@ namespace MVC_Project.Resources {
                 return ResourceManager.GetString("MODULE_PROVIDERS", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Busca una cadena traducida similar a BANCOS.
+        /// </summary>
+        public static string MODULE_BANKS
+        {
+            get
+            {
+                return ResourceManager.GetString("MODULE_BANKS", resourceCulture);
+            }
+        }
     }
 }

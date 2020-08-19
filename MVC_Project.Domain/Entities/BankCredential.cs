@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Entities
 {
-    public class BankCredential
+    public class BankCredential : IEntity
     {
         public virtual Int64 id { get; set; }
         public virtual Guid uuid { get; set; }
 
-        public virtual string credentailProviderId { get; set; }
+        public virtual string credentialProviderId { get; set; }
 
         public virtual DateTime createdAt { get; set; }
         public virtual DateTime modifiedAt { get; set; }
@@ -19,5 +19,11 @@ namespace MVC_Project.Domain.Entities
 
         public virtual Account account { get; set; }
         public virtual Bank bank { get; set; }
+
+        public virtual IList<BankAccount> bankAccount { get; set; }
+        public BankCredential()
+        {
+            bankAccount = new List<BankAccount>();
+        }
     }
 }

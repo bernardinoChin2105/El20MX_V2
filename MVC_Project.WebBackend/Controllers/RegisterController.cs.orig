@@ -67,8 +67,13 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (user != null)
                 {
+<<<<<<< HEAD
                     if (user.status == SystemStatus.UNCONFIRMED.ToString())
+                        throw new Exception("El ususario tiene una invitación pendiente por aceptar");
+=======
+                    if(user.status == SystemStatus.UNCONFIRMED.ToString())
                         throw new Exception("El usuario tiene una invitación pendiente por aceptar");
+>>>>>>> origin/develop
                     else
                         throw new Exception("Ya existe un usuario con el email proporcionado");
                 }

@@ -10,6 +10,28 @@ namespace MVC_Project.Integrations.SAT
     {
     }
 
+    public class LogInSATModel
+    {
+        public string type { get; set; }
+        public string rfc { get; set; }
+        public string password { get; set; }
+
+        public LogInSATModel()
+        {
+            type = "ciec";
+        }
+    }
+
+    public class SatAuthResponseModel
+    {
+        public string id { get; set; }
+        public string type { get; set; }
+        public string rfc { get; set; }
+        public string status { get; set; }
+        public string createdAt { get; set; }
+        public string updatedAt { get; set; }
+    }
+
     public class ExtractionsFilter
     {
         public string taxpayer { get; set; }

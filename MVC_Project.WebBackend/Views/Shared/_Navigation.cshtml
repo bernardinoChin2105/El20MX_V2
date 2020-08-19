@@ -62,25 +62,18 @@
                 </li>
             }
 
-            <li class="active">
-                <a href="#"><i class="fa fa-file"></i> <span class="nav-label" data-i18n="nav.dashboard">Bancos</span> <span class="fain arrow"></span></a>           
-                    <ul class="nav nav-second-level collapse in">
-                        <li class="active"><a href="@Url.Action("Index", "Bank")">Banco</a></li>
-                    </ul>
-            </li>
-
-            @*@if (user.HasAccessToModule(SystemModules.PROSPECTS.ToString()))
-        {
-            <li class="@Html.IsModuleSelected(user, SystemModules.PROSPECTS.ToString())">
-                <a href="#"><i class="fa fa-file"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_PROSPECTS</span> <span class="fain arrow"></span></a>
-                @if (user.HasAccessController("Diagnostic"))
-                {
-                    <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Diagnostic", cssClass: "in")">
-                        <li class="@Html.IsSelected(controller: "Diagnostic")"><a href="@Url.Action("Index", "Diagnostic")">Diagnósticos</a></li>
-                    </ul>
-                }
-            </li>
-        }*@
+            @if (user.HasAccessToModule(SystemModules.BANKS.ToString()))
+            {
+                <li class="@Html.IsModuleSelected(user, SystemModules.BANKS.ToString())">
+                    <a href="#"><i class="fa fa-piggy-bank"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_BANKS</span> <span class="fain arrow"></span></a>
+                    @if (user.HasAccessController("Bank"))
+                    {
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Bank", cssClass: "in")">
+                            <li class="@Html.IsSelected(controller: "Bank")"><a href="@Url.Action("Index", "Bank")">Bancos</a></li>
+                        </ul>
+                    }
+                </li>
+            }
 
             @if (user.HasAccessToModule(SystemModules.CUSTOMERS.ToString()))
             {
@@ -189,18 +182,18 @@
 
 
             @*<li class="">
-            <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
-            <ul class="nav nav-second-level collapse in">
-                <li class="">
-                    <a href="#">Bancos <span class="fain arrow"></span></a>
-                    <ul class="nav nav-second-level collapse">
-                        <li class=""><a href="#">Conectar</a></li>
-                        <li class=""><a href="#">Cargar movimientos</a></li>
-                    </ul>
-                </li>
+                    <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
+                    <ul class="nav nav-second-level collapse in">
+                        <li class="">
+                            <a href="#">Bancos <span class="fain arrow"></span></a>
+                            <ul class="nav nav-second-level collapse">
+                                <li class=""><a href="#">Conectar</a></li>
+                                <li class=""><a href="#">Cargar movimientos</a></li>
+                            </ul>
+                        </li>
 
-            </ul>
-        </li>*@
+                    </ul>
+                </li>*@
 
 
         </ul>

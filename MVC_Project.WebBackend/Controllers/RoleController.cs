@@ -11,6 +11,8 @@ using MVC_Project.WebBackend.AuthManagement;
 using System.Web;
 using System.Collections.Specialized;
 using MVC_Project.FlashMessages;
+using LogHubSDK.Models;
+using Newtonsoft.Json;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -36,12 +38,13 @@ namespace MVC_Project.WebBackend.Controllers
             RoleViewModel roles = new RoleViewModel();
             return View(roles);
         }
+
         [HttpGet, AllowAnonymous]
         public JsonResult ObtenerRoles(JQueryDataTableParams param, string filtros)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
-                var userAuth = Authenticator.AuthenticatedUser;
                 IList<RoleData> UsuariosResponse = new List<RoleData>();
                 int totalDisplay = 0;
                 if (userAuth.Account != null)
@@ -60,6 +63,18 @@ namespace MVC_Project.WebBackend.Controllers
                         UsuariosResponse.Add(userData);
                     }
                 }
+
+                LogUtil.AddEntry(
+                   "Lista de clientes totalDisplay: " + totalDisplay + ", total: " + UsuariosResponse.Count(),
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return Json(new
                 {
                     success = true,
@@ -71,6 +86,17 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return new JsonResult
                 {
                     Data = new { success = false, message = ex.Message },
@@ -89,13 +115,35 @@ namespace MVC_Project.WebBackend.Controllers
         // GET: Role/Create
         public ActionResult Create()
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
+                LogUtil.AddEntry(
+                   "Nuevo Rol",
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 var roleCreateViewModel = new RoleCreateViewModel { Modules = PopulateModules() };
                 return View(roleCreateViewModel);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Index");
             }
@@ -103,6 +151,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         private List<FeatureViewModel> PopulateFeatures()
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             var features = _featureService.GetAll();
             var featuresViewModel = new List<FeatureViewModel>();
             var values = Enum.GetValues(typeof(SystemLevelPermission));
@@ -113,7 +162,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     Text = ((SystemLevelPermission)i).GetDisplayName(),
                     Value = i.ToString()
-            });
+                });
             }
             foreach (var feature in features)
             {
@@ -129,12 +178,24 @@ namespace MVC_Project.WebBackend.Controllers
                     }).ToList()
                 });
             }
-            
+
+            LogUtil.AddEntry(
+               "Roles populares: " + JsonConvert.SerializeObject(featuresViewModel),
+               ENivelLog.Info,
+               userAuth.Id,
+               userAuth.Email,
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+            );
+
             return featuresViewModel;
         }
 
         private List<PermissionViewModel> PopulatePermissions()
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             var permissions = _permissionService.GetAll();
             var permissionsVM = new List<PermissionViewModel>();
             permissionsVM = permissions.Select(permission => new PermissionViewModel
@@ -142,11 +203,24 @@ namespace MVC_Project.WebBackend.Controllers
                 Id = permission.id,
                 Name = permission.description
             }).ToList();
+
+            LogUtil.AddEntry(
+               "Permisos populares: " + JsonConvert.SerializeObject(permissionsVM),
+               ENivelLog.Info,
+               userAuth.Id,
+               userAuth.Email,
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+            );
+
             return permissionsVM;
         }
 
         private List<ModuleViewModel> PopulateModules()
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             var permissions = _permissionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString()).ToList();
             var permissionsVM = new List<ModuleViewModel>();
             permissionsVM = permissions.GroupBy(x => x.module).Select(g => new ModuleViewModel
@@ -160,11 +234,24 @@ namespace MVC_Project.WebBackend.Controllers
                     SystemActions = PopulateActions()
                 }).ToList()
             }).ToList();
+
+            LogUtil.AddEntry(
+               "Populares por modulo: " + JsonConvert.SerializeObject(permissionsVM),
+               ENivelLog.Info,
+               userAuth.Id,
+               userAuth.Email,
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+            );
+
             return permissionsVM;
         }
 
         public List<SelectListItem> PopulateActions()
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             var values = Enum.GetValues(typeof(SystemLevelPermission));
             var systemaActions = new List<SelectListItem>();
             foreach (int i in values)
@@ -175,6 +262,18 @@ namespace MVC_Project.WebBackend.Controllers
                     Value = i.ToString()
                 });
             }
+
+            LogUtil.AddEntry(
+               "Acciones Populares: " + JsonConvert.SerializeObject(systemaActions),
+               ENivelLog.Info,
+               userAuth.Id,
+               userAuth.Email,
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+            );
+
             return systemaActions;
         }
 
@@ -183,13 +282,13 @@ namespace MVC_Project.WebBackend.Controllers
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public ActionResult Create(RoleCreateViewModel roleCreateViewModel)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
 
                 var code = FormatUtil.ReplaceSpecialCharactersAndWhiteSpace(roleCreateViewModel.Name);
-                var userAuth = Authenticator.AuthenticatedUser;
 
                 if (_roleService.FindBy(x => x.code == code && x.account.id == userAuth.Account.Id).Any())
                     throw new Exception("Ya existe un rol con el nombre proporcionado");
@@ -222,12 +321,34 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 _roleService.CreateRole(role, rolesPermissions);
+
+                LogUtil.AddEntry(
+                   "Crea rol: " + JsonConvert.SerializeObject(role) + ", rolespermisos: " + JsonConvert.SerializeObject(rolesPermissions),
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
                 return RedirectToAction("Index");
 
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 roleCreateViewModel.Modules = PopulateModules();
                 return View(roleCreateViewModel);
@@ -237,10 +358,10 @@ namespace MVC_Project.WebBackend.Controllers
         // GET: Role/Edit/5
         public ActionResult Edit(string uuid)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
                 Role role = new Role();
-                var userAuth = Authenticator.AuthenticatedUser;
 
                 role = _roleService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid) && x.account.id == userAuth.Account.Id);
                 if (role == null)
@@ -250,12 +371,34 @@ namespace MVC_Project.WebBackend.Controllers
                 model.Id = role.id;
                 model.Name = role.name;
                 model.Code = role.code;
-                
+
                 model.Modules = PopulateModulesEdit(role);
+
+                LogUtil.AddEntry(
+                   "Modelo de edicion: " + JsonConvert.SerializeObject(model),
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return View(model);
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Index");
             }
@@ -280,6 +423,16 @@ namespace MVC_Project.WebBackend.Controllers
                     }
                 }
             }
+            LogUtil.AddEntry(
+               "Edicion de modulos populares: " + JsonConvert.SerializeObject(modules),
+               ENivelLog.Info,
+               userAuth.Id,
+               userAuth.Email,
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+            );
 
             return modules;
         }
@@ -294,7 +447,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
-                
+
                 IList<RolePermission> rolePermissions = role.rolePermissions;
 
                 List<PermissionViewModel> permissionsViewModels = new List<PermissionViewModel>();
@@ -325,11 +478,35 @@ namespace MVC_Project.WebBackend.Controllers
                 var oldRolePermissions = rolePermissions.Where(rp => !permissionsViewModels.Any(pvm => rp.permission.id == pvm.Id));
 
                 _rolePermissionService.UpdateRolePermissions(newRolePermissions, updateRolePermissions, oldRolePermissions);
+
+                LogUtil.AddEntry(
+                   "Edicion de rol, nuevos permisos: " + JsonConvert.SerializeObject(newRolePermissions) 
+                   + ", actualizacion de permisos: "+ JsonConvert.SerializeObject(updateRolePermissions)
+                   + ", antiguos permisos: "+ JsonConvert.SerializeObject(oldRolePermissions),
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 model.Modules = PopulateModulesEdit(role);
                 return View(model);
@@ -346,6 +523,7 @@ namespace MVC_Project.WebBackend.Controllers
         [HttpPost]
         public ActionResult Delete(string uuid, FormCollection collection)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
                 var rol = _roleService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
@@ -362,10 +540,32 @@ namespace MVC_Project.WebBackend.Controllers
 
                 }
                 _roleService.Update(rol);
+
+                LogUtil.AddEntry(
+                   "Eliminación de rol: " + JsonConvert.SerializeObject(rol),
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return Json(true, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
                 return Json(false, JsonRequestBehavior.AllowGet);
             }
         }

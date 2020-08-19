@@ -1,4 +1,5 @@
-﻿using MVC_Project.Domain.Services;
+﻿using LogHubSDK.Models;
+using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
 using MVC_Project.Integrations.Paybook;
 using MVC_Project.Integrations.SAT;
@@ -40,8 +41,32 @@ namespace MVC_Project.WebBackend.Controllers
             if (authUser == null)
             {
                 ViewBag.Error = "Sesion del usuario inválida";
+
+                LogUtil.AddEntry(
+                  "Inicio en Account: " + ViewBag.Error,
+                  ENivelLog.Warn,
+                  0,
+                  "",
+                  EOperacionLog.ACCESS,
+                  string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
+                  ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                  string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
+                );
+
                 return RedirectToAction("Index", "Auth");
             }
+
+            LogUtil.AddEntry(
+               "Inicio en Account",
+               ENivelLog.Info,
+               authUser.Id,
+               authUser.Email,
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+            );
+
             return View();
         }
 
@@ -68,6 +93,18 @@ namespace MVC_Project.WebBackend.Controllers
                 #endregion
             }
             accountViewModel.count = accountViewModel.accountListViewModels.Count;
+
+            LogUtil.AddEntry(
+               "SelectAccount Account total de cuentas: " + accountViewModel.count,
+               ENivelLog.Info,
+               authUser.Id,
+               authUser.Email,
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+            );
+
             return PartialView("_SelectAccountModal", accountViewModel);
         }
 
@@ -97,9 +134,31 @@ namespace MVC_Project.WebBackend.Controllers
 
                     Authenticator.RefreshAuthenticatedUser(authUser);
 
+                    LogUtil.AddEntry(
+                       "Obtener cuenta y permisos: " + uuid,
+                       ENivelLog.Info,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
+
                     return RedirectToAction("Index", "User");
                 }
             }
+
+            LogUtil.AddEntry(
+               "No se encontro cuenta: " + uuid,
+               ENivelLog.Warn,
+               authUser.Id,
+               authUser.Email,
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+            );
 
             return RedirectToAction("Login", "Auth");
         }
@@ -127,6 +186,7 @@ namespace MVC_Project.WebBackend.Controllers
         //[Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public ActionResult CreateCredential(LoginSATViewModel model)
         {
+            var authUser = Authenticator.AuthenticatedUser;
             try
             {
                 //Realizar la captura de la información
@@ -136,14 +196,12 @@ namespace MVC_Project.WebBackend.Controllers
                 if (accountExist != null)
                     throw new Exception("Existe una cuenta registrada con este RFC.");
                 var loginSat = new LogInSATModel { rfc = model.RFC, password = model.CIEC, type = "ciec" };
+                var satModel = SATwsService.CreateCredentialSat(loginSat);
                 //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
-                var responseSat = SATws.CallServiceSATws("credentials", loginSat, "Post");
+                //var responseSat = SATws.CallServiceSATws("credentials", loginSat, "Post");
 
-                var satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
+                //var satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
 
-                //Guardar la información si el llamado del servicio es exitoso
-                var authUser = Authenticator.AuthenticatedUser;
-                //var user = _accountService.FindBy(x => x.uuid == authUser.Uuid).FirstOrDefault();
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
                 //vamos a crear el account y memberships. Pendiente a que me confirme William los memberships
@@ -174,7 +232,7 @@ namespace MVC_Project.WebBackend.Controllers
                 Domain.Entities.Credential credential = new Domain.Entities.Credential()
                 {
                     account = account,
-                    provider = SystemProviders.SATWS.ToString(), //"SAT.ws",
+                    provider = SystemProviders.SATWS.GetDisplayName(), //"SAT.ws",
                     idCredentialProvider = satModel.id,
                     statusProvider = satModel.status,
                     createdAt = todayDate,
@@ -198,81 +256,48 @@ namespace MVC_Project.WebBackend.Controllers
 
                 Authenticator.RefreshAuthenticatedUser(authUser);
                 MensajeFlashHandler.RegistrarMensaje("Cuenta registrada correctamente", TiposMensaje.Success);
+                LogUtil.AddEntry(
+                   "Cuenta registrada correctamente",
+                   ENivelLog.Info,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return RedirectToAction("Index", "User");
-                //return new JsonResult
-                //{
-                //    Data = new { Mensaje = "Cuenta registrada", Type = "success", Success = true },
-                //    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                //    MaxJsonLength = Int32.MaxValue
-                //};        
             }
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
                 return View();
-                //string error = ex.Message.ToString();
-                //return new JsonResult
-                //{
-                //    Data = new { Mensaje = ex.Message.ToString(), Type = "error", Success = false },
-                //    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                //    MaxJsonLength = Int32.MaxValue
-                //};
             }
 
-        }
-
-
-
-        //Llamadas para paybook
-        [HttpGet]
-        [AllowAnonymous]
-        public JsonResult getToken()
-        {
-            try
-            {
-
-                //Obtener usuario                 
-                var responseUsers = Paybook.CallServicePaybook("users", null, "Get");
-
-                var dataUser = new Object();
-                //{
-                //    id_external = "{{sync_user_id_external}}",
-                //    name = "{{sync_user_name}}"
-                //};
-
-                //Crea un usuario
-                var responseUserPost = Paybook.CallServicePaybook("users", dataUser, "Post");
-
-                return new JsonResult
-                {
-                    //Data = new { Mensaje = message, Type = typeNoti, Success = result },
-                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                    MaxJsonLength = Int32.MaxValue
-                };
-            }
-            catch (Exception ex)
-            {
-                string error = ex.Message.ToString();
-                return new JsonResult
-                {
-                    Data = new { Mensaje = ex.Message.ToString(), Type = "error", Success = false },
-                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                    MaxJsonLength = Int32.MaxValue
-                };
-            }
         }
 
         [HttpGet]
         [AllowAnonymous]
         public JsonResult SelectLastAccount()
         {
+            var authUser = Authenticator.AuthenticatedUser;
             try
             {
                 bool result = false;
                 string message = string.Empty;
                 string typeNoti = string.Empty;
                 Guid uuid = new Guid();
-                var authUser = Authenticator.AuthenticatedUser;
                 var accountViewModel = new AccountSelectViewModel { accountListViewModels = new List<AccountListViewModel>() };
                 var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null).OrderByDescending(x => x.account.id).FirstOrDefault();
                 if (memberships != null)
@@ -296,6 +321,17 @@ namespace MVC_Project.WebBackend.Controllers
                     uuid = accountViewModel.accountListViewModels[0].uuid;
                 }
 
+                LogUtil.AddEntry(
+                   message,
+                   ENivelLog.Info,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return new JsonResult
                 {
                     Data = new { Success = result, Mensaje = message, uuid, Type = typeNoti },
@@ -305,6 +341,16 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                  "Se encontro un error: " + ex.Message.ToString(),
+                  ENivelLog.Error,
+                  authUser.Id,
+                  authUser.Email,
+                  EOperacionLog.ACCESS,
+                  string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                  ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                  string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+               );
                 return new JsonResult
                 {
                     Data = new { success = false, Mensaje = new { title = "Error", message = ex.Message } },
@@ -316,6 +362,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         private AccountSelectViewModel ValidarSat(AccountSelectViewModel accountViewModel)
         {
+            var authUser = Authenticator.AuthenticatedUser;
             foreach (var item in accountViewModel.accountListViewModels)
             {
                 var credential = _credentialService.FindBy(x => x.account.id == item.accountId).FirstOrDefault();
@@ -323,14 +370,43 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     if (credential.statusProvider == "pending")
                     {
-                        var responseSat = SATws.CallServiceSATws("credentials/" + credential.idCredentialProvider, null, "Get");
-                        var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
-                        credential.statusProvider = model.status;
-                        _credentialService.Update(credential);
+                        try
+                        {
+                            //var responseSat = SATws.CallServiceSATws("credentials/" + credential.idCredentialProvider, null, "Get");
+                            //var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
+                            var model = SATwsService.GetCredentialSat(credential.idCredentialProvider);
+                            credential.statusProvider = model.status;
+                            _credentialService.Update(credential);
+
+                            LogUtil.AddEntry(
+                               "Se actualizo el estatus del sat: "+ JsonConvert.SerializeObject(credential),
+                               ENivelLog.Info,
+                               authUser.Id,
+                               authUser.Email,
+                               EOperacionLog.ACCESS,
+                               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                            );
+                        }
+                        catch (Exception ex)
+                        {
+                            LogUtil.AddEntry(
+                              "Se encontro un error: " + ex.Message.ToString(),
+                              ENivelLog.Error,
+                              authUser.Id,
+                              authUser.Email,
+                              EOperacionLog.ACCESS,
+                              string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                              ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                              string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                           );
+                        }
                     }
                     item.statusValidate = credential.statusProvider;
                 }
             }
+
             return accountViewModel;
         }
     }
