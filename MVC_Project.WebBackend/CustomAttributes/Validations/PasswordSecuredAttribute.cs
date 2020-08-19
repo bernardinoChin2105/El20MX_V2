@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 
-namespace MVC_Project.Web.CustomAttributes.Validations
+namespace MVC_Project.WebBackend.CustomAttributes.Validations
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class PasswordSecuredAttribute : ValidationAttribute, IClientValidatable
@@ -24,7 +24,8 @@ namespace MVC_Project.Web.CustomAttributes.Validations
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            Regex regex = new Regex(@"^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$");
+            //Regex regex = new Regex(@"^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$");
+            Regex regex = new Regex(@"^(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$");
             string valueString = Convert.ToString(value);
             Match match = regex.Match(valueString);
             if (match.Success)

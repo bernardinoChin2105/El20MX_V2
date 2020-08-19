@@ -121,13 +121,13 @@
     <value>Olvidé mi contraseña</value>
   </data>
   <data name="AUTH_LOGIN_SUBMIT" xml:space="preserve">
-    <value>Acceder</value>
+    <value>Entrar</value>
   </data>
   <data name="AUTH_LOGIN_TITLE" xml:space="preserve">
-    <value>Iniciar Sesión</value>
+    <value>Iniciar sesión</value>
   </data>
   <data name="PASSWORD" xml:space="preserve">
-    <value>Constraseña</value>
+    <value>Contraseña</value>
   </data>
   <data name="PasswordRequired" xml:space="preserve">
     <value>Contraseña es requerida</value>
@@ -142,7 +142,7 @@
     <value>Usuario o correo electrónico requerido</value>
   </data>
   <data name="AUTH_LOGOUT" xml:space="preserve">
-    <value>Cerrar Sesión</value>
+    <value>Cerrar sesión</value>
   </data>
   <data name="HOME_TITLE" xml:space="preserve">
     <value>Bienvenido - Plataforma V2</value>
@@ -163,7 +163,7 @@
     <value>Reportes</value>
   </data>
   <data name="CONFIRM_NEW_PASSWORD" xml:space="preserve">
-    <value>Confirmar nueva contraseña</value>
+    <value>Confirmar contraseña</value>
   </data>
   <data name="NEW_PASSWORD" xml:space="preserve">
     <value>Nueva contraseña</value>
@@ -182,5 +182,17 @@
   </data>
   <data name="LABEL_CLEAN" xml:space="preserve">
     <value>Limpiar</value>
+  </data>
+  <data name="MODULE_CONFIGURATION" xml:space="preserve">
+    <value>Configuración</value>
+  </data>
+  <data name="MODULE_PROSPECTS" xml:space="preserve">
+    <value>Prospectos</value>
+  </data>
+  <data name="MODULE_CUSTOMERS" xml:space="preserve">
+    <value>Clientes</value>
+  </data>
+  <data name="MODULE_PROVIDERS" xml:space="preserve">
+    <value>Proveedores</value>
   </data>
 </root>

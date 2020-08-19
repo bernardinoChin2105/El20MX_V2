@@ -8,14 +8,21 @@ namespace MVC_Project.Data.Mappings {
 
         public PermissionMap() {
             Table("permissions");
-            Id(x => x.Id).GeneratedBy.Identity().Column("PermissionId");            
-            Map(x => x.Description).Column("description").Not.Nullable();
-            Map(x => x.Controller).Column("controller").Not.Nullable();
-            Map(x => x.Action).Column("action").Not.Nullable();
-            Map(x => x.Module).Column("module").Nullable();
-            Map(x => x.CreatedAt).Column("created_at").Not.Nullable();
-            Map(x => x.UpdatedAt).Column("updated_at").Not.Nullable();
-            Map(x => x.RemovedAt).Column("removed_at").Nullable();
+            Id(x => x.id).GeneratedBy.Identity().Column("id");
+            Map(x => x.uuid).Column("uuid").Not.Nullable();
+            Map(x => x.description).Column("description").Not.Nullable();
+            Map(x => x.controller).Column("controller").Not.Nullable();
+            //Map(x => x.action).Column("action").Not.Nullable();
+            Map(x => x.module).Column("module").Nullable();
+            Map(x => x.createdAt).Column("createdAt").Not.Nullable();
+            Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
+            Map(x => x.status).Column("status").Nullable();
+
+            References(x => x.account).Column("accountId").Nullable();
+            References(x => x.feature).Column("featureId").Nullable();
+
+            HasMany(x => x.mebershipPermissions).Inverse().Cascade.All().KeyColumn("permissionId");
+            HasMany(x => x.rolePermissions).Inverse().Cascade.All().KeyColumn("permissionId");
         }
     }
 }

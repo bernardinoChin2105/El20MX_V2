@@ -61,7 +61,7 @@ namespace MVC_Project.Domain.Services
 
             if (FilterUser > 0)
             {
-                query = query.Where(x => x.User.Id == FilterUser);
+                query = query.Where(x => x.User.id == FilterUser);
             }
             if (!string.IsNullOrWhiteSpace(FilterOrder))
             {

@@ -4,6 +4,7 @@ using NHibernate;
 using NHibernate.Cfg;
 using MVC_Project.Data.Mappings;
 using MVC_Project.Domain.Helpers;
+using NHibernate.Tool.hbm2ddl;
 
 namespace MVC_Project.Data.Helpers
 {
@@ -15,21 +16,28 @@ namespace MVC_Project.Data.Helpers
 
         public ISession Session { get; set; }
 
+        static FluentConfiguration BaseConfiguration()
+        {
+            var property = new Configuration().SetProperty(Environment.DefaultSchema, "dbo");
+            var config = Fluently.Configure(property)
+                .Database(MsSqlConfiguration.MsSql2012.ConnectionString(conection => conection.FromConnectionStringWithKey("DBConnectionString")))
+                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<UserMap>());
+
+            return config;
+        }
+
         static UnitOfWork()
         {
-            _sessionFactory = Fluently.Configure()
-                .Database(
-                MsSqlConfiguration.MsSql2012.ConnectionString(
-                    conection => conection.FromConnectionStringWithKey("DBConnectionString")))
-                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<UserMap>())
-                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<RoleMap>())
-                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<PermissionMap>())
-                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<RolePermissionMap>())
-                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<StoreMap>())
-                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<StaffMap>())
-                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<PaymentMap>())
+            //UpdateSchemaFromMappings();
+            _sessionFactory = BaseConfiguration()
                 .ExposeConfiguration(cfg => configuration = cfg)
                 .BuildSessionFactory();
+        }
+
+        public static void UpdateSchemaFromMappings()
+        {
+            var config = BaseConfiguration();
+            new SchemaUpdate(config.BuildConfiguration()).Execute(true, true);
         }
 
         public UnitOfWork()

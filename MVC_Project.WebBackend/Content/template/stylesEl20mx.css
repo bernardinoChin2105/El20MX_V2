@@ -1,7 +1,4 @@
-﻿body {
-}
-
-.nav.navbar-top-links li .fa-user {
+﻿.nav.navbar-top-links li .fa-user {
     font-size: 20px;
 }
 .nav > li.active {
@@ -14,7 +11,7 @@
 
 .btn.btn-color {
     background-color: #53D5E9;
-    color: #ffffff;
+    color: #ffffff !important;
     border: #53D5E9;
 }
 
@@ -24,4 +21,125 @@
         border: #002642;
     }
 
-/*37465A*/
+.btn.btn-facebook {
+    background-color: #4267b2;
+    color: #ffffff !important;
+    border: #4267b2;
+}
+
+    .btn.btn-facebook:hover {
+        background: #002642;
+        color: #FFFFFF;
+        border: #002642;
+    }
+
+.btn.btn-google {
+    background-color: #ea4334;
+    color: #ffffff !important;
+    border: #ea4334;
+}
+
+    .btn.btn-google:hover {
+        background: #a71204;
+        color: #FFFFFF;
+        border: #a71204;
+    }
+
+.abcRioButton.abcRioButtonBlue {
+    width: 100% !important;
+}
+
+#custom_signin_button,
+#my-signin2 {
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+}
+    #custom_signin_button .abcRioButton.abcRioButtonLightBlue,
+    #my-signin2 .abcRioButton.abcRioButtonLightBlue {
+        width: 100% !important;
+    }
+
+    #custom_signin_button:hover .btn.btn-google,
+    #my-signin2:hover + .btn.btn-google {
+        background: #a71204;
+        color: #FFFFFF;
+        border: #a71204;
+    }
+
+.line {
+    display: table;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 2px;
+    color: rgb(117, 117, 117);
+    position: relative;
+    text-align: center;
+    width: 85%;
+    margin: 0px auto 1em;
+}
+
+.line::before, .line::after {
+    content: "";
+    display: table-cell;
+    position: relative;
+    top: 0.8em;
+    width: 42%;
+    border-top: 1px solid rgb(189, 189, 189);
+}
+
+.btn-borderBlue {
+    border: 2px solid #002642;
+    color: #002642
+}
+
+    .btn-borderBlue:hover {
+        border: 2px solid #002642;
+    }
+
+.wizard > .steps .current a, .wizard > .steps .current a:hover, .wizard > .steps .current a:active {
+    background-color: #53D5E9
+}
+
+.wizard > .steps .done a, .wizard > .steps .done a:hover, .wizard > .steps .done a:active {
+    background-color: #4ab9ca
+    
+}
+
+.wizard > .actions a, .wizard > .actions a:hover, .wizard > .actions a:active {
+    background-color: #53D5E9
+}
+
+.page-item.active .page-link {
+    background-color: #53D5E9 !important;
+    color: #ffffff;
+    border-color: #53D5E9;
+}
+
+.chosen-container .chosen-results li.highlighted {
+    background-color: #53D5E9 !important;
+}
+
+.chosen-container-active.chosen-with-drop .chosen-single {
+    border-color: #53D5E9 !important;
+}
+
+.form-control:focus, .single-line:focus {
+    border-color: #53D5E9
+}
+
+.viewpass-input + label.error{
+    width: 100% !important;
+}
+
+.input-group > .custom-select:not(:first-child), .input-group > .form-control:not(:first-child) {
+    width: auto;
+}
+
+.form-group {
+    text-align: initial;
+}
+
+.mb-3, .my-3 {
+    text-align: initial;
+}

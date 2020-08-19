@@ -1,4 +1,4 @@
-﻿using MVC_Project.Web.CustomAttributes.Validations;
+﻿using MVC_Project.WebBackend.CustomAttributes.Validations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -49,7 +49,8 @@ namespace MVC_Project.WebBackend.Models
         public DateTime UpdatedAt { get; set; }
         public DateTime? LastLoginAt { get; set; }
         [Display(Name = "Estatus")]
-        public bool Status { get; set; }
+        public string Status { get; set; }
+        public bool IsOwner { get; set; }
     }
 
     public class UserCreateViewModel
@@ -62,6 +63,7 @@ namespace MVC_Project.WebBackend.Models
         public string Apellidos { get; set; }
 
         [Required]
+        [Display(Name = "Correo")]
         public string Email { get; set; }
 
         [Display(Name = "Usuario")]
@@ -73,11 +75,10 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Idioma")]
         public string Language { get; set; }
 
-        [Required]
         [Display(Name = "Contraseña")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
-        [Required]
+
         [Display(Name = "Confirmar contraseña")]
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; }
@@ -87,6 +88,10 @@ namespace MVC_Project.WebBackend.Models
         public int Role { get; set; }
 
         public IEnumerable<SelectListItem> Roles { get; set; }
+        [Display(Name="Acepto al usuario")]
+        public bool AcceptUser { get; set; }
+
+        //public IEnumerable<FeatureViewModel> Features { get; set; }
     }
 
     public class UserRoleViewModel
@@ -117,12 +122,16 @@ namespace MVC_Project.WebBackend.Models
     {
         public string Uuid { get; set; }
 
+        [Required]
         [Display(Name = "Nombre")]
         public string Name { get; set; }
 
+        [Required]
         [Display(Name = "Apellidos")]
         public string Apellidos { get; set; }
 
+        [Required]
+        [Display(Name = "Correo")]
         public string Email { get; set; }
 
         [Display(Name = "Usuario")]
@@ -134,10 +143,15 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Idioma")]
         public string Language { get; set; }
 
+        [Required]
         [Display(Name = "Rol")]
-        public int Role { get; set; }
+        public Int64 Role { get; set; }
 
-        public IEnumerable<SelectListItem> Roles { get; set; }
+        public List<SelectListItem> Roles { get; set; }
+
+        public string Status { get; set; }
+
+        public string RoleCode { get; set; }
     }
     public class UserImportViewModel
     {

@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using MVC_Project.FlashMessages;
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -6,11 +8,26 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
+    <meta name="google-signin-scope" content="profile email">
+    <!--Local-->
+    <meta name="google-signin-client_id" content="765148629644-ehqbkj60uuotg1tb7ofe66jjf7j8gaut.apps.googleusercontent.com">
+    <!--Azure Dev-->
+    <!--<meta name="google-signin-client_id" content="879827116478-m59eg6itdnoepetdg4qls2f8pliqss8h.apps.googleusercontent.com">-->
+
     <title>@ViewBag.Title | @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</title>
 
+
     @Styles.Render("~/Content/template/css")
+    @Styles.Render("~/Scripts/plugins/jquery-ui/jqueryuiStyles")
     @Styles.Render("~/font-awesome/css")
+    @Styles.Render("~/plugins/dataTablesStyles")
     @Styles.Render("~/plugins/sweetAlertStyles")
+    @Styles.Render("~/plugins/toastrStyles")
+    @Styles.Render("~/Content/template/plugins/chosen/chosenStyles")
+    <link href="~/Content/template/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/template/plugins/steps/jquery.steps.css" rel="stylesheet" />
+    <link href="~/Content/template/stylesEl20mx.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://www.paybook.com/sync/widget/v2/widget.css" />
 
     <!-- Local styles -->
     @if (IsSectionDefined("Styles"))
@@ -21,8 +38,23 @@
 </head>
 
 <body>
+    <div id="wrapper" class="@Html.PageClass()">
 
-    <div id="wrapper">
+        @*Modal para cargador*@
+        <div class="modal modal-backdrop" id="CargadorPantalla" tabindex="-1" role="dialog" aria-hidden="false" style="background-color:#0006 !important">
+            <div class="modal-dialog modal-sm" style="width:100%; height:100%;display: block;">
+                <div class="modal-body" style="width:100%;height:100%;">
+                    <img id="imgLoadingLayout" height="80" width="100" src="~/Images/logos/loading_animate.svg" style="
+                    top: 50%;
+                    left: 50%;
+                    position: relative;
+                    transform: translate(-50%,-50%);
+                    zoom: 4;
+                    " />
+                </div>
+            </div>
+        </div>
+
 
         <!-- Left navigation bar -->
         @Html.Partial("_Navigation")
@@ -45,9 +77,8 @@
             @Html.Partial("_Footer")
 
         </div>
-
+        @*<div id="widget"></div>*@
     </div>
-
 
     <!-- Mainly scripts -->
     <script src="~/Scripts/jquery-3.1.1.min.js"></script>
@@ -55,27 +86,139 @@
     <script src="~/Scripts/bootstrap.js"></script>
     <script src="~/Scripts/plugins/metisMenu/jquery.metisMenu.js"></script>
     <script src="~/Scripts/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="~/Scripts/plugins/steps/jquery.steps.min.js"></script>
+    @Scripts.Render("~/bundles/jqueryui")
+    <script src="~/Scripts/timeout-dialog.js"></script>
 
     @Scripts.Render("~/font-awesome/js")
     @Scripts.Render("~/plugins/sweetAlert")
-
+    @Scripts.Render("~/plugins/toastr")
+    @Scripts.Render("~/plugins/chosen")
+    @Scripts.Render("~/plugins/dataTables")
+    @Scripts.Render("~/plugins/fullCalendar")
+    @Scripts.Render("~/plugins/validate")
+    @Scripts.Render("~/custom/Utils")
+    <script type="text/javascript" src="https://www.paybook.com/sync/widget/v2/widget.js"></script>
+    <script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>
     <!-- Custom and plugin javascript -->
     <script src="~/Scripts/inspinia.js"></script>
     <script src="~/Scripts/plugins/pace/pace.min.js"></script>
+    <!-- Script para redes sociales-->
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="~/Scripts/Facebook.js"></script>
+    <script src="~/Scripts/Google.js"></script>
+    <!-- fin de Script para redes sociales-->
+    <!--<script src="~/Scripts/Paybook.js"></script>-->
+
+    @if (Html.TieneMensaje())
+    {
+        var mensaje = @Html.ObtenerMensaje();
+        <script type="text/javascript">
+            toastr['@mensaje.Tipo']('@mensaje.Mensaje');
+            //toastr.options = {
+            //    "closeButton": false,
+            //    "debug": false,
+            //    "newestOnTop": false,
+            //    "progressBar": false,
+            //    "positionClass": "toast-bottom-center",
+            //    "preventDuplicates": false,
+            //    "onclick": null,
+            //    "showDuration": "300",
+            //    "hideDuration": "1000",
+            //    "timeOut": "0",
+            //    "extendedTimeOut": "0",
+            //    "showEasing": "swing",
+            //    "hideEasing": "linear",
+            //    "showMethod": "fadeIn",
+            //    "hideMethod": "fadeOut"
+            //};
+        </script>
+    }
 
     <!-- iCheck -->
     <script src="~/Scripts/plugins/iCheck/icheck.min.js"></script>
     <script>
-        $(document).ready(function () {
-            $('.i-checks').iCheck({
-                checkboxClass: 'icheckbox_square-green',
-                radioClass: 'iradio_square-green',
-            });
+        $("#CloseSession").click(function (e) {
+            e.preventDefault()
+            console.log($(this), "quien es?")
+            //vamos a intentar cerrar sesión
+            signOut();//Cierre de google
+            close();//Cierre de facebook
+            console.log("se cerro?")
+            var url = $(this).attr("href");
+            window.location = url;
         });
     </script>
 
     <!-- Local scripts -->
     @RenderSection("scripts", required: false)
+    <script>
+        $(function () {
+            var SESSIONTIMEOUT = '@Session.Timeout';
+            var fnTimeOut = function () {
+                jQuery.timeoutDialog.setupDialogTimer({
+                    timeout: (SESSIONTIMEOUT*60),
+                    countdown: 60,
+                    title: '¡Tu sesión esta a punto de caducar!',
+                    message: 'Se desconectará en {0} segundos.',
+                    question: '¿Quieres estar conectado?',
+                    keep_alive_button_text: 'Sí, mantenerme sesión',
+                    sign_out_button_text: 'No, cerrar sesión',
+                    logout_redirect_url: '@Url.Action("Logout", "Auth")',
+                    keep_alive_url: '@Url.Action("KeepAlive", "Auth")',
+                    dialog_width: 400,
+                    keep_alive_function: function () {
+                        $("body").css("overflow", "auto");
+                    },
+                    logout_function: function () {
+                        El20Utils.mostrarCargador();
+                    }
+                });
+            };
+            fnTimeOut();
+
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
+            });
+        });
+        jQuery.extend(jQuery.validator.messages, {
+            required: "Campo requerido.",
+            remote: "Ajustar el campo.",
+            email: "Ingrese un correo válido.",
+            url: "Ingrese una URL válida.",
+            date: "Ingrese una fecha válida.",
+            dateISO: "Ingrese una fecha válida (ISO).",
+            number: "Ingrese un número válido.",
+            digits: "Ingrese solamente digitos.",
+            creditcard: "Ingrese un número de tarjeta válido.",
+            equalTo: "Ingrese el mismo valor nuevamente.",
+            accept: "Ingrese un valor con una extensión válida.",
+            maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres."),
+            minlength: jQuery.validator.format("Ingrese a lo menos {0} caracteres."),
+            rangelength: jQuery.validator.format("Ingrese un valor entre {0} y {1} caracteres de longitud."),
+            range: jQuery.validator.format("Ingrese un valor entre {0} y {1}."),
+            max: jQuery.validator.format("Ingrese un valor menor o igual a {0}."),
+            min: jQuery.validator.format("Ingrese un valor mayor o igual a {0}.")
+        });
+        jQuery.validator.setDefaults({
+            errorPlacement: function (error, element) {
+                if (element.is(':checkbox') || element.is(':radio')) {
+                    var controls = element.closest('is');
+                    if (controls.find(':checkbox,:radio').length > 1) controls.append(error);
+                    else error.insertAfter(".i-checks");//element.nextAll('.lbl:eq(0)').eq(0)
+                }
+                else if (element.is('.select2')) {
+                    error.insertAfter(element.siblings('[class*="select2-container"]:eq(0)'));
+                }
+                else if (element.is('.chosen-select')) {
+                    error.insertAfter(element.siblings('[class*="chosen-container"]:eq(0)'));
+                }
+                else error.insertAfter(element);
+            },
+            ignore: ":hidden:not(select)"
+        });
+    </script>
 
 </body>
 

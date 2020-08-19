@@ -8,17 +8,21 @@ namespace MVC_Project.Data.Mappings {
 
         public RoleMap() {
             Table("roles");
-            Id(x => x.Id).GeneratedBy.Identity().Column("RoleId");
-            Map(x => x.Code).Column("code").Not.Nullable();
-            Map(x => x.Name).Column("name").Not.Nullable();
-            Map(x => x.Uuid).Column("uuid").Not.Nullable();
-            Map(x => x.Description).Column("description").Not.Nullable();            
-            Map(x => x.CreatedAt).Column("created_at").Not.Nullable();
-            Map(x => x.UpdatedAt).Column("updated_at").Not.Nullable();
-            Map(x => x.RemovedAt).Column("removed_at").Nullable();
-            Map(x => x.Status).Column("status").Nullable();
-            HasMany(x => x.Users).Inverse().Cascade.All().KeyColumn("RoleId");
-            HasManyToMany(x => x.Permissions).Cascade.All().Table("permission_role").ParentKeyColumn("RoleId").ChildKeyColumn("PermissionId");
+            Id(x => x.id).GeneratedBy.Identity().Column("id");
+            Map(x => x.code).Column("code").Not.Nullable();
+            Map(x => x.name).Column("name").Not.Nullable();
+            Map(x => x.uuid).Column("uuid").Not.Nullable();
+            Map(x => x.description).Column("description").Not.Nullable();            
+            Map(x => x.createdAt).Column("createdAt").Not.Nullable();
+            Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
+            Map(x => x.status).Column("status").Nullable();
+
+            References(x => x.account).Column("accountId").Nullable();
+            
+            //HasMany(x => x.users).Inverse().Cascade.All().KeyColumn("roleId");
+            HasMany(x => x.memberships).Inverse().Cascade.All().KeyColumn("roleId");
+            HasMany(x => x.rolePermissions).Inverse().Cascade.All().KeyColumn("roleId");
+            //HasManyToMany(x => x.permissions).Cascade.All().Table("rolesPermissions").ParentKeyColumn("roleId").ChildKeyColumn("permissionId");
         }
     }
 }

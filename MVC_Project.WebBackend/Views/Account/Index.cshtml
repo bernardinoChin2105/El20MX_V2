@@ -1,0 +1,33 @@
+﻿@{
+    ViewBag.Title = "";
+}
+
+<div class="row">
+    <div id="selectAccountModal" class="modal fade hidden-print" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="dialog">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div id="createAccountModal" class="modal fade hidden-print" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="dialog">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/plugins/validate")
+    <script src="~/Scripts/views/Account/Index.js" type="text/javascript"></script>
+    <script>
+        var urls = {
+            urlSelect: "@Url.Action("SelectAccount")",
+            urlCreate: "@Url.Action("CreateAccountModal")",
+            urlCredential: "@Url.Action("CreateCredential")",
+            urlSelectLastAccount: "@Url.Action("SelectLastAccount")",
+            urlSetAccount: "@Url.Action("SetAccount")",
+        }
+    </script>
+}

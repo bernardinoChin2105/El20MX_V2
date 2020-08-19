@@ -1,16 +1,21 @@
-﻿<div class="row border-bottom">
+﻿@using MVC_Project.WebBackend.AuthManagement
+@using MVC_Project.WebBackend.AuthManagement.Models
+@{
+    AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
+}
+<div class="row border-bottom">
     <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
         <div class="navbar-header">
             <a class="navbar-minimalize minimalize-styl-2 btn btn-color" href="#"><i class="fa fa-bars"></i> </a>
+            <img src="~/Images/logo_el20mx.png" width="30%" style="margin:10px 5px 5px 10px; padding: 4px 12px"/>
         </div>
         <ul class="nav navbar-top-links navbar-right">
             <li>
-                @*<img src="~/Images/logos/logo_icon.png" width="100" />*@
-                <i class="fa fa-user"></i>
-            </li>
-            <li>
-                <a href="@Url.Action("Logout", "Auth")">
-                    <i class="fa fa-sign-out"></i>@ViewLabels.AUTH_LOGOUT
+                <a href="@Url.Action("Logout", "Auth")" id="CloseSession">
+                    <span class="m-r-sm text-muted welcome-message"> 
+                        <i class="fa fa-sign-out"></i>
+                        <strong>@ViewLabels.AUTH_LOGOUT</strong>
+                    </span>
                 </a>
             </li>
         </ul>

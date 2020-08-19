@@ -38,7 +38,7 @@ namespace MVC_Project.WebBackend.Controllers
                 foreach (var eventBO in results)
                 {
                     EventData eventData = new EventData();
-                    eventData.Id = eventBO.Id;
+                    eventData.Id = eventBO.id;
                     eventData.Uuid = eventBO.Uuid;
                     eventData.Title = eventBO.Title;
                     eventData.Description = eventBO.Description;
@@ -86,7 +86,7 @@ namespace MVC_Project.WebBackend.Controllers
                     eventBO.Title = model.Title;
                     eventBO.Description = model.Description;
                     eventBO.IsFullDay = model.IsFullDay;
-                    eventBO.User = new User() { Id = Authenticator.AuthenticatedUser.Id };
+                    eventBO.User = new User() { id = Authenticator.AuthenticatedUser.Id };
                     eventBO.CreationDate = DateUtil.GetDateTimeNow();
                     eventBO.StartDate = startDate.Value;
                     eventBO.EndDate = endDate;
@@ -105,7 +105,7 @@ namespace MVC_Project.WebBackend.Controllers
             if (!string.IsNullOrEmpty(uuid))
             {
                 Event eventBO = _eventService.FindBy(x => x.Uuid == uuid).FirstOrDefault();
-                _eventService.Delete(eventBO.Id);
+                _eventService.Delete(eventBO.id);
                 status = true;
             }
             

@@ -11,12 +11,18 @@ namespace MVC_Project.WebBackend
             // CSS style (bootstrap/inspinia)
             bundles.Add(new StyleBundle("~/Content/template/css").Include(
                           "~/Content/template/bootstrap.min.css",
-                          "~/Content/template/plugins/iCheck/custom.css",
+                          "~/Content/template/plugins/iCheck/square/blue.css",
+                          "~/Content/template/timeout-dialog.css",
                           "~/Content/template/animate.css",
                           "~/Content/template/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css",
                           "~/Content/template/style.css",
                           "~/Content/template/stylesEl20mx.css"));
-           
+
+            bundles.Add(new StyleBundle("~/Content/templatepdf/css").Include(
+                         "~/Content/template/bootstrap3/bootstrap.min.css"));
+                         //"~/Content/template/style.css",
+                         //"~/Content/template/stylesEl20mx.css"
+
 
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/Scripts/jquery-{version}.js"));
@@ -108,7 +114,39 @@ namespace MVC_Project.WebBackend
                       "~/Scripts/views/user/Index.js"));
             bundles.Add(new ScriptBundle("~/views/rol").Include(
                       "~/Scripts/views/rol/Index.js"));
+            bundles.Add(new ScriptBundle("~/views/diagnosticIndex").Include(
+                      "~/Scripts/views/Diagnostic/Index.js"));
+            bundles.Add(new ScriptBundle("~/views/customerIndex").Include(
+                      "~/Scripts/views/Customer/Index.js"));
 
+
+            // toastr notification
+            bundles.Add(new ScriptBundle("~/plugins/toastr").Include(
+                      "~/Scripts/plugins/toastr/toastr.min.js"));
+
+            // toastr notification styles
+            bundles.Add(new StyleBundle("~/plugins/toastrStyles").Include(
+                      "~/Content/template/plugins/toastr/toastr.min.css"));
+
+            // daterangepicker
+            bundles.Add(new ScriptBundle("~/plugins/daterangepicker").Include(
+                      "~/Scripts/plugins/daterangepicker/daterangepicker.js"));
+
+            // daterangepicker styles
+            bundles.Add(new StyleBundle("~/plugins/daterangepickerStyles").Include(
+                      "~/Content/template/plugins/daterangepicker/daterangepicker-bs3.css"));
+
+            // toastr notification
+            bundles.Add(new ScriptBundle("~/plugins/jqueryFileDownload.js").Include(
+                      "~/Scripts/jquery.fileDownload.js"));
+
+            // jQueryUI CSS
+            bundles.Add(new StyleBundle("~/Scripts/plugins/jquery-ui/jqueryuiStyles").Include(
+                        "~/Scripts/plugins/jquery-ui/jquery-ui.min.css"));
+
+            // jQueryUI 
+            bundles.Add(new ScriptBundle("~/bundles/jqueryui").Include(
+                        "~/Scripts/plugins/jquery-ui/jquery-ui.min.js"));
 
         }
     }

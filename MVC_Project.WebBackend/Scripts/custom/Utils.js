@@ -522,3 +522,100 @@ function getFiltros(form) {
 
     return JSON.stringify(filtros);
 }
+
+var El20Utils = El20Utils || {};
+
+(function (x, $) {
+
+    //DataTables.
+    x.GRID_TOTAL_ITEMS = [50, 100, 200, 300, 400, 500];
+    x.PAGE_LENGTH_INIT = 50;
+    x.GRID_LANG_SPANISH = {
+        "sProcessing": "Procesando...",
+        "sLengthMenu": "Mostrar _MENU_ registros",
+        "sZeroRecords": "No se encontraron resultados",
+        "sEmptyTable": "Ningún dato disponible en esta tabla",
+        "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+        "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+        "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+        "sInfoPostFix": "",
+        "sSearch": "Buscar:",
+        "sUrl": "",
+        "sInfoThousands": ",",
+        "sLoadingRecords": "Cargando...",
+        "oPaginate": {
+            "sFirst": "Primero",
+            "sLast": "Último",
+            "sNext": "Siguiente",
+            "sPrevious": "Anterior"
+        },
+        "oAria": {
+            "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+            "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+        },
+        "buttons": {
+            "copy": "Copiar",
+            "colvis": "Visibilidad"
+        }
+    };
+
+
+    //Date.
+    x.DATE_FORMAT = 'DD/MM/YYYY';
+
+    x.lenguajeTabla = function (messages) {
+        return {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": messages.emptyTable ? messages.emptyTable : "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            },
+            "buttons": {
+                "copy": "Copiar",
+                "colvis": "Visibilidad"
+            }
+        }
+    };
+
+    //Methods
+    x.mostrarCargador = function () {
+        $('#CargadorPantalla').modal('show');
+    };
+    x.mostrarCargadorModal = function () {
+        $('#CargadorPantalla').addClass('modalzindex');
+        $('#CargadorPantalla').modal('show');
+    };
+
+    x.ocultarCargador = function () {
+        $('#CargadorPantalla').modal('hide');
+    };
+    x.ocultarCargadorModal = function () {
+        $('#CargadorPantalla').removeClass('modalzindex');
+        $('#CargadorPantalla').modal('hide');
+    };
+
+    x.formatoMoneda = function (num) {
+        return "$" + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    };
+    x.formatoNumero = function (num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    };
+
+})(El20Utils, jQuery);

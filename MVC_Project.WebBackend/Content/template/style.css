@@ -2690,7 +2690,7 @@ div.dt-button-info {
   display: none;
 }
 .pace .pace-progress {
-  background: #1ab394;
+  background: #53D5E9;
   position: fixed;
   z-index: 2040;
   top: 0;
@@ -2806,9 +2806,9 @@ div.dt-button-info {
 .form-control {
   font-size: 0.9rem;
 }
-select.form-control:not([size]):not([multiple]) {
+/*select.form-control:not([size]):not([multiple]) {
   height: 2.05rem;
-}
+}*/
 .input-sm,
 .form-control-sm {
   height: 31px;
@@ -3351,9 +3351,11 @@ select.form-control:not([size]):not([multiple]) {
 }
 /* Validation */
 label.error {
-  color: #cc5965;
-  display: inline-block;
-  margin-left: 5px;
+    color: #cc5965;
+    display: inline-block;
+    margin-left: 5px;
+    font-style: italic;
+    font-weight: inherit !important;
 }
 .form-control.error {
   border: 1px dotted #cc5965;

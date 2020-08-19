@@ -257,5 +257,38 @@ namespace MVC_Project.Resources {
                 return ResourceManager.GetString("UsernameRequired", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Busca una cadena traducida similar a Username or Email is required.
+        /// </summary>
+        public static string MODULE_CONFIGURATION
+        {
+            get
+            {
+                return ResourceManager.GetString("MODULE_CONFIGURATION", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Busca una cadena traducida similar a clientes.
+        /// </summary>
+        public static string MODULE_CUSTOMERS
+        {
+            get
+            {
+                return ResourceManager.GetString("MODULE_CUSTOMERS", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Busca una cadena traducida similar a proveedores.
+        /// </summary>
+        public static string MODULE_PROVIDERS
+        {
+            get
+            {
+                return ResourceManager.GetString("MODULE_PROVIDERS", resourceCulture);
+            }
+        }
     }
 }

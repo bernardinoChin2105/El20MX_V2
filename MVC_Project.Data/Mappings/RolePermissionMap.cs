@@ -12,10 +12,12 @@ namespace MVC_Project.Data.Mappings
     {
         public RolePermissionMap()
         {
-            Table("permission_role");
-            Id(x => x.Id).GeneratedBy.Identity().Column("PermissionRoleId");
-            References(x => x.Role).Column("RoleId");
-            References(x => x.Permission).Column("PermissionId");
+            Table("rolesPermissions");
+            Id(x => x.id).GeneratedBy.Identity().Column("id");
+            References(x => x.role).Column("roleId");
+            References(x => x.permission).Column("permissionId");
+            Map(x => x.level).Column("level").Nullable();
+            References(x => x.account).Column("accountId").Nullable();
         }
     }
 }

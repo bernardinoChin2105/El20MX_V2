@@ -18,12 +18,17 @@ namespace MVC_Project.Domain.Services
             _baseRepository = baseRepository;
         }
 
+        public void Create(IEnumerable<M> entities)
+        {
+            _baseRepository.Create(entities);
+        }
+
         public void Create(M entity)
         {
             _baseRepository.Create(entity);
         }
 
-        public void Delete(int id)
+        public void Delete(Int64 id)
         {
             _baseRepository.Delete(id);
         }
@@ -33,12 +38,17 @@ namespace MVC_Project.Domain.Services
             return _baseRepository.FindBy(predicate);
         }
 
+        public M FirstOrDefault(Expression<Func<M, bool>> predicate)
+        {
+            return _baseRepository.FirstOrDefault(predicate);
+        }
+
         public IEnumerable<M> GetAll()
         {
             return _baseRepository.GetAll().ToList();
         }
 
-        public M GetById(int id)
+        public M GetById(Int64 id)
         {
             return _baseRepository.GetById(id);
         }

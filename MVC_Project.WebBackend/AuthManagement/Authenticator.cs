@@ -20,6 +20,12 @@ namespace MVC_Project.WebBackend.AuthManagement
             FormsAuthentication.SetAuthCookie(authUser.Email, true);
         }
 
+        public static void RefreshAuthenticatedUser(AuthUser authUser)
+        {
+            HttpContext.Current.Session.Remove("ST_AUTH_USER");
+            HttpContext.Current.Session.Add("ST_AUTH_USER", authUser);
+        }
+
         public static void RemoveAuthenticatedUser()
         {            
             HttpContext.Current.Session.Remove("ST_AUTH_USER");            

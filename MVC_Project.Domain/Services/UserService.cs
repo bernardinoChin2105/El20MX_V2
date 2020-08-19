@@ -17,6 +17,8 @@ namespace MVC_Project.Domain.Services
     public interface IUserService : IService<User>
     {
         Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, int? skip, int? take);
+        Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, Int64 accountId, int? skip, int? take);
+        User CreateUser(User user);
     }
 
     #endregion Interfaces
@@ -38,12 +40,12 @@ namespace MVC_Project.Domain.Services
             var query = _repository.Session.QueryOver<User>();
             if (!string.IsNullOrWhiteSpace(FilterName))
             {
-                query = query.Where(user => user.Email.IsInsensitiveLike("%" + FilterName + "%") || user.FirstName.IsInsensitiveLike("%" + FilterName + "%") || user.LastName.IsInsensitiveLike("%" + FilterName + "%"));
+                query = query.Where(user => user.name.IsInsensitiveLike("%" + FilterName + "%") || user.profile.firstName.IsInsensitiveLike("%" + FilterName + "%") || user.profile.lastName.IsInsensitiveLike("%" + FilterName + "%"));
             }
             if (FilterStatus != Constants.SEARCH_ALL)
             {
-                bool FilterStatusBool = Convert.ToBoolean(FilterStatus);
-                query = query.Where(user => user.Status == FilterStatusBool);
+                string FilterStatusBool = SystemStatus.ACTIVE.ToString();
+                query = query.Where(user => user.status == FilterStatusBool);
             }
             var count = query.RowCount();
 
@@ -56,8 +58,71 @@ namespace MVC_Project.Domain.Services
             {
                 query.Take(take.Value);
             }
-            var list = query.OrderBy(u => u.CreatedAt).Desc.List();
+            var list = query.OrderBy(u => u.createdAt).Desc.List();
             return new Tuple<IEnumerable<User>, int>(list, count);
         }
+
+        public Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, Int64 accountId, int? skip, int? take)
+        {
+            string FilterName = filtersValue.Get("Name").Trim();
+            int FilterStatus = Convert.ToInt32(filtersValue.Get("Status").Trim());
+
+            Membership membershipAlias = null;
+            Account accountAlias = null;
+            Profile profileAlias = null;
+
+            var query = _repository.Session.QueryOver<User>()
+                .JoinAlias(x => x.profile, () => profileAlias)
+                .JoinAlias(x => x.memberships, () => membershipAlias)
+                .JoinAlias(() => membershipAlias.account, () => accountAlias)
+                .Where(() => accountAlias.id == accountId);
+
+            if (!string.IsNullOrWhiteSpace(FilterName))
+            {
+                query = query.Where(user => user.name.IsInsensitiveLike("%" + FilterName + "%") || profileAlias.firstName.IsInsensitiveLike("%" + FilterName + "%") || profileAlias.lastName.IsInsensitiveLike("%" + FilterName + "%"));
+            }
+            if (FilterStatus != Constants.SEARCH_ALL)
+            {
+                if (FilterStatus == (int)SystemStatus.ACTIVE)
+                    query = query.Where(() => membershipAlias.status == SystemStatus.ACTIVE.ToString());
+                else if (FilterStatus == (int)SystemStatus.INACTIVE)
+                    query = query.Where(() => membershipAlias.status == SystemStatus.INACTIVE.ToString());
+                else if (FilterStatus == (int)SystemStatus.UNCONFIRMED)
+                    query = query.Where(() => membershipAlias.status == SystemStatus.UNCONFIRMED.ToString());
+            }
+            var count = query.RowCount();
+
+            if (skip.HasValue)
+            {
+                query.Skip(skip.Value);
+            }
+
+            if (take.HasValue)
+            {
+                query.Take(take.Value);
+            }
+            var list = query.OrderBy(u => u.createdAt).Desc.List();
+            return new Tuple<IEnumerable<User>, int>(list, count);
+        }
+
+        public User CreateUser(User user)
+        {
+            using (var transaction = _repository.Session.BeginTransaction())
+            {
+                try
+                {
+                    _repository.Session.Save(user.profile);
+                    _repository.Session.Save(user);
+                    transaction.Commit();
+                    return user;
+                }
+                catch(Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
+                }
+            }
+        }
+
     }
 }

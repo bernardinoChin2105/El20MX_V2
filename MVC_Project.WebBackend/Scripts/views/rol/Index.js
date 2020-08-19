@@ -1,12 +1,14 @@
-﻿var RolIndexControlador = function (htmlTableId, baseUrl, modalEditAction, modalDeleteAction) {
+﻿var RolIndexControlador = function (htmlTableId, baseUrl, modalEditAction, modalDeleteAction, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
     this.dataTable = {};
 
     this.init = function () {
-        self.dataTable = this.htmlTable.DataTable({
-            language: { url: 'Scripts/custom/dataTableslang.es_MX.json' },
+        self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
+            El20Utils.mostrarCargador();
+        }).DataTable({
+            language: El20Utils.lenguajeTabla({}),
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": this.baseUrl,
@@ -16,7 +18,7 @@
             columns: [
                 { data: 'Id', title: "Id", visible: false },
                 { data: 'Name', title: "Nombre" },
-                { data: 'Description', title: "Descripción" },
+                //{ data: 'Description', title: "Descripción" },
                 {
                     data: null, orderName: "CreatedAt", title: "Fecha Creación", autoWidth: false, className: "dt-center td-actions thead-dark",
                     render: function (data, type, row, meta) {
@@ -47,7 +49,7 @@
                             '<button class="btn btn-light btn-edit"><span class="fas fa-edit"></span></button>' +
                             //'<button class="btn btn-light btn-delete" style="margin-left:5px;"><span class="fas fa-trash"></span></button>' +
                             '</div>';
-                        return buttons;
+                        return hasFullAccessController ? buttons : "";
                     }
                 }
             ],
@@ -56,13 +58,17 @@
                 aoData.push({ "name": "filtros", "value": getFiltros("form#SearchForm") });
 
                 $.getJSON(sSource, aoData, function (json) {
-                    //if (json.success === true)
-                    fnCallback(json);
-                    //else
-                    //    console.log(json.Mensaje + " Error al obtener los elementos");
+                    if (json.success) {
+                        fnCallback(json);
+                    }
+                    else {
+                        toastr['error'](json.message);
+                    }
                 });
             }
-        });
+        }).on('xhr.dt', function (e, settings, data) {
+            El20Utils.ocultarCargador();
+        });;
 
         $(this.htmlTable, "tbody").on('click',
             'td.personal-options .btn-group .btn-active',

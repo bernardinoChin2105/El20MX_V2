@@ -8,7 +8,7 @@ namespace MVC_Project.Domain.Entities
 {
     public class Staff : IEntity
     {
-        public virtual int Id { get; set; }
+        public virtual Int64 id { get; set; }
         public virtual string FirstName { get; set; }
         public virtual string LastName { get; set; }
         public virtual string Email { get; set; }

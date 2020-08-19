@@ -28,7 +28,7 @@ namespace MVC_Project.Data.Repositories
             Session.Flush();
         }
 
-        public void Delete(int id)
+        public void Delete(Int64 id)
         {
             Session.Delete(Session.Load<T>(id));
             Session.Flush();
@@ -44,7 +44,7 @@ namespace MVC_Project.Data.Repositories
             return Session.Query<T>().ToList<T>();
         }
 
-        public T GetById(int id)
+        public T GetById(Int64 id)
         {
             return Session.Get<T>(id);
         }
@@ -53,6 +53,26 @@ namespace MVC_Project.Data.Repositories
         {
             Session.Update(entity);
             Session.Flush();
+        }
+
+        public void Create(IEnumerable<T> entities)
+        {
+            for (int i = 0; i < entities.Count(); i++)
+            {
+                Session.Save(entities.ElementAt(i));
+                // 1000, same as the ADO batch size
+                if (i % 1000 == 0)
+                {
+                    // flush a batch of inserts and release memory:
+                    Session.Flush();
+                    Session.Clear();
+                }
+            }
+        }
+
+        public T FirstOrDefault(Expression<Func<T, bool>> predicate)
+        {
+            return Session.Query<T>().FirstOrDefault(predicate);
         }
     }
 }

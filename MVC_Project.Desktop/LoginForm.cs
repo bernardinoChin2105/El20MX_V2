@@ -48,11 +48,11 @@ namespace MVC_Project.Desktop
             {
                 AuthUser authUser = new AuthUser()
                 {
-                    Id = user.Id,
-                    Email = user.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Uuid = user.Uuid
+                    Id = user.id,
+                    Email = user.name,
+                    FirstName = user.profile.firstName,
+                    LastName = user.profile.lastName,
+                    Uuid = user.uuid.ToString()
                 };
                 Authenticator.SetCurrentUser(authUser);
                 this.Hide();

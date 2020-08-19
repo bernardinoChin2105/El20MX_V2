@@ -56,6 +56,18 @@ namespace MVC_Project.WebBackend
             container.RegisterType<IPaymentService, PaymentService>();
             container.RegisterType<IEventService, EventService>();
             container.RegisterType<IOrderService, OrderService>();
+            container.RegisterType<IProfileService, ProfileService>();
+            container.RegisterType<IAccountService, AccountService>();
+            container.RegisterType<IMembershipService, MembershipService>();
+            container.RegisterType<ISocialNetworkLoginService, SocialNetworkLoginService>();
+            container.RegisterType<IMembershipPermissionService, MembershipPermissionService>();
+            container.RegisterType<IFeatureService, FeatureService>();
+            container.RegisterType<ICredentialService, CredentialService>();
+            container.RegisterType<IDiagnosticService, DiagnosticService>();
+            container.RegisterType<ICustomerService, CustomerService>();
+            container.RegisterType<ICustomerContactService, CustomerContactService>();
+            container.RegisterType<IStateService, StateService>();
+            container.RegisterType<IProviderService, ProviderService>();
         }
     }
 }

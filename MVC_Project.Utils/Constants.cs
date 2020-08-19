@@ -36,6 +36,9 @@ namespace MVC_Project.Utils
         public static string NOT_TEMPLATE_PASSWORDRESET = "d12f6fbe-cab5-485f-95ec-6875d196d49c";
         public static string NOT_TEMPLATE_PASSWORDRECOVER = "aa61890e-5e39-43c4-92ff-fae95e03a711";
         public static string NOT_TEMPLATE_CHARGESUCCESS = "3e58558e-0a7c-4f2b-b003-ac27b5677d91";
+        public static string NOT_TEMPLATE_WELCOME_NETWORK = "87ca5218-685e-4361-aa2b-ce2b14f430f5";
+        public static string NOT_TEMPLATE_NEW_USER = "11e635ba-3102-4f42-8a86-ad0af5c55eb2";
+
 
         // Encabezados de archivo Excel
         public static string HEADER_USERIDENTIFIER = "Identificador";
@@ -56,6 +59,11 @@ namespace MVC_Project.Utils
         // URLs varias
         public static string DEFAULT_AVATAR = "https://bootdey.com/img/Content/avatar/avatar1.png";
 
-       
+        public enum SocialNetwork
+        {
+            Email = 0,
+            Facebook = 1,
+            Google = 2
+        }
     }
 }

@@ -5,7 +5,7 @@
     this.dataTable = {};
     this.init = function () {
         self.dataTable = this.htmlTable.DataTable({
-            language: { url: 'Scripts/template/plugins/dataTables/lang/es_MX.json' },
+            language: El20Utils.lenguajeTabla({}),
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": this.baseUrl,

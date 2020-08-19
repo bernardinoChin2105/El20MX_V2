@@ -8,16 +8,16 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Data.Mappings
 {
-    public class ConfigParamMap : ClassMap<ConfigParam>
-    {
-        public ConfigParamMap()
-        {
-            Schema("dbo");
-            Table("config_params");
-            Id(x => x.Id).GeneratedBy.Identity();
-            Map(x => x.Name).Not.Nullable();
-            Map(x => x.Value).Not.Nullable();
-            Map(x => x.Description).Nullable();
-        }
-    }
+    //public class ConfigParamMap : ClassMap<ConfigParam>
+    //{
+    //    public ConfigParamMap()
+    //    {
+    //        Schema("dbo");
+    //        Table("config_params");
+    //        Id(x => x.id).GeneratedBy.Identity();
+    //        Map(x => x.Name).Not.Nullable();
+    //        Map(x => x.Value).Not.Nullable();
+    //        Map(x => x.Description).Nullable();
+    //    }
+    //}
 }

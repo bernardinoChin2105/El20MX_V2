@@ -1,4 +1,5 @@
-﻿@model MVC_Project.BackendWeb.Models.AuthViewModel
+﻿@using MVC_Project.FlashMessages;
+@model MVC_Project.BackendWeb.Models.AuthViewModel
 @{
     Layout = null;
 }
@@ -8,7 +9,11 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-signin-scope" content="profile email">
+    <!--Local-->
     <meta name="google-signin-client_id" content="765148629644-ehqbkj60uuotg1tb7ofe66jjf7j8gaut.apps.googleusercontent.com">
+    <!--Azure Dev-->
+    <!--<meta name="google-signin-client_id" content="879827116478-m59eg6itdnoepetdg4qls2f8pliqss8h.apps.googleusercontent.com">-->
 
     <title> @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"] | @ViewLabels.AUTH_LOGIN_TITLE </title>
 
@@ -19,7 +24,7 @@
 
     @Styles.Render("~/plugins/sweetAlertStyles")
     @Scripts.Render("~/plugins/sweetAlert")
-
+    @Styles.Render("~/plugins/toastrStyles")
     <style>
         .abcRioButtonBlue {
             display: inline-block;
@@ -29,7 +34,6 @@
 </head>
 
 <body class="gray-bg">
-
     @*<div style="padding:5px">
             @Html.ActionLink("Español", "ChangeLanguage", "Auth", new { lang = "es-MX" }, null) | @Html.ActionLink("Inglés", "ChangeLanguage", "Auth", new { lang = "en" }, null)
         </div>*@
@@ -42,49 +46,61 @@
             </div>
             @*<h3>@System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</h3>*@
 
-            @if (!string.IsNullOrEmpty(ViewBag.Error))
-            {
-                <div class="col-lg-12">
-                    <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
-                </div>
-            }
-
-            @if (!string.IsNullOrEmpty(ViewBag.Message))
-            {
-                <div class="col-lg-12">
-                    <div class="alert alert-info" role="alert">@ViewBag.Message</div>
-                </div>
-            }
-
             <p>@ViewLabels.AUTH_LOGIN_TITLE</p>
-            @using (Html.BeginForm("Login", "Auth", FormMethod.Post, new { @class = "m-t", role = "form" }))
+            @using (Html.BeginForm("Login", "Auth", FormMethod.Post, new { @class = "m-t", role = "form", id = "Login" }))
             {
                 @Html.AntiForgeryToken()
                 @*@Html.ValidationSummary("Errors", new { @class = "alert alert-danger" })*@
+
+                @Html.HiddenFor(m => m.TypeRedSocial, new { Value = "" })
+                @Html.HiddenFor(m => m.RedSocial, new { Value = false })
+                @Html.HiddenFor(m => m.SocialId, new { Value = "" })
+
                 @Html.Hidden("ReturnUrl", (string)ViewBag.ReturnUrl)
                 <div class="input-group mb-3">
-                    <span class="input-group-addon"><i class="fa fa-user"></i></span>
-                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", placeholder = @ViewLabels.USERNAME, @required = "required" })
+                    <span class="input-group-prepend"><button class="btn btn-default" type="button"><i class="fa fa-user"></i></button></span>
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", placeholder = @ViewLabels.USERNAME })
                 </div>
                 <span class="help-block"></span>
                 <div class="input-group mb-3">
-                    <span class="input-group-addon"><i class="fa fa-lock"></i></span>
-                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", placeholder = @ViewLabels.PASSWORD, @required = "required" })
+                    <span class="input-group-prepend">
+                        <button id="view-password" class="btn btn-default" type="button">
+                            <i class="fa fa-lock"></i>
+                        </button>
+                    </span>
+                    @*<span class="input-group-addon"><i class="fa fa-lock"></i></span>*@
+                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", placeholder = @ViewLabels.PASSWORD })
+                    @*<span class="input-group-append">
+                        <button id="view-password" class="btn btn-default" type="button">
+                            <i class="fa fa-eye"></i>
+                        </button>
+                    </span>*@
                 </div>
                 <span class="help-block"></span>
-                <button type="submit" class="btn btn-color block full-width m-b">@ViewLabels.AUTH_LOGIN_SUBMIT</button>
-                @*<div class="fb-login-button" data-size="large" data-button-type="continue_with" data-layout="default" data-auto-logout-link="false" data-use-continue-as="false" data-width="" onclick="Loguear()"></div>*@
-                <button type="button" class="btn btn-color block full-width m-b" onclick="Loguear()">Entrar con Facebook</button>
-                <br /><br />
-                @*<div id="my-signin2"></div>*@
-                <div class="g-signin2" data-onsuccess="onSignIn" onclick="onSignIn()"></div>
+                <button type="submit" class="btn btn-color block full-width m-b"><span><i class="fa fa-sign-in-alt"></i> &nbsp;@ViewLabels.AUTH_LOGIN_SUBMIT </span></button>
+                <div><h5 class="line">O</h5></div>
+                <div class="row">
+                    <div class="col-md-6" style="padding-right: 2px !important;">
+                        <button type="button" class="btn btn-facebook btn-block" onclick="Loguear()">
+                            <span>Entrar con &nbsp;<i class="fa fa-facebook-f"></i></span>
+                        </button>
+                    </div>
+
+                    <div class="col-md-6 btn-google" style="padding-left: 2px !important;">
+                        <div id="custom_signin_button" onclick=""></div>
+                        <button type="button" class="btn btn-google btn-block" style="">
+                            <span>Entrar con &nbsp;<i class="fa fa-google"></i></span>
+                        </button>
+                    </div>
+
+                </div>
                 <span class="help-block"></span>
 
                 <br />
                 <a href="javascript:void(0);" onclick="javascript:resetPassModal();" data-target="#modal-containerRecupera" data-toggle="modal"><small>@ViewLabels.AUTH_LOGIN_RECOVERPASS</small></a>
                 <br />
 
-                <p class="text-muted text-center"><small>¿No tienes una cuenta?</small> <a class="btn btn-sm btn-white btn-block" href="@Url.Action("Index", "Register")">Crear una cuenta</a></p>
+                <p class="text-muted text-center">¿No tienes una cuenta? <a class="btn btn-sm btn-default btn-block" href="@Url.Action("Index", "Register")"><span><i class="fa fa-user-plus"></i> &nbsp;Regístrate</span></a></p>
 
 
             }
@@ -97,98 +113,82 @@
         </div>
     </div>
 
+
     <!-- Mainly scripts -->
     <script src="~/Scripts/jquery-3.1.1.min.js"></script>
     <script src="~/Scripts/popper.min.js"></script>
     <script src="~/Scripts/bootstrap.js"></script>
     <script src="~/Scripts/plugins/validate/jquery.validate.min.js"></script>
+    @Scripts.Render("~/plugins/toastr")
     <!--Configuración de facebook-->
-    @*<div id="fb-root"></div>*@
-    @*<script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_LA/sdk.js#xfbml=1&version=v7.0&appId=246375746578693&autoLogAppEvents=1"></script>*@
     <script src="~/Scripts/Facebook.js"></script>
-    @*<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>*@
     <!--Configuración de facebook-->
-
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
-    <!--singOut-->
-    <a href="#" onclick="signOut();">Sign out</a>
+    <!--Configuración de Google-->
+    <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
+    <script src="~/Scripts/Google.js"></script>
+    @*<a href="#" onclick="signOut();">Sign out</a>*@
+    <!--Configuración de Google-->
     <script>
-        function signOut() {
-            var auth2 = gapi.auth2.getAuthInstance();
-            auth2.signOut().then(function () {
-                console.log('User signed out.');
+        var UrlLogin = '@Url.Action("ValidateLogin", "Auth")';
+        var UrlReset = '@Url.Action("ResetPassword")';
+    </script>
+    <script src="~/Scripts/views/Auth/Index.js"></script>
+
+    @if (Html.TieneMensaje())
+    {
+        var mensaje = @Html.ObtenerMensaje();
+        <script type="text/javascript">
+                toastr['@mensaje.Tipo']('@mensaje.Mensaje');
+        </script>
+    }
+    <script>
+        $(document).ready(function () {
+            $.validator.addMethod("PasswordTrue",
+                function (value, element) {
+                    //return value.match(/^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/); // contraseña con caracter especial
+                    return value.match(/^(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/);
+                }, "La contraseña debe contener un número, mayúsculas y minúsculas"
+            );
+            $("#Login").validate({
+                rules: {
+                    Email: {
+                        required: true,
+                    },
+                    Password: {
+                        PasswordTrue: true,
+                        required: true,
+                        minlength: 8
+                    }
+                },
+                messages: {
+                    Email: {
+                        required: "Campo obligatorio",
+                        email: "Ingrese un correo válido"
+                    },
+                    Password: {
+                        required: "Campo obligatorio",
+                        minlength: "La contraseña debe ser mínimo de 8 caracteres",
+                    }
+                }
             });
-        }
+        });
+
+        $("#Login").submit(function (event) {
+            if (!$('#Login').valid()) {
+                event.preventDefault();
+                return;
+            }
+        });
+
+        $('#view-password').on('mousedown', function () {
+            $('#Password').attr("type", "text");
+        });
+
+        $('#view-password').on('mouseup mouseleave', function () {
+            $('#Password').attr("type", "password");
+        });
     </script>
 </body>
 </html>
 
-@if (ViewBag.Message != null)
-{
-    <script type="text/javascript">
-            swal({
-                title: "Operacion exitosa!",
-                text: '@(ViewBag.Message)',
-                html: true
-            });
-    </script>
-}
 
-<script>
-    function onSignIn(googleUser) {
-        console.log(googleUser)
-        var profile = googleUser.getBasicProfile();
-        console.log(profile, "usuario");
-        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-        console.log('Name: ' + profile.getName());
-        console.log('Image URL: ' + profile.getImageUrl());
-        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
-    }
-    //function onSuccess(googleUser) {
-    //    console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
-    //}
-    //function onFailure(error) {
-    //    console.log(error, "Error");
-    //}
-    //function renderButton() {
-    //    gapi.signin2.render('my-signin2', {
-    //        'scope': 'profile email',
-    //        'width': 240,
-    //        'height': 50,
-    //        'longtitle': true,
-    //        'theme': 'dark',
-    //        'onsuccess': onSuccess,
-    //        'onfailure': onFailure
-    //    });
-    //}
-</script>
-<script>
-
-    function resetPassModal() {
-        $("#modal-containerRecupera").find('.modal-content').load("@Url.Action("ResetPassword")", function () {
-            $("#modal-containerRecupera").modal("show");
-            $("#btn-RecuperaCE").on("click",
-                function (e) {
-                    e.preventDefault();
-                    var validate = $('form#recupera-cuenta-form').validate();
-                    if (!$('#recupera-cuenta-form').valid()) {
-                        //$("form#recupera-cuenta-form").find('span').removeClass("help-block").css("display", "none");
-                        return;
-                    }
-                    $("#modal-containerRecupera form#recupera-cuenta-form button#btn-RecuperaCE").hide();
-                    $('#recupera-cuenta-form').submit();
-                });
-        });
-    }
-    function MessageAlert(d) {
-        debugger;
-        var rslt = $.parseJSON(d.responseText);
-        if (rslt.statusCode == 200) {
-            $().toastmessage("showSuccessToast", rslt.status);
-        }
-        else {
-            $().toastmessage("showErrorToast", rslt.status);
-        }
-    }
-
-</script>

@@ -1,13 +1,18 @@
-﻿using MVC_Project.Domain.Entities;
+﻿using MVC_Project.BackendWeb.Models;
+using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Services;
+using MVC_Project.FlashMessages;
+//using MVC_Project.FlashMessages;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using static MVC_Project.Utils.Constants;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -15,11 +20,23 @@ namespace MVC_Project.WebBackend.Controllers
     {
         private IUserService _userService;
         private IRoleService _roleService;
+        private IProfileService _profileService;
+        private IAccountService _accountService;
+        private IMembershipService _membershipService;
+        private ISocialNetworkLoginService _socialNetworkLoginService;
+        private IMembershipPermissionService _membershipPermissionService;
 
-        public RegisterController(IUserService userService, IRoleService roleService)
+        public RegisterController(IUserService userService, IRoleService roleService, IProfileService profileService,
+            IAccountService accountService, IMembershipService membershipService, ISocialNetworkLoginService socialNetworkLoginService,
+            IMembershipPermissionService membershipPermissionService)
         {
             _userService = userService;
             _roleService = roleService;
+            _profileService = profileService;
+            _accountService = accountService;
+            _membershipService = membershipService;
+            _socialNetworkLoginService = socialNetworkLoginService;
+            _membershipPermissionService = membershipPermissionService;
         }
 
         [AllowAnonymous]
@@ -31,65 +48,271 @@ namespace MVC_Project.WebBackend.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public ActionResult CreateAccount(RegisterViewModel model)
+        public ActionResult CreateUser(RegisterViewModel model)
         {
-            if (!String.IsNullOrWhiteSpace(model.ConfirmPassword)
-                && !String.IsNullOrWhiteSpace(model.Password))
+            try
             {
-                if (!model.Password.Equals(model.ConfirmPassword))
+                if (model.RedSocial)
                 {
-                    ModelState.AddModelError("ConfirmPassword", "Las contraseñas no coinciden");
+                    model.ConfirmPassword = model.SocialId.ToString();
+                    model.Password = model.SocialId.ToString();
                 }
-            }
 
-            if (ModelState.IsValid)
-            {
-                var UserVal = _userService.FindBy(x => x.Email == model.Email).FirstOrDefault();
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
 
-                if (UserVal == null)
+                var user = _userService.FindBy(x => x.name == model.Email).FirstOrDefault();
+
+                if (user != null)
                 {
-                    DateTime todayDate = DateUtil.GetDateTimeNow();
+                    if(user.status == SystemStatus.UNCONFIRMED.ToString())
+                        throw new Exception("El usuario tiene una invitación pendiente por aceptar");
+                    else
+                        throw new Exception("Ya existe un usuario con el email proporcionado");
+                }
 
-                    string daysToExpirateDate = ConfigurationManager.AppSettings["DaysToExpirateDate"];
-                    DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
+                DateTime todayDate = DateUtil.GetDateTimeNow();
 
-                    var availableRoles = _roleService.GetAll();
-                    var role = availableRoles.Where(x => x.Code == "EMPLOYEE").FirstOrDefault();
+                string daysToExpirateDate = ConfigurationManager.AppSettings["DaysToExpirateDate"];
+                DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
 
-                    var user = new User
+                user = new User
+                {
+                    uuid = Guid.NewGuid(),
+                    name = model.Email,
+                    createdAt = todayDate,
+                    modifiedAt = todayDate,
+                    status = SystemStatus.UNCONFIRMED.ToString(),
+                    profile = new Profile
                     {
-                        Uuid = Guid.NewGuid().ToString(),
-                        FirstName = model.FistName,
-                        LastName = model.LastName,
-                        Email = model.Email,
-                        Password = SecurityUtil.EncryptPassword(model.Password),
-                        PasswordExpiration = passwordExpiration,
-                        Username = model.Email,
-                        CreatedAt = todayDate,
-                        UpdatedAt = todayDate,
-                        Status = true,
-                        Role = new Role { Id = role.Id }
+                        uuid = Guid.NewGuid(),
+                        firstName = model.FistName,
+                        lastName = model.LastName,
+                        email = model.Email,
+                        phoneNumber = model.MobileNumber,
+                        createdAt = todayDate,
+                        modifiedAt = todayDate,
+                        status = SystemStatus.ACTIVE.ToString(),
+                        avatar = "/Images/default_avatar.jpg"
+                    }
+                };
+
+                if (!model.RedSocial)
+                {
+                    user.password = SecurityUtil.EncryptPassword(model.Password);
+                    user.passwordExpiration = passwordExpiration;
+                }
+
+                _userService.CreateUser(user);
+
+                if (model.RedSocial)
+                {
+                    SocialNetworkLogin socialNW = new SocialNetworkLogin()
+                    {
+                        uuid = Guid.NewGuid(),
+                        socialNetwork = model.TypeRedSocial,
+                        token = model.SocialId,
+                        user = user,
+                        createdAt = todayDate,
+                        modifiedAt = todayDate,
+                        status = SystemStatus.ACTIVE.ToString()
                     };
 
-                    foreach (var permission in role.Permissions)
+                    _socialNetworkLoginService.Create(socialNW);
+
+                    user.status = SystemStatus.ACTIVE.ToString();
+                    _userService.Update(user);
+
+                    AuthViewModel LoginModel = new AuthViewModel()
                     {
-                        user.Permissions.Add(permission);
-                    }
-                    _userService.Create(user);
-                    //ViewBag.Message = "Usuario registrado";
-                    return RedirectToAction("Login", "Auth");
+                        Email = model.Email,
+                        Password = model.SocialId.ToString(),
+                        RedSocial = model.RedSocial,
+                        TypeRedSocial = model.TypeRedSocial,
+                        SocialId = model.SocialId
+                    };
+
+                    Dictionary<string, string> customParams = new Dictionary<string, string>();
+                    string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
+                    string link = urlAccion + "Auth/Login";
+                    customParams.Add("param1", user.profile.firstName);
+                    customParams.Add("param2", link);
+                    NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_WELCOME_NETWORK);
+
+                    Session["modelNW"] = LoginModel;
+                    return RedirectToAction("LoginAuth", "Auth");
+                    //return RedirectToAction("Index", "Account", );
                 }
                 else
                 {
-                    ViewBag.Error = "Ya existe el usuario con el Email registrado.";
-                    return View("Index", model);
-                }                
+                    //Enviar notificación para activar el correo si no es por red social
+                    string token = (user.uuid + "@");
+                    token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
+                    //user.token = token;
+                    Dictionary<string, string> customParams = new Dictionary<string, string>();
+                    string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
+                    string link = urlAccion + "Register/VerifyUser?token=" + token;
+                    customParams.Add("param1", user.profile.firstName);
+                    customParams.Add("param2", link);
+                    NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_WELCOME);
+
+                    MensajeFlashHandler.RegistrarMensaje("Se ha enviado un email de confirmación", TiposMensaje.Success);
+
+                    return RedirectToAction("Login", "Auth");
+                }
+
             }
-            else
-            {                
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return View("Index", model);
-            }           
+            }
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult VerifyUser(string token)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(token))
+                    throw new Exception("El token no es válido");
+
+                var desencriptaToken = EncryptorText.DataDecrypt(token.Replace("!!", "/").Replace("$", "+"));
+
+                if (string.IsNullOrEmpty(desencriptaToken))
+                    throw new Exception("El token no es válido");
+
+                var elements = desencriptaToken.Split('@');
+
+                Guid id = new Guid();
+
+                if (!Guid.TryParse(elements.First().ToString(), out id))
+                    throw new Exception("El token no es válido");
+
+                var user = _userService.FindBy(e => e.uuid == id).First();
+                if (user == null)
+                    throw new Exception("Usuario no encontrado en el sistema");
                 
+                user.status = SystemStatus.ACTIVE.ToString();
+                _userService.Update(user);
+
+                MensajeFlashHandler.RegistrarMensaje("¡Tu cuenta ha sido activada!", TiposMensaje.Success);
+                return RedirectToAction("Login","Auth");
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return RedirectToAction("Login", "Auth");
+            }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult NewUserVerify(string token)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(token))
+                    throw new Exception("El token no es válido");
+
+                var desencriptaToken = EncryptorText.DataDecrypt(token.Replace("!!", "/").Replace("$", "+"));
+
+                if (string.IsNullOrEmpty(desencriptaToken))
+                    throw new Exception("El token no es válido");
+
+                var elements = desencriptaToken.Split('@');
+                if (elements.Count() != 4)
+                    throw new Exception("El token no es válido");
+
+                Guid id = new Guid();
+
+                if (!Guid.TryParse(elements[0], out id))
+                    throw new Exception("El token no es válido");
+
+                var user = _userService.FirstOrDefault(e => e.uuid == id);
+                if (user == null)
+                    throw new Exception("El usuario no se encontró en el sistema");
+
+                if (!user.name.Equals(elements[2] + "@" + elements[3]))
+                    throw new Exception("El correo de origen no corresponde al correo registrado en el sistema");
+
+                if (!Guid.TryParse(elements[1], out id))
+                    throw new Exception("El token no es válido");
+
+                var account = _accountService.FirstOrDefault(e => e.uuid == id);
+                if (account == null)
+                    throw new Exception("La cuenta no se encontró en el sistema");
+
+                var membership = _membershipService.FirstOrDefault(x => x.user.id == user.id && x.account.id == account.id);
+
+                if (membership == null)
+                    throw new Exception("La suscripcion no se encontró en el sistema");
+                
+                if (user.status == SystemStatus.ACTIVE.ToString())
+                {
+                    membership.status = SystemStatus.ACTIVE.ToString();
+                    _membershipService.Update(membership);
+                    MensajeFlashHandler.RegistrarMensaje("El usuario a sido agregado a la cuenta", TiposMensaje.Success);
+                    return RedirectToAction("Login", "Auth");
+                }
+
+                var userViewModel = new ChangePasswordViewModel
+                {
+                    Uuid = user.uuid,
+                    Name = user.name,
+                    AcccountUuid = account.uuid
+                };
+                return View(userViewModel);
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return RedirectToAction("Login", "Auth");
+            }
+        }
+
+        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
+        public ActionResult NewUserVerify(ChangePasswordViewModel model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada es incorrecto");
+
+                var user = _userService.FirstOrDefault(e => e.uuid == model.Uuid);
+                if (user == null)
+                    throw new Exception("El usuario no se encuentra registrado en el sistema");
+
+                var account = _accountService.FirstOrDefault(e => e.uuid == model.AcccountUuid);
+                if (account == null)
+                    throw new Exception("La cuenta no se encuentra registrada en el sistema");
+
+                var membership = _membershipService.FirstOrDefault(x => x.user.id == user.id && x.account.id == account.id);
+
+                if (membership == null)
+                    throw new Exception("La suscripcion no se encontró en el sistema");
+                
+                membership.status = SystemStatus.ACTIVE.ToString();
+                _membershipService.Update(membership);
+
+                user.password = SecurityUtil.EncryptPassword(model.Password);
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+                string daysToExpirateDate = ConfigurationManager.AppSettings["DaysToExpirateDate"];
+                DateTime passwordExpiration = todayDate.AddDays(Int32.Parse(daysToExpirateDate));
+                user.passwordExpiration = passwordExpiration;
+                user.status = SystemStatus.ACTIVE.ToString();
+                user.agreeTerms = model.AgreeTerms;
+                _userService.Update(user);
+
+                MensajeFlashHandler.RegistrarMensaje("Usuario activado", TiposMensaje.Success);
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return View("NewUserVerify", model);
+            }
+        }
     }
 }

@@ -1,16 +1,20 @@
-﻿var UserIndexControlador = function (htmlTableId, baseUrl, modalEditAction, modalDeleteAction, modelEditPasswordAction, modalEditPasswordId, formEditPasswordId, submitEditPasswordId) {
+﻿var UserIndexControlador = function (htmlTableId, baseUrl, modalEditAction, modalDeleteAction, modelEditPasswordAction, 
+    modalEditPasswordId, formEditPasswordId, submitEditPasswordId, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
     this.dataTable = {};
     this.modalEditPassword = $('#' + modalEditPasswordId);
+    this.hasFullAccessController = hasFullAccessController;
     const utils = new Utils();
     this.initModal = function () {
 
     }
     this.init = function () {
-        self.dataTable = this.htmlTable.DataTable({
-            language: { url: 'Scripts/custom/dataTableslang.es_MX.json' },
+        self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
+            El20Utils.mostrarCargador();
+        }).DataTable({
+            language: El20Utils.lenguajeTabla({ emptyTable: "No hay usuarios adicionales" } ),//Scripts/custom/dataTableslang.es_MX.json
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": this.baseUrl,
@@ -19,7 +23,7 @@
             ordering: false,
             columns: [
                 { data: 'Id', title: "Id", visible: false },
-                { data: 'Email', title: "Email" },
+                { data: 'Email', title: "Correo" },
                 { data: 'RoleName', title: "Rol" },
                 { data: 'Name', title: "Nombre" },
                 {
@@ -40,20 +44,29 @@
                         return '';
                     }
                 },
+                { data: 'Status', title: "Estatus" },
                 {
                     data: null,
                     className: 'personal-options',
                     render: function (data) {
-                        var deshabilitarBtns = data.Status ?
-                            '<button class="btn btn-light btn-change-status" title="Desactivar" style="margin-left:5px;"><span class="far fa-check-square "></span></button>' :
-                            '<button class="btn btn-light btn-change-status" title="Activar" style="margin-left:5px;"><span class="far fa-square"></span></button>';
+                        var deshabilitarBtns = '';
+                        if (!data.IsOwner) {
+                            if (data.Status == "Activo")
+                                deshabilitarBtns += '<button class="btn btn-light btn-change-status" title="Desactivar" style="margin-left:5px;"><span class="far fa-check-square "></span></button>';
+                            else if (data.Status == "Inactivo")
+                                deshabilitarBtns += '<button class="btn btn-light btn-change-status" title="Activar" style="margin-left:5px;"><span class="far fa-square"></span></button>';
+                            else if (data.Status == "No confirmado")
+                                deshabilitarBtns += '<button class="btn btn-light btn-resend-invite" title="Reenviar invitación" style="margin-left:5px;"><span class="fa fa-paper-plane"></span></button>';
+                            else
+                                deshabilitarBtns += '';
+                        }
 
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             deshabilitarBtns +
                             '<button class="btn btn-light btn-edit" title="Editar Usuario"><span class="fas fa-user-edit"></span></button>' +
-                            '<button class="btn btn-light btn-edit-password" title="Cambiar Contraseña"><span class="fas fa-key"></span></button>' +
+                            //'<button class="btn btn-light btn-edit-password" title="Cambiar Contraseña"><span class="fas fa-key"></span></button>' +
                             '</div>';
-                        return buttons;
+                        return self.hasFullAccessController ? buttons : "";
                     }
                 }
             ],
@@ -61,10 +74,20 @@
                 aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
                 aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
                 $.getJSON(sSource, aoData, function (json) {
-                    fnCallback(json);
+                    if (json.success) {
+                        fnCallback(json);
+                    } else {
+                        toastr['error'](json.message);
+                    }
                 });
             }
+        }).on('xhr.dt', function (e, settings, data) {
+            El20Utils.ocultarCargador();
         });
+
+        /*$.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
+            console.log(message);
+        };*/
 
         $(this.htmlTable, "tbody").on('click',
             'td.personal-options .btn-group .btn-change-status',
@@ -99,6 +122,52 @@
                                         })
                                     } else {
                                         swal("Registro actualizado");
+                                        self.dataTable.ajax.reload();
+                                    }
+                                },
+                                error: function (xhr) {
+                                    console.log('error');
+                                }
+                            });
+                        } else {
+                            swal.close();
+                        }
+                    });
+            });
+
+        $(this.htmlTable, "tbody").on('click',
+            'td.personal-options .btn-group .btn-resend-invite',
+            function () {
+                var tr = $(this).closest('tr');
+                var row = self.dataTable.row(tr);
+                var id = row.data().Uuid;
+
+                swal({
+                    title: "Confirmación",
+                    text: "¿Desea reenviar la invitación al usuario?",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-danger",
+                    confirmButtonText: "Aceptar",
+                    cancelButtonText: "Cancelar",
+                    closeOnConfirm: false,
+                    closeOnCancel: false
+                },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            $.ajax({
+                                type: 'POST',
+                                async: true,
+                                data: { uuid: id },
+                                url: '/User/ResendInvite',
+                                success: function (data) {
+                                    if (!data) {
+                                        swal({
+                                            type: 'error',
+                                            title: data.Mensaje.Titulo,
+                                            text: data.Mensaje.Contenido
+                                        })
+                                    } else {
+                                        swal("Invitación enviada");
                                         self.dataTable.ajax.reload();
                                     }
                                 },

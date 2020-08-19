@@ -7,7 +7,7 @@ namespace MVC_Project.WebBackend.Models
 {
     public class EventData
     {
-        public int Id { get; set; }
+        public Int64 Id { get; set; }
 
         public string Uuid { get; set; }
         public string Title { get; set; }

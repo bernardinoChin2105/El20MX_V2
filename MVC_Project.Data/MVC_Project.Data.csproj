@@ -42,6 +42,9 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="EPPlus, Version=4.1.1.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.4.1.1\lib\net40\EPPlus.dll</HintPath>
+    </Reference>
     <Reference Include="FluentNHibernate, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentNHibernate.2.1.0\lib\net461\FluentNHibernate.dll</HintPath>
     </Reference>
@@ -81,9 +84,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\UnitOfWork.cs" />
+    <Compile Include="Mappings\AccountMap.cs" />
+    <Compile Include="Mappings\BankAccountMap.cs" />
+    <Compile Include="Mappings\BankCredentialMap.cs" />
+    <Compile Include="Mappings\BankMap.cs" />
+    <Compile Include="Mappings\BankTransactionMap.cs" />
+    <Compile Include="Mappings\CredentialMap.cs" />
+    <Compile Include="Mappings\ProviderContactMap.cs" />
+    <Compile Include="Mappings\CustomerContactMap.cs" />
+    <Compile Include="Mappings\ProviderMap.cs" />
+    <Compile Include="Mappings\DiagnosticDetailMap.cs" />
+    <Compile Include="Mappings\DiagnosticMap.cs" />
+    <Compile Include="Mappings\DiagnosticTaxStatusMap.cs" />
+    <Compile Include="Mappings\FeatureMap.cs" />
+    <Compile Include="Mappings\MembershipMap.cs" />
     <Compile Include="Mappings\ConfigParamMap.cs" />
     <Compile Include="Mappings\CustomerMap.cs" />
     <Compile Include="Mappings\EventMap.cs" />
+    <Compile Include="Mappings\MembershipPermissionMap.cs" />
+    <Compile Include="Mappings\MunicipalityMap.cs" />
     <Compile Include="Mappings\OrderItemsMap.cs" />
     <Compile Include="Mappings\OrderMap.cs" />
     <Compile Include="Mappings\PaymentApplicationMap.cs" />
@@ -92,9 +111,15 @@
     <Compile Include="Mappings\ProcessExecutionMap.cs" />
     <Compile Include="Mappings\ProcessMap.cs" />
     <Compile Include="Mappings\ProductoMap.cs" />
+    <Compile Include="Mappings\ProfileMap.cs" />
     <Compile Include="Mappings\RoleMap.cs" />
     <Compile Include="Mappings\RolePermissionMap.cs" />
+    <Compile Include="Mappings\SettlementMap.cs" />
+    <Compile Include="Mappings\SettlementTypeMap.cs" />
+    <Compile Include="Mappings\SocialNetworkLoginMap.cs" />
     <Compile Include="Mappings\StaffMap.cs" />
+    <Compile Include="Mappings\CountryMap.cs" />
+    <Compile Include="Mappings\StateMap.cs" />
     <Compile Include="Mappings\StoreMap.cs" />
     <Compile Include="Mappings\UserMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

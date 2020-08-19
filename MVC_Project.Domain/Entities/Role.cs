@@ -5,22 +5,28 @@ using System.Text;
 namespace MVC_Project.Domain.Entities {
 
     public class Role : IEntity {
-        public virtual int Id { get; set; }
-        public virtual string Name { get; set; }
-        public virtual string Code { get; set; }
-        public virtual string Description { get; set; }
-        public virtual IList<User> Users { get; set; }
-        public virtual IList<Permission> Permissions { get; set; }
-        public virtual DateTime CreatedAt { get; set; }
-        public virtual DateTime UpdatedAt { get; set; }
-        public virtual DateTime? RemovedAt { get; set; }
-        public virtual string Uuid { get; set; }
-        public virtual Boolean Status { get; set; }
+        public virtual Int64 id { get; set; }
+        public virtual Guid uuid { get; set; }
+        public virtual string name { get; set; }
+        public virtual string code { get; set; }
+        public virtual string description { get; set; }
+        public virtual DateTime createdAt { get; set; }
+        public virtual DateTime modifiedAt { get; set; }
+        public virtual string status { get; set; }
+
+        public virtual Account account { get; set; }
+
+        //public virtual IList<User> users { get; set; }
+        public virtual IList<Membership> memberships { get; set; }
+        public virtual IList<Permission> permissions { get; set; }
+        public virtual IList<RolePermission> rolePermissions { get; set; }
 
         public Role()
         {
-            Users = new List<User>();
-            Permissions = new List<Permission>();
+            //users = new List<User>();
+            memberships = new List<Membership>();
+            permissions = new List<Permission>();
+            rolePermissions = new List<RolePermission>();
         }
     }
 }

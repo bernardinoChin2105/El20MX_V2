@@ -1,0 +1,143 @@
+﻿@model MVC_Project.BackendWeb.Models.ChangePasswordViewModel
+@{
+    ViewBag.Title = "ChangePassword";
+    Layout = "/Views/Shared/_SimpleLayout.cshtml";
+}
+
+@section Styles {
+    <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
+    <style>
+        .icheckbox_square-blue{
+            background-color:white
+        }
+    </style>
+}
+
+<div class="middle-box loginscreen  animated fadeInDown">
+    <div class="row">
+        <img src="~/Images/logos/El20mx-logo-estes-donde-e.png" width="300" />
+    </div>
+
+    <div class="text-center">
+        <h3>¡Bienvenido @Model.Name!</h3>
+        <h5>Establezca una contraseña para ingresar al sistema</h5>
+    </div><br />
+    @using (Html.BeginForm("NewUserVerify", "Register", FormMethod.Post, new { @id = "passForm", @class = "form", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.Uuid)
+        @Html.HiddenFor(m => m.AcccountUuid)
+        <div class="input-group mb-3">
+            <span class="input-group-prepend"><button id="view-password" class="btn btn-default" type="button"><i class="fa fa-eye"></i></button></span>
+            @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.PASSWORD })
+            @Html.ValidationMessageFor(x => x.Password)
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-prepend"><button id="view-password-confirm" class="btn btn-default" type="button"><i class="fa fa-eye"></i></button></span>
+            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.CONFIRM_NEW_PASSWORD })
+            @Html.ValidationMessageFor(x => x.ConfirmPassword)
+        </div>
+
+        <div class="input-group mb-3">
+            <div class="i-checks">
+                <label style="font-weight:initial">
+                    @Html.CheckBoxFor(m => m.AgreeTerms, new { @class = "form-control" })
+                    <a href="https://www.el20.mx/privacidad" target="_blank">  Acepto t&eacute;rminos y condiciones</a>
+                </label>
+            </div>
+            @Html.ValidationMessageFor(model => model.AgreeTerms)
+        </div>
+
+        <div class="form-group">
+            <span class="help-block"></span>
+            <button type="button" class="btn btn-color block full-width m-b" onclick="validarDatos();">Guardar</button>
+            <span class="help-block"></span>
+        </div>
+    }
+</div>
+@section scripts{
+
+    <script>
+        $(document).ready(function () {
+            jQuery.validator.setDefaults({
+                errorPlacement: function (error, element) {
+                    if (element.is(':checkbox') || element.is(':radio')) {
+                        var controls = element.closest('is');
+                        if (controls.find(':checkbox,:radio').length > 1) controls.append(error);
+                        else error.insertAfter(".i-checks");//element.nextAll('.lbl:eq(0)').eq(0)
+                    }
+                    else if (element.is('.select2')) {
+                        error.insertAfter(element.siblings('[class*="select2-container"]:eq(0)'));
+                    }
+                    else if (element.is('.chosen-select')) {
+                        error.insertAfter(element.siblings('[class*="chosen-container"]:eq(0)'));
+                    }
+                    else error.insertAfter(element);
+                },
+                ignore: ":hidden:not(select)"
+            });
+            $.validator.addMethod("PasswordTrue",
+                function (value, element) {
+                    //return value.match(/^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/); // contraseña con caracter especial
+                    return value.match(/^(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/);
+                }, "La contraseña debe contener un número, mayúsculas y minúsculas"
+            );
+            $.validator.addMethod("ConfirmPassEqPassword",
+                function (value, element) {
+                    return value == $("#Password").val();
+                }, "Las contraseñas no coinciden"
+            );
+            $("#passForm").validate({
+                rules: {
+                    Password: {
+                        PasswordTrue: true,
+                        ConfirmPassEqPassword: true,
+                        required: true,
+                        minlength: 8
+                    },
+                    ConfirmPassword: {
+                        ConfirmPassEqPassword: true,
+                        required: true,
+                    },
+                    AgreeTerms: {
+                        required: true
+                    }
+                }
+                ,
+                messages: {
+                    Password: {
+                        required: "Campo obligatorio",
+                        minlength: "La contraseña debe ser mínimo de 8 caracteres",
+                    },
+                    ConfirmPassword: {
+                        required: "Campo obligatorio",
+                    },
+                    AgreeTerms: {
+                        required: "Campo obligatorio",
+                    }
+                }
+            });
+            $('#view-password').on('mousedown', function () {
+                $('#Password').attr("type", "text");
+            });
+
+            $('#view-password').on('mouseup mouseleave', function () {
+                $('#Password').attr("type", "password");
+            });
+
+            $('#view-password-confirm').on('mousedown', function () {
+                $('#ConfirmPassword').attr("type", "text");
+            });
+
+            $('#view-password-confirm').on('mouseup mouseleave', function () {
+                $('#ConfirmPassword').attr("type", "password");
+            });
+        });
+        function validarDatos() {
+            if (!$('#passForm').valid()) {
+                return;
+            }
+            $('#passForm').submit();
+        }
+    </script>
+}

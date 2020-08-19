@@ -1,4 +1,5 @@
 ﻿@using MVC_Project.WebBackend.AuthManagement.Models
+@using MVC_Project.FlashMessages;
 @{
     AuthUser authUser = ViewBag.UserProfile;
 }
@@ -19,6 +20,7 @@
 
     @Styles.Render("~/plugins/sweetAlertStyles")
     @Scripts.Render("~/plugins/sweetAlert")
+    @Styles.Render("~/plugins/toastrStyles")
 
     <!-- Local styles -->
     @if (IsSectionDefined("Styles"))
@@ -41,8 +43,66 @@
     <!-- Custom and plugin javascript -->
     <script src="~/Scripts/inspinia.js"></script>
     <script src="~/Scripts/plugins/pace/pace.min.js"></script>
+    @Scripts.Render("~/plugins/toastr")
+
+    @if (Html.TieneMensaje())
+    {
+        var mensaje = @Html.ObtenerMensaje();
+        <script type="text/javascript">
+                toastr['@mensaje.Tipo']('@mensaje.Mensaje');
+        </script>
+    }
 
     <!-- Local scripts -->
     @RenderSection("scripts", required: false)
+
+    <script src="~/Scripts/jquery-3.1.1.min.js"></script>
+    <script src="~/Scripts/popper.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="~/Scripts/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="~/Scripts/plugins/steps/jquery.steps.min.js"></script>
+
+    @Scripts.Render("~/font-awesome/js")
+    @Scripts.Render("~/plugins/sweetAlert")
+    @Scripts.Render("~/plugins/toastr")
+    @Scripts.Render("~/plugins/chosen")
+    @Scripts.Render("~/plugins/dataTables")
+    @Scripts.Render("~/plugins/fullCalendar")
+    @Scripts.Render("~/plugins/validate")
+
+    <script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>
+    <!-- Custom and plugin javascript -->
+    <script src="~/Scripts/inspinia.js"></script>
+    <script src="~/Scripts/plugins/pace/pace.min.js"></script>
+    <script src="~/Scripts/plugins/iCheck/icheck.min.js"></script>
+    <script>
+        $(function () {
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
+            });
+            jQuery.extend(jQuery.validator.messages, {
+                required: "Campo requerido.",
+                remote: "Ajustar el campo.",
+                email: "Ingrese un correo válido.",
+                url: "Ingrese una URL válida.",
+                date: "Ingrese una fecha válida.",
+                dateISO: "Ingrese una fecha válida (ISO).",
+                number: "Ingrese un número válido.",
+                digits: "Ingrese solamente digitos.",
+                creditcard: "Ingrese un número de tarjeta válido.",
+                equalTo: "Ingrese el mismo valor nuevamente.",
+                accept: "Ingrese un valor con una extensión válida.",
+                maxlength: jQuery.validator.format("Ingrese a lo mas {0} caracteres."),
+                minlength: jQuery.validator.format("Ingrese a lo menos {0} caracteres."),
+                rangelength: jQuery.validator.format("Ingrese un valor entre {0} y {1} caracteres de longitud."),
+                range: jQuery.validator.format("Ingrese un valor entre {0} y {1}."),
+                max: jQuery.validator.format("Ingrese un valor menor o igual a {0}."),
+                min: jQuery.validator.format("Ingrese un valor mayor o igual a {0}.")
+            });
+            
+        });
+    </script>
 </body>
 </html>

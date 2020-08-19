@@ -12,12 +12,16 @@ namespace MVC_Project.Domain.Services
         IEnumerable<M> GetAll();
         IEnumerable<M> FindBy(Expression<Func<M, bool>> predicate);
 
-        M GetById(int id);
+        M GetById(Int64 id);
 
         void Create(M entity);
 
         void Update(M entity);
 
-        void Delete(int id);
+        void Delete(Int64 id);
+
+        void Create(IEnumerable<M> entities);
+
+        M FirstOrDefault(Expression<Func<M, bool>> predicate);
     }
 }

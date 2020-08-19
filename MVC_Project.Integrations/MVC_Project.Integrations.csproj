@@ -52,9 +52,13 @@
     <Reference Include="Openpay, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Openpay.1.0.24\lib\net45\Openpay.dll</HintPath>
     </Reference>
+    <Reference Include="RestSharp, Version=106.11.5.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.106.11.5-alpha.0.2\lib\net452\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -63,6 +67,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Paybook\Paybook.cs" />
+    <Compile Include="SAT\SATwsViewModel.cs" />
+    <Compile Include="SAT\SATws.cs" />
+    <Compile Include="SAT\SATwsService.cs" />
     <Compile Include="Storage\AWSBlobService.cs" />
     <Compile Include="Storage\AzureBlobService.cs" />
     <Compile Include="Payments\IPaymentServiceProvider.cs" />

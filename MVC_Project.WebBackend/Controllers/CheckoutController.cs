@@ -247,7 +247,7 @@ namespace MVC_Project.WebBackend.Controllers
                 
                 //SendPostRequest(paymentApp.ReturnURL, formCollection);
                 return Content("<form action='" + paymentApp.ReturnURL + "' id='frmReturnURL' method='POST'>" +
-                    "<input type='hidden' name='Id' value='" + paymentBO.Id + "' />" +
+                    "<input type='hidden' name='Id' value='" + paymentBO.id + "' />" +
                     "<input type='hidden' name='ProviderId' value='" + paymentBO.ProviderId + "' />" +
                     "<input type='hidden' name='CreationDate' value='" + paymentBO.CreationDate + "' />" +
                     "<input type='hidden' name='Status' value='" + paymentBO.Status + "' />" +
