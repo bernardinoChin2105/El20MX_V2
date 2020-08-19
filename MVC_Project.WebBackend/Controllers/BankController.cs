@@ -352,7 +352,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 return new JsonResult
                 {
-                    Data = new { success = true, data =  },
+                    Data = new { success = true, data =  ""},
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet
                 };
             }

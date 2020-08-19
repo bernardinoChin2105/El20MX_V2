@@ -90,6 +90,7 @@
     <Compile Include="Entities\DiagnosticTaxStatus.cs" />
     <Compile Include="Entities\User.cs" />
     <Compile Include="Helpers\IUnitOfWork.cs" />
+    <Compile Include="Model\BanksViewModel.cs" />
     <Compile Include="Model\BasePagination.cs" />
     <Compile Include="Model\ListProviders.cs" />
     <Compile Include="Model\CustomerList.cs" />
