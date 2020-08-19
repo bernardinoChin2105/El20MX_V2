@@ -12,7 +12,7 @@ namespace MVC_Project.Integrations.Paybook
 {
     public class Paybook
     {
-        public static string CallServicePaybook(string urlService, Object JsonString, string method)
+        public static string CallServicePaybook(string urlService, Object JsonString, string method, bool apiKeyBool = false, string token = null)
         {
             string urlapi = ConfigurationManager.AppSettings["Paybook.Url"];
             string apiKey = ConfigurationManager.AppSettings["Paybook.ApiKey"];
@@ -27,7 +27,14 @@ namespace MVC_Project.Integrations.Paybook
                 // Resource should just be the path
                 request.Resource = string.Format(urlService);
                 // This looks correct assuming you are putting your actual x-api-key here
-                request.AddHeader("Authorization", "api_key api_key="+apiKey);
+                if (token != null)
+                {
+                    request.AddHeader("Authorization", "Bearer " + token);
+                }
+                if (apiKeyBool)
+                {
+                    request.AddHeader("Authorization", "api_key api_key=" + apiKey);
+                }
                 request.AddHeader("Content-Type", "application/json");
 
                 if (JsonString != null)

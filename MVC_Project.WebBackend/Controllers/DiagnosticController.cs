@@ -69,10 +69,11 @@ namespace MVC_Project.WebBackend.Controllers
                 if (diagTax != null)
                 {
                     model.diagnosticTaxStatus = new List<DiagnosticTaxStatusViewModel>();
-                    var taxStatus = diagTax.Select(x => new DiagnosticTaxStatusViewModel {
+                    var taxStatus = diagTax.Select(x => new DiagnosticTaxStatusViewModel
+                    {
                         businessName = x.businessName,
                         statusSAT = x.statusSAT,
-                        taxRegime = x.taxRegime != null? x.taxRegime.Split(',').ToList() : null,
+                        taxRegime = x.taxRegime != null ? x.taxRegime.Split(',').ToList() : null,
                         economicActivities = x.economicActivities != null ? x.economicActivities.Split(',').ToList() : null,
                         fiscalObligations = x.fiscalObligations != null ? x.fiscalObligations.Split(',').ToList() : null,
                         taxMailboxEmail = x.taxMailboxEmail
@@ -84,7 +85,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var diagDetails = diagnostic.details;
 
                 if (diagDetails != null)
-                {                    
+                {
                     model.diagnosticDetails = new List<InvoicesGroup>();
 
                     string date = DateUtil.GetMonthName(DateTime.Now, "es");
@@ -117,15 +118,25 @@ namespace MVC_Project.WebBackend.Controllers
                 }
             }
 
+            LogUtil.AddEntry(
+               "Detalle del diagnostico id: " + id,
+               ENivelLog.Info,
+               authUser.Id,
+               authUser.Email,
+               EOperacionLog.ACCESS,
+               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+            );
             return View(model);
         }
 
         public ActionResult GenerateDx0()
         {
             Diagnostic diagn = new Diagnostic();
+            var authUser = Authenticator.AuthenticatedUser;
             try
             {
-                var authUser = Authenticator.AuthenticatedUser;
                 Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
 
                 //Paso1 crear la extracción del periodo y retorna la información del contribuyente
@@ -246,8 +257,8 @@ namespace MVC_Project.WebBackend.Controllers
                             statusSAT = x.status,
                             businessName = x.person != null ? x.person.fullName : x.company.tradeName,
                             taxMailboxEmail = x.email,
-                            taxRegime = x.taxRegimes.Count>0? String.Join(",", x.taxRegimes.Select(y => y.name).ToArray()) : null,
-                            economicActivities = x.economicActivities.Count> 0? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null
+                            taxRegime = x.taxRegimes.Count > 0 ? String.Join(",", x.taxRegimes.Select(y => y.name).ToArray()) : null,
+                            economicActivities = x.economicActivities.Count > 0 ? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null
                             //fiscalObligations = ""
                         }).ToList();
 
@@ -256,6 +267,16 @@ namespace MVC_Project.WebBackend.Controllers
                 catch (Exception ex)
                 {
                     string error = ex.Message.ToString();
+                    LogUtil.AddEntry(
+                       "Error al generar el diagnostico constancia fiscal: " + error,
+                       ENivelLog.Error,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
                 }
 
                 foreach (var item in invoicePeriod)
@@ -286,6 +307,16 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 _diagnosticService.Create(diagn);
+                LogUtil.AddEntry(
+                   "¡Diagnóstico realizado!: " + JsonConvert.SerializeObject(diagn),
+                   ENivelLog.Info,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
                 MensajeFlashHandler.RegistrarMensaje("¡Diagnóstico realizado!", TiposMensaje.Success);
                 return RedirectToAction("DiagnosticDetail", new { id = diagn.uuid.ToString() });
             }
@@ -294,6 +325,16 @@ namespace MVC_Project.WebBackend.Controllers
                 string error = ex.Message.ToString();
                 //MensajeFlashHandler.RegistrarMensaje("¡Ocurrio un error en al realizar el diagnóstico!", TiposMensaje.Error);
                 MensajeFlashHandler.RegistrarMensaje(error, TiposMensaje.Error);
+                LogUtil.AddEntry(
+                   "Error al generar el diagnostico: " + error,
+                   ENivelLog.Error,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
                 return RedirectToAction("Index");
             }
         }
@@ -301,9 +342,9 @@ namespace MVC_Project.WebBackend.Controllers
         [HttpGet, AllowAnonymous]
         public JsonResult ObtenerDiagnostic(JQueryDataTableParams param, string filtros)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
-                var userAuth = Authenticator.AuthenticatedUser;
                 NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
                 string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
                 string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
@@ -325,6 +366,17 @@ namespace MVC_Project.WebBackend.Controllers
                     total = DiagnosticsResponse.Count();
                 }
 
+                LogUtil.AddEntry(
+                   "Obtener listado de diganosticos total:" +total+", totalDisplay:"+totalDisplay+", Resultado" + JsonConvert.SerializeObject(DiagnosticsResponse),
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return Json(new
                 {
                     success = true,
@@ -336,6 +388,17 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                   "Error al Obtener el diagnostico: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return new JsonResult
                 {
                     Data = new { success = false, message = ex.Message },

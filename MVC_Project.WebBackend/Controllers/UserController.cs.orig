@@ -466,7 +466,8 @@ namespace MVC_Project.WebBackend.Controllers
                 }
                 model.Role = membership.role.id;
                 model.Status = user.status;
-                model.RoleCode = membership.role.code;
+<<<<<<< HEAD
+
                 LogUtil.AddEntry(
                    "Editar Cliente: " + JsonConvert.SerializeObject(model),
                    ENivelLog.Info,
@@ -478,6 +479,9 @@ namespace MVC_Project.WebBackend.Controllers
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
                 );
 
+=======
+                model.RoleCode = membership.role.code;
+>>>>>>> origin/develop
                 return View(model);
             }
             catch (Exception ex)
@@ -570,7 +574,7 @@ namespace MVC_Project.WebBackend.Controllers
                 if (Request.IsAjaxRequest())
                 {
                     LogUtil.AddEntry(
-                       "Editar password: " + JsonConvert.SerializeObject(user),
+                       "Editar password: " + JsonConvert.SerializeObject(model),
                        ENivelLog.Info,
                        0,
                        "",
@@ -584,7 +588,7 @@ namespace MVC_Project.WebBackend.Controllers
                 else
                 {
                     LogUtil.AddEntry(
-                       "Editar password: " + JsonConvert.SerializeObject(user),
+                       "Editar password: " + JsonConvert.SerializeObject(model),
                        ENivelLog.Info,
                        0,
                        "",
