@@ -105,7 +105,7 @@ namespace MVC_Project.Integrations.Paybook
         public int is_disable { get; set; }
         public int is_pending { get; set; }
         public string description { get; set; }
-        public Double amount { get; set; }
+        public decimal amount { get; set; }
         public string currency { get; set; }
         public List<string> attachments { get; set; }
         public ExtraTransactionPaybook extra { get; set; }

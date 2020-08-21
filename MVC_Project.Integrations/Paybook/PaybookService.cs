@@ -188,8 +188,8 @@ namespace MVC_Project.Integrations.Paybook
                 {
                     id_credential = idCredential,
                     id_account = idAccount,
-                    skip = 0,
-                    limit = 10,
+                    //skip = 0,
+                    //limit = 10,
                     //id_transaction = "",
                     //dt_refresh_from = "", //Timestamp (optional) Filters by transaction refresh date, expected UNIX timestamp
                     //dt_refresh_to = "", //Timestamp (optional) Filters by transaction refresh date, expected UNIX timestamp
