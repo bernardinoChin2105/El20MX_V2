@@ -1802,6 +1802,7 @@
     <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
     <Content Include="Scripts\views\Auth\Index.js" />
+    <Content Include="Scripts\views\Bank\BankTransaction.js" />
     <Content Include="Scripts\views\Bank\BankAccount.js" />
     <Content Include="Scripts\views\Bank\Index.js" />
     <Content Include="Scripts\views\Provider\Create.js" />

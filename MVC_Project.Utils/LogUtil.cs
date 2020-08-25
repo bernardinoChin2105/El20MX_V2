@@ -29,6 +29,11 @@ namespace MVC_Project.Utils
                 Task.Run(() => logHubClient.SendLog(msg));
             }
         }
+
+        public static void AddEntry(string v1, object info, object id, object email, object aCCESS, string v2, object p, string v3)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

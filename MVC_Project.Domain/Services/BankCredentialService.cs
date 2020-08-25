@@ -24,11 +24,11 @@ namespace MVC_Project.Domain.Services
             _repository = baseRepository;
         }
 
-        public List<BankCredentialsList> GetBankCredentials(Int64 AccountId)
+        public List<BankCredentialsList> GetBankCredentials(Int64 accountId)
         {
             var list = _repository.Session.CreateSQLQuery("exec dbo.st_bankCredentialList " +
                 "@accountId =:accountId ")
-                    .SetParameter("accountId", AccountId)
+                    .SetParameter("accountId", accountId)
                     .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(BankCredentialsList)))
                     .List<BankCredentialsList>();
 

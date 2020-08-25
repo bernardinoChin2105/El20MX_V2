@@ -37,7 +37,7 @@
                                 <button type="button" class="btn btn-sm btn-color btn-import" data-toggle="modal" data-target="#ModalImporterClients"><span class="fas fa-upload"></span> Importar</button>
                         }*@
 
-                    <div class="onoffswitch">
+                    @*<div class="onoffswitch">
                         <input type="checkbox" checked="" disabled="" class="onoffswitch-checkbox" id="example3">
                         <label class="onoffswitch-label" for="example3">
                             <span class="onoffswitch-inner"></span>
@@ -45,7 +45,7 @@
 
                         </label>
 
-                    </div>
+                    </div>*@
                 </div>
                 <div class="ibox-content">
                     <div class="table-responsive">
@@ -63,18 +63,14 @@
     @Scripts.Render("~/plugins/validate")
 
     <script>
-                $(function () {
-                    var bank = new BankAccountControlador('table',
-                        '@Url.Action("GetBankAccounts")',
-                        //'@Url.Action("Edit")',
-                        //'@Url.Action("GetToken")',
-                        //'@Url.Action("ExportListCustomer")',
-                        //'@Url.Action("CustomerUpload")',
-                        '@hasFullAccessController' == 'True'
-                    );
-                    bank.init();
-                });
+       $(function () {
+           var bank = new BankAccountControlador('table',
+               '@Url.Action("GetBankAccounts")',
+               '@Url.Action("EditBankClabe")',
+               '@hasFullAccessController' == 'True'
+           );
+           bank.init();
+       });
     </script>
     @Scripts.Render("~/views/bankAccount")
-}
 }

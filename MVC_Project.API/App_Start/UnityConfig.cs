@@ -54,6 +54,7 @@ namespace MVC_Project.API
             container.RegisterType<IUserService, UserService>();
             container.RegisterType<IAuthService, AuthService>();
             container.RegisterType<IRoleService, RoleService>();
+            container.RegisterType<IWebhookService, WebhookService>();
         }
     }
 }

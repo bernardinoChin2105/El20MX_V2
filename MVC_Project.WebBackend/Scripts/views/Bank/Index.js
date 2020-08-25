@@ -16,7 +16,7 @@
 //    $('#table').DataTable().draw();
 //});
 
-var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getTokenUrl, unlinkBankUrl, createBankCredentialUrl, hasFullAccessController) {
+var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getTokenUrl, unlinkBankUrl, createBankCredentialUrl, token, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
@@ -25,7 +25,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
     this.unlinkBankUrl = unlinkBankUrl;
     this.createBankCredentialUrl = createBankCredentialUrl;
     this.dataTable = {};
-    this.token = "";
+    this.token = token;
     this.syncWidget = {};
 
     this.init = function () {
@@ -43,10 +43,8 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
             ordering: false,
             columns: [
                 { data: 'id', title: "Id", visible: false },
-                { data: 'bank', title: "Bancos" },
+                { data: 'Name', title: "Bancos" },
                 { data: 'status', title: "Estatus" },
-                //{ data: 'phone', title: "Teléfono" },
-                //{ data: 'email', title: "Email" },
                 {
                     data: null,
                     title: "Configuración de Bancos",
@@ -55,7 +53,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                         //Menu para más opciones de cliente
                         //console.log(data)
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<a class="link" href="' + self.bankAccountsUrl + '?uuid=' + data.uuid + '">Ver más</a>' +
+                            '<a class="link" href="' + self.bankAccountsUrl + '?idBankCredential=' + data.uuid + '">Ver más</a>' +
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }
@@ -72,30 +70,30 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     }
                 }
             ],
-            //"fnServerData": function (sSource, aoData, fnCallback) {
-            //    aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
-            //    aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
-            //    aoData.push({ "name": "first", "value": primeravez });
+            "fnServerData": function (sSource, aoData, fnCallback) {
+                aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
+                //aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
+                //aoData.push({ "name": "first", "value": primeravez });
 
-            //    $.getJSON(sSource, aoData, function (json) {
-            //        primeravez = false;
-            //        if (json.success === false) {
-            //            toastr['error'](json.Mensaje.message);
-            //            console.log(json.Mensaje + " Error al obtener los elementos");
-            //        } else {
-            //            fnCallback(json);
-            //        }
-            //    });
-            //}
+                $.getJSON(sSource, aoData, function (json) {
+                    //console.log(json, "hola")
+                    //primeravez = false;
+                    if (json.success === false) {
+                        toastr['error'](json.message);
+                        //console.log(json.Mensaje + " Error al obtener los elementos");
+                        El20Utils.ocultarCargador();
+                    } else {
+                        fnCallback(json);
+                    }
+                });
+            }
         }).on('xhr.dt', function (e, settings, data) {
             El20Utils.ocultarCargador();
         });
 
-
-
         var params = {
             // Set up the token you created in the Quickstart:
-            token: '58aa3a0a0a98be385f473dee61dca92e04392a6a29c2843359e08369f983f6b0',
+            token: this.token,
             config: {
                 // Set up the language to use:
                 locale: 'es',
@@ -119,21 +117,20 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
         //syncWidget.open();
 
         self.syncWidget.$on("success", function (credential) {
-            console.log(credential, "credencial");
             // do something on success
             $.ajax({
-                type: 'GET',
+                type: 'Get',
                 contentType: 'application/json',
                 async: true,
-                data: { idCredential: credential },
+                data: { idCredential: credential.id_credential },
                 url: self.createBankCredentialUrl,
                 success: function (result) {
-                    console.log("result", result);
+                    //console.log("result", result);
 
                     if (!result.success) {
-                        toastr["error"](result.Mensaje);
+                        toastr["error"](result.Mensaje.message);
                     } else {
-                        toastr["success"](result.Mensaje);
+                        toastr["success"](result.data);
                         self.dataTable.DataTable().draw();
                     }
                     El20Utils.ocultarCargador();                      
@@ -158,12 +155,12 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     //data: { token: self.token },
                     url: self.getTokenUrl,
                     success: function (result) {
-                        console.log("result", result);
+                        //console.log("result", result);
 
                         if (!result.success) {
                             toastr["error"](result.Mensaje.message);
                         } else {
-                            //toastr["success"](result.Mensaje);
+                            //toastr["success"](result.Mensaje);                            
                             self.syncWidget.setToken(result.data);
                             self.syncWidget.open();
                         }
@@ -194,7 +191,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     data: { uuid: uuid },
                     url: self.unlinkBankUrl,
                     success: function (result) {
-                        console.log("result", result);
+                        //console.log("result", result);
 
                         if (!result.success) {
                             toastr["error"](result.Mensaje.message);

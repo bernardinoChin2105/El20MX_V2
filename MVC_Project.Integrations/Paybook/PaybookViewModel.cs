@@ -64,7 +64,7 @@ namespace MVC_Project.Integrations.Paybook
         public SitePaybook site { get; set; }
         public ExtraAccountPaybook extra { get; set; }
         public List<string> keywords { get; set; }
-        public string dt_refresh { get; set; }
+        public long dt_refresh { get; set; }
     }
 
     public class SitePaybook
@@ -112,7 +112,7 @@ namespace MVC_Project.Integrations.Paybook
         public string reference { get; set; }
         public List<string> keywords { get; set; }
         public int dt_transaction { get; set; }
-        public int dt_refresh { get; set; }
+        public long dt_refresh { get; set; }
         public int dt_disable { get; set; }
         public int dt_deleted { get; set; }
     }

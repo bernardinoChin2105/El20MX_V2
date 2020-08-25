@@ -16,17 +16,12 @@
 //    $('#table').DataTable().draw();
 //});
 
-var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getTokenUrl, unlinkBankUrl, createBankCredentialUrl, hasFullAccessController) {
+var BankAccountControlador = function (htmlTableId, baseUrl, bankAccountEdit, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
-    this.bankAccountsUrl = bankAccountsUrl;
-    this.getTokenUrl = getTokenUrl;
-    this.unlinkBankUrl = unlinkBankUrl;
-    this.createBankCredentialUrl = createBankCredentialUrl;
+    this.bankAccountEdit = bankAccountEdit;
     this.dataTable = {};
-    this.token = "";
-    this.syncWidget = {};
 
     this.init = function () {
         //var primeravez = true;
@@ -84,11 +79,11 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
             ],
             "fnServerData": function (sSource, aoData, fnCallback) {
                 aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
-                aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
+                aoData.push({ "name": "filter", "value": $('form#SearchForm').serialize() });
                 //aoData.push({ "name": "first", "value": primeravez });
 
                 $.getJSON(sSource, aoData, function (json) {
-                    primeravez = false;
+                    console.log(json,"hask")
                     if (json.success === false) {
                         toastr['error'](json.Mensaje.message);
                         console.log(json.Mensaje + " Error al obtener los elementos");
@@ -103,128 +98,73 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
 
 
 
-        var params = {
-            // Set up the token you created in the Quickstart:
-            token: '58aa3a0a0a98be385f473dee61dca92e04392a6a29c2843359e08369f983f6b0',
-            config: {
-                // Set up the language to use:
-                locale: 'es',
-                entrypoint: {
-                    // Set up the country to start:
-                    country: 'MX',
-                    // Set up the site organization type to start:
-                    //siteOrganizationType: '56cf4f5b784806cf028b4568'
-                },
-                navigation: {
-                    displayStatusInToast: true,
-                    // Hide the site 'Renapo'
-                    //"hideSites": ["Renapo"],
-                    // Hide the 'Blockchain' and 'Digital Wallets' organization types.
-                    "hideSiteOrganizationTypes": ["Blockchain", "Digital Wallet", "Government", "Utility"]
-                }
-            }
-        };
+        //$(".btn-token").click(function () {
+        //    El20Utils.mostrarCargador();
+        //    try {
+        //        $.ajax({
+        //            type: 'GET',
+        //            contentType: 'application/json',
+        //            //async: true,
+        //            //data: { token: self.token },
+        //            url: self.getTokenUrl,
+        //            success: function (result) {
+        //                console.log("result", result);
 
-        self.syncWidget = new SyncWidget(params);
-        //syncWidget.open();
+        //                if (!result.success) {
+        //                    toastr["error"](result.Mensaje.message);
+        //                } else {
+        //                    //toastr["success"](result.Mensaje);
+        //                    self.syncWidget.setToken(result.data);
+        //                    self.syncWidget.open();
+        //                }
+        //                El20Utils.ocultarCargador();
+        //                //$("#ModalImporterClients").modal("show");                       
+        //            },
+        //            error: function (xhr) {
+        //                //console.log("error: " + xhr);
+        //                El20Utils.ocultarCargador();
+        //                //loading.hideloading();
+        //            }
+        //        }).always(function () {
+        //        });
 
-        self.syncWidget.$on("success", function (credential) {
-            console.log(credential, "credencial");
-            // do something on success
-            $.ajax({
-                type: 'GET',
-                contentType: 'application/json',
-                async: true,
-                data: { idCredential: credential },
-                url: self.createBankCredentialUrl,
-                success: function (result) {
-                    console.log("result", result);
+        //    } catch (e) {
+        //        throw 'BankIndexControlador -> GetToken: ' + e;
+        //    }
+        //});
 
-                    if (!result.success) {
-                        toastr["error"](result.Mensaje);
-                    } else {
-                        toastr["success"](result.Mensaje);
-                        self.dataTable.DataTable().draw();
-                    }
-                    El20Utils.ocultarCargador();
-                },
-                error: function (xhr) {
-                    //console.log("error: " + xhr);
-                    El20Utils.ocultarCargador();
-                    //loading.hideloading();
-                }
-            }).always(function () {
-            });
-        });
+        //$(".btn-desvincular").click(function () {
+        //    var uuid = $(this).data("uuid");
+        //    El20Utils.mostrarCargador();
+        //    try {
+        //        $.ajax({
+        //            type: 'GET',
+        //            contentType: 'application/json',
+        //            //async: true,
+        //            data: { uuid: uuid },
+        //            url: self.unlinkBankUrl,
+        //            success: function (result) {
+        //                console.log("result", result);
 
+        //                if (!result.success) {
+        //                    toastr["error"](result.Mensaje.message);
+        //                } else {
+        //                    toastr["success"](result.Mensaje);
+        //                    self.dataTable.DataTable().draw();
+        //                }
+        //                El20Utils.ocultarCargador();
+        //            },
+        //            error: function (xhr) {
+        //                //console.log("error: " + xhr);
+        //                El20Utils.ocultarCargador();
+        //                //loading.hideloading();
+        //            }
+        //        }).always(function () {
+        //        });
 
-        $(".btn-token").click(function () {
-            El20Utils.mostrarCargador();
-            try {
-                $.ajax({
-                    type: 'GET',
-                    contentType: 'application/json',
-                    //async: true,
-                    //data: { token: self.token },
-                    url: self.getTokenUrl,
-                    success: function (result) {
-                        console.log("result", result);
-
-                        if (!result.success) {
-                            toastr["error"](result.Mensaje.message);
-                        } else {
-                            //toastr["success"](result.Mensaje);
-                            self.syncWidget.setToken(result.data);
-                            self.syncWidget.open();
-                        }
-                        El20Utils.ocultarCargador();
-                        //$("#ModalImporterClients").modal("show");                       
-                    },
-                    error: function (xhr) {
-                        //console.log("error: " + xhr);
-                        El20Utils.ocultarCargador();
-                        //loading.hideloading();
-                    }
-                }).always(function () {
-                });
-
-            } catch (e) {
-                throw 'BankIndexControlador -> GetToken: ' + e;
-            }
-        });
-
-        $(".btn-desvincular").click(function () {
-            var uuid = $(this).data("uuid");
-            El20Utils.mostrarCargador();
-            try {
-                $.ajax({
-                    type: 'GET',
-                    contentType: 'application/json',
-                    //async: true,
-                    data: { uuid: uuid },
-                    url: self.unlinkBankUrl,
-                    success: function (result) {
-                        console.log("result", result);
-
-                        if (!result.success) {
-                            toastr["error"](result.Mensaje.message);
-                        } else {
-                            toastr["success"](result.Mensaje);
-                            self.dataTable.DataTable().draw();
-                        }
-                        El20Utils.ocultarCargador();
-                    },
-                    error: function (xhr) {
-                        //console.log("error: " + xhr);
-                        El20Utils.ocultarCargador();
-                        //loading.hideloading();
-                    }
-                }).always(function () {
-                });
-
-            } catch (e) {
-                throw 'BankIndexControlador -> GetToken: ' + e;
-            }
-        });
+        //    } catch (e) {
+        //        throw 'BankIndexControlador -> GetToken: ' + e;
+        //    }
+        //});
     };
 };
