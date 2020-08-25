@@ -125,7 +125,8 @@ namespace MVC_Project.WebBackend.Controllers
                         //Action = p.permission.action,
                         Controller = p.permission.controller,
                         Module = p.permission.module,
-                        Level = p.level
+                        Level = p.level,
+                        isCustomizable = p.permission.isCustomizable
                     }).ToList();
 
                     authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
@@ -144,8 +145,8 @@ namespace MVC_Project.WebBackend.Controllers
                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                     );
-
-                    return RedirectToAction("Index", "User");
+                    var inicio = permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+                    return RedirectToAction("Index", inicio.Controller);
                 }
             }
 
@@ -273,16 +274,12 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 LogUtil.AddEntry(
-                   "Se encontro un error: " + ex.Message.ToString(),
-                   ENivelLog.Error,
-                   authUser.Id,
-                   authUser.Email,
-                   EOperacionLog.ACCESS,
+                   "Se encontro un error: " + ex.Message.ToString(), ENivelLog.Error, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                 );
-                return View();
+                return View("CreateAccount", model);
             }
 
         }

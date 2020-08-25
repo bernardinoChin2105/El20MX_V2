@@ -193,4 +193,10 @@ namespace MVC_Project.Utils
         Regime629 = 626,
         Regime630 = 630,
     }
+
+    public enum SystemControllers
+    {
+        [Display(Name ="Account")]
+        ACCOUNT,
+    }
 }

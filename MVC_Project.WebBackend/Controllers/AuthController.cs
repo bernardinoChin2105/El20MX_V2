@@ -128,7 +128,8 @@ namespace MVC_Project.WebBackend.Controllers
                         //Action = p.permission.action,
                         Controller = p.permission.controller,
                         Module = p.permission.module,
-                        Level = p.level
+                        Level = p.level,
+                        isCustomizable = p.permission.isCustomizable
                     }).ToList();
 
                     authUser.Role = new Role { Id = guestRole.id, Code = guestRole.code, Name = guestRole.name };
@@ -159,7 +160,8 @@ namespace MVC_Project.WebBackend.Controllers
                         //Action = p.permission.action,
                         Controller = p.permission.controller,
                         Module = p.permission.module,
-                        Level = p.level
+                        Level = p.level,
+                        isCustomizable = p.permission.isCustomizable
                     }).ToList();
 
                     authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
@@ -178,8 +180,8 @@ namespace MVC_Project.WebBackend.Controllers
                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                     );
-
-                    return RedirectToAction("Index", "Account");
+                    var inicio = permissionsUniqueMembership.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+                    return RedirectToAction("Index", inicio.Controller);
                 }
                 else
                 {
@@ -189,7 +191,8 @@ namespace MVC_Project.WebBackend.Controllers
                         Action = "Index",
                         Controller = "Account",
                         Module = "Account",
-                        Level = SystemLevelPermission.READ_ONLY.ToString()
+                        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                        isCustomizable = false
                     });
                     authUser.Permissions = permissionsUser;
                     Authenticator.StoreAuthenticatedUser(authUser);
@@ -590,7 +593,8 @@ namespace MVC_Project.WebBackend.Controllers
                                         //Action = p.action,
                                         Controller = p.permission.controller,
                                         Module = p.permission.module,
-                                        Level = p.level
+                                        Level = p.level,
+                                        isCustomizable = p.permission.isCustomizable
                                     }).ToList();
 
                                     authUser.Role = new Role { Id = guestRole.id, Code = guestRole.code, Name = guestRole.name };
@@ -607,7 +611,8 @@ namespace MVC_Project.WebBackend.Controllers
                                         //Action = p.permission.action,
                                         Controller = p.permission.controller,
                                         Module = p.permission.module,
-                                        Level = p.level
+                                        Level = p.level,
+                                        isCustomizable = p.permission.isCustomizable
                                     }).ToList();
 
                                     authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
@@ -623,7 +628,9 @@ namespace MVC_Project.WebBackend.Controllers
                                     {
                                         Action = "Index",
                                         Controller = "Account",
-                                        Module = "Account"
+                                        Module = "Account",
+                                        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                                        isCustomizable = false
                                     });
                                     authUser.Permissions = permissionsUser;
                                     Authenticator.StoreAuthenticatedUser(authUser);

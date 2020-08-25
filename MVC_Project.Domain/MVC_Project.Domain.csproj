@@ -57,6 +57,7 @@
     <Compile Include="Entities\BankTransaction.cs" />
     <Compile Include="Entities\Credential.cs" />
     <Compile Include="Entities\InvoiceIssued.cs" />
+    <Compile Include="Entities\InvoiceReceived.cs" />
     <Compile Include="Entities\Provider.cs" />
     <Compile Include="Entities\ProviderContact.cs" />
     <Compile Include="Entities\CustomerContact.cs" />
