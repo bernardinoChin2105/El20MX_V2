@@ -64,7 +64,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     className: 'work-options',
                     render: function (data) {
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<button class="btn btn-light btn-desvincular" data-uuid="' + data.uuid + '"><span class="fa fa-trash"></span></button>' +
+                            '<button class="btn btn-light btn-desvincular"><span class="fa fa-trash"></span></button>' +
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }
@@ -131,7 +131,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                         toastr["error"](result.Mensaje.message);
                     } else {
                         toastr["success"](result.data);
-                        self.dataTable.DataTable().draw();
+                        self.dataTable.draw();
                     }
                     El20Utils.ocultarCargador();                      
                 },
@@ -179,10 +179,14 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                 throw 'BankIndexControlador -> GetToken: ' + e;
             }
         });
-        
-        $(".btn-desvincular").click(function () {
-            var uuid = $(this).data("uuid");
+
+        $(this.dataTable, "tbody").on("click", ".work-options .btn-group .btn-desvincular",function () {            
             El20Utils.mostrarCargador();
+
+            var tr = $(this).closest('tr');
+            var row = self.dataTable.row(tr);
+            var uuid = row.data().uuid;
+
             try {
                 $.ajax({
                     type: 'GET',
@@ -197,7 +201,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                             toastr["error"](result.Mensaje.message);
                         } else {
                             toastr["success"](result.Mensaje);
-                            self.dataTable.DataTable().draw();
+                            self.dataTable.draw();
                         }
                         El20Utils.ocultarCargador();                      
                     },

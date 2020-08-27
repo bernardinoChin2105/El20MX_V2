@@ -179,7 +179,8 @@ namespace MVC_Project.Integrations.Paybook
             List<TransactionsPaybook> transactions = new List<TransactionsPaybook>();
             try
             {
-                string url = "/transactions?id_credential=idCredential&id_account=idAccount";
+                //transactions?id_credential=5f435fe9f9ad2a2e5e50e80a&id_account=5703f88323428348328b45eb&skip=Number&limit=Number
+                string url = "/transactions?id_credential="+idCredential+"&id_account="+idAccount+ "&skip=Number&limit=Number";
                 var response = Paybook.CallServicePaybook(url, null, "Get", false, token);
                 var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
                 var option = model.First(x => x.Key == "response").Value;

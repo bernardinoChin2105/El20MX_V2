@@ -111,15 +111,15 @@ namespace MVC_Project.Integrations.Paybook
         public ExtraTransactionPaybook extra { get; set; }
         public string reference { get; set; }
         public List<string> keywords { get; set; }
-        public int dt_transaction { get; set; }
+        public long dt_transaction { get; set; }
         public long dt_refresh { get; set; }
-        public int dt_disable { get; set; }
-        public int dt_deleted { get; set; }
+        public long? dt_disable { get; set; }
+        public long? dt_deleted { get; set; }
     }
 
     public class ExtraTransactionPaybook
     {
-        public string dt_disable { get; set; }
-        public string dt_deleted { get; set; }
+        public long? dt_disable { get; set; }
+        public long? dt_deleted { get; set; }
     }
 }

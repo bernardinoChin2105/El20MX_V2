@@ -37,41 +37,49 @@ var BankAccountControlador = function (htmlTableId, baseUrl, bankAccountEdit, ha
             ordering: false,
             columns: [
                 { data: 'id', title: "Id", visible: false },
-                //{ data: 'bank', title: "" },
+                //{ data: 'name', title: "Nombre Cuenta" },
                 {
                     data: null,
                     title: "Estatus de la Cuenta",
-                    className: 'menu-options',
+                    className: 'checked',
                     render: function (data) {
                         //Menu para más opciones de cliente
-                        console.log(data)
-                        //<div class="onoffswitch">
-                        //    <input type="checkbox" checked="" disabled="" class="onoffswitch-checkbox" id="example3">
-                        //        <label class="onoffswitch-label" for="example3">
-                        //            <span class="onoffswitch-inner"></span>
-                        //            <span class="onoffswitch-switch"></span>
-                        //        </label>
-                        //</div>
+                        var checked = data.isDisable === 0 ? 'checked' : '';
+                        var check = '<div class="onoffswitch">' +
+                            '<input type="checkbox" ' + checked + ' disabled="" class="onoffswitch-checkbox">' +
+                            '<label class="onoffswitch-label">' +
+                            '<span class="onoffswitch-inner"></span>' +
+                            '<span class="onoffswitch-switch"></span>' +
+                            '</label>' +
+                            '</div>';
+                        return check;//hasFullAccessController ? buttons : "";
+                    }
+                },
+                { data: 'accountProviderType', title: "Nombre de la Cuenta" },
+                { data: 'number', title: "Número de la Cuenta" },
+                { data: 'clabe', title: "Clabe" },
+                { data: 'currency', title: "Moneda" },
+                //{data: 'refreshAt', title: "Fecha Saldo Inicial" },
+                { data: 'balance', title: "Saldo Inicial" },
+                {
+                    data: null,
+                    title: "Estatus de Conexión",
+                    className: 'work-conection',
+                    render: function (data) {
+                        var classCircle = data.status === '1' ? 'green' : 'red';
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<a class="link" href="' + self.bankAccountsUrl + '?uuid=' + data.uuid + '">Ver más</a>' +
+                            '<i class="fas fa-circle ' + classCircle + '"></i>' +
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }
                 },
-                { data: 'bank', title: "Nombre de la Cuenta" },
-                { data: 'bank', title: "Número de la Cuenta" },
-                { data: 'bank', title: "Clabe" },
-                { data: 'bank', title: "Moneda" },
-                //{data: 'phone', title: "Fecha Saldo Inicial" },
-                { data: 'email', title: "Saldo Inicial" },
-                { data: 'status', title: "Estatus de Conexión" },
                 {
                     data: null,
                     title: "Acciones",
                     className: 'work-options',
                     render: function (data) {
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<button class="btn btn-light btn-desvincular" data-uuid="' + data.uuid + '"><span class="fa fa-trash"></span></button>' +
+                            '<button class="btn btn-light btn-edit"><span class="fa fa-pencil-alt"></span></button>' +
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }
@@ -83,7 +91,6 @@ var BankAccountControlador = function (htmlTableId, baseUrl, bankAccountEdit, ha
                 //aoData.push({ "name": "first", "value": primeravez });
 
                 $.getJSON(sSource, aoData, function (json) {
-                    console.log(json,"hask")
                     if (json.success === false) {
                         toastr['error'](json.Mensaje.message);
                         console.log(json.Mensaje + " Error al obtener los elementos");
@@ -96,75 +103,79 @@ var BankAccountControlador = function (htmlTableId, baseUrl, bankAccountEdit, ha
             El20Utils.ocultarCargador();
         });
 
+        $("#table tbody").on("click", "td.work-options .btn-group .btn-edit", function () {
+            console.log("dentro");
+            El20Utils.mostrarCargador();
 
+            var tr = $(this).closest('tr');
+            var row = self.dataTable.row(tr);
+            var id = row.data().id;
+            var clabe = row.data().clabe;
 
-        //$(".btn-token").click(function () {
-        //    El20Utils.mostrarCargador();
-        //    try {
-        //        $.ajax({
-        //            type: 'GET',
-        //            contentType: 'application/json',
-        //            //async: true,
-        //            //data: { token: self.token },
-        //            url: self.getTokenUrl,
-        //            success: function (result) {
-        //                console.log("result", result);
+            $("#IdAccount").val(id);
+            $("#clabe").val(clabe);
+            El20Utils.ocultarCargador();
+            $("#ModalEditClabe").modal("show");
+        });      
 
-        //                if (!result.success) {
-        //                    toastr["error"](result.Mensaje.message);
-        //                } else {
-        //                    //toastr["success"](result.Mensaje);
-        //                    self.syncWidget.setToken(result.data);
-        //                    self.syncWidget.open();
-        //                }
-        //                El20Utils.ocultarCargador();
-        //                //$("#ModalImporterClients").modal("show");                       
-        //            },
-        //            error: function (xhr) {
-        //                //console.log("error: " + xhr);
-        //                El20Utils.ocultarCargador();
-        //                //loading.hideloading();
-        //            }
-        //        }).always(function () {
-        //        });
+        $("#ModalEditClabe").on('hidden.bs.modal', function () {
+            console.log("cierre de modal");
+            $("#IdAccount").val("");
+            $("#clabe").val("");
+        });
 
-        //    } catch (e) {
-        //        throw 'BankIndexControlador -> GetToken: ' + e;
-        //    }
-        //});
+        $("#EditBankAccountForm").validate({
+            rules: {
+                clabe: {
+                    required: true,
+                    minlength: 18,
+                    maxlength:18
+                },
+                password: {
+                    required: true,
+                    minlength: jQuery.validator.format("Ingrese no menos de {0} caracteres."),
+                    maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
+                }
+            }
+        });
 
-        //$(".btn-desvincular").click(function () {
-        //    var uuid = $(this).data("uuid");
-        //    El20Utils.mostrarCargador();
-        //    try {
-        //        $.ajax({
-        //            type: 'GET',
-        //            contentType: 'application/json',
-        //            //async: true,
-        //            data: { uuid: uuid },
-        //            url: self.unlinkBankUrl,
-        //            success: function (result) {
-        //                console.log("result", result);
+        $(".btn-save").click(function () {
 
-        //                if (!result.success) {
-        //                    toastr["error"](result.Mensaje.message);
-        //                } else {
-        //                    toastr["success"](result.Mensaje);
-        //                    self.dataTable.DataTable().draw();
-        //                }
-        //                El20Utils.ocultarCargador();
-        //            },
-        //            error: function (xhr) {
-        //                //console.log("error: " + xhr);
-        //                El20Utils.ocultarCargador();
-        //                //loading.hideloading();
-        //            }
-        //        }).always(function () {
-        //        });
+            if (!$('#EditBankAccountForm').valid()) {
+                console.log("error")
+                return;
+            }
 
-        //    } catch (e) {
-        //        throw 'BankIndexControlador -> GetToken: ' + e;
-        //    }
-        //});
+            $("#ModalEditClabe").modal("hide");
+            El20Utils.mostrarCargador();
+
+            console.log("siguiendo")
+
+            //var data_ = new FormData($("#EditBankAccountForm")[0]);
+
+            var data = {
+                id: $("#IdAccount").val(),
+                clabe: $("#clabe").val()
+            };
+            
+            $.ajax({
+                url: self.bankAccountEdit,
+                type: 'POST',
+                data: data,
+                dataType: 'json',
+                //async: true,
+                success: function (result) {
+                    console.log("result", result);
+                    if (!result.success) {
+                        toastr["error"](result.mensaje);
+                    } else {
+                        toastr["success"](result.mensaje);
+                        self.dataTable.draw();
+                    }
+                    El20Utils.ocultarCargador();
+                }
+            }).always(function () {
+            });
+        });
     };
 };
