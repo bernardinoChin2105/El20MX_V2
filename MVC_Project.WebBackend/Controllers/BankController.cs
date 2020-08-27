@@ -502,7 +502,7 @@ namespace MVC_Project.WebBackend.Controllers
                 _bankAccountService.Update(updateBankAccount);
 
                 LogUtil.AddEntry(
-                   "Se actualizo la clave de la cuenta del banco: " + updateBankAccount.id+", Clabe:"+ updateBankAccount.clabe,
+                   "Se actualizo la clave de la cuenta del banco: " + updateBankAccount.id + ", Clabe:" + updateBankAccount.clabe,
                    ENivelLog.Info,
                    authUser.Id,
                    authUser.Email,
@@ -573,12 +573,13 @@ namespace MVC_Project.WebBackend.Controllers
                 if (bankCredential == null)
                     throw new Exception("Error al traer registros de la cuenta.");
 
-                listResponse = _bankCredentialService.GetBanksAccounts(bankCredential.id);                
+                listResponse = _bankCredentialService.GetBanksAccounts(bankCredential.id);
 
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
                 if (listResponse.Count() > 0)
                 {
-                    list = listResponse.Select(x => new BankAccountsVM {                        
+                    list = listResponse.Select(x => new BankAccountsVM
+                    {
                         id = x.id,
                         accountProviderId = x.accountProviderId,
                         accountProviderType = x.accountProviderType,
@@ -663,29 +664,29 @@ namespace MVC_Project.WebBackend.Controllers
                 model.ListBanks = new SelectList(listResponse);
                 model.ListMovements = new SelectList(listTypes);
 
-                LogUtil.AddEntry(
-                   "Pantalla de movimientos bancarios, filtros: " + JsonConvert.SerializeObject(model),
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
+                //LogUtil.AddEntry(
+                //   "Pantalla de movimientos bancarios, filtros: " + JsonConvert.SerializeObject(model),
+                //   ENivelLog.Info,
+                //   userAuth.Id,
+                //   userAuth.Email,
+                //   EOperacionLog.ACCESS,
+                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                //   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                //);
             }
             catch (Exception ex)
             {
-                LogUtil.AddEntry(
-                   "Se encontro un error: " + ex.Message.ToString(),
-                   ENivelLog.Error,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
+                //LogUtil.AddEntry(
+                //   "Se encontro un error: " + ex.Message.ToString(),
+                //   ENivelLog.Error,
+                //   userAuth.Id,
+                //   userAuth.Email,
+                //   EOperacionLog.ACCESS,
+                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                //   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                //);
             }
             return View(model);
         }
@@ -694,36 +695,50 @@ namespace MVC_Project.WebBackend.Controllers
         public JsonResult GetBankTransaction(JQueryDataTableParams param, string filtros, bool first)
         {
             var userAuth = Authenticator.AuthenticatedUser;
+            int totalDisplay = 0;
+            int total = 0;
+            var listResponse = new List<BankTransactionList>();
+            var list = new List<BankTransactionMV>();
+            string error = string.Empty;
+            bool success = true;
+            BankTransactionTotalVM totales = new BankTransactionTotalVM();
+
             try
             {
-                int totalDisplay = 0;
-                int total = 0;
-                var listResponse = new List<BankTransactionList>();
-
-                NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
-                string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
-                string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
-                string bank = filtersValues.Get("BankName");
-                string bankAccount = filtersValues.Get("NumberBankAccount");
-                string Movements = filtersValues.Get("Movements");
-
-                var pagination = new BasePagination();
-                var filters = new BankTransactionFilter() { accountId = userAuth.Account.Id };
-                pagination.PageSize = param.iDisplayLength;
-                pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
-                if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
-                if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
-                if (bank != "-1") filters.bankId = Convert.ToInt64(bank);
-                if (bankAccount != "") filters.bankAccountId = Convert.ToInt64(bankAccount);
-                if (Movements != "") filters.movements = Convert.ToInt64(Movements);
-
-                listResponse = _bankCredentialService.GetBankTransactionList(pagination, filters);
-
-                //Corroborar los campos iTotalRecords y iTotalDisplayRecords
-                if (listResponse.Count() > 0)
+                if (first)
                 {
-                    totalDisplay = listResponse[0].Total;
-                    total = listResponse.Count();
+                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
+                    string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
+                    string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
+                    string bank = filtersValues.Get("BankName");
+                    string bankAccount = filtersValues.Get("NumberBankAccount");
+                    string Movements = filtersValues.Get("Movements");
+
+                    var pagination = new BasePagination();
+                    var filters = new BankTransactionFilter() { accountId = userAuth.Account.Id };
+                    pagination.PageSize = param.iDisplayLength;
+                    pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
+                    if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
+                    if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
+                    if (bank != "-1") filters.bankId = Convert.ToInt64(bank);
+                    if (bankAccount != "") filters.bankAccountId = Convert.ToInt64(bankAccount);
+                    if (Movements != "") filters.movements = Convert.ToInt64(Movements);
+
+                    listResponse = _bankCredentialService.GetBankTransactionList(pagination, filters);
+
+                    //Corroborar los campos iTotalRecords y iTotalDisplayRecords
+                    if (listResponse.Count() > 0)
+                    {
+                        totalDisplay = listResponse[0].Total;
+                        total = listResponse.Count();
+
+                        list = listResponse.Select(x => new BankTransactionMV
+                        {
+                        }).ToList();
+
+                        //totales = 
+                    }
+
                 }
 
                 LogUtil.AddEntry(
@@ -736,19 +751,12 @@ namespace MVC_Project.WebBackend.Controllers
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
                 );
-
-                return Json(new
-                {
-                    success = true,
-                    sEcho = param.sEcho,
-                    iTotalRecords = total,
-                    iTotalDisplayRecords = totalDisplay,
-                    prueba = "hia",
-                    aaData = listResponse
-                }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
+                error = ex.Message.ToString();
+                success = false;
+
                 LogUtil.AddEntry(
                    "Se encontro un error: " + ex.Message.ToString(),
                    ENivelLog.Error,
@@ -759,14 +767,18 @@ namespace MVC_Project.WebBackend.Controllers
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
                 );
-
-                return new JsonResult
-                {
-                    Data = new { success = false, message = ex.Message },
-                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                    MaxJsonLength = Int32.MaxValue
-                };
             }
+
+            return Json(new
+            {
+                success = success,
+                error = error,
+                totales = totales,
+                sEcho = param.sEcho,
+                iTotalRecords = total,
+                iTotalDisplayRecords = totalDisplay,
+                aaData = error
+            }, JsonRequestBehavior.AllowGet);
         }
     }
 }

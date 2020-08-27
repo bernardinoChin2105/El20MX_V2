@@ -74,4 +74,28 @@ namespace MVC_Project.WebBackend.Models
         //public DateTime modifiedAt { get; set; }
         public string status { get; set; }
     }
+
+    public class BankTransactionMV
+    {
+        public Int64 id { get; set; }
+        public string transactionId { get; set; }
+        public string description { get; set; }
+        public string amount { get; set; }
+        public string currency { get; set; }
+        public DateTime transactionAt { get; set; }
+        public string balance { get; set; }
+        public string bankAccountName { get; set; }
+        public string number { get; set; }
+        public string bankName { get; set; }
+        public DateTime refreshAt { get; set; }        
+    }
+
+    public class BankTransactionTotalVM
+    {
+        public string currency { get; set; }
+        public string TotalAmount { get; set; }
+        public string TotalRetirement { get; set; }
+        public string TotalDeposits { get; set; }
+        public string TotalFinal { get; set; }
+    }
 }

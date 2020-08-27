@@ -91,11 +91,10 @@ var BankTransactionControlador = function (htmlTableId, baseUrl, hasFullAccessCo
                     console.log("respuesta", json)
 
                     primeravez = false;
+                    fnCallback(json);
                     if (json.success === false) {
                         toastr['error'](json.Mensaje.message);
                         console.log(json.Mensaje + " Error al obtener los elementos");
-                    } else {
-                        fnCallback(json);
                     }
                 });
             }

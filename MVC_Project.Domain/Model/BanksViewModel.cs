@@ -27,7 +27,7 @@ namespace MVC_Project.Domain.Model
         public decimal amount { get; set; }
         public string currency { get; set; }
         public DateTime transactionAt { get; set; }
-        public double balance { get; set; }
+        public decimal balance { get; set; }
         public string bankAccountName { get; set; }
         public string number { get; set; }
         public string bankName { get; set; }
