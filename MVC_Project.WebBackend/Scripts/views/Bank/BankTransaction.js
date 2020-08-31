@@ -16,6 +16,32 @@ $(".btn-filter-rol").click(function () {
     $('#table').DataTable().draw();
 });
 
+var DateInit = JSON.parse(window.StartDate);
+$('#RegisterAt').daterangepicker(
+    {
+        format: 'DD/MM/YYYY',
+        todayBtn: "linked",
+        keyboardNavigation: false,
+        forceParse: false,
+        calendarWeeks: true,
+        autoclose: true,
+        language: 'es',
+        locale: {
+            applyLabel: "Aplicar",
+            cancelLabel: "Cancelar",
+            fromLabel: "De",
+            toLabel: "a"
+        },
+        minDate: DateInit.MinDate,
+        maxDate: DateInit.MaxDate
+        //opens: 'left'
+    }).on('apply.daterangepicker', function (e, picker) {
+        //console.log(picker.startDate.format('DD/MM/YYYY'));
+        //console.log(picker.endDate.format('DD/MM/YYYY'));
+        $('#FilterInitialDate').val(picker.startDate.format('DD/MM/YYYY'));
+        $('#FilterEndDate').val(picker.endDate.format('DD/MM/YYYY'));
+    });
+
 //bankAccountsUrl, getTokenUrl, unlinkBankUrl, createBankCredentialUrl,
 var BankTransactionControlador = function (htmlTableId, baseUrl, hasFullAccessController) {
     var self = this;
@@ -41,45 +67,12 @@ var BankTransactionControlador = function (htmlTableId, baseUrl, hasFullAccessCo
             ordering: false,
             columns: [
                 { data: 'id', title: "Id", visible: false },
-                //{ data: 'bank', title: "" },
-                {
-                    data: null,
-                    title: "Estatus de la Cuenta",
-                    className: 'menu-options',
-                    render: function (data) {
-                        //Menu para más opciones de cliente
-                        console.log(data)
-                        //<div class="onoffswitch">
-                        //    <input type="checkbox" checked="" disabled="" class="onoffswitch-checkbox" id="example3">
-                        //        <label class="onoffswitch-label" for="example3">
-                        //            <span class="onoffswitch-inner"></span>
-                        //            <span class="onoffswitch-switch"></span>
-                        //        </label>
-                        //</div>
-                        var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<a class="link" href="' + self.bankAccountsUrl + '?uuid=' + data.uuid + '">Ver más</a>' +
-                            '</div>';
-                        return hasFullAccessController ? buttons : "";
-                    }
-                },
-                { data: 'bank', title: "Nombre de la Cuenta" },
-                { data: 'bank', title: "Número de la Cuenta" },
-                { data: 'bank', title: "Clabe" },
-                { data: 'bank', title: "Moneda" },
-                //{data: 'phone', title: "Fecha Saldo Inicial" },
-                { data: 'email', title: "Saldo Inicial" },
-                { data: 'status', title: "Estatus de Conexión" },
-                {
-                    data: null,
-                    title: "Acciones",
-                    className: 'work-options',
-                    render: function (data) {
-                        var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<button class="btn btn-light btn-desvincular" data-uuid="' + data.uuid + '"><span class="fa fa-trash"></span></button>' +
-                            '</div>';
-                        return hasFullAccessController ? buttons : "";
-                    }
-                }
+                { data: 'transactionAt', title: "Fecha" },               
+                { data: 'bankAccountName', title: "Cuenta/Banco" },
+                { data: 'description', title: "Descripción Banco" },
+                { data: 'amount', title: "Retiro" },
+                { data: 'amount', title: "Depósitos" },
+                { data: 'balance', title: "Saldo " },                
             ],
             "fnServerData": function (sSource, aoData, fnCallback) {
                 aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
@@ -104,128 +97,10 @@ var BankTransactionControlador = function (htmlTableId, baseUrl, hasFullAccessCo
 
 
 
-        var params = {
-            // Set up the token you created in the Quickstart:
-            token: '58aa3a0a0a98be385f473dee61dca92e04392a6a29c2843359e08369f983f6b0',
-            config: {
-                // Set up the language to use:
-                locale: 'es',
-                entrypoint: {
-                    // Set up the country to start:
-                    country: 'MX',
-                    // Set up the site organization type to start:
-                    //siteOrganizationType: '56cf4f5b784806cf028b4568'
-                },
-                navigation: {
-                    displayStatusInToast: true,
-                    // Hide the site 'Renapo'
-                    //"hideSites": ["Renapo"],
-                    // Hide the 'Blockchain' and 'Digital Wallets' organization types.
-                    "hideSiteOrganizationTypes": ["Blockchain", "Digital Wallet", "Government", "Utility"]
-                }
-            }
-        };
-
-        self.syncWidget = new SyncWidget(params);
-        //syncWidget.open();
-
-        self.syncWidget.$on("success", function (credential) {
-            console.log(credential, "credencial");
-            // do something on success
-            $.ajax({
-                type: 'GET',
-                contentType: 'application/json',
-                async: true,
-                data: { idCredential: credential },
-                url: self.createBankCredentialUrl,
-                success: function (result) {
-                    console.log("result", result);
-
-                    if (!result.success) {
-                        toastr["error"](result.Mensaje);
-                    } else {
-                        toastr["success"](result.Mensaje);
-                        self.dataTable.DataTable().draw();
-                    }
-                    El20Utils.ocultarCargador();
-                },
-                error: function (xhr) {
-                    //console.log("error: " + xhr);
-                    El20Utils.ocultarCargador();
-                    //loading.hideloading();
-                }
-            }).always(function () {
-            });
-        });
 
 
-        $(".btn-token").click(function () {
-            El20Utils.mostrarCargador();
-            try {
-                $.ajax({
-                    type: 'GET',
-                    contentType: 'application/json',
-                    //async: true,
-                    //data: { token: self.token },
-                    url: self.getTokenUrl,
-                    success: function (result) {
-                        console.log("result", result);
+        
 
-                        if (!result.success) {
-                            toastr["error"](result.Mensaje.message);
-                        } else {
-                            //toastr["success"](result.Mensaje);
-                            self.syncWidget.setToken(result.data);
-                            self.syncWidget.open();
-                        }
-                        El20Utils.ocultarCargador();
-                        //$("#ModalImporterClients").modal("show");                       
-                    },
-                    error: function (xhr) {
-                        //console.log("error: " + xhr);
-                        El20Utils.ocultarCargador();
-                        //loading.hideloading();
-                    }
-                }).always(function () {
-                });
 
-            } catch (e) {
-                throw 'BankIndexControlador -> GetToken: ' + e;
-            }
-        });
-
-        $(".btn-desvincular").click(function () {
-            var uuid = $(this).data("uuid");
-            El20Utils.mostrarCargador();
-            try {
-                $.ajax({
-                    type: 'GET',
-                    contentType: 'application/json',
-                    //async: true,
-                    data: { uuid: uuid },
-                    url: self.unlinkBankUrl,
-                    success: function (result) {
-                        console.log("result", result);
-
-                        if (!result.success) {
-                            toastr["error"](result.Mensaje.message);
-                        } else {
-                            toastr["success"](result.Mensaje);
-                            self.dataTable.DataTable().draw();
-                        }
-                        El20Utils.ocultarCargador();
-                    },
-                    error: function (xhr) {
-                        //console.log("error: " + xhr);
-                        El20Utils.ocultarCargador();
-                        //loading.hideloading();
-                    }
-                }).always(function () {
-                });
-
-            } catch (e) {
-                throw 'BankIndexControlador -> GetToken: ' + e;
-            }
-        });
     };
 };

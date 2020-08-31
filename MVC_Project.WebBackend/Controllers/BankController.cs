@@ -647,6 +647,11 @@ namespace MVC_Project.WebBackend.Controllers
         {
             var userAuth = Authenticator.AuthenticatedUser;
             BankViewModel model = new BankViewModel();
+            ViewBag.Date = new
+            {
+                MinDate = DateTime.Now.AddDays(-10).ToString("dd-MM-yyyy"),
+                MaxDate = DateTime.Now.ToString("dd-MM-yyyy")
+            };
             try
             {
                 //listados del banco de la cuenta registrada
@@ -661,32 +666,14 @@ namespace MVC_Project.WebBackend.Controllers
                         Text = EnumUtils.GetDisplayName(e)
                     }).ToList();
 
+                listTypes.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
+
                 model.ListBanks = new SelectList(listResponse);
                 model.ListMovements = new SelectList(listTypes);
-
-                //LogUtil.AddEntry(
-                //   "Pantalla de movimientos bancarios, filtros: " + JsonConvert.SerializeObject(model),
-                //   ENivelLog.Info,
-                //   userAuth.Id,
-                //   userAuth.Email,
-                //   EOperacionLog.ACCESS,
-                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                //   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                //);
             }
             catch (Exception ex)
             {
-                //LogUtil.AddEntry(
-                //   "Se encontro un error: " + ex.Message.ToString(),
-                //   ENivelLog.Error,
-                //   userAuth.Id,
-                //   userAuth.Email,
-                //   EOperacionLog.ACCESS,
-                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                //   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                //);
+
             }
             return View(model);
         }
@@ -721,8 +708,8 @@ namespace MVC_Project.WebBackend.Controllers
                     if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
                     if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
                     if (bank != "-1") filters.bankId = Convert.ToInt64(bank);
-                    if (bankAccount != "") filters.bankAccountId = Convert.ToInt64(bankAccount);
-                    if (Movements != "") filters.movements = Convert.ToInt64(Movements);
+                    if (bankAccount != "-1") filters.bankAccountId = Convert.ToInt64(bankAccount);
+                    if (Movements != "-1") filters.movements = Convert.ToInt64(Movements);
 
                     listResponse = _bankCredentialService.GetBankTransactionList(pagination, filters);
 
@@ -731,12 +718,32 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         totalDisplay = listResponse[0].Total;
                         total = listResponse.Count();
+                        char pad = '*';
 
                         list = listResponse.Select(x => new BankTransactionMV
                         {
+                            id = x.id,
+                            transactionId = x.transactionId,
+                            description = x.description,
+                            amount = x.amount.ToString("C2"),
+                            currency = x.currency,
+                            transactionAt = x.transactionAt.ToString(),
+                            balance = x.balance.ToString("C2"),
+                            bankAccountName = x.bankAccountName,
+                            number = x.number.PadLeft(10, pad),
+                            bankName = x.bankName,
+                            refreshAt = x.refreshAt.ToString()
                         }).ToList();
 
-                        //totales = 
+                        if (bankAccount != "-1")
+                            totales = new BankTransactionTotalVM
+                            {
+                                currency = listResponse.FirstOrDefault().currency,
+                                TotalAmount = listResponse.FirstOrDefault().balance.ToString("C2"),
+                                TotalRetirement = listResponse.Where(x => x.amount < 0).Sum(x => x.amount).ToString("C2"),
+                                TotalDeposits = listResponse.Where(x => x.amount > 0).Sum(x => x.amount).ToString("C2"),
+                                TotalFinal = ""
+                            };
                     }
 
                 }

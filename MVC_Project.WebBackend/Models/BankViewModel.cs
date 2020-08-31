@@ -24,7 +24,7 @@ namespace MVC_Project.WebBackend.Models
 
         //Falta las campos de fecha
         [Display(Name = "Fecha")]
-        public DateTime RegisterAt { get; set; }
+        public DateTime? RegisterAt { get; set; }
 
         public string FilterInitialDate { get; set; }
         public string FilterEndDate { get; set; }
@@ -52,7 +52,7 @@ namespace MVC_Project.WebBackend.Models
 
             ListBanks = new SelectList(list);
             ListNumberBankAccount = new SelectList(list);
-            ListMovements = new SelectList(list);
+            ListMovements = new SelectList(list);            
         }
     }
 
@@ -82,12 +82,12 @@ namespace MVC_Project.WebBackend.Models
         public string description { get; set; }
         public string amount { get; set; }
         public string currency { get; set; }
-        public DateTime transactionAt { get; set; }
+        public string transactionAt { get; set; }
         public string balance { get; set; }
         public string bankAccountName { get; set; }
         public string number { get; set; }
         public string bankName { get; set; }
-        public DateTime refreshAt { get; set; }        
+        public string refreshAt { get; set; }        
     }
 
     public class BankTransactionTotalVM
