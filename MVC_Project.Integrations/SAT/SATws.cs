@@ -12,7 +12,7 @@ namespace MVC_Project.Integrations.SAT
 {
     public class SATws
     {
-        public static string CallServiceSATws(string urlService, Object JsonString, string method)
+        public static string CallServiceSATws(string urlService, Object JsonString, string method, string application = null)
         {
             string urlapi = ConfigurationManager.AppSettings["SATws.Url"];
             string apiKey = ConfigurationManager.AppSettings["SATws.ApiKey"];
@@ -28,23 +28,30 @@ namespace MVC_Project.Integrations.SAT
                 request.Resource = string.Format(urlService);
                 // This looks correct assuming you are putting your actual x-api-key here
                 request.AddHeader("x-api-key", apiKey);
-                request.AddHeader("Content-Type", "application/json");
+                request.AddHeader("Content-Type", application);
+
+                if (application != null)
+                {
+                    if (application == "text/xml")
+                        request.AddHeader("Accept", application);
+
+                }
 
                 if (JsonString != null)
                 {
                     var data = JsonConvert.SerializeObject(JsonString);
-                    request.AddParameter("application/json", data, ParameterType.RequestBody);                    
+                    request.AddParameter("application/json", data, ParameterType.RequestBody);
                 }
-            
-                IRestResponse response = client.Execute(request);               
+
+                IRestResponse response = client.Execute(request);
 
                 if (response.IsSuccessful)
                 {
-                    string jsonResponse = response.Content.ToString();                    
+                    string jsonResponse = response.Content.ToString();
                     return jsonResponse;
                 }
 
-                throw new Exception(response.StatusDescription);                
+                throw new Exception(response.StatusDescription);
             }
             catch (Exception ex)
             {
@@ -53,6 +60,6 @@ namespace MVC_Project.Integrations.SAT
                 //throw new HttpRequestException("Request issue -> HTTP code:" + response.StatusCode);
             }
             //return null;
-        }            
+        }
     }
 }

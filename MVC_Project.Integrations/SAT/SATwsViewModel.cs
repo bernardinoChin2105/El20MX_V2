@@ -33,6 +33,7 @@ namespace MVC_Project.Integrations.SAT
         public IssuerReceiver receiver { get; set; }
         public string currency { get; set; }
         public decimal? discount { get; set; }
+        public decimal? tax { get; set; }
         public decimal? subtotal { get; set; }
         public decimal total { get; set; }
         public decimal amount { get; set; }
@@ -65,6 +66,32 @@ namespace MVC_Project.Integrations.SAT
         public string productIdentification { get; set; }
     }
 
+
+    //public class InvoicesCFDI
+    //{
+    //    public string id { get; set; }
+    //    public decimal version { get; set; }
+    //    public string Folio { get; set; }
+    //    public string Serie { get; set; }
+    //    public string MetodoPago { get; set; }
+    //    public string FormaPago { get; set; }
+    //    public string Moneda { get; set; }
+    //    public decimal SubTotal { get; set; }
+    //    public decimal Total { get; set; }
+    //    public string TipoDeComprobante { get; set; }
+    //    public string LugarExpedicion { get; set; } //Código Postal
+    //    public string xml { get; set; }
+
+
+    //    ////IVA
+    //    //public DateTime Fecha { get; set; }
+    //    //public string Sello { get; set; }
+    //    //public string NoCertificado { get; set; }
+    //    //public string Certificado { get; set; }
+    //    //public string CondicionesDePago { get; set; }
+    //    //public decimal Descuento { get; set; }           
+    //}
+
     public class IssuerReceiver
     {
         public string rfc { get; set; }
@@ -73,18 +100,22 @@ namespace MVC_Project.Integrations.SAT
 
     public class CustomersInfo
     {
+        public string idInvoice { get; set; }
         public string rfc { get; set; }
         public string businessName { get; set; }
         public string zipCode { get; set; }
         public int regime { get; set; }
+        public decimal tax { get; set; }
     }
 
     public class ProvidersInfo
     {
+        public string idInvoice { get; set; }
         public string rfc { get; set; }
         public string businessName { get; set; }
         public string zipCode { get; set; }
         public Int32 regime { get; set; }
+        public decimal tax { get; set; }
     }
 
     //Información fiscal del contribuyente
@@ -100,7 +131,6 @@ namespace MVC_Project.Integrations.SAT
     //Modelo de retorno para el DX0 y clientes
     public class InvoicesModel
     {
-
         public List<TaxStatus> TaxStatus { get; set; }
         public TaxpayerInfo Taxpayer { get; set; }
         public List<InvoicesInfo> Invoices { get; set; }
@@ -173,4 +203,81 @@ namespace MVC_Project.Integrations.SAT
         public string endDate { get; set; }
         public string startDate { get; set; }
     }
+
+    public class InvoicesCFDI
+    {        
+        public DateTime Fecha { get; set; }
+        public string Folio { get; set; }
+        public string FormaPago { get; set; }
+        public string LugarExpedicion { get; set; }
+        public string MetodoPago { get; set; }
+        public string Moneda { get; set; }
+        public string Serie { get; set; }
+        public decimal SubTotal { get; set; }
+        public string TipoDeComprobante { get; set; }
+        public decimal Total { get; set; }
+        public decimal Version { get; set; }
+        public string NoCertificado { get; set; }
+        //public string Sello { get; set; }
+        //public string Certificado { get; set; }
+        public Emisor Emisor { get; set; }
+        public Receptor Receptor { get; set; }
+        public string Xml { get; set; }
+        public string id { get; set; }
+    }
+
+    public class Emisor
+    {
+        public string Nombre { get; set; }
+        public Int32 RegimenFiscal { get; set; }
+        public string Rfc { get; set; }
+    }
+
+    public class Receptor
+    {
+        public string Nombre { get; set; }
+        public string Rfc { get; set; }
+        public string UsoCFDI { get; set; }
+    }
+    /*"Conceptos": {
+        "Concepto": {
+            "Cantidad": 1,
+            "ClaveProdServ": 86121501,
+            "ClaveUnidad": "E48",
+            "Descripcion": "COLEGIATURA MES DE MARZO 2020. NOMBRE: ROSENDO NICOLAS CHAN PECH. SECCIÓN: PREESCOLAR. CURP: CAPR141113HTNHCSA3. RVOE: 031PJN0292J.",
+            "Importe": 1960,
+            "Unidad": "Servicios",
+            "ValorUnitario": 1960,
+            "Impuestos": {
+                "Traslados": {
+                    "Traslado": {
+                        "Base": 1960,
+                        "Impuesto": "002",
+                        "TipoFactor": "Exento"
+                    }
+                }
+            },
+            "ComplementoConcepto": {
+                "InstEducativas": {
+                    "CURP": "CAPR141113HTNHCSA3",
+                    "AutRVOE": "031PJN0292J",
+                    "NivelEducativo": "Preescolar",
+                    "NombreAlumno": "ROSENDO NICOLAS CHAN PECH",
+                    "RfcPago": "PEMY860416PR3",
+                    "Version": 1
+                }
+            }
+        }
+    },
+    "Complemento": {
+        "TimbreFiscalDigital": {
+            "Version": 1.1,
+            "FechaTimbrado": "2020-03-31T12:13:50",
+            "SelloCFD": "d0Qs2k/HQNk9Ak7wTJgedl7ksjDkF/JZ5er4b3hzpTVwol7NPKxF9TBemBINcIxWgYj7THr9h2A5ZfL+bgU/H3OMDbMyoQEHoxrYLqIf4apTjmkVasgYVO3soMyzOM+9kf6aKv8poxDhXGcwjOFfXr2vXl23B+Kej4DgepevSgmd9ZAkAiYM5UAoYhpWK/1kLzfp7r6IERDYlJ3kKZubpElsBbZg3KuT5ESVm7dlGHgkFFd1VAnbSuJMVTbA6HOPCMR06z9KhYsPJRXK+RYeKa3kdPr6NVh5cyKTtXmVyFYSVhGL4TbggvppWnS02ISvHoMZ4BvRP1f3kQ5R53mScg==",
+            "UUID": "8CE08C2E-6113-4C4A-890E-6459DF90A337",
+            "NoCertificadoSAT": "00001000000402636111",
+            "RfcProvCertif": "SAD110722MQA",
+            "SelloSAT": "kDsTsRRh6pR6ywGeUD4bp1VA5LxZ/qqUluaR5t07PzzZDNFnn+pb5dvs0QN7xy/pX0LIT1yhD2adOV6umTMzCxh1DhG2ofJZYsQx17kEtPoAGUC1nTrTjVQiwNIEohSQlQh7jBZ6vE9rdhsuqzS3eIBzxHyqy4sUK1RbabPNgsIKX2UuIs+9fu4AX/2kTQUZou++TyozfU8O6ekGHakvdYvqp1LvQOYe1xbYELgyppgOAaTeMRhVlfovCwdkTTJl5DwduFRxKylzY2Z3/xeJhp/fNQ2KkTMthrtaCczrrI/esqK7MXsx1koUTJMxwx/gUP/XWOxL2KmmgP3NEW2ryA=="
+        }
+    }*/
 }

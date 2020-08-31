@@ -114,4 +114,41 @@ namespace MVC_Project.WebBackend.Models
         public string RFCS { get; set; }
         public int Repetitions { get; set; }
     }
+
+    public class InvoicesFilter
+    {
+        [Display(Name = "No. CFDI")]
+        public string Folio { get; set; }
+
+        [Display(Name = "RFC Cliente")]
+        public string RFC { get; set; }
+
+        [Display(Name = "Método Pago")]
+        public int PaymentMethod { get; set; }
+        public SelectList ListPaymentMethod { get; set; }
+
+        [Display(Name = "Forma Pago")]
+        public int WayToPay { get; set; }
+        public SelectList ListPaymentForm { get; set; }
+
+        [Display(Name = "Divisa")]
+        public string Currency { get; set; }
+        public SelectList ListCurrency { get; set; }
+
+        [Display(Name = "Fecha")]
+        public DateTime RegisterAt { get; set; }
+
+        public string FilterInitialDate { get; set; }
+        public string FilterEndDate { get; set; }
+
+        public InvoicesFilter()
+        {
+            var list = new List<SelectListItem>();
+            list.Add(new SelectListItem() { Text = "Todos...", Value = "-1" });
+
+            ListPaymentMethod = new SelectList(list);
+            ListPaymentForm = new SelectList(list);
+            ListCurrency = new SelectList(list);
+        }
+    }
 }

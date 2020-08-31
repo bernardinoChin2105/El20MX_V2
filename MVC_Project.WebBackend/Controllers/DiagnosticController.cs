@@ -25,15 +25,20 @@ namespace MVC_Project.WebBackend.Controllers
         private IDiagnosticService _diagnosticService;
         private ICustomerService _customerService;
         private IProviderService _providerService;
+        private IInvoiceIssuedService _invoicesIssuedService;
+        private IInvoiceReceivedService _invoicesReceivedService;
 
         public DiagnosticController(IAccountService accountService, ICredentialService credentialService,
-            IDiagnosticService diagnosticService, ICustomerService customerService, IProviderService providerService)
+            IDiagnosticService diagnosticService, ICustomerService customerService, IProviderService providerService,
+            IInvoiceIssuedService invoicesIssuedService, IInvoiceReceivedService invoicesReceivedService)
         {
             _accountService = accountService;
             _credentialService = credentialService;
             _diagnosticService = diagnosticService;
             _customerService = customerService;
             _providerService = providerService;
+            _invoicesIssuedService = invoicesIssuedService;
+            _invoicesReceivedService = invoicesReceivedService;
         }
 
         // GET: Diagnostic
@@ -69,10 +74,11 @@ namespace MVC_Project.WebBackend.Controllers
                 if (diagTax != null)
                 {
                     model.diagnosticTaxStatus = new List<DiagnosticTaxStatusViewModel>();
-                    var taxStatus = diagTax.Select(x => new DiagnosticTaxStatusViewModel {
+                    var taxStatus = diagTax.Select(x => new DiagnosticTaxStatusViewModel
+                    {
                         businessName = x.businessName,
                         statusSAT = x.statusSAT,
-                        taxRegime = x.taxRegime != null? x.taxRegime.Split(',').ToList() : null,
+                        taxRegime = x.taxRegime != null ? x.taxRegime.Split(',').ToList() : null,
                         economicActivities = x.economicActivities != null ? x.economicActivities.Split(',').ToList() : null,
                         fiscalObligations = x.fiscalObligations != null ? x.fiscalObligations.Split(',').ToList() : null,
                         taxMailboxEmail = x.taxMailboxEmail
@@ -84,7 +90,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var diagDetails = diagnostic.details;
 
                 if (diagDetails != null)
-                {                    
+                {
                     model.diagnosticDetails = new List<InvoicesGroup>();
 
                     string date = DateUtil.GetMonthName(DateTime.Now, "es");
@@ -165,6 +171,35 @@ namespace MVC_Project.WebBackend.Controllers
                         }).ToList();
 
                     _customerService.Create(customers);
+
+                    List<string> IdIssued = modelInvoices.Customers.Select(x => x.idInvoice).ToList();
+
+                    /*Obtener los CFDI's*/
+                    var customersCFDI = SATwsService.GetInvoicesCFDI(IdIssued);
+
+                    if (customersCFDI.Count > 0)
+                    {
+                        List<InvoiceIssued> invoiceIssued = customersCFDI.Select(x => new InvoiceIssued
+                        {
+                            uuid = Guid.NewGuid(),
+                            folio = x.Folio,
+                            serie = x.Serie,
+                            paymentMethod = x.MetodoPago,
+                            paymentForm = x.FormaPago,
+                            currency = x.Moneda,
+                            amount = x.SubTotal,
+                            iva = modelInvoices.Customers.FirstOrDefault(y => y.idInvoice == x.id).tax,
+                            totalAmount = x.Total,
+                            invoicedAt = x.Fecha,
+                            xml = x.Xml,
+                            createdAt = todayUTC,
+                            modifiedAt = todayUTC,
+                            status = SystemStatus.ACTIVE.ToString(),
+                            account = account,
+                            customer = customers.FirstOrDefault(y => y.rfc == x.Receptor.Rfc)
+                        }).ToList();
+                        _invoicesIssuedService.Create(invoiceIssued);
+                    }
                 }
 
                 //crear proveedores
@@ -183,14 +218,46 @@ namespace MVC_Project.WebBackend.Controllers
                             zipCode = x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault() != null ? x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault().zipCode : null,
                             businessName = x.Key.businessName,
                             rfc = x.Key.rfc,
-                            //taxRegime = 
-                            createdAt = DateUtil.GetDateTimeNow(),
+                                //taxRegime = 
+                                createdAt = DateUtil.GetDateTimeNow(),
                             modifiedAt = DateUtil.GetDateTimeNow(),
                             status = SystemStatus.ACTIVE.ToString()
                         }).Distinct().ToList();
 
                     _providerService.Create(providers);
+
+                    List<string> IdReceived = modelInvoices.Providers.Select(x => x.idInvoice).ToList();
+
+                    /*Obtener los CFDI's*/
+                    var providersCFDI = SATwsService.GetInvoicesCFDI(IdReceived);
+
+                    if (providersCFDI.Count > 0)
+                    {
+                        List<InvoiceReceived> invoiceReceiveds = providersCFDI.Select(x => new InvoiceReceived
+                        {
+                            uuid = Guid.NewGuid(),
+                            folio = x.Folio,
+                            serie = x.Serie,
+                            paymentMethod = x.MetodoPago,
+                            paymentForm = x.FormaPago,
+                            currency = x.Moneda,
+                            amount = x.SubTotal,
+                            iva = modelInvoices.Providers.FirstOrDefault(y => y.idInvoice == x.id).tax,
+                            totalAmount = x.Total,
+                            invoicedAt = x.Fecha,
+                            xml = x.Xml,
+                            createdAt = todayUTC,
+                            modifiedAt = todayUTC,
+                            status = SystemStatus.ACTIVE.ToString(),
+                            account = account,
+                            provider = providers.FirstOrDefault(y => y.rfc == x.Emisor.Rfc)
+                        }).ToList();
+                        _invoicesReceivedService.Create(invoiceReceiveds);
+                    }
                 }
+
+
+
 
                 //separar los cfdis por año, mes, recibidas, emitidas
                 List<InvoicesGroup> invoicePeriod = modelInvoices.Invoices.GroupBy(x => new
@@ -246,10 +313,10 @@ namespace MVC_Project.WebBackend.Controllers
                             statusSAT = x.status,
                             businessName = x.person != null ? x.person.fullName : x.company.tradeName,
                             taxMailboxEmail = x.email,
-                            taxRegime = x.taxRegimes.Count>0? String.Join(",", x.taxRegimes.Select(y => y.name).ToArray()) : null,
-                            economicActivities = x.economicActivities.Count> 0? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null
-                            //fiscalObligations = ""
-                        }).ToList();
+                            taxRegime = x.taxRegimes.Count > 0 ? String.Join(",", x.taxRegimes.Select(y => y.name).ToArray()) : null,
+                            economicActivities = x.economicActivities.Count > 0 ? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null
+                                //fiscalObligations = ""
+                            }).ToList();
 
                     diagn.taxStatus = taxStatus;
                 }

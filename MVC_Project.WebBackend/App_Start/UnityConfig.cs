@@ -68,6 +68,11 @@ namespace MVC_Project.WebBackend
             container.RegisterType<ICustomerContactService, CustomerContactService>();
             container.RegisterType<IStateService, StateService>();
             container.RegisterType<IProviderService, ProviderService>();
+            container.RegisterType<IInvoiceIssuedService, InvoiceIssuedService>();
+            container.RegisterType<IInvoiceReceivedService, InvoiceReceivedService>();
+            container.RegisterType<ICurrencyService, CurrencyService>();
+            container.RegisterType<IPaymentFormService, PaymentFormService>();
+            container.RegisterType<IPaymentMethodService, IPaymentMethodService>();
         }
     }
 }

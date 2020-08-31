@@ -26,14 +26,21 @@ namespace MVC_Project.WebBackend.Controllers
         private ICustomerService _customerService;
         private ICustomerContactService _customerContactService;
         private IStateService _stateService;
+        private ICurrencyService _currencyService;
+        private IPaymentFormService _paymentFormService;
+        private IPaymentMethodService _paymentMethodService;
 
         public CustomerController(IAccountService accountService, ICustomerService customerService, IStateService stateService,
-            ICustomerContactService customerContactService)
+            ICustomerContactService customerContactService, ICurrencyService currencyService, IPaymentFormService paymentFormService,
+            IPaymentMethodService paymentMethodService)
         {
             _accountService = accountService;
             _customerService = customerService;
             _customerContactService = customerContactService;
             _stateService = stateService;
+            _currencyService = currencyService;
+            _paymentFormService = paymentFormService;
+            _paymentMethodService = paymentMethodService;
         }
 
         [AllowAnonymous]
@@ -549,7 +556,7 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         string enumFiscal = string.Empty;
                         string rowIndexString = rowIndex.ToString();
-                        campo.Cells["A" + rowIndexString].Value = i+1;
+                        campo.Cells["A" + rowIndexString].Value = i + 1;
                         campo.Cells["A" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
                         campo.Cells["B" + rowIndexString].Value = listResponse[i].first_name;
@@ -854,12 +861,13 @@ namespace MVC_Project.WebBackend.Controllers
                         }
                     }).ToList();
 
-                    clientes = clientes.Select(x => {
+                    clientes = clientes.Select(x =>
+                    {
                         x.customerContacts = x.customerContacts.Where(b => b != null)
                         .Select(b => { b.customer = x; return b; }).ToList();
                         return x;
                     }).ToList();
-                    
+
                     if (clientes.Count() > 0)
                     {
                         _customerService.Create(clientes);
@@ -880,8 +888,95 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception Error)
             {
-                return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente! "+ Error.Message.ToString(), Tipo = 0, Error = Error.Message.ToString() }, JsonRequestBehavior.AllowGet);
+                return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente! " + Error.Message.ToString(), Tipo = 0, Error = Error.Message.ToString() }, JsonRequestBehavior.AllowGet);
             }
+        }
+
+        [AllowAnonymous]
+        public ActionResult InvoicesIssued()
+        {
+            try
+            {
+                InvoicesFilter model = new InvoicesFilter();
+                var initial = new SelectListItem() { Text = "Todos...", Value = "-1" };
+
+                var currencyList = _currencyService.GetAll().Select(x => new SelectListItem() { Text = x.code, Value = x.id.ToString() }).ToList();
+                var parmentFormList = _paymentFormService.GetAll().Select(x => new SelectListItem() { Text = x.code + "-"+ x.Description, Value = x.id.ToString() }).ToList();
+                var parmentMethodList = _paymentMethodService.GetAll().Select(x => new SelectListItem() { Text = x.code + "-" + x.Description, Value = x.id.ToString() }).ToList();
+
+                currencyList.Insert(0, (initial));
+                parmentFormList.Insert(0, (initial));
+                parmentMethodList.Insert(0, (initial));
+
+                model.ListCurrency = new SelectList(currencyList);
+                model.ListPaymentForm = new SelectList(parmentFormList);
+                model.ListPaymentMethod = new SelectList(parmentMethodList);
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetInvoices(JQueryDataTableParams param, string filtros, bool first)
+        {
+            int totalDisplay = 0;
+            int total = 0;
+            var userAuth = Authenticator.AuthenticatedUser;
+            var listResponse = new List<CustomerList>();
+            string error = string.Empty;
+
+            try
+            {
+                if (!first)
+                {
+                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
+                    string rfc = filtersValues.Get("RFC").Trim();
+                    string businessName = filtersValues.Get("BusinessName").Trim();
+                    string email = filtersValues.Get("Email").Trim();
+
+                    var pagination = new BasePagination();
+                    var filters = new CustomerFilter() { uuid = userAuth.Account.Uuid.ToString() };
+                    pagination.PageSize = param.iDisplayLength;
+                    pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
+                    if (rfc != "") filters.rfc = rfc;
+                    if (businessName != "") filters.businessName = businessName;
+                    if (email != "") filters.email = email;
+
+                    listResponse = _customerService.CustomerList(pagination, filters);
+
+                    //Corroborar los campos iTotalRecords y iTotalDisplayRecords
+
+                    if (listResponse.Count() > 0)
+                    {
+                        totalDisplay = listResponse[0].Total;
+                        total = listResponse.Count();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                //return new JsonResult
+                //{
+                //    Data = new { success = false, message = ex.Message },
+                //    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                //    MaxJsonLength = Int32.MaxValue
+                //};
+            }
+
+            return Json(new
+            {
+                success = true,
+                sEcho = param.sEcho,
+                iTotalRecords = total,
+                iTotalDisplayRecords = totalDisplay,
+                aaData = listResponse
+            }, JsonRequestBehavior.AllowGet);
         }
     }
 }
