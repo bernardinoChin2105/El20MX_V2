@@ -55,18 +55,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 return RedirectToAction("Index", "Auth");
             }
-
-            LogUtil.AddEntry(
-               "Inicio en Account",
-               ENivelLog.Info,
-               authUser.Id,
-               authUser.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-            );
-
+            
             return View();
         }
 
@@ -75,7 +64,7 @@ namespace MVC_Project.WebBackend.Controllers
         {
             var authUser = Authenticator.AuthenticatedUser;
             var accountViewModel = new AccountSelectViewModel { accountListViewModels = new List<AccountListViewModel>() };
-            var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null);
+            var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
             if (memberships.Any())
             {
                 accountViewModel.accountListViewModels = memberships.Select(x => new AccountListViewModel
@@ -116,7 +105,7 @@ namespace MVC_Project.WebBackend.Controllers
 
             if (account != null)
             {
-                var membership = _membership.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id).FirstOrDefault();
+                var membership = _membership.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
 
                 if (membership != null)
                 {

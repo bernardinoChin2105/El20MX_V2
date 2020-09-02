@@ -103,10 +103,6 @@ namespace MVC_Project.WebBackend.Controllers
                         );
                         return RedirectToAction("ChangePassword", "Auth", new { userUuid = user.uuid });
                     }
-                    //{
-                    //    MensajeFlashHandler.RegistrarMensaje(ViewLabels.CONFIRM_NEW_PASSWORD, TiposMensaje.Info);
-                    //    return RedirectToAction("ChangePassword", "Auth", new { userUuid = user.uuid });
-                    //}
                     string daysBeforeExpireToNotifyConfig = ConfigurationManager.AppSettings["DaysBeforeExpireToNotify"];
                     int daysBeforeExpireToNotify = 0;
                     if (Int32.TryParse(daysBeforeExpireToNotifyConfig, out daysBeforeExpireToNotify))
@@ -119,8 +115,8 @@ namespace MVC_Project.WebBackend.Controllers
                         }
                     }
                 }
-
-                if (user.memberships.Count <= 0)//Rol invitado
+                var memberships = user.memberships.Where(x => x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
+                if (memberships.Count() <= 0)//Rol invitado
                 {
                     var guestRole = _roleService.FirstOrDefault(x => x.code == SystemRoles.LEAD.ToString());
                     List<Permission> permissionsGest = guestRole.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
@@ -150,11 +146,9 @@ namespace MVC_Project.WebBackend.Controllers
 
                     return RedirectToAction("Index", "Account");
                 }
-                else if (user.memberships.Count == 1)
+                else if (memberships.Count() == 1)
                 {
-                    var uniqueMembership = user.memberships.First();
-                    //var uniqueRole = _roleService.FindBy(x => x.code == uniqueMembership.role.code).FirstOrDefault();
-                    //List<Permission> permissionsUniqueMembership = uniqueMembership.mebershipPermissions.Select(p => new Permission
+                    var uniqueMembership = memberships.First();
                     List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                     {
                         //Action = p.permission.action,
@@ -210,7 +204,6 @@ namespace MVC_Project.WebBackend.Controllers
                     );
 
                     return RedirectToAction("Index", "Account");
-                    //Manda a seleccionar cuenta
                 }
                 //if (!string.IsNullOrEmpty(Request.Form["ReturnUrl"]))
                 //{
@@ -239,16 +232,6 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult Logout()
         {
             var authUser = Authenticator.AuthenticatedUser;
-            LogUtil.AddEntry(
-              "Cierre de sesión",
-               ENivelLog.Info,
-               authUser.Id,
-               authUser.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-            );
             Authenticator.RemoveAuthenticatedUser();
             return RedirectToAction("Login", "Auth");
         }
@@ -556,7 +539,7 @@ namespace MVC_Project.WebBackend.Controllers
         public JsonResult ValidateLogin(AuthViewModel model)
         {
             string Error = string.Empty;
-            Domain.Entities.User user = null;//new Domain.Entities.User();
+            Domain.Entities.User user = null;
             bool exist = false;
             string url = string.Empty;
             try
@@ -564,11 +547,9 @@ namespace MVC_Project.WebBackend.Controllers
                 //es una red social
                 if (model.RedSocial)
                 {
-                    //Existe usuario
-                    //user = _authService.Authenticate(model.Email, SecurityUtil.EncryptPassword(model.Password));
                     user = _authService.AuthenticateSocialNetwork(model.Email, SecurityUtil.EncryptPassword(model.Password),
                     model.TypeRedSocial, model.SocialId);
-                    //_socialNe.GetUserByEmail(model.Email);
+                    
                     if (user != null)
                     {
                         if (user.status != SystemStatus.ACTIVE.ToString())
@@ -585,7 +566,9 @@ namespace MVC_Project.WebBackend.Controllers
                             {
                                 exist = true;
 
-                                if (user.memberships.Count <= 0)//Rol invitado
+                                var memberships = user.memberships.Where(x => x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
+
+                                if (memberships.Count() <= 0)//Rol invitado
                                 {
                                     var guestRole = _roleService.FindBy(x => x.code == SystemRoles.LEAD.ToString()).FirstOrDefault();
                                     List<Permission> permissionsGest = guestRole.rolePermissions.Select(p => new Permission
@@ -602,10 +585,9 @@ namespace MVC_Project.WebBackend.Controllers
                                     Authenticator.StoreAuthenticatedUser(authUser);
                                     url = "/Account/Index";
                                 }
-                                else if (user.memberships.Count == 1)
+                                else if (memberships.Count() == 1)
                                 {
-                                    var uniqueMembership = user.memberships.First();
-                                    //var uniqueRole = _roleService.FindBy(x => x.code == uniqueMembership.role.code).FirstOrDefault();
+                                    var uniqueMembership = memberships.First();
                                     List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Select(p => new Permission
                                     {
                                         //Action = p.permission.action,
