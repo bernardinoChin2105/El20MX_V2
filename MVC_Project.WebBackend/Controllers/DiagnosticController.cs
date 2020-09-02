@@ -170,36 +170,7 @@ namespace MVC_Project.WebBackend.Controllers
                             status = SystemStatus.ACTIVE.ToString()
                         }).ToList();
 
-                    _customerService.Create(customers);
-
-                    List<string> IdIssued = modelInvoices.Customers.Select(x => x.idInvoice).ToList();
-
-                    /*Obtener los CFDI's*/
-                    var customersCFDI = SATwsService.GetInvoicesCFDI(IdIssued);
-
-                    if (customersCFDI.Count > 0)
-                    {
-                        List<InvoiceIssued> invoiceIssued = customersCFDI.Select(x => new InvoiceIssued
-                        {
-                            uuid = Guid.NewGuid(),
-                            folio = x.Folio,
-                            serie = x.Serie,
-                            paymentMethod = x.MetodoPago,
-                            paymentForm = x.FormaPago,
-                            currency = x.Moneda,
-                            amount = x.SubTotal,
-                            iva = modelInvoices.Customers.FirstOrDefault(y => y.idInvoice == x.id).tax,
-                            totalAmount = x.Total,
-                            invoicedAt = x.Fecha,
-                            xml = x.Xml,
-                            createdAt = todayUTC,
-                            modifiedAt = todayUTC,
-                            status = SystemStatus.ACTIVE.ToString(),
-                            account = account,
-                            customer = customers.FirstOrDefault(y => y.rfc == x.Receptor.Rfc)
-                        }).ToList();
-                        _invoicesIssuedService.Create(invoiceIssued);
-                    }
+                    _customerService.Create(customers);                    
                 }
 
                 //crear proveedores
@@ -224,40 +195,69 @@ namespace MVC_Project.WebBackend.Controllers
                             status = SystemStatus.ACTIVE.ToString()
                         }).Distinct().ToList();
 
-                    _providerService.Create(providers);
-
-                    List<string> IdReceived = modelInvoices.Providers.Select(x => x.idInvoice).ToList();
-
-                    /*Obtener los CFDI's*/
-                    var providersCFDI = SATwsService.GetInvoicesCFDI(IdReceived);
-
-                    if (providersCFDI.Count > 0)
-                    {
-                        List<InvoiceReceived> invoiceReceiveds = providersCFDI.Select(x => new InvoiceReceived
-                        {
-                            uuid = Guid.NewGuid(),
-                            folio = x.Folio,
-                            serie = x.Serie,
-                            paymentMethod = x.MetodoPago,
-                            paymentForm = x.FormaPago,
-                            currency = x.Moneda,
-                            amount = x.SubTotal,
-                            iva = modelInvoices.Providers.FirstOrDefault(y => y.idInvoice == x.id).tax,
-                            totalAmount = x.Total,
-                            invoicedAt = x.Fecha,
-                            xml = x.Xml,
-                            createdAt = todayUTC,
-                            modifiedAt = todayUTC,
-                            status = SystemStatus.ACTIVE.ToString(),
-                            account = account,
-                            provider = providers.FirstOrDefault(y => y.rfc == x.Emisor.Rfc)
-                        }).ToList();
-                        _invoicesReceivedService.Create(invoiceReceiveds);
-                    }
+                    _providerService.Create(providers);                    
                 }
 
+                #region Realizar el guardado de las facturas
+                List<string> IdIssued = modelInvoices.Customers.Select(x => x.idInvoice).ToList();
 
+                /*Obtener los CFDI's*/
+                var customersCFDI = SATwsService.GetInvoicesCFDI(IdIssued);
 
+                if (customersCFDI.Count > 0)
+                {
+                    List<InvoiceIssued> invoiceIssued = customersCFDI.Select(x => new InvoiceIssued
+                    {
+                        uuid = Guid.NewGuid(),
+                        folio = x.Folio,
+                        serie = x.Serie,
+                        paymentMethod = x.MetodoPago,
+                        paymentForm = x.FormaPago,
+                        currency = x.Moneda,
+                        amount = x.SubTotal,
+                        iva = modelInvoices.Customers.FirstOrDefault(y => y.idInvoice == x.id).tax,
+                        totalAmount = x.Total,
+                        invoicedAt = x.Fecha,
+                        xml = x.Xml,
+                        createdAt = todayUTC,
+                        modifiedAt = todayUTC,
+                        status = SystemStatus.ACTIVE.ToString(),
+                        account = account,
+                        customer = _customerService.FirstOrDefault(y => y.rfc == x.Receptor.Rfc)
+                    }).ToList();
+                    _invoicesIssuedService.Create(invoiceIssued);
+                }
+
+                List<string> IdReceived = modelInvoices.Providers.Select(x => x.idInvoice).ToList();
+
+                /*Obtener los CFDI's*/
+                var providersCFDI = SATwsService.GetInvoicesCFDI(IdReceived);
+
+                if (providersCFDI.Count > 0)
+                {
+                    List<InvoiceReceived> invoiceReceiveds = providersCFDI.Select(x => new InvoiceReceived
+                    {
+                        uuid = Guid.NewGuid(),
+                        folio = x.Folio,
+                        serie = x.Serie,
+                        paymentMethod = x.MetodoPago,
+                        paymentForm = x.FormaPago,
+                        currency = x.Moneda,
+                        amount = x.SubTotal,
+                        iva = modelInvoices.Providers.FirstOrDefault(y => y.idInvoice == x.id).tax,
+                        totalAmount = x.Total,
+                        invoicedAt = x.Fecha,
+                        xml = x.Xml,
+                        createdAt = todayUTC,
+                        modifiedAt = todayUTC,
+                        status = SystemStatus.ACTIVE.ToString(),
+                        account = account,
+                        provider = _providerService.FirstOrDefault(y => y.rfc == x.Emisor.Rfc)
+                    }).ToList();
+                    _invoicesReceivedService.Create(invoiceReceiveds);
+                }
+
+                #endregion 
 
                 //separar los cfdis por año, mes, recibidas, emitidas
                 List<InvoicesGroup> invoicePeriod = modelInvoices.Invoices.GroupBy(x => new

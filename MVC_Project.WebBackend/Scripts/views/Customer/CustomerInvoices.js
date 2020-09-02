@@ -16,11 +16,38 @@ $(".btn-filter-rol").click(function () {
     $('#table').DataTable().draw();
 });
 
-//hasFullAccessController
-var CustomerInvoicesControlador = function (htmlTableId, baseUrl) {
+var DateInit = JSON.parse(window.StartDate);
+$('#RegisterAt').daterangepicker({
+        format: 'DD/MM/YYYY',
+        todayBtn: "linked",
+        keyboardNavigation: false,
+        forceParse: false,
+        calendarWeeks: true,
+        autoclose: true,
+        language: 'es',
+        locale: {
+            applyLabel: "Aplicar",
+            cancelLabel: "Cancelar",
+            fromLabel: "De",
+            toLabel: "a"
+        },
+        //minDate: DateInit.MinDate,
+        maxDate: DateInit.MaxDate
+        //opens: 'left'
+    }).on('apply.daterangepicker', function (e, picker) {
+        //console.log(picker.startDate.format('DD/MM/YYYY'));
+        //console.log(picker.endDate.format('DD/MM/YYYY'));
+        $('#FilterInitialDate').val(picker.startDate.format('DD/MM/YYYY'));
+        $('#FilterEndDate').val(picker.endDate.format('DD/MM/YYYY'));
+    });
+
+
+var CustomerInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl, downloadXmlUrl, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
+    this.downloadPdfUrl = downloadPdfUrl;
+    this.downloadXmlUrl = downloadXmlUrl;
     this.dataTable = {};
 
     this.init = function () {
@@ -38,16 +65,16 @@ var CustomerInvoicesControlador = function (htmlTableId, baseUrl) {
             ordering: false,
             columns: [
                 { data: 'id', title: "Id", visible: false },
-                { data: 'rfc', title: "No. CFDI" },
-                { data: 'rfc', title: "Fecha Factura" },
+                { data: 'folio', title: "No. CFDI" },
+                { data: 'invoicedAt', title: "Fecha Factura" },
                 { data: 'rfc', title: "RFC Cliente" },
                 { data: 'businessName', title: "Cliente" },
-                { data: 'phone', title: "Método Pago" },
-                { data: 'email', title: "Forma Pago" },
-                { data: 'rfc', title: "Divisa" },
-                { data: 'businessName', title: "SubTotal" },
-                { data: 'phone', title: "IVA" },
-                { data: 'email', title: "Total" },
+                { data: 'paymentMethod', title: "Método Pago" },
+                { data: 'paymentFormDescription', title: "Forma Pago" },
+                { data: 'currency', title: "Divisa" },
+                { data: 'amount', title: "SubTotal" },
+                { data: 'iva', title: "IVA" },
+                { data: 'totalAmount', title: "Total" },
                 {
                     data: null,
                     title: "Archivos",
@@ -56,18 +83,12 @@ var CustomerInvoicesControlador = function (htmlTableId, baseUrl) {
                         //Menu para más opciones de cliente
                         //console.log(data)
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<div class="dropdown">' +
-                            '<button class="btn btn-light btn-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-ellipsis-h"></span></button>' +
-                            '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
-                            '<a class="dropdown-item" href="' + self.editUrl + '?uuid=' + data.uuid + '">Perfil Completo del Cliente</a>' +
-                            '<a class="dropdown-item" href="#">Estado de Cuenta</a>' +
-                            '<a class="dropdown-item" href="#">Lista de Facturas(CFDI\'s)</a>' +
-                            '</div>' +
-                            '</div>' +
+                            '<a href="' + self.downloadPdfUrl + '?id=' + data.id + '" class="btn btn-light btn-downloadPdf" title="Descargar PDF"><span class="fas fa-file-pdf"></i></span>' +
+                            '<a href="' + self.downloadXmlUrl + '?id=' + data.id + '" class="btn btn-light btn-downloadXml" title="Descargar XML"><span class="fas fa-file-alt"></span></a>' +                            
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }
-                }               
+                }
             ],
             "fnServerData": function (sSource, aoData, fnCallback) {
                 aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
@@ -76,17 +97,18 @@ var CustomerInvoicesControlador = function (htmlTableId, baseUrl) {
 
                 $.getJSON(sSource, aoData, function (json) {
                     primeravez = false;
+                    console.log(json);
                     fnCallback(json);
 
                     if (json.success === false) {
-                        toastr['error'](json.Mensaje.message);
+                        toastr['error'](json.error);
                         console.log(json.Mensaje + " Error al obtener los elementos");
-                    } 
+                    }
                 });
             }
         }).on('xhr.dt', function (e, settings, data) {
             El20Utils.ocultarCargador();
-        });        
+        });
     };
 };
 

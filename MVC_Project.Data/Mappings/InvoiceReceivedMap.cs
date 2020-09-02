@@ -25,7 +25,9 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.iva).Column("iva").Nullable();
             Map(x => x.totalAmount).Column("totalAmount").Nullable();
             Map(x => x.invoicedAt).Column("invoicedAt").Nullable();
-            Map(x => x.xml).Column("xml").Length(2500).Nullable();
+            //Map(x => x.xml).Column("xml").Length(8000).Nullable();
+            Map(x => x.xml).Column("xml").Nullable().CustomSqlType("nvarchar(max)");
+            //Map(x => x.xml).CustomType("StringClob").CustomSqlType("nvarchar(max)");
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
             Map(x => x.status).Column("status").Nullable();

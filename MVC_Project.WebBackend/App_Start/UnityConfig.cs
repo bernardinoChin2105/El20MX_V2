@@ -72,7 +72,7 @@ namespace MVC_Project.WebBackend
             container.RegisterType<IInvoiceReceivedService, InvoiceReceivedService>();
             container.RegisterType<ICurrencyService, CurrencyService>();
             container.RegisterType<IPaymentFormService, PaymentFormService>();
-            container.RegisterType<IPaymentMethodService, IPaymentMethodService>();
+            container.RegisterType<IPaymentMethodService, PaymentMethodService>();
         }
     }
 }

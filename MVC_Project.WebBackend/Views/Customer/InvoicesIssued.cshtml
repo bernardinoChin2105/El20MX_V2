@@ -2,7 +2,7 @@
 @using MVC_Project.WebBackend.AuthManagement
 @using MVC_Project.WebBackend.AuthManagement.Models
 @{
-    ViewBag.Title = "Facturas Emitidas";
+    ViewBag.Title = "Facturas de mis clientes";
 
     var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
     AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
@@ -10,9 +10,12 @@
 }
 
 @section styles {
-    @*
-        @Styles.Render("~/plugins/dataTablesStyles")*@
-    @*@Styles.Render("~/plugins/daterangepickerStyles")*@
+    @Styles.Render("~/plugins/daterangepickerStyles")
+    <style>
+        .hide {
+            display: none;
+        }
+    </style>
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
@@ -27,46 +30,45 @@
                     </div>
                     <div class="ibox-content clearfix">
                         <div class="row">
-                            <div class="col-12 col-sm-4">
+                            <div class="col-12 col-sm-3">
                                 <div class="form-group">
                                     @Html.LabelFor(m => m.Folio, new { @class = "" })
                                     @Html.TextBoxFor(m => m.Folio, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "13", @autocomplete = "off" })
                                 </div>
                             </div>
-                            <div class="col-12 col-sm-4">
+                            <div class="col-12 col-sm-3">
                                 <div class="form-group">
                                     @Html.LabelFor(m => m.RFC, new { @class = "" })
                                     @Html.TextBoxFor(m => m.RFC, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "13", @autocomplete = "off" })
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-3">
+                                @Html.LabelFor(m => m.PaymentMethod, new { @class = "" })
+                                @Html.DropDownListFor(m => m.PaymentMethod, Model.ListPaymentMethod.Items as List<SelectListItem>, new { @class = "form-control" })
+                                <div class="form-group"></div>
+                            </div>
+                            <div class="col-12 col-md-3">
                                 <div class="form-group">
-                                    @Html.LabelFor(m => m.MethodPay, new { @class = "col-form-label control-label" })
-                                    @Html.DropDownListFor(m => m.MethodPay, Model.ListMethodPay.Items as List<SelectListItem>, new { @class = "form-control" })
+                                    @Html.LabelFor(m => m.PaymentForm, new { @class = "" })
+                                    @Html.DropDownListFor(m => m.PaymentForm, Model.ListPaymentForm.Items as List<SelectListItem>, new { @class = "form-control" })
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-3">
                                 <div class="form-group">
-                                    @Html.LabelFor(m => m.FormPay, new { @class = "col-form-label control-label" })
-                                    @Html.DropDownListFor(m => m.FormPay, Model.ListFormPay.Items as List<SelectListItem>, new { @class = "form-control" })
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <div class="form-group">
-                                    @Html.LabelFor(m => m.Currency, new { @class = "col-form-label control-label" })
+                                    @Html.LabelFor(m => m.Currency, new { @class = "" })
                                     @Html.DropDownListFor(m => m.Currency, Model.ListCurrency.Items as List<SelectListItem>, new { @class = "form-control" })
                                 </div>
                             </div>
-                            <div class="col-sm-6 col-lg-4">
+                            <div class="col-sm-6 col-lg-3">
                                 <div class="form-group">
                                     @*col-form-label control-label col-md-2*@
                                     @Html.LabelFor(m => m.RegisterAt, new { @class = "" })
-                                    @Html.TextBoxFor(m => m.RegisterAt, new { @Class = "form-control form-control-sm txtFiltro", @readonly = "readonly" })
+                                    @Html.TextBoxFor(m => m.RegisterAt, new { @Class = "form-control form-control-sm txtFiltro", @readonly = "readonly", @value = "" })
                                     @Html.EditorFor(x => x.FilterInitialDate, new { htmlAttributes = new { @Class = "form-control-sm form-control hide", id = "FilterInitialDate", @readonly = "readonly", filtro = "true", filtro_order = "1" } })
                                     @Html.EditorFor(x => x.FilterEndDate, new { htmlAttributes = new { @Class = "form-control-sm form-control hide", id = "FilterEndDate", @readonly = "readonly", filtro = "true", filtro_order = "2" } })
                                 </div>
                             </div>
-                            <div class="col-12 offset-8 col-sm-4 col-lg-4">
+                            <div class="col-12 col-sm-3 col-lg-3">
                                 <br />
                                 <button type="button" class="btn btn-sm btn-color btn-filter-rol"><i class="fas fa-search"></i> Buscar</button>
                                 &nbsp;
@@ -99,19 +101,19 @@
     @Scripts.Render("~/custom/Utils")
     @Scripts.Render("~/plugins/dataTables")
     @Scripts.Render("~/plugins/daterangepicker")
-    @Scripts.Render("~/views/customerInvoices")
 
     <script>
+        window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
         $(function () {
             var invoices = new CustomerInvoicesControlador('table',
-                '@Url.Action("GetInvoices")'
-                //'@Url.Action("Edit")',
-                //'@Url.Action("ExportListCustomer")',
-                //'@Url.Action("CustomerUpload")',
-                //'@hasFullAccessController' == 'True'
+                '@Url.Action("GetInvoices")',
+                '@Url.Action("GetDownloadPDF")',
+                '@Url.Action("GetDownloadXML")',
+                '@hasFullAccessController' == 'True'
             );
             invoices.init();
         });
     </script>
+    @Scripts.Render("~/views/customerInvoices")
 
 }

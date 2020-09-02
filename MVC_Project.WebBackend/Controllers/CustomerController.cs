@@ -1,4 +1,5 @@
 ﻿using ExcelDataReader;
+using LogHubSDK.Models;
 using MVC_Project.BackendWeb.Attributes;
 using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Model;
@@ -17,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Xml;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -29,10 +31,11 @@ namespace MVC_Project.WebBackend.Controllers
         private ICurrencyService _currencyService;
         private IPaymentFormService _paymentFormService;
         private IPaymentMethodService _paymentMethodService;
+        private IInvoiceIssuedService _invoiceIssuedService;
 
         public CustomerController(IAccountService accountService, ICustomerService customerService, IStateService stateService,
             ICustomerContactService customerContactService, ICurrencyService currencyService, IPaymentFormService paymentFormService,
-            IPaymentMethodService paymentMethodService)
+            IPaymentMethodService paymentMethodService, IInvoiceIssuedService invoiceIssuedService)
         {
             _accountService = accountService;
             _customerService = customerService;
@@ -41,6 +44,7 @@ namespace MVC_Project.WebBackend.Controllers
             _currencyService = currencyService;
             _paymentFormService = paymentFormService;
             _paymentMethodService = paymentMethodService;
+            _invoiceIssuedService = invoiceIssuedService;
         }
 
         [AllowAnonymous]
@@ -895,14 +899,19 @@ namespace MVC_Project.WebBackend.Controllers
         [AllowAnonymous]
         public ActionResult InvoicesIssued()
         {
+            ViewBag.Date = new
+            {
+                MinDate = DateTime.Now.AddDays(-10).ToString("dd-MM-yyyy"),
+                MaxDate = DateTime.Now.ToString("dd-MM-yyyy")
+            };
             try
             {
                 InvoicesFilter model = new InvoicesFilter();
                 var initial = new SelectListItem() { Text = "Todos...", Value = "-1" };
 
-                var currencyList = _currencyService.GetAll().Select(x => new SelectListItem() { Text = x.code, Value = x.id.ToString() }).ToList();
-                var parmentFormList = _paymentFormService.GetAll().Select(x => new SelectListItem() { Text = x.code + "-"+ x.Description, Value = x.id.ToString() }).ToList();
-                var parmentMethodList = _paymentMethodService.GetAll().Select(x => new SelectListItem() { Text = x.code + "-" + x.Description, Value = x.id.ToString() }).ToList();
+                var currencyList = _currencyService.GetAll().Select(x => new SelectListItem() { Text = x.code, Value = x.code }).ToList();
+                var parmentFormList = _paymentFormService.GetAll().Select(x => new SelectListItem() { Text = x.code + "-" + x.Description, Value = x.code }).ToList();
+                var parmentMethodList = _paymentMethodService.GetAll().Select(x => new SelectListItem() { Text = x.code, Value = x.code }).ToList();
 
                 currencyList.Insert(0, (initial));
                 parmentFormList.Insert(0, (initial));
@@ -926,28 +935,57 @@ namespace MVC_Project.WebBackend.Controllers
         {
             int totalDisplay = 0;
             int total = 0;
-            var userAuth = Authenticator.AuthenticatedUser;
-            var listResponse = new List<CustomerList>();
             string error = string.Empty;
+            bool success = true;
+            var userAuth = Authenticator.AuthenticatedUser;
+            var listResponse = new List<InvoicesIssuedList>();
+            var list = new List<InvoicesIssuedListVM>();
 
             try
             {
                 if (!first)
                 {
                     NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
+                    string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
+                    string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
+                    string Folio = filtersValues.Get("Folio").Trim();
                     string rfc = filtersValues.Get("RFC").Trim();
-                    string businessName = filtersValues.Get("BusinessName").Trim();
-                    string email = filtersValues.Get("Email").Trim();
+                    string PaymentMethod = filtersValues.Get("PaymentMethod").Trim();
+                    string PaymentForm = filtersValues.Get("PaymentForm").Trim();
+                    string Currency = filtersValues.Get("Currency").Trim();
 
                     var pagination = new BasePagination();
-                    var filters = new CustomerFilter() { uuid = userAuth.Account.Uuid.ToString() };
+                    var filters = new CustomerCFDIFilter() { accountId = userAuth.Account.Id };
                     pagination.PageSize = param.iDisplayLength;
                     pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
+                    if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
+                    if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
+                    if (Folio != "") filters.folio = Folio;
                     if (rfc != "") filters.rfc = rfc;
-                    if (businessName != "") filters.businessName = businessName;
-                    if (email != "") filters.email = email;
+                    if (PaymentForm != "-1") filters.paymentForm = PaymentForm;
+                    if (PaymentMethod != "-1") filters.paymentMethod = PaymentMethod;
+                    if (Currency != "-1") filters.currency = Currency;
 
-                    listResponse = _customerService.CustomerList(pagination, filters);
+                    listResponse = _customerService.CustomerCDFIList(pagination, filters);
+
+                    list = listResponse.Select(x => new InvoicesIssuedListVM
+                    {
+                        id = x.id,
+                        folio = x.folio,
+                        serie = x.serie,
+                        paymentMethod = x.paymentMethod,
+                        paymentForm = x.paymentForm,
+                        currency = x.currency,
+                        amount = x.amount.ToString("C2"),
+                        iva = x.iva.ToString("C2"),
+                        totalAmount = x.totalAmount.ToString("C2"),
+                        invoicedAt = x.invoicedAt.ToShortDateString(),
+                        rfc = x.rfc,
+                        businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
+                        //first_name = x.first_name,
+                        //last_name = x.last_name,
+                        paymentFormDescription = x.paymentFormDescription
+                    }).ToList();
 
                     //Corroborar los campos iTotalRecords y iTotalDisplayRecords
 
@@ -961,22 +999,166 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                //return new JsonResult
-                //{
-                //    Data = new { success = false, message = ex.Message },
-                //    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                //    MaxJsonLength = Int32.MaxValue
-                //};
+                success = false;
+                error = ex.Message.ToString();
             }
 
             return Json(new
             {
-                success = true,
+                success = success,
+                error = error,
                 sEcho = param.sEcho,
                 iTotalRecords = total,
                 iTotalDisplayRecords = totalDisplay,
-                aaData = listResponse
+                aaData = list
             }, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, AllowAnonymous]
+        public ActionResult GetDownloadPDF(Int64 id)
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+
+            try
+            {
+                var invoice = _invoiceIssuedService.FirstOrDefault(x => x.id == id);
+
+                if (invoice == null)
+                    throw new Exception("No se encontro la factura emitida");
+
+                if (invoice.xml == null)
+                    throw new Exception("El registro no cuenta con el xml de la factura emitida");
+
+                //Factura
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(invoice.xml);//Leer el XML
+                string pdf = string.Empty;
+
+                //agregamos un Namespace, que usaremos para buscar que el nodo no exista:
+                XmlNamespaceManager nsm = new XmlNamespaceManager(doc.NameTable);
+                nsm.AddNamespace("cfdi", "http://www.sat.gob.mx/cfd/3");
+
+                //Accedemos a nodo "Comprobante"
+                XmlNode nodeComprobante = doc.SelectSingleNode("//cfdi:Comprobante", nsm);
+
+                //Obtener Folio, Serie, SubTotal y Total
+                string varFolio = nodeComprobante.Attributes["Folio"].Value;
+                string varSerie = nodeComprobante.Attributes["Serie"].Value;
+                string varSubTotal = nodeComprobante.Attributes["SubTotal"].Value;
+                string varTotal = nodeComprobante.Attributes["Total"].Value;
+                pdf = String.Format("Serie: {0}, Folio: {1}, SubTotal: {2}, Total: {3}", varSerie, varFolio, varSubTotal, varTotal);
+                pdf += "<br />";
+
+                //Obtener impuestos
+                XmlNode nodeImpuestos = nodeComprobante.SelectSingleNode("cfdi:Impuestos", nsm);
+                if (nodeImpuestos != null)
+                {
+                    //Obtenemos TotalImpuestosRetenidos y TotalImpuestosTrasladados
+                    string varTotalImpuestosRetenidos = nodeImpuestos.Attributes["TotalImpuestosRetenidos"] != null? nodeImpuestos.Attributes["TotalImpuestosRetenidos"].Value: "";
+                    string varTotalImpuestosTrasladados = nodeImpuestos.Attributes["TotalImpuestosTrasladados"] != null? nodeImpuestos.Attributes["TotalImpuestosTrasladados"].Value: "";
+                    //Obtener impuestos retenidos
+                    pdf += "Retenciones: <br />";
+                    XmlNode nodeImpuestosRetenciones = nodeImpuestos.SelectSingleNode("cfdi:Retenciones", nsm);
+                    foreach (XmlNode node in nodeImpuestosRetenciones.SelectNodes("cfdi:Retencion", nsm))
+                    {
+                        pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
+                                                        node.Attributes["Impuesto"] != null? node.Attributes["Impuesto"].Value: "",
+                                                        node.Attributes["Importe"] != null? node.Attributes["Importe"].Value: "");
+                    }
+
+                    //Obtener impuestos trasladados
+                    pdf += "Traslados: <br />";
+                    XmlNode nodeImpuestosTraslados = nodeImpuestos.SelectSingleNode("cfdi:Traslados", nsm);
+                    foreach (XmlNode node in nodeImpuestosTraslados.SelectNodes("cfdi:Traslado", nsm))
+                    {
+                        pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
+                                                        node.Attributes["Impuesto"] != null? node.Attributes["Impuesto"].Value : "",
+                                                        node.Attributes["Importe"] != null? node.Attributes["Importe"].Value : "");
+                    }
+
+                }
+
+                InvoicesIssuedListVM pdfModel = new InvoicesIssuedListVM();
+                pdfModel.xml = pdf;
+
+                LogUtil.AddEntry(
+                       "Se descarga el Dx0 del cliente",
+                       ENivelLog.Info,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
+
+                MensajeFlashHandler.RegistrarMensaje("Descargando...", TiposMensaje.Success);
+                string rfc = authUser.Account.RFC;
+                //PageSize = Rotativa.Options.Size.Letter, 
+                //return View(model);
+                return new Rotativa.ViewAsPdf("InvoiceDownloadPDF", pdfModel) { FileName = invoice.folio + invoice.serie + "_" + invoice.invoicedAt + ".pdf" };
+            }
+            catch (Exception ex)
+            {
+                //LogUtil.AddEntry(
+                //       "Error al descargar el diagnostico: " + ex.Message.ToString(),
+                //       ENivelLog.Error,
+                //       authUser.Id,
+                //       authUser.Email,
+                //       EOperacionLog.ACCESS,
+                //       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                //       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                //       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                //    );
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return View();
+            }
+
+        }
+
+        [HttpGet, AllowAnonymous]
+        public void GetDownloadXML(Int64 id)
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+
+            try
+            {
+                var invoice = _invoiceIssuedService.FirstOrDefault(x => x.id == id);
+
+                if (invoice == null)
+                    throw new Exception("No se encontro la factura emitida");
+
+                LogUtil.AddEntry(
+                       "Descarga del xml de la cuenta " + invoice.account.id,
+                       ENivelLog.Info,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
+
+                Response.ContentType = "application/xml";
+                Response.AddHeader("Content-Disposition", "attachment;filename=Customers.xml");
+                Response.Write(invoice.xml);
+                Response.End();
+            }
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(
+                       "Error al descargar el xml: " + ex.Message.ToString(),
+                       ENivelLog.Error,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+            }
+        }
+
     }
 }

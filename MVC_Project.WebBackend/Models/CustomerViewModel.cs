@@ -124,11 +124,11 @@ namespace MVC_Project.WebBackend.Models
         public string RFC { get; set; }
 
         [Display(Name = "Método Pago")]
-        public int PaymentMethod { get; set; }
+        public string PaymentMethod { get; set; }
         public SelectList ListPaymentMethod { get; set; }
 
         [Display(Name = "Forma Pago")]
-        public int WayToPay { get; set; }
+        public string PaymentForm  { get; set; }
         public SelectList ListPaymentForm { get; set; }
 
         [Display(Name = "Divisa")]
@@ -136,7 +136,7 @@ namespace MVC_Project.WebBackend.Models
         public SelectList ListCurrency { get; set; }
 
         [Display(Name = "Fecha")]
-        public DateTime RegisterAt { get; set; }
+        public string RegisterAt { get; set; }
 
         public string FilterInitialDate { get; set; }
         public string FilterEndDate { get; set; }
@@ -150,5 +150,26 @@ namespace MVC_Project.WebBackend.Models
             ListPaymentForm = new SelectList(list);
             ListCurrency = new SelectList(list);
         }
+    }
+
+    public class InvoicesIssuedListVM
+    {
+        public Int64 id { get; set; }
+        //public Guid uuid { get; set; }
+        public string folio { get; set; }
+        public string serie { get; set; }
+        public string paymentMethod { get; set; }
+        public string paymentForm { get; set; }
+        public string currency { get; set; }
+        public string amount { get; set; }
+        public string iva { get; set; }
+        public string totalAmount { get; set; }
+        public string invoicedAt { get; set; }
+        public string rfc { get; set; }
+        public string first_name { get; set; }
+        public string last_name { get; set; }
+        public string paymentFormDescription { get; set; }
+        public string businessName { get; set; }
+        public string xml { get; set; }
     }
 }
