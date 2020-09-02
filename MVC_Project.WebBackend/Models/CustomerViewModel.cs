@@ -114,4 +114,62 @@ namespace MVC_Project.WebBackend.Models
         public string RFCS { get; set; }
         public int Repetitions { get; set; }
     }
+
+    public class InvoicesFilter
+    {
+        [Display(Name = "No. CFDI")]
+        public string Folio { get; set; }
+
+        [Display(Name = "RFC Cliente")]
+        public string RFC { get; set; }
+
+        [Display(Name = "Método Pago")]
+        public string PaymentMethod { get; set; }
+        public SelectList ListPaymentMethod { get; set; }
+
+        [Display(Name = "Forma Pago")]
+        public string PaymentForm  { get; set; }
+        public SelectList ListPaymentForm { get; set; }
+
+        [Display(Name = "Divisa")]
+        public string Currency { get; set; }
+        public SelectList ListCurrency { get; set; }
+
+        [Display(Name = "Fecha")]
+        public string RegisterAt { get; set; }
+
+        public string FilterInitialDate { get; set; }
+        public string FilterEndDate { get; set; }
+
+        public InvoicesFilter()
+        {
+            var list = new List<SelectListItem>();
+            list.Add(new SelectListItem() { Text = "Todos...", Value = "-1" });
+
+            ListPaymentMethod = new SelectList(list);
+            ListPaymentForm = new SelectList(list);
+            ListCurrency = new SelectList(list);
+        }
+    }
+
+    public class InvoicesIssuedListVM
+    {
+        public Int64 id { get; set; }
+        //public Guid uuid { get; set; }
+        public string folio { get; set; }
+        public string serie { get; set; }
+        public string paymentMethod { get; set; }
+        public string paymentForm { get; set; }
+        public string currency { get; set; }
+        public string amount { get; set; }
+        public string iva { get; set; }
+        public string totalAmount { get; set; }
+        public string invoicedAt { get; set; }
+        public string rfc { get; set; }
+        public string first_name { get; set; }
+        public string last_name { get; set; }
+        public string paymentFormDescription { get; set; }
+        public string businessName { get; set; }
+        public string xml { get; set; }
+    }
 }

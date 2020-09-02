@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
+using System.Globalization;
 
 namespace MVC_Project.Domain.Services
 {
@@ -16,9 +17,10 @@ namespace MVC_Project.Domain.Services
         List<CustomerList> CustomerList(BasePagination pagination, CustomerFilter filter);
         List<ExportListCustomer> ExportListCustomer(CustomerFilter filter);
         List<string> ValidateRFC(List<string> rfcs, Int64 id);
+        List<InvoicesIssuedList> CustomerCDFIList(BasePagination pagination, CustomerCFDIFilter filter);
     }
 
-    public class CustomerService : ServiceBase<Customer>, ICustomerService 
+    public class CustomerService : ServiceBase<Customer>, ICustomerService
     {
         private IRepository<Customer> _repository;
         public CustomerService(IRepository<Customer> baseRepository) : base(baseRepository)
@@ -29,7 +31,7 @@ namespace MVC_Project.Domain.Services
         public List<CustomerList> CustomerList(BasePagination pagination, CustomerFilter filter)
         {
             var list = _repository.Session.CreateSQLQuery("exec dbo.st_customerList " +
-                "@PageNum =:PageNum, @PageSize =:PageSize, @uuid =:uuid, @rfc=:rfc, @businessName=:businessName, @email=:email ")                    
+                "@PageNum =:PageNum, @PageSize =:PageSize, @uuid =:uuid, @rfc=:rfc, @businessName=:businessName, @email=:email ")
                     .SetParameter("PageNum", pagination.PageNum)
                     .SetParameter("PageSize", pagination.PageSize)
                     .SetParameter("uuid", filter.uuid)
@@ -67,6 +69,39 @@ namespace MVC_Project.Domain.Services
                 .Select(x => x.rfc).ToList();
 
             return response;
+        }
+
+        public List<InvoicesIssuedList> CustomerCDFIList(BasePagination pagination, CustomerCFDIFilter filter)
+        {
+            String dateinit = null;
+            String dateend = null;
+            if (pagination.CreatedOnStart != null)
+            {
+                dateinit = Convert.ToDateTime(pagination.CreatedOnStart).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo);
+            }
+            if (pagination.CreatedOnEnd != null)
+            {
+                dateend = Convert.ToDateTime(pagination.CreatedOnEnd).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo);
+            }
+
+            var list = _repository.Session.CreateSQLQuery("exec dbo.st_customerInvoicesList " +
+                "@PageNum=:PageNum, @PageSize=:PageSize, @createdOnStart=:createdOnStart, @createdOnEnd=:createdOnEnd, " +
+                "@accountId=:accountId, @folio=:folio, @rfc=:rfc, @paymentMethod=:paymentMethod, @paymentForm=:paymentForm, @currency=:currency ")
+                    .SetParameter("PageNum", pagination.PageNum)
+                    .SetParameter("PageSize", pagination.PageSize)
+                    .SetParameter("createdOnStart", dateinit)
+                    .SetParameter("createdOnEnd", dateend)
+                    .SetParameter("accountId", filter.accountId)
+                    .SetParameter("folio", filter.folio)
+                    .SetParameter("rfc", filter.rfc)
+                    .SetParameter("paymentMethod", filter.paymentMethod)
+                    .SetParameter("paymentForm", filter.paymentForm)
+                    .SetParameter("currency", filter.currency)
+                    .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(InvoicesIssuedList)))
+                    .List<InvoicesIssuedList>();
+
+            if (list != null) return list.ToList();
+            return null;
         }
     }
 }

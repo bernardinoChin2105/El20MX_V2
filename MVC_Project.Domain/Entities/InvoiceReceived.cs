@@ -26,7 +26,7 @@ namespace MVC_Project.Domain.Entities
         public virtual DateTime modifiedAt { get; set; }
         public virtual string status { get; set; }
 
-        public virtual Provider provider { get; set; }
         public virtual Account account { get; set; }
+        public virtual Provider provider { get; set; }
     }
 }

@@ -77,15 +77,16 @@
 
             @if (user.HasAccessToModule(SystemModules.CUSTOMERS.ToString()))
             {
-                <li class="@Html.IsModuleSelected(user, SystemModules.CUSTOMERS.ToString())">
-                    <a href="#"><i class="fa fa-user"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CUSTOMERS</span> <span class="fain arrow"></span></a>
-                    @if (user.HasAccessController("Customer"))
-                    {
-                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Customer", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "Customer")"><a href="@Url.Action("Index", "Customer")">Clientes</a></li>
-                        </ul>
-                    }
-                </li>
+            <li class="@Html.IsModuleSelected(user, SystemModules.CUSTOMERS.ToString())">
+                <a href="#"><i class="fa fa-user"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CUSTOMERS</span> <span class="fain arrow"></span></a>
+                @if (user.HasAccessController("Customer"))
+                {
+                    <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Customer", cssClass: "in")">
+                        <li class="@Html.IsSelected(controller: "Customer")"><a href="@Url.Action("Index", "Customer")">Clientes</a></li>
+                        <li class="@Html.IsSelected(controller: "Customer")"><a href="@Url.Action("InvoicesIssued", "Customer")">Facturas Hechas</a></li>
+                    </ul>
+                }
+            </li>
             }
 
             @if (user.HasAccessToModule(SystemModules.PROVIDERS.ToString()))
