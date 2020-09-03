@@ -16,7 +16,7 @@ $(".btn-filter-rol").click(function () {
     $('#table').DataTable().draw();
 });
 
-$("#RFC").keyup(function () {
+$("#RFCP").keyup(function () {
     this.value = this.value.toUpperCase();
 });
 

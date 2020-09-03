@@ -1123,7 +1123,7 @@ namespace MVC_Project.WebBackend.Controllers
                 //       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                 //    );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                return View();
+                return View("GetInvoices");
             }
 
         }

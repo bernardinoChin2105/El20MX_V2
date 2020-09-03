@@ -123,6 +123,9 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "RFC Cliente")]
         public string RFC { get; set; }
 
+        [Display(Name = "RFC Proveedor")]
+        public string RFCP { get; set; }
+
         [Display(Name = "Método Pago")]
         public string PaymentMethod { get; set; }
         public SelectList ListPaymentMethod { get; set; }

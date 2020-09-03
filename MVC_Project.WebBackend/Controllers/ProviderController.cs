@@ -1130,7 +1130,7 @@ namespace MVC_Project.WebBackend.Controllers
                     string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
                     string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
                     string Folio = filtersValues.Get("Folio").Trim();
-                    string rfc = filtersValues.Get("RFC").Trim();
+                    string rfc = filtersValues.Get("RFCP").Trim();
                     string PaymentMethod = filtersValues.Get("PaymentMethod").Trim();
                     string PaymentForm = filtersValues.Get("PaymentForm").Trim();
                     string Currency = filtersValues.Get("Currency").Trim();
@@ -1292,7 +1292,7 @@ namespace MVC_Project.WebBackend.Controllers
                 //       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                 //    );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                return View();
+                return View("InvoicesReceived");
             }
 
         }
