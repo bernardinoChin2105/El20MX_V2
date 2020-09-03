@@ -370,6 +370,7 @@ namespace MVC_Project.WebBackend.Controllers
         {
             try
             {
+                var userAuth = Authenticator.AuthenticatedUser;
                 NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
                 string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
                 string FilterEnd = filtersValues.Get("FilterEndDate").Trim();

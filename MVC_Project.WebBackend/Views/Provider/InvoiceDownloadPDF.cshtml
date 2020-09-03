@@ -1,0 +1,45 @@
+﻿@model MVC_Project.WebBackend.Models.InvoicesReceivedListVM
+@using MVC_Project.WebBackend.Controllers
+@using MVC_Project.WebBackend.Models
+@{
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="utf-8">
+    @*<meta name="viewport" content="width=device-width">*@
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    @Styles.Render("~/Content/templatepdf/css")
+
+    @*@Styles.Render("~/font-awesome/css")
+        @Scripts.Render("~/font-awesome/js")*@
+
+    <link href="~/Content/template/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .img-responsive {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="reporteDiagnostico" class="container">
+        <!--Imagen de la pagina de inicio-->
+        <section>
+            <div class="row">
+                <div class="col-lg-12">
+                    
+                    @Html.Raw(Model.xml)
+                </div>
+            </div>
+        </section>
+      
+        <!--Imagen de la pagina de inicio-->
+    </div>
+</body>
+</html>

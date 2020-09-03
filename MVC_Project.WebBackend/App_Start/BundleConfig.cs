@@ -120,6 +120,8 @@ namespace MVC_Project.WebBackend
                       "~/Scripts/views/Customer/Index.js"));
             bundles.Add(new ScriptBundle("~/views/customerInvoices").Include(
                       "~/Scripts/views/Customer/CustomerInvoices.js"));
+            bundles.Add(new ScriptBundle("~/views/providerInvoices").Include(
+                     "~/Scripts/views/Provider/ProviderInvoices.js"));
             bundles.Add(new ScriptBundle("~/views/bankAccount").Include(
                       "~/Scripts/views/Bank/BankAccount.js"));
 
@@ -134,6 +136,13 @@ namespace MVC_Project.WebBackend
             // daterangepicker
             bundles.Add(new ScriptBundle("~/plugins/daterangepicker").Include(
                       "~/Scripts/plugins/daterangepicker/daterangepicker.js"));
+
+            //// typeahead css styles
+            //bundles.Add(new StyleBundle("~/Content/template/plugins/chosen/chosenStyles").Include(
+            //          "~/Content/template/plugins/chosen/bootstrap-chosen.css"));
+            // typeahead css js
+            bundles.Add(new ScriptBundle("~/plugins/typehead").Include(
+                      "~/Scripts/plugins/typehead/bootstrap3-typeahead.min.js"));
 
             // daterangepicker styles
             bundles.Add(new StyleBundle("~/plugins/daterangepickerStyles").Include(

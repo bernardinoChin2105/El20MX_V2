@@ -648,9 +648,9 @@ namespace MVC_Project.WebBackend.Controllers
             List<object> Errores = new List<object>();
             List<ExportListCustomer> datosErroneos = new List<ExportListCustomer>();
             List<ExportListCustomer> datos = new List<ExportListCustomer>();
+            var authUser = Authenticator.AuthenticatedUser;
             try
             {
-                var authUser = Authenticator.AuthenticatedUser;
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
                 if (Excel != null && Excel.ContentLength > 0)
@@ -1066,16 +1066,16 @@ namespace MVC_Project.WebBackend.Controllers
                 if (nodeImpuestos != null)
                 {
                     //Obtenemos TotalImpuestosRetenidos y TotalImpuestosTrasladados
-                    string varTotalImpuestosRetenidos = nodeImpuestos.Attributes["TotalImpuestosRetenidos"] != null? nodeImpuestos.Attributes["TotalImpuestosRetenidos"].Value: "";
-                    string varTotalImpuestosTrasladados = nodeImpuestos.Attributes["TotalImpuestosTrasladados"] != null? nodeImpuestos.Attributes["TotalImpuestosTrasladados"].Value: "";
+                    string varTotalImpuestosRetenidos = nodeImpuestos.Attributes["TotalImpuestosRetenidos"] != null ? nodeImpuestos.Attributes["TotalImpuestosRetenidos"].Value : "";
+                    string varTotalImpuestosTrasladados = nodeImpuestos.Attributes["TotalImpuestosTrasladados"] != null ? nodeImpuestos.Attributes["TotalImpuestosTrasladados"].Value : "";
                     //Obtener impuestos retenidos
                     pdf += "Retenciones: <br />";
                     XmlNode nodeImpuestosRetenciones = nodeImpuestos.SelectSingleNode("cfdi:Retenciones", nsm);
                     foreach (XmlNode node in nodeImpuestosRetenciones.SelectNodes("cfdi:Retencion", nsm))
                     {
                         pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
-                                                        node.Attributes["Impuesto"] != null? node.Attributes["Impuesto"].Value: "",
-                                                        node.Attributes["Importe"] != null? node.Attributes["Importe"].Value: "");
+                                                        node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : "",
+                                                        node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : "");
                     }
 
                     //Obtener impuestos trasladados
@@ -1084,8 +1084,8 @@ namespace MVC_Project.WebBackend.Controllers
                     foreach (XmlNode node in nodeImpuestosTraslados.SelectNodes("cfdi:Traslado", nsm))
                     {
                         pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
-                                                        node.Attributes["Impuesto"] != null? node.Attributes["Impuesto"].Value : "",
-                                                        node.Attributes["Importe"] != null? node.Attributes["Importe"].Value : "");
+                                                        node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : "",
+                                                        node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : "");
                     }
 
                 }

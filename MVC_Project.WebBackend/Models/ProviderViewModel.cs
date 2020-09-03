@@ -107,4 +107,25 @@ namespace MVC_Project.WebBackend.Models
         public string TypeContact { get; set; }
         public string EmailOrPhone { get; set; }
     }
+
+    public class InvoicesReceivedListVM
+    {
+        public Int64 id { get; set; }
+        //public Guid uuid { get; set; }
+        public string folio { get; set; }
+        public string serie { get; set; }
+        public string paymentMethod { get; set; }
+        public string paymentForm { get; set; }
+        public string currency { get; set; }
+        public string amount { get; set; }
+        public string iva { get; set; }
+        public string totalAmount { get; set; }
+        public string invoicedAt { get; set; }
+        public string rfc { get; set; }
+        public string first_name { get; set; }
+        public string last_name { get; set; }
+        public string paymentFormDescription { get; set; }
+        public string businessName { get; set; }
+        public string xml { get; set; }
+    }
 }

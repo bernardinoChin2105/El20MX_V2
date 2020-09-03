@@ -1802,6 +1802,7 @@
     <Content Include="Scripts\views\Customer\CustomerInvoices.js" />
     <Content Include="Scripts\views\Bank\Index.js" />
     <Content Include="Scripts\views\Provider\Create.js" />
+    <Content Include="Scripts\views\Provider\ProviderInvoices.js" />
     <Content Include="Scripts\views\Provider\Edit.js" />
     <Content Include="Scripts\views\Provider\Index.js" />
     <Content Include="Scripts\views\Customer\Edit.js" />
@@ -1925,6 +1926,9 @@
     <Content Include="Views\Bank\Index.cshtml" />
     <Content Include="Views\Bank\BanksAccount.cshtml" />
     <Content Include="Views\Customer\InvoiceDownloadPDF.cshtml" />
+    <Content Include="Views\Customer\InvoicesIssued.cshtml" />
+    <Content Include="Views\Provider\InvoicesReceived.cshtml" />
+    <Content Include="Views\Provider\InvoiceDownloadPDF.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
