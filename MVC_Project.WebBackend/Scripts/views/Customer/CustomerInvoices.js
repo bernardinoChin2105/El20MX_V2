@@ -42,12 +42,13 @@ $('#RegisterAt').daterangepicker({
     });
 
 
-var CustomerInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl, downloadXmlUrl, hasFullAccessController) {
+var CustomerInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl, downloadXmlUrl, autocompleteURL, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
     this.downloadPdfUrl = downloadPdfUrl;
     this.downloadXmlUrl = downloadXmlUrl;
+    this.autocompleteURL = autocompleteURL; 
     this.dataTable = {};
 
     this.init = function () {
@@ -110,6 +111,11 @@ var CustomerInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl
             El20Utils.ocultarCargador();
         });
     };
+
+    $.get(self.autocompleteURL, function (data) {
+        console.log(data,"asdasda")
+        $(".typeahead_2").typeahead({ source: data.Data });
+    }, 'json');
 };
 
 $("#RFC").keyup(function () {

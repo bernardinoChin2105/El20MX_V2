@@ -1172,5 +1172,25 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetAutoComplite()
+        {
+            List<string> list = new List<string>();
+            try
+            {
+                var authUser = Authenticator.AuthenticatedUser;
+                var listRFC = _customerService.ListCustomerAutoComplete(authUser.Account.Id);
+                list = listRFC.Select(x => x.rfc).ToList();
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message.ToString();
+            }
+
+            return Json(new
+            {
+                Data = list,
+            }, JsonRequestBehavior.AllowGet);
+        }
     }
 }

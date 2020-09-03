@@ -39,7 +39,7 @@
                             <div class="col-12 col-sm-3">
                                 <div class="form-group">
                                     @Html.LabelFor(m => m.RFC, new { @class = "" })
-                                    @Html.TextBoxFor(m => m.RFC, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "13", @autocomplete = "off" })
+                                    @Html.TextBoxFor(m => m.RFC, new { @Class = "form-control form-control-sm txtFiltro typeahead_2", filtro = "true", filtro_order = "1", @maxlength = "13", @autocomplete = "off" })
                                 </div>
                             </div>
                             <div class="col-12 col-md-3">
@@ -101,6 +101,7 @@
     @Scripts.Render("~/custom/Utils")
     @Scripts.Render("~/plugins/dataTables")
     @Scripts.Render("~/plugins/daterangepicker")
+    @Scripts.Render("~/plugins/typehead")
 
     <script>
         window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
@@ -109,6 +110,7 @@
                 '@Url.Action("GetInvoices")',
                 '@Url.Action("GetDownloadPDF")',
                 '@Url.Action("GetDownloadXML")',
+                '@Url.Action("GetAutoComplite")',
                 '@hasFullAccessController' == 'True'
             );
             invoices.init();

@@ -95,4 +95,13 @@ namespace MVC_Project.Domain.Model
         public string taxRegime { get; set; }
         public int Total { get; set; }
     }
+
+    public class ListCustomersAC
+    {
+        public Int64 id { get; set; }
+        public string rfc { get; set; }
+        public string businessName { get; set; }
+        public string first_name { get; set; }
+        public string last_name { get; set; }
+    }
 }

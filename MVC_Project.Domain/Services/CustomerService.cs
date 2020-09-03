@@ -18,6 +18,7 @@ namespace MVC_Project.Domain.Services
         List<ExportListCustomer> ExportListCustomer(CustomerFilter filter);
         List<string> ValidateRFC(List<string> rfcs, Int64 id);
         List<InvoicesIssuedList> CustomerCDFIList(BasePagination pagination, CustomerCFDIFilter filter);
+        List<ListCustomersAC> ListCustomerAutoComplete(Int64 id);
     }
 
     public class CustomerService : ServiceBase<Customer>, ICustomerService
@@ -99,6 +100,19 @@ namespace MVC_Project.Domain.Services
                     .SetParameter("currency", filter.currency)
                     .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(InvoicesIssuedList)))
                     .List<InvoicesIssuedList>();
+
+            if (list != null) return list.ToList();
+            return null;
+        }
+
+        public List<ListCustomersAC> ListCustomerAutoComplete(Int64 id)
+        {
+            var list = _repository.Session.CreateSQLQuery("exec dbo.st_customerAutocompleted " +
+                "@accountId =:accountId")
+                    .SetParameter("accountId", id)
+                    //.SetParameter("rfc", rfc)
+                    .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(ListCustomersAC)))
+                    .List<ListCustomersAC>();
 
             if (list != null) return list.ToList();
             return null;
