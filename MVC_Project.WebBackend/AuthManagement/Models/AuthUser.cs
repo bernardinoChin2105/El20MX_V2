@@ -22,6 +22,8 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
 
         public Account Account { get; set; }
 
+        public bool isBackOffice { get; set; }
+
         public bool HasAccessToModule(string module)
         {
             if (this.Permissions != null && this.Permissions.Count > 0)

@@ -41,18 +41,6 @@ namespace MVC_Project.WebBackend.Controllers
             if (authUser == null)
             {
                 ViewBag.Error = "Sesion del usuario inválida";
-
-                LogUtil.AddEntry(
-                  "Inicio en Account: " + ViewBag.Error,
-                  ENivelLog.Warn,
-                  0,
-                  "",
-                  EOperacionLog.ACCESS,
-                  string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
-                  ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                  string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
-                );
-
                 return RedirectToAction("Index", "Auth");
             }
             
@@ -63,38 +51,41 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult SelectAccount()
         {
             var authUser = Authenticator.AuthenticatedUser;
-            var accountViewModel = new AccountSelectViewModel { accountListViewModels = new List<AccountListViewModel>() };
-            var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
-            if (memberships.Any())
+            if (authUser.isBackOffice)
             {
-                accountViewModel.accountListViewModels = memberships.Select(x => new AccountListViewModel
+                var accounts = _accountService.GetAll();
+                var accountViewModel = new AccountSelectViewModel { accountListItems = new List<SelectListItem>() };
+                accountViewModel.accountListItems = accounts.Select(x => new SelectListItem
                 {
-                    uuid = x.account.uuid,
-                    name = x.account.name,
-                    rfc = x.account.rfc,
-                    role = x.role.name,
-                    accountId = x.account.id,
-                    imagen = x.account.avatar
+                    Text = x.name + "(" + x.rfc + ")",
+                    Value = x.uuid.ToString()
                 }).ToList();
-
-                #region Obtener información de la credencial para saber si esta ya activo
-                ValidarSat(accountViewModel);
-                #endregion
+                return PartialView("_SelectAccountBackOfficeModal", accountViewModel);
             }
-            accountViewModel.count = accountViewModel.accountListViewModels.Count;
+            else
+            {
+                var accountViewModel = new AccountSelectViewModel { accountListViewModels = new List<AccountListViewModel>() };
+                var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
+                if (memberships.Any())
+                {
+                    accountViewModel.accountListViewModels = memberships.Select(x => new AccountListViewModel
+                    {
+                        uuid = x.account.uuid,
+                        name = x.account.name,
+                        rfc = x.account.rfc,
+                        role = x.role.name,
+                        accountId = x.account.id,
+                        imagen = x.account.avatar
+                    }).ToList();
 
-            LogUtil.AddEntry(
-               "SelectAccount Account total de cuentas: " + accountViewModel.count,
-               ENivelLog.Info,
-               authUser.Id,
-               authUser.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-            );
+                    #region Obtener información de la credencial para saber si esta ya activo
+                    ValidarSat(accountViewModel);
+                    #endregion
+                }
+                accountViewModel.count = accountViewModel.accountListViewModels.Count;
 
-            return PartialView("_SelectAccountModal", accountViewModel);
+                return PartialView("_SelectAccountModal", accountViewModel);
+            }
         }
 
         [AllowAnonymous]
@@ -111,7 +102,6 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                     {
-                        //Action = p.permission.action,
                         Controller = p.permission.controller,
                         Module = p.permission.module,
                         Level = p.level,
@@ -124,12 +114,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                     Authenticator.RefreshAuthenticatedUser(authUser);
 
-                    LogUtil.AddEntry(
-                       "Obtener cuenta y permisos: " + uuid,
-                       ENivelLog.Info,
-                       authUser.Id,
-                       authUser.Email,
-                       EOperacionLog.ACCESS,
+                    LogUtil.AddEntry("Acceso a la cuenta: " + account.rfc, ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
@@ -138,17 +123,6 @@ namespace MVC_Project.WebBackend.Controllers
                     return RedirectToAction("Index", inicio.Controller);
                 }
             }
-
-            LogUtil.AddEntry(
-               "No se encontro cuenta: " + uuid,
-               ENivelLog.Warn,
-               authUser.Id,
-               authUser.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-            );
 
             return RedirectToAction("Login", "Auth");
         }

@@ -85,6 +85,7 @@ namespace MVC_Project.WebBackend.Controllers
                     createdAt = todayDate,
                     modifiedAt = todayDate,
                     status = SystemStatus.UNCONFIRMED.ToString(),
+                    isBackOffice = false,
                     profile = new Profile
                     {
                         uuid = Guid.NewGuid(),

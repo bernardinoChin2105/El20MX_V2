@@ -34,7 +34,9 @@ namespace MVC_Project.Utils
         [Display(Name = "Owner")]
         ACCOUNT_OWNER,
         [Display(Name = "Lead")]
-        LEAD
+        LEAD,
+        [Display(Name = "System Administrator")]
+        SYSTEM_ADMINISTRATOR
     }
 
     public enum DocumentType
