@@ -1043,6 +1043,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 //Factura
                 XmlDocument doc = new XmlDocument();
+                InvoicesVM cfdi = new InvoicesVM();
                 doc.LoadXml(invoice.xml);//Leer el XML
                 string pdf = string.Empty;
 
@@ -1054,12 +1055,14 @@ namespace MVC_Project.WebBackend.Controllers
                 XmlNode nodeComprobante = doc.SelectSingleNode("//cfdi:Comprobante", nsm);
 
                 //Obtener Folio, Serie, SubTotal y Total
-                string varFolio = nodeComprobante.Attributes["Folio"].Value;
-                string varSerie = nodeComprobante.Attributes["Serie"].Value;
-                string varSubTotal = nodeComprobante.Attributes["SubTotal"].Value;
-                string varTotal = nodeComprobante.Attributes["Total"].Value;
-                pdf = String.Format("Serie: {0}, Folio: {1}, SubTotal: {2}, Total: {3}", varSerie, varFolio, varSubTotal, varTotal);
-                pdf += "<br />";
+                 cfdi.Folio = nodeComprobante.Attributes["Folio"].Value;
+                 cfdi.Serie = nodeComprobante.Attributes["Serie"].Value;
+                 cfdi.SubTotal = nodeComprobante.Attributes["SubTotal"].Value;
+                 cfdi.Total = nodeComprobante.Attributes["Total"].Value;
+                //pdf = String.Format("Serie: {0}, Folio: {1}, SubTotal: {2}, Total: {3}", varSerie, varFolio, varSubTotal, varTotal);
+                //pdf += "<br />";
+
+                
 
                 //Obtener impuestos
                 XmlNode nodeImpuestos = nodeComprobante.SelectSingleNode("cfdi:Impuestos", nsm);
@@ -1071,11 +1074,14 @@ namespace MVC_Project.WebBackend.Controllers
                     //Obtener impuestos retenidos
                     pdf += "Retenciones: <br />";
                     XmlNode nodeImpuestosRetenciones = nodeImpuestos.SelectSingleNode("cfdi:Retenciones", nsm);
-                    foreach (XmlNode node in nodeImpuestosRetenciones.SelectNodes("cfdi:Retencion", nsm))
+                    if (nodeImpuestosRetenciones != null)
                     {
-                        pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
-                                                        node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : "",
-                                                        node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : "");
+                        foreach (XmlNode node in nodeImpuestosRetenciones.SelectNodes("cfdi:Retencion", nsm))
+                        {
+                            pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
+                                                            node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : "",
+                                                            node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : "");
+                        }
                     }
 
                     //Obtener impuestos trasladados

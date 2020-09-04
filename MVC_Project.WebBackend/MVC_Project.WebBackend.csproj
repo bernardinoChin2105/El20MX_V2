@@ -276,6 +276,7 @@
     <Compile Include="Models\AccountViewModel.cs" />
     <Compile Include="Models\AuthViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
+    <Compile Include="Models\InvoicesController.cs" />
     <Compile Include="Models\ProviderViewModel.cs" />
     <Compile Include="Models\CustomerViewModel.cs" />
     <Compile Include="Models\DataTableModel.cs" />
@@ -1966,6 +1967,7 @@
   <ItemGroup>
     <Folder Include="Content\img\gallery\" />
     <Folder Include="Content\img\landing\" />
+    <Folder Include="Views\Invoices\" />
     <Folder Include="Views\Webhook\" />
   </ItemGroup>
   <PropertyGroup>
