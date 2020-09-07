@@ -30,7 +30,16 @@ namespace MVC_Project.WebBackend.Models
         public Complemento Complemento { get; set; }
         public Conceptos Conceptos { get; set; }
         //public TimbreFiscalDigital TimbreFiscalDigital { get; set; } //Esta dentro de complemento        
-        public string QR { get; set; }       
+        public string QR { get; set; }
+
+        public InvoicesVM()
+        {
+            Emisor = new Emisor();
+            Receptor = new Receptor();
+            Complemento = new Complemento();
+            Conceptos = new Conceptos();
+            Impuestos = new Impuestos();
+        }
     }
 
     public class Emisor
@@ -49,7 +58,7 @@ namespace MVC_Project.WebBackend.Models
     }
     public class Complemento
     {
-        public TimbreFiscalDigital UUID { get; set; }
+        public TimbreFiscalDigital TimbreFiscalDigital { get; set; }
     }
     public class TimbreFiscalDigital
     {

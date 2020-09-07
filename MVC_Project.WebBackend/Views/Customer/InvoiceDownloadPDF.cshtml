@@ -23,6 +23,7 @@
         .img-responsive {
             width: 100%;
         }
+
         .tabla th {
             border-bottom: 1px solid #000;
         }
@@ -53,7 +54,7 @@
                 <td width="20%"><strong>RFC emisor:</strong></td>
                 <td width="20%">@Model.Emisor.Rfc</td>
                 <td width="20%"><strong>Folio fiscal:</strong></td>
-                <td width="20%">@Model.TimbreFiscalDigital.UUID</td>                
+                <td width="20%">@Model.Complemento.TimbreFiscalDigital.UUID</td>
             </tr>
             <tr>
                 <td><strong>Nombre emisor:</strong></td>
@@ -82,23 +83,23 @@
             </tr>
             <tr>
                 @*@if (!String.IsNullOrEmpty(Model.ClaveCatastral))
-                {
-                    <td><strong>Clave Catastral:</strong></td>
-                    <td>@Model.ClaveCatastral</td>
-                }
-                else
-                {
-                    <td></td>
-                    <td></td>
-                }*@
+                    {
+                        <td><strong>Clave Catastral:</strong></td>
+                        <td>@Model.ClaveCatastral</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                        <td></td>
+                    }*@
                 <td><strong>Folio Interno:</strong></td>
                 <td>@Model.Folio</td>
             </tr>
             <tr>
-                @if (!String.IsNullOrEmpty(Model.PeriodoFacturacion))
-                {
-                    <td colspan=4>@Model.Fecha</td>
-                }
+                @*@if (!String.IsNullOrEmpty(Model.PeriodoFacturacion))
+                    {*@
+                <td colspan=4>@Model.Fecha</td>
+                @*}*@
             </tr>
         </table>
         <div style="clear:both;"></div>
@@ -119,18 +120,18 @@
                     <th>Descuento</th>
                     <th>Importe</th>
                 </tr>
-                @foreach (var oConcepto in Model.Conceptos.Concepto)
-                {
-                    <tr>
-                        <td align="center">@oConcepto.Cantidad</td>
-                        <td align="center">@oConcepto.ClaveProdServ</td>
-                        <td align="center">@oConcepto.ClaveUnidad</td>
-                        <td align="center">@oConcepto.Descripcion</td>
-                        <td align="center">@oConcepto.ValorUnitario</td>
-                        <td align="center">@oConcepto.Descuento</td>
-                        <td align="center">@oConcepto.Importe</td>
-                    </tr>
-                }
+                @*@foreach (var oConcepto in Model.Conceptos.Concepto)
+                    {*@
+                <tr>
+                    <td align="center">@Model.Conceptos.Concepto.Cantidad</td>
+                    <td align="center">@Model.Conceptos.Concepto.ClaveProdServ</td>
+                    <td align="center">@Model.Conceptos.Concepto.ClaveUnidad</td>
+                    <td align="center">@Model.Conceptos.Concepto.Descripcion</td>
+                    <td align="center">@Model.Conceptos.Concepto.ValorUnitario</td>
+                    <td align="center">@Model.Conceptos.Concepto.Descuento</td>
+                    <td align="center">@Model.Conceptos.Concepto.Importe</td>
+                </tr>
+                @*}*@
             </table>
         </div>
     </div>
@@ -147,7 +148,7 @@
                 <td><strong>Forma de pago:</strong></td>
                 <td>@Model.FormaPago</td>
                 <td><strong>Descuento:</strong></td>
-                <td>@Model.</td>
+                <td>@Model.Descuento</td>
             </tr>
             <tr>
                 <td><strong>Metodo de pago:</strong></td>
@@ -167,7 +168,7 @@
     <div class="textoContiguo" style="font-size:11px;">
         <strong>Sello SAT </strong>
         <br />
-        @Model.Complemento.UUID.SelloSAT
+        @Model.Complemento.TimbreFiscalDigital.SelloSAT
     </div>
     <div>
         <div style="width:25%;float:left;">
@@ -180,13 +181,13 @@
 
                 <tr>
                     <td><strong>RFC del proveedor de certificación:</strong></td>
-                    <td>@Model.Complemento.UUID.RfcProvCertif</td>
+                    <td>@Model.Complemento.TimbreFiscalDigital.RfcProvCertif</td>
                     <td><strong>Fecha y hora de certificación:</strong></td>
-                    <td>@Model.Complemento.UUID.FechaTimbrado.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>@Model.Complemento.TimbreFiscalDigital.FechaTimbrado</td>
                 </tr>
                 <tr>
                     <td><strong>No. de serie del certificado SAT:</strong></td>
-                    <td>@Model.Complemento.UUID.NoCertificadoSAT</td>
+                    <td>@Model.Complemento.TimbreFiscalDigital.NoCertificadoSAT</td>
                 </tr>
             </table>
 

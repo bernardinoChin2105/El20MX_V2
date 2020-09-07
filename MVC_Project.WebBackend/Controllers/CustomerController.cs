@@ -523,7 +523,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     ExcelWorksheet campo = pck.Workbook.Worksheets.Add("LISTA DE CLIENTES");
 
-                    campo.Cells["A1:Z1"].Style.Font.Bold = true;
+                    campo.Cells["A1:F1"].Style.Font.Bold = true;
 
                     //campo.Cells["A1"].Value = "No.";
                     campo.Cells["A1"].Value = "Nombre(s)";

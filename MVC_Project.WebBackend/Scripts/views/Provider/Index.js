@@ -20,13 +20,14 @@ $("#RFC").keyup(function () {
     this.value = this.value.toUpperCase();
 });
 
-var ProviderIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUrl, uploadUrl, hasFullAccessController) {
+var ProviderIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUrl, uploadUrl, exportTemplateUrl, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
     this.editUrl = editUrl;
     this.exportUrl = exportUrl;
     this.uploadUrl = uploadUrl;
+    this.exportTemplateUrl = exportTemplateUrl;
     this.dataTable = {};
 
     this.init = function () {
@@ -109,6 +110,28 @@ var ProviderIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                 /////////////////////////////////////////////////////
             } catch (e) {
                 throw 'ProviderIndexControlador -> Exportar: ' + e;
+            }
+        });
+
+        $(".btn-export-template").click(function () {
+            try {
+
+                //var aoData = [];
+                //aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
+
+                //El20Utils.mostrarCargador();
+
+                $.fileDownload(self.exportTemplateUrl, {
+                    httpMethod: "Get"
+                    //data: aoData
+                }).done(function () { //El20Utils.ocultarCargador(); 
+                }).fail(function () { //El20Utils.ocultarCargador(); 
+                });
+
+
+                /////////////////////////////////////////////////////
+            } catch (e) {
+                throw 'CustomerIndexControlador -> Exportar: ' + e;
             }
         });
     };

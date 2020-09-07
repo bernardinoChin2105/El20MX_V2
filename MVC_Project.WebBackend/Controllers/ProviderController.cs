@@ -625,6 +625,52 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
+        [HttpGet, AllowAnonymous, FileDownload]
+        public FileResult ExportTemplate()
+        {
+            try
+            {
+                var userAuth = Authenticator.AuthenticatedUser;
+
+                using (ExcelPackage pck = new ExcelPackage())
+                {
+                    ExcelWorksheet campo = pck.Workbook.Worksheets.Add("LISTA DE PROVEEDORES");
+
+                    campo.Cells["A1:F1"].Style.Font.Bold = true;
+
+                    //campo.Cells["A1"].Value = "No.";
+                    campo.Cells["A1"].Value = "Nombre(s)";
+                    campo.Cells["B1"].Value = "Apellido(s)";
+                    campo.Cells["C1"].Value = "RFC";
+                    //campo.Cells["E1"].Value = "CURP";
+                    campo.Cells["D1"].Value = "Nombre/Razón Social";
+                    campo.Cells["E1"].Value = "Tipo Régimen Fiscal";
+                    //campo.Cells["H1"].Value = "Calle y Cruzamientos";
+                    //campo.Cells["I1"].Value = "Número Exterior";
+                    //campo.Cells["J1"].Value = "Número Interior";
+                    campo.Cells["F1"].Value = "C.P.";
+                    //campo.Cells["L1"].Value = "Colonia";
+                    //campo.Cells["M1"].Value = "Alcaldía/Municipio";
+                    //campo.Cells["N1"].Value = "Estado";
+                    //campo.Cells["O1"].Value = "País";
+                    //campo.Cells["P1"].Value = "Domicilio Comercial";
+                    //campo.Cells["Q1"].Value = "Email";
+                    //campo.Cells["R1"].Value = "Teléfono";
+                    //campo.Cells["S1"].Value = "Fecha Creación";
+                    //campo.Cells["T1"].Value = "RFC Cuenta";
+
+                    campo.Cells[campo.Dimension.Address].AutoFitColumns();
+                    byte[] bin = pck.GetAsByteArray();
+                    return File(bin, "application/vnd.ms-excel", "ListaProveedoresPlantilla.xlsx");
+                }
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                throw;
+            }
+        }
+
         [HttpPost, AllowAnonymous, FileDownload]
         public FileResult ExportListProvider(string filtros)
         {
@@ -818,45 +864,46 @@ namespace MVC_Project.WebBackend.Controllers
                             {
                                 try
                                 {
-                                    if (!tabla.Rows[i].IsNull(1)
+                                    if (!tabla.Rows[i].IsNull(0)
+                                        || !tabla.Rows[i].IsNull(1)
                                         || !tabla.Rows[i].IsNull(2)
                                         || !tabla.Rows[i].IsNull(3)
-                                        || !tabla.Rows[i].IsNull(5)
-                                        || !tabla.Rows[i].IsNull(10))
+                                        || !tabla.Rows[i].IsNull(4)
+                                        || !tabla.Rows[i].IsNull(5))
                                     {
                                         //Validar
                                         string taxRegime = string.Empty;
-                                        if (!tabla.Rows[i].IsNull(6) && tabla.Rows[i].ItemArray[6].ToString() != "")
+                                        if (!tabla.Rows[i].IsNull(4) && tabla.Rows[i].ItemArray[4].ToString() != "")
                                         {
-                                            var taxRegimeEnum = EnumUtils.GetValueFromDescription<TypeTaxRegimen>(tabla.Rows[i].ItemArray[6].ToString());//funciona cuando obtenemos la descripción
+                                            var taxRegimeEnum = EnumUtils.GetValueFromDescription<TypeTaxRegimen>(tabla.Rows[i].ItemArray[4].ToString());//funciona cuando obtenemos la descripción
                                             taxRegime = taxRegimeEnum.ToString();
                                         }
 
-                                        bool deliveryAddress = false;
-                                        if (!tabla.Rows[i].IsNull(15) && tabla.Rows[i].ItemArray[15].ToString() != "")
-                                        {
-                                            deliveryAddress = Convert.ToBoolean(tabla.Rows[i].ItemArray[15].ToString());
-                                        }
+                                        //bool deliveryAddress = false;
+                                        //if (!tabla.Rows[i].IsNull(15) && tabla.Rows[i].ItemArray[15].ToString() != "")
+                                        //{
+                                        //    deliveryAddress = Convert.ToBoolean(tabla.Rows[i].ItemArray[15].ToString());
+                                        //}
 
                                         ExportListProviders providers = new ExportListProviders
                                         {
-                                            first_name = tabla.Rows[i].ItemArray[1].ToString(),
-                                            last_name = tabla.Rows[i].ItemArray[2].ToString(),
-                                            rfc = tabla.Rows[i].ItemArray[3].ToString(),
-                                            curp = tabla.Rows[i].ItemArray[4].ToString(),
-                                            businessName = tabla.Rows[i].ItemArray[5].ToString(),
+                                            first_name = tabla.Rows[i].ItemArray[0].ToString(),
+                                            last_name = tabla.Rows[i].ItemArray[1].ToString(),
+                                            rfc = tabla.Rows[i].ItemArray[2].ToString(),
+                                            //curp = tabla.Rows[i].ItemArray[4].ToString(),
+                                            businessName = tabla.Rows[i].ItemArray[3].ToString(),
                                             taxRegime = taxRegime,
-                                            street = tabla.Rows[i].ItemArray[7].ToString(),
-                                            interiorNumber = tabla.Rows[i].ItemArray[8].ToString(),
-                                            outdoorNumber = tabla.Rows[i].ItemArray[9].ToString(),
-                                            zipCode = tabla.Rows[i].ItemArray[10].ToString(),
-                                            nameSettlement = tabla.Rows[i].ItemArray[11].ToString(),
-                                            nameMunicipality = tabla.Rows[i].ItemArray[12].ToString(),
-                                            nameState = tabla.Rows[i].ItemArray[13].ToString(),
-                                            nameCountry = tabla.Rows[i].ItemArray[14].ToString(),
-                                            deliveryAddress = deliveryAddress,
-                                            email = tabla.Rows[i].ItemArray[16].ToString(),
-                                            phone = tabla.Rows[i].ItemArray[17].ToString(),
+                                            //street = tabla.Rows[i].ItemArray[7].ToString(),
+                                            //interiorNumber = tabla.Rows[i].ItemArray[8].ToString(),
+                                            //outdoorNumber = tabla.Rows[i].ItemArray[9].ToString(),
+                                            zipCode = tabla.Rows[i].ItemArray[5].ToString(),
+                                            //nameSettlement = tabla.Rows[i].ItemArray[11].ToString(),
+                                            //nameMunicipality = tabla.Rows[i].ItemArray[12].ToString(),
+                                            //nameState = tabla.Rows[i].ItemArray[13].ToString(),
+                                            //nameCountry = tabla.Rows[i].ItemArray[14].ToString(),
+                                            //deliveryAddress = deliveryAddress,
+                                            //email = tabla.Rows[i].ItemArray[16].ToString(),
+                                            //phone = tabla.Rows[i].ItemArray[17].ToString(),
                                             createdAt = todayDate,
                                             modifiedAt = todayDate,
                                             status = SystemStatus.ACTIVE.ToString(),
@@ -879,26 +926,26 @@ namespace MVC_Project.WebBackend.Controllers
 
                                 try
                                 {
-                                    if (encabezado[0].ToString() != "No.") throw new Exception("Título de columna inválida");
-                                    if (encabezado[1].ToString() != "Nombre(s)") throw new Exception("Título de columna inválida");
-                                    if (encabezado[2].ToString() != "Apellido(s)") throw new Exception("Título de columna inválida");
-                                    if (encabezado[3].ToString() != "RFC") throw new Exception("Título de columna inválida");
-                                    if (encabezado[4].ToString() != "CURP") throw new Exception("Título de columna inválida");
-                                    if (encabezado[5].ToString() != "Nombre/Razón Social") throw new Exception("Título de columna inválida");
-                                    if (encabezado[6].ToString() != "Tipo Régimen Fiscal") throw new Exception("Título de columna inválida");
-                                    if (encabezado[7].ToString() != "Calle y Cruzamientos") throw new Exception("Título de columna inválida");
-                                    if (encabezado[8].ToString() != "Número Exterior") throw new Exception("Título de columna inválida");
-                                    if (encabezado[9].ToString() != "Número Interior") throw new Exception("Título de columna inválida");
-                                    if (encabezado[10].ToString() != "C.P.") throw new Exception("Título de columna inválida");
-                                    if (encabezado[11].ToString() != "Colonia") throw new Exception("Título de columna inválida");
-                                    if (encabezado[12].ToString() != "Alcaldía/Municipio") throw new Exception("Título de columna inválida");
-                                    if (encabezado[13].ToString() != "Estado") throw new Exception("Título de columna inválida");
-                                    if (encabezado[14].ToString() != "País") throw new Exception("Título de columna inválida");
-                                    if (encabezado[15].ToString() != "Domicilio Comercial") throw new Exception("Título de columna inválida");
-                                    if (encabezado[16].ToString() != "Email") throw new Exception("Título de columna inválida");
-                                    if (encabezado[17].ToString() != "Teléfono") throw new Exception("Título de columna inválida");
-                                    if (encabezado[18].ToString() != "Fecha Creación") throw new Exception("Título de columna inválida");
-                                    if (encabezado[19].ToString() != "RFC Cuenta") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[0].ToString() != "No.") throw new Exception("Título de columna inválida");
+                                    if (encabezado[0].ToString() != "Nombre(s)") throw new Exception("Título de columna inválida");
+                                    if (encabezado[1].ToString() != "Apellido(s)") throw new Exception("Título de columna inválida");
+                                    if (encabezado[2].ToString() != "RFC") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[4].ToString() != "CURP") throw new Exception("Título de columna inválida");
+                                    if (encabezado[3].ToString() != "Nombre/Razón Social") throw new Exception("Título de columna inválida");
+                                    if (encabezado[4].ToString() != "Tipo Régimen Fiscal") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[7].ToString() != "Calle y Cruzamientos") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[8].ToString() != "Número Exterior") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[9].ToString() != "Número Interior") throw new Exception("Título de columna inválida");
+                                    if (encabezado[5].ToString() != "C.P.") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[11].ToString() != "Colonia") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[12].ToString() != "Alcaldía/Municipio") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[13].ToString() != "Estado") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[14].ToString() != "País") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[15].ToString() != "Domicilio Comercial") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[16].ToString() != "Email") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[17].ToString() != "Teléfono") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[18].ToString() != "Fecha Creación") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[19].ToString() != "RFC Cuenta") throw new Exception("Título de columna inválida");
                                 }
                                 catch (Exception Error)
                                 {
@@ -972,44 +1019,44 @@ namespace MVC_Project.WebBackend.Controllers
                         firstName = x.first_name,
                         lastName = x.last_name,
                         rfc = x.rfc,
-                        curp = x.curp,
+                        //curp = x.curp,
                         businessName = x.businessName,
-                        street = x.street,
-                        interiorNumber = x.interiorNumber,
-                        outdoorNumber = x.outdoorNumber,
+                        //street = x.street,
+                        //interiorNumber = x.interiorNumber,
+                        //outdoorNumber = x.outdoorNumber,
                         zipCode = x.zipCode,
                         createdAt = todayDate,
                         modifiedAt = todayDate,
                         status = SystemStatus.ACTIVE.ToString(),
-                        deliveryAddress = x.deliveryAddress,
-                        providerContacts = new List<ProviderContact>
-                        {
-                            x.email != ""? new ProviderContact
-                            {            
-                                //provider = pro,
-                                emailOrPhone = x.email,
-                                typeContact = TypeContact.EMAIL.ToString(),
-                                createdAt = todayDate,
-                                modifiedAt = todayDate,
-                                status = SystemStatus.ACTIVE.ToString()
-                            }: null,
-                            x.phone != ""? new ProviderContact
-                            {
-                                emailOrPhone = x.phone,
-                                typeContact = TypeContact.PHONE.ToString(),
-                                createdAt = todayDate,
-                                modifiedAt = todayDate,
-                                status = SystemStatus.ACTIVE.ToString()
-                            }: null
-                        }
+                        //deliveryAddress = x.deliveryAddress,
+                        //providerContacts = new List<ProviderContact>
+                        //{
+                        //    x.email != ""? new ProviderContact
+                        //    {            
+                        //        //provider = pro,
+                        //        emailOrPhone = x.email,
+                        //        typeContact = TypeContact.EMAIL.ToString(),
+                        //        createdAt = todayDate,
+                        //        modifiedAt = todayDate,
+                        //        status = SystemStatus.ACTIVE.ToString()
+                        //    }: null,
+                        //    x.phone != ""? new ProviderContact
+                        //    {
+                        //        emailOrPhone = x.phone,
+                        //        typeContact = TypeContact.PHONE.ToString(),
+                        //        createdAt = todayDate,
+                        //        modifiedAt = todayDate,
+                        //        status = SystemStatus.ACTIVE.ToString()
+                        //    }: null
+                        //}
                     }).ToList();
 
-                    proveedores = proveedores.Select(x =>
-                    {
-                        x.providerContacts = x.providerContacts.Where(b => b != null)
-                        .Select(b => { b.provider = x; return b; }).ToList();
-                        return x;
-                    }).ToList();
+                    //proveedores = proveedores.Select(x =>
+                    //{
+                    //    x.providerContacts = x.providerContacts.Where(b => b != null)
+                    //    .Select(b => { b.provider = x; return b; }).ToList();
+                    //    return x;
+                    //}).ToList();
 
                     if (proveedores.Count() > 0)
                     {
