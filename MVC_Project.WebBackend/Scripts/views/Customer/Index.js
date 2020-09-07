@@ -104,6 +104,26 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
             El20Utils.ocultarCargador();
         });
 
+        $(".btn-export").click(function () {
+            try {
+
+                var aoData = [];
+                aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
+
+                El20Utils.mostrarCargador();
+
+                $.fileDownload(self.exportUrl, {
+                    httpMethod: "POST",
+                    data: aoData
+                }).done(function () { El20Utils.ocultarCargador(); })
+                    .fail(function () { El20Utils.ocultarCargador(); });
+
+
+                /////////////////////////////////////////////////////
+            } catch (e) {
+                throw 'ProviderIndexControlador -> Exportar: ' + e;
+            }
+        });
 
         $(".btn-export-template").click(function () {
             try {

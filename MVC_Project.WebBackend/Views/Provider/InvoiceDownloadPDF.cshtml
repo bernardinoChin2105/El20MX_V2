@@ -1,4 +1,4 @@
-﻿@model MVC_Project.WebBackend.Models.InvoicesReceivedListVM
+﻿@model MVC_Project.WebBackend.Models.InvoicesVM
 @using MVC_Project.WebBackend.Controllers
 @using MVC_Project.WebBackend.Models
 @{
@@ -22,6 +22,25 @@
     <style>
         .img-responsive {
             width: 100%;
+        }
+
+        .tabla th {
+            border-bottom: 1px solid #000;
+        }
+
+        .logo {
+            max-width: 100%;
+            width: 80px;
+        }
+
+        .textoContiguo {
+            -ms-word-break: break-all;
+            word-break: break-all;
+            word-break: break-word;
+            /*/ Sólo WebKit -NO DOCUMENTADO / -ms-hyphens: auto;
+            / Guiones para separar en sílabas / -moz-hyphens: auto;
+            / depende de lang en <html> / -webkit-hyphens: auto;*/
+            hyphens: auto;
         }
     </style>
 </head>
@@ -53,34 +72,34 @@
                 <td><strong>Nombre receptor:</strong></td>
                 <td>@Model.Receptor.Nombre</td>
                 <td><strong>Efecto de comprobante:</strong></td>
-                <td>@Model.TipoDeComprobanteTexto</td>
+                <td>@Model.TipoDeComprobante</td>
             </tr>
 
             <tr>
                 <td><strong>Uso CFDI:</strong></td>
-                <td>@Model.Receptor.UsoCFDITexto</td>
+                <td>@Model.Receptor.UsoCFDI</td>
                 <td><strong>Regimen fiscal:</strong></td>
-                <td>@Model.Emisor.RegimenFiscalTexto</td>
+                <td>@Model.Emisor.RegimenFiscal</td>
             </tr>
             <tr>
-                @if (!String.IsNullOrEmpty(Model.ClaveCatastral))
-                {
-                    <td><strong>Clave Catastral:</strong></td>
-                    <td>@Model.ClaveCatastral</td>
-                }
-                else
-                {
-                    <td></td>
-                    <td></td>
-                }
+                @*@if (!String.IsNullOrEmpty(Model.ClaveCatastral))
+                    {
+                        <td><strong>Clave Catastral:</strong></td>
+                        <td>@Model.ClaveCatastral</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                        <td></td>
+                    }*@
                 <td><strong>Folio Interno:</strong></td>
                 <td>@Model.Folio</td>
             </tr>
             <tr>
-                @if (!String.IsNullOrEmpty(Model.PeriodoFacturacion))
-                {
-                    <td colspan=4>@Model.PeriodoFacturacion</td>
-                }
+                @*@if (!String.IsNullOrEmpty(Model.PeriodoFacturacion))
+                {*@
+                    <td colspan=4>@Model.Fecha</td>
+                @*}*@
             </tr>
         </table>
         <div style="clear:both;"></div>
@@ -101,16 +120,16 @@
                     <th>Descuento</th>
                     <th>Importe</th>
                 </tr>
-                @foreach (var oConcepto in Model.Conceptos)
+                @foreach (var oConcepto in Model.Conceptos.Concepto)
                 {
                     <tr>
                         <td align="center">@oConcepto.Cantidad</td>
                         <td align="center">@oConcepto.ClaveProdServ</td>
                         <td align="center">@oConcepto.ClaveUnidad</td>
                         <td align="center">@oConcepto.Descripcion</td>
-                        <td align="center">@oConcepto.ValorUnitarioFormateado</td>
-                        <td align="center">@oConcepto.DescuentoFormateado</td>
-                        <td align="center">@oConcepto.ImporteFormateado</td>
+                        <td align="center">@oConcepto.ValorUnitario</td>
+                        <td align="center">@oConcepto.Descuento</td>
+                        <td align="center">@oConcepto.Importe</td>
                     </tr>
                 }
             </table>
@@ -121,21 +140,21 @@
         <table style="width:100%;">
             <tr>
                 <td><strong>Monto con letras:</strong></td>
-                <td>@Model.MonedaConLetra</td>
+                <td>@Model.Moneda</td>
                 <td><strong>Subtotal:</strong></td>
-                <td>@Model.SubTotalFormateado</td>
+                <td>@Model.SubTotal</td>
             </tr>
             <tr>
                 <td><strong>Forma de pago:</strong></td>
-                <td>@Model.FormaPagoTexto</td>
+                <td>@Model.FormaPago</td>
                 <td><strong>Descuento:</strong></td>
-                <td>@Model.DescuentoFormateado</td>
+                <td>@Model.</td>
             </tr>
             <tr>
                 <td><strong>Metodo de pago:</strong></td>
-                <td>@Model.MetodoPagoTexto</td>
+                <td>@Model.MetodoPago</td>
                 <td><strong>Total:</strong></td>
-                <td>@Model.TotalFormateado</td>
+                <td>@Model.Total</td>
             </tr>
         </table>
     </div>
@@ -149,7 +168,7 @@
     <div class="textoContiguo" style="font-size:11px;">
         <strong>Sello SAT </strong>
         <br />
-        @Model.TimbreFiscalDigital.SelloSAT
+        @Model.Complemento.UUID.SelloSAT
     </div>
     <div>
         <div style="width:25%;float:left;">
@@ -162,13 +181,13 @@
 
                 <tr>
                     <td><strong>RFC del proveedor de certificación:</strong></td>
-                    <td>@Model.TimbreFiscalDigital.RfcProvCertif</td>
+                    <td>@Model.Complemento.UUID.RfcProvCertif</td>
                     <td><strong>Fecha y hora de certificación:</strong></td>
-                    <td>@Model.TimbreFiscalDigital.FechaTimbrado.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>@Model.Complemento.UUID.FechaTimbrado.ToString("yyyy-MM-dd HH:mm:ss")</td>
                 </tr>
                 <tr>
                     <td><strong>No. de serie del certificado SAT:</strong></td>
-                    <td>@Model.TimbreFiscalDigital.NoCertificadoSAT</td>
+                    <td>@Model.Complemento.UUID.NoCertificadoSAT</td>
                 </tr>
             </table>
 
@@ -179,23 +198,3 @@
 </body>
 </html>
 
-<style>
-    .tabla th {
-        border-bottom: 1px solid #000;
-    }
-
-    .logo {
-        max-width: 100%;
-        width: 80px;
-    }
-
-    .textoContiguo {
-        -ms-word-break: break-all;
-        word-break: break-all;
-        word-break: break-word;
-        / Sólo WebKit -NO DOCUMENTADO / -ms-hyphens: auto;
-        / Guiones para separar en sílabas / -moz-hyphens: auto;
-        / depende de lang en <html> / -webkit-hyphens: auto;
-        hyphens: auto;
-    }
-</style>

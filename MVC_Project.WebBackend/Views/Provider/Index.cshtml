@@ -9,11 +9,12 @@
     var hasFullAccessController = user.HasFullAccessController(controllerName);
 }
 
-@section styles {   
+@section styles {
     <style>
         .hide {
             display: none;
         }
+
         .custom-file-label::after {
             content: "Buscar"
         }
@@ -97,30 +98,39 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <h4>El excel debe contener los siguientes columnas</h4>
-                            <ul>
-                                <li>No. (Celda sin contenido)</li>
-                                <li>Nombre(s) (*Obligatorio)</li>
-                                <li>Apellido(s) (*Obligatorio)</li>
-                                <li>RFC (*Obligatorio)</li>
-                                <li>CURP</li>
-                                <li>Nombre/Razón Social (*Obligatorio)</li>
-                                <li>Tipo Régimen Fiscal ("Persona Física" o "Persona Moral")</li>
-                                <li>Calle y Cruzamientos</li>
-                                <li>Número Exterior</li>
-                                <li>Número Interior</li>
-                                <li>C.P. (*Obligatorio)</li>
-                                <li>Colonia</li>
-                                <li>Alcaldía/Municipio</li>
-                                <li>Estado</li>
-                                <li>País</li>
-                                <li>Domicilio Comercial </li>
-                                <li>Email</li>
-                                <li>Teléfono</li>
-                                <li>Fecha Creación (Celda sin contenido)</li>
-                                <li>RFC Cuenta (Celda sin contenido)</li>
-                            </ul>
-                            <br />
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h4>El excel debe contener los siguientes columnas</h4>
+                                    <ul>
+                                        @*<li>No. (Celda sin contenido)</li>*@
+                                        <li>Nombre(s) (*Obligatorio)</li>
+                                        <li>Apellido(s) (*Obligatorio)</li>
+                                        <li>RFC (*Obligatorio)</li>
+                                        @*<li>CURP</li>*@
+                                        <li>Nombre/Razón Social (*Obligatorio)</li>
+                                        <li>Tipo Régimen Fiscal ("Persona Física" o "Persona Moral")</li>
+                                        @*<li>Calle y Cruzamientos</li>
+                                            <li>Número Exterior</li>
+                                            <li>Número Interior</li>*@
+                                        <li>C.P. (*Obligatorio)</li>
+                                        @*<li>Colonia</li>
+                                            <li>Alcaldía/Municipio</li>
+                                            <li>Estado</li>
+                                            <li>Domicilio Comercial </li>
+                                            <li>Email</li>
+                                            <li>Teléfono</li>
+                                            <li>Fecha Creación (Celda sin contenido)</li>
+                                            <li>RFC Cuenta (Celda sin contenido)</li>*@
+                                    </ul>
+                                    <br />
+                                </div>
+                                <div class="col-md-4">
+                                    @if (hasFullAccessController)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-color btn-export-template"><span class="fas fa-download"></span> Exportar</button>
+                                    }
+                                </div>
+                            </div>
 
                             @using (Html.BeginForm("ImportExcelProvider", "Provider", FormMethod.Post, new { @id = "postImportar" }))
                             {
@@ -133,10 +143,10 @@
                                         </div>
 
                                         @*<div class="form-group">
-                                            <label for="exampleFormControlFile1">Archivo Excel</label>
-                                            <input type="file" name="Excel" class="form-control-file" id="exampleFormControlFile1" onchange="loadFile(event, 'rutaExcel', this)">                                           
-                                        </div>                                        
-                                        <span class="hide" ></span>*@
+                                                <label for="exampleFormControlFile1">Archivo Excel</label>
+                                                <input type="file" name="Excel" class="form-control-file" id="exampleFormControlFile1" onchange="loadFile(event, 'rutaExcel', this)">
+                                            </div>
+                                            <span class="hide" ></span>*@
                                     </div>
                                     <div class="col-12 col-md-2">
                                         <label></label>
@@ -151,7 +161,7 @@
         </div>
     </div>
 </div>
-@section scripts{    
+@section scripts{
     @Scripts.Render("~/plugins/dataTables")
     @Scripts.Render("~/plugins/daterangepicker")
     @Scripts.Render("~/plugins/jqueryFileDownload.js")
@@ -163,6 +173,7 @@
                 '@Url.Action("Edit")',
                 '@Url.Action("ExportListProvider")',
                 '@Url.Action("UploadProvider")',
+                '@Url.Action("ExportTemplate")',
                 '@hasFullAccessController' == 'True'
             );
             provider.init();
