@@ -49,8 +49,10 @@ namespace MVC_Project.Integrations.SAT
                 customers = modelInvoices.Where(x => x.issuer.rfc == RFC)
                     .Select(x => new CustomersInfo
                     {
+                        idInvoice = x.id,
                         rfc = x.receiver.rfc,
-                        businessName = x.receiver.name
+                        businessName = x.receiver.name,
+                        tax = (x.tax != null? x.tax.Value : 0)
                         //regime = x.
                     }).ToList();
 
@@ -58,11 +60,13 @@ namespace MVC_Project.Integrations.SAT
                 providers = modelInvoices.Where(x => x.receiver.rfc == RFC)
                     .Select(x => new ProvidersInfo
                     {
+                        idInvoice = x.id,
                         zipCode = x.placeOfIssue,
                         businessName = x.issuer.name,
-                        rfc = x.issuer.rfc
+                        rfc = x.issuer.rfc,
+                        tax = (x.tax != null ? x.tax.Value : 0)
                         //regime =             
-                    }).ToList();                
+                    }).ToList();
                 #endregion
 
                 return new InvoicesModel
@@ -91,11 +95,11 @@ namespace MVC_Project.Integrations.SAT
         /*
          * Obtener la Constancia de Situación Fisca
          * */
-         public static InvoicesModel GetTaxStatus (string RFC)
+        public static InvoicesModel GetTaxStatus(string RFC)
         {
             List<TaxStatus> taxStatus = new List<TaxStatus>();
             try
-            {                
+            {
                 string url = "/taxpayers/" + RFC + "/tax-status";
                 var responseInvoices = SATws.CallServiceSATws(url, null, "Get");
                 taxStatus = JsonConvert.DeserializeObject<List<TaxStatus>>(responseInvoices);
@@ -112,7 +116,7 @@ namespace MVC_Project.Integrations.SAT
                 {
                     Success = false,
                     Message = ex.Message.ToString(),
-                    TaxStatus = taxStatus,                    
+                    TaxStatus = taxStatus,
                 };
             }
         }
@@ -161,6 +165,48 @@ namespace MVC_Project.Integrations.SAT
                 throw new Exception(ex.Message.ToString());
             }
             return satModel;
+        }
+        /*Obtener los CFDI's*/
+        public static List<InvoicesCFDI> GetInvoicesCFDI(List<string> CFDIIds)
+        {
+            List<InvoicesCFDI> CFDI = new List<InvoicesCFDI>();
+            try
+            {
+                foreach (var id in CFDIIds)
+                {
+                    try
+                    {
+                        string url = "invoices/" + id + "/cfdi";
+                        var responsecfdi = SATws.CallServiceSATws(url, null, "get");
+                        try
+                        {
+                            //var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(responsecfdi);
+                            var model = JsonConvert.DeserializeObject<InvoicesCFDI>(responsecfdi);
+
+                            var responseXML = SATws.CallServiceSATws(url, null, "get", SATwsEnumsAccept.textxml.GetDescription());
+                            var xml = responseXML;//JsonConvert.DeserializeObject<string>(responseXML);
+                            model.Xml = xml;
+                            model.id = id;
+
+                            CFDI.Add(model);
+                        }
+                        catch (Exception ex)
+                        {
+                            string error = ex.Message.ToString();
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        string error = ex.Message.ToString();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message.ToString();
+            }
+            return CFDI;
         }
     }
 }

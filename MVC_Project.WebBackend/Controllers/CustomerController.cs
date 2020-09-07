@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Xml;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -28,14 +29,23 @@ namespace MVC_Project.WebBackend.Controllers
         private ICustomerService _customerService;
         private ICustomerContactService _customerContactService;
         private IStateService _stateService;
+        private ICurrencyService _currencyService;
+        private IPaymentFormService _paymentFormService;
+        private IPaymentMethodService _paymentMethodService;
+        private IInvoiceIssuedService _invoiceIssuedService;
 
         public CustomerController(IAccountService accountService, ICustomerService customerService, IStateService stateService,
-            ICustomerContactService customerContactService)
+            ICustomerContactService customerContactService, ICurrencyService currencyService, IPaymentFormService paymentFormService,
+            IPaymentMethodService paymentMethodService, IInvoiceIssuedService invoiceIssuedService)
         {
             _accountService = accountService;
             _customerService = customerService;
             _customerContactService = customerContactService;
             _stateService = stateService;
+            _currencyService = currencyService;
+            _paymentFormService = paymentFormService;
+            _paymentMethodService = paymentMethodService;
+            _invoiceIssuedService = invoiceIssuedService;
         }
 
         [AllowAnonymous]
@@ -47,7 +57,6 @@ namespace MVC_Project.WebBackend.Controllers
         [HttpGet, AllowAnonymous]
         public JsonResult GetCustomers(JQueryDataTableParams param, string filtros, bool first)
         {
-            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
                 int totalDisplay = 0;
@@ -55,6 +64,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var listResponse = new List<CustomerList>();
                 if (!first)
                 {
+                    var userAuth = Authenticator.AuthenticatedUser;
                     NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
                     string rfc = filtersValues.Get("RFC").Trim();
                     string businessName = filtersValues.Get("BusinessName").Trim();
@@ -79,17 +89,6 @@ namespace MVC_Project.WebBackend.Controllers
                     }
                 }
 
-                LogUtil.AddEntry(
-                   "Lista de clientes totalDisplay: " + totalDisplay + ", total: " + total,
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
                 return Json(new
                 {
                     success = true,
@@ -101,17 +100,6 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                LogUtil.AddEntry(
-                   "Se encontro un error: " + ex.Message.ToString(),
-                   ENivelLog.Error,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
                 return new JsonResult
                 {
                     Data = new { success = false, message = ex.Message },
@@ -124,7 +112,6 @@ namespace MVC_Project.WebBackend.Controllers
         [AllowAnonymous]
         public ActionResult Create()
         {
-            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
                 var createCustomer = new CustomerViewModel();
@@ -140,33 +127,11 @@ namespace MVC_Project.WebBackend.Controllers
 
                 createCustomer.ListRegimen = new SelectList(regimenList);
                 createCustomer.ListState = new SelectList(stateList);
-
-                LogUtil.AddEntry(
-                   "Crea nuevo cliente: " + JsonConvert.SerializeObject(createCustomer),
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
                 return View(createCustomer);
             }
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                LogUtil.AddEntry(
-                   "Se encontro un error: " + ex.Message.ToString(),
-                   ENivelLog.Error,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
                 return RedirectToAction("Index");
             }
             // return View();
@@ -177,12 +142,12 @@ namespace MVC_Project.WebBackend.Controllers
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public ActionResult Create(CustomerViewModel model)
         {
-            var authUser = Authenticator.AuthenticatedUser;
             try
             {
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
 
+                var authUser = Authenticator.AuthenticatedUser;
 
                 if (_customerService.FindBy(x => x.rfc == model.RFC && x.account.id == authUser.Account.Id).Any())
                     throw new Exception("Ya existe un Cliente con el RFC proporcionado");
@@ -272,16 +237,6 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 _customerService.Create(customer);
-                LogUtil.AddEntry(
-                    "Crea nuevo cliente: " + JsonConvert.SerializeObject(customer),
-                    ENivelLog.Info,
-                    authUser.Id,
-                    authUser.Email,
-                    EOperacionLog.ACCESS,
-                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                );
                 MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
@@ -300,18 +255,6 @@ namespace MVC_Project.WebBackend.Controllers
 
                 model.ListRegimen = new SelectList(regimenList);
                 model.ListState = new SelectList(stateList);
-
-                LogUtil.AddEntry(
-                   "Se encontro un error: " + ex.Message.ToString(),
-                   ENivelLog.Error,
-                   authUser.Id,
-                   authUser.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                );
-
                 return View(model);
             }
         }
@@ -324,17 +267,6 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 var listResponse = _stateService.GetLocationList(zipCode);
 
-                LogUtil.AddEntry(
-                   "Obtener codigo postal: " + zipCode,
-                   ENivelLog.Info,
-                   authUser.Id,
-                   authUser.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                );
-
                 return Json(new
                 {
                     Data = new { success = true, data = listResponse },
@@ -342,17 +274,6 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                LogUtil.AddEntry(
-                   "Se encontro un error: " + ex.Message.ToString(),
-                   ENivelLog.Error,
-                   authUser.Id,
-                   authUser.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                );
-
                 return new JsonResult
                 {
                     Data = new { success = false, Mensaje = new { title = "Error", message = ex.Message } },
@@ -365,10 +286,10 @@ namespace MVC_Project.WebBackend.Controllers
         // GET: Customer/Edit/5
         public ActionResult Edit(string uuid)
         {
-            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
                 CustomerViewModel model = new CustomerViewModel();
+                var userAuth = Authenticator.AuthenticatedUser;
 
                 var customer = _customerService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid) && x.account.id == userAuth.Account.Id);
                 if (customer == null)
@@ -430,32 +351,11 @@ namespace MVC_Project.WebBackend.Controllers
                     model.Phones = phones;
                 }
 
-                LogUtil.AddEntry(
-                   "Editar Cliente: " + JsonConvert.SerializeObject(model),
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
                 return View(model);
             }
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                LogUtil.AddEntry(
-                   "Se encontro un error: " + ex.Message.ToString(),
-                   ENivelLog.Error,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
                 return RedirectToAction("Index");
             }
         }
@@ -590,18 +490,6 @@ namespace MVC_Project.WebBackend.Controllers
                 #endregion
 
                 _customerService.Update(customerData);
-
-                LogUtil.AddEntry(
-                   "Editar cliente: " + JsonConvert.SerializeObject(customerData),
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
@@ -620,28 +508,62 @@ namespace MVC_Project.WebBackend.Controllers
 
                 model.ListRegimen = new SelectList(regimenList);
                 model.ListState = new SelectList(stateList);
-
-                LogUtil.AddEntry(
-                   "Se encontro un error: " + ex.Message.ToString(),
-                   ENivelLog.Error,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
                 return View(model);
+            }
+        }
+
+        [HttpGet, AllowAnonymous, FileDownload]
+        public FileResult ExportTemplate()
+        {
+            try
+            {
+                var userAuth = Authenticator.AuthenticatedUser;               
+
+                using (ExcelPackage pck = new ExcelPackage())
+                {
+                    ExcelWorksheet campo = pck.Workbook.Worksheets.Add("LISTA DE CLIENTES");
+
+                    campo.Cells["A1:Z1"].Style.Font.Bold = true;
+
+                    //campo.Cells["A1"].Value = "No.";
+                    campo.Cells["A1"].Value = "Nombre(s)";
+                    campo.Cells["B1"].Value = "Apellido(s)";
+                    campo.Cells["C1"].Value = "RFC";
+                    //campo.Cells["E1"].Value = "CURP";
+                    campo.Cells["D1"].Value = "Nombre/Razón Social";
+                    campo.Cells["E1"].Value = "Tipo Régimen Fiscal";
+                    //campo.Cells["H1"].Value = "Calle y Cruzamientos";
+                    //campo.Cells["I1"].Value = "Número Exterior";
+                    //campo.Cells["J1"].Value = "Número Interior";
+                    campo.Cells["F1"].Value = "C.P.";
+                    //campo.Cells["L1"].Value = "Colonia";
+                    //campo.Cells["M1"].Value = "Alcaldía/Municipio";
+                    //campo.Cells["N1"].Value = "Estado";
+                    //campo.Cells["O1"].Value = "País";
+                    //campo.Cells["P1"].Value = "Domicilio Comercial";
+                    //campo.Cells["Q1"].Value = "Email";
+                    //campo.Cells["R1"].Value = "Teléfono";
+                    //campo.Cells["S1"].Value = "Fecha Creación";
+                    //campo.Cells["T1"].Value = "RFC Cuenta";
+
+                    campo.Cells[campo.Dimension.Address].AutoFitColumns();
+                    byte[] bin = pck.GetAsByteArray();
+                    return File(bin, "application/vnd.ms-excel", "ListaClientesPlantilla.xlsx");
+                }
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                throw;
             }
         }
 
         [HttpPost, AllowAnonymous, FileDownload]
         public FileResult ExportListCustomer(string filtros)
         {
-            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
+                var userAuth = Authenticator.AuthenticatedUser;
                 NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
                 string rfc = filtersValues.Get("RFC").Trim();
                 string businessName = filtersValues.Get("BusinessName").Trim();
@@ -753,17 +675,6 @@ namespace MVC_Project.WebBackend.Controllers
                         rowIndex++;
                     }
 
-                    LogUtil.AddEntry(
-                      "Descarga de clientes filtros: " + filtros,
-                      ENivelLog.Info,
-                      userAuth.Id,
-                      userAuth.Email,
-                      EOperacionLog.ACCESS,
-                      string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                      ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                      string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                   );
-
                     campo.Cells[campo.Dimension.Address].AutoFitColumns();
                     byte[] bin = pck.GetAsByteArray();
                     return File(bin, "application/vnd.ms-excel", "ListaClientes_(" + DateTime.Now.ToString("G") + ").xlsx");
@@ -771,16 +682,6 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                LogUtil.AddEntry(
-                   "Se encontro un error: " + ex.Message.ToString(),
-                   ENivelLog.Error,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 throw;
             }
@@ -828,45 +729,46 @@ namespace MVC_Project.WebBackend.Controllers
                             {
                                 try
                                 {
-                                    if (!tabla.Rows[i].IsNull(1)
+                                    if (!tabla.Rows[i].IsNull(0)
+                                        || !tabla.Rows[i].IsNull(1)
                                         || !tabla.Rows[i].IsNull(2)
                                         || !tabla.Rows[i].IsNull(3)
-                                        || !tabla.Rows[i].IsNull(5)
-                                        || !tabla.Rows[i].IsNull(10))
+                                        || !tabla.Rows[i].IsNull(4)
+                                        || !tabla.Rows[i].IsNull(5))
                                     {
                                         //Validar
                                         string taxRegime = string.Empty;
-                                        if (!tabla.Rows[i].IsNull(6) && tabla.Rows[i].ItemArray[6].ToString() != "")
+                                        if (!tabla.Rows[i].IsNull(4) && tabla.Rows[i].ItemArray[4].ToString() != "")
                                         {
-                                            var taxRegimeEnum = EnumUtils.GetValueFromDescription<TypeTaxRegimen>(tabla.Rows[i].ItemArray[6].ToString());//funciona cuando obtenemos la descripción
+                                            var taxRegimeEnum = EnumUtils.GetValueFromDescription<TypeTaxRegimen>(tabla.Rows[i].ItemArray[4].ToString());//funciona cuando obtenemos la descripción
                                             taxRegime = taxRegimeEnum.ToString();
                                         }
 
-                                        bool deliveryAddress = false;
-                                        if (!tabla.Rows[i].IsNull(15) && tabla.Rows[i].ItemArray[15].ToString() != "")
-                                        {
-                                            deliveryAddress = Convert.ToBoolean(tabla.Rows[i].ItemArray[15].ToString());
-                                        }
+                                        //bool deliveryAddress = false;
+                                        //if (!tabla.Rows[i].IsNull(15) && tabla.Rows[i].ItemArray[15].ToString() != "")
+                                        //{
+                                        //    deliveryAddress = Convert.ToBoolean(tabla.Rows[i].ItemArray[15].ToString());
+                                        //}
 
                                         ExportListCustomer customers = new ExportListCustomer
                                         {
-                                            first_name = tabla.Rows[i].ItemArray[1].ToString(),
-                                            last_name = tabla.Rows[i].ItemArray[2].ToString(),
-                                            rfc = tabla.Rows[i].ItemArray[3].ToString(),
-                                            curp = tabla.Rows[i].ItemArray[4].ToString(),
-                                            businessName = tabla.Rows[i].ItemArray[5].ToString(),
+                                            first_name = tabla.Rows[i].ItemArray[0].ToString(),
+                                            last_name = tabla.Rows[i].ItemArray[1].ToString(),
+                                            rfc = tabla.Rows[i].ItemArray[2].ToString(),
+                                            //curp = tabla.Rows[i].ItemArray[4].ToString(),
+                                            businessName = tabla.Rows[i].ItemArray[3].ToString(),
                                             taxRegime = taxRegime,
-                                            street = tabla.Rows[i].ItemArray[7].ToString(),
-                                            interiorNumber = tabla.Rows[i].ItemArray[8].ToString(),
-                                            outdoorNumber = tabla.Rows[i].ItemArray[9].ToString(),
-                                            zipCode = tabla.Rows[i].ItemArray[10].ToString(),
-                                            nameSettlement = tabla.Rows[i].ItemArray[11].ToString(),
-                                            nameMunicipality = tabla.Rows[i].ItemArray[12].ToString(),
-                                            nameState = tabla.Rows[i].ItemArray[13].ToString(),
-                                            nameCountry = tabla.Rows[i].ItemArray[14].ToString(),
-                                            deliveryAddress = deliveryAddress,
-                                            email = tabla.Rows[i].ItemArray[16].ToString(),
-                                            phone = tabla.Rows[i].ItemArray[17].ToString(),
+                                            //street = tabla.Rows[i].ItemArray[7].ToString(),
+                                            //interiorNumber = tabla.Rows[i].ItemArray[8].ToString(),
+                                            //outdoorNumber = tabla.Rows[i].ItemArray[9].ToString(),
+                                            zipCode = tabla.Rows[i].ItemArray[5].ToString(),
+                                            //nameSettlement = tabla.Rows[i].ItemArray[11].ToString(),
+                                            //nameMunicipality = tabla.Rows[i].ItemArray[12].ToString(),
+                                            //nameState = tabla.Rows[i].ItemArray[13].ToString(),
+                                            //nameCountry = tabla.Rows[i].ItemArray[14].ToString(),
+                                            //deliveryAddress = deliveryAddress,
+                                            //email = tabla.Rows[i].ItemArray[16].ToString(),
+                                            //phone = tabla.Rows[i].ItemArray[17].ToString(),
                                             createdAt = todayDate,
                                             modifiedAt = todayDate,
                                             status = SystemStatus.ACTIVE.ToString(),
@@ -888,26 +790,26 @@ namespace MVC_Project.WebBackend.Controllers
 
                                 try
                                 {
-                                    if (encabezado[0].ToString() != "No.") throw new Exception("Título de columna inválida");
-                                    if (encabezado[1].ToString() != "Nombre(s)") throw new Exception("Título de columna inválida");
-                                    if (encabezado[2].ToString() != "Apellido(s)") throw new Exception("Título de columna inválida");
-                                    if (encabezado[3].ToString() != "RFC") throw new Exception("Título de columna inválida");
-                                    if (encabezado[4].ToString() != "CURP") throw new Exception("Título de columna inválida");
-                                    if (encabezado[5].ToString() != "Nombre/Razón Social") throw new Exception("Título de columna inválida");
-                                    if (encabezado[6].ToString() != "Tipo Régimen Fiscal") throw new Exception("Título de columna inválida");
-                                    if (encabezado[7].ToString() != "Calle y Cruzamientos") throw new Exception("Título de columna inválida");
-                                    if (encabezado[8].ToString() != "Número Exterior") throw new Exception("Título de columna inválida");
-                                    if (encabezado[9].ToString() != "Número Interior") throw new Exception("Título de columna inválida");
-                                    if (encabezado[10].ToString() != "C.P.") throw new Exception("Título de columna inválida");
-                                    if (encabezado[11].ToString() != "Colonia") throw new Exception("Título de columna inválida");
-                                    if (encabezado[12].ToString() != "Alcaldía/Municipio") throw new Exception("Título de columna inválida");
-                                    if (encabezado[13].ToString() != "Estado") throw new Exception("Título de columna inválida");
-                                    if (encabezado[14].ToString() != "País") throw new Exception("Título de columna inválida");
-                                    if (encabezado[15].ToString() != "Domicilio Comercial") throw new Exception("Título de columna inválida");
-                                    if (encabezado[16].ToString() != "Email") throw new Exception("Título de columna inválida");
-                                    if (encabezado[17].ToString() != "Teléfono") throw new Exception("Título de columna inválida");
-                                    if (encabezado[18].ToString() != "Fecha Creación") throw new Exception("Título de columna inválida");
-                                    if (encabezado[19].ToString() != "RFC Cuenta") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[0].ToString() != "No.") throw new Exception("Título de columna inválida");
+                                    if (encabezado[0].ToString() != "Nombre(s)") throw new Exception("Título de columna inválida");
+                                    if (encabezado[1].ToString() != "Apellido(s)") throw new Exception("Título de columna inválida");
+                                    if (encabezado[2].ToString() != "RFC") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[4].ToString() != "CURP") throw new Exception("Título de columna inválida");
+                                    if (encabezado[3].ToString() != "Nombre/Razón Social") throw new Exception("Título de columna inválida");
+                                    if (encabezado[4].ToString() != "Tipo Régimen Fiscal") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[7].ToString() != "Calle y Cruzamientos") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[8].ToString() != "Número Exterior") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[9].ToString() != "Número Interior") throw new Exception("Título de columna inválida");
+                                    if (encabezado[5].ToString() != "C.P.") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[11].ToString() != "Colonia") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[12].ToString() != "Alcaldía/Municipio") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[13].ToString() != "Estado") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[14].ToString() != "País") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[15].ToString() != "Domicilio Comercial") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[16].ToString() != "Email") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[17].ToString() != "Teléfono") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[18].ToString() != "Fecha Creación") throw new Exception("Título de columna inválida");
+                                    //if (encabezado[19].ToString() != "RFC Cuenta") throw new Exception("Título de columna inválida");
                                 }
                                 catch (Exception Error)
                                 {
@@ -981,59 +883,48 @@ namespace MVC_Project.WebBackend.Controllers
                         firstName = x.first_name,
                         lastName = x.last_name,
                         rfc = x.rfc,
-                        curp = x.curp,
+                        //curp = x.curp,
                         businessName = x.businessName,
-                        street = x.street,
-                        interiorNumber = x.interiorNumber,
-                        outdoorNumber = x.outdoorNumber,
+                        //street = x.street,
+                        //interiorNumber = x.interiorNumber,
+                        //outdoorNumber = x.outdoorNumber,
                         zipCode = x.zipCode,
                         createdAt = todayDate,
                         modifiedAt = todayDate,
                         status = SystemStatus.ACTIVE.ToString(),
-                        deliveryAddress = x.deliveryAddress,
-                        customerContacts = new List<CustomerContact>
-                        {
-                            x.email != ""? new CustomerContact
-                            {
-                                emailOrPhone = x.email,
-                                typeContact = TypeContact.EMAIL.ToString(),
-                                createdAt = todayDate,
-                                modifiedAt = todayDate,
-                                status = SystemStatus.ACTIVE.ToString()
-                            }: null,
-                            x.phone != ""? new CustomerContact
-                            {
-                                emailOrPhone = x.phone,
-                                typeContact = TypeContact.PHONE.ToString(),
-                                createdAt = todayDate,
-                                modifiedAt = todayDate,
-                                status = SystemStatus.ACTIVE.ToString()
-                            }: null
-                        }
+                        //deliveryAddress = x.deliveryAddress,
+                        //customerContacts = new List<CustomerContact>
+                        //{
+                        //    x.email != ""? new CustomerContact
+                        //    {
+                        //        emailOrPhone = x.email,
+                        //        typeContact = TypeContact.EMAIL.ToString(),
+                        //        createdAt = todayDate,
+                        //        modifiedAt = todayDate,
+                        //        status = SystemStatus.ACTIVE.ToString()
+                        //    }: null,
+                        //    x.phone != ""? new CustomerContact
+                        //    {
+                        //        emailOrPhone = x.phone,
+                        //        typeContact = TypeContact.PHONE.ToString(),
+                        //        createdAt = todayDate,
+                        //        modifiedAt = todayDate,
+                        //        status = SystemStatus.ACTIVE.ToString()
+                        //    }: null
+                        //}
                     }).ToList();
 
-                    clientes = clientes.Select(x =>
-                    {
-                        x.customerContacts = x.customerContacts.Where(b => b != null)
-                        .Select(b => { b.customer = x; return b; }).ToList();
-                        return x;
-                    }).ToList();
+                    //clientes = clientes.Select(x =>
+                    //{
+                    //    x.customerContacts = x.customerContacts.Where(b => b != null)
+                    //    .Select(b => { b.customer = x; return b; }).ToList();
+                    //    return x;
+                    //}).ToList();
 
                     if (clientes.Count() > 0)
                     {
                         _customerService.Create(clientes);
                         //LogHub de bitacora
-                        LogUtil.AddEntry(
-                          "Carga de archivo excel de clientes ¡" + clientes.Count() + " Registros guardados exitosamente!",
-                          ENivelLog.Info,
-                          authUser.Id,
-                          authUser.Email,
-                          EOperacionLog.ACCESS,
-                          string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                          ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                          string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                       );
-
                         return Json(new
                         {
                             Success = true,
@@ -1043,29 +934,8 @@ namespace MVC_Project.WebBackend.Controllers
                         }, JsonRequestBehavior.AllowGet);
                     }
 
-                    LogUtil.AddEntry(
-                       "¡Intentelo nuevamente!",
-                       ENivelLog.Error,
-                       authUser.Id,
-                       authUser.Email,
-                       EOperacionLog.ACCESS,
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                    );
                     return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente!", Tipo = 0 }, JsonRequestBehavior.AllowGet);
                 }
-
-                LogUtil.AddEntry(
-                   "¡Intentelo nuevamente! Archivo no válido",
-                   ENivelLog.Error,
-                   authUser.Id,
-                   authUser.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                );
 
                 return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente! Archivo no válido", Tipo = 0 }, JsonRequestBehavior.AllowGet);
             }
@@ -1083,6 +953,297 @@ namespace MVC_Project.WebBackend.Controllers
                 );
                 return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente! " + Error.Message.ToString(), Tipo = 0, Error = Error.Message.ToString() }, JsonRequestBehavior.AllowGet);
             }
+        }
+
+        [AllowAnonymous]
+        public ActionResult InvoicesIssued()
+        {
+            ViewBag.Date = new
+            {
+                MinDate = DateTime.Now.AddDays(-10).ToString("dd-MM-yyyy"),
+                MaxDate = DateTime.Now.ToString("dd-MM-yyyy")
+            };
+            try
+            {
+                InvoicesFilter model = new InvoicesFilter();
+                var initial = new SelectListItem() { Text = "Todos...", Value = "-1" };
+
+                var currencyList = _currencyService.GetAll().Select(x => new SelectListItem() { Text = x.code, Value = x.code }).ToList();
+                var parmentFormList = _paymentFormService.GetAll().Select(x => new SelectListItem() { Text = x.code + "-" + x.Description, Value = x.code }).ToList();
+                var parmentMethodList = _paymentMethodService.GetAll().Select(x => new SelectListItem() { Text = x.code, Value = x.code }).ToList();
+
+                currencyList.Insert(0, (initial));
+                parmentFormList.Insert(0, (initial));
+                parmentMethodList.Insert(0, (initial));
+
+                model.ListCurrency = new SelectList(currencyList);
+                model.ListPaymentForm = new SelectList(parmentFormList);
+                model.ListPaymentMethod = new SelectList(parmentMethodList);
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetInvoices(JQueryDataTableParams param, string filtros, bool first)
+        {
+            int totalDisplay = 0;
+            int total = 0;
+            string error = string.Empty;
+            bool success = true;
+            var userAuth = Authenticator.AuthenticatedUser;
+            var listResponse = new List<InvoicesIssuedList>();
+            var list = new List<InvoicesIssuedListVM>();
+
+            try
+            {
+                if (!first)
+                {
+                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
+                    string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
+                    string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
+                    string Folio = filtersValues.Get("Folio").Trim();
+                    string rfc = filtersValues.Get("RFC").Trim();
+                    string PaymentMethod = filtersValues.Get("PaymentMethod").Trim();
+                    string PaymentForm = filtersValues.Get("PaymentForm").Trim();
+                    string Currency = filtersValues.Get("Currency").Trim();
+
+                    var pagination = new BasePagination();
+                    var filters = new CustomerCFDIFilter() { accountId = userAuth.Account.Id };
+                    pagination.PageSize = param.iDisplayLength;
+                    pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
+                    if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
+                    if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
+                    if (Folio != "") filters.folio = Folio;
+                    if (rfc != "") filters.rfc = rfc;
+                    if (PaymentForm != "-1") filters.paymentForm = PaymentForm;
+                    if (PaymentMethod != "-1") filters.paymentMethod = PaymentMethod;
+                    if (Currency != "-1") filters.currency = Currency;
+
+                    listResponse = _customerService.CustomerCDFIList(pagination, filters);
+
+                    list = listResponse.Select(x => new InvoicesIssuedListVM
+                    {
+                        id = x.id,
+                        folio = x.folio,
+                        serie = x.serie,
+                        paymentMethod = x.paymentMethod,
+                        paymentForm = x.paymentForm,
+                        currency = x.currency,
+                        amount = x.amount.ToString("C2"),
+                        iva = x.iva.ToString("C2"),
+                        totalAmount = x.totalAmount.ToString("C2"),
+                        invoicedAt = x.invoicedAt.ToShortDateString(),
+                        rfc = x.rfc,
+                        businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
+                        //first_name = x.first_name,
+                        //last_name = x.last_name,
+                        paymentFormDescription = x.paymentFormDescription
+                    }).ToList();
+
+                    //Corroborar los campos iTotalRecords y iTotalDisplayRecords
+
+                    if (listResponse.Count() > 0)
+                    {
+                        totalDisplay = listResponse[0].Total;
+                        total = listResponse.Count();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                success = false;
+                error = ex.Message.ToString();
+            }
+
+            return Json(new
+            {
+                success = success,
+                error = error,
+                sEcho = param.sEcho,
+                iTotalRecords = total,
+                iTotalDisplayRecords = totalDisplay,
+                aaData = list
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, AllowAnonymous]
+        public ActionResult GetDownloadPDF(Int64 id)
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+
+            try
+            {
+                var invoice = _invoiceIssuedService.FirstOrDefault(x => x.id == id);
+
+                if (invoice == null)
+                    throw new Exception("No se encontro la factura emitida");
+
+                if (invoice.xml == null)
+                    throw new Exception("El registro no cuenta con el xml de la factura emitida");
+
+                //Factura
+                XmlDocument doc = new XmlDocument();
+                InvoicesVM cfdi = new InvoicesVM();
+                doc.LoadXml(invoice.xml);//Leer el XML
+                string pdf = string.Empty;
+
+                //agregamos un Namespace, que usaremos para buscar que el nodo no exista:
+                XmlNamespaceManager nsm = new XmlNamespaceManager(doc.NameTable);
+                nsm.AddNamespace("cfdi", "http://www.sat.gob.mx/cfd/3");
+
+                //Accedemos a nodo "Comprobante"
+                XmlNode nodeComprobante = doc.SelectSingleNode("//cfdi:Comprobante", nsm);
+
+                //Obtener Folio, Serie, SubTotal y Total
+                 cfdi.Folio = nodeComprobante.Attributes["Folio"].Value;
+                 cfdi.Serie = nodeComprobante.Attributes["Serie"].Value;
+                 cfdi.SubTotal = nodeComprobante.Attributes["SubTotal"].Value;
+                 cfdi.Total = nodeComprobante.Attributes["Total"].Value;
+                //pdf = String.Format("Serie: {0}, Folio: {1}, SubTotal: {2}, Total: {3}", varSerie, varFolio, varSubTotal, varTotal);
+                //pdf += "<br />";
+
+                
+
+                //Obtener impuestos
+                XmlNode nodeImpuestos = nodeComprobante.SelectSingleNode("cfdi:Impuestos", nsm);
+                if (nodeImpuestos != null)
+                {
+                    //Obtenemos TotalImpuestosRetenidos y TotalImpuestosTrasladados
+                    string varTotalImpuestosRetenidos = nodeImpuestos.Attributes["TotalImpuestosRetenidos"] != null ? nodeImpuestos.Attributes["TotalImpuestosRetenidos"].Value : "";
+                    string varTotalImpuestosTrasladados = nodeImpuestos.Attributes["TotalImpuestosTrasladados"] != null ? nodeImpuestos.Attributes["TotalImpuestosTrasladados"].Value : "";
+                    //Obtener impuestos retenidos
+                    pdf += "Retenciones: <br />";
+                    XmlNode nodeImpuestosRetenciones = nodeImpuestos.SelectSingleNode("cfdi:Retenciones", nsm);
+                    if (nodeImpuestosRetenciones != null)
+                    {
+                        foreach (XmlNode node in nodeImpuestosRetenciones.SelectNodes("cfdi:Retencion", nsm))
+                        {
+                            pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
+                                                            node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : "",
+                                                            node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : "");
+                        }
+                    }
+
+                    //Obtener impuestos trasladados
+                    pdf += "Traslados: <br />";
+                    XmlNode nodeImpuestosTraslados = nodeImpuestos.SelectSingleNode("cfdi:Traslados", nsm);
+                    foreach (XmlNode node in nodeImpuestosTraslados.SelectNodes("cfdi:Traslado", nsm))
+                    {
+                        pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
+                                                        node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : "",
+                                                        node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : "");
+                    }
+
+                }
+
+                InvoicesIssuedListVM pdfModel = new InvoicesIssuedListVM();
+                pdfModel.xml = pdf;
+
+                LogUtil.AddEntry(
+                       "Se descarga el Dx0 del cliente",
+                       ENivelLog.Info,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
+
+                MensajeFlashHandler.RegistrarMensaje("Descargando...", TiposMensaje.Success);
+                string rfc = authUser.Account.RFC;
+                //PageSize = Rotativa.Options.Size.Letter, 
+                //return View(model);
+                return new Rotativa.ViewAsPdf("InvoiceDownloadPDF", pdfModel) { FileName = invoice.folio + invoice.serie + "_" + invoice.invoicedAt + ".pdf" };
+            }
+            catch (Exception ex)
+            {
+                //LogUtil.AddEntry(
+                //       "Error al descargar el diagnostico: " + ex.Message.ToString(),
+                //       ENivelLog.Error,
+                //       authUser.Id,
+                //       authUser.Email,
+                //       EOperacionLog.ACCESS,
+                //       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                //       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                //       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                //    );
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return View("GetInvoices");
+            }
+
+        }
+
+        [HttpGet, AllowAnonymous]
+        public void GetDownloadXML(Int64 id)
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+
+            try
+            {
+                var invoice = _invoiceIssuedService.FirstOrDefault(x => x.id == id);
+
+                if (invoice == null)
+                    throw new Exception("No se encontro la factura emitida");
+
+                LogUtil.AddEntry(
+                       "Descarga del xml de la cuenta " + invoice.account.id,
+                       ENivelLog.Info,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
+
+                Response.ContentType = "application/xml";
+                Response.AddHeader("Content-Disposition", "attachment;filename=Customers.xml");
+                Response.Write(invoice.xml);
+                Response.End();
+            }
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(
+                       "Error al descargar el xml: " + ex.Message.ToString(),
+                       ENivelLog.Error,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+            }
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetAutoComplite()
+        {
+            List<string> list = new List<string>();
+            try
+            {
+                var authUser = Authenticator.AuthenticatedUser;
+                var listRFC = _customerService.ListCustomerAutoComplete(authUser.Account.Id);
+                list = listRFC.Select(x => x.rfc).ToList();
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message.ToString();
+            }
+
+            return Json(new
+            {
+                Data = list,
+            }, JsonRequestBehavior.AllowGet);
         }
     }
 }

@@ -365,7 +365,7 @@ namespace MVC_Project.WebBackend.Controllers
                             _credentialService.Update(credential);
 
                             LogUtil.AddEntry(
-                               "Se actualizo el estatus del sat: "+ JsonConvert.SerializeObject(credential),
+                               "Se actualizo el estatus del sat credentialId: "+ credential.id,
                                ENivelLog.Info,
                                authUser.Id,
                                authUser.Email,

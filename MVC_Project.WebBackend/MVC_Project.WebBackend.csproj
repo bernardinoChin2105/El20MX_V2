@@ -257,12 +257,10 @@
     <Compile Include="Controllers\BankController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\CalendarController.cs" />
-    <Compile Include="Controllers\CheckoutController.cs" />
     <Compile Include="Controllers\DiagnosticController.cs" />
     <Compile Include="Controllers\DocumentsController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\PaymentsController.cs" />
     <Compile Include="Controllers\ProviderController.cs" />
     <Compile Include="Controllers\RegisterController.cs" />
     <Compile Include="Controllers\RoleController.cs" />
@@ -280,6 +278,7 @@
     <Compile Include="Models\AuthViewModel.cs" />
     <Compile Include="Models\BankViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
+    <Compile Include="Models\InvoicesVM.cs" />
     <Compile Include="Models\ProviderViewModel.cs" />
     <Compile Include="Models\CustomerViewModel.cs" />
     <Compile Include="Models\DataTableModel.cs" />
@@ -1803,10 +1802,12 @@
     <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
     <Content Include="Scripts\views\Auth\Index.js" />
+    <Content Include="Scripts\views\Customer\CustomerInvoices.js" />
     <Content Include="Scripts\views\Bank\BankTransaction.js" />
     <Content Include="Scripts\views\Bank\BankAccount.js" />
     <Content Include="Scripts\views\Bank\Index.js" />
     <Content Include="Scripts\views\Provider\Create.js" />
+    <Content Include="Scripts\views\Provider\ProviderInvoices.js" />
     <Content Include="Scripts\views\Provider\Edit.js" />
     <Content Include="Scripts\views\Provider\Index.js" />
     <Content Include="Scripts\views\Customer\Edit.js" />
@@ -1930,6 +1931,10 @@
     <Content Include="Views\Bank\Index.cshtml" />
     <Content Include="Views\Bank\BanksAccount.cshtml" />
     <Content Include="Views\Bank\BankTransaction.cshtml" />
+    <Content Include="Views\Customer\InvoicesIssued.cshtml" />
+    <Content Include="Views\Provider\InvoicesReceived.cshtml" />
+    <Content Include="Views\Provider\InvoiceDownloadPDF.cshtml" />
+    <Content Include="Views\Customer\InvoiceDownloadPDF.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
@@ -1967,6 +1972,7 @@
   <ItemGroup>
     <Folder Include="Content\img\gallery\" />
     <Folder Include="Content\img\landing\" />
+    <Folder Include="Views\Invoices\" />
     <Folder Include="Views\Webhooks\" />
     <Folder Include="Views\Webhook\" />
   </ItemGroup>

@@ -18,6 +18,8 @@
             //Si pasa la validación entonces es un             
             if (value.length === 12 && str.match(/^([A-ZÑ&]{3})[0-9]$/g) !== null) {
                 $(".businessName").removeClass("hidden");
+                $(".FistName").html("Nombre(s) Contacto");
+                $(".LastName").html("Apellido(s) Contacto");
                 taxRegime.val("MORALPERSONSREGIME");
                 FistName.rules("add", {
                     required: false,
@@ -39,6 +41,8 @@
                 });
             } else {
                 $(".businessName").addClass("hidden");
+                $(".FistName").html("Nombre(s)");
+                $(".LastName").html("Apellido(s)");
                 taxRegime.val("NATURALPERSONSREGIME");
                 FistName.rules("add", {
                     required: true,

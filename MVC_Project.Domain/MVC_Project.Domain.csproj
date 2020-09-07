@@ -55,9 +55,12 @@
     <Compile Include="Entities\BankAccount.cs" />
     <Compile Include="Entities\BankCredential.cs" />
     <Compile Include="Entities\BankTransaction.cs" />
+    <Compile Include="Entities\Currency.cs" />
     <Compile Include="Entities\Credential.cs" />
-    <Compile Include="Entities\InvoiceIssued.cs" />
     <Compile Include="Entities\InvoiceReceived.cs" />
+    <Compile Include="Entities\InvoiceIssued.cs" />
+    <Compile Include="Entities\PaymentForm.cs" />
+    <Compile Include="Entities\PaymentMethod.cs" />
     <Compile Include="Entities\Provider.cs" />
     <Compile Include="Entities\ProviderContact.cs" />
     <Compile Include="Entities\CustomerContact.cs" />
@@ -90,6 +93,7 @@
     <Compile Include="Entities\State.cs" />
     <Compile Include="Entities\Store.cs" />
     <Compile Include="Entities\DiagnosticTaxStatus.cs" />
+    <Compile Include="Entities\TypeVoucher.cs" />
     <Compile Include="Entities\User.cs" />
     <Compile Include="Entities\Webhook.cs" />
     <Compile Include="Helpers\IUnitOfWork.cs" />
@@ -107,6 +111,11 @@
     <Compile Include="Services\BankService.cs" />
     <Compile Include="Services\CredentialService.cs" />
     <Compile Include="Services\CustomerContactService.cs" />
+    <Compile Include="Services\InvoiceIssuedService.cs" />
+    <Compile Include="Services\InvoiceReceivedService.cs" />
+    <Compile Include="Services\CurrencyService.cs" />
+    <Compile Include="Services\PaymentFormService.cs" />
+    <Compile Include="Services\TypeVoucherService.cs" />
     <Compile Include="Services\ProviderService.cs" />
     <Compile Include="Services\CustomerService.cs" />
     <Compile Include="Services\DiagnosticDetailService.cs" />
@@ -128,6 +137,7 @@
     <Compile Include="Services\IService.cs" />
     <Compile Include="Services\RoleService.cs" />
     <Compile Include="Services\SocialNetworkLoginServices.cs" />
+    <Compile Include="Services\PaymentMethodService.cs" />
     <Compile Include="Services\StateService.cs" />
     <Compile Include="Services\UserService.cs" />
     <Compile Include="Services\WebhookService.cs" />

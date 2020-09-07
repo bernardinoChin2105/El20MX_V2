@@ -102,30 +102,39 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <h4>El excel debe contener los siguientes columnas</h4>
-                            <ul>
-                                <li>No. (Celda sin contenido)</li>
-                                <li>Nombre(s) (*Obligatorio)</li>
-                                <li>Apellido(s) (*Obligatorio)</li>
-                                <li>RFC (*Obligatorio)</li>
-                                <li>CURP</li>
-                                <li>Nombre/Razón Social (*Obligatorio)</li>
-                                <li>Tipo Régimen Fiscal ("Persona Física" o "Persona Moral")</li>
-                                <li>Calle y Cruzamientos</li>
-                                <li>Número Exterior</li>
-                                <li>Número Interior</li>
-                                <li>C.P. (*Obligatorio)</li>
-                                <li>Colonia</li>
-                                <li>Alcaldía/Municipio</li>
-                                <li>Estado</li>
-                                <li>Domicilio Comercial </li>
-                                <li>Email</li>
-                                <li>Teléfono</li>
-                                <li>Fecha Creación (Celda sin contenido)</li>
-                                <li>RFC Cuenta (Celda sin contenido)</li>
-                            </ul>
-                            <br />
-
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h4>El excel debe contener los siguientes columnas</h4>
+                                    <ul>
+                                        @*<li>No. (Celda sin contenido)</li>*@
+                                        <li>Nombre(s) (*Obligatorio)</li>
+                                        <li>Apellido(s) (*Obligatorio)</li>
+                                        <li>RFC (*Obligatorio)</li>
+                                        @*<li>CURP</li>*@
+                                        <li>Nombre/Razón Social (*Obligatorio)</li>
+                                        <li>Tipo Régimen Fiscal ("Persona Física" o "Persona Moral")</li>
+                                        @*<li>Calle y Cruzamientos</li>
+                                            <li>Número Exterior</li>
+                                            <li>Número Interior</li>*@
+                                        <li>C.P. (*Obligatorio)</li>
+                                        @*<li>Colonia</li>
+                                            <li>Alcaldía/Municipio</li>
+                                            <li>Estado</li>
+                                            <li>Domicilio Comercial </li>
+                                            <li>Email</li>
+                                            <li>Teléfono</li>
+                                            <li>Fecha Creación (Celda sin contenido)</li>
+                                            <li>RFC Cuenta (Celda sin contenido)</li>*@
+                                    </ul>
+                                    <br />
+                                </div>
+                                <div class="col-md-4">
+                                    @if (hasFullAccessController)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-color btn-export-template"><span class="fas fa-download"></span> Exportar</button>
+                                    }
+                                </div>
+                            </div>
                             @using (Html.BeginForm("ImportExcelCustomer", "Customer", FormMethod.Post, new { @id = "postImportar" }))
                             {
                                 <div class="row">
@@ -165,6 +174,7 @@
                 '@Url.Action("Edit")',
                 '@Url.Action("ExportListCustomer")',
                 '@Url.Action("CustomerUpload")',
+                '@Url.Action("ExportTemplate")',
                 '@hasFullAccessController' == 'True'
             );
             customer.init();

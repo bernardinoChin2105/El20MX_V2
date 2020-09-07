@@ -90,8 +90,12 @@
     <Compile Include="Mappings\BankMap.cs" />
     <Compile Include="Mappings\BankTransactionMap.cs" />
     <Compile Include="Mappings\CredentialMap.cs" />
-    <Compile Include="Mappings\InvoiceIssuedMap.cs" />
     <Compile Include="Mappings\InvoiceReceivedMap.cs" />
+    <Compile Include="Mappings\InvoiceIssuedMap.cs" />
+    <Compile Include="Mappings\TypeVoucherMap.cs" />
+    <Compile Include="Mappings\CurrencyMap.cs" />
+    <Compile Include="Mappings\PaymentFormMap.cs" />
+    <Compile Include="Mappings\PaymentMethodMap.cs" />
     <Compile Include="Mappings\ProviderContactMap.cs" />
     <Compile Include="Mappings\CustomerContactMap.cs" />
     <Compile Include="Mappings\ProviderMap.cs" />

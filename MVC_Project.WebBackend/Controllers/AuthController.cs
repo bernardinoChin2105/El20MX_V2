@@ -349,18 +349,7 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception("El token ha expirado");
 
                 ResetPassword model = new ResetPassword();
-                model.Uuid = user.uuid;
-
-                LogUtil.AddEntry(
-                      "Se accedio al token: " + JsonConvert.SerializeObject(model),
-                       ENivelLog.Info,
-                       0,
-                       "",
-                       EOperacionLog.ACCESS,
-                       string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
-                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                       string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
-                    );
+                model.Uuid = user.uuid;               
 
                 return View("ResetPassword", model);
 
@@ -391,19 +380,7 @@ namespace MVC_Project.WebBackend.Controllers
             //    return RedirectToAction("Login", "Auth");
             //}
             ChangePasswordViewModel model = new ChangePasswordViewModel();
-            model.Uuid = userUuid;
-
-            LogUtil.AddEntry(
-                  JsonConvert.SerializeObject(model),
-                   ENivelLog.Info,
-                   0,
-                   "",
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
-                );
-
+            model.Uuid = userUuid;            
             return View("ChangePassword", model);
         }
 
@@ -663,7 +640,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                Error = ex.Message;
+                Error = ex.Message.ToString();
                 LogUtil.AddEntry(
                    Error,
                    ENivelLog.Error,
