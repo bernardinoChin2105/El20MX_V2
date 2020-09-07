@@ -156,3 +156,26 @@
     background-color: #53D5E9;
     outline: 0;
 }
+.onoffswitch {
+    width: 70px;
+}
+
+.onoffswitch-switch {
+    right: 80%;
+}
+
+.onoffswitch-inner:after {
+    content: "Inactiva";
+}
+.onoffswitch-inner:before {
+    content: "Activa";
+}
+
+.svg-inline--fa.red {
+    color: red;
+    font-size: 2em;
+}
+.svg-inline--fa.green {
+    color: green;
+    font-size: 2em;
+}

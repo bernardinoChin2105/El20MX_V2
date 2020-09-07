@@ -19,6 +19,12 @@ namespace MVC_Project.Integrations.Paybook
 
             try
             {
+                //var client = new RestClient("https://https://api.syncfy.com/v1/credentials");
+                //client.Timeout = -1;
+                //var request = new RestRequest(Method.GET);
+                //IRestResponse response = client.Execute(request);
+                //Console.WriteLine(response.Content);
+
                 Method met = (Method)Enum.Parse(typeof(Method), method, true); ;
                 var client = new RestClient();
                 client.Timeout = -1;
@@ -29,6 +35,7 @@ namespace MVC_Project.Integrations.Paybook
                 // This looks correct assuming you are putting your actual x-api-key here
                 if (token != null)
                 {
+                    //client.AddHandler("Authorization", "Bearer " + token);
                     request.AddHeader("Authorization", "Bearer " + token);
                 }
                 if (apiKeyBool)

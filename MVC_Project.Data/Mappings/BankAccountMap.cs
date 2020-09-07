@@ -32,6 +32,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.status).Column("status").Nullable();
 
             References(x => x.bankCredential).Column("bankCredentialId").Nullable();
+            HasMany(x => x.bankTransaction).Inverse().Cascade.All().KeyColumn("bankAccountId");
         }
     }
 }

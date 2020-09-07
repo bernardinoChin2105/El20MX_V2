@@ -95,6 +95,7 @@
     <Compile Include="Entities\DiagnosticTaxStatus.cs" />
     <Compile Include="Entities\TypeVoucher.cs" />
     <Compile Include="Entities\User.cs" />
+    <Compile Include="Entities\Webhook.cs" />
     <Compile Include="Helpers\IUnitOfWork.cs" />
     <Compile Include="Model\BanksViewModel.cs" />
     <Compile Include="Model\BasePagination.cs" />
@@ -139,6 +140,7 @@
     <Compile Include="Services\PaymentMethodService.cs" />
     <Compile Include="Services\StateService.cs" />
     <Compile Include="Services\UserService.cs" />
+    <Compile Include="Services\WebhookService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="NHibernate.dll" />
