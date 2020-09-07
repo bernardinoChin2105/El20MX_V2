@@ -30,7 +30,7 @@ namespace MVC_Project.Integrations.Paybook
         public string id_site_organization { get; set; }
         public string id_site_organization_type { get; set; }
         public string id_organization { get; set; }
-        public int is_authorized { get; set; }
+        public int? is_authorized { get; set; }
         public int is_locked { get; set; }
         public int is_twofa { get; set; }
         public int can_sync { get; set; }
@@ -64,7 +64,7 @@ namespace MVC_Project.Integrations.Paybook
         public SitePaybook site { get; set; }
         public ExtraAccountPaybook extra { get; set; }
         public List<string> keywords { get; set; }
-        public string dt_refresh { get; set; }
+        public long dt_refresh { get; set; }
     }
 
     public class SitePaybook
@@ -105,21 +105,21 @@ namespace MVC_Project.Integrations.Paybook
         public int is_disable { get; set; }
         public int is_pending { get; set; }
         public string description { get; set; }
-        public Double amount { get; set; }
+        public decimal amount { get; set; }
         public string currency { get; set; }
         public List<string> attachments { get; set; }
         public ExtraTransactionPaybook extra { get; set; }
         public string reference { get; set; }
         public List<string> keywords { get; set; }
-        public int dt_transaction { get; set; }
-        public int dt_refresh { get; set; }
-        public int dt_disable { get; set; }
-        public int dt_deleted { get; set; }
+        public long dt_transaction { get; set; }
+        public long dt_refresh { get; set; }
+        public long? dt_disable { get; set; }
+        public long? dt_deleted { get; set; }
     }
 
     public class ExtraTransactionPaybook
     {
-        public string dt_disable { get; set; }
-        public string dt_deleted { get; set; }
+        public long? dt_disable { get; set; }
+        public long? dt_deleted { get; set; }
     }
 }

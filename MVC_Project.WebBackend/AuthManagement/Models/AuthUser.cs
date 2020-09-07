@@ -26,7 +26,9 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
         {
             if (this.Permissions != null && this.Permissions.Count > 0)
             {
-                var per = from ap in this.Permissions where ap.Module == module select ap;
+                var per = from ap in this.Permissions
+                          where ap.Module == module && ap.Level != SystemLevelPermission.NO_ACCESS.ToString() && ap.isCustomizable
+                          select ap;
                 return per.Count<Permission>() > 0;
             }
             return false;
@@ -76,6 +78,7 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
         public string Action { get; set; }
         public string Module { get; set; }
         public string Level { get; set; }
+        public bool isCustomizable { get; set; }
     }
 
     public class Account

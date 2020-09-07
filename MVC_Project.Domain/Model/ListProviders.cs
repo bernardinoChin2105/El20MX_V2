@@ -17,6 +17,15 @@ namespace MVC_Project.Domain.Model
         public Int32 Total { get; set; }
     }
 
+    public class ListProvidersAC
+    {
+        public Int64 id { get; set; }
+        public string rfc { get; set; }
+        public string businessName { get; set; }
+        public string first_name { get; set; }
+        public string last_name { get; set; }
+    }
+
     public class FilterProvider
     {
         public string uuid { get; set; }
@@ -59,5 +68,29 @@ namespace MVC_Project.Domain.Model
         public string nameSettlement { get; set; }
 
         public string Observaciones { get; set; }
+    }
+
+    public class InvoicesReceivedList
+    {
+        public Int64 id { get; set; }
+        //public Guid uuid { get; set; }
+        public string folio { get; set; }
+        public string serie { get; set; }
+        public string paymentMethod { get; set; }
+        public string paymentForm { get; set; }
+        public string currency { get; set; }
+        public decimal amount { get; set; }
+        public decimal iva { get; set; }
+        public decimal totalAmount { get; set; }
+        public DateTime invoicedAt { get; set; }
+        public Int64 providerId { get; set; }
+        public Int64 accountId { get; set; }
+        public string rfc { get; set; }
+        public string first_name { get; set; }
+        public string last_name { get; set; }
+        public string paymentFormDescription { get; set; }
+        public string businessName { get; set; }
+        public string taxRegime { get; set; }
+        public int Total { get; set; }
     }
 }

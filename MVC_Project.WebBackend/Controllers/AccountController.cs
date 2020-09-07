@@ -55,18 +55,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 return RedirectToAction("Index", "Auth");
             }
-
-            LogUtil.AddEntry(
-               "Inicio en Account",
-               ENivelLog.Info,
-               authUser.Id,
-               authUser.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-            );
-
+            
             return View();
         }
 
@@ -75,7 +64,7 @@ namespace MVC_Project.WebBackend.Controllers
         {
             var authUser = Authenticator.AuthenticatedUser;
             var accountViewModel = new AccountSelectViewModel { accountListViewModels = new List<AccountListViewModel>() };
-            var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null);
+            var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
             if (memberships.Any())
             {
                 accountViewModel.accountListViewModels = memberships.Select(x => new AccountListViewModel
@@ -116,7 +105,7 @@ namespace MVC_Project.WebBackend.Controllers
 
             if (account != null)
             {
-                var membership = _membership.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id).FirstOrDefault();
+                var membership = _membership.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
 
                 if (membership != null)
                 {
@@ -125,7 +114,8 @@ namespace MVC_Project.WebBackend.Controllers
                         //Action = p.permission.action,
                         Controller = p.permission.controller,
                         Module = p.permission.module,
-                        Level = p.level
+                        Level = p.level,
+                        isCustomizable = p.permission.isCustomizable
                     }).ToList();
 
                     authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
@@ -144,8 +134,8 @@ namespace MVC_Project.WebBackend.Controllers
                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                     );
-
-                    return RedirectToAction("Index", "User");
+                    var inicio = permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+                    return RedirectToAction("Index", inicio.Controller);
                 }
             }
 
@@ -273,16 +263,12 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 LogUtil.AddEntry(
-                   "Se encontro un error: " + ex.Message.ToString(),
-                   ENivelLog.Error,
-                   authUser.Id,
-                   authUser.Email,
-                   EOperacionLog.ACCESS,
+                   "Se encontro un error: " + ex.Message.ToString(), ENivelLog.Error, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                 );
-                return View();
+                return View("CreateAccount", model);
             }
 
         }
@@ -379,7 +365,7 @@ namespace MVC_Project.WebBackend.Controllers
                             _credentialService.Update(credential);
 
                             LogUtil.AddEntry(
-                               "Se actualizo el estatus del sat: "+ JsonConvert.SerializeObject(credential),
+                               "Se actualizo el estatus del sat credentialId: "+ credential.id,
                                ENivelLog.Info,
                                authUser.Id,
                                authUser.Email,

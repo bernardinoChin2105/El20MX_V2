@@ -155,6 +155,16 @@ namespace MVC_Project.Utils
         MORALPERSONSREGIME,        
     }
 
+    public enum TypeMovements
+    {
+        [Display(Name = "Retiros")]
+        [Description("Retiros")]
+        RETIREMENT = 0,
+        [Display(Name = "Depósitos")]
+        [Description("Depósitos")]
+        DEPOSITS = 1,
+    }
+
     public enum SystemProviders
     {
         [Display(Name = "Syncfy")]
@@ -192,5 +202,11 @@ namespace MVC_Project.Utils
         Regime622 = 622,
         Regime629 = 626,
         Regime630 = 630,
+    }
+
+    public enum SystemControllers
+    {
+        [Display(Name ="Account")]
+        ACCOUNT,
     }
 }

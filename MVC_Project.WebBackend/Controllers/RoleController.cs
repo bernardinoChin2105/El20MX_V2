@@ -221,7 +221,7 @@ namespace MVC_Project.WebBackend.Controllers
         private List<ModuleViewModel> PopulateModules()
         {
             var userAuth = Authenticator.AuthenticatedUser;
-            var permissions = _permissionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString()).ToList();
+            var permissions = _permissionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString() && x.isCustomizable).ToList();
             var permissionsVM = new List<ModuleViewModel>();
             permissionsVM = permissions.GroupBy(x => x.module).Select(g => new ModuleViewModel
             {
@@ -320,6 +320,16 @@ namespace MVC_Project.WebBackend.Controllers
                     }
                 }
 
+                var noCustomizables = _permissionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString() && !x.isCustomizable).ToList();
+                foreach (var noCustomizable in noCustomizables)
+                {
+                    RolePermission rolePermission = new RolePermission();
+                    rolePermission.role = role;
+                    rolePermission.permission = new Permission { id = noCustomizable.id };
+                    rolePermission.level = SystemLevelPermission.FULL_ACCESS.ToString();
+                    rolePermission.account = new Account { id = userAuth.Account.Id };
+                    rolesPermissions.Add(rolePermission);
+                }
                 _roleService.CreateRole(role, rolesPermissions);
 
                 LogUtil.AddEntry(
@@ -448,7 +458,7 @@ namespace MVC_Project.WebBackend.Controllers
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
 
-                IList<RolePermission> rolePermissions = role.rolePermissions;
+                IList<RolePermission> rolePermissions = role.rolePermissions.Where(x => x.permission.isCustomizable).ToList();
 
                 List<PermissionViewModel> permissionsViewModels = new List<PermissionViewModel>();
                 foreach (var module in model.Modules)
@@ -457,6 +467,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var news = permissionsViewModels.Where(pvm => !rolePermissions.Any(rp => pvm.Id == rp.permission.id));
                 var newRolePermissions = news.Select(x => new RolePermission
                 {
+                    account = new Account { id = userAuth.Account.Id },
                     role = new Role { id = role.id },
                     permission = new Permission { id = x.Id },
                     level = ((SystemLevelPermission)x.SystemAction).ToString()

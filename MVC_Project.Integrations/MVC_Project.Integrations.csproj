@@ -70,6 +70,7 @@
   <ItemGroup>
     <Compile Include="Paybook\Paybook.cs" />
     <Compile Include="Paybook\PaybookService.cs" />
+    <Compile Include="SAT\SATwsEnums.cs" />
     <Compile Include="Paybook\PaybookViewModel.cs" />
     <Compile Include="SAT\SATwsViewModel.cs" />
     <Compile Include="SAT\SATws.cs" />
