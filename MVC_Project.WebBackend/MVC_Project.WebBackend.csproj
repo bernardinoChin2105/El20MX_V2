@@ -269,6 +269,7 @@
     <Compile Include="Controllers\StorageController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\CustomerController.cs" />
+    <Compile Include="Controllers\WebhooksController.cs" />
     <Compile Include="CustomAttributes\Validations\PasswordSecuredAttribute.cs" />
     <Compile Include="CustomAttributes\Validations\StringComparerAttribute.cs" />
     <Compile Include="Global.asax.cs">
@@ -1966,6 +1967,7 @@
   <ItemGroup>
     <Folder Include="Content\img\gallery\" />
     <Folder Include="Content\img\landing\" />
+    <Folder Include="Views\Webhooks\" />
     <Folder Include="Views\Webhook\" />
   </ItemGroup>
   <PropertyGroup>
