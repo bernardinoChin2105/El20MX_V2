@@ -16,13 +16,14 @@ $(".btn-filter-rol").click(function () {
     $('#table').DataTable().draw();
 });
 
-var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUrl, uploadUrl, hasFullAccessController) {
+var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUrl, uploadUrl, exportTemplateUrl, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
     this.editUrl = editUrl;
     this.exportUrl = exportUrl;
     this.uploadUrl = uploadUrl;
+    this.exportTemplateUrl = exportTemplateUrl;
     this.dataTable = {};
 
     this.init = function () {
@@ -96,7 +97,7 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     } else {
                         fnCallback(json);
-                    } 
+                    }
                 });
             }
         }).on('xhr.dt', function (e, settings, data) {
@@ -104,19 +105,20 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
         });
 
 
-        $(".btn-export").click(function () {
+        $(".btn-export-template").click(function () {
             try {
 
-                var aoData = [];
-                aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
+                //var aoData = [];
+                //aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
 
-                El20Utils.mostrarCargador();
+                //El20Utils.mostrarCargador();
 
-                $.fileDownload(self.exportUrl, {
-                    httpMethod: "POST",
-                    data: aoData
-                }).done(function () { El20Utils.ocultarCargador(); })
-                    .fail(function () { El20Utils.ocultarCargador(); });
+                $.fileDownload(self.exportTemplateUrl, {
+                    httpMethod: "Get"
+                    //data: aoData
+                }).done(function () { //El20Utils.ocultarCargador(); 
+                }).fail(function () { //El20Utils.ocultarCargador(); 
+                });
 
 
                 /////////////////////////////////////////////////////
@@ -136,7 +138,7 @@ $('.custom-file-input').on('change', function () {
     let fileName = $(this).val().split('\\').pop();
     $(this).next('.custom-file-label').addClass("selected").html(fileName);
     $(".btn-save-import").attr("disabled", false);
-}); 
+});
 
 var loadFile = function (event, imgid, input) {
     if (input.type === "file") {
@@ -197,7 +199,7 @@ function Guardar(e) {
             } else {
                 toastr["success"](result.Mensaje);
                 $("input[name='Excel']").val("");
-                $(".btn-save-import").attr("disabled", true);    
+                $(".btn-save-import").attr("disabled", true);
             }
             $('#table').DataTable().draw();
             El20Utils.ocultarCargador();

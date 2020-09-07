@@ -278,7 +278,7 @@
     <Compile Include="Models\AuthViewModel.cs" />
     <Compile Include="Models\BankViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
-    <Compile Include="Models\InvoicesController.cs" />
+    <Compile Include="Models\InvoicesVM.cs" />
     <Compile Include="Models\ProviderViewModel.cs" />
     <Compile Include="Models\CustomerViewModel.cs" />
     <Compile Include="Models\DataTableModel.cs" />
@@ -1934,6 +1934,7 @@
     <Content Include="Views\Customer\InvoicesIssued.cshtml" />
     <Content Include="Views\Provider\InvoicesReceived.cshtml" />
     <Content Include="Views\Provider\InvoiceDownloadPDF.cshtml" />
+    <Content Include="Views\Customer\InvoiceDownloadPDF.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
