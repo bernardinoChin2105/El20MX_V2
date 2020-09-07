@@ -57,7 +57,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var accountViewModel = new AccountSelectViewModel { accountListItems = new List<SelectListItem>() };
                 accountViewModel.accountListItems = accounts.Select(x => new SelectListItem
                 {
-                    Text = x.name + "(" + x.rfc + ")",
+                    Text = x.name + " ( " + x.rfc + " )",
                     Value = x.uuid.ToString()
                 }).ToList();
                 return PartialView("_SelectAccountBackOfficeModal", accountViewModel);
