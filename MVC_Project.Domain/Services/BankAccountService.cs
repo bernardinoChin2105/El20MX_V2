@@ -11,13 +11,24 @@ namespace MVC_Project.Domain.Services
     public interface IBankAccountService : IService<BankAccount>
     {
     }
-
     public class BankAccountService : ServiceBase<BankAccount>, IBankAccountService
     {
         private IRepository<BankAccount> _repository;
         public BankAccountService(IRepository<BankAccount> baseRepository) : base(baseRepository)
         {
             _repository = baseRepository;
-        }
+        }                 
     }
+    //public interface IBankAccountService : IService<BankAccount>
+    //{
+    //}
+
+    //public class BankAccountService : ServiceBase<BankAccount>, IBankAccountService
+    //{
+    //    private IRepository<BankAccount> _repository;
+    //    public BankAccountService(IRepository<BankAccount> baseRepository) : base(baseRepository)
+    //    {
+    //        _repository = baseRepository;
+    //    }
+    //}
 }

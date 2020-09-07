@@ -24,6 +24,7 @@ namespace MVC_Project.Data.Mappings
 
             References(x => x.account).Column("accountId").Nullable();
             References(x => x.bank).Column("banckId").Nullable();
+            HasMany(x => x.bankAccount).Inverse().Cascade.All().KeyColumn("bankCredentialId");
         }
     }
 }

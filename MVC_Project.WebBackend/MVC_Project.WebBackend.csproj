@@ -269,6 +269,7 @@
     <Compile Include="Controllers\StorageController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\CustomerController.cs" />
+    <Compile Include="Controllers\WebhooksController.cs" />
     <Compile Include="CustomAttributes\Validations\PasswordSecuredAttribute.cs" />
     <Compile Include="CustomAttributes\Validations\StringComparerAttribute.cs" />
     <Compile Include="Global.asax.cs">
@@ -277,6 +278,7 @@
     <Compile Include="Helpers\HTMLHelperExtensions.cs" />
     <Compile Include="Models\AccountViewModel.cs" />
     <Compile Include="Models\AuthViewModel.cs" />
+    <Compile Include="Models\BankViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
     <Compile Include="Models\ProviderViewModel.cs" />
     <Compile Include="Models\CustomerViewModel.cs" />
@@ -1801,6 +1803,7 @@
     <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
     <Content Include="Scripts\views\Auth\Index.js" />
+    <Content Include="Scripts\views\Bank\BankTransaction.js" />
     <Content Include="Scripts\views\Bank\BankAccount.js" />
     <Content Include="Scripts\views\Bank\Index.js" />
     <Content Include="Scripts\views\Provider\Create.js" />
@@ -1926,6 +1929,7 @@
     <Content Include="Views\Provider\Edit.cshtml" />
     <Content Include="Views\Bank\Index.cshtml" />
     <Content Include="Views\Bank\BanksAccount.cshtml" />
+    <Content Include="Views\Bank\BankTransaction.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
@@ -1963,6 +1967,7 @@
   <ItemGroup>
     <Folder Include="Content\img\gallery\" />
     <Folder Include="Content\img\landing\" />
+    <Folder Include="Views\Webhooks\" />
     <Folder Include="Views\Webhook\" />
   </ItemGroup>
   <PropertyGroup>

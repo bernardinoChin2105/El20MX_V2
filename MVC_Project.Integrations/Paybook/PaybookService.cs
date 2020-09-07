@@ -113,18 +113,18 @@ namespace MVC_Project.Integrations.Paybook
             try
             {
 
-                var dataCredential = new
-                {
-                    id_credential = idCredential
-                    //,id_site_organization = organization
-                };
-
-                string url = "/credentials";
-                var response = Paybook.CallServicePaybook(url, dataCredential, "Get", false, token);
+                //var dataCredential = new
+                //{
+                //    id_credential = idCredential
+                //    //,id_site_organization = organization
+                //};
+                //dataCredential
+                string url = "/credentials?id_credential=" + idCredential;
+                var response = Paybook.CallServicePaybook(url, null, "Get", false, token);
                 var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
                 var option = model.First(x => x.Key == "response").Value;
-                JObject rItemValueJson = (JObject)option;
-                credentials = JsonConvert.DeserializeObject<List<CredentialsPaybook>>(rItemValueJson.ToString());
+                //JObject rItemValueJson = (JObject)option;
+                credentials = JsonConvert.DeserializeObject<List<CredentialsPaybook>>(option.ToString());
             }
             catch (Exception ex)
             {
@@ -134,17 +134,17 @@ namespace MVC_Project.Integrations.Paybook
         }
 
         //Eliminar credenciales de las cuentas en paybook
-        public static bool DeleteCredential(string idCredential, string token)
+        public static bool DeleteCredential(string idCredential, string method, string token)
         {
             bool responseDelete = false;
             try
             {
                 string url = "/credentials/"+idCredential;
-                var response = Paybook.CallServicePaybook(url, null, "Get", false, token);
+                var response = Paybook.CallServicePaybook(url, null, method, false, token);
                 var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
                 var option = model.First(x => x.Key == "response").Value;
-                JObject rItemValueJson = (JObject)option;
-                responseDelete = (bool)rItemValueJson;
+                //JObject rItemValueJson = (JObject)option;
+                responseDelete = (bool)option;
             }
             catch (Exception ex)
             {
@@ -159,17 +159,12 @@ namespace MVC_Project.Integrations.Paybook
             List<AccountsPaybook> accounts = new List<AccountsPaybook>();
             try
             {
-                var dataCredential = new
-                {
-                    id_credential = idCredential
-                };
-
-                string url = "/accounts";
-                var response = Paybook.CallServicePaybook(url, dataCredential, "Get", false, token);
+                string url = "/accounts?id_credential="+ idCredential;
+                var response = Paybook.CallServicePaybook(url, null, "Get", false, token);
                 var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
                 var option = model.First(x => x.Key == "response").Value;
-                JObject rItemValueJson = (JObject)option;
-                accounts = JsonConvert.DeserializeObject<List<AccountsPaybook>>(rItemValueJson.ToString());
+                //JObject rItemValueJson = (JObject)option;
+                accounts = JsonConvert.DeserializeObject<List<AccountsPaybook>>(option.ToString());
             }
             catch (Exception ex)
             {
@@ -184,31 +179,19 @@ namespace MVC_Project.Integrations.Paybook
             List<TransactionsPaybook> transactions = new List<TransactionsPaybook>();
             try
             {
-                var dataAccount = new
-                {
-                    id_credential = idCredential,
-                    id_account = idAccount,
-                    skip = 0,
-                    limit = 10,
-                    //id_transaction = "",
-                    //dt_refresh_from = "", //Timestamp (optional) Filters by transaction refresh date, expected UNIX timestamp
-                    //dt_refresh_to = "", //Timestamp (optional) Filters by transaction refresh date, expected UNIX timestamp
-                    //dt_transaction_from = "", //Timestamp (optional) Filters by transaction date, expected UNIX timestamp
-                    //dt_transaction_to = "", //Timestamp (optional) Filters by transaction date, expected UNIX timestamp
-                };
-
-                string url = "/transactions";
-                var response = Paybook.CallServicePaybook(url, dataAccount, "Get", false, token);
+                //transactions?id_credential=5f435fe9f9ad2a2e5e50e80a&id_account=5703f88323428348328b45eb&skip=Number&limit=Number
+                string url = "/transactions?id_credential="+idCredential+"&id_account="+idAccount+ "&skip=Number&limit=Number";
+                var response = Paybook.CallServicePaybook(url, null, "Get", false, token);
                 var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
                 var option = model.First(x => x.Key == "response").Value;
-                JObject rItemValueJson = (JObject)option;
-                transactions = JsonConvert.DeserializeObject<List<TransactionsPaybook>>(rItemValueJson.ToString());
+                //JObject rItemValueJson = (JObject)option;
+                transactions = JsonConvert.DeserializeObject<List<TransactionsPaybook>>(option.ToString());
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message.ToString());
             }
             return transactions;
-        }
+        }       
     }
 }
