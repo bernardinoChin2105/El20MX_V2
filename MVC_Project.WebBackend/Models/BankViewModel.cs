@@ -41,14 +41,14 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Total de Depósitos")]
         public string TotalDeposits { get; set; }
 
-        [Display(Name = "Total de Depósitos")]
+        [Display(Name = "Saldo Final")]
         public string FinalBalance { get; set; }
 
 
         public BankViewModel()
         {
             var list = new List<SelectListItem>();
-            list.Add(new SelectListItem() { Text = "Todos...", Value = "-1" });
+            list.Add(new SelectListItem() { Text = "Todos", Value = "-1" });
 
             ListBanks = new SelectList(list);
             ListNumberBankAccount = new SelectList(list);
@@ -80,7 +80,8 @@ namespace MVC_Project.WebBackend.Models
         public Int64 id { get; set; }
         public string transactionId { get; set; }
         public string description { get; set; }
-        public string amount { get; set; }
+        public string amountR { get; set; }
+        public string amountD { get; set; }
         public string currency { get; set; }
         public string transactionAt { get; set; }
         public string balance { get; set; }

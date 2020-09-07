@@ -30,7 +30,7 @@ namespace MVC_Project.Integrations.Paybook
         public string id_site_organization { get; set; }
         public string id_site_organization_type { get; set; }
         public string id_organization { get; set; }
-        public int is_authorized { get; set; }
+        public int? is_authorized { get; set; }
         public int is_locked { get; set; }
         public int is_twofa { get; set; }
         public int can_sync { get; set; }

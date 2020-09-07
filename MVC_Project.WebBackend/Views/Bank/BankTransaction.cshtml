@@ -42,17 +42,21 @@
                             <div class="col-12 col-sm-6 col-lg-6">
                                 <div class="form-group">
                                     @*col-form-label control-label col-md-2*@
-                                    @Html.LabelFor(m => m.RegisterAt, new { @class = "" })
-                                    @Html.TextBoxFor(m => m.RegisterAt, new { @Class = "form-control form-control-sm txtFiltro", @readonly = "readonly", @Value=""})
+                                    @Html.LabelFor(m => m.RegisterAt, new { @class = "col-form-label control-label" })
+                                    @Html.TextBoxFor(m => m.RegisterAt, new { @Class = "form-control form-control-sm txtFiltro", @readonly = "readonly", @Value = "" })
                                     @Html.EditorFor(x => x.FilterInitialDate, new { htmlAttributes = new { @Class = "form-control-sm form-control hide", id = "FilterInitialDate", @readonly = "readonly", filtro = "true", filtro_order = "1" } })
                                     @Html.EditorFor(x => x.FilterEndDate, new { htmlAttributes = new { @Class = "form-control-sm form-control hide", id = "FilterEndDate", @readonly = "readonly", filtro = "true", filtro_order = "2" } })
                                 </div>
                             </div>
                             <div class="col-12 col-sm-6 col-lg-4">
-                                <br />
-                                <button type="button" class="btn btn-sm btn-color btn-filter-rol"><i class="fas fa-search"></i> Buscar</button>
-                                &nbsp;
-                                <button type="button" id="btnClearForm" class="btn btn-sm btn-default"><i class="fas fa-eraser "></i> Limpiar</button>
+                                <div class="form-group">
+                                    <br />
+                                    <br />
+                                    @*<br />*@
+                                    <button type="button" class="btn btn-sm btn-color btn-filter-rol"><i class="fas fa-search"></i> Buscar</button>
+                                    &nbsp;
+                                    <button type="button" id="btnClearForm" class="btn btn-sm btn-default"><i class="fas fa-eraser "></i> Limpiar</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -98,13 +102,14 @@
 @section scripts{
     @Scripts.Render("~/custom/Utils")
     @*@Scripts.Render("~/plugins/dataTables")*@
-    @Scripts.Render("~/plugins/daterangepicker")    
+    @Scripts.Render("~/plugins/daterangepicker")
 
     <script>
         window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
         $(function () {
             var bankTransaction = new BankTransactionControlador('table',
                 '@Url.Action("GetBankTransaction")',
+                '@Url.Action("GetBankAccountsFilter")',
                 '@hasFullAccessController' == 'True'
             );
             bankTransaction.init();

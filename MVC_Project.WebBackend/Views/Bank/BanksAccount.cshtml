@@ -2,13 +2,15 @@
 @using MVC_Project.WebBackend.AuthManagement
 @using MVC_Project.WebBackend.AuthManagement.Models
 @{
-    ViewBag.Title = "Lista de Cuentas";
+                /**/
 
-    var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
-    AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
-    var hasFullAccessController = user.HasFullAccessController(controllerName);
+                ViewBag.Title = "Lista de Cuentas";
 
-    var id = ViewBag.IdBankCredential;
+                var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
+                AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
+                var hasFullAccessController = user.HasFullAccessController(controllerName);
+
+                var id = ViewBag.IdBankCredential;
 }
 
 @section Styles{
@@ -17,12 +19,13 @@
 
     <div class="row">
         @*<div class="col-lg-12">
-                <div class="ibox float-e-margins">
-                </div>
-            </div>*@
+            <div class="ibox float-e-margins">                
+            </div>
+        </div>*@
         <div class="col-lg-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
+                    <h3>@ViewBag.BankName</h3>
                     @using (Html.BeginForm("GetBankAccounts", "Bank", FormMethod.Post, new { @id = "SearchForm" }))
                     {
                         <input type="hidden" id="IdCredential" name="IdCredential" value="@id" />

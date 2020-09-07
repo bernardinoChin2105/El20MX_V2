@@ -62,7 +62,7 @@ namespace MVC_Project.Domain.Services
             }
             var list = _repository.Session.CreateSQLQuery("exec dbo.st_bankTransactionList " +
                 "@PageNum =:PageNum, @PageSize =:PageSize, @createdOnStart=:createdOnStart, @createdOnEnd=:createdOnEnd, "+
-                "@accountId =:accountId, @bankId =:bankId, @bankAccountId =:bankAccountId, @movements =: movements")
+                "@accountId=:accountId, @bankId=:bankId, @bankAccountId=:bankAccountId, @movements=:movements ")
                     .SetParameter("PageNum", pagination.PageNum)
                     .SetParameter("PageSize", pagination.PageSize)
                     .SetParameter("createdOnStart", dateinit)

@@ -118,6 +118,8 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
 
         self.syncWidget.$on("success", function (credential) {
             // do something on success
+            //console.log(credential, "respuesta")
+            El20Utils.ocultarCargador();
             $.ajax({
                 type: 'Get',
                 contentType: 'application/json',
@@ -142,6 +144,12 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                 }
             }).always(function () {
             });
+        });
+
+        self.syncWidget.$on('error', function(credential){
+            // ... do something when there is some error in the synchronization of credentials  ...
+            console.log(credential, "Error en las claves de la conexión.");
+            //toastr["error"]("Erorr");
         });
 
 
@@ -180,8 +188,9 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
             }
         });
 
-        $(this.dataTable, "tbody").on("click", ".work-options .btn-group .btn-desvincular",function () {            
+        $("#table tbody").on("click", ".work-options .btn-group .btn-desvincular",function () {            
             El20Utils.mostrarCargador();
+            //console.log("hoasd")
 
             var tr = $(this).closest('tr');
             var row = self.dataTable.row(tr);
@@ -195,12 +204,12 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     data: { uuid: uuid },
                     url: self.unlinkBankUrl,
                     success: function (result) {
-                        //console.log("result", result);
+                        console.log("result", result);
 
                         if (!result.success) {
-                            toastr["error"](result.Mensaje.message);
+                            toastr["error"](result.message);
                         } else {
-                            toastr["success"](result.Mensaje);
+                            toastr["success"](result.message);
                             self.dataTable.draw();
                         }
                         El20Utils.ocultarCargador();                      

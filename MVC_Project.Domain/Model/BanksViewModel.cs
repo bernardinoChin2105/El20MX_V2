@@ -27,11 +27,15 @@ namespace MVC_Project.Domain.Model
         public decimal amount { get; set; }
         public string currency { get; set; }
         public DateTime transactionAt { get; set; }
-        public decimal balance { get; set; }
-        public string bankAccountName { get; set; }
-        public string number { get; set; }
-        public string bankName { get; set; }
         public DateTime refreshAt { get; set; }
+        public Int64 bankAccountId { get; set; }
+        public string bankAccountName { get; set; }
+        public double balance { get; set; }
+        public string number { get; set; }
+        public Int64 banckId { get; set; }
+        public Int64 accountId { get; set; }
+        public Int64 bankCredentialId { get; set; }
+        public string bankName { get; set; }
         public Int32 Total { get; set; }
     }
 

@@ -8,6 +8,7 @@
 $("#btnClearForm").click(function () {
     $("#SearchForm").each(function () {
         this.reset();
+        $("#NumberBankAccount").html('<option value="-1">Todos</option>');
     });
     $('#table').DataTable().draw();
 });
@@ -32,7 +33,7 @@ $('#RegisterAt').daterangepicker(
             fromLabel: "De",
             toLabel: "a"
         },
-        minDate: DateInit.MinDate,
+        //minDate: DateInit.MinDate,
         maxDate: DateInit.MaxDate
         //opens: 'left'
     }).on('apply.daterangepicker', function (e, picker) {
@@ -43,11 +44,11 @@ $('#RegisterAt').daterangepicker(
     });
 
 //bankAccountsUrl, getTokenUrl, unlinkBankUrl, createBankCredentialUrl,
-var BankTransactionControlador = function (htmlTableId, baseUrl, hasFullAccessController) {
+var BankTransactionControlador = function (htmlTableId, baseUrl, GetBankAccountUrl, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
-    //this.bankAccountsUrl = bankAccountsUrl;
+    this.GetBankAccountUrl = GetBankAccountUrl;
     //this.getTokenUrl = getTokenUrl;
     //this.unlinkBankUrl = unlinkBankUrl;
     //this.createBankCredentialUrl = createBankCredentialUrl;
@@ -67,12 +68,12 @@ var BankTransactionControlador = function (htmlTableId, baseUrl, hasFullAccessCo
             ordering: false,
             columns: [
                 { data: 'id', title: "Id", visible: false },
-                { data: 'transactionAt', title: "Fecha" },               
+                { data: 'transactionAt', title: "Fecha" },
                 { data: 'bankAccountName', title: "Cuenta/Banco" },
                 { data: 'description', title: "Descripción Banco" },
-                { data: 'amount', title: "Retiro" },
-                { data: 'amount', title: "Depósitos" },
-                { data: 'balance', title: "Saldo " },                
+                { data: 'amountR', title: "Retiro" },
+                { data: 'amountD', title: "Depósitos" },
+                { data: 'balance', title: "Saldo " },
             ],
             "fnServerData": function (sSource, aoData, fnCallback) {
                 aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
@@ -81,26 +82,64 @@ var BankTransactionControlador = function (htmlTableId, baseUrl, hasFullAccessCo
 
                 $.getJSON(sSource, aoData, function (json) {
 
-                    console.log("respuesta", json)
+                    console.log("respuesta", json);
 
                     primeravez = false;
-                    fnCallback(json);
+                    fnCallback(json);                    
                     if (json.success === false) {
-                        toastr['error'](json.Mensaje.message);
+                        toastr['error'](json.error);
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     }
+
+                    json.totales.currency !== null ? $("#Currency").val(json.totales.currency) : $("#Currency").val("");
+                    json.totales.TotalAmount !== null ? $("#CurrentBalance").val(json.totales.TotalAmount) : $("#CurrentBalance").val("");
+                    json.totales.TotalRetirement !== null ? $("#TotalAmount").val(json.totales.TotalRetirement) : $("#TotalAmount").val("");
+                    json.totales.TotalDeposits !== null ? $("#TotalDeposits").val(json.totales.TotalDeposits) : $("#TotalDeposits").val("");
+                    json.totales.TotalFinal !== null ? $("#FinalBalance").val(json.totales.TotalFinal) : $("#FinalBalance").val("");
                 });
             }
         }).on('xhr.dt', function (e, settings, data) {
             El20Utils.ocultarCargador();
         });
 
+        $("#BankName").change(function () {
+            El20Utils.mostrarCargador();
+            var cbmAccount = $("#NumberBankAccount");
+            var id = $(this).val();
 
+            if (id !== "-1") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: 'application/json',
+                    //async: true,
+                    data: { credentialId: id },
+                    url: self.GetBankAccountUrl,
+                    success: function (result) {
+                        console.log("result", result);
 
-
-
-        
-
-
+                        if (!result.success) {
+                            toastr["error"](result.message);
+                        } else {
+                            cbmAccount.html("");
+                            cbmAccount.append(result.data.map(function (data, index) {
+                                return $('<option value="' + data.Value + '">' + data.Text + '</option>');
+                            }));
+                            cbmAccount.val("-1");
+                        }
+                        El20Utils.ocultarCargador();
+                    },
+                    error: function (xhr) {
+                        //console.log("error: " + xhr);
+                        El20Utils.ocultarCargador();
+                        //loading.hideloading();
+                    }
+                }).always(function () {
+                });
+            }
+            else {
+                cbmAccount.html("");
+                cbmAccount.html('<option value="-1">Todos</option>');
+            }
+        });
     };
 };

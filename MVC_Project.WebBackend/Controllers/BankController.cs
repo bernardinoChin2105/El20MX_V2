@@ -315,7 +315,7 @@ namespace MVC_Project.WebBackend.Controllers
                             credentialProviderId = itemBank.id_credential,
                             createdAt = todayDate,
                             modifiedAt = todayDate,
-                            status = itemBank.is_authorized.ToString()
+                            status = itemBank.is_authorized != null ? itemBank.is_authorized.Value.ToString() : "1"
                         };
 
                         if (bank != null)
@@ -424,6 +424,8 @@ namespace MVC_Project.WebBackend.Controllers
         public JsonResult UnlinkBank(string uuid)
         {
             var authUser = Authenticator.AuthenticatedUser;
+            string message = string.Empty;
+            bool success = true;
 
             try
             {
@@ -433,7 +435,7 @@ namespace MVC_Project.WebBackend.Controllers
                 if (credential == null)
                     throw new Exception("No se encontro la credencial del banco en los registros.");
 
-                var unlinkCredential = PaybookService.DeleteCredential(credential.credentialProviderId, token);
+                var unlinkCredential = PaybookService.DeleteCredential(credential.credentialProviderId, "Delete", token);
                 if (!unlinkCredential)
                     throw new Exception("Error al desvincular la credencial del banco con el servicio.");
 
@@ -444,7 +446,7 @@ namespace MVC_Project.WebBackend.Controllers
                 _bankCredentialService.Update(credential);
 
                 LogUtil.AddEntry(
-                   "Desvinculando la credencial de la cuenta: " + JsonConvert.SerializeObject(credential),
+                   "Desvinculando la credencial de la cuenta: " + credential.id, // JsonConvert.SerializeObject(credential),
                    ENivelLog.Info,
                    authUser.Id,
                    authUser.Email,
@@ -454,14 +456,12 @@ namespace MVC_Project.WebBackend.Controllers
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                 );
 
-                return new JsonResult
-                {
-                    Data = new { success = true, data = "" },
-                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
-                };
+                message = "Se desvinculo la cuenta exitosamente.";                
             }
             catch (Exception ex)
             {
+                message = ex.Message.ToString();
+                success = false;
                 LogUtil.AddEntry(
                    "Se encontro un error: " + ex.Message.ToString(),
                    ENivelLog.Error,
@@ -473,13 +473,19 @@ namespace MVC_Project.WebBackend.Controllers
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                 );
 
-                return new JsonResult
-                {
-                    Data = new { success = false, Mensaje = new { title = "Error", message = ex.Message } },
-                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                    MaxJsonLength = Int32.MaxValue
-                };
+                //return new JsonResult
+                //{
+                //    Data = new { success = false, Mensaje = new { title = "Error", message = ex.Message } },
+                //    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                //    MaxJsonLength = Int32.MaxValue
+                //};
             }
+
+            return new JsonResult
+            {
+                Data = new { success = success, message = message },
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
         }
 
         [HttpPost, AllowAnonymous]
@@ -544,8 +550,10 @@ namespace MVC_Project.WebBackend.Controllers
             //var authUser = Authenticator.AuthenticatedUser;
             try
             {
-                //var bankAccounts = _bankCredentialService.GetBanksAccounts(idBankCredential);
+                var bankCredential = _bankCredentialService.FirstOrDefault(x => x.uuid.ToString() == idBankCredential);
+                //var bank = _bankService.FirstOrDefault(x => x.id == bankAccounts.b);
                 ViewBag.IdBankCredential = idBankCredential;
+                ViewBag.BankName = bankCredential.bank.name;
                 return View();
             }
             catch (Exception ex)
@@ -563,6 +571,7 @@ namespace MVC_Project.WebBackend.Controllers
             var listResponse = new List<BankAccountsList>();
             var list = new List<BankAccountsVM>();
             string error = string.Empty;
+            char pad = '*';
 
             try
             {
@@ -586,7 +595,8 @@ namespace MVC_Project.WebBackend.Controllers
                         name = x.name,
                         balance = x.balance.ToString("C2"),
                         currency = x.currency,
-                        number = x.number,
+                        //number = x.number,
+                        number = x.number.PadLeft(10, pad),
                         isDisable = x.isDisable,
                         refreshAt = x.refreshAt,
                         clabe = x.clabe,
@@ -673,7 +683,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-
+                string error = ex.Message.ToString();
             }
             return View(model);
         }
@@ -692,7 +702,7 @@ namespace MVC_Project.WebBackend.Controllers
 
             try
             {
-                if (first)
+                if (!first)
                 {
                     NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
                     string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
@@ -719,31 +729,54 @@ namespace MVC_Project.WebBackend.Controllers
                         totalDisplay = listResponse[0].Total;
                         total = listResponse.Count();
                         char pad = '*';
-
-                        list = listResponse.Select(x => new BankTransactionMV
+                        double balanceA = 0;
+                        //bool firstA = true;
+                        Int64 bankAccountId = 0;
+                        double amountB = 0;
+                        foreach (var item in listResponse)
                         {
-                            id = x.id,
-                            transactionId = x.transactionId,
-                            description = x.description,
-                            amount = x.amount.ToString("C2"),
-                            currency = x.currency,
-                            transactionAt = x.transactionAt.ToString(),
-                            balance = x.balance.ToString("C2"),
-                            bankAccountName = x.bankAccountName,
-                            number = x.number.PadLeft(10, pad),
-                            bankName = x.bankName,
-                            refreshAt = x.refreshAt.ToString()
-                        }).ToList();
+                            if (bankAccountId != item.bankAccountId)
+                            {
+                                bankAccountId = item.bankAccountId;
+                                balanceA = item.balance;
+                                amountB = (double)item.amount;
+                            }
+                            else
+                            {
+                                balanceA = balanceA - amountB;
+                            }
 
-                        if (bankAccount != "-1")
+
+                                BankTransactionMV nuevo = new BankTransactionMV
+                                {
+                                    id = item.id,
+                                    transactionId = item.transactionId,
+                                    description = item.description,
+                                    amountD = item.amount > 0 ? item.amount.ToString("C2") : "",
+                                    amountR = item.amount < 0 ? item.amount.ToString("C2") : "",
+                                    currency = item.currency,
+                                    transactionAt = item.transactionAt.ToShortDateString(),
+                                    balance = balanceA.ToString("C2"),
+                                    bankAccountName = item.bankAccountName + " "+ item.number.PadLeft(10, pad),
+                                    number = item.number.PadLeft(10, pad),
+                                    bankName = item.bankName,
+                                    refreshAt = item.refreshAt.ToString()
+                                };
+
+                            list.Add(nuevo);
+                        }
+
+                        if (bankAccount != "-1" && bank != "-1")
+                        {
                             totales = new BankTransactionTotalVM
                             {
                                 currency = listResponse.FirstOrDefault().currency,
                                 TotalAmount = listResponse.FirstOrDefault().balance.ToString("C2"),
                                 TotalRetirement = listResponse.Where(x => x.amount < 0).Sum(x => x.amount).ToString("C2"),
                                 TotalDeposits = listResponse.Where(x => x.amount > 0).Sum(x => x.amount).ToString("C2"),
-                                TotalFinal = ""
+                                TotalFinal = listResponse.FirstOrDefault().balance.ToString("C2")
                             };
+                        }
                     }
 
                 }
@@ -784,8 +817,36 @@ namespace MVC_Project.WebBackend.Controllers
                 sEcho = param.sEcho,
                 iTotalRecords = total,
                 iTotalDisplayRecords = totalDisplay,
-                aaData = error
+                aaData = list
             }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetBankAccountsFilter(Int64 credentialId)
+        {
+            List<SelectListItem> list = new List<SelectListItem>();
+            bool success = true;
+            string message = String.Empty;
+            char pad = '*';
+            try
+            {
+                list = _bankAccountService.FindBy(x => x.bankCredential.id == credentialId)
+                    .Select(x => new SelectListItem() { Text = x.name + " "+ x.number.PadLeft(10, pad), Value = x.id.ToString() }).ToList();
+                list.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message.ToString();
+                success = false;
+                message = error;
+            }
+
+            return new JsonResult
+            {
+                Data = new { success = success, message = message, data = list },
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                MaxJsonLength = Int32.MaxValue
+            };
         }
     }
 }

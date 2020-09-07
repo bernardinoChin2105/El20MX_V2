@@ -66,7 +66,7 @@ var BankAccountControlador = function (htmlTableId, baseUrl, bankAccountEdit, ha
                     title: "Estatus de Conexión",
                     className: 'work-conection',
                     render: function (data) {
-                        var classCircle = data.status === '1' ? 'green' : 'red';
+                        var classCircle = data.status === '1' ? 'red' : 'green';
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<i class="fas fa-circle ' + classCircle + '"></i>' +
                             '</div>';

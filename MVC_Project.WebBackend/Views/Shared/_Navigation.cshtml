@@ -69,9 +69,7 @@
                     @if (user.HasAccessController("Bank"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Bank", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "Bank")"><a href="@Url.Action("Index", "Bank")">Conexión a Bancos</a></li>
-                        </ul>
-                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Bank", cssClass: "in")">
+                            <li class="@Html.IsSelected(controller: "Bank")"><a href="@Url.Action("Index", "Bank")">Conexión a Bancos</a></li>                       
                             <li class="@Html.IsSelected(controller: "Bank")"><a href="@Url.Action("BankTransaction", "Bank")">Movimientos Bancarios</a></li>
                         </ul>
                     }
