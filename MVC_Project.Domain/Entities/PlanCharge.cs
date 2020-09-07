@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Entities
 {
-    public class PlanCharge
+    public class PlanCharge : IEntity
     {
         public virtual Int64 id { get; set; }
         public virtual Guid uuid { get; set; }

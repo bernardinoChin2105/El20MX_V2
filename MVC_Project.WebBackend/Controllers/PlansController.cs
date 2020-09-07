@@ -1,4 +1,7 @@
 ﻿using LogHubSDK.Models;
+using MVC_Project.Domain.Model;
+using MVC_Project.Domain.Services;
+using MVC_Project.FlashMessages;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
 using MVC_Project.WebBackend.Models;
@@ -13,9 +16,11 @@ namespace MVC_Project.WebBackend.Controllers
 {
     public class PlansController : Controller
     {
-        public PlansController()
-        {
+        private IPlanService _planService;
 
+        public PlansController(IPlanService planeService)
+        {
+            _planService = planeService;
         }
 
         [AllowAnonymous]
@@ -32,29 +37,23 @@ namespace MVC_Project.WebBackend.Controllers
             int total = 0;
             bool success = true;
             string message = string.Empty;
-            var listResponse = new List<CustomerList>();
+            var listResponse = new List<PlansViewModel>();
 
             try
             {
                 if (!first)
                 {
-                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
-                    string rfc = filtersValues.Get("Name").Trim();
+                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);                    
                     string Name = filtersValues.Get("Name").Trim();
-                    string email = filtersValues.Get("Email").Trim();
 
-                    var pagination = new BasePagination();
-                    var filters = new CustomerFilter() { uuid = userAuth.Account.Uuid.ToString() };
+                    var pagination = new BasePagination();                   
                     pagination.PageSize = param.iDisplayLength;
                     pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
-                    if (rfc != "") filters.rfc = rfc;
-                    if (businessName != "") filters.businessName = businessName;
-                    if (email != "") filters.email = email;
+                    //if (Name != "") filters.businessName = businessName;
 
-                    listResponse = _customerService.CustomerList(pagination, filters);
+                    listResponse = _planService.GetPlans(pagination, Name);
 
                     //Corroborar los campos iTotalRecords y iTotalDisplayRecords
-
                     if (listResponse.Count() > 0)
                     {
                         totalDisplay = listResponse[0].Total;
@@ -75,6 +74,8 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
+                success = false;
+                message = ex.Message.ToString();
                 LogUtil.AddEntry(
                    "Se encontro un error: " + ex.Message.ToString(),
                    ENivelLog.Error,
@@ -89,12 +90,64 @@ namespace MVC_Project.WebBackend.Controllers
 
             return Json(new
             {
-                success = true,
+                success = success,
+                message = message,
                 sEcho = param.sEcho,
                 iTotalRecords = total,
                 iTotalDisplayRecords = totalDisplay,
                 aaData = listResponse
             }, JsonRequestBehavior.AllowGet);
+        }
+
+        [AllowAnonymous]
+        public ActionResult Create()
+        {
+            var userAuth = Authenticator.AuthenticatedUser;
+            try
+            {
+                //var createCustomer = new CustomerViewModel();
+                //var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
+                //stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
+
+                //var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
+                //    .Select(e => new SelectListItem
+                //    {
+                //        Value = e.ToString(),
+                //        Text = EnumUtils.GetDisplayName(e)
+                //    }).ToList();
+
+                //createCustomer.ListRegimen = new SelectList(regimenList);
+                //createCustomer.ListState = new SelectList(stateList);
+
+                //LogUtil.AddEntry(
+                //   "Crea nuevo cliente: " + JsonConvert.SerializeObject(createCustomer),
+                //   ENivelLog.Info,
+                //   userAuth.Id,
+                //   userAuth.Email,
+                //   EOperacionLog.ACCESS,
+                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                //   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                //);
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                //LogUtil.AddEntry(
+                //   "Se encontro un error: " + ex.Message.ToString(),
+                //   ENivelLog.Error,
+                //   userAuth.Id,
+                //   userAuth.Email,
+                //   EOperacionLog.ACCESS,
+                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                //   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                //);
+                return RedirectToAction("Index");
+            }
+            // return View();
         }
 
         //public ActionResult Edit(string uuid)
