@@ -17,13 +17,13 @@
 <div class="modal-body">
     <div class="form-horizontal">
         <div class="form-group row">
-            @Html.DropDownListFor(model=>model.accountListItem, Model.accountListItems,
+            @Html.DropDownListFor(model=>model.accountListItem, Model.accountListItems, "Sin selección",
            new { @class = "chosen-select", data_placeholder = "Selecciona una cuenta", @required = "required", @style = "width: 100%" })
         </div>
         <div class="form-group row pull-right">
             <div class="col-md-12 text-right">
                 @*<a href='@Url.Action("Index", "Role")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>*@
-                <button type="button" id="btnSelectAccount" class="btn btn-color"> <i class="fa fa-check"></i> Seleccionar </button>
+                <button type="button" id="btnSelectAccount" class="btn btn-color"> <i class="fa fa-check"></i> Aceptar </button>
             </div>
         </div>
     </div>

@@ -37,7 +37,8 @@
             @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", type = "password", @autocomplete = "off", placeholder = @ViewLabels.CONFIRM_NEW_PASSWORD })
             @Html.ValidationMessageFor(x => x.ConfirmPassword)
         </div>
-
+        if (!Model.isBackOffice)
+        {
         <div class="input-group mb-3">
             <div class="i-checks">
                 <label style="font-weight:initial">
@@ -47,7 +48,7 @@
             </div>
             @Html.ValidationMessageFor(model => model.AgreeTerms)
         </div>
-
+        }
         <div class="form-group">
             <span class="help-block"></span>
             <button type="button" class="btn btn-color block full-width m-b" onclick="validarDatos();">Guardar</button>
@@ -87,6 +88,8 @@
                     return value == $("#Password").val();
                 }, "Las contraseñas no coinciden"
             );
+            var isBackOffice = '@Model.isBackOffice' == 'true';
+
             $("#passForm").validate({
                 rules: {
                     Password: {
@@ -100,7 +103,7 @@
                         required: true,
                     },
                     AgreeTerms: {
-                        required: true
+                        required: !isBackOffice
                     }
                 }
                 ,

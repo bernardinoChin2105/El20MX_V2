@@ -89,42 +89,62 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult SetAccount(Guid uuid)
+        public ActionResult SetAccount(Guid? uuid)
         {
             var authUser = Authenticator.AuthenticatedUser;
-            var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
-
-            if (account != null)
+            if (authUser.isBackOffice)
             {
-                var membership = _membership.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
-
-                if (membership != null)
+                if (!uuid.HasValue)
                 {
-                    var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
-                    {
-                        Controller = p.permission.controller,
-                        Module = p.permission.module,
-                        Level = p.level,
-                        isCustomizable = p.permission.isCustomizable
-                    }).ToList();
-
-                    authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
-                    authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
-                    authUser.Permissions = permissions;
-
+                    authUser.Account = null;
                     Authenticator.RefreshAuthenticatedUser(authUser);
+                }
+                else
+                {
+                    var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
+                    authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
+                    Authenticator.RefreshAuthenticatedUser(authUser);
+                }
+                var inicio = authUser.Permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+                return RedirectToAction("Index", inicio.Controller);
+            }
+            else
+            {
+                var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
 
-                    LogUtil.AddEntry("Acceso a la cuenta: " + account.rfc, ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                    );
-                    var inicio = permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
-                    return RedirectToAction("Index", inicio.Controller);
+                if (account != null)
+                {
+                    var membership = _membership.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
+
+                    if (membership != null)
+                    {
+                        var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
+                        {
+                            Controller = p.permission.controller,
+                            Module = p.permission.module,
+                            Level = p.level,
+                            isCustomizable = p.permission.isCustomizable
+                        }).ToList();
+
+                        authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
+                        authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
+                        authUser.Permissions = permissions;
+
+                        Authenticator.RefreshAuthenticatedUser(authUser);
+
+                        LogUtil.AddEntry("Acceso a la cuenta: " + account.rfc, ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                        );
+                        var inicio = permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+                        return RedirectToAction("Index", inicio.Controller);
+                    }
                 }
             }
 
-            return RedirectToAction("Login", "Auth");
+            MensajeFlashHandler.RegistrarMensaje("No es posible acceder a la cuenta", TiposMensaje.Warning);
+            return RedirectToAction("Index", "Account");
         }
 
         private void SetMembership(Domain.Entities.Membership membership)

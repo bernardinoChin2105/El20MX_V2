@@ -111,11 +111,6 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (user.isBackOffice)
                 {
-                    //El usuario backoffice no necesita teener asignada una cuenta para administrarla
-                    //if (memberships.Count() <= 0 && user)
-                    //{
-                    //    throw new Exception("El usuario no tiene asignada una cuenta para administrar");
-                    //}
                     var uniqueMembership = memberships.First();
                     List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                     {
@@ -127,7 +122,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                     authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
                     authUser.Permissions = permissionsUniqueMembership;
-                    authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar };
+                    //authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar };
                     Authenticator.StoreAuthenticatedUser(authUser);
                     MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
 
