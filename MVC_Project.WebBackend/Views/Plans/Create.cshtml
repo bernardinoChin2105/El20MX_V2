@@ -1,4 +1,4 @@
-﻿@model MVC_Project.WebBackend.Models.CustomerViewModel
+﻿@model MVC_Project.WebBackend.Models.PlanViewModel
 @using MVC_Project.Utils
 
 @{
@@ -24,157 +24,93 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="">
-        @using (Html.BeginForm("Create", "Customer", FormMethod.Post, new { role = "form", @id = "CreateForm", @class = "row" }))
+        @using (Html.BeginForm("Create", "Plan", FormMethod.Post, new { role = "form", @id = "CreateForm", @class = "row" }))
         {
             <div class="col-lg-12">
                 @Html.AntiForgeryToken()
                 @Html.ValidationSummary(true)
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <h5>Datos del Cliente</h5>
+                        <h5>Configuración de Plan</h5>
                     </div>
                     <div class="ibox-content">
                         <div class="form-horizontal">
                             <div class="form-group row">
-                                <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.FistName, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.FistName, new { @class = "form-control", @maxlength = "50" })
+                                <div class="col-12 col-md-3">
+                                    @Html.LabelFor(m => m.Name, new { @class = "col-form-label control-label" })
                                 </div>
-                                <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.LastName, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", @maxlength = "50" })
+                                <div class="col-12 col-md-6">
+                                    @Html.TextBoxFor(m => m.Name, new { @class = "form-control", @maxlength = "50" })
                                 </div>
-                                <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.RFC, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.RFC, new { @class = "form-control" })
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.CURP, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.CURP, new { @class = "form-control" })
-                                </div>
-                                <div class="col-12 col-md-8 businessName hidden">
-                                    @Html.LabelFor(m => m.BusinessName, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.BusinessName, new { @class = "form-control", @maxlength = "50" })
-                                </div>
-                                @*</div>
-                                    <div class="form-group row">*@
-                                <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.taxRegime, new { @class = "col-form-label control-label" })
-                                    @*@Html.TextBoxFor(m => m.taxRegime, new { @class = "form-control" })*@
-                                    @Html.DropDownListFor(m => m.taxRegime, Model.ListRegimen.Items as List<SelectListItem>, new { @class = "form-control" })
+                                <div class="col-12 col-md-3">
+                                    <div class="checkbox">
+                                        <label>@Html.CheckBoxFor(x => x.isCurrent)&nbsp;@Html.DisplayNameFor(x => x.isCurrent)</label>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-12">
-                <div class="ibox float-e-margins">
-                    <div class="ibox-title">
-                        <h5>Domicilio de Ubicación (Domicilio Fiscal)</h5>
-                    </div>
-                    <div class="ibox-content">
-                        <div class="form-horizontal">
-                            <div class="form-group row">
-                                <div class="col-12 col-md-8">
-                                    @Html.LabelFor(m => m.Street, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.Street, new { @class = "form-control", @maxlength = "250" })
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Conceptos</h3>
                                 </div>
-                                <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.OutdoorNumber, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.OutdoorNumber, new { @class = "form-control", @maxlength = "100" })
+                                <div class="panel-body">
+                                    <div class="form-group row">
+                                        @foreach (var item in Model.LabelConcepts)
+                                        {
+                                            <div class="col-12 col-md-4">
+                                                @Html.LabelFor(m => item.Name, new { @class = "col-form-label control-label" })
+                                            </div>
+                                            <div class="col-12 col-md-8">
+                                                <input type="hidden" name="Id[]" value="@item.Id" />
+                                                <input type="number" name="Value[]" value="@item.Value" class="form-control" />
+                                            </div>
+                                        }
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="form-group row">
-                                <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.InteriorNumber, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.InteriorNumber, new { @class = "form-control", @maxlength = "20" })
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Características</h3>
                                 </div>
-                                <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.ZipCode, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control" })
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.Colony, new { @class = "col-form-label control-label" })
-                                    @Html.DropDownListFor(m => m.Colony, Model.ListColony.Items as List<SelectListItem>, new { @class = "form-control form-height" })
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.Municipality, new { @class = "col-form-label control-label" })
-                                    @Html.DropDownListFor(m => m.Municipality, Model.ListMunicipality.Items as List<SelectListItem>, new { @class = "form-control" })
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.State, new { @class = "col-form-label control-label" })
-                                    @Html.DropDownListFor(m => m.State, Model.ListState.Items as List<SelectListItem>, new { @class = "form-control" })
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.Country, new { @class = "col-form-label control-label" })
-                                    @Html.DropDownListFor(m => m.Country, Model.ListCountry.Items as List<SelectListItem>, new { @class = "form-control" })
+                                <div class="panel-body">
+                                    <div class="form-group row">
+                                        @*@foreach (var item in Model.LabelConcepts)
+                                            {
+                                                <div class="col-12 col-md-4">
+                                                    @Html.LabelFor(m => item.Name, new { @class = "col-form-label control-label" })
+                                                </div>
+                                                <div class="col-12 col-md-8">
+                                                    <input type="hidden" name="idCharge[]" />
+                                                    <input type="number" name="chargeName[]" class="form-control" />
+                                                </div>
+                                            }*@
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="form-group row">
-                                <div class="col-12 col-md-8">
-                                    <label class="col-form-label control-label">Domicilio Comercial</label>
-                                    <div class="form-group">
-                                        <input id="DeliveryAddress" name="DeliveryAddress" type="checkbox" class="" value="true"> <label for="DeliveryAddress">Mismo que domicilio Fiscal</label>
-                                        @*<input id="" name="DeliveryAddress" type="checkbox" class="" value="1" @(Model.MEMBRESIA_EDITAR.DESCUENTO_TEC == 1 ? "checked" : "")> <label for="descuentoTec">Exclusivo para Empleados Tec</label>*@
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Criterio de asignación</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="form-group row">
+                                        @foreach (var item in Model.LabelAssignment)
+                                        {
+                                            <div class="col-12 col-md-4">
+                                                @Html.LabelFor(m => item.Name, new { @class = "col-form-label control-label" })
+                                            </div>
+                                            <div class="col-12 col-md-8">
+                                                <input type="hidden" name="Id[]" value="@item.Id" />
+                                                <input type="number" name="Value[]" value="@item.Value" class="form-control" />
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-12">
-                <div class="ibox float-e-margins">
-                    <div class="ibox-title">
-                        <h5>Datos de Contacto</h5>
-                    </div>
-                    <div class="ibox-content">
                         <div class="form-horizontal">
-                            <div class="form-group row">
-                                <div class="col-12">
-                                    <input type="hidden" name="indexPhone[]" id="indexPhone" />
-                                    <input type="hidden" name="indexEmail[]" id="indexEmail" />
-                                </div>
-                                <div class="col-12 col-md-6 listContacts" id="ListEmails">
-                                    <div class="row">
-                                        <div class="col-12 col-md-10">
-                                            <label class="col-form-label control-label">Email</label>
-                                            <input type="hidden" name="Emails[0].TypeContact" value="@TypeContact.EMAIL.ToString()" />
-                                            <input type="email" class="form-control emails" name="Emails[0].EmailOrPhone" />
-                                        </div>
-                                        <div class="col-12 col-md-2">
-                                            <label class="col-form-label control-label heightLabel"></label>
-                                            <button type="button" class="btn btn-color btn-add-email" value="email">+</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6 listContacts" id="ListPhones">
-                                    <div class="row">
-                                        <div class="col-12 col-md-10">
-                                            <label class="col-form-label control-label">Teléfono</label>
-                                            <input type="hidden" name="Phones[0].TypeContact" value="@TypeContact.PHONE.ToString()" />
-                                            <input type="text" class="form-control phones" name="Phones[0].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />
-                                        </div>
-                                        <div class="col-12 col-md-2">
-                                            <label class="col-form-label control-label heightLabel">   </label>
-                                            <button type="button" class="btn btn-color btn-add-phone" value="phone">+</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="form-group row pull-right">
                                 <div class="col-md-10 offset-2 text-right">
-                                    <a href='@Url.Action("Index", "Customer")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
+                                    <a href='@Url.Action("Index", "Plan")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
                                     <button type="submit" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
                                 </div>
                             </div>
@@ -194,7 +130,7 @@
     @Scripts.Render("~/plugins/toastr")
     <script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>
     @*<script src="~/Scripts/views/Customer/Create.js"></script>
-    <script>
-        var urlGetLocation = '@Url.Action("GetLocations")';
-    </script>*@
+        <script>
+            var urlGetLocation = '@Url.Action("GetLocations")';
+        </script>*@
 }

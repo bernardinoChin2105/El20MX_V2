@@ -172,34 +172,54 @@ namespace MVC_Project.Utils
         FINERIO
     }
 
-    public enum MoralPersonsRegime
+    public enum ChangeType
     {
-        Regime601 = 601,
-        Regime603 = 603,
-        Regime607 = 607,
-        Regime609 = 609,
-        Regime620 = 620,
-        Regime622 = 622,
-        Regime623 = 623,
-        Regime624 = 624,
-        Regime628 = 628,
+        [Display(Name = "Fijo")]
+        FIXED,
+        [Display(Name = "Variable")]
+        VARIABLE
     }
 
-    public enum NaturalPersonsRegime
+    public enum Operation
     {
-        Regime605 = 605,
-        Regime606 = 606,
-        Regime608 = 608,
-        Regime611 = 611,
-        Regime612 = 612,
-        Regime614 = 614,
-        Regime615 = 615,
-        Regime616 = 616,
-        Regime621 = 621,
-        Regime622 = 622,
-        Regime629 = 626,
-        Regime630 = 630,
+        [Display(Name = "Adición")]
+        ADDITION,
+        [Display(Name = "Subtracción")]
+        SUBTRACTION,
+        [Display(Name = "División")]
+        DIVIDE,
+        [Display(Name = "Multiplicación")]
+        MULTIPLICITY
     }
+
+    //public enum MoralPersonsRegime
+    //{
+    //    Regime601 = 601,
+    //    Regime603 = 603,
+    //    Regime607 = 607,
+    //    Regime609 = 609,
+    //    Regime620 = 620,
+    //    Regime622 = 622,
+    //    Regime623 = 623,
+    //    Regime624 = 624,
+    //    Regime628 = 628,
+    //}
+
+    //public enum NaturalPersonsRegime
+    //{
+    //    Regime605 = 605,
+    //    Regime606 = 606,
+    //    Regime608 = 608,
+    //    Regime611 = 611,
+    //    Regime612 = 612,
+    //    Regime614 = 614,
+    //    Regime615 = 615,
+    //    Regime616 = 616,
+    //    Regime621 = 621,
+    //    Regime622 = 622,
+    //    Regime629 = 626,
+    //    Regime630 = 630,
+    //}
 
     public enum SystemControllers
     {

@@ -17,10 +17,14 @@ namespace MVC_Project.WebBackend.Controllers
     public class PlansController : Controller
     {
         private IPlanService _planService;
+        private IPlanChangeService _planChargeService;
+        private IPlanAssignmentsService _planAssignmentsService;
 
-        public PlansController(IPlanService planeService)
+        public PlansController(IPlanService planeService, IPlanChangeService planChangeService, IPlanAssignmentsService planAssignmentsService)
         {
             _planService = planeService;
+            _planChargeService = planChangeService;
+            _planAssignmentsService = planAssignmentsService;
         }
 
         [AllowAnonymous]
@@ -105,19 +109,11 @@ namespace MVC_Project.WebBackend.Controllers
             var userAuth = Authenticator.AuthenticatedUser;
             try
             {
-                //var createCustomer = new CustomerViewModel();
-                //var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-                //stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
-
-                //var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-                //    .Select(e => new SelectListItem
-                //    {
-                //        Value = e.ToString(),
-                //        Text = EnumUtils.GetDisplayName(e)
-                //    }).ToList();
-
-                //createCustomer.ListRegimen = new SelectList(regimenList);
-                //createCustomer.ListState = new SelectList(stateList);
+                PlanViewModel model = new PlanViewModel();
+                model.LabelConcepts = _planChargeService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
+                                    .Select(x => new PlanLabelsViewModel { Id = x.id, Name = x.name }).ToList();
+                model.LabelAssignment = _planAssignmentsService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
+                                    .Select(x => new PlanLabelsViewModel { Id = x.id, Name = x.name).ToList();
 
                 //LogUtil.AddEntry(
                 //   "Crea nuevo cliente: " + JsonConvert.SerializeObject(createCustomer),
@@ -130,7 +126,7 @@ namespace MVC_Project.WebBackend.Controllers
                 //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
                 //);
 
-                return View();
+                return View(model);
             }
             catch (Exception ex)
             {
@@ -148,6 +144,147 @@ namespace MVC_Project.WebBackend.Controllers
                 return RedirectToAction("Index");
             }
             // return View();
+        }
+
+        [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
+        public ActionResult Create(PlanViewModel model)
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+            try
+            {
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
+
+
+                if (_planService.FindBy(x => x.name == model.Name).Any())
+                    throw new Exception("Ya existe un Plan con el nombre proporcionado");
+                
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+
+                Plan plan = new Customer()
+                {
+
+                    uuid = Guid.NewGuid(),
+                    account = new Account { id = authUser.Account.Id },
+                    firstName = model.FistName,
+                    lastName = model.LastName,
+                    rfc = model.RFC,
+                    curp = model.CURP,
+                    businessName = model.BusinessName,
+                    taxRegime = model.taxRegime,
+                    street = model.Street,
+                    interiorNumber = model.InteriorNumber,
+                    outdoorNumber = model.OutdoorNumber,
+                    zipCode = model.ZipCode,
+                    deliveryAddress = model.DeliveryAddress,
+                    createdAt = todayDate,
+                    modifiedAt = todayDate,
+                    status = SystemStatus.ACTIVE.ToString(),
+                };
+
+                if (model.Colony.Value > 0)
+                    customer.colony = model.Colony.Value;
+                if (model.Municipality.Value > 0)
+                    customer.municipality = model.Municipality.Value;
+                if (model.State.Value > 0)
+                    customer.state = model.State.Value;
+                if (model.Country.Value > 0)
+                    customer.country = model.Country.Value;
+
+                List<string> indexsP = new List<string>();
+                List<string> indexsE = new List<string>();
+
+                if (model.indexPhone != null)
+                    indexsP = model.indexPhone.Split(',').ToList();
+
+                if (model.indexEmail != null)
+                    indexsE = model.indexEmail.Split(',').ToList();
+
+                if (model.Emails.Count() > 0)
+                {
+                    for (int i = 0; i < model.Emails.Count(); i++)
+                    {
+                        if (model.Phones[i].EmailOrPhone != null && model.Emails[i].EmailOrPhone.Trim() != "" && !indexsE.Contains(i.ToString()))
+                        {
+                            CustomerContact email = new CustomerContact()
+                            {
+                                emailOrPhone = model.Emails[i].EmailOrPhone,
+                                typeContact = model.Emails[i].TypeContact,
+                                customer = customer,
+                                createdAt = todayDate,
+                                modifiedAt = todayDate,
+                                status = SystemStatus.ACTIVE.ToString()
+                            };
+
+                            customer.customerContacts.Add(email);
+                        }
+                    }
+                }
+
+                if (model.Phones.Count() > 0)
+                {
+                    for (int i = 0; i < model.Phones.Count(); i++)
+                    {
+                        if (model.Phones[i].EmailOrPhone != null && model.Phones[i].EmailOrPhone.Trim() != "" && !indexsP.Contains(i.ToString()))
+                        {
+                            CustomerContact phone = new CustomerContact()
+                            {
+                                emailOrPhone = model.Phones[i].EmailOrPhone,
+                                typeContact = model.Phones[i].TypeContact,
+                                customer = customer,
+                                createdAt = todayDate,
+                                modifiedAt = todayDate,
+                                status = SystemStatus.ACTIVE.ToString()
+                            };
+
+                            customer.customerContacts.Add(phone);
+                        }
+                    }
+                }
+
+                _customerService.Create(customer);
+                LogUtil.AddEntry(
+                    "Crea nuevo cliente: " + JsonConvert.SerializeObject(customer),
+                    ENivelLog.Info,
+                    authUser.Id,
+                    authUser.Email,
+                    EOperacionLog.ACCESS,
+                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+                MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
+                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
+
+                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
+                    .Select(e => new SelectListItem
+                    {
+                        Value = e.ToString(),
+                        Text = EnumUtils.GetDisplayName(e)
+                    }).ToList();
+
+                model.ListRegimen = new SelectList(regimenList);
+                model.ListState = new SelectList(stateList);
+
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+
+                return View(model);
+            }
         }
 
         //public ActionResult Edit(string uuid)
