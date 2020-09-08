@@ -95,11 +95,39 @@
                     @if (user.HasAccessController("Provider"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Provider", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "Provider")"><a href="@Url.Action("Index", "Provider")">Proveedores</a></li>
+                            <li class="@Html.IsSelected(controller: "Provider")"><a href="@Url.Action("Index", "Provider")">Proveedores</a></li>                            
                         </ul>
                     }
                 </li>
             }
+
+
+            @* Menus para la sección del BackOfficce*@
+
+            @if (user.HasAccessToModule(SystemModules.PLANS.ToString()))
+            {
+                <li class="@Html.IsModuleSelected(user, SystemModules.PLANS.ToString())">
+                    <a href="#"><i class="fa fa-user"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_PLANS</span> <span class="fain arrow"></span></a>
+                    @if (user.HasAccessController("Plan"))
+                    {
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Plans", cssClass: "in")">                            
+                            <li class="@Html.IsSelected(controller: "Plans")"><a href="@Url.Action("Index", "Plans")">Planes</a></li>
+                        </ul>
+                    }
+                </li>
+            }
+
+            @*@if (user.HasAccessToModule("catalogs"))
+        {
+            <li class="@Html.IsModuleSelected(user, "catalogs")">
+                <a href="#"><i class="fa fa-table"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CATALOGS</span> <span class="fain arrow"></span></a>
+                <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Catalogs", cssClass: "in")">
+                    <li class="@Html.IsSelected(action: "Dashboard_1")"><a href="@Url.Action("Report_1", "Dashboards")">Catálogo 1</a></li>
+                    <li class="@Html.IsSelected(action: "Dashboard_2")"><a href="@Url.Action("Report_2", "Dashboards")">Catálogo 2</a></li>
+                </ul>
+            </li>
+        }*@
+
 
             @if (user.HasAccessToModule("catalogs"))
             {
@@ -182,18 +210,18 @@
 
 
             @*<li class="">
-                    <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
-                    <ul class="nav nav-second-level collapse in">
-                        <li class="">
-                            <a href="#">Bancos <span class="fain arrow"></span></a>
-                            <ul class="nav nav-second-level collapse">
-                                <li class=""><a href="#">Conectar</a></li>
-                                <li class=""><a href="#">Cargar movimientos</a></li>
-                            </ul>
-                        </li>
-
+            <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
+            <ul class="nav nav-second-level collapse in">
+                <li class="">
+                    <a href="#">Bancos <span class="fain arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li class=""><a href="#">Conectar</a></li>
+                        <li class=""><a href="#">Cargar movimientos</a></li>
                     </ul>
-                </li>*@
+                </li>
+
+            </ul>
+        </li>*@
 
 
         </ul>

@@ -263,6 +263,7 @@
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\PaymentsController.cs" />
+    <Compile Include="Controllers\PlansController.cs" />
     <Compile Include="Controllers\ProviderController.cs" />
     <Compile Include="Controllers\RegisterController.cs" />
     <Compile Include="Controllers\RoleController.cs" />
@@ -278,6 +279,7 @@
     <Compile Include="Models\AccountViewModel.cs" />
     <Compile Include="Models\AuthViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
+    <Compile Include="Models\ProductVM.cs" />
     <Compile Include="Models\ProviderViewModel.cs" />
     <Compile Include="Models\CustomerViewModel.cs" />
     <Compile Include="Models\DataTableModel.cs" />
@@ -1803,6 +1805,7 @@
     <Content Include="Scripts\views\Auth\Index.js" />
     <Content Include="Scripts\views\Bank\BankAccount.js" />
     <Content Include="Scripts\views\Bank\Index.js" />
+    <Content Include="Scripts\views\Plan\Index.js" />
     <Content Include="Scripts\views\Provider\Create.js" />
     <Content Include="Scripts\views\Provider\Edit.js" />
     <Content Include="Scripts\views\Provider\Index.js" />
@@ -1927,6 +1930,7 @@
     <Content Include="Views\Bank\Index.cshtml" />
     <Content Include="Views\Bank\BanksAccount.cshtml" />
     <Content Include="Views\Account\_SelectAccountBackOfficeModal.cshtml" />
+    <Content Include="Views\Plans\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

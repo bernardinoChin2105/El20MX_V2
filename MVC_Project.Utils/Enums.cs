@@ -110,7 +110,12 @@ namespace MVC_Project.Utils
         [Display(Name = "Proveedores")]
         PROVIDERS,
         [Display(Name = "Bancos")]
-        BANKS
+        BANKS,
+
+        #region Modulos del BackOffice
+        [Display(Name = "Planes")]
+        PLANS
+        #endregion
     }
 
     public enum TermsAndConditions
@@ -154,7 +159,7 @@ namespace MVC_Project.Utils
         NATURALPERSONSREGIME,
         [Display(Name = "Persona Moral")]
         [Description("Persona Moral")]
-        MORALPERSONSREGIME,        
+        MORALPERSONSREGIME,
     }
 
     public enum SystemProviders
@@ -198,7 +203,7 @@ namespace MVC_Project.Utils
 
     public enum SystemControllers
     {
-        [Display(Name ="Account")]
+        [Display(Name = "Account")]
         ACCOUNT,
     }
 }
