@@ -91,6 +91,8 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name="Acepto al usuario")]
         public bool AcceptUser { get; set; }
 
+        public bool isBackOffice { get; set; }
+
         //public IEnumerable<FeatureViewModel> Features { get; set; }
     }
 

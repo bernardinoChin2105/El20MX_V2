@@ -65,6 +65,24 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
             }
             return string.Empty;
         }
+        public bool isBackOfficeConfiguration()
+        {
+            return this.isBackOffice && this.Account == null;
+        }
+
+        public Int64? GetAccountId()
+        {
+            if (this.isBackOffice)
+            {
+                return this.Account == null ? (Int64?)null : this.Account.Id;
+            }
+            else
+            {
+                if (this.Account == null)
+                    throw new Exception("El usuario no tiene asignado una cuenta");
+                return this.Account.Id;
+            }
+        }
     }
 
     public class Role

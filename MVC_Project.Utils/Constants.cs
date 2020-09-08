@@ -38,6 +38,7 @@ namespace MVC_Project.Utils
         public static string NOT_TEMPLATE_CHARGESUCCESS = "3e58558e-0a7c-4f2b-b003-ac27b5677d91";
         public static string NOT_TEMPLATE_WELCOME_NETWORK = "87ca5218-685e-4361-aa2b-ce2b14f430f5";
         public static string NOT_TEMPLATE_NEW_USER = "11e635ba-3102-4f42-8a86-ad0af5c55eb2";
+        public static string NOT_TEMPLATE_NEW_BACKOFFICE_USER = "d00e4ada-ec64-4bb5-b0db-eee6b618beeb";
 
 
         // Encabezados de archivo Excel

@@ -1,5 +1,8 @@
-﻿@{
+﻿@using MVC_Project.WebBackend.AuthManagement
+@using MVC_Project.WebBackend.AuthManagement.Models
+@{
     ViewBag.Title = "";
+    AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
 }
 
 <div class="row">
@@ -28,6 +31,10 @@
             urlCredential: "@Url.Action("CreateCredential")",
             urlSelectLastAccount: "@Url.Action("SelectLastAccount")",
             urlSetAccount: "@Url.Action("SetAccount")",
+        }
+
+        var parameters = {
+            isBackOffice: '@user.isBackOffice' == 'true',
         }
     </script>
 }

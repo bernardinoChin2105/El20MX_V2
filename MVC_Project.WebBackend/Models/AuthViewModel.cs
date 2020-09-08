@@ -64,6 +64,7 @@ namespace MVC_Project.BackendWeb.Models
         public Guid AcccountUuid { get; set; }
 
         public bool AgreeTerms { get; set; }
+        public bool isBackOffice { get; set; }
     }
 
     //public class AuthLogin
