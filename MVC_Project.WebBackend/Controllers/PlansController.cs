@@ -1,4 +1,5 @@
 ﻿using LogHubSDK.Models;
+using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Model;
 using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
@@ -47,10 +48,10 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 if (!first)
                 {
-                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);                    
+                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
                     string Name = filtersValues.Get("Name").Trim();
 
-                    var pagination = new BasePagination();                   
+                    var pagination = new BasePagination();
                     pagination.PageSize = param.iDisplayLength;
                     pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
                     //if (Name != "") filters.businessName = businessName;
@@ -111,39 +112,25 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 PlanViewModel model = new PlanViewModel();
                 model.LabelConcepts = _planChargeService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
-                                    .Select(x => new PlanLabelsViewModel { Id = x.id, Name = x.name }).ToList();
+                                    .Select(x => new PlanLabelsViewModel { Id = x.id, Label = x.name }).ToList();
                 model.LabelAssignment = _planAssignmentsService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
-                                    .Select(x => new PlanLabelsViewModel { Id = x.id, Name = x.name).ToList();
-
-                //LogUtil.AddEntry(
-                //   "Crea nuevo cliente: " + JsonConvert.SerializeObject(createCustomer),
-                //   ENivelLog.Info,
-                //   userAuth.Id,
-                //   userAuth.Email,
-                //   EOperacionLog.ACCESS,
-                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                //   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                //);
+                                    .Select(x => new PlanAssignmentLabels {
+                                        Id = x.id,
+                                        Label = x.name,
+                                        fieldType = x.fielType,
+                                        operation = x.operation,
+                                        dataType = (x.dataType == "System.Int32" ? "number": "text"), 
+                                        providerData = x.providerData
+                                    }).ToList();   
+                //Faltan las características
 
                 return View(model);
             }
             catch (Exception ex)
             {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                //LogUtil.AddEntry(
-                //   "Se encontro un error: " + ex.Message.ToString(),
-                //   ENivelLog.Error,
-                //   userAuth.Id,
-                //   userAuth.Email,
-                //   EOperacionLog.ACCESS,
-                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                //   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                //   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                //);
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);                
                 return RedirectToAction("Index");
-            }
-            // return View();
+            }            
         }
 
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
@@ -158,89 +145,68 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (_planService.FindBy(x => x.name == model.Name).Any())
                     throw new Exception("Ya existe un Plan con el nombre proporcionado");
-                
+
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
-                Plan plan = new Customer()
+                Plan plan = new Plan()
                 {
-
                     uuid = Guid.NewGuid(),
-                    account = new Account { id = authUser.Account.Id },
-                    firstName = model.FistName,
-                    lastName = model.LastName,
-                    rfc = model.RFC,
-                    curp = model.CURP,
-                    businessName = model.BusinessName,
-                    taxRegime = model.taxRegime,
-                    street = model.Street,
-                    interiorNumber = model.InteriorNumber,
-                    outdoorNumber = model.OutdoorNumber,
-                    zipCode = model.ZipCode,
-                    deliveryAddress = model.DeliveryAddress,
+                    name = model.Name,
+                    isCurrent = model.isCurrent,
                     createdAt = todayDate,
                     modifiedAt = todayDate,
-                    status = SystemStatus.ACTIVE.ToString(),
+                    status = SystemStatus.ACTIVE.ToString()
                 };
 
-                if (model.Colony.Value > 0)
-                    customer.colony = model.Colony.Value;
-                if (model.Municipality.Value > 0)
-                    customer.municipality = model.Municipality.Value;
-                if (model.State.Value > 0)
-                    customer.state = model.State.Value;
-                if (model.Country.Value > 0)
-                    customer.country = model.Country.Value;
+                List<PlanChargeConfiguration> charges = new List<PlanChargeConfiguration>();
+                List<PlanAssignmentConfiguration> assignments = new List<PlanAssignmentConfiguration>();                
 
-                List<string> indexsP = new List<string>();
-                List<string> indexsE = new List<string>();
-
-                if (model.indexPhone != null)
-                    indexsP = model.indexPhone.Split(',').ToList();
-
-                if (model.indexEmail != null)
-                    indexsE = model.indexEmail.Split(',').ToList();
-
-                if (model.Emails.Count() > 0)
+                if (model.LabelConcepts.Count() > 0)
                 {
-                    for (int i = 0; i < model.Emails.Count(); i++)
+                    foreach (var item in model.LabelConcepts)
                     {
-                        if (model.Phones[i].EmailOrPhone != null && model.Emails[i].EmailOrPhone.Trim() != "" && !indexsE.Contains(i.ToString()))
+                        if (item.Id == 0 && item.Value > 0)
                         {
-                            CustomerContact email = new CustomerContact()
+                            PlanChargeConfiguration charge = new PlanChargeConfiguration()
                             {
-                                emailOrPhone = model.Emails[i].EmailOrPhone,
-                                typeContact = model.Emails[i].TypeContact,
-                                customer = customer,
+                                uuid = Guid.NewGuid(),
+                                plan = plan,
+                                planCharge = new PlanCharge { id = item.Id},
+                                charge = item.Value,
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
                                 status = SystemStatus.ACTIVE.ToString()
                             };
-
-                            customer.customerContacts.Add(email);
+                            charges.Add(charge);
                         }
                     }
                 }
 
-                if (model.Phones.Count() > 0)
+                if (model.LabelAssignment.Count() > 0)
                 {
-                    for (int i = 0; i < model.Phones.Count(); i++)
+                    foreach (var item in model.LabelAssignment)
                     {
-                        if (model.Phones[i].EmailOrPhone != null && model.Phones[i].EmailOrPhone.Trim() != "" && !indexsP.Contains(i.ToString()))
+                        if (item.Id == 0 && item.Value > 0)
                         {
-                            CustomerContact phone = new CustomerContact()
+                            PlanAssignmentConfiguration assignment = new PlanAssignmentConfiguration()
                             {
-                                emailOrPhone = model.Phones[i].EmailOrPhone,
-                                typeContact = model.Phones[i].TypeContact,
-                                customer = customer,
+                                uuid = Guid.NewGuid(),
+                                plan = plan,
+                                planAssignment = new PlanAssignment { id = item.Id },                                
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
                                 status = SystemStatus.ACTIVE.ToString()
                             };
+                                /*     
+        public virtual string value1 { get; set; }
+        public virtual string value2 { get; set; } //valor2 para rangos        
+                                 */
 
-                            customer.customerContacts.Add(phone);
+                            assignments.Add(assignment);
                         }
                     }
                 }
+
 
                 _customerService.Create(customer);
                 LogUtil.AddEntry(

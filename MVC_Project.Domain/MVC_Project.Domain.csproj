@@ -112,6 +112,8 @@
     <Compile Include="Services\BankService.cs" />
     <Compile Include="Services\CredentialService.cs" />
     <Compile Include="Services\CustomerContactService.cs" />
+    <Compile Include="Services\PlanAssignmentService.cs" />
+    <Compile Include="Services\PlanChargeService.cs" />
     <Compile Include="Services\PlanService.cs" />
     <Compile Include="Services\ProviderService.cs" />
     <Compile Include="Services\CustomerService.cs" />

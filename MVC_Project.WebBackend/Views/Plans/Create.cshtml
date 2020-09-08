@@ -57,7 +57,7 @@
                                         @foreach (var item in Model.LabelConcepts)
                                         {
                                             <div class="col-12 col-md-4">
-                                                @Html.LabelFor(m => item.Name, new { @class = "col-form-label control-label" })
+                                                @Html.LabelFor(m => item.Label, new { @class = "col-form-label control-label" })
                                             </div>
                                             <div class="col-12 col-md-8">
                                                 <input type="hidden" name="Id[]" value="@item.Id" />
@@ -96,11 +96,29 @@
                                         @foreach (var item in Model.LabelAssignment)
                                         {
                                             <div class="col-12 col-md-4">
-                                                @Html.LabelFor(m => item.Name, new { @class = "col-form-label control-label" })
+                                                @Html.LabelFor(m => item.Label, new { @class = "col-form-label control-label" })
                                             </div>
                                             <div class="col-12 col-md-8">
                                                 <input type="hidden" name="Id[]" value="@item.Id" />
-                                                <input type="number" name="Value[]" value="@item.Value" class="form-control" />
+
+                                                @if (item.operation == Operation.RANGE.ToString())
+                                                {
+                                                    <input type="@item.dataType" name="Value1" value="@item.Value1" class="form-control" />
+                                                    <input type="@item.dataType" name="Value2" value="@item.Value2" class="form-control" />
+                                                }
+                                                else
+                                                {
+                                                    if (item.fieldType == "select")
+                                                    {
+                                                        <select class="form-control" name="PersonType">
+                                                            @foreach(var type in Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>())
+                                                            {
+                                                                <option value="@(int)type">@EnumUtils.GetDescription(type)</option>
+                                                            }
+                                                        </select>                                                        
+                                                    }
+                                                }
+
                                             </div>
                                         }
                                     </div>

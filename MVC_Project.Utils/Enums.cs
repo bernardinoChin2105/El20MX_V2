@@ -189,7 +189,11 @@ namespace MVC_Project.Utils
         [Display(Name = "División")]
         DIVIDE,
         [Display(Name = "Multiplicación")]
-        MULTIPLICITY
+        MULTIPLICITY,
+        [Display(Name = "Rango")]
+        RANGE,
+        [Display(Name = "Igual")]
+        EQUAL
     }
 
     //public enum MoralPersonsRegime

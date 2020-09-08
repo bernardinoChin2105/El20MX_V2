@@ -36,5 +36,32 @@ namespace MVC_Project.Domain.Services
             if (list != null) return list.ToList();
             return null;
         }
+
+        public Plan CreateRole(Plan plan, IEnumerable<PlanCharge> planCharge, IEnumerable<PlanAssignment> planAssignments)
+        {
+            using (var transaction = _repository.Session.BeginTransaction())
+            {
+                try
+                {
+                    _repository.Session.Save(plan);
+
+                    foreach (var charge in planCharge)
+                        _repository.Session.Save(charge);
+
+                    foreach (var assignment in planAssignments)
+                        _repository.Session.Save(assignment);
+
+                    //faltan las características
+
+                    transaction.Commit();
+                    return plan;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
+                }
+            }
+        }
     }
 }
