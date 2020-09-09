@@ -1,0 +1,160 @@
+﻿@model MVC_Project.WebBackend.Models.PlanViewModel
+@using MVC_Project.Utils
+
+@{
+    /**/
+
+
+    ViewBag.Title = "Nuevo Plan";
+}
+
+@section styles{
+    <link href="~/Content/template/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .heightLabel {
+            height: 55px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+}
+
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="">
+        @using (Html.BeginForm("Create", "Plan", FormMethod.Post, new { role = "form", @id = "CreateForm", @class = "row" }))
+        {
+            <div class="col-lg-12">
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>Configuración de Plan</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="form-horizontal">
+                            <div class="form-group row">
+                                <div class="col-12 col-md-3">
+                                    @Html.LabelFor(m => m.Name, new { @class = "col-form-label control-label" })
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    @Html.TextBoxFor(m => m.Name, new { @class = "form-control", @maxlength = "50" })
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <div class="checkbox">
+                                        <label>@Html.CheckBoxFor(x => x.isCurrent)&nbsp;@Html.DisplayNameFor(x => x.isCurrent)</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Conceptos</h3>
+                                </div>
+                                <div class="panel-body">
+                                    @foreach (var item in Model.LabelConcepts)
+                                    {
+                                        <div class="form-group row">
+                                            <div class="col-12 col-md-4">
+                                                <label class="col-form-label control-label">@item.Label</label>
+                                            </div>
+                                            <div class="col-12 col-md-8">
+                                                <input type="hidden" name="Id[]" value="@item.Id" />
+                                                <input type="number" name="Value[]" value="@item.Value" class="form-control" />
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Características</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="form-group row">
+                                        @*@foreach (var item in Model.LabelConcepts)
+                                            {
+                                                <div class="col-12 col-md-4">
+                                                    @Html.LabelFor(m => item.Name, new { @class = "col-form-label control-label" })
+                                                </div>
+                                                <div class="col-12 col-md-8">
+                                                    <input type="hidden" name="idCharge[]" />
+                                                    <input type="number" name="chargeName[]" class="form-control" />
+                                                </div>
+                                            }*@
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Criterio de asignación</h3>
+                                </div>
+                                <div class="panel-body">
+                                    @foreach (var item in Model.LabelAssignment)
+                                    {
+                                        <div class="form-group row">
+                                            <div class="col-12 col-md-4">
+                                                <label class="col-form-label control-label">@item.Label</label>
+                                            </div>
+                                            <div class="col-12 col-md-8">
+                                                <input type="hidden" name="Id[]" value="@item.Id" />
+
+                                                @if (item.operation == Operation.RANGE.ToString())
+                                                {
+                                                    <div class="row">
+                                                        <div class="col-12 col-md-6">
+                                                            <input type="@item.dataType" name="Value1" value="@item.Value1" class="form-control" />
+                                                        </div>
+                                                        <div class="col-12 col-md-6">
+                                                            <input type="@item.dataType" name="Value2" value="@item.Value2" class="form-control" />
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    if (item.fieldType == "select")
+                                                    {
+                                                        <select class="form-control" name="PersonType">
+                                                            @foreach (var type in Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>())
+                                                            {
+                                                                <option value="@type">@EnumUtils.GetDescription(type)</option>
+                                                            }
+                                                        </select>
+                                                    }
+                                                }
+
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-horizontal">
+                            <div class="form-group row pull-right">
+                                <div class="col-md-10 offset-2 text-right">
+                                    <a href='@Url.Action("Index", "Plan")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
+                                    <button type="submit" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        }
+
+    </div>
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/plugins/validate")
+    @Scripts.Render("~/plugins/toastr")
+    <script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>
+    @*<script src="~/Scripts/views/Customer/Create.js"></script>
+        <script>
+            var urlGetLocation = '@Url.Action("GetLocations")';
+        </script>*@
+}

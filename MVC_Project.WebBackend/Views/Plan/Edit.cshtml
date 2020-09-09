@@ -5,7 +5,7 @@
     /**/
 
 
-    ViewBag.Title = "Nuevo Plan";
+    ViewBag.Title = "Editar Plan";
 }
 
 @section styles{
@@ -24,7 +24,7 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="">
-        @using (Html.BeginForm("Create", "Plan", FormMethod.Post, new { role = "form", @id = "CreateForm", @class = "row" }))
+        @using (Html.BeginForm("Edit", "Plan", FormMethod.Post, new { role = "form", @id = "EditForm", @class = "row" }))
         {
             <div class="col-lg-12">
                 @Html.AntiForgeryToken()
@@ -111,11 +111,11 @@
                                                     if (item.fieldType == "select")
                                                     {
                                                         <select class="form-control" name="PersonType">
-                                                            @foreach(var type in Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>())
+                                                            @foreach (var type in Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>())
                                                             {
                                                                 <option value="@(int)type">@EnumUtils.GetDescription(type)</option>
                                                             }
-                                                        </select>                                                        
+                                                        </select>
                                                     }
                                                 }
 

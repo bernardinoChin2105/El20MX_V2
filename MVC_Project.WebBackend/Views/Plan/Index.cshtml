@@ -56,7 +56,7 @@
                     @if (hasFullAccessController)
                     {
                         <div class="ibox-tools">
-                            <a href="@Url.Action("CreatePlan", "Plans")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Crear nuevo Plan</a>                            
+                            <a href="@Url.Action("Create", "Plan")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Crear nuevo Plan</a>                            
                         </div>
                     }
                 </div>
@@ -75,7 +75,7 @@
 
     <script>
         $(function () {
-            var plan = new PlansIndexControlador('table',
+            var plan = new PlanIndexControlador('table',
                 '@Url.Action("GetPlans")',
                 '@Url.Action("Edit")',
                 @*'@Url.Action("ExportListCustomer")',

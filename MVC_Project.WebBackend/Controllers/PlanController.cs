@@ -15,13 +15,13 @@ using System.Web.Mvc;
 
 namespace MVC_Project.WebBackend.Controllers
 {
-    public class PlansController : Controller
+    public class PlanController : Controller
     {
         private IPlanService _planService;
         private IPlanChangeService _planChargeService;
         private IPlanAssignmentsService _planAssignmentsService;
 
-        public PlansController(IPlanService planeService, IPlanChangeService planChangeService, IPlanAssignmentsService planAssignmentsService)
+        public PlanController(IPlanService planeService, IPlanChangeService planChangeService, IPlanAssignmentsService planAssignmentsService)
         {
             _planService = planeService;
             _planChargeService = planChangeService;
@@ -133,123 +133,152 @@ namespace MVC_Project.WebBackend.Controllers
             }            
         }
 
-        [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
-        public ActionResult Create(PlanViewModel model)
+        //[Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
+        //public ActionResult Create(PlanViewModel model)
+        //{
+        //    var authUser = Authenticator.AuthenticatedUser;
+        //    try
+        //    {
+        //        if (!ModelState.IsValid)
+        //            throw new Exception("El modelo de entrada no es válido");
+
+
+        //        if (_planService.FindBy(x => x.name == model.Name).Any())
+        //            throw new Exception("Ya existe un Plan con el nombre proporcionado");
+
+        //        DateTime todayDate = DateUtil.GetDateTimeNow();
+
+        //        Plan plan = new Plan()
+        //        {
+        //            uuid = Guid.NewGuid(),
+        //            name = model.Name,
+        //            isCurrent = model.isCurrent,
+        //            createdAt = todayDate,
+        //            modifiedAt = todayDate,
+        //            status = SystemStatus.ACTIVE.ToString()
+        //        };
+
+        //        List<PlanChargeConfiguration> charges = new List<PlanChargeConfiguration>();
+        //        List<PlanAssignmentConfiguration> assignments = new List<PlanAssignmentConfiguration>();                
+
+        //        if (model.LabelConcepts.Count() > 0)
+        //        {
+        //            foreach (var item in model.LabelConcepts)
+        //            {
+        //                if (item.Id == 0 && item.Value > 0)
+        //                {
+        //                    PlanChargeConfiguration charge = new PlanChargeConfiguration()
+        //                    {
+        //                        uuid = Guid.NewGuid(),
+        //                        plan = plan,
+        //                        planCharge = new PlanCharge { id = item.Id},
+        //                        charge = item.Value,
+        //                        createdAt = todayDate,
+        //                        modifiedAt = todayDate,
+        //                        status = SystemStatus.ACTIVE.ToString()
+        //                    };
+        //                    charges.Add(charge);
+        //                }
+        //            }
+        //        }
+
+        //        if (model.LabelAssignment.Count() > 0)
+        //        {
+        //            foreach (var item in model.LabelAssignment)
+        //            {
+        //                if (item.Id == 0 && item.Value > 0)
+        //                {
+        //                    PlanAssignmentConfiguration assignment = new PlanAssignmentConfiguration()
+        //                    {
+        //                        uuid = Guid.NewGuid(),
+        //                        plan = plan,
+        //                        planAssignment = new PlanAssignment { id = item.Id },                                
+        //                        createdAt = todayDate,
+        //                        modifiedAt = todayDate,
+        //                        status = SystemStatus.ACTIVE.ToString()
+        //                    };
+        //                        /*     
+        //public virtual string value1 { get; set; }
+        //public virtual string value2 { get; set; } //valor2 para rangos        
+        //                         */
+
+        //                    assignments.Add(assignment);
+        //                }
+        //            }
+        //        }
+
+
+        //        _customerService.Create(customer);
+        //        LogUtil.AddEntry(
+        //            "Crea nuevo cliente: " + JsonConvert.SerializeObject(customer),
+        //            ENivelLog.Info,
+        //            authUser.Id,
+        //            authUser.Email,
+        //            EOperacionLog.ACCESS,
+        //            string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+        //            ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+        //            string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+        //        );
+        //        MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
+        //        return RedirectToAction("Index");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+        //        var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
+        //        stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
+
+        //        var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
+        //            .Select(e => new SelectListItem
+        //            {
+        //                Value = e.ToString(),
+        //                Text = EnumUtils.GetDisplayName(e)
+        //            }).ToList();
+
+        //        model.ListRegimen = new SelectList(regimenList);
+        //        model.ListState = new SelectList(stateList);
+
+        //        LogUtil.AddEntry(
+        //           "Se encontro un error: " + ex.Message.ToString(),
+        //           ENivelLog.Error,
+        //           authUser.Id,
+        //           authUser.Email,
+        //           EOperacionLog.ACCESS,
+        //           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+        //           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+        //           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+        //        );
+
+        //        return View(model);
+        //    }
+        //}
+
+        public ActionResult Edit(string uuid)
         {
-            var authUser = Authenticator.AuthenticatedUser;
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
-                if (!ModelState.IsValid)
-                    throw new Exception("El modelo de entrada no es válido");
+                PlanViewModel model = new PlanViewModel();
+                model.LabelConcepts = _planChargeService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
+                                    .Select(x => new PlanLabelsViewModel { Id = x.id, Label = x.name }).ToList();
+                model.LabelAssignment = _planAssignmentsService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
+                                    .Select(x => new PlanAssignmentLabels
+                                    {
+                                        Id = x.id,
+                                        Label = x.name,
+                                        fieldType = x.fielType,
+                                        operation = x.operation,
+                                        dataType = (x.dataType == "System.Int32" ? "number" : "text"),
+                                        providerData = x.providerData
+                                    }).ToList();
+                //Faltan las características
 
-
-                if (_planService.FindBy(x => x.name == model.Name).Any())
-                    throw new Exception("Ya existe un Plan con el nombre proporcionado");
-
-                DateTime todayDate = DateUtil.GetDateTimeNow();
-
-                Plan plan = new Plan()
-                {
-                    uuid = Guid.NewGuid(),
-                    name = model.Name,
-                    isCurrent = model.isCurrent,
-                    createdAt = todayDate,
-                    modifiedAt = todayDate,
-                    status = SystemStatus.ACTIVE.ToString()
-                };
-
-                List<PlanChargeConfiguration> charges = new List<PlanChargeConfiguration>();
-                List<PlanAssignmentConfiguration> assignments = new List<PlanAssignmentConfiguration>();                
-
-                if (model.LabelConcepts.Count() > 0)
-                {
-                    foreach (var item in model.LabelConcepts)
-                    {
-                        if (item.Id == 0 && item.Value > 0)
-                        {
-                            PlanChargeConfiguration charge = new PlanChargeConfiguration()
-                            {
-                                uuid = Guid.NewGuid(),
-                                plan = plan,
-                                planCharge = new PlanCharge { id = item.Id},
-                                charge = item.Value,
-                                createdAt = todayDate,
-                                modifiedAt = todayDate,
-                                status = SystemStatus.ACTIVE.ToString()
-                            };
-                            charges.Add(charge);
-                        }
-                    }
-                }
-
-                if (model.LabelAssignment.Count() > 0)
-                {
-                    foreach (var item in model.LabelAssignment)
-                    {
-                        if (item.Id == 0 && item.Value > 0)
-                        {
-                            PlanAssignmentConfiguration assignment = new PlanAssignmentConfiguration()
-                            {
-                                uuid = Guid.NewGuid(),
-                                plan = plan,
-                                planAssignment = new PlanAssignment { id = item.Id },                                
-                                createdAt = todayDate,
-                                modifiedAt = todayDate,
-                                status = SystemStatus.ACTIVE.ToString()
-                            };
-                                /*     
-        public virtual string value1 { get; set; }
-        public virtual string value2 { get; set; } //valor2 para rangos        
-                                 */
-
-                            assignments.Add(assignment);
-                        }
-                    }
-                }
-
-
-                _customerService.Create(customer);
-                LogUtil.AddEntry(
-                    "Crea nuevo cliente: " + JsonConvert.SerializeObject(customer),
-                    ENivelLog.Info,
-                    authUser.Id,
-                    authUser.Email,
-                    EOperacionLog.ACCESS,
-                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                );
-                MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
-                return RedirectToAction("Index");
+                return View(model);
             }
             catch (Exception ex)
             {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
-
-                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.ToString(),
-                        Text = EnumUtils.GetDisplayName(e)
-                    }).ToList();
-
-                model.ListRegimen = new SelectList(regimenList);
-                model.ListState = new SelectList(stateList);
-
-                LogUtil.AddEntry(
-                   "Se encontro un error: " + ex.Message.ToString(),
-                   ENivelLog.Error,
-                   authUser.Id,
-                   authUser.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                );
-
-                return View(model);
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);                
+                return RedirectToAction("Index");
             }
         }
 

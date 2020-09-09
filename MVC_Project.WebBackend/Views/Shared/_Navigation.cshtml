@@ -101,17 +101,15 @@
                 </li>
             }
 
-
             @* Menus para la sección del BackOfficce*@
-
             @if (user.HasAccessToModule(SystemModules.PLANS.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.PLANS.ToString())">
-                    <a href="#"><i class="fa fa-user"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_PLANS</span> <span class="fain arrow"></span></a>
+                    <a href="#"><i class="fa fa-tasks"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_PLANS</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("Plan"))
                     {
-                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Plans", cssClass: "in")">                            
-                            <li class="@Html.IsSelected(controller: "Plans")"><a href="@Url.Action("Index", "Plans")">Planes</a></li>
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Plan", cssClass: "in")">                            
+                            <li class="@Html.IsSelected(controller: "Plan")"><a href="@Url.Action("Index", "Plan")">Planes</a></li>
                         </ul>
                     }
                 </li>
