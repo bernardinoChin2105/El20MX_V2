@@ -32,9 +32,11 @@ namespace MVC_Project.WebBackend.Controllers
         private IPaymentFormService _paymentFormService;
         private IPaymentMethodService _paymentMethodService;
         private IInvoiceReceivedService _invoiceReceivedService;
+        private ICountryService _countryService;
 
         public ProviderController(IAccountService accountService, IProviderService providerService, IStateService stateService,
-            ICurrencyService currencyService, IPaymentFormService paymentFormService, IPaymentMethodService paymentMethodService, IInvoiceReceivedService invoiceReceivedService)
+            ICurrencyService currencyService, IPaymentFormService paymentFormService, IPaymentMethodService paymentMethodService, 
+            IInvoiceReceivedService invoiceReceivedService, ICountryService countryService)
         {
             _accountService = accountService;
             _providerService = providerService;
@@ -43,6 +45,7 @@ namespace MVC_Project.WebBackend.Controllers
             _paymentFormService = paymentFormService;
             _paymentMethodService = paymentMethodService;
             _invoiceReceivedService = invoiceReceivedService;
+            _countryService = countryService;
         }
 
         // GET: Provider
@@ -312,32 +315,33 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     model.Phones = phones;
                 }
+                
+                var listResponse = _stateService.GetLocationList(provider.zipCode);
 
-                LogUtil.AddEntry(
-                   "Editar Proveedor: " + JsonConvert.SerializeObject(model),
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
+                var countries = listResponse.Select(x => new { id = x.countryId, name = x.nameCountry}).Distinct();
+                model.ListCountry = new SelectList(countries.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList());
+
+                var municipalities = listResponse.Select(x => new { id = x.municipalityId, name = x.nameMunicipality }).Distinct();
+                model.ListMunicipality = new SelectList(municipalities.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList());
+
+                model.ListColony = new SelectList(listResponse.Select(x => new SelectListItem
+                {
+                    Text = x.nameSettlement,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList());
 
                 return View(model);
             }
             catch (Exception ex)
             {
-                LogUtil.AddEntry(
-                  "Se encontro un error: " + ex.Message.ToString(),
-                  ENivelLog.Error,
-                  userAuth.Id,
-                  userAuth.Email,
-                  EOperacionLog.ACCESS,
-                  string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                  ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                  string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-               );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Index");
             }
@@ -1204,9 +1208,9 @@ namespace MVC_Project.WebBackend.Controllers
                         paymentMethod = x.paymentMethod,
                         paymentForm = x.paymentForm,
                         currency = x.currency,
-                        amount = x.amount.ToString("C2"),
+                        amount = x.subtotal.ToString("C2"),
                         iva = x.iva.ToString("C2"),
-                        totalAmount = x.totalAmount.ToString("C2"),
+                        totalAmount = x.total.ToString("C2"),
                         invoicedAt = x.invoicedAt.ToShortDateString(),
                         rfc = x.rfc,
                         businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
@@ -1368,7 +1372,7 @@ namespace MVC_Project.WebBackend.Controllers
                     );
 
                 Response.ContentType = "application/xml";
-                Response.AddHeader("Content-Disposition", "attachment;filename=Customers.xml");
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + invoice.uuid + ".xml");
                 Response.Write(invoice.xml);
                 Response.End();
             }

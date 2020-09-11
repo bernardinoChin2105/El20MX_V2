@@ -16,10 +16,13 @@ namespace MVC_Project.Domain.Entities
         public virtual string paymentMethod { get; set; }
         public virtual string paymentForm { get; set; }
         public virtual string currency { get; set; }
-        public virtual decimal amount { get; set; }
+        //public virtual decimal amount { get; set; }
         public virtual decimal iva { get; set; }
-        public virtual decimal totalAmount { get; set; }
+        //public virtual decimal totalAmount { get; set; }
         public virtual DateTime invoicedAt { get; set; }
+        public virtual string invoiceType { get; set; }
+        public virtual decimal total { get; set; }
+        public virtual decimal subtotal { get; set; }
         public virtual string xml { get; set; }
 
         public virtual DateTime createdAt { get; set; }

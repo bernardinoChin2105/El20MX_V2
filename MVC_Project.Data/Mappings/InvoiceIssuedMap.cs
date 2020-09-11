@@ -19,10 +19,13 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.serie).Column("serie").Nullable();
             Map(x => x.paymentMethod).Column("paymentMethod").Nullable();
             Map(x => x.paymentForm).Column("paymentForm").Nullable();
+            Map(x => x.invoiceType).Column("invoiceType").Nullable();
             Map(x => x.currency).Column("currency").Nullable();
-            Map(x => x.amount).Column("amount").Nullable();
+            Map(x => x.total).Column("total").Nullable();
+            Map(x => x.subtotal).Column("subtotal").Nullable();
+            //Map(x => x.amount).Column("amount").Nullable();
             Map(x => x.iva).Column("iva").Nullable();
-            Map(x => x.totalAmount).Column("totalAmount").Nullable();
+            //Map(x => x.totalAmount).Column("totalAmount").Nullable();
             Map(x => x.invoicedAt).Column("invoicedAt").Nullable();
             //Map(x => x.xml).Column("xml").Length(8000).Nullable();
             Map(x => x.xml).Column("xml").Nullable().CustomSqlType("nvarchar(max)");

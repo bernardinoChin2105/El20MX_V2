@@ -149,10 +149,10 @@ namespace MVC_Project.Utils
     {
         [Display(Name = "Persona Física")]
         [Description("Persona Física")]
-        NATURALPERSONSREGIME,
+        PERSONA_FISICA,
         [Display(Name = "Persona Moral")]
         [Description("Persona Moral")]
-        MORALPERSONSREGIME,        
+        PERSONA_MORAL,        
     }
 
     public enum TypeMovements

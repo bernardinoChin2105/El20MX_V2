@@ -1,6 +1,6 @@
 ﻿$(document).ready(function () {
 
-    $("#ZipCode").trigger("blur");
+    //$("#ZipCode").trigger("blur");
     $("#CURP").keyup(function () {
         this.value = this.value.toUpperCase();
     });
@@ -21,51 +21,54 @@
         }, "Debe ser un CURP válido"
     );
 
+    $.validator.addMethod("Alphanumeric",
+        function (value, element) {
+            return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
+        }, "El campo debe ser alfanumérico"
+    );
+
+    $.validator.addMethod("Numeric",
+        function (value, element) {
+            return value.match(/^[0-9]+$|^$/);
+        }, "El campo debe ser numérico"
+    );
+
+    $.validator.addMethod("Alphabetic",
+        function (value, element) {
+            return value.match(/^[a-zA-ZÀ-ÿ\u00f1\u00d1 ]+$|^$/);
+        }, "El campo debe ser alfabético"
+    );
+
     $("#EditForm").validate({
         rules: {
             FistName: {
-                //required: true,
-                maxlength: 50
+                required: true,
+                Alphabetic: true
             },
             LastName: {
-                //required: true,
-                maxlength: 50
+                required: true,
+                Alphabetic: true
             },
             RFC: {
                 required: true,
                 RFCTrue: true,
-                maxlength: 13
+                Alphanumeric: true,
             },
             CURP: {
                 CURPTrue: true,
-                maxlength: 18
             },
             ZipCode: {
                 required: true,
-                maxlength: 5
-            }
-        }
-        ,
-        messages: {
-            FistName: {
-                //required: "Campo obligatorio",
-                maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
+                Numeric: true
             },
-            LastName: {
-                //required: "Campo obligatorio",
-                maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
+            Street: {
+                Alphanumeric: true,
             },
-            RFC: {
-                //required: "Campo obligatorio",
-                maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
+            OutdoorNumber: {
+                Alphanumeric: true,
             },
-            CURP: {
-                //required: "Campo obligatorio",
-                maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
-            },
-            ZipCode: {
-                required: "Campo obligatorio",
-                maxlength: jQuery.validator.format("Ingrese no más de {0} caracteres.")
+            InteriorNumber: {
+                Alphanumeric: true,
             }
         }
     });
@@ -78,7 +81,7 @@ function validateRFC() {
     var FistName = $("#FistName");
     var LastName = $("#LastName");
     var BusinessName = $("#BusinessName"); 
-    var taxRegime = $("#taxRegime");    
+    //var taxRegime = $("#taxRegime");    
     var RFC = $("#RFC").val(); 
 
     var valid = RFC.match(re);    
@@ -89,7 +92,7 @@ function validateRFC() {
         $(".businessName").removeClass("hidden");
         $(".FistName").html("Nombre(s) Contacto");
         $(".LastName").html("Apellido(s) Contacto");   
-        taxRegime.val("MORALPERSONSREGIME");
+        //taxRegime.val("MORALPERSONSREGIME");
         FistName.rules("add", {
             required: false,
             //messages: {
@@ -112,7 +115,7 @@ function validateRFC() {
         $(".businessName").addClass("hidden");
         $(".FistName").html("Nombre(s)");
         $(".LastName").html("Apellido(s)");
-        taxRegime.val("NATURALPERSONSREGIME");
+        //taxRegime.val("NATURALPERSONSREGIME");
         FistName.rules("add", {
             required: true,
             messages: {
@@ -138,6 +141,7 @@ function validarDatos() {
     if (!$('#EditForm').valid()) {
         return;
     }
+    $("#taxRegime").prop("disabled", false);
     $('#EditForm').submit();
 }
 
@@ -150,7 +154,7 @@ $(".btn-add-email").click(function () {
         '<div class="col-12 col-md-10"> ' +
         '<label class="col-form-label control-label">Otro Email</label>' +
         '<input type="hidden" name="Emails[' + itemNumberEmail + '].TypeContact" value="EMAIL" />' +
-        '<input type="email" class="form-control emails" name="Emails[' + itemNumberEmail + '].EmailOrPhone" />' +
+        '<input type="email" class="form-control emails" maxlength="250" name="Emails[' + itemNumberEmail + '].EmailOrPhone" />' +
         '</div>' +
         '<div class="col-12 col-md-2">' +
         '<label class="col-form-label control-label heightLabel"></label>' +
