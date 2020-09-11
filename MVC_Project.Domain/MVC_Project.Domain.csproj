@@ -63,6 +63,8 @@
     <Compile Include="Entities\InvoiceIssued.cs" />
     <Compile Include="Entities\InvoiceReceived.cs" />
     <Compile Include="Entities\PlanChargeConfiguration.cs" />
+    <Compile Include="Entities\PlanFeature.cs" />
+    <Compile Include="Entities\PlanFeatureConfiguration.cs" />
     <Compile Include="Entities\Provider.cs" />
     <Compile Include="Entities\ProviderContact.cs" />
     <Compile Include="Entities\CustomerContact.cs" />
