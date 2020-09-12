@@ -471,8 +471,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
-
-                var authUser = Authenticator.AuthenticatedUser;
+                
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
                 customerData.firstName = model.FistName;

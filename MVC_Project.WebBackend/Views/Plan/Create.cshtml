@@ -10,6 +10,7 @@
 
 @section styles{
     <link href="~/Content/template/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
     <style>
         .heightLabel {
             height: 55px;
@@ -24,6 +25,8 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="">
+        @*enctype = "application/x-www-form-urlencoded",*@
+        @*enctype = "multipart/form-data",*@
         @using (Html.BeginForm("Create", "Plan", FormMethod.Post, new { role = "form", @id = "CreateForm", @class = "row" }))
         {
             <div class="col-lg-12">
@@ -40,11 +43,14 @@
                                     @Html.LabelFor(m => m.Name, new { @class = "col-form-label control-label" })
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    @Html.TextBoxFor(m => m.Name, new { @class = "form-control", @maxlength = "50" })
+                                    @Html.TextBoxFor(m => m.Name, new { @class = "form-control required", @maxlength = "50" })
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <div class="checkbox">
-                                        <label>@Html.CheckBoxFor(x => x.isCurrent)&nbsp;@Html.DisplayNameFor(x => x.isCurrent)</label>
+                                    <div class="i-checks">
+                                        <label style="font-weight:initial">
+                                            @Html.CheckBoxFor(m => m.isCurrent, new { @class = "form-control", name = "current" })
+                                            @Html.DisplayNameFor(x => x.isCurrent)
+                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -60,33 +66,33 @@
                                                 <label class="col-form-label control-label">@item.Label</label>
                                             </div>
                                             <div class="col-12 col-md-8">
-                                                <input type="hidden" name="Id[]" value="@item.Id" />
-                                                <input type="number" name="Value[]" value="@item.Value" class="form-control" />
+                                                <input type="hidden" name="ConceptId[]" value="@item.Id" />
+                                                <input type="number" name="Concept@(item.Id)" class="form-control required" />
                                             </div>
                                         </div>
                                     }
                                 </div>
                             </div>
 
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <h3 class="panel-title">Características</h3>
-                                </div>
-                                <div class="panel-body">
-                                    <div class="form-group row">
-                                        @*@foreach (var item in Model.LabelConcepts)
-                                            {
-                                                <div class="col-12 col-md-4">
-                                                    @Html.LabelFor(m => item.Name, new { @class = "col-form-label control-label" })
-                                                </div>
-                                                <div class="col-12 col-md-8">
-                                                    <input type="hidden" name="idCharge[]" />
-                                                    <input type="number" name="chargeName[]" class="form-control" />
-                                                </div>
-                                            }*@
+                            @*<div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">Características</h3>
                                     </div>
-                                </div>
-                            </div>
+                                    <div class="panel-body">
+                                        <div class="form-group row">
+                                            @foreach (var item in Model.LabelConcepts)
+                                                {
+                                                    <div class="col-12 col-md-4">
+                                                        @Html.LabelFor(m => item.Name, new { @class = "col-form-label control-label" })
+                                                    </div>
+                                                    <div class="col-12 col-md-8">
+                                                        <input type="hidden" name="idCharge[]" />
+                                                        <input type="number" name="chargeName[]" class="form-control" />
+                                                    </div>
+                                                }
+                                        </div>
+                                    </div>
+                                </div>*@
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h3 class="panel-title">Criterio de asignación</h3>
@@ -99,16 +105,16 @@
                                                 <label class="col-form-label control-label">@item.Label</label>
                                             </div>
                                             <div class="col-12 col-md-8">
-                                                <input type="hidden" name="Id[]" value="@item.Id" />
+                                                <input type="hidden" name="AssigId[]" value="@item.Id" />
 
                                                 @if (item.operation == Operation.RANGE.ToString())
                                                 {
                                                     <div class="row">
                                                         <div class="col-12 col-md-6">
-                                                            <input type="@item.dataType" name="Value1" value="@item.Value1" class="form-control" />
+                                                            <input type="@item.dataType" name="Assig@(item.Id)Value1" value="" class="form-control required" />
                                                         </div>
                                                         <div class="col-12 col-md-6">
-                                                            <input type="@item.dataType" name="Value2" value="@item.Value2" class="form-control" />
+                                                            <input type="@item.dataType" name="Assig@(item.Id)Value2" value="" class="form-control required" />
                                                         </div>
                                                     </div>
                                                 }
@@ -116,10 +122,10 @@
                                                 {
                                                     if (item.fieldType == "select")
                                                     {
-                                                        <select class="form-control" name="PersonType">
+                                                        <select class="form-control required" name="Assig@(item.Id)Value1">
                                                             @foreach (var type in Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>())
                                                             {
-                                                                <option value="@type">@EnumUtils.GetDescription(type)</option>
+                                                                <option value="@type.ToString("D")">@EnumUtils.GetDescription(type)</option>
                                                             }
                                                         </select>
                                                     }
@@ -135,7 +141,7 @@
                             <div class="form-group row pull-right">
                                 <div class="col-md-10 offset-2 text-right">
                                     <a href='@Url.Action("Index", "Plan")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
-                                    <button type="submit" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                                    <button type="button" onclick="validarDatos()" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
                                 </div>
                             </div>
                         </div>
@@ -153,8 +159,12 @@
     @Scripts.Render("~/plugins/validate")
     @Scripts.Render("~/plugins/toastr")
     <script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>
-    @*<script src="~/Scripts/views/Customer/Create.js"></script>
-        <script>
-            var urlGetLocation = '@Url.Action("GetLocations")';
-        </script>*@
+    <script>
+        function validarDatos() {
+            if (!$('#CreateForm').valid()) {
+                return;
+            }
+            $('#CreateForm').submit();
+        }
+    </script>
 }

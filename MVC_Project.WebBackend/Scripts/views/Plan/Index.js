@@ -24,7 +24,7 @@ var PlanIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAcces
     this.dataTable = {};
 
     this.init = function () {
-        var primeravez = true;
+        //var primeravez = true;
 
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();
@@ -33,6 +33,7 @@ var PlanIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAcces
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": this.baseUrl,
+            deferLoading: 0,
             orderMulti: false,
             searching: false,
             ordering: false,
@@ -56,10 +57,10 @@ var PlanIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAcces
             "fnServerData": function (sSource, aoData, fnCallback) {
                 aoData.push({ "name": "sSortColumn", "value": this.fnSettings().aoColumns[this.fnSettings().aaSorting[0][0]].orderName });
                 aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
-                aoData.push({ "name": "first", "value": primeravez });
+                //aoData.push({ "name": "first", "value": primeravez });
 
                 $.getJSON(sSource, aoData, function (json) {
-                    primeravez = false;
+                    //primeravez = false;
                     fnCallback(json);
 
                     if (json.success === false) {

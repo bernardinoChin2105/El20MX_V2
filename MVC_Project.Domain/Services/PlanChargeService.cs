@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Services
 {
-    public interface IPlanChangeService : IService<PlanCharge>
+    public interface IPlanChargeService : IService<PlanCharge>
     {        
     }
 
-    public class PlanChangeService : ServiceBase<PlanCharge>, IPlanChangeService
+    public class PlanChargeService : ServiceBase<PlanCharge>, IPlanChargeService
     {
         private IRepository<PlanCharge> _repository;
 
-        public PlanChangeService(IRepository<PlanCharge> baseRepository) : base(baseRepository)
+        public PlanChargeService(IRepository<PlanCharge> baseRepository) : base(baseRepository)
         {
             _repository = baseRepository;
         }

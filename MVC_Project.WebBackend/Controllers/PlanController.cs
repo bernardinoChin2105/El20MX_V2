@@ -6,6 +6,8 @@ using MVC_Project.FlashMessages;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
 using MVC_Project.WebBackend.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -18,14 +20,19 @@ namespace MVC_Project.WebBackend.Controllers
     public class PlanController : Controller
     {
         private IPlanService _planService;
-        private IPlanChangeService _planChargeService;
+        private IPlanChargeService _planChargeService;
         private IPlanAssignmentsService _planAssignmentsService;
+        private IPlanChargeConfigService _planChargeConfigService;
+        private IPlanAssignmentConfigService _planAssignmentConfigService;
 
-        public PlanController(IPlanService planeService, IPlanChangeService planChangeService, IPlanAssignmentsService planAssignmentsService)
+        public PlanController(IPlanService planeService, IPlanChargeService planChangeService, IPlanAssignmentsService planAssignmentsService,
+            IPlanChargeConfigService planChargeConfigService, IPlanAssignmentConfigService planAssignmentConfigService)
         {
             _planService = planeService;
             _planChargeService = planChangeService;
             _planAssignmentsService = planAssignmentsService;
+            _planChargeConfigService = planChargeConfigService;
+            _planAssignmentConfigService = planAssignmentConfigService;
         }
 
         [AllowAnonymous]
@@ -35,7 +42,7 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         [HttpGet, AllowAnonymous]
-        public JsonResult GetPlans(JQueryDataTableParams param, string filtros, bool first)
+        public JsonResult GetPlans(JQueryDataTableParams param, string filtros)//, bool first
         {
             var userAuth = Authenticator.AuthenticatedUser;
             int totalDisplay = 0;
@@ -46,25 +53,25 @@ namespace MVC_Project.WebBackend.Controllers
 
             try
             {
-                if (!first)
+                //if (!first)
+                //{
+                NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
+                string Name = filtersValues.Get("Name").Trim();
+
+                var pagination = new BasePagination();
+                pagination.PageSize = param.iDisplayLength;
+                pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
+                //if (Name != "") filters.businessName = businessName;
+
+                listResponse = _planService.GetPlans(pagination, Name);
+
+                //Corroborar los campos iTotalRecords y iTotalDisplayRecords
+                if (listResponse.Count() > 0)
                 {
-                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
-                    string Name = filtersValues.Get("Name").Trim();
-
-                    var pagination = new BasePagination();
-                    pagination.PageSize = param.iDisplayLength;
-                    pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
-                    //if (Name != "") filters.businessName = businessName;
-
-                    listResponse = _planService.GetPlans(pagination, Name);
-
-                    //Corroborar los campos iTotalRecords y iTotalDisplayRecords
-                    if (listResponse.Count() > 0)
-                    {
-                        totalDisplay = listResponse[0].Total;
-                        total = listResponse.Count();
-                    }
+                    totalDisplay = listResponse[0].Total;
+                    total = listResponse.Count();
                 }
+                //}
 
                 LogUtil.AddEntry(
                    "Lista de clientes totalDisplay: " + totalDisplay + ", total: " + total,
@@ -114,154 +121,6 @@ namespace MVC_Project.WebBackend.Controllers
                 model.LabelConcepts = _planChargeService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
                                     .Select(x => new PlanLabelsViewModel { Id = x.id, Label = x.name }).ToList();
                 model.LabelAssignment = _planAssignmentsService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
-                                    .Select(x => new PlanAssignmentLabels {
-                                        Id = x.id,
-                                        Label = x.name,
-                                        fieldType = x.fielType,
-                                        operation = x.operation,
-                                        dataType = (x.dataType == "System.Int32" ? "number": "text"), 
-                                        providerData = x.providerData
-                                    }).ToList();   
-                //Faltan las características
-
-                return View(model);
-            }
-            catch (Exception ex)
-            {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);                
-                return RedirectToAction("Index");
-            }            
-        }
-
-        //[Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
-        //public ActionResult Create(PlanViewModel model)
-        //{
-        //    var authUser = Authenticator.AuthenticatedUser;
-        //    try
-        //    {
-        //        if (!ModelState.IsValid)
-        //            throw new Exception("El modelo de entrada no es válido");
-
-
-        //        if (_planService.FindBy(x => x.name == model.Name).Any())
-        //            throw new Exception("Ya existe un Plan con el nombre proporcionado");
-
-        //        DateTime todayDate = DateUtil.GetDateTimeNow();
-
-        //        Plan plan = new Plan()
-        //        {
-        //            uuid = Guid.NewGuid(),
-        //            name = model.Name,
-        //            isCurrent = model.isCurrent,
-        //            createdAt = todayDate,
-        //            modifiedAt = todayDate,
-        //            status = SystemStatus.ACTIVE.ToString()
-        //        };
-
-        //        List<PlanChargeConfiguration> charges = new List<PlanChargeConfiguration>();
-        //        List<PlanAssignmentConfiguration> assignments = new List<PlanAssignmentConfiguration>();                
-
-        //        if (model.LabelConcepts.Count() > 0)
-        //        {
-        //            foreach (var item in model.LabelConcepts)
-        //            {
-        //                if (item.Id == 0 && item.Value > 0)
-        //                {
-        //                    PlanChargeConfiguration charge = new PlanChargeConfiguration()
-        //                    {
-        //                        uuid = Guid.NewGuid(),
-        //                        plan = plan,
-        //                        planCharge = new PlanCharge { id = item.Id},
-        //                        charge = item.Value,
-        //                        createdAt = todayDate,
-        //                        modifiedAt = todayDate,
-        //                        status = SystemStatus.ACTIVE.ToString()
-        //                    };
-        //                    charges.Add(charge);
-        //                }
-        //            }
-        //        }
-
-        //        if (model.LabelAssignment.Count() > 0)
-        //        {
-        //            foreach (var item in model.LabelAssignment)
-        //            {
-        //                if (item.Id == 0 && item.Value > 0)
-        //                {
-        //                    PlanAssignmentConfiguration assignment = new PlanAssignmentConfiguration()
-        //                    {
-        //                        uuid = Guid.NewGuid(),
-        //                        plan = plan,
-        //                        planAssignment = new PlanAssignment { id = item.Id },                                
-        //                        createdAt = todayDate,
-        //                        modifiedAt = todayDate,
-        //                        status = SystemStatus.ACTIVE.ToString()
-        //                    };
-        //                        /*     
-        //public virtual string value1 { get; set; }
-        //public virtual string value2 { get; set; } //valor2 para rangos        
-        //                         */
-
-        //                    assignments.Add(assignment);
-        //                }
-        //            }
-        //        }
-
-
-        //        _customerService.Create(customer);
-        //        LogUtil.AddEntry(
-        //            "Crea nuevo cliente: " + JsonConvert.SerializeObject(customer),
-        //            ENivelLog.Info,
-        //            authUser.Id,
-        //            authUser.Email,
-        //            EOperacionLog.ACCESS,
-        //            string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-        //            ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-        //            string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-        //        );
-        //        MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
-        //        return RedirectToAction("Index");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-        //        var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-        //        stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
-
-        //        var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-        //            .Select(e => new SelectListItem
-        //            {
-        //                Value = e.ToString(),
-        //                Text = EnumUtils.GetDisplayName(e)
-        //            }).ToList();
-
-        //        model.ListRegimen = new SelectList(regimenList);
-        //        model.ListState = new SelectList(stateList);
-
-        //        LogUtil.AddEntry(
-        //           "Se encontro un error: " + ex.Message.ToString(),
-        //           ENivelLog.Error,
-        //           authUser.Id,
-        //           authUser.Email,
-        //           EOperacionLog.ACCESS,
-        //           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-        //           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-        //           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-        //        );
-
-        //        return View(model);
-        //    }
-        //}
-
-        public ActionResult Edit(string uuid)
-        {
-            var userAuth = Authenticator.AuthenticatedUser;
-            try
-            {
-                PlanViewModel model = new PlanViewModel();
-                model.LabelConcepts = _planChargeService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
-                                    .Select(x => new PlanLabelsViewModel { Id = x.id, Label = x.name }).ToList();
-                model.LabelAssignment = _planAssignmentsService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
                                     .Select(x => new PlanAssignmentLabels
                                     {
                                         Id = x.id,
@@ -277,106 +136,328 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);                
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Index");
             }
         }
 
-        //public ActionResult Edit(string uuid)
-        //{
-        //    var userAuth = Authenticator.AuthenticatedUser;
-        //    try
-        //    {
-        //        CustomerViewModel model = new CustomerViewModel();
+        [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
+        public ActionResult Create(FormCollection formCollection)
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+            try
+            {
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
 
-        //        var customer = _customerService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid) && x.account.id == userAuth.Account.Id);
-        //        if (customer == null)
-        //            throw new Exception("El registro de Cliente no se encontró en la base de datos");
+                string Name = formCollection["name"];
+                if (_planService.FindBy(x => x.name == Name).Any())
+                    throw new Exception("Ya existe un Plan con el nombre proporcionado");
 
-        //        model.Id = customer.id;
-        //        model.FistName = customer.firstName;
-        //        model.LastName = customer.lastName;
-        //        model.RFC = customer.rfc;
-        //        model.CURP = customer.curp;
-        //        model.BusinessName = customer.businessName;
-        //        model.Street = customer.street;
-        //        model.OutdoorNumber = customer.outdoorNumber;
-        //        model.InteriorNumber = customer.interiorNumber;
-        //        model.ZipCode = customer.zipCode;
-        //        model.Colony = customer.colony;
-        //        model.Municipality = customer.municipality;
-        //        model.State = customer.state;
-        //        model.Country = customer.country;
-        //        model.DeliveryAddress = customer.deliveryAddress;
-        //        if (customer.taxRegime != null)
-        //            model.taxRegime = ((TypeTaxRegimen)Enum.Parse(typeof(TypeTaxRegimen), customer.taxRegime)).ToString();
+                List<string> isCurrent = formCollection["isCurrent"].Split(',').ToList();
+                List<string> ConceptsId = formCollection["ConceptId[]"].Split(',').ToList();
+                List<string> AssigId = formCollection["AssigId[]"].Split(',').ToList();
 
-        //        var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-        //        stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+                Plan plan = new Plan()
+                {
+                    uuid = Guid.NewGuid(),
+                    name = Name,
+                    isCurrent = Convert.ToBoolean(isCurrent.First()),
+                    createdAt = todayDate,
+                    modifiedAt = todayDate,
+                    status = SystemStatus.ACTIVE.ToString()
+                };
 
-        //        var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-        //            .Select(e => new SelectListItem
-        //            {
-        //                Value = e.ToString(),
-        //                Text = EnumUtils.GetDisplayName(e)
-        //            }).ToList();
+                List<PlanChargeConfiguration> charges = new List<PlanChargeConfiguration>();
+                List<PlanAssignmentConfiguration> assignments = new List<PlanAssignmentConfiguration>();
 
-        //        model.ListRegimen = new SelectList(regimenList);
-        //        model.ListState = new SelectList(stateList);
+                if (ConceptsId.Count() > 0)
+                {
+                    foreach (var id in ConceptsId)
+                    {
+                        decimal chargeV = Convert.ToDecimal(formCollection["Concept" + id]);
+                        PlanChargeConfiguration chargeC = new PlanChargeConfiguration()
+                        {
+                            uuid = Guid.NewGuid(),
+                            plan = plan,
+                            planCharge = new PlanCharge { id = Convert.ToInt64(id) },
+                            charge = chargeV,
+                            createdAt = todayDate,
+                            modifiedAt = todayDate,
+                            status = SystemStatus.ACTIVE.ToString()
+                        };
+                        charges.Add(chargeC);
+                    }
+                }
 
-        //        var emails = customer.customerContacts.Where(x => x.typeContact == TypeContact.EMAIL.ToString() && x.status == SystemStatus.ACTIVE.ToString())
-        //                    .Select(x => new CustomerContactsViewModel
-        //                    {
-        //                        Id = x.id,
-        //                        TypeContact = x.typeContact,
-        //                        EmailOrPhone = x.emailOrPhone
-        //                    }).ToList();
+                if (AssigId.Count() > 0)
+                {
+                    foreach (var id in AssigId)
+                    {
+                        //Assig@(item.Id)Value2
+                        string assigV1 = formCollection["Assig" + id + "Value1"];
+                        PlanAssignmentConfiguration assignment = new PlanAssignmentConfiguration()
+                        {
+                            uuid = Guid.NewGuid(),
+                            plan = plan,
+                            planAssignment = new PlanAssignment { id = Convert.ToInt64(id) },
+                            value1 = assigV1,
+                            createdAt = todayDate,
+                            modifiedAt = todayDate,
+                            status = SystemStatus.ACTIVE.ToString()
+                        };
+                        if (formCollection.AllKeys.Contains("Assig" + id + "Value2"))
+                            assignment.value2 = formCollection["Assig" + id + "Value2"];
 
-        //        if (emails.Count() > 0)
-        //        {
-        //            model.Emails = emails;
-        //        }
+                        assignments.Add(assignment);
+                    }
+                }
 
-        //        var phones = customer.customerContacts.Where(x => x.typeContact == TypeContact.PHONE.ToString() && x.status == SystemStatus.ACTIVE.ToString())
-        //                    .Select(x => new CustomerContactsViewModel
-        //                    {
-        //                        Id = x.id,
-        //                        TypeContact = x.typeContact,
-        //                        EmailOrPhone = x.emailOrPhone
-        //                    }).ToList();
-        //        if (phones.Count() > 0)
-        //        {
-        //            model.Phones = phones;
-        //        }
+                var planR = _planService.SavePlan(plan, charges, assignments);
 
-        //        LogUtil.AddEntry(
-        //           "Editar Cliente: " + JsonConvert.SerializeObject(model),
-        //           ENivelLog.Info,
-        //           userAuth.Id,
-        //           userAuth.Email,
-        //           EOperacionLog.ACCESS,
-        //           string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-        //           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-        //           string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-        //        );
+                LogUtil.AddEntry(
+                    "Crea nuevo plan: " + JsonConvert.SerializeObject(planR),
+                    ENivelLog.Info,
+                    authUser.Id,
+                    authUser.Email,
+                    EOperacionLog.ACCESS,
+                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+                MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                PlanViewModel modelC = new PlanViewModel();
+                modelC.LabelConcepts = _planChargeService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
+                                    .Select(x => new PlanLabelsViewModel { Id = x.id, Label = x.name }).ToList();
+                modelC.LabelAssignment = _planAssignmentsService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
+                                    .Select(x => new PlanAssignmentLabels
+                                    {
+                                        Id = x.id,
+                                        Label = x.name,
+                                        fieldType = x.fielType,
+                                        operation = x.operation,
+                                        dataType = (x.dataType == "System.Int32" ? "number" : "text"),
+                                        providerData = x.providerData
+                                    }).ToList();
+                //Faltan las características
 
-        //        return View(model);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-        //        LogUtil.AddEntry(
-        //           "Se encontro un error: " + ex.Message.ToString(),
-        //           ENivelLog.Error,
-        //           userAuth.Id,
-        //           userAuth.Email,
-        //           EOperacionLog.ACCESS,
-        //           string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-        //           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-        //           string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-        //        );
-        //        return RedirectToAction("Index");
-        //    }
-        //}
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+
+                return View(modelC);
+            }
+        }
+
+        public ActionResult Edit(string uuid)
+        {
+            var userAuth = Authenticator.AuthenticatedUser;
+            try
+            {
+                var plan = _planService.FirstOrDefault(x => x.uuid.ToString() == uuid);
+                if (plan == null)
+                    throw new Exception("El Plan no se encontró en la base de datos");
+
+                var planChargeConfig = _planChargeConfigService.FindBy(x => x.plan.id == plan.id);
+                var planAssigConfig = _planAssignmentConfigService.FindBy(x => x.plan.id == plan.id);
+
+                PlanViewModel model = new PlanViewModel();
+                model.Id = plan.id;
+                model.LabelConcepts = _planChargeService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
+                                    .Select(x => new PlanLabelsViewModel
+                                    {
+                                        Id = x.id,
+                                        Label = x.name,
+                                        ChargeId = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).id : 0,
+                                        Value = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).charge : 0
+                                    }).ToList();
+                model.LabelAssignment = _planAssignmentsService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
+                                    .Select(x => new PlanAssignmentLabels
+                                    {
+                                        Id = x.id,
+                                        Label = x.name,
+                                        fieldType = x.fielType,
+                                        operation = x.operation,
+                                        dataType = (x.dataType == "System.Int32" ? "number" : "text"),
+                                        providerData = x.providerData,
+                                        AssignmentId = planAssigConfig.Count() > 0 ? planAssigConfig.FirstOrDefault(y => y.planAssignment.id == x.id).id : 0,
+                                        Value1 = planAssigConfig.Count() > 0 ? planAssigConfig.FirstOrDefault(y => y.planAssignment.id == x.id).value1 : "",
+                                        Value2 = planAssigConfig.Count() > 0 ? planAssigConfig.FirstOrDefault(y => y.planAssignment.id == x.id).value2 : "",
+                                    }).ToList();
+                //Faltan las características
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return RedirectToAction("Index");
+            }
+        }
+
+        [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
+        public ActionResult Edit(FormCollection formCollection)
+        {
+            var userAuth = Authenticator.AuthenticatedUser;
+            try
+            {
+                Int64 Id = Convert.ToInt64(formCollection["Id"]);
+                var dataPlan = _planService.FirstOrDefault(x => x.id == Id);
+
+                string Name = formCollection["name"];
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
+
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+                List<string> isCurrent = formCollection["isCurrent"].Split(',').ToList();
+                List<string> ChargeId = formCollection["ChargeId[]"].Split(',').ToList();
+                List<string> AssigId = formCollection["AssigId[]"].Split(',').ToList();
+
+                //ponerle validación de nombre?
+
+                dataPlan.name = Name;
+                dataPlan.isCurrent = Convert.ToBoolean(isCurrent.First());
+                dataPlan.modifiedAt = todayDate;
+
+                #region Actualizar registros de las listas de emails y teléfonos 
+                List<PlanChargeConfiguration> charges = new List<PlanChargeConfiguration>();
+                List<PlanAssignmentConfiguration> assignments = new List<PlanAssignmentConfiguration>();
+                List<string> ChargeConfigId = formCollection["ChargeConfigId[]"].Split(',').ToList();
+                List<string> AssigConfigId = formCollection["AssigConfigId[]"].Split(',').ToList();
+
+                if (ChargeId.Count() > 0)
+                {
+                    foreach (var id in ChargeId)
+                    {
+                        var chargeMod = _planChargeConfigService.FirstOrDefault(x => x.planCharge.id.ToString() == id);
+                        decimal chargeV = Convert.ToDecimal(formCollection["Charge" + id]);
+
+                        if (chargeMod != null && ChargeConfigId.Contains(chargeMod.id.ToString()))
+                        {
+                            //editado
+                            chargeMod.charge = chargeV;
+                            chargeMod.modifiedAt = todayDate;
+
+                            charges.Add(chargeMod);
+                        }
+                        else
+                        {
+                            //Nuevo
+                            PlanChargeConfiguration chargeC = new PlanChargeConfiguration()
+                            {
+                                uuid = Guid.NewGuid(),
+                                plan = dataPlan,
+                                planCharge = new PlanCharge { id = Convert.ToInt64(id) },
+                                charge = chargeV,
+                                createdAt = todayDate,
+                                modifiedAt = todayDate,
+                                status = SystemStatus.ACTIVE.ToString()
+                            };
+                            charges.Add(chargeC);
+                        }
+                    }
+                }
+
+                //Faltan las categorías
+
+                if (AssigId.Count() > 0)
+                {
+                    foreach (var id in AssigId)
+                    {
+                        var assignMod = _planAssignmentConfigService.FirstOrDefault(x => x.planAssignment.id.ToString() == id);
+                        string assigV1 = formCollection["Assig" + id + "Value1"];
+
+                        if (assignMod != null && AssigConfigId.Contains(assignMod.id.ToString()))
+                        {
+                            //editado
+                            assignMod.value1 = assigV1;
+                            assignMod.modifiedAt = todayDate;
+                            if (formCollection.AllKeys.Contains("Assig" + id + "Value2"))
+                                assignMod.value2 = formCollection["Assig" + id + "Value2"];
+
+                            assignments.Add(assignMod);
+                        }
+                        else
+                        {
+                            //Nuevo                            
+                            PlanAssignmentConfiguration assignment = new PlanAssignmentConfiguration()
+                            {
+                                uuid = Guid.NewGuid(),
+                                plan = dataPlan,
+                                planAssignment = new PlanAssignment { id = Convert.ToInt64(id) },
+                                value1 = assigV1,
+                                createdAt = todayDate,
+                                modifiedAt = todayDate,
+                                status = SystemStatus.ACTIVE.ToString()
+                            };
+                            if (formCollection.AllKeys.Contains("Assig" + id + "Value2"))
+                                assignment.value2 = formCollection["Assig" + id + "Value2"];
+
+                            assignments.Add(assignment);
+                        }
+                    }
+                }
+
+                #endregion
+
+                _planService.SavePlan(dataPlan, charges, assignments);
+
+                LogUtil.AddEntry(
+                   "Editar cliente: " + JsonConvert.SerializeObject(dataPlan),
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
+                MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
+                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
+
+                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
+                    .Select(e => new SelectListItem
+                    {
+                        Value = e.ToString(),
+                        Text = EnumUtils.GetDisplayName(e)
+                    });
+
+                model.ListRegimen = new SelectList(regimenList);
+                model.ListState = new SelectList(stateList);
+
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
+                return View(model);
+            }
+        }
     }
 }

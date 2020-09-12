@@ -23,6 +23,7 @@ namespace MVC_Project.WebBackend.Models
     public class PlanLabelsViewModel
     {
         public Int64 Id { get; set; }
+        public Int64 ChargeId { get; set; }
         public string Label { get; set; }
         public decimal Value { get; set; }        
     }
@@ -30,6 +31,7 @@ namespace MVC_Project.WebBackend.Models
     public class PlanAssignmentLabels
     {
         public Int64 Id { get; set; }
+        public Int64 AssignmentId { get; set; }
         public string Label { get; set; }
         public string fieldType { get; set; }
         public string operation { get; set; }

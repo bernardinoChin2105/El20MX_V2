@@ -12,6 +12,7 @@ namespace MVC_Project.Domain.Services
     public interface IPlanService : IService<Plan>
     {
         List<PlansViewModel> GetPlans(BasePagination pagination, string Name);
+        Plan SavePlan(Plan plan, IEnumerable<PlanChargeConfiguration> planCharge, IEnumerable<PlanAssignmentConfiguration> planAssignments);
     }
 
     public class PlanService : ServiceBase<Plan>, IPlanService
@@ -26,7 +27,7 @@ namespace MVC_Project.Domain.Services
         public List<PlansViewModel> GetPlans(BasePagination pagination, string Name)
         {
             var list = _repository.Session.CreateSQLQuery("exec dbo.st_listPlans " +
-                "@PageNum =:PageNum, @PageSize =:PageSize, @Name =:accountId ")
+                "@PageNum =:PageNum, @PageSize =:PageSize, @Name =:Name ")
                     .SetParameter("PageNum", pagination.PageNum)
                     .SetParameter("PageSize", pagination.PageSize)
                     .SetParameter("Name", Name)
@@ -37,7 +38,7 @@ namespace MVC_Project.Domain.Services
             return null;
         }
 
-        public Plan CreateRole(Plan plan, IEnumerable<PlanCharge> planCharge, IEnumerable<PlanAssignment> planAssignments)
+        public Plan SavePlan(Plan plan, IEnumerable<PlanChargeConfiguration> planChargeConfig, IEnumerable<PlanAssignmentConfiguration> planAssignmentsConfig)
         {
             using (var transaction = _repository.Session.BeginTransaction())
             {
@@ -45,10 +46,10 @@ namespace MVC_Project.Domain.Services
                 {
                     _repository.Session.Save(plan);
 
-                    foreach (var charge in planCharge)
+                    foreach (var charge in planChargeConfig)
                         _repository.Session.Save(charge);
 
-                    foreach (var assignment in planAssignments)
+                    foreach (var assignment in planAssignmentsConfig)
                         _repository.Session.Save(assignment);
 
                     //faltan las características
