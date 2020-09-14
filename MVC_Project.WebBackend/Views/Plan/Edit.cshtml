@@ -44,7 +44,7 @@
                                 <div class="col-12 col-md-3">
                                     <div class="i-checks">
                                         <label style="font-weight:initial">
-                                            @Html.CheckBoxFor(m => m.isCurrent, new { @class = "form-control", name = "current", @checked = (Model.isCurrent? "checked":"false") })
+                                            @Html.CheckBoxFor(m => m.isCurrent, new { @class = "form-control", name = "current", @checked = (Model.isCurrent ? "checked" : "false") })
                                             @Html.DisplayNameFor(x => x.isCurrent)
                                         </label>
                                     </div>
@@ -64,7 +64,13 @@
                                             <div class="col-12 col-md-8">
                                                 <input type="hidden" name="ChargeId[]" value="@item.Id" />
                                                 <input type="hidden" name="ChargeConfigId[]" value="@item.ChargeId" />
-                                                <input type="number" name="Charge@(item.Id)" value="@item.Value" class="form-control required" />
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">$</div>
+                                                    </div>
+                                                    <input type="text" name="Charge@(item.Id)" value="@item.Value" class="form-control money required" />
+                                                    <input type="text" name="Concept@(item.Id)" class="form-control money required" />
+                                                </div>
                                             </div>
                                         </div>
                                     }
@@ -76,20 +82,46 @@
                                     <h3 class="panel-title">Características</h3>
                                 </div>
                                 <div class="panel-body">
-                                    <div class="form-group row">
-                                        @*@foreach (var item in Model.LabelConcepts)
-                                            {
-                                                <div class="col-12 col-md-4">
-                                                    @Html.LabelFor(m => item.Name, new { @class = "col-form-label control-label" })
-                                                </div>
-                                                <div class="col-12 col-md-8">
-                                                    <input type="hidden" name="idCharge[]" />
-                                                    <input type="number" name="chargeName[]" class="form-control" />
-                                                </div>
-                                            }*@
-                                    </div>
+                                    @foreach (var item in Model.LabelFeatures)
+                                    {
+                                        <div class="form-group row">
+                                            <div class="col-12 col-md-4">
+                                                <label class="col-form-label control-label">@item.Label</label>
+                                            </div>
+                                            <div class="col-12 col-md-8">
+                                                <input type="hidden" name="FeatureId[]" value="@item.Id" />
+                                                <input type="hidden" name="FeatureConfigId[]" value="@item.AssignmentId" />
+
+                                                @if (item.operation == Operation.RANGE.ToString())
+                                                {
+                                                    <div class="row">
+                                                        <div class="col-12 col-md-6">
+                                                            <input type="@item.dataType" name="Feature@(item.Id)Value1" value="" class="form-control required" />
+                                                        </div>
+                                                        <div class="col-12 col-md-6">
+                                                            <input type="@item.dataType" name="Feature@(item.Id)Value2" value="" class="form-control required" />
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    if (item.fieldType == "select")
+                                                    {
+                                                        <select class="form-control required" name="Feature@(item.Id)Value1">
+                                                            @foreach (var type in Enum.GetValues(typeof(BooleanText)).Cast<BooleanText>())
+                                                            {
+                                                                <option value="@type.ToString("D")" @(type.ToString("D") == item.Value1 ? "selected" : "")>@EnumUtils.GetDescription(type)</option>
+                                                            }
+                                                        </select>
+                                                    }
+                                                }
+
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
                             </div>
+
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h3 class="panel-title">Criterio de asignación</h3>
@@ -156,7 +188,9 @@
 
     @Scripts.Render("~/plugins/validate")
     @Scripts.Render("~/plugins/toastr")
-    <script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>
+    @*<script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>*@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
+    @*<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>*@
     <script>
         function validarDatos() {
             if (!$('#CreateForm').valid()) {
@@ -164,5 +198,6 @@
             }
             $('#CreateForm').submit();
         }
+        $('.money').mask("##,###,##0.00", { reverse: true });
     </script>
 }

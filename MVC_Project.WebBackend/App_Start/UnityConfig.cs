@@ -72,10 +72,11 @@ namespace MVC_Project.WebBackend
             container.RegisterType<IBankCredentialService, BankCredentialService>();
             container.RegisterType<IPlanService, PlanService>();
             container.RegisterType<IPlanChargeService, PlanChargeService>();
+            container.RegisterType<IPlanFeatureService, PlanFeatureService>();
             container.RegisterType<IPlanAssignmentsService, PlanAssignmentsService>();
             container.RegisterType<IPlanChargeConfigService, PlanChargeConfigService>();
+            container.RegisterType<IPlanFeatureConfigService, PlanFeatureConfigService>();
             container.RegisterType<IPlanAssignmentConfigService, PlanAssignmentConfigService>();
-
         }
     }
 }

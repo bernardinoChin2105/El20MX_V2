@@ -17,7 +17,7 @@ namespace MVC_Project.WebBackend.Models
         public bool isCurrent { get; set; }        
 
         public List<PlanLabelsViewModel> LabelConcepts { get; set; }
-        //public List<PlanLabelsViewModel> LabelFeatures { get; set; }
+        public List<PlanAssignmentLabels> LabelFeatures { get; set; }
         public List<PlanAssignmentLabels> LabelAssignment { get; set; }
     }
     public class PlanLabelsViewModel

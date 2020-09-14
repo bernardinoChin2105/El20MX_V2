@@ -147,3 +147,7 @@
 .hide {
     display: none;
 }
+
+.input-group-text {
+    padding: 4px 0.75rem;
+}

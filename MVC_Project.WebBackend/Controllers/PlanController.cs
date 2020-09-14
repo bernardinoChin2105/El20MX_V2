@@ -21,17 +21,22 @@ namespace MVC_Project.WebBackend.Controllers
     {
         private IPlanService _planService;
         private IPlanChargeService _planChargeService;
+        private IPlanFeatureService _planFeatureService;
         private IPlanAssignmentsService _planAssignmentsService;
         private IPlanChargeConfigService _planChargeConfigService;
+        private IPlanFeatureConfigService _planFeatureConfigService;
         private IPlanAssignmentConfigService _planAssignmentConfigService;
 
         public PlanController(IPlanService planeService, IPlanChargeService planChangeService, IPlanAssignmentsService planAssignmentsService,
-            IPlanChargeConfigService planChargeConfigService, IPlanAssignmentConfigService planAssignmentConfigService)
+            IPlanChargeConfigService planChargeConfigService, IPlanAssignmentConfigService planAssignmentConfigService,
+            IPlanFeatureService planFeatureService, IPlanFeatureConfigService planFeatureConfigService)
         {
             _planService = planeService;
             _planChargeService = planChangeService;
+            _planFeatureService = planFeatureService;
             _planAssignmentsService = planAssignmentsService;
             _planChargeConfigService = planChargeConfigService;
+            _planFeatureConfigService = planFeatureConfigService;
             _planAssignmentConfigService = planAssignmentConfigService;
         }
 
@@ -130,6 +135,16 @@ namespace MVC_Project.WebBackend.Controllers
                                         dataType = (x.dataType == "System.Int32" ? "number" : "text"),
                                         providerData = x.providerData
                                     }).ToList();
+                model.LabelFeatures = _planFeatureService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
+                                    .Select(x => new PlanAssignmentLabels
+                                    {
+                                        Id = x.id,
+                                        Label = x.name,
+                                        fieldType = x.fielType,
+                                        operation = x.operation,
+                                        dataType = (x.dataType == "System.Int32" ? "number" : "text"),
+                                        providerData = x.providerData
+                                    }).ToList();
                 //Faltan las características
 
                 return View(model);
@@ -157,6 +172,7 @@ namespace MVC_Project.WebBackend.Controllers
                 List<string> isCurrent = formCollection["isCurrent"].Split(',').ToList();
                 List<string> ConceptsId = formCollection["ConceptId[]"].Split(',').ToList();
                 List<string> AssigId = formCollection["AssigId[]"].Split(',').ToList();
+                List<string> FeatureId = formCollection["FeatureId[]"].Split(',').ToList();
 
                 DateTime todayDate = DateUtil.GetDateTimeNow();
                 Plan plan = new Plan()
@@ -171,6 +187,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 List<PlanChargeConfiguration> charges = new List<PlanChargeConfiguration>();
                 List<PlanAssignmentConfiguration> assignments = new List<PlanAssignmentConfiguration>();
+                List<PlanFeatureConfiguration> features = new List<PlanFeatureConfiguration>();
 
                 if (ConceptsId.Count() > 0)
                 {
@@ -188,6 +205,28 @@ namespace MVC_Project.WebBackend.Controllers
                             status = SystemStatus.ACTIVE.ToString()
                         };
                         charges.Add(chargeC);
+                    }
+                }
+
+                if (FeatureId.Count() > 0)
+                {
+                    foreach (var id in FeatureId)
+                    {                        
+                        string featureV1 = formCollection["Feature" + id + "Value1"];
+                        PlanFeatureConfiguration feature = new PlanFeatureConfiguration()
+                        {
+                            uuid = Guid.NewGuid(),
+                            plan = plan,
+                            planFeature = new PlanFeature { id = Convert.ToInt64(id) },
+                            value1 = featureV1,
+                            createdAt = todayDate,
+                            modifiedAt = todayDate,
+                            status = SystemStatus.ACTIVE.ToString()
+                        };
+                        if (formCollection.AllKeys.Contains("Feature" + id + "Value2"))
+                            feature.value2 = formCollection["Feature" + id + "Value2"];
+
+                        features.Add(feature);
                     }
                 }
 
@@ -214,7 +253,7 @@ namespace MVC_Project.WebBackend.Controllers
                     }
                 }
 
-                var planR = _planService.SavePlan(plan, charges, assignments);
+                var planR = _planService.SavePlan(plan, charges, features, assignments);
 
                 LogUtil.AddEntry(
                     "Crea nuevo plan: " + JsonConvert.SerializeObject(planR),
@@ -236,6 +275,16 @@ namespace MVC_Project.WebBackend.Controllers
                 modelC.LabelConcepts = _planChargeService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
                                     .Select(x => new PlanLabelsViewModel { Id = x.id, Label = x.name }).ToList();
                 modelC.LabelAssignment = _planAssignmentsService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
+                                    .Select(x => new PlanAssignmentLabels
+                                    {
+                                        Id = x.id,
+                                        Label = x.name,
+                                        fieldType = x.fielType,
+                                        operation = x.operation,
+                                        dataType = (x.dataType == "System.Int32" ? "number" : "text"),
+                                        providerData = x.providerData
+                                    }).ToList();
+                modelC.LabelFeatures = _planFeatureService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
                                     .Select(x => new PlanAssignmentLabels
                                     {
                                         Id = x.id,
@@ -273,6 +322,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var planChargeConfig = _planChargeConfigService.FindBy(x => x.plan.id == plan.id);
                 var planAssigConfig = _planAssignmentConfigService.FindBy(x => x.plan.id == plan.id);
+                var planFeatureConfig = _planFeatureConfigService.FindBy(x => x.plan.id == plan.id);
 
                 PlanViewModel model = new PlanViewModel();
                 model.Id = plan.id;
@@ -284,8 +334,23 @@ namespace MVC_Project.WebBackend.Controllers
                                         Id = x.id,
                                         Label = x.name,
                                         ChargeId = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).id : 0,
-                                        Value = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).charge : 0
+                                        Value = planChargeConfig.Count() > 0 ? Convert.ToDecimal(planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).charge.ToString("0.##")) : 0
                                     }).ToList();
+
+                model.LabelFeatures = _planFeatureService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
+                                   .Select(x => new PlanAssignmentLabels
+                                   {
+                                       Id = x.id,
+                                       Label = x.name,
+                                       fieldType = x.fielType,
+                                       operation = x.operation,
+                                       dataType = (x.dataType == "System.Int32" ? "number" : "text"),
+                                       providerData = x.providerData,
+                                       AssignmentId = planFeatureConfig.Count() > 0 ? planFeatureConfig.FirstOrDefault(y => y.planFeature.id == x.id).id : 0,
+                                       Value1 = planFeatureConfig.Count() > 0 ? planFeatureConfig.FirstOrDefault(y => y.planFeature.id == x.id).value1 : "",
+                                       Value2 = planFeatureConfig.Count() > 0 ? planFeatureConfig.FirstOrDefault(y => y.planFeature.id == x.id).value2 : "",
+                                   }).ToList();
+
                 model.LabelAssignment = _planAssignmentsService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
                                     .Select(x => new PlanAssignmentLabels
                                     {
@@ -328,6 +393,7 @@ namespace MVC_Project.WebBackend.Controllers
                 List<string> isCurrent = formCollection["isCurrent"].Split(',').ToList();
                 List<string> ChargeId = formCollection["ChargeId[]"].Split(',').ToList();
                 List<string> AssigId = formCollection["AssigId[]"].Split(',').ToList();
+                List<string> FeatureId = formCollection["FeatureId[]"].Split(',').ToList();
 
                 //ponerle validación de nombre?
 
@@ -336,25 +402,33 @@ namespace MVC_Project.WebBackend.Controllers
                 dataPlan.modifiedAt = todayDate;
 
                 #region Actualizar registros de las listas de emails y teléfonos 
-                List<PlanChargeConfiguration> charges = new List<PlanChargeConfiguration>();
-                List<PlanAssignmentConfiguration> assignments = new List<PlanAssignmentConfiguration>();
+                List<PlanChargeConfiguration> newCharges = new List<PlanChargeConfiguration>();
+                List<PlanChargeConfiguration> updateCharges = new List<PlanChargeConfiguration>();
+
+                List<PlanAssignmentConfiguration> newAssignments = new List<PlanAssignmentConfiguration>();
+                List<PlanAssignmentConfiguration> updateAssignments = new List<PlanAssignmentConfiguration>();
+
+                List<PlanFeatureConfiguration> newFeatures = new List<PlanFeatureConfiguration>();
+                List<PlanFeatureConfiguration> updateFeatures = new List<PlanFeatureConfiguration>();
+
                 List<string> ChargeConfigId = formCollection["ChargeConfigId[]"].Split(',').ToList();
                 List<string> AssigConfigId = formCollection["AssigConfigId[]"].Split(',').ToList();
+                List<string> FeatureConfigId = formCollection["FeatureConfigId[]"].Split(',').ToList();
 
                 if (ChargeId.Count() > 0)
                 {
-                    foreach (var id in ChargeId)
+                    for (int i = 0; i < ChargeId.Count(); i++)
                     {
-                        var chargeMod = _planChargeConfigService.FirstOrDefault(x => x.planCharge.id.ToString() == id);
-                        decimal chargeV = Convert.ToDecimal(formCollection["Charge" + id]);
+                        var chargeMod = _planChargeConfigService.FirstOrDefault(x => x.planCharge.id.ToString() == ChargeId[i] && x.id.ToString() == ChargeConfigId[i]);
+                        decimal chargeV = Convert.ToDecimal(formCollection["Charge" + ChargeId[i]]);
 
-                        if (chargeMod != null && ChargeConfigId.Contains(chargeMod.id.ToString()))
+                        if (chargeMod != null)
                         {
                             //editado
                             chargeMod.charge = chargeV;
                             chargeMod.modifiedAt = todayDate;
 
-                            charges.Add(chargeMod);
+                            updateCharges.Add(chargeMod);
                         }
                         else
                         {
@@ -363,35 +437,72 @@ namespace MVC_Project.WebBackend.Controllers
                             {
                                 uuid = Guid.NewGuid(),
                                 plan = dataPlan,
-                                planCharge = new PlanCharge { id = Convert.ToInt64(id) },
+                                planCharge = new PlanCharge { id = Convert.ToInt64(ChargeId[i]) },
                                 charge = chargeV,
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
                                 status = SystemStatus.ACTIVE.ToString()
                             };
-                            charges.Add(chargeC);
+                            newCharges.Add(chargeC);
                         }
                     }
                 }
 
                 //Faltan las categorías
+                if (FeatureId.Count() > 0)
+                {
+                    for (int i = 0; i < FeatureId.Count(); i++)
+                    {
+                        var featureMod = _planFeatureConfigService.FirstOrDefault(x => x.planFeature.id.ToString() == FeatureId[i] && x.id.ToString() == FeatureConfigId[i]);
+                        string featureV1 = formCollection["Feature" + FeatureId[i] + "Value1"];
+
+                        if (featureMod != null && FeatureConfigId.Contains(featureMod.id.ToString()))
+                        {
+                            //editado
+                            featureMod.value1 = featureV1;
+                            featureMod.modifiedAt = todayDate;
+                            if (formCollection.AllKeys.Contains("Feature" + FeatureId[i] + "Value2"))
+                                featureMod.value2 = formCollection["Feature" + FeatureId[i] + "Value2"];
+
+                            updateFeatures.Add(featureMod);
+                        }
+                        else
+                        {
+                            //Nuevo                            
+                            PlanFeatureConfiguration feature = new PlanFeatureConfiguration()
+                            {
+                                uuid = Guid.NewGuid(),
+                                plan = dataPlan,
+                                planFeature = new PlanFeature { id = Convert.ToInt64(FeatureId[i]) },
+                                value1 = featureV1,
+                                createdAt = todayDate,
+                                modifiedAt = todayDate,
+                                status = SystemStatus.ACTIVE.ToString()
+                            };
+                            if (formCollection.AllKeys.Contains("Feature" + FeatureId[i] + "Value2"))
+                                feature.value2 = formCollection["Feature" + FeatureId[i] + "Value2"];
+
+                            newFeatures.Add(feature);
+                        }
+                    }
+                }
 
                 if (AssigId.Count() > 0)
                 {
-                    foreach (var id in AssigId)
+                    for (int i = 0; i < AssigId.Count(); i++)
                     {
-                        var assignMod = _planAssignmentConfigService.FirstOrDefault(x => x.planAssignment.id.ToString() == id);
-                        string assigV1 = formCollection["Assig" + id + "Value1"];
+                        var assignMod = _planAssignmentConfigService.FirstOrDefault(x => x.planAssignment.id.ToString() == AssigId[i] && x.id.ToString() == AssigConfigId[i]);
+                        string assigV1 = formCollection["Assig" + AssigId[i] + "Value1"];
 
                         if (assignMod != null && AssigConfigId.Contains(assignMod.id.ToString()))
                         {
                             //editado
                             assignMod.value1 = assigV1;
                             assignMod.modifiedAt = todayDate;
-                            if (formCollection.AllKeys.Contains("Assig" + id + "Value2"))
-                                assignMod.value2 = formCollection["Assig" + id + "Value2"];
+                            if (formCollection.AllKeys.Contains("Assig" + AssigId[i] + "Value2"))
+                                assignMod.value2 = formCollection["Assig" + AssigId[i] + "Value2"];
 
-                            assignments.Add(assignMod);
+                            updateAssignments.Add(assignMod);
                         }
                         else
                         {
@@ -400,24 +511,23 @@ namespace MVC_Project.WebBackend.Controllers
                             {
                                 uuid = Guid.NewGuid(),
                                 plan = dataPlan,
-                                planAssignment = new PlanAssignment { id = Convert.ToInt64(id) },
+                                planAssignment = new PlanAssignment { id = Convert.ToInt64(AssigId[i]) },
                                 value1 = assigV1,
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
                                 status = SystemStatus.ACTIVE.ToString()
                             };
-                            if (formCollection.AllKeys.Contains("Assig" + id + "Value2"))
-                                assignment.value2 = formCollection["Assig" + id + "Value2"];
+                            if (formCollection.AllKeys.Contains("Assig" + AssigId[i] + "Value2"))
+                                assignment.value2 = formCollection["Assig" + AssigId[i] + "Value2"];
 
-                            assignments.Add(assignment);
+                            newAssignments.Add(assignment);
                         }
                     }
                 }
-
                 #endregion
 
-                _planService.SavePlan(dataPlan, charges, assignments);
-
+                _planService.UpdatePlan(dataPlan, newCharges, newFeatures, newAssignments, updateCharges, updateFeatures, updateAssignments);
+                
                 LogUtil.AddEntry(
                    "Editar cliente: " + JsonConvert.SerializeObject(dataPlan),
                    ENivelLog.Info,
@@ -438,6 +548,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var planChargeConfig = _planChargeConfigService.FindBy(x => x.plan.id == dataPlan.id);
                 var planAssigConfig = _planAssignmentConfigService.FindBy(x => x.plan.id == dataPlan.id);
+                var planFeatureConfig = _planFeatureConfigService.FindBy(x => x.plan.id == dataPlan.id);
 
                 PlanViewModel model = new PlanViewModel();
                 model.Id = dataPlan.id;
@@ -452,6 +563,19 @@ namespace MVC_Project.WebBackend.Controllers
                                         ChargeId = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).id : 0,
                                         Value = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).charge : 0
                                     }).ToList();
+                model.LabelFeatures = _planFeatureService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
+                                   .Select(x => new PlanAssignmentLabels
+                                   {
+                                       Id = x.id,
+                                       Label = x.name,
+                                       fieldType = x.fielType,
+                                       operation = x.operation,
+                                       dataType = (x.dataType == "System.Int32" ? "number" : "text"),
+                                       providerData = x.providerData,
+                                       AssignmentId = planFeatureConfig.Count() > 0 ? planFeatureConfig.FirstOrDefault(y => y.planFeature.id == x.id).id : 0,
+                                       Value1 = planFeatureConfig.Count() > 0 ? planFeatureConfig.FirstOrDefault(y => y.planFeature.id == x.id).value1 : "",
+                                       Value2 = planFeatureConfig.Count() > 0 ? planFeatureConfig.FirstOrDefault(y => y.planFeature.id == x.id).value2 : "",
+                                   }).ToList();
                 model.LabelAssignment = _planAssignmentsService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
                                     .Select(x => new PlanAssignmentLabels
                                     {

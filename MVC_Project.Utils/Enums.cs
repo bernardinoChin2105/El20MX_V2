@@ -162,6 +162,14 @@ namespace MVC_Project.Utils
         MORALPERSONSREGIME,
     }
 
+    public enum BooleanText
+    {        
+        [Description("SI")]
+        YES,        
+        [Description("NO")]
+        NO,
+    }
+
     public enum SystemProviders
     {
         [Display(Name = "Syncfy")]
