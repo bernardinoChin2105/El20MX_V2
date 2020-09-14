@@ -85,6 +85,8 @@
   <ItemGroup>
     <Compile Include="Helpers\UnitOfWork.cs" />
     <Compile Include="Mappings\AccountMap.cs" />
+    <Compile Include="Mappings\AllianceMap.cs" />
+    <Compile Include="Mappings\AllyMap.cs" />
     <Compile Include="Mappings\BankAccountMap.cs" />
     <Compile Include="Mappings\BankCredentialMap.cs" />
     <Compile Include="Mappings\BankMap.cs" />

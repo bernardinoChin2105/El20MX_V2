@@ -51,6 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\Account.cs" />
+    <Compile Include="Entities\Alliance.cs" />
+    <Compile Include="Entities\Ally.cs" />
     <Compile Include="Entities\Bank.cs" />
     <Compile Include="Entities\BankAccount.cs" />
     <Compile Include="Entities\BankCredential.cs" />

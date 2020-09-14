@@ -1321,7 +1321,7 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 InvoicesReceivedListVM pdfModel = new InvoicesReceivedListVM();
-                pdfModel.xml = pdf;
+                //pdfModel.xml = pdf;
 
                 LogUtil.AddEntry(
                        "Se descarga el Dx0 del cliente",
