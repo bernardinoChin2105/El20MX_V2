@@ -59,6 +59,11 @@ namespace MVC_Project.WebBackend.Models
     public class Complemento
     {
         public TimbreFiscalDigital TimbreFiscalDigital { get; set; }
+
+        //Complemento()
+        //{
+        //    TimbreFiscalDigital = new TimbreFiscalDigital();
+        //}
     }
     public class TimbreFiscalDigital
     {
@@ -96,6 +101,11 @@ namespace MVC_Project.WebBackend.Models
     public class Conceptos
     {
         public Concepto Concepto { get; set; }
+
+        //Conceptos()
+        //{
+        //    Concepto = new Concepto();
+        //}
     }
 
     public class Concepto
