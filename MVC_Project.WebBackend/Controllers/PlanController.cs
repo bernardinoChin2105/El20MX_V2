@@ -276,6 +276,8 @@ namespace MVC_Project.WebBackend.Controllers
 
                 PlanViewModel model = new PlanViewModel();
                 model.Id = plan.id;
+                model.Name = plan.name;
+                model.isCurrent = plan.isCurrent;
                 model.LabelConcepts = _planChargeService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
                                     .Select(x => new PlanLabelsViewModel
                                     {
@@ -312,10 +314,11 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult Edit(FormCollection formCollection)
         {
             var userAuth = Authenticator.AuthenticatedUser;
+            Int64 Id = Convert.ToInt64(formCollection["Id"]);
+            var dataPlan = _planService.FirstOrDefault(x => x.id == Id);
+
             try
             {
-                Int64 Id = Convert.ToInt64(formCollection["Id"]);
-                var dataPlan = _planService.FirstOrDefault(x => x.id == Id);
 
                 string Name = formCollection["name"];
                 if (!ModelState.IsValid)
@@ -432,18 +435,37 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
 
-                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.ToString(),
-                        Text = EnumUtils.GetDisplayName(e)
-                    });
+                var planChargeConfig = _planChargeConfigService.FindBy(x => x.plan.id == dataPlan.id);
+                var planAssigConfig = _planAssignmentConfigService.FindBy(x => x.plan.id == dataPlan.id);
 
-                model.ListRegimen = new SelectList(regimenList);
-                model.ListState = new SelectList(stateList);
+                PlanViewModel model = new PlanViewModel();
+                model.Id = dataPlan.id;
+                model.Id = dataPlan.id;
+                model.Name = dataPlan.name;
+                model.isCurrent = dataPlan.isCurrent;
+                model.LabelConcepts = _planChargeService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
+                                    .Select(x => new PlanLabelsViewModel
+                                    {
+                                        Id = x.id,
+                                        Label = x.name,
+                                        ChargeId = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).id : 0,
+                                        Value = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).charge : 0
+                                    }).ToList();
+                model.LabelAssignment = _planAssignmentsService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
+                                    .Select(x => new PlanAssignmentLabels
+                                    {
+                                        Id = x.id,
+                                        Label = x.name,
+                                        fieldType = x.fielType,
+                                        operation = x.operation,
+                                        dataType = (x.dataType == "System.Int32" ? "number" : "text"),
+                                        providerData = x.providerData,
+                                        AssignmentId = planAssigConfig.Count() > 0 ? planAssigConfig.FirstOrDefault(y => y.planAssignment.id == x.id).id : 0,
+                                        Value1 = planAssigConfig.Count() > 0 ? planAssigConfig.FirstOrDefault(y => y.planAssignment.id == x.id).value1 : "",
+                                        Value2 = planAssigConfig.Count() > 0 ? planAssigConfig.FirstOrDefault(y => y.planAssignment.id == x.id).value2 : "",
+                                    }).ToList();
+                //Faltan las características
 
                 LogUtil.AddEntry(
                    "Se encontro un error: " + ex.Message.ToString(),

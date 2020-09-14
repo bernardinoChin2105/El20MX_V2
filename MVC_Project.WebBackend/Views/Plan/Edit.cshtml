@@ -3,13 +3,12 @@
 
 @{
     /**/
-
-
     ViewBag.Title = "Editar Plan";
 }
 
 @section styles{
     <link href="~/Content/template/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
     <style>
         .heightLabel {
             height: 55px;
@@ -20,7 +19,6 @@
         }
     </style>
 }
-
 
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="">
@@ -46,7 +44,7 @@
                                 <div class="col-12 col-md-3">
                                     <div class="i-checks">
                                         <label style="font-weight:initial">
-                                            @Html.CheckBoxFor(m => m.isCurrent, new { @class = "form-control", name = "current" })
+                                            @Html.CheckBoxFor(m => m.isCurrent, new { @class = "form-control", name = "current", @checked = (Model.isCurrent? "checked":"false") })
                                             @Html.DisplayNameFor(x => x.isCurrent)
                                         </label>
                                     </div>
@@ -57,9 +55,9 @@
                                     <h3 class="panel-title">Conceptos</h3>
                                 </div>
                                 <div class="panel-body">
-                                    <div class="form-group row">
-                                        @foreach (var item in Model.LabelConcepts)
-                                        {
+                                    @foreach (var item in Model.LabelConcepts)
+                                    {
+                                        <div class="form-group row">
                                             <div class="col-12 col-md-4">
                                                 <label class="col-form-label control-label">@item.Label</label>
                                             </div>
@@ -68,8 +66,8 @@
                                                 <input type="hidden" name="ChargeConfigId[]" value="@item.ChargeId" />
                                                 <input type="number" name="Charge@(item.Id)" value="@item.Value" class="form-control required" />
                                             </div>
-                                        }
-                                    </div>
+                                        </div>
+                                    }
                                 </div>
                             </div>
 
@@ -97,43 +95,43 @@
                                     <h3 class="panel-title">Criterio de asignación</h3>
                                 </div>
                                 <div class="panel-body">
-                                    <div class="form-group row">
-                                        @foreach (var item in Model.LabelAssignment)
-                                        {
-                                        <div class="col-12 col-md-4">
-                                            <label class="col-form-label control-label">@item.Label</label>
-                                        </div>s
-                                        <div class="col-12 col-md-8">
-                                            <input type="hidden" name="AssigId[]" value="@item.Id" />
-                                            <input type="hidden" name="AssigConfigId[]" value="@item.AssignmentId" />
+                                    @foreach (var item in Model.LabelAssignment)
+                                    {
+                                        <div class="form-group row">
+                                            <div class="col-12 col-md-4">
+                                                <label class="col-form-label control-label">@item.Label</label>
+                                            </div>
+                                            <div class="col-12 col-md-8">
+                                                <input type="hidden" name="AssigId[]" value="@item.Id" />
+                                                <input type="hidden" name="AssigConfigId[]" value="@item.AssignmentId" />
 
-                                            @if (item.operation == Operation.RANGE.ToString())
-                                            {
-                                                <div class="row">
-                                                    <div class="col-12 col-md-6">
-                                                        <input type="@item.dataType" name="Assig@(item.Id)Value1" value="@item.Value1" class="form-control required" />
-                                                    </div>
-                                                    <div class="col-12 col-md-6">
-                                                        <input type="@item.dataType" name="Assig@(item.Id)Value2" value="@item.Value2" class="form-control required" />
-                                                    </div>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                if (item.fieldType == "select")
+                                                @if (item.operation == Operation.RANGE.ToString())
                                                 {
-                                                    <select class="form-control required" name="Assig@(item.Id)Value1">
-                                                        @foreach (var type in Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>())
-                                                        {
-                                                            <option value="@type.ToString("D")" @(type.ToString("D") == item.Value1 ? "selected" : "")>@EnumUtils.GetDescription(type)</option>
-                                                        }
-                                                    </select>
+                                                    <div class="row">
+                                                        <div class="col-12 col-md-6">
+                                                            <input type="@item.dataType" name="Assig@(item.Id)Value1" value="@item.Value1" class="form-control required" />
+                                                        </div>
+                                                        <div class="col-12 col-md-6">
+                                                            <input type="@item.dataType" name="Assig@(item.Id)Value2" value="@item.Value2" class="form-control required" />
+                                                        </div>
+                                                    </div>
                                                 }
-                                            }
+                                                else
+                                                {
+                                                    if (item.fieldType == "select")
+                                                    {
+                                                        <select class="form-control required" name="Assig@(item.Id)Value1">
+                                                            @foreach (var type in Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>())
+                                                            {
+                                                                <option value="@type.ToString("D")" @(type.ToString("D") == item.Value1 ? "selected" : "")>@EnumUtils.GetDescription(type)</option>
+                                                            }
+                                                        </select>
+                                                    }
+                                                }
 
+                                            </div>
                                         </div>
-                                        }
-                                    </div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -159,8 +157,12 @@
     @Scripts.Render("~/plugins/validate")
     @Scripts.Render("~/plugins/toastr")
     <script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>
-    @*<script src="~/Scripts/views/Customer/Create.js"></script>
-        <script>
-            var urlGetLocation = '@Url.Action("GetLocations")';
-        </script>*@
+    <script>
+        function validarDatos() {
+            if (!$('#CreateForm').valid()) {
+                return;
+            }
+            $('#CreateForm').submit();
+        }
+    </script>
 }
