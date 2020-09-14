@@ -1186,6 +1186,9 @@ namespace MVC_Project.WebBackend.Controllers
                     string PaymentForm = filtersValues.Get("PaymentForm").Trim();
                     string Currency = filtersValues.Get("Currency").Trim();
 
+                    string serie = filtersValues.Get("Serie").Trim();
+                    string nombreRazonSocial = filtersValues.Get("NombreRazonSocial").Trim();
+
                     var pagination = new BasePagination();
                     var filters = new CustomerCFDIFilter() { accountId = userAuth.Account.Id };
                     pagination.PageSize = param.iDisplayLength;
@@ -1197,6 +1200,8 @@ namespace MVC_Project.WebBackend.Controllers
                     if (PaymentForm != "-1") filters.paymentForm = PaymentForm;
                     if (PaymentMethod != "-1") filters.paymentMethod = PaymentMethod;
                     if (Currency != "-1") filters.currency = Currency;
+                    if (!string.IsNullOrEmpty(serie)) filters.serie = serie;
+                    if (!string.IsNullOrEmpty(nombreRazonSocial)) filters.nombreRazonSocial = nombreRazonSocial;
 
                     listResponse = _providerService.ProviderCDFIList(pagination, filters);
 
@@ -1291,27 +1296,32 @@ namespace MVC_Project.WebBackend.Controllers
                     //Obtener impuestos retenidos
                     pdf += "Retenciones: <br />";
                     XmlNode nodeImpuestosRetenciones = nodeImpuestos.SelectSingleNode("cfdi:Retenciones", nsm);
-                    foreach (XmlNode node in nodeImpuestosRetenciones.SelectNodes("cfdi:Retencion", nsm))
+                    if (nodeImpuestosRetenciones != null)
                     {
-                        pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
-                                                        node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : "",
-                                                        node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : "");
+                        foreach (XmlNode node in nodeImpuestosRetenciones.SelectNodes("cfdi:Retencion", nsm))
+                        {
+                            pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
+                                                            node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : "",
+                                                            node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : "");
+                        }
                     }
 
                     //Obtener impuestos trasladados
                     pdf += "Traslados: <br />";
                     XmlNode nodeImpuestosTraslados = nodeImpuestos.SelectSingleNode("cfdi:Traslados", nsm);
-                    foreach (XmlNode node in nodeImpuestosTraslados.SelectNodes("cfdi:Traslado", nsm))
+                    if (nodeImpuestosTraslados != null)
                     {
-                        pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
-                                                        node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : "",
-                                                        node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : "");
+                        foreach (XmlNode node in nodeImpuestosTraslados.SelectNodes("cfdi:Traslado", nsm))
+                        {
+                            pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
+                                                            node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : "",
+                                                            node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : "");
+                        }
                     }
-
                 }
 
                 InvoicesReceivedListVM pdfModel = new InvoicesReceivedListVM();
-                //pdfModel.xml = pdf;
+                pdfModel.xml = pdf;
 
                 LogUtil.AddEntry(
                        "Se descarga el Dx0 del cliente",

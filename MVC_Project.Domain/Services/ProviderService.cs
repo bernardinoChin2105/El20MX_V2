@@ -87,7 +87,8 @@ namespace MVC_Project.Domain.Services
 
             var list = _repository.Session.CreateSQLQuery("exec dbo.st_providerInvoicesList " +
                 "@PageNum=:PageNum, @PageSize=:PageSize, @createdOnStart=:createdOnStart, @createdOnEnd=:createdOnEnd, " +
-                "@accountId=:accountId, @folio=:folio, @rfc=:rfc, @paymentMethod=:paymentMethod, @paymentForm=:paymentForm, @currency=:currency ")
+                "@accountId=:accountId, @folio=:folio, @rfc=:rfc, @paymentMethod=:paymentMethod, @paymentForm=:paymentForm, " +
+                "@currency=:currency, @serie=:serie, @nombreRazonSocial=:nombreRazonSocial ")
                     .SetParameter("PageNum", pagination.PageNum)
                     .SetParameter("PageSize", pagination.PageSize)
                     .SetParameter("createdOnStart", dateinit)
@@ -98,6 +99,8 @@ namespace MVC_Project.Domain.Services
                     .SetParameter("paymentMethod", filter.paymentMethod)
                     .SetParameter("paymentForm", filter.paymentForm)
                     .SetParameter("currency", filter.currency)
+                    .SetParameter("serie", filter.serie)
+                    .SetParameter("nombreRazonSocial", filter.nombreRazonSocial)
                     .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(InvoicesReceivedList)))
                     .List<InvoicesReceivedList>();
 

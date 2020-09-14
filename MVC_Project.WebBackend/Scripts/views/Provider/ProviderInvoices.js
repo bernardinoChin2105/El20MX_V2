@@ -13,6 +13,9 @@ $("#btnClearForm").click(function () {
 });
 
 $(".btn-filter-rol").click(function () {
+    if (!$("#SearchForm").valid())
+        return;
+
     $('#table').DataTable().draw();
 });
 
@@ -69,7 +72,8 @@ var ProviderInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl
             ordering: false,
             columns: [
                 { data: 'id', title: "Id", visible: false },
-                { data: 'folio', title: "No. CFDI" },
+                { data: 'serie', title: "Serie" },
+                { data: 'folio', title: "Folio" },
                 { data: 'invoicedAt', title: "Fecha Factura" },
                 { data: 'rfc', title: "RFC Proveedor" },
                 { data: 'businessName', title: "Proveedor" },
@@ -87,7 +91,7 @@ var ProviderInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl
                         //Menu para más opciones de cliente
                         //console.log(data)
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<a href="' + self.downloadPdfUrl + '?id=' + data.id + '" class="btn btn-light btn-downloadPdf" title="Descargar PDF"><span class="fas fa-file-pdf"></i></span>' +
+                            '<a href="' + self.downloadPdfUrl + '?id=' + data.id + '" class="btn btn-light btn-downloadPdf" title="Descargar PDF"><span class="fas fa-file-pdf"></span>' +
                             '<a href="' + self.downloadXmlUrl + '?id=' + data.id + '" class="btn btn-light btn-downloadXml" title="Descargar XML"><span class="fas fa-file-alt"></span></a>' +                            
                             '</div>';
                         return hasFullAccessController ? buttons : "";
@@ -111,7 +115,33 @@ var ProviderInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl
             }
         }).on('xhr.dt', function (e, settings, data) {
             El20Utils.ocultarCargador();
+            });
+
+        $.validator.addMethod("Alphanumeric",
+            function (value, element) {
+                return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
+            }, "El campo debe ser alfanumérico"
+        );
+
+        $("#SearchForm").validate({
+            rules: {
+                Folio: {
+                    Alphanumeric: true
+                },
+                Serie: {
+                    Alphanumeric: true
+                },
+                RFCP: {
+                    Alphanumeric: true
+                },
+                NombreRazonSocial: {
+                    Alphanumeric: true
+                },
+                
+            }
         });
+
+
     };
 
     $.get(self.autocompleteURL, function (data) {        

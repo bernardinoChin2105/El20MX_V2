@@ -117,8 +117,14 @@ namespace MVC_Project.WebBackend.Models
 
     public class InvoicesFilter
     {
-        [Display(Name = "No. CFDI")]
+        [Display(Name = "Serie")]
+        public string Serie { get; set; }
+
+        [Display(Name = "Folio")]
         public string Folio { get; set; }
+
+        [Display(Name = @"Nombre\Razón Social")]
+        public string NombreRazonSocial { get; set; }
 
         [Display(Name = "RFC Cliente")]
         public string RFC { get; set; }

@@ -1134,11 +1134,14 @@ namespace MVC_Project.WebBackend.Controllers
                     //Obtener impuestos trasladados
                     pdf += "Traslados: <br />";
                     XmlNode nodeImpuestosTraslados = nodeImpuestos.SelectSingleNode("cfdi:Traslados", nsm);
-                    foreach (XmlNode node in nodeImpuestosTraslados.SelectNodes("cfdi:Traslado", nsm))
+                    if (nodeImpuestosTraslados != null)
                     {
-                        pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
-                                                        node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : "",
-                                                        node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : "");
+                        foreach (XmlNode node in nodeImpuestosTraslados.SelectNodes("cfdi:Traslado", nsm))
+                        {
+                            pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
+                                                            node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : "",
+                                                            node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : "");
+                        }
                     }
 
                 }

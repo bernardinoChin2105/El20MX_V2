@@ -70,6 +70,8 @@ namespace MVC_Project.Domain.Model
         public string paymentMethod { get; set; }
         public string paymentForm { get; set; }
         public string currency { get; set; }
+        public string serie { get; set; }
+        public string nombreRazonSocial { get; set; }
     }
 
     public class InvoicesIssuedList
