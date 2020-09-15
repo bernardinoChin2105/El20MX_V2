@@ -69,7 +69,8 @@ var CustomerInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl
             ordering: false,
             columns: [
                 { data: 'id', title: "Id", visible: false },
-                { data: 'folio', title: "No. CFDI" },
+                { data: 'folio', title: "Folio" },
+                { data: 'serie', title: "Serie" },
                 { data: 'invoicedAt', title: "Fecha Factura" },
                 { data: 'rfc', title: "RFC Cliente" },
                 { data: 'businessName', title: "Cliente" },

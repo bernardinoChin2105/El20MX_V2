@@ -67,8 +67,8 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
                 {
                     data: null, orderName: "createdAt", title: "Fecha Registro", autoWidth: false, className: "dt-center td-actions thead-dark",
                     render: function (data, type, row, meta) {
-                        if (data.RegisterAt !== null && data.RegisterAt !== "") {
-                            return moment(data.RegisterAt).format('DD-MMM-YYYY');
+                        if (data.createdAt !== null && data.createdAt !== "") {
+                            return moment(data.createdAt).format('DD-MMM-YYYY');
                         }
                         return '';
                     }
