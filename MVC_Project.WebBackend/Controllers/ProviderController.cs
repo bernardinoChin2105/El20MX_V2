@@ -1380,11 +1380,9 @@ namespace MVC_Project.WebBackend.Controllers
                 XmlNode nodoComplemento = nodeComprobante.SelectSingleNode("cfdi:Complemento", nsm);
                 if (nodoComplemento != null)
                 {
-                    XmlDocument docTimbre = new XmlDocument();
-                    docTimbre.LoadXml(nodoComplemento.InnerXml);
-                    nsm.AddNamespace("tfd", "http://www.sat.gob.mx/TimbreFiscalDigital");                    
-                    
-                    XmlNode nodoTimbrado = docTimbre.SelectSingleNode("tfd:TimbreFiscalDigital", nsm);
+                    nsm.AddNamespace("tfd", "http://www.sat.gob.mx/TimbreFiscalDigital");
+
+                    XmlNode nodoTimbrado = nodoComplemento.SelectSingleNode("tfd:TimbreFiscalDigital", nsm);
                     if (nodoTimbrado != null)
                     {
                         string varUUID = nodoTimbrado.Attributes["UUID"].Value;
