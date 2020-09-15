@@ -1268,16 +1268,14 @@ namespace MVC_Project.WebBackend.Controllers
 
                 //Factura
                 XmlDocument doc = new XmlDocument();
-                doc.LoadXml(invoice.xml);//Leer el XML
-                string pdf = string.Empty;
+                doc.LoadXml(invoice.xml);//Leer el XML        
 
                 //agregamos un Namespace, que usaremos para buscar que el nodo no exista:
                 XmlNamespaceManager nsm = new XmlNamespaceManager(doc.NameTable);
                 nsm.AddNamespace("cfdi", "http://www.sat.gob.mx/cfd/3");
-
+                
                 //Accedemos a nodo "Comprobante"
                 XmlNode nodeComprobante = doc.SelectSingleNode("//cfdi:Comprobante", nsm);
-                //InvoicesReceivedListVM pdfModel = new InvoicesReceivedListVM();
 
                 //Obtener Folio, Serie, SubTotal y Total
                 string varFolio = nodeComprobante.Attributes["Folio"].Value;
@@ -1382,27 +1380,34 @@ namespace MVC_Project.WebBackend.Controllers
                 XmlNode nodoComplemento = nodeComprobante.SelectSingleNode("cfdi:Complemento", nsm);
                 if (nodoComplemento != null)
                 {
-                    string varUUID = nodoComplemento.Attributes["UUID"].Value;
-                    string varFechaTimbrado = nodoComplemento.Attributes["FechaTimbrado"].Value;
-                    string varSelloCFD = nodoComplemento.Attributes["SelloCFD"].Value;
-                    string varNoCertificadoSAT = nodoComplemento.Attributes["NoCertificadoSAT"].Value;
-                    string varSelloSAT = nodoComplemento.Attributes["SelloSAT"].Value;
-                    string varRfcProvCertif = nodoComplemento.Attributes["RfcProvCertif"].Value;
-                    string varVersion = nodoComplemento.Attributes["Version"].Value;
-
-
-                    TimbreFiscalDigital timbre = new TimbreFiscalDigital()
+                    XmlDocument docTimbre = new XmlDocument();
+                    docTimbre.LoadXml(nodoComplemento.InnerXml);
+                    nsm.AddNamespace("tfd", "http://www.sat.gob.mx/TimbreFiscalDigital");                    
+                    
+                    XmlNode nodoTimbrado = docTimbre.SelectSingleNode("tfd:TimbreFiscalDigital", nsm);
+                    if (nodoTimbrado != null)
                     {
-                        UUID = varUUID,
-                        FechaTimbrado = varFechaTimbrado,
-                        NoCertificadoSAT = varNoCertificadoSAT,
-                        RfcProvCertif = varRfcProvCertif,
-                        SelloCFD = varSelloCFD,
-                        SelloSAT = varSelloSAT,
-                        Version = varVersion
-                    };
+                        string varUUID = nodoTimbrado.Attributes["UUID"].Value;
+                        string varFechaTimbrado = nodoTimbrado.Attributes["FechaTimbrado"].Value;
+                        string varSelloCFD = nodoTimbrado.Attributes["SelloCFD"].Value;
+                        string varNoCertificadoSAT = nodoTimbrado.Attributes["NoCertificadoSAT"].Value;
+                        string varSelloSAT = nodoTimbrado.Attributes["SelloSAT"].Value;
+                        string varRfcProvCertif = nodoTimbrado.Attributes["RfcProvCertif"].Value;
+                        string varVersion = nodoTimbrado.Attributes["Version"].Value;
 
-                    cfdipdf.Complemento.TimbreFiscalDigital = timbre;
+                        TimbreFiscalDigital timbre = new TimbreFiscalDigital()
+                        {
+                            UUID = varUUID,
+                            FechaTimbrado = varFechaTimbrado,
+                            NoCertificadoSAT = varNoCertificadoSAT,
+                            RfcProvCertif = varRfcProvCertif,
+                            SelloCFD = varSelloCFD,
+                            SelloSAT = varSelloSAT,
+                            Version = varVersion
+                        };
+
+                        cfdipdf.Complemento.TimbreFiscalDigital = timbre;
+                    }
                 }
 
                 //Obtener impuestos
@@ -1440,8 +1445,6 @@ namespace MVC_Project.WebBackend.Controllers
                 //}
 
 
-                //pdfModel.xml = pdf;
-
                 LogUtil.AddEntry(
                            "Se descarga el CFDI del proveedor",
                            ENivelLog.Info,
@@ -1460,19 +1463,9 @@ namespace MVC_Project.WebBackend.Controllers
                 return new Rotativa.ViewAsPdf("InvoiceDownloadPDF", cfdipdf) { FileName = invoice.folio + invoice.serie + "_" + invoice.invoicedAt + ".pdf" };
             }
             catch (Exception ex)
-            {
-                //LogUtil.AddEntry(
-                //       "Error al descargar el diagnostico: " + ex.Message.ToString(),
-                //       ENivelLog.Error,
-                //       authUser.Id,
-                //       authUser.Email,
-                //       EOperacionLog.ACCESS,
-                //       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                //       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                //       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                //    );
-                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                return View("InvoicesReceived");
+            {     
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);                
+                return RedirectToAction("InvoicesReceived");
             }
 
         }
@@ -1500,8 +1493,10 @@ namespace MVC_Project.WebBackend.Controllers
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                     );
 
+                //invoice.folio + invoice.serie + "_" + invoice.invoicedAt
+                //invoice.uuid
                 Response.ContentType = "application/xml";
-                Response.AddHeader("Content-Disposition", "attachment;filename=" + invoice.uuid + ".xml");
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + invoice.folio + invoice.serie + "_" + invoice.invoicedAt + ".xml");
                 Response.Write(invoice.xml);
                 Response.End();
             }
