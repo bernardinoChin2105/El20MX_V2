@@ -60,7 +60,7 @@ var BankAccountControlador = function (htmlTableId, baseUrl, bankAccountEdit, ha
                 { data: 'clabe', title: "Clabe" },
                 { data: 'currency', title: "Moneda" },
                 //{data: 'refreshAt', title: "Fecha Saldo Inicial" },
-                { data: 'balance', title: "Saldo Inicial" },
+                { data: 'balance', title: "Saldo Actual" },
                 {
                     data: null,
                     title: "Estatus de Conexión",
