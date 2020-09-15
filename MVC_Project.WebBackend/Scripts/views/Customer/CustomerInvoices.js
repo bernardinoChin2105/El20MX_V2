@@ -13,6 +13,9 @@ $("#btnClearForm").click(function () {
 });
 
 $(".btn-filter-rol").click(function () {
+    if (!$("#SearchForm").valid())
+        return;
+
     $('#table').DataTable().draw();
 });
 
@@ -109,6 +112,30 @@ var CustomerInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl
             }
         }).on('xhr.dt', function (e, settings, data) {
             El20Utils.ocultarCargador();
+            });
+
+        $.validator.addMethod("Alphanumeric",
+            function (value, element) {
+                return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
+            }, "El campo debe ser alfanumérico"
+        );
+
+        $("#SearchForm").validate({
+            rules: {
+                Folio: {
+                    Alphanumeric: true
+                },
+                Serie: {
+                    Alphanumeric: true
+                },
+                RFCP: {
+                    Alphanumeric: true
+                },
+                NombreRazonSocial: {
+                    Alphanumeric: true
+                },
+
+            }
         });
     };
 

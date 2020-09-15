@@ -161,7 +161,7 @@
                                                             <label class="col-form-label control-label">@(i > 0 ? "Otro" : "") Email</label>
                                                             <input type="hidden" name="Emails[@i].Id" value="@Model.Emails[i].Id" />
                                                             <input type="hidden" name="Emails[@i].TypeContact" value="@TypeContact.EMAIL.ToString()" />
-                                                            <input type="email" class="form-control emails" name="Emails[@i].EmailOrPhone" value="@Model.Emails[i].EmailOrPhone" />
+                                                            <input type="email" class="form-control emails" maxlength="250" name="Emails[@i].EmailOrPhone" value="@Model.Emails[i].EmailOrPhone" />
                                                         </div>
                                                         @if (i == 0)
                                                         {
