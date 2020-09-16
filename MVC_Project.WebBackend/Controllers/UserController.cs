@@ -298,7 +298,7 @@ namespace MVC_Project.WebBackend.Controllers
         private List<SelectListItem> PopulateRoles()
         {
             var userAuth = Authenticator.AuthenticatedUser;
-            var availableRoles = _roleService.FindBy(x => x.account.id == userAuth.Account.Id).OrderBy(x => x.code);
+            var availableRoles = _roleService.FindBy(x => x.account.id == userAuth.Account.Id && x.status == SystemStatus.ACTIVE.ToString()).OrderBy(x => x.code);
             var rolesList = new List<SelectListItem>();
             rolesList = availableRoles.Select(role => new SelectListItem
             {

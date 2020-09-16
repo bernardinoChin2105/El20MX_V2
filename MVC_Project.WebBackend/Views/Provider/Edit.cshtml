@@ -19,6 +19,7 @@
             display: none;
         }
     </style>
+    <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
@@ -38,7 +39,7 @@
                             <div class="form-group row">
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.RFC, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.RFC, new { @class = "form-control", @readonly = "readonly" })
+                                    @Html.TextBoxFor(m => m.RFC, new { @class = "form-control", @readonly = "readonly", @maxlength = "13" })
                                 </div>
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.FistName, new { @class = "col-form-label control-label FistName" })
@@ -51,9 +52,9 @@
                             </div>
                             <div class="form-group row">
                                 @*<div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.CURP, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.CURP, new { @class = "form-control" })
-                                </div>*@
+                                        @Html.LabelFor(m => m.CURP, new { @class = "col-form-label control-label" })
+                                        @Html.TextBoxFor(m => m.CURP, new { @class = "form-control" })
+                                    </div>*@
                                 <div class="col-12 col-md-8 businessName hidden">
                                     @Html.LabelFor(m => m.BusinessName, new { @class = "col-form-label control-label" })
                                     @Html.TextBoxFor(m => m.BusinessName, new { @class = "form-control", @maxlength = "250" })
@@ -94,7 +95,7 @@
                                 </div>
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.ZipCode, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control" })
+                                    @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control", @maxlength = "5" })
                                 </div>
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.Colony, new { @class = "col-form-label control-label" })
@@ -121,7 +122,12 @@
                                 <div class="col-12 col-md-8">
                                     <label class="col-form-label control-label">Domicilio Comercial</label>
                                     <div class="form-group">
-                                        <input id="DeliveryAddress" name="DeliveryAddress" type="checkbox" class="" value="true" @(Model.DeliveryAddress == true ? "checked" : "")> <label for="DeliveryAddress">Mismo que domicilio Fiscal</label>
+                                        <div class="i-checks">
+                                            <label style="font-weight:initial">
+                                                <input id="DeliveryAddress" name="DeliveryAddress" type="checkbox" class="" value="true" @(Model.DeliveryAddress == true ? "checked" : "")>
+                                                Mismo que domicilio Fiscal
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -152,10 +158,10 @@
                                                 {
                                                     <div class="row">
                                                         <div class="col-12 col-md-10">
-                                                            <label class="col-form-label control-label">@(i > 0 ? "Otro": "") Email</label>
+                                                            <label class="col-form-label control-label">@(i > 0 ? "Otro" : "") Email</label>
                                                             <input type="hidden" name="Emails[@i].Id" value="@Model.Emails[i].Id" />
                                                             <input type="hidden" name="Emails[@i].TypeContact" value="@TypeContact.EMAIL.ToString()" />
-                                                            <input type="email" class="form-control emails" name="Emails[@i].EmailOrPhone" value="@Model.Emails[i].EmailOrPhone" />
+                                                            <input type="email" class="form-control emails" maxlength="250" name="Emails[@i].EmailOrPhone" value="@Model.Emails[i].EmailOrPhone" />
                                                         </div>
                                                         @if (i == 0)
                                                         {
@@ -245,7 +251,7 @@
                             <div class="form-group row pull-right">
                                 <div class="col-md-10 offset-2 text-right">
                                     <a href='@Url.Action("Index", "Provider")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
-                                    <button type="submit" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                                    <button type="submit" class="btn btn-color" onclick="validarDatos()"> <i class="fa fa-save"></i> Guardar </button>
                                 </div>
                             </div>
                         </div>

@@ -69,8 +69,8 @@
                     @if (user.HasAccessController("Bank"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Bank", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "Bank")"><a href="@Url.Action("Index", "Bank")">Conexión a Bancos</a></li>                       
-                            <li class="@Html.IsSelected(controller: "Bank")"><a href="@Url.Action("BankTransaction", "Bank")">Movimientos Bancarios</a></li>
+                            <li class="@Html.IsSelected(controller: "Bank", action: "Index")"><a href="@Url.Action("Index", "Bank")">Conexión a Bancos</a></li>                       
+                            <li class="@Html.IsSelected(controller: "Bank", action: "BankTransaction")"><a href="@Url.Action("BankTransaction", "Bank")">Movimientos Bancarios</a></li>
                         </ul>
                     }
                 </li>
@@ -83,8 +83,8 @@
                 @if (user.HasAccessController("Customer"))
                 {
                     <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Customer", cssClass: "in")">
-                        <li class="@Html.IsSelected(controller: "Customer")"><a href="@Url.Action("Index", "Customer")">Clientes</a></li>
-                        <li class="@Html.IsSelected(controller: "Customer")"><a href="@Url.Action("InvoicesIssued", "Customer")">Facturas Hechas</a></li>
+                        <li class="@Html.IsSelected(controller: "Customer", action: "Index")"><a href="@Url.Action("Index", "Customer")">Clientes</a></li>
+                        <li class="@Html.IsSelected(controller: "Customer", action: "InvoicesIssued")"><a href="@Url.Action("InvoicesIssued", "Customer")">Facturas Emitidas</a></li>
                     </ul>
                 }
             </li>
@@ -97,8 +97,8 @@
                     @if (user.HasAccessController("Provider"))
                     {
                     <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Provider", cssClass: "in")">
-                        <li class="@Html.IsSelected(controller: "Provider")"><a href="@Url.Action("Index", "Provider")">Proveedores</a></li>
-                        <li class="@Html.IsSelected(controller: "Customer")"><a href="@Url.Action("InvoicesReceived", "Provider")">Facturas Recibidas</a></li>
+                        <li class="@Html.IsSelected(controller: "Provider", action: "Index")"><a href="@Url.Action("Index", "Provider")">Proveedores</a></li>
+                        <li class="@Html.IsSelected(controller: "Provider", action: "InvoicesReceived")"><a href="@Url.Action("InvoicesReceived", "Provider")">Facturas Recibidas</a></li>
                     </ul>
                     }
                 </li>

@@ -208,22 +208,25 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     List<InvoiceIssued> invoiceIssued = customersCFDI.Select(x => new InvoiceIssued
                     {
-                        uuid = Guid.NewGuid(),
+                        uuid = Guid.Parse(x.id),
                         folio = x.Folio,
                         serie = x.Serie,
                         paymentMethod = x.MetodoPago,
                         paymentForm = x.FormaPago,
                         currency = x.Moneda,
-                        amount = x.SubTotal,
+                        //amount = x.SubTotal,
                         iva = modelInvoices.Customers.FirstOrDefault(y => y.idInvoice == x.id).tax,
-                        totalAmount = x.Total,
+                        //totalAmount = x.Total,
                         invoicedAt = x.Fecha,
                         xml = x.Xml,
                         createdAt = todayUTC,
                         modifiedAt = todayUTC,
                         status = SystemStatus.ACTIVE.ToString(),
                         account = account,
-                        customer = _customerService.FirstOrDefault(y => y.rfc == x.Receptor.Rfc)
+                        customer = _customerService.FirstOrDefault(y => y.rfc == x.Receptor.Rfc),
+                        invoiceType = x.TipoDeComprobante,
+                        subtotal = x.SubTotal,
+                        total = x.Total
                     }).ToList();
                     _invoicesIssuedService.Create(invoiceIssued);
                 }
@@ -237,22 +240,25 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     List<InvoiceReceived> invoiceReceiveds = providersCFDI.Select(x => new InvoiceReceived
                     {
-                        uuid = Guid.NewGuid(),
+                        uuid = Guid.Parse(x.id),
                         folio = x.Folio,
                         serie = x.Serie,
                         paymentMethod = x.MetodoPago,
                         paymentForm = x.FormaPago,
                         currency = x.Moneda,
-                        amount = x.SubTotal,
+                        //amount = x.SubTotal,
                         iva = modelInvoices.Providers.FirstOrDefault(y => y.idInvoice == x.id).tax,
-                        totalAmount = x.Total,
+                        //totalAmount = x.Total,
                         invoicedAt = x.Fecha,
                         xml = x.Xml,
                         createdAt = todayUTC,
                         modifiedAt = todayUTC,
                         status = SystemStatus.ACTIVE.ToString(),
                         account = account,
-                        provider = _providerService.FirstOrDefault(y => y.rfc == x.Emisor.Rfc)
+                        provider = _providerService.FirstOrDefault(y => y.rfc == x.Emisor.Rfc),
+                        invoiceType = x.TipoDeComprobante,
+                        subtotal=x.SubTotal,
+                        total = x.Total
                     }).ToList();
                     _invoicesReceivedService.Create(invoiceReceiveds);
                 }

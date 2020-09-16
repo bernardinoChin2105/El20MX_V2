@@ -70,6 +70,8 @@ namespace MVC_Project.Domain.Model
         public string paymentMethod { get; set; }
         public string paymentForm { get; set; }
         public string currency { get; set; }
+        public string serie { get; set; }
+        public string nombreRazonSocial { get; set; }
     }
 
     public class InvoicesIssuedList
@@ -81,9 +83,9 @@ namespace MVC_Project.Domain.Model
         public string paymentMethod { get; set; }
         public string paymentForm { get; set; }
         public string currency { get; set; }
-        public decimal amount { get; set; }
+        public decimal subtotal { get; set; }
         public decimal iva { get; set; }
-        public decimal totalAmount { get; set; }
+        public decimal total { get; set; }
         public DateTime invoicedAt { get; set; }
         public Int64 customerId { get; set; }
         public Int64 accountId { get; set; }

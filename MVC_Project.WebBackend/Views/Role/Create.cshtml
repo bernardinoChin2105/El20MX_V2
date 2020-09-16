@@ -90,11 +90,17 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $('.chosen-select').chosen({ width: '100%', "disable_search": true });
+            $.validator.addMethod("Alphanumeric",
+                function (value, element) {
+                    return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
+                }, "El campo debe ser alfanumérico"
+            );
             $("#CreateForm").validate({
                 rules: {
                     Name: {
                         required: true,
-                        maxlength: 50
+                        maxlength: 50,
+                        Alphanumeric: true
                     },
                     Code: {
                         required: true,
