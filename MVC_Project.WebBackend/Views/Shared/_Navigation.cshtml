@@ -69,7 +69,7 @@
                     @if (user.HasAccessController("Bank"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Bank", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "Bank")"><a href="@Url.Action("Index", "Bank")">Conexión a Bancos</a></li>                       
+                            <li class="@Html.IsSelected(controller: "Bank")"><a href="@Url.Action("Index", "Bank")">Conexión a Bancos</a></li>
                             <li class="@Html.IsSelected(controller: "Bank")"><a href="@Url.Action("BankTransaction", "Bank")">Movimientos Bancarios</a></li>
                         </ul>
                     }
@@ -78,16 +78,16 @@
 
             @if (user.HasAccessToModule(SystemModules.CUSTOMERS.ToString()))
             {
-            <li class="@Html.IsModuleSelected(user, SystemModules.CUSTOMERS.ToString())">
-                <a href="#"><i class="fa fa-user"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CUSTOMERS</span> <span class="fain arrow"></span></a>
-                @if (user.HasAccessController("Customer"))
-                {
-                    <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Customer", cssClass: "in")">
-                        <li class="@Html.IsSelected(controller: "Customer")"><a href="@Url.Action("Index", "Customer")">Clientes</a></li>
-                        <li class="@Html.IsSelected(controller: "Customer")"><a href="@Url.Action("InvoicesIssued", "Customer")">Facturas Hechas</a></li>
-                    </ul>
-                }
-            </li>
+                <li class="@Html.IsModuleSelected(user, SystemModules.CUSTOMERS.ToString())">
+                    <a href="#"><i class="fa fa-user"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CUSTOMERS</span> <span class="fain arrow"></span></a>
+                    @if (user.HasAccessController("Customer"))
+                    {
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Customer", cssClass: "in")">
+                            <li class="@Html.IsSelected(controller: "Customer")"><a href="@Url.Action("Index", "Customer")">Clientes</a></li>
+                            <li class="@Html.IsSelected(controller: "Customer")"><a href="@Url.Action("InvoicesIssued", "Customer")">Facturas Hechas</a></li>
+                        </ul>
+                    }
+                </li>
             }
 
             @if (user.HasAccessToModule(SystemModules.PROVIDERS.ToString()))
@@ -96,10 +96,24 @@
                     <a href="#"><i class="fa fa-user"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_PROVIDERS</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("Provider"))
                     {
-                    <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Provider", cssClass: "in")">
-                        <li class="@Html.IsSelected(controller: "Provider", action: "Index")"><a href="@Url.Action("Index", "Provider")">Proveedores</a></li>
-                        <li class="@Html.IsSelected(controller: "Provider", action: "InvoicesReceived")"><a href="@Url.Action("InvoicesReceived", "Provider")">Facturas Recibidas</a></li>
-                    </ul>
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Provider", cssClass: "in")">
+                            <li class="@Html.IsSelected(controller: "Provider", action: "Index")"><a href="@Url.Action("Index", "Provider")">Proveedores</a></li>
+                            <li class="@Html.IsSelected(controller: "Provider", action: "InvoicesReceived")"><a href="@Url.Action("InvoicesReceived", "Provider")">Facturas Recibidas</a></li>
+                        </ul>
+                    }
+                </li>
+            }
+
+            @if (user.HasAccessToModule(SystemModules.ALLIANCES_DISCOUNTS.ToString()))
+            {
+                <li class="@Html.IsModuleSelected(user, SystemModules.ALLIANCES_DISCOUNTS.ToString())">
+                    <a href="#"><i class="fa fa-user"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_ALLIANCE_DISCOUNT</span> <span class="fain arrow"></span></a>
+                    @if (user.HasAccessController("Alliance"))
+                    {
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Alliance", cssClass: "in")">
+                            <li class="@Html.IsSelected(controller: "Alliance", action: "Index")"><a href="@Url.Action("Index", "Alliance")">Alianzas</a></li>
+                            <li class="@Html.IsSelected(controller: "Alliance", action: "Allies")"><a href="@Url.Action("Allies", "Alliance")">Aliados</a></li>
+                        </ul>
                     }
                 </li>
             }
@@ -185,18 +199,18 @@
 
 
             @*<li class="">
-                    <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
-                    <ul class="nav nav-second-level collapse in">
-                        <li class="">
-                            <a href="#">Bancos <span class="fain arrow"></span></a>
-                            <ul class="nav nav-second-level collapse">
-                                <li class=""><a href="#">Conectar</a></li>
-                                <li class=""><a href="#">Cargar movimientos</a></li>
-                            </ul>
-                        </li>
-
+            <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
+            <ul class="nav nav-second-level collapse in">
+                <li class="">
+                    <a href="#">Bancos <span class="fain arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li class=""><a href="#">Conectar</a></li>
+                        <li class=""><a href="#">Cargar movimientos</a></li>
                     </ul>
-                </li>*@
+                </li>
+
+            </ul>
+        </li>*@
 
 
         </ul>

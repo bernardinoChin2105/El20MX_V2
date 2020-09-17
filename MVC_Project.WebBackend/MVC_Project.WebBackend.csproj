@@ -253,6 +253,7 @@
     <Compile Include="AuthManagement\AuthorizeUsersAttribute.cs" />
     <Compile Include="AuthManagement\Models\AuthUser.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\AllianceController.cs" />
     <Compile Include="Controllers\AuthController.cs" />
     <Compile Include="Controllers\BankController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
@@ -1935,6 +1936,8 @@
     <Content Include="Views\Provider\InvoicesReceived.cshtml" />
     <Content Include="Views\Provider\InvoiceDownloadPDF.cshtml" />
     <Content Include="Views\Customer\InvoiceDownloadPDF.cshtml" />
+    <Content Include="Views\Alliance\Index.cshtml" />
+    <Content Include="Views\Alliance\Allies.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

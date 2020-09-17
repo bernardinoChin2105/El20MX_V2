@@ -108,7 +108,9 @@ namespace MVC_Project.Utils
         [Display(Name = "Proveedores")]
         PROVIDERS,
         [Display(Name = "Bancos")]
-        BANKS
+        BANKS,
+        [Display(Name = "Alianzas y Descuentos")]
+        ALLIANCES_DISCOUNTS
     }
 
     public enum TermsAndConditions

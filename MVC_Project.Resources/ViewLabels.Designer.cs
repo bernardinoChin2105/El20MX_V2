@@ -301,5 +301,16 @@ namespace MVC_Project.Resources {
                 return ResourceManager.GetString("MODULE_BANKS", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Busca una cadena traducida similar a ALIANZAS Y DESCUENTOS.
+        /// </summary>
+        public static string MODULE_ALLIANCE_DISCOUNT
+        {
+            get
+            {
+                return ResourceManager.GetString("MODULE_BANKS", resourceCulture);
+            }
+        }        
     }
 }

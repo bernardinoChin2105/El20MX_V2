@@ -77,6 +77,8 @@ namespace MVC_Project.WebBackend
             container.RegisterType<IInvoiceIssuedService, InvoiceIssuedService>();
             container.RegisterType<IInvoiceReceivedService, InvoiceReceivedService>();
             container.RegisterType<ICountryService, CountryService>();
+            container.RegisterType<IAllianceService, AllianceService>();
+            container.RegisterType<IAllyService, AllyService>();
         }
     }
 }

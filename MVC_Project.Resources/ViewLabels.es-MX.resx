@@ -198,4 +198,7 @@
   <data name="MODULE_BANKS" xml:space="preserve">
     <value>Bancos</value>
   </data>
+  <data name="MODULE_ALLIANCE_DISCOUNT" xml:space="preserve">
+    <value>Alianzas y Descuentos</value>
+  </data>
 </root>
