@@ -175,6 +175,42 @@ namespace MVC_Project.Utils
         FINERIO
     }
 
+    public enum MetodoPago
+    {
+        [Description("Pago en una sola exhibición")]
+        PUE,
+        [Description("Pago en parcialidades o diferido")]
+        PPD
+    }
+    public enum RegimenFiscal
+    {
+        [Description("General de Ley Personas Morales")]
+        RegimenFiscal601
+    }
+    public enum TipoComprobante
+    {
+        [Description("Ingreso")]
+        I,
+        [Description("Egreso")]
+        E,
+        [Description("Pago")]
+        P,
+        [Description("Nómina")]
+        N,
+        [Description("Traslado")]
+        T
+    }
+    public enum UsoCFDI
+    {
+        [Description("Por definir")]
+        P01
+    }
+    public enum ClaveUnidad
+    {
+        [Description("Carga masiva")]
+        Unidad48
+    }
+
     public enum MoralPersonsRegime
     {
         Regime601 = 601,

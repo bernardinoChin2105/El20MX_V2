@@ -1115,21 +1115,25 @@ namespace MVC_Project.WebBackend.Controllers
                 string varMoneda = nodeComprobante.Attributes["Moneda"].Value;
                 string varDescuento1 = nodeComprobante.Attributes["Descuento"].Value;
 
+                MonedaUtils formatoTexto = new MonedaUtils();
+                var fecha = varFecha != null || varFecha != "" ? Convert.ToDateTime(varFecha).ToString("yyyy-MM-dd HH:mm:ss") : varFecha;
+
                 InvoicesVM cfdipdf = new InvoicesVM()
                 {
                     Folio = varFolio,
                     Serie = varSerie,
                     SubTotal = varSubTotal,
                     Total = varTotal,
-                    TipoDeComprobante = varTipoComprobante,
+                    TipoDeComprobante = ((TipoComprobante)Enum.Parse(typeof(TipoComprobante), varTipoComprobante, true)).GetDescription(),
                     Certificado = varCertificado,
                     NoCertificado = varNoCertificado,
                     Sello = varSello,
                     FormaPago = varFormaPago,
-                    MetodoPago = varMetodoPago,
+                    MetodoPago = ((MetodoPago)Enum.Parse(typeof(MetodoPago), varMetodoPago, true)).GetDescription(),
                     LugarExpedicion = varLugarExpedicion,
-                    Fecha = varFecha,
-                    Moneda = varMoneda,
+                    Fecha = fecha,
+                    //Moneda = varMoneda,
+                    Moneda = formatoTexto.Convertir(varTotal.ToString(), true),
                     Descuento = varDescuento1
                 };
 
@@ -1140,12 +1144,22 @@ namespace MVC_Project.WebBackend.Controllers
                     string varNombre = nodeEmisor.Attributes["Nombre"].Value;
                     string varRfc = nodeEmisor.Attributes["Rfc"].Value;
                     string varRegimenFiscal = nodeEmisor.Attributes["RegimenFiscal"].Value;
+                    string varRegimenFiscalText = string.Empty;
+
+                    try
+                    {
+                        varRegimenFiscalText = ((RegimenFiscal)Enum.Parse(typeof(RegimenFiscal), "RegimenFiscal" + varRegimenFiscal, true)).GetDescription();
+                    }
+                    catch (Exception ex)
+                    {
+                    }
 
                     Emisor emisor = new Emisor()
                     {
                         Nombre = varNombre,
                         Rfc = varRfc,
-                        RegimenFiscal = varRegimenFiscal
+                        RegimenFiscal = varRegimenFiscal,
+                        RegimenFiscalTexto = varRegimenFiscalText != null ? varRegimenFiscalText : varRegimenFiscal
                     };
 
                     cfdipdf.Emisor = emisor;
@@ -1157,16 +1171,31 @@ namespace MVC_Project.WebBackend.Controllers
                     string varNombre = nodeReceptor.Attributes["Nombre"].Value;
                     string varRfc = nodeReceptor.Attributes["Rfc"].Value;
                     string varUsoCFDI = nodeReceptor.Attributes["UsoCFDI"].Value;
+                    string varUsoCFDIText = string.Empty;
+                    try
+                    {
+                        varUsoCFDIText = ((UsoCFDI)Enum.Parse(typeof(UsoCFDI), varUsoCFDI, true)).GetDescription();
+                    }
+                    catch (Exception ex)
+                    {
+                    }
 
                     Receptor receptor = new Receptor()
                     {
                         Nombre = varNombre,
                         Rfc = varRfc,
-                        UsoCFDI = varUsoCFDI
+                        UsoCFDI = varUsoCFDI,
+                        UsoCFDITexto = varUsoCFDIText != null ? varUsoCFDIText : varUsoCFDI
                     };
 
                     cfdipdf.Receptor = receptor;
                 }
+
+                GeneradorQR generador = new GeneradorQR();
+                string selloQR = cfdipdf.Sello.Substring((cfdipdf.Sello.Length - 8), 8);
+                string urlQR = "https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx?id=" + cfdipdf.Folio + "&re=" + cfdipdf.Emisor.Rfc + "&rr=" + cfdipdf.Receptor.Rfc + "&tt=" + cfdipdf.Total + "&fe=" + selloQR;
+                var byteImage = generador.CrearCodigo(urlQR);
+                cfdipdf.QR = "data:image/png;base64," + Convert.ToBase64String(byteImage);
 
                 XmlNode nodeConceptos = nodeComprobante.SelectSingleNode("cfdi:Conceptos", nsm);
                 if (nodeConceptos != null)
@@ -1202,12 +1231,6 @@ namespace MVC_Project.WebBackend.Controllers
                 XmlNode nodoComplemento = nodeComprobante.SelectSingleNode("cfdi:Complemento", nsm);
                 if (nodoComplemento != null)
                 {
-                    //if (nodoComplemento.InnerXml)
-                    //{
-
-                    //}
-                    //XmlDocument docTimbre = new XmlDocument();
-                    //docTimbre.LoadXml(nodoComplemento.InnerXml);
                     nsm.AddNamespace("tfd", "http://www.sat.gob.mx/TimbreFiscalDigital");
 
                     XmlNode nodoTimbrado = nodoComplemento.SelectSingleNode("tfd:TimbreFiscalDigital", nsm);
@@ -1221,10 +1244,12 @@ namespace MVC_Project.WebBackend.Controllers
                         string varRfcProvCertif = nodoTimbrado.Attributes["RfcProvCertif"].Value;
                         string varVersion = nodoTimbrado.Attributes["Version"].Value;
 
+                        var fechaTimbrado = varFechaTimbrado != null || varFechaTimbrado != "" ? Convert.ToDateTime(varFechaTimbrado).ToString("yyyy-MM-dd HH:mm:ss") : varFechaTimbrado;
+
                         TimbreFiscalDigital timbre = new TimbreFiscalDigital()
                         {
                             UUID = varUUID,
-                            FechaTimbrado = varFechaTimbrado,
+                            FechaTimbrado = fechaTimbrado,
                             NoCertificadoSAT = varNoCertificadoSAT,
                             RfcProvCertif = varRfcProvCertif,
                             SelloCFD = varSelloCFD,
