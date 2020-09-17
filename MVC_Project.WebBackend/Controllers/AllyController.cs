@@ -99,29 +99,7 @@ namespace MVC_Project.WebBackend.Controllers
         [AllowAnonymous]
         public ActionResult Create()
         {
-            try
-            {
-                var createCustomer = new CustomerViewModel();
-                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
-
-                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.ToString(),
-                        Text = EnumUtils.GetDisplayName(e)
-                    }).ToList();
-
-                createCustomer.ListRegimen = new SelectList(regimenList);
-                createCustomer.ListState = new SelectList(stateList);
-                return View(createCustomer);
-            }
-            catch (Exception ex)
-            {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                return RedirectToAction("Index");
-            }
-            // return View();
+            return View();         
         }
     }
 }
