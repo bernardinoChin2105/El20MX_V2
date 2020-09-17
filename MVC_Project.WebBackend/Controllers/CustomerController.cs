@@ -1012,6 +1012,8 @@ namespace MVC_Project.WebBackend.Controllers
                     string PaymentMethod = filtersValues.Get("PaymentMethod").Trim();
                     string PaymentForm = filtersValues.Get("PaymentForm").Trim();
                     string Currency = filtersValues.Get("Currency").Trim();
+                    string serie = filtersValues.Get("Serie").Trim();
+                    string nombreRazonSocial = filtersValues.Get("NombreRazonSocial").Trim();
 
                     var pagination = new BasePagination();
                     var filters = new CustomerCFDIFilter() { accountId = userAuth.Account.Id };
@@ -1024,6 +1026,8 @@ namespace MVC_Project.WebBackend.Controllers
                     if (PaymentForm != "-1") filters.paymentForm = PaymentForm;
                     if (PaymentMethod != "-1") filters.paymentMethod = PaymentMethod;
                     if (Currency != "-1") filters.currency = Currency;
+                    if (!string.IsNullOrEmpty(serie)) filters.serie = serie;
+                    if (!string.IsNullOrEmpty(nombreRazonSocial)) filters.nombreRazonSocial = nombreRazonSocial;
 
                     listResponse = _customerService.CustomerCDFIList(pagination, filters);
 
