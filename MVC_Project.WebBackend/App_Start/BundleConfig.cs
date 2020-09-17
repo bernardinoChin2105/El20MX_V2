@@ -128,7 +128,9 @@ namespace MVC_Project.WebBackend
                       "~/Scripts/views/Bank/BankTransaction.js"));
             bundles.Add(new ScriptBundle("~/views/bankIndex").Include(
                       "~/Scripts/views/Bank/Index.js"));
-            
+            bundles.Add(new ScriptBundle("~/views/allyIndex").Include(
+                      "~/Scripts/views/Ally/Index.js"));
+
             // toastr notification
             bundles.Add(new ScriptBundle("~/plugins/toastr").Include(
                       "~/Scripts/plugins/toastr/toastr.min.js"));

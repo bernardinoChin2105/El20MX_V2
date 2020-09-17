@@ -74,17 +74,14 @@
 
     <script>
         $(function () {
-            var customer = new CustomerIndexControlador('table',
-                '@Url.Action("GetCustomers")',
-                '@Url.Action("Edit")',
-                '@Url.Action("ExportListCustomer")',
-                '@Url.Action("CustomerUpload")',
-                '@Url.Action("ExportTemplate")',
+            var ally = new AllyIndexControlador('table',
+                '@Url.Action("GetAllies")',
+                '@Url.Action("Edit")',               
                 '@hasFullAccessController' == 'True'
             );
-            customer.init();
+            ally.init();
         });
     </script>
 
-    @Scripts.Render("~/views/customerIndex")
+    @Scripts.Render("~/views/allyIndex")
 }
