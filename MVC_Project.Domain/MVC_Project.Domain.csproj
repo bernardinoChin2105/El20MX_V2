@@ -58,6 +58,8 @@
     <Compile Include="Entities\BankCredential.cs" />
     <Compile Include="Entities\BankTransaction.cs" />
     <Compile Include="Entities\Currency.cs" />
+    <Compile Include="Entities\PaymentForm.cs" />
+    <Compile Include="Entities\PaymentMethod.cs" />
     <Compile Include="Entities\Plan.cs" />
     <Compile Include="Entities\PlanAssignment.cs" />
     <Compile Include="Entities\PlanAssignmentConfiguration.cs" />
@@ -127,6 +129,7 @@
     <Compile Include="Services\InvoiceReceivedService.cs" />
     <Compile Include="Services\CurrencyService.cs" />
     <Compile Include="Services\PaymentFormService.cs" />
+    <Compile Include="Services\PaymentMethodService.cs" />
     <Compile Include="Services\TypeVoucherService.cs" />
     <Compile Include="Services\PlanAssignmentConfigService.cs" />
     <Compile Include="Services\PlanAssignmentService.cs" />

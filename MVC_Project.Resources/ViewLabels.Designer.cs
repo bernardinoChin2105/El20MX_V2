@@ -309,12 +309,12 @@ namespace MVC_Project.Resources {
         {
             get
             {
-                return ResourceManager.GetString("MODULE_BANKS", resourceCulture);
+                return ResourceManager.GetString("MODULE_ALLIANCE_DISCOUNT", resourceCulture);
             }
         }        
 
         /// <summary>
-        ///   Busca una cadena traducida similar a BANCOS.
+        ///   Busca una cadena traducida similar a PLANES.
         /// </summary>
         public static string MODULE_PLANS
         {

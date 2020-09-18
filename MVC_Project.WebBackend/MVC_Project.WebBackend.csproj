@@ -1807,6 +1807,7 @@
     <Content Include="Scripts\popper.min.js" />
     <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
+    <Content Include="Scripts\views\Ally\Index.js" />
     <Content Include="Scripts\views\Auth\Index.js" />
     <Content Include="Scripts\views\Customer\CustomerInvoices.js" />
     <Content Include="Scripts\views\Bank\BankTransaction.js" />
@@ -1950,10 +1951,9 @@
     <Content Include="Views\Provider\InvoiceDownloadPDF.cshtml" />
     <Content Include="Views\Customer\InvoiceDownloadPDF.cshtml" />
     <Content Include="Views\Alliance\Index.cshtml" />
-    <Content Include="Views\Alliance\Allies.cshtml" />
-    <Content Include="Views\Ally\Create.cshtml" />
-    <Content Include="Views\Ally\Index.cshtml" />
-    <Content Include="Views\Ally\Edit.cshtml" />
+    <Content Include="Views\Alliance\AllyCreate.cshtml" />
+    <Content Include="Views\Alliance\AllyIndex.cshtml" />
+    <Content Include="Views\Alliance\AllyEdit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

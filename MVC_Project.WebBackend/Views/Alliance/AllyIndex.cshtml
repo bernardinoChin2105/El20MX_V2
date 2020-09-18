@@ -37,7 +37,7 @@
                                     @Html.TextBoxFor(m => m.Name, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "100", @autocomplete = "off" })
                                 </div>
                             </div>
-                            <div class="col-12 offset-8 col-sm-4 col-lg-4">
+                            <div class="col-12 offset-4 col-sm-4 col-lg-4">
                                 <br />
                                 <button type="button" class="btn btn-sm btn-color btn-filter-rol"><i class="fas fa-search"></i> Buscar</button>
                                 &nbsp;
@@ -55,7 +55,7 @@
                     @if (hasFullAccessController)
                     {
                         <div class="ibox-tools">
-                            <a href="@Url.Action("CreateAlly", "Alliance")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Crear Aliado</a>
+                            <a href="@Url.Action("AllyCreate", "Alliance")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Crear Aliado</a>
                         </div>
                     }
                 </div>
@@ -76,7 +76,7 @@
         $(function () {
             var ally = new AllyIndexControlador('table',
                 '@Url.Action("GetAllies")',
-                '@Url.Action("Edit")',               
+                '@Url.Action("AllyEdit")',               
                 '@hasFullAccessController' == 'True'
             );
             ally.init();

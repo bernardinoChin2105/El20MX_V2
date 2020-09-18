@@ -19,4 +19,14 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Nombre")]
         public string Name { get; set; }
     }
+
+    public class AlliesListVM
+    {
+        public Int64 id { get; set; }
+        public Guid uuid { get; set; }
+        public string name { get; set; }
+        public string createdAt { get; set; }
+        public string modifiedAt { get; set; }
+        public string status { get; set; }
+    }
 }

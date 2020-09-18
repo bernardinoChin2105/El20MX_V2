@@ -38,7 +38,7 @@ var AllyIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAcces
             columns: [
                 { data: 'id', title: "Id", visible: false },
                 { data: 'name', title: "Nombre" },
-                { data: 'createAt', title: "Fecha creación" },
+                { data: 'createdAt', title: "Fecha creación" },
                 {
                     data: null,
                     title: "Opciones",
@@ -48,7 +48,7 @@ var AllyIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAcces
                         //console.log(data)
 
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<a href="' + self.detailUrl + '?id=' + data.uuid + '" class="btn btn-light" title="Editar al aliado"><span class="fas fa-edit"></span></a>' +                                                        
+                            '<a href="' + self.editUrl + '?uuid=' + data.uuid + '" class="btn btn-light" title="Editar al aliado"><span class="fas fa-edit"></span></a>' +                                                        
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }
