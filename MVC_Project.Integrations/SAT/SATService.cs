@@ -1,5 +1,4 @@
-﻿using MVC_Project.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +10,7 @@ namespace MVC_Project.Integrations.SAT
     {
         public static CredentialsResponse CreateCredential(CredentialRequest request, string provider)
         {
-            if (provider == SystemProviders.SATWS.ToString())
+            if (provider == "SATWS")
             {
                 var loginSat = new LogInSATModel { rfc = request.rfc, password = request.ciec, type = "ciec" };
                 var satModel = SATwsService.CreateCredentialSat(loginSat);
