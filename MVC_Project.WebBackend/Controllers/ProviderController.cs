@@ -594,8 +594,8 @@ namespace MVC_Project.WebBackend.Controllers
                     Data =
                     new
                     {
-                        success = true,
-                        message = ex.Message.ToString(),
+                        success = false,
+                        message = ex.Message,
                         sEcho = param.sEcho,
                         iTotalRecords = 0,
                         iTotalDisplayRecords = 0,

@@ -96,6 +96,13 @@
     <Compile Include="Mappings\CurrencyMap.cs" />
     <Compile Include="Mappings\PaymentFormMap.cs" />
     <Compile Include="Mappings\PaymentMethodMap.cs" />
+    <Compile Include="Mappings\PlanAssignmentConfigurationMap.cs" />
+    <Compile Include="Mappings\PlanAssignmentMap.cs" />
+    <Compile Include="Mappings\PlanChargeConfigurationMap.cs" />
+    <Compile Include="Mappings\PlanChargeMap.cs" />
+    <Compile Include="Mappings\PlanFeatureConfigurationMap.cs" />
+    <Compile Include="Mappings\PlanFeatureMap.cs" />
+    <Compile Include="Mappings\PlanMap.cs" />
     <Compile Include="Mappings\ProviderContactMap.cs" />
     <Compile Include="Mappings\CustomerContactMap.cs" />
     <Compile Include="Mappings\ProviderMap.cs" />

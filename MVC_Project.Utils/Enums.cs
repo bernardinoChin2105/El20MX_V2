@@ -34,7 +34,9 @@ namespace MVC_Project.Utils
         [Display(Name = "Owner")]
         ACCOUNT_OWNER,
         [Display(Name = "Lead")]
-        LEAD
+        LEAD,
+        [Display(Name = "System Administrator")]
+        SYSTEM_ADMINISTRATOR
     }
 
     public enum DocumentType
@@ -108,7 +110,12 @@ namespace MVC_Project.Utils
         [Display(Name = "Proveedores")]
         PROVIDERS,
         [Display(Name = "Bancos")]
-        BANKS
+        BANKS,
+
+        #region Modulos del BackOffice
+        [Display(Name = "Planes")]
+        PLANS
+        #endregion
     }
 
     public enum TermsAndConditions
@@ -163,6 +170,14 @@ namespace MVC_Project.Utils
         [Display(Name = "Depósitos")]
         [Description("Depósitos")]
         DEPOSITS = 1,
+    }
+
+    public enum BooleanText
+    {        
+        [Description("SI")]
+        YES,        
+        [Description("NO")]
+        NO,
     }
 
     public enum SystemProviders
@@ -240,9 +255,62 @@ namespace MVC_Project.Utils
         Regime630 = 630,
     }
 
+    public enum ChangeType
+    {
+        [Display(Name = "Fijo")]
+        FIXED,
+        [Display(Name = "Variable")]
+        VARIABLE
+    }
+
+    public enum Operation
+    {
+        [Display(Name = "Adición")]
+        ADDITION,
+        [Display(Name = "Subtracción")]
+        SUBTRACTION,
+        [Display(Name = "División")]
+        DIVIDE,
+        [Display(Name = "Multiplicación")]
+        MULTIPLICITY,
+        [Display(Name = "Rango")]
+        RANGE,
+        [Display(Name = "Igual")]
+        EQUAL
+    }
+
+    //public enum MoralPersonsRegime
+    //{
+    //    Regime601 = 601,
+    //    Regime603 = 603,
+    //    Regime607 = 607,
+    //    Regime609 = 609,
+    //    Regime620 = 620,
+    //    Regime622 = 622,
+    //    Regime623 = 623,
+    //    Regime624 = 624,
+    //    Regime628 = 628,
+    //}
+
+    //public enum NaturalPersonsRegime
+    //{
+    //    Regime605 = 605,
+    //    Regime606 = 606,
+    //    Regime608 = 608,
+    //    Regime611 = 611,
+    //    Regime612 = 612,
+    //    Regime614 = 614,
+    //    Regime615 = 615,
+    //    Regime616 = 616,
+    //    Regime621 = 621,
+    //    Regime622 = 622,
+    //    Regime629 = 626,
+    //    Regime630 = 630,
+    //}
+
     public enum SystemControllers
     {
-        [Display(Name ="Account")]
+        [Display(Name = "Account")]
         ACCOUNT,
     }
 }

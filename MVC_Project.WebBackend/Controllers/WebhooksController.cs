@@ -161,7 +161,7 @@ namespace MVC_Project.WebBackend.Controllers
                 _webhookService.Create(model);
                 throw;
             }
-
+            return null;
         }
     }
 }
