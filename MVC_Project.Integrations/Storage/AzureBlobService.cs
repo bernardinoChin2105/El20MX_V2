@@ -11,10 +11,10 @@ using System.IO; // Namespace for Blob storage types
 
 namespace MVC_Project.Integrations.Storage
 {
-    public class AzureBlobService : IStorageServiceProvider
+    public class AzureBlobService
     {
 
-        public Tuple<string, string> UploadPublicFile(System.IO.Stream fileStream, string fileName, string containerName, string folder = "")
+        public static Tuple<string, string> UploadPublicFile(System.IO.Stream fileStream, string fileName, string containerName, string folder = "")
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
 
@@ -116,7 +116,7 @@ namespace MVC_Project.Integrations.Storage
             return fileSize;
         }
         
-        public MemoryStream DownloadFile(string containerName, string Url)
+        public static MemoryStream DownloadFile(string containerName, string Url)
         {
             string SASToken = CloudConfigurationManager.GetSetting("StorageSASToken");
 

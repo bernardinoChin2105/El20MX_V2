@@ -16,6 +16,7 @@ using System.Collections.Specialized;
 using MVC_Project.FlashMessages;
 using LogHubSDK.Models;
 using System.Configuration;
+using MVC_Project.Integrations.Storage;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -208,12 +209,12 @@ namespace MVC_Project.WebBackend.Controllers
                 /*Obtener los CFDI's*/
                 var customersCFDI = SATwsService.GetInvoicesCFDI(IdIssued);
                 var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
-                var storage = new Integrations.Storage.AzureBlobService();
+                
                 foreach (var cfdi in customersCFDI)
                 {
                     byte[] byteArray = System.Text.Encoding.ASCII.GetBytes(cfdi.Xml);
                     System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
-                    var upload = storage.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesIssued, account.rfc);
+                    var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesIssued, account.rfc);
                     cfdi.urlXml = upload.Item1;
                 }
 
@@ -257,7 +258,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     byte[] byteArray = System.Text.Encoding.ASCII.GetBytes(cfdi.Xml);
                     System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
-                    var upload = storage.UploadPublicFile(stream, cfdi.id+".xml", StorageInvoicesReceived, account.rfc);
+                    var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id+".xml", StorageInvoicesReceived, account.rfc);
                     cfdi.urlXml = upload.Item1;
                 }
                 if (providersCFDI.Count > 0)

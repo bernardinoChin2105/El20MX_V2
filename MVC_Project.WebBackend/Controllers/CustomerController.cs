@@ -5,6 +5,7 @@ using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Model;
 using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
+using MVC_Project.Integrations.Storage;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
 using MVC_Project.WebBackend.Models;
@@ -1092,9 +1093,8 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (invoice.xml == null)
                     throw new Exception("El registro no cuenta con el xml de la factura emitida");
-
-                var storage = new Integrations.Storage.AzureBlobService();
-                MemoryStream stream = storage.DownloadFile(StorageInvoicesIssued, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
+                
+                MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoicesIssued, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
                 stream.Position = 0;
 
                 XmlDocument doc = new XmlDocument();
@@ -1293,9 +1293,8 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (invoice == null)
                     throw new Exception("No se encontro la factura emitida");
-
-                var storage = new Integrations.Storage.AzureBlobService();
-                MemoryStream stream = storage.DownloadFile(StorageInvoicesIssued, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
+                
+                MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoicesIssued, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
 
                 Response.ContentType = "application/xml";                
                 Response.AddHeader("Content-Disposition", "attachment;filename=" + invoice.uuid + ".xml");

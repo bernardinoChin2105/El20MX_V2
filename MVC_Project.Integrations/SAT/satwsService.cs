@@ -125,8 +125,7 @@ namespace MVC_Project.Integrations.SAT
         public static SatAuthResponseModel CreateCredentialSat(LogInSATModel model)
         {
             SatAuthResponseModel satModel = new SatAuthResponseModel();
-            try
-            {
+
                 string url = "/credentials";                
                 
                 //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
@@ -134,16 +133,7 @@ namespace MVC_Project.Integrations.SAT
 
                 satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
                 
-                //return new InvoicesModel
-                //{
-                //    Success = true,
-                //    TaxStatus = taxStatus
-                //};
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message.ToString());
-            }
+                
             return satModel;
         }
 

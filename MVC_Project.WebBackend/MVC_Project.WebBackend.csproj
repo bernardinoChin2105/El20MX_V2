@@ -297,6 +297,7 @@
     <Compile Include="Models\ReportOrdersViewModel.cs" />
     <Compile Include="Models\RoleViewModel.cs" />
     <Compile Include="Models\RolPermission.cs" />
+    <Compile Include="Models\SatwsResponse.cs" />
     <Compile Include="Models\UserPermissionViewModel.cs" />
     <Compile Include="Models\UserProfile.cs" />
     <Compile Include="Models\UserViewModel.cs" />

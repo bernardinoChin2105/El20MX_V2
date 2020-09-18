@@ -1,4 +1,5 @@
-﻿using MVC_Project.Domain.Entities;
+﻿using LogHubSDK.Models;
+using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Services;
 using MVC_Project.Utils;
 using Newtonsoft.Json;
@@ -161,6 +162,23 @@ namespace MVC_Project.WebBackend.Controllers
                 _webhookService.Create(model);
                 throw;
             }
+            return null;
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult SatwsExtractionHandler(Object response)
+        {
+            LogUtil.AddEntry(
+                   JsonConvert.SerializeObject(response.ToString()),
+                   ENivelLog.Debug,
+                   1,
+                   1,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", "wcaamal", DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", "wcaamal", DateUtil.GetDateTimeNow())
+                );
             return null;
         }
     }

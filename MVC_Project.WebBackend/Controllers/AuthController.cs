@@ -122,7 +122,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                     authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
                     authUser.Permissions = permissionsUniqueMembership;
-                    //authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar };
+                    
                     Authenticator.StoreAuthenticatedUser(authUser);
                     MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
 
@@ -471,7 +471,6 @@ namespace MVC_Project.WebBackend.Controllers
                                     var guestRole = _roleService.FindBy(x => x.code == SystemRoles.LEAD.ToString()).FirstOrDefault();
                                     List<Permission> permissionsGest = guestRole.rolePermissions.Select(p => new Permission
                                     {
-                                        //Action = p.action,
                                         Controller = p.permission.controller,
                                         Module = p.permission.module,
                                         Level = p.level,
@@ -488,7 +487,6 @@ namespace MVC_Project.WebBackend.Controllers
                                     var uniqueMembership = memberships.First();
                                     List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Select(p => new Permission
                                     {
-                                        //Action = p.permission.action,
                                         Controller = p.permission.controller,
                                         Module = p.permission.module,
                                         Level = p.level,
@@ -497,7 +495,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                                     authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
                                     authUser.Permissions = permissionsUniqueMembership;
-                                    authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
+                                    authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar, Id = uniqueMembership.account.id };
                                     Authenticator.StoreAuthenticatedUser(authUser);
                                     if (memberships.Count() == 1)
                                     {
@@ -509,23 +507,6 @@ namespace MVC_Project.WebBackend.Controllers
                                         url = "/Account/Index";
                                     }
                                 }
-                                //else
-                                //{
-                                //    List<Permission> permissionsUser = new List<Permission>();
-                                //    permissionsUser.Add(new Permission
-                                //    {
-                                //        Action = "Index",
-                                //        Controller = "Account",
-                                //        Module = "Account",
-                                //        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
-                                //        isCustomizable = false
-                                //    });
-                                //    authUser.Permissions = permissionsUser;
-                                //    Authenticator.StoreAuthenticatedUser(authUser);
-                                //    url = "/Account/Index";
-                                //    //Manda a seleccionar cuenta
-                                //}
-
                             }
                             else
                             {

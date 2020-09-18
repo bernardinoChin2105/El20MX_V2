@@ -70,6 +70,8 @@
   <ItemGroup>
     <Compile Include="Paybook\Paybook.cs" />
     <Compile Include="Paybook\PaybookService.cs" />
+    <Compile Include="SAT\SATModels.cs" />
+    <Compile Include="SAT\SATService.cs" />
     <Compile Include="SAT\SATwsEnums.cs" />
     <Compile Include="Paybook\PaybookViewModel.cs" />
     <Compile Include="SAT\SATwsViewModel.cs" />
@@ -90,6 +92,12 @@
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\AWSSDK.S3.3.3.104.43\analyzers\dotnet\cs\AWSSDK.S3.CodeAnalysis.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MVC_Project.Utils\MVC_Project.Utils.csproj">
+      <Project>{23b89c18-68c5-449f-aded-e51a86da6b52}</Project>
+      <Name>MVC_Project.Utils</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

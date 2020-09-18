@@ -10,6 +10,7 @@ using MVC_Project.WebBackend.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -173,19 +174,16 @@ namespace MVC_Project.WebBackend.Controllers
             var authUser = Authenticator.AuthenticatedUser;
             try
             {
+                var provider = ConfigurationManager.AppSettings["SATProvider"];
                 //Realizar la captura de la información
                 //Validar que no se repita el rfc
                 var accountExist = _accountService.ValidateRFC(model.RFC);
 
                 if (accountExist != null)
                     throw new Exception("Existe una cuenta registrada con este RFC.");
-                var loginSat = new LogInSATModel { rfc = model.RFC, password = model.CIEC, type = "ciec" };
-                var satModel = SATwsService.CreateCredentialSat(loginSat);
-                //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
-                //var responseSat = SATws.CallServiceSATws("credentials", loginSat, "Post");
-
-                //var satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
-
+                var loginSat = new CredentialRequest { rfc = model.RFC, ciec = model.CIEC };
+                var satModel = SATService.CreateCredential(loginSat, provider);
+                
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
                 //vamos a crear el account y memberships. Pendiente a que me confirme William los memberships
@@ -228,7 +226,6 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                 {
-                    //Action = p.permission.action,
                     Controller = p.permission.controller,
                     Module = p.permission.module,
                     Level = p.level
@@ -239,9 +236,9 @@ namespace MVC_Project.WebBackend.Controllers
                 authUser.Permissions = permissions;
 
                 Authenticator.RefreshAuthenticatedUser(authUser);
-                MensajeFlashHandler.RegistrarMensaje("Cuenta registrada correctamente", TiposMensaje.Success);
+                MensajeFlashHandler.RegistrarMensaje("RFC " + account.rfc + " registrado correctamente", TiposMensaje.Success);
                 LogUtil.AddEntry(
-                   "Cuenta registrada correctamente",
+                   "RFC " + account.rfc + " registrado correctamente",
                    ENivelLog.Info,
                    authUser.Id,
                    authUser.Email,
