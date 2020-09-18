@@ -45,27 +45,27 @@ namespace MVC_Project.WebBackend.Controllers
             var userAuth = Authenticator.AuthenticatedUser;
             try
             {
-                IList<RoleData> UsuariosResponse = new List<RoleData>();
+                IList<RoleData> roleResponse = new List<RoleData>();
                 int totalDisplay = 0;
-                if (userAuth.Account != null)
-                {
-                    var roles = _roleService.FilterBy(filtros, userAuth.Account.Id, param.iDisplayStart, param.iDisplayLength);
-                    totalDisplay = roles.Item2;
-                    foreach (var rol in roles.Item1)
-                    {
-                        RoleData userData = new RoleData();
-                        userData.Name = rol.name;
-                        userData.Description = rol.description;
-                        userData.CreatedAt = rol.createdAt;
-                        userData.UpdatedAt = rol.modifiedAt;
-                        userData.Status = rol.status == SystemStatus.ACTIVE.ToString();
-                        userData.Uuid = rol.uuid.ToString();
-                        UsuariosResponse.Add(userData);
-                    }
-                }
+                
+                Int64? accountId = userAuth.GetAccountId();
 
+                var roles = _roleService.FilterBy(filtros, accountId, param.iDisplayStart, param.iDisplayLength);
+                    totalDisplay = roles.Item2;
+                foreach (var rol in roles.Item1)
+                {
+                    RoleData roleData = new RoleData();
+                    roleData.Name = rol.name;
+                    roleData.Description = rol.description;
+                    roleData.CreatedAt = rol.createdAt;
+                    roleData.UpdatedAt = rol.modifiedAt;
+                    roleData.Status = rol.status == SystemStatus.ACTIVE.ToString();
+                    roleData.Uuid = rol.uuid.ToString();
+                    roleResponse.Add(roleData);
+                }
+                
                 LogUtil.AddEntry(
-                   "Lista de clientes totalDisplay: " + totalDisplay + ", total: " + UsuariosResponse.Count(),
+                   "Lista de clientes totalDisplay: " + totalDisplay + ", total: " + roleResponse.Count(),
                    ENivelLog.Info,
                    userAuth.Id,
                    userAuth.Email,
@@ -79,9 +79,9 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     success = true,
                     sEcho = param.sEcho,
-                    iTotalRecords = UsuariosResponse.Count(),
+                    iTotalRecords = roleResponse.Count(),
                     iTotalDisplayRecords = totalDisplay,
-                    aaData = UsuariosResponse
+                    aaData = roleResponse
                 }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -289,11 +289,19 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception("El modelo de entrada no es válido");
 
                 var code = FormatUtil.ReplaceSpecialCharactersAndWhiteSpace(roleCreateViewModel.Name);
-
-                if (_roleService.FindBy(x => x.code == code && x.account.id == userAuth.Account.Id).Any())
-                    throw new Exception("Ya existe un rol con el nombre proporcionado");
+                if (userAuth.isBackOfficeConfiguration())
+                {
+                    if (_roleService.FindBy(x => x.code == code && x.account == null).Any())
+                        throw new Exception("Ya existe un rol con el nombre proporcionado");
+                }
+                else
+                {
+                    if (_roleService.FindBy(x => x.code == code && x.account.id == userAuth.Account.Id).Any())
+                        throw new Exception("Ya existe un rol con el nombre proporcionado");
+                }
 
                 DateTime todayDate = DateUtil.GetDateTimeNow();
+                Account account = userAuth.isBackOfficeConfiguration() ? null : new Account { id = userAuth.Account.Id };
                 var role = new Role
                 {
                     uuid = Guid.NewGuid(),
@@ -303,7 +311,7 @@ namespace MVC_Project.WebBackend.Controllers
                     createdAt = todayDate,
                     modifiedAt = todayDate,
                     status = SystemStatus.ACTIVE.ToString(),
-                    account = new Account { id = userAuth.Account.Id }
+                    account = account
                 };
 
                 List<RolePermission> rolesPermissions = new List<RolePermission>();
@@ -315,7 +323,7 @@ namespace MVC_Project.WebBackend.Controllers
                         rolePermission.role = role;
                         rolePermission.permission = new Permission { id = permisoNuevo.Id };
                         rolePermission.level = ((SystemLevelPermission)permisoNuevo.SystemAction).ToString();
-                        rolePermission.account = new Account { id = userAuth.Account.Id };
+                        rolePermission.account = account;
                         rolesPermissions.Add(rolePermission);
                     }
                 }
@@ -327,7 +335,7 @@ namespace MVC_Project.WebBackend.Controllers
                     rolePermission.role = role;
                     rolePermission.permission = new Permission { id = noCustomizable.id };
                     rolePermission.level = SystemLevelPermission.FULL_ACCESS.ToString();
-                    rolePermission.account = new Account { id = userAuth.Account.Id };
+                    rolePermission.account = account;
                     rolesPermissions.Add(rolePermission);
                 }
                 _roleService.CreateRole(role, rolesPermissions);
@@ -371,9 +379,8 @@ namespace MVC_Project.WebBackend.Controllers
             var userAuth = Authenticator.AuthenticatedUser;
             try
             {
-                Role role = new Role();
+                Role role = _roleService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
 
-                role = _roleService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid) && x.account.id == userAuth.Account.Id);
                 if (role == null)
                     throw new Exception("El rol no se encontró en la base de datos");
 
@@ -423,7 +430,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 foreach (var permission in module.Permissions)
                 {
-                    var match = role.rolePermissions.FirstOrDefault(x => x.permission.id == permission.Id && x.account.id == userAuth.Account.Id);
+                    RolePermission  match = role.rolePermissions.FirstOrDefault(x => x.permission.id == permission.Id);
                     if (match != null)
                     {
                         int level = (int)(Enum.Parse(typeof(SystemLevelPermission), match.level));
@@ -452,7 +459,7 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult Edit(RoleEditViewModel model)
         {
             var userAuth = Authenticator.AuthenticatedUser;
-            Role role = _roleService.FirstOrDefault(x => x.id == model.Id && x.account.id == userAuth.Account.Id);
+            Role role = _roleService.FirstOrDefault(x => x.id == model.Id);
             try
             {
                 if (!ModelState.IsValid)
@@ -465,9 +472,12 @@ namespace MVC_Project.WebBackend.Controllers
                     permissionsViewModels.AddRange(module.Permissions);
 
                 var news = permissionsViewModels.Where(pvm => !rolePermissions.Any(rp => pvm.Id == rp.permission.id));
+
+                Account account = userAuth.isBackOfficeConfiguration() ? null : new Account { id = userAuth.Account.Id };
+
                 var newRolePermissions = news.Select(x => new RolePermission
                 {
-                    account = new Account { id = userAuth.Account.Id },
+                    account = account,
                     role = new Role { id = role.id },
                     permission = new Permission { id = x.Id },
                     level = ((SystemLevelPermission)x.SystemAction).ToString()

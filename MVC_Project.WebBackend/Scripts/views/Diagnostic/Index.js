@@ -95,12 +95,8 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
                 aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
 
                 $.getJSON(sSource, aoData, function (json) {
-                    //console.log(json);
-
+                    debugger;
                     if (json.success) {
-                        if (json.iTotalRecords > 0) {
-                            $(".btn-d0").css("display", "none");
-                        }
                         fnCallback(json);
                     }
                     else {

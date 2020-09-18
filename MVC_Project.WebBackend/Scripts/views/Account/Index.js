@@ -43,7 +43,27 @@ function selectAccountModal() {
     $("#selectAccountModal").find('.modal-content').load(urls.urlSelect, function () {
         $("#selectAccountModal").modal({ backdrop: 'static', keyboard: false });
     });
+    $("#selectAccountModal").on('shown.bs.modal', function () {
+        $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
+        $("#btnSelectAccount").on("click", function () {
+            let form = document.createElement("form");
+            form.setAttribute("method", "GET");
+            form.setAttribute("action", "/Account/SetAccount");
+
+            let hiddenClave = document.createElement("input");
+            hiddenClave.setAttribute("type", "hidden");
+            hiddenClave.setAttribute("name", "uuid");
+            hiddenClave.setAttribute("value", $("#accountListItem").val());
+            form.appendChild(hiddenClave);
+            
+            document.body.appendChild(form);
+            form.submit();
+        });
+    });
 }
+
+
+
 function createAccountModal() {
     $("#selectAccountModal").modal('hide');
     $("#createAccountModal").find('.modal-content').load(urls.urlCreate, function () {

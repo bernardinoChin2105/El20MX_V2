@@ -22,7 +22,8 @@ namespace MVC_Project.Data.Mappings {
             Map(x => x.agreeTerms).Column("agreeTerms").Nullable();
             
             References(x => x.profile).Column("profileId");
-            //References(x => x.role).Column("roleId");
+
+            Map(x => x.isBackOffice).Column("isBackOffice").Nullable();//Indica si el usuario es colaborador de el20mx
 
             HasMany(x => x.memberships).Inverse().Cascade.All().KeyColumn("userId");
             

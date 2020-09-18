@@ -201,4 +201,7 @@
   <data name="MODULE_ALLIANCE_DISCOUNT" xml:space="preserve">
     <value>Alliances and Discounts</value>
   </data>
+  <data name="MODULE_PLANS" xml:space="preserve">
+    <value>Plans</value>  
+  </data>
 </root>

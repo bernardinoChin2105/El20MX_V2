@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 
 namespace MVC_Project.WebBackend.Models
 {
@@ -24,5 +25,8 @@ namespace MVC_Project.WebBackend.Models
     {
         public List<AccountListViewModel> accountListViewModels;
         public int count;
+
+        public List<SelectListItem> accountListItems;
+        public int accountListItem;
     }
 }

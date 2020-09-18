@@ -411,7 +411,14 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 return new JsonResult
                 {
-                    Data = new { success = false, message = ex.Message },
+                    Data = new {
+                        success = false,
+                        message = ex.Message,
+                        sEcho = param.sEcho,
+                        iTotalRecords = 0,
+                        iTotalDisplayRecords = 0,
+                        aaData = new List<DiagnosticsList>()
+                    },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
                 };

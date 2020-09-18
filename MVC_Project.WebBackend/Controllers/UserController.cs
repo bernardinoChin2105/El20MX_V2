@@ -143,27 +143,25 @@ namespace MVC_Project.WebBackend.Controllers
                 NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
                 IList<UserData> dataResponse = new List<UserData>();
                 int totalDisplay = 0;
-                if (userAuth.Account != null)
+                Int64? accountId = userAuth.GetAccountId();
+                var results = _userService.FilterBy(filtersValues, accountId, param.iDisplayStart, param.iDisplayLength);
+                totalDisplay = results.Item2;
+                foreach (var user in results.Item1)
                 {
-                    var results = _userService.FilterBy(filtersValues, userAuth.Account.Id, param.iDisplayStart, param.iDisplayLength);
-                    totalDisplay = results.Item2;
-                    foreach (var user in results.Item1)
-                    {
-                        var membership = user.memberships.First(x => x.account.id == userAuth.Account.Id);
-                        UserData userData = new UserData();
-                        userData.Name = user.profile.firstName + " " + user.profile.lastName;
-                        userData.Email = user.name;
-                        userData.RoleName = membership.role.name;
-                        userData.CreatedAt = user.createdAt;
-                        userData.UpdatedAt = user.modifiedAt;
-                        userData.Status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), membership.status)).GetDisplayName();
-                        userData.Uuid = user.uuid.ToString();
-                        userData.LastLoginAt = user.lastLoginAt;
-                        userData.IsOwner = membership.role.code == SystemRoles.ACCOUNT_OWNER.ToString();
-                        dataResponse.Add(userData);
-                    }
+                    var membership = user.memberships.FirstOrDefault(x => accountId.HasValue ? (x.account.id == accountId) : (true));
+                    UserData userData = new UserData();
+                    userData.Name = user.profile.firstName + " " + user.profile.lastName;
+                    userData.Email = user.name;
+                    userData.RoleName = membership.role.name;
+                    userData.CreatedAt = user.createdAt;
+                    userData.UpdatedAt = user.modifiedAt;
+                    userData.Status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), membership.status)).GetDisplayName();
+                    userData.Uuid = user.uuid.ToString();
+                    userData.LastLoginAt = user.lastLoginAt;
+                    userData.IsOwner = membership.role.code == SystemRoles.ACCOUNT_OWNER.ToString();
+                    dataResponse.Add(userData);
                 }
-
+               
                 LogUtil.AddEntry(
                    "Lista de clientes totalDisplay: " + totalDisplay + ", total: " + dataResponse.Count(),
                    ENivelLog.Info,
@@ -217,7 +215,7 @@ namespace MVC_Project.WebBackend.Controllers
                     MensajeFlashHandler.RegistrarMensaje("Registre un rol antes de crear al usuario", TiposMensaje.Warning);
                     return RedirectToAction("Index");
                 }
-                var userCreateViewModel = new UserCreateViewModel { Roles = PopulateRoles() };
+                var userCreateViewModel = new UserCreateViewModel { Roles = roles, isBackOffice = userAuth.isBackOfficeConfiguration() };
 
                 LogUtil.AddEntry(
                    "Crear usuario: " + JsonConvert.SerializeObject(userCreateViewModel),
@@ -298,7 +296,9 @@ namespace MVC_Project.WebBackend.Controllers
         private List<SelectListItem> PopulateRoles()
         {
             var userAuth = Authenticator.AuthenticatedUser;
-            var availableRoles = _roleService.FindBy(x => x.account.id == userAuth.Account.Id && x.status == SystemStatus.ACTIVE.ToString()).OrderBy(x => x.code);
+            Int64? accountId = userAuth.GetAccountId();
+            List<Role> availableRoles = _roleService.FindBy(x => x.account.id == accountId && x.status == SystemStatus.ACTIVE.ToString()).OrderBy(x => x.code).ToList();
+            
             var rolesList = new List<SelectListItem>();
             rolesList = availableRoles.Select(role => new SelectListItem
             {
@@ -333,8 +333,13 @@ namespace MVC_Project.WebBackend.Controllers
                 var user = _userService.FirstOrDefault(x => x.name == userCreateViewModel.Email);
                 if (user != null)
                 {
-                    if (user.memberships.Any(x => x.account.id == userAuth.Account.Id))
+                    if (userAuth.isBackOfficeConfiguration())
+                    {
+                        throw new Exception("El usuario ya existe en el sistema");
+                    }
+                    else if (user.memberships.Any(x => x.account.id == userAuth.Account.Id))
                         throw new Exception("El usuario ya se encuentra relacionado a la cuenta");
+
                     newUser = false;
                 }
 
@@ -352,7 +357,7 @@ namespace MVC_Project.WebBackend.Controllers
                         createdAt = todayDate,
                         modifiedAt = todayDate,
                         status = SystemStatus.UNCONFIRMED.ToString(),
-
+                        isBackOffice = userAuth.isBackOfficeConfiguration(),
                         profile = new Profile
                         {
                             uuid = Guid.NewGuid(),
@@ -368,14 +373,15 @@ namespace MVC_Project.WebBackend.Controllers
                     };
                 }
                 var role = _roleService.GetById(userCreateViewModel.Role);
-
+                Account account = userAuth.isBackOfficeConfiguration() ? null : new Account { id = userAuth.Account.Id };
                 user.memberships.Add(new Membership
                 {
-                    account = new Account { id = userAuth.Account.Id },
+                    account = account,
                     role = role,
                     user = user,
                     assignedBy = userAuth.Id,
-                    acceptUser = userCreateViewModel.AcceptUser ? TermsAndConditions.ACCEPT.ToString() : TermsAndConditions.DECLINE.ToString(),
+                    acceptUser = (userCreateViewModel.AcceptUser || userAuth.isBackOfficeConfiguration()) ? 
+                    TermsAndConditions.ACCEPT.ToString() : TermsAndConditions.DECLINE.ToString(),
                     status = SystemStatus.UNCONFIRMED.ToString()
                 });
 
@@ -384,7 +390,14 @@ namespace MVC_Project.WebBackend.Controllers
                 else
                     _userService.Update(user);
 
-                SendWelcomeMail(user, userAuth.Account);
+                if (userAuth.isBackOfficeConfiguration())
+                {
+                    SendWelcomeBackOffice(user);
+                }    
+                else
+                {
+                    SendWelcomeMail(user, userAuth.Account);
+                }
 
                 if (newUser)
                     MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
@@ -437,17 +450,32 @@ namespace MVC_Project.WebBackend.Controllers
             NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_NEW_USER);
         }
 
+        private void SendWelcomeBackOffice(User user)
+        {
+            string token = (user.uuid + "@ @" + user.name);
+            token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
+            Dictionary<string, string> customParams = new Dictionary<string, string>();
+            string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
+            string link = urlAccion + "Register/NewUserVerify?token=" + token;
+            customParams.Add("param1", user.profile.firstName);
+            customParams.Add("param2", user.name);
+            customParams.Add("param3", link);
+            NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_NEW_BACKOFFICE_USER);
+        }
+
         [Authorize]
         public ActionResult Edit(string uuid)
         {
             var userAuth = Authenticator.AuthenticatedUser;
             try
             {
+                Int64? accountId = userAuth.GetAccountId();
+
                 User user = _userService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
                 if (user == null)
                     throw new Exception("El usuario no se encontró en la base de datos");
 
-                var membership = user.memberships.FirstOrDefault(x => x.account.id == userAuth.Account.Id);
+                Membership membership = user.memberships.FirstOrDefault(x => accountId.HasValue ? x.account.id == accountId : true);
 
                 UserEditViewModel model = new UserEditViewModel();
                 model.Uuid = user.uuid.ToString();
@@ -503,6 +531,8 @@ namespace MVC_Project.WebBackend.Controllers
             var userAuth = Authenticator.AuthenticatedUser;
             try
             {
+                Int64? accountId = userAuth.GetAccountId();
+
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
 
@@ -515,7 +545,9 @@ namespace MVC_Project.WebBackend.Controllers
                 user.profile.lastName = model.Apellidos;
                 user.profile.phoneNumber = model.MobileNumber;
                 _profileService.Update(user.profile);
-                var membership = user.memberships.FirstOrDefault(x => x.account.id == userAuth.Account.Id);
+
+                Membership membership = user.memberships.FirstOrDefault(x => accountId.HasValue ? x.account.id == accountId : true);
+
                 if (membership.role.id != model.Role)
                 {
                     membership.role = new Role { id = model.Role };
@@ -524,7 +556,10 @@ namespace MVC_Project.WebBackend.Controllers
                 if (!user.name.Equals(model.Email))
                 {
                     user.name = model.Email;
-                    SendWelcomeMail(user, userAuth.Account);
+                    if (user.isBackOffice)
+                        SendWelcomeBackOffice(user);
+                    else
+                        SendWelcomeMail(user, userAuth.Account);
                 }
                 _userService.Update(user);
 
@@ -786,13 +821,18 @@ namespace MVC_Project.WebBackend.Controllers
             var userAuth = Authenticator.AuthenticatedUser;
             try
             {
+                Int64? accountId = userAuth.GetAccountId();
                 var user = _userService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
                 if (user != null)
                 {
-                    var membership = _membershipService.FirstOrDefault(x => x.user.id == user.id && x.account.id == userAuth.Account.Id);
+                    var membership = user.memberships.FirstOrDefault(x => accountId.HasValue ? x.account.id == accountId : true);
                     if (membership != null && membership.status == SystemStatus.UNCONFIRMED.ToString())
                     {
-                        SendWelcomeMail(user, userAuth.Account);
+                        if (userAuth.isBackOfficeConfiguration())
+                            SendWelcomeBackOffice(user);
+                        else
+                            SendWelcomeMail(user, userAuth.Account);
+
                         LogUtil.AddEntry(
                            "Se reenvio la invitación al usuario: " + uuid,
                            ENivelLog.Info,

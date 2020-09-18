@@ -85,6 +85,7 @@ namespace MVC_Project.WebBackend.Controllers
                     createdAt = todayDate,
                     modifiedAt = todayDate,
                     status = SystemStatus.UNCONFIRMED.ToString(),
+                    isBackOffice = false,
                     profile = new Profile
                     {
                         uuid = Guid.NewGuid(),
@@ -292,32 +293,38 @@ namespace MVC_Project.WebBackend.Controllers
                 if (!user.name.Equals(elements[2] + "@" + elements[3]))
                     throw new Exception("El correo de origen no corresponde al correo registrado en el sistema");
 
-                if (!Guid.TryParse(elements[1], out id))
-                    throw new Exception("El token no es válido");
-
-                var account = _accountService.FirstOrDefault(e => e.uuid == id);
-                if (account == null)
-                    throw new Exception("La cuenta no se encontró en el sistema");
-
-                var membership = _membershipService.FirstOrDefault(x => x.user.id == user.id && x.account.id == account.id);
-
-                if (membership == null)
-                    throw new Exception("La suscripcion no se encontró en el sistema");
-
-                if (user.status == SystemStatus.ACTIVE.ToString())
-                {
-                    membership.status = SystemStatus.ACTIVE.ToString();
-                    _membershipService.Update(membership);
-                    MensajeFlashHandler.RegistrarMensaje("El usuario a sido agregado a la cuenta", TiposMensaje.Success);
-                    return RedirectToAction("Login", "Auth");
-                }
 
                 var userViewModel = new ChangePasswordViewModel
                 {
                     Uuid = user.uuid,
                     Name = user.name,
-                    AcccountUuid = account.uuid
+                    isBackOffice = user.isBackOffice
                 };
+
+                if (!user.isBackOffice)
+                {
+                    if (!Guid.TryParse(elements[1], out id))
+                        throw new Exception("El token no es válido");
+
+                    var account = _accountService.FirstOrDefault(e => e.uuid == id);
+                    if (account == null)
+                        throw new Exception("La cuenta no se encontró en el sistema");
+
+                    var membership = _membershipService.FirstOrDefault(x => x.user.id == user.id && x.account.id == account.id);
+
+                    if (membership == null)
+                        throw new Exception("La suscripcion no se encontró en el sistema");
+
+                    if (user.status == SystemStatus.ACTIVE.ToString())
+                    {
+                        membership.status = SystemStatus.ACTIVE.ToString();
+                        _membershipService.Update(membership);
+                        MensajeFlashHandler.RegistrarMensaje("El usuario a sido agregado a la cuenta", TiposMensaje.Success);
+                        return RedirectToAction("Login", "Auth");
+                    }
+
+                    userViewModel.AcccountUuid = account.uuid;
+                }
 
                 LogUtil.AddEntry(
                    "Verificar nuevo usuario " + token,
@@ -361,17 +368,30 @@ namespace MVC_Project.WebBackend.Controllers
                 if (user == null)
                     throw new Exception("El usuario no se encuentra registrado en el sistema");
 
-                var account = _accountService.FirstOrDefault(e => e.uuid == model.AcccountUuid);
-                if (account == null)
-                    throw new Exception("La cuenta no se encuentra registrada en el sistema");
+                if (!user.isBackOffice)
+                {
+                    var account = _accountService.FirstOrDefault(e => e.uuid == model.AcccountUuid);
+                    if (account == null)
+                        throw new Exception("La cuenta no se encuentra registrada en el sistema");
 
-                var membership = _membershipService.FirstOrDefault(x => x.user.id == user.id && x.account.id == account.id);
+                    var membership = _membershipService.FirstOrDefault(x => x.user.id == user.id && x.account.id == account.id);
 
-                if (membership == null)
-                    throw new Exception("La suscripcion no se encontró en el sistema");
+                    if (membership == null)
+                        throw new Exception("La suscripcion no se encontró en el sistema");
 
-                membership.status = SystemStatus.ACTIVE.ToString();
-                _membershipService.Update(membership);
+                    membership.status = SystemStatus.ACTIVE.ToString();
+                    _membershipService.Update(membership);
+                }
+                else
+                {
+                    var membership = _membershipService.FirstOrDefault(x => x.user.id == user.id);
+
+                    if (membership == null)
+                        throw new Exception("La suscripcion no se encontró en el sistema");
+
+                    membership.status = SystemStatus.ACTIVE.ToString();
+                    _membershipService.Update(membership);
+                }
 
                 user.password = SecurityUtil.EncryptPassword(model.Password);
                 DateTime todayDate = DateUtil.GetDateTimeNow();

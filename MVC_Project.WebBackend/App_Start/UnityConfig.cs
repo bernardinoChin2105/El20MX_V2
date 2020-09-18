@@ -77,6 +77,13 @@ namespace MVC_Project.WebBackend
             container.RegisterType<IInvoiceIssuedService, InvoiceIssuedService>();
             container.RegisterType<IInvoiceReceivedService, InvoiceReceivedService>();
             container.RegisterType<ICountryService, CountryService>();
+            container.RegisterType<IPlanService, PlanService>();
+            container.RegisterType<IPlanChargeService, PlanChargeService>();
+            container.RegisterType<IPlanFeatureService, PlanFeatureService>();
+            container.RegisterType<IPlanAssignmentsService, PlanAssignmentsService>();
+            container.RegisterType<IPlanChargeConfigService, PlanChargeConfigService>();
+            container.RegisterType<IPlanFeatureConfigService, PlanFeatureConfigService>();
+            container.RegisterType<IPlanAssignmentConfigService, PlanAssignmentConfigService>();
             container.RegisterType<IAllianceService, AllianceService>();
             container.RegisterType<IAllyService, AllyService>();
         }
