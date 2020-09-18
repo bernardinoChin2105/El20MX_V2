@@ -69,8 +69,8 @@
                     @if (user.HasAccessController("Bank"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Bank", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "Bank")"><a href="@Url.Action("Index", "Bank")">Conexión a Bancos</a></li>
-                            <li class="@Html.IsSelected(controller: "Bank")"><a href="@Url.Action("BankTransaction", "Bank")">Movimientos Bancarios</a></li>
+                            <li class="@Html.IsSelected(controller: "Bank", action: "Index")"><a href="@Url.Action("Index", "Bank")">Conexión a Bancos</a></li>
+                            <li class="@Html.IsSelected(controller: "Bank", action: "BankTransaction")"><a href="@Url.Action("BankTransaction", "Bank")">Movimientos Bancarios</a></li>
                         </ul>
                     }
                 </li>
@@ -83,8 +83,8 @@
                     @if (user.HasAccessController("Customer"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Customer", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "Customer")"><a href="@Url.Action("Index", "Customer")">Clientes</a></li>
-                            <li class="@Html.IsSelected(controller: "Customer")"><a href="@Url.Action("InvoicesIssued", "Customer")">Facturas Hechas</a></li>
+                            <li class="@Html.IsSelected(controller: "Customer", action: "Index")"><a href="@Url.Action("Index", "Customer")">Clientes</a></li>
+                            <li class="@Html.IsSelected(controller: "Customer", action: "InvoicesIssued")"><a href="@Url.Action("InvoicesIssued", "Customer")">Facturas Emitidas</a></li>
                         </ul>
                     }
                 </li>
@@ -199,18 +199,18 @@
 
 
             @*<li class="">
-            <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
-            <ul class="nav nav-second-level collapse in">
-                <li class="">
-                    <a href="#">Bancos <span class="fain arrow"></span></a>
-                    <ul class="nav nav-second-level collapse">
-                        <li class=""><a href="#">Conectar</a></li>
-                        <li class=""><a href="#">Cargar movimientos</a></li>
-                    </ul>
-                </li>
+                    <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
+                    <ul class="nav nav-second-level collapse in">
+                        <li class="">
+                            <a href="#">Bancos <span class="fain arrow"></span></a>
+                            <ul class="nav nav-second-level collapse">
+                                <li class=""><a href="#">Conectar</a></li>
+                                <li class=""><a href="#">Cargar movimientos</a></li>
+                            </ul>
+                        </li>
 
-            </ul>
-        </li>*@
+                    </ul>
+                </li>*@
 
 
         </ul>

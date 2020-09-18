@@ -1913,6 +1913,9 @@
     <Content Include="Views\Storage\Index.cshtml" />
     <Content Include="Views\Documents\Index.cshtml" />
     <Content Include="Views\Calendar\Index.cshtml" />
+    <None Include="Properties\PublishProfiles\el20mx-plataformav2-dev - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\el20mx-plataformav2-dev - ReadOnly - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\el20mx-plataformav2-dev - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\el20mx-plataformav2-test - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\el20mx-plataformav2-test - ReadOnly - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\el20mx-plataformav2-test - Web Deploy.pubxml" />

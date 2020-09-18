@@ -69,7 +69,9 @@
     <script src="~/Scripts/plugins/cropper/cropper.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-
+            $("#RFC").keyup(function () {
+                this.value = this.value.toUpperCase();
+            });
             //var input = $(".viewpass-input");
             $(".viewpass").mouseup(function () {
                 $(".viewpass-input").attr('type', 'password').data("view", false);
