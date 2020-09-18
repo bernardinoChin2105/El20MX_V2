@@ -180,11 +180,10 @@ namespace MVC_Project.Integrations.SAT
                         var responsecfdi = SATws.CallServiceSATws(url, null, "get");
                         try
                         {
-                            //var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(responsecfdi);
                             var model = JsonConvert.DeserializeObject<InvoicesCFDI>(responsecfdi);
 
                             var responseXML = SATws.CallServiceSATws(url, null, "get", SATwsEnumsAccept.textxml.GetDescription());
-                            var xml = responseXML;//JsonConvert.DeserializeObject<string>(responseXML);
+                            var xml = responseXML;
                             model.Xml = xml;
                             model.id = id;
 

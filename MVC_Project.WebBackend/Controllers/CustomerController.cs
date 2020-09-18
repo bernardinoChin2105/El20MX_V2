@@ -14,6 +14,7 @@ using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -1084,6 +1085,7 @@ namespace MVC_Project.WebBackend.Controllers
 
             try
             {
+                var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
                 var invoice = _invoiceIssuedService.FirstOrDefault(x => x.id == id);
 
                 if (invoice == null)
@@ -1092,9 +1094,12 @@ namespace MVC_Project.WebBackend.Controllers
                 if (invoice.xml == null)
                     throw new Exception("El registro no cuenta con el xml de la factura emitida");
 
-                //Factura
+                var storage = new Integrations.Storage.AzureBlobService();
+                MemoryStream stream = storage.DownloadFile(StorageInvoicesIssued, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
+                stream.Position = 0;
+
                 XmlDocument doc = new XmlDocument();
-                doc.LoadXml(invoice.xml);//Leer el XML        
+                doc.Load(stream);
 
                 //agregamos un Namespace, que usaremos para buscar que el nodo no exista:
                 XmlNamespaceManager nsm = new XmlNamespaceManager(doc.NameTable);
@@ -1206,12 +1211,6 @@ namespace MVC_Project.WebBackend.Controllers
                 XmlNode nodoComplemento = nodeComprobante.SelectSingleNode("cfdi:Complemento", nsm);
                 if (nodoComplemento != null)
                 {
-                    //if (nodoComplemento.InnerXml)
-                    //{
-
-                    //}
-                    //XmlDocument docTimbre = new XmlDocument();
-                    //docTimbre.LoadXml(nodoComplemento.InnerXml);
                     nsm.AddNamespace("tfd", "http://www.sat.gob.mx/TimbreFiscalDigital");
 
                     XmlNode nodoTimbrado = nodoComplemento.SelectSingleNode("tfd:TimbreFiscalDigital", nsm);
@@ -1239,72 +1238,15 @@ namespace MVC_Project.WebBackend.Controllers
                         cfdipdf.Complemento.TimbreFiscalDigital = timbre;
                     }
                 }
-
-                //Obtener impuestos
-                //XmlNode nodeImpuestos = nodeComprobante.SelectSingleNode("cfdi:Impuestos", nsm);
-                //if (nodeImpuestos != null)
-                //{
-                //    //Obtenemos TotalImpuestosRetenidos y TotalImpuestosTrasladados
-                //    string varTotalImpuestosRetenidos = nodeImpuestos.Attributes["TotalImpuestosRetenidos"] != null ? nodeImpuestos.Attributes["TotalImpuestosRetenidos"].Value : "";
-                //    string varTotalImpuestosTrasladados = nodeImpuestos.Attributes["TotalImpuestosTrasladados"] != null ? nodeImpuestos.Attributes["TotalImpuestosTrasladados"].Value : "";
-                //    //Obtener impuestos retenidos
-                //    pdf += "Retenciones: <br />";
-                //    XmlNode nodeImpuestosRetenciones = nodeImpuestos.SelectSingleNode("cfdi:Retenciones", nsm);
-                //    if (nodeImpuestosRetenciones != null)
-                //    {
-                //        foreach (XmlNode node in nodeImpuestosRetenciones.SelectNodes("cfdi:Retencion", nsm))
-                //        {
-                //            pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
-                //                                            node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : "",
-                //                                            node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : "");
-                //        }
-                //    }
-
-                //    //Obtener impuestos trasladados
-                //    pdf += "Traslados: <br />";
-                //    XmlNode nodeImpuestosTraslados = nodeImpuestos.SelectSingleNode("cfdi:Traslados", nsm);
-                //    if (nodeImpuestosTraslados != null)
-                //    {
-                //        foreach (XmlNode node in nodeImpuestosTraslados.SelectNodes("cfdi:Traslado", nsm))
-                //        {
-                //            pdf += String.Format("Impuesto: {0}, Importe: {1} <br />",
-                //                                            node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : "",
-                //                                            node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : "");
-                //        }
-                //    }
-                //}
-
-                LogUtil.AddEntry(
-                       "Se descarga el Dx0 del cliente",
-                       ENivelLog.Info,
-                       authUser.Id,
-                       authUser.Email,
-                       EOperacionLog.ACCESS,
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                    );
-
+                
                 MensajeFlashHandler.RegistrarMensaje("Descargando...", TiposMensaje.Success);
                 string rfc = authUser.Account.RFC;
-                //PageSize = Rotativa.Options.Size.Letter, 
-                //return View(model);                
-                return new Rotativa.ViewAsPdf("InvoiceDownloadPDF", cfdipdf) { FileName = invoice.folio + invoice.serie + "_" + invoice.invoicedAt + ".pdf" };
+                return new Rotativa.ViewAsPdf("InvoiceDownloadPDF", cfdipdf) { FileName = invoice.uuid + ".pdf" };
             }
             catch (Exception ex)
             {
-                //LogUtil.AddEntry(
-                //       "Error al descargar el diagnostico: " + ex.Message.ToString(),
-                //       ENivelLog.Error,
-                //       authUser.Id,
-                //       authUser.Email,
-                //       EOperacionLog.ACCESS,
-                //       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                //       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                //       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                //    );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                return View("GetInvoices");
+                return View("InvoicesIssued");
             }
 
         }
@@ -1316,40 +1258,24 @@ namespace MVC_Project.WebBackend.Controllers
 
             try
             {
+                var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
                 var invoice = _invoiceIssuedService.FirstOrDefault(x => x.id == id);
 
                 if (invoice == null)
                     throw new Exception("No se encontro la factura emitida");
 
-                LogUtil.AddEntry(
-                       "Descarga del xml de la cuenta " + invoice.account.id,
-                       ENivelLog.Info,
-                       authUser.Id,
-                       authUser.Email,
-                       EOperacionLog.ACCESS,
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                    );
+                var storage = new Integrations.Storage.AzureBlobService();
+                MemoryStream stream = storage.DownloadFile(StorageInvoicesIssued, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
 
                 Response.ContentType = "application/xml";                
-                Response.AddHeader("Content-Disposition", "attachment;filename=" + invoice.folio + invoice.serie + "_" + invoice.invoicedAt + ".xml");
-                Response.Write(invoice.xml);
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + invoice.uuid + ".xml");
+                Response.BinaryWrite(stream.ToArray());
                 Response.End();
             }
             catch (Exception ex)
             {
-                LogUtil.AddEntry(
-                       "Error al descargar el xml: " + ex.Message.ToString(),
-                       ENivelLog.Error,
-                       authUser.Id,
-                       authUser.Email,
-                       EOperacionLog.ACCESS,
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                    );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                Response.End();
             }
         }
 

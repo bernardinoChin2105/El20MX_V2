@@ -15,6 +15,7 @@ using MVC_Project.Domain.Model;
 using System.Collections.Specialized;
 using MVC_Project.FlashMessages;
 using LogHubSDK.Models;
+using System.Configuration;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -200,9 +201,21 @@ namespace MVC_Project.WebBackend.Controllers
 
                 #region Realizar el guardado de las facturas
                 List<string> IdIssued = modelInvoices.Customers.Select(x => x.idInvoice).ToList();
+                var invoicesIssuedExist = _invoicesIssuedService.FindBy(x => x.account.id == authUser.Account.Id).Select(x => x.uuid.ToString()).ToList();
+
+                IdIssued = IdIssued.Except(invoicesIssuedExist).ToList();
 
                 /*Obtener los CFDI's*/
                 var customersCFDI = SATwsService.GetInvoicesCFDI(IdIssued);
+                var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
+                var storage = new Integrations.Storage.AzureBlobService();
+                foreach (var cfdi in customersCFDI)
+                {
+                    byte[] byteArray = System.Text.Encoding.ASCII.GetBytes(cfdi.Xml);
+                    System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
+                    var upload = storage.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesIssued, account.rfc);
+                    cfdi.urlXml = upload.Item1;
+                }
 
                 if (customersCFDI.Count > 0)
                 {
@@ -218,7 +231,7 @@ namespace MVC_Project.WebBackend.Controllers
                         iva = modelInvoices.Customers.FirstOrDefault(y => y.idInvoice == x.id).tax,
                         //totalAmount = x.Total,
                         invoicedAt = x.Fecha,
-                        xml = x.Xml,
+                        xml = x.urlXml,
                         createdAt = todayUTC,
                         modifiedAt = todayUTC,
                         status = SystemStatus.ACTIVE.ToString(),
@@ -232,10 +245,21 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 List<string> IdReceived = modelInvoices.Providers.Select(x => x.idInvoice).ToList();
+                var invoicesReceivedExist = _invoicesReceivedService.FindBy(x => x.account.id == authUser.Account.Id).Select(x => x.uuid.ToString()).ToList();
+
+                IdReceived = IdReceived.Except(invoicesReceivedExist).ToList();
 
                 /*Obtener los CFDI's*/
                 var providersCFDI = SATwsService.GetInvoicesCFDI(IdReceived);
+                var StorageInvoicesReceived = ConfigurationManager.AppSettings["StorageInvoicesReceived"];
 
+                foreach (var cfdi in providersCFDI)
+                {
+                    byte[] byteArray = System.Text.Encoding.ASCII.GetBytes(cfdi.Xml);
+                    System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
+                    var upload = storage.UploadPublicFile(stream, cfdi.id+".xml", StorageInvoicesReceived, account.rfc);
+                    cfdi.urlXml = upload.Item1;
+                }
                 if (providersCFDI.Count > 0)
                 {
                     List<InvoiceReceived> invoiceReceiveds = providersCFDI.Select(x => new InvoiceReceived
@@ -250,7 +274,7 @@ namespace MVC_Project.WebBackend.Controllers
                         iva = modelInvoices.Providers.FirstOrDefault(y => y.idInvoice == x.id).tax,
                         //totalAmount = x.Total,
                         invoicedAt = x.Fecha,
-                        xml = x.Xml,
+                        xml = x.urlXml,
                         createdAt = todayUTC,
                         modifiedAt = todayUTC,
                         status = SystemStatus.ACTIVE.ToString(),
