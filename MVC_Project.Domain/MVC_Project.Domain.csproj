@@ -106,7 +106,7 @@
     <Compile Include="Entities\User.cs" />
     <Compile Include="Entities\Webhook.cs" />
     <Compile Include="Helpers\IUnitOfWork.cs" />
-    <Compile Include="Model\AllienceList.cs" />
+    <Compile Include="Model\AllianceList.cs" />
     <Compile Include="Model\BanksViewModel.cs" />
     <Compile Include="Model\BasePagination.cs" />
     <Compile Include="Model\ListProviders.cs" />

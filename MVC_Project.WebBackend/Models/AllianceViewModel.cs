@@ -8,8 +8,23 @@ namespace MVC_Project.WebBackend.Models
 {
     public class AllianceFilterViewModel
     {
-    //    [Display(Name = "Nombre")]
-    //    public string Name { get; set; }
+        [Display(Name = "Nombre")]
+        public string Name { get; set; }
+
+        [Display(Name = "Aliado")]
+        public string AllyName { get; set; }
+    }
+
+    public class AlliancesListVM
+    {
+        public Int64 id { get; set; }
+        public Guid uuid { get; set; }
+        public string name { get; set; }
+        public string allyName { get; set; }
+        public decimal allyCommisionPercent { get; set; }
+        public decimal customerDiscountPercent { get; set; }
+        public string createdAt { get; set; }
+        public string status { get; set; }
     }
 
     public class AllyFilterViewModel

@@ -254,7 +254,6 @@
     <Compile Include="AuthManagement\Models\AuthUser.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AllianceController.cs" />
-    <Compile Include="Controllers\AllyController.cs" />
     <Compile Include="Controllers\AuthController.cs" />
     <Compile Include="Controllers\BankController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
@@ -1807,6 +1806,7 @@
     <Content Include="Scripts\popper.min.js" />
     <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
+    <Content Include="Scripts\views\Alliance\Index.js" />
     <Content Include="Scripts\views\Ally\Index.js" />
     <Content Include="Scripts\views\Auth\Index.js" />
     <Content Include="Scripts\views\Customer\CustomerInvoices.js" />
