@@ -244,13 +244,23 @@ namespace MVC_Project.WebBackend.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(new
-                {
-                    success = false,
-                    issue = model,
-                    errors = ModelState.Keys.Where(k => ModelState[k].Errors.Count > 0)
-                    .Select(k => new { propertyName = k, errorMessage = ModelState[k].Errors[0].ErrorMessage })
-                });
+                //return Json(new
+                //{
+                //    success = false,
+                //    issue = model,
+                //    errors = ModelState.Keys.Where(k => ModelState[k].Errors.Count > 0)
+                //    .Select(k => new { propertyName = k, errorMessage = ModelState[k].Errors[0].ErrorMessage })
+                //});
+
+                var list = ModelState.Keys.Where(k => ModelState[k].Errors.Count > 0)
+                    .Select(k => ModelState[k].Errors[0].ErrorMessage);
+                string errors = string.Join(",", list);
+
+                //ModelState.AddModelError("Email", "No se encontró ninguna cuenta con el correo proporcionado. Verifique su información.");
+                MensajeFlashHandler.RegistrarMensaje("Error: "+errors, TiposMensaje.Error);
+
+                //return View("Login");
+                return RedirectToAction("Login", "Auth");
             }
             try
             {
@@ -279,8 +289,8 @@ namespace MVC_Project.WebBackend.Controllers
                        string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
                     );
 
-                    return View("Login");
-
+                    //return View("Login");
+                    return RedirectToAction("Login", "Auth");
                 }
             }
             catch (Exception ex)
@@ -290,7 +300,8 @@ namespace MVC_Project.WebBackend.Controllers
             ModelState.AddModelError("Email", "No se encontró ninguna cuenta con el correo proporcionado. Verifique su información.");
             MensajeFlashHandler.RegistrarMensaje("No se encontró ninguna cuenta con el correo proporcionado. Verifique su información.", TiposMensaje.Error);
             
-            return View("Login");
+            //return View("Login");
+            return RedirectToAction("Login", "Auth");
         }
 
         [HttpGet]

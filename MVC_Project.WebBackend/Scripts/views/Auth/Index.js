@@ -5,12 +5,14 @@
             function (e) {
                 e.preventDefault();
                 var validate = $('form#recupera-cuenta-form').validate();
+                console.log($('#recupera-cuenta-form').valid(), "respuesta");                
                 if (!$('#recupera-cuenta-form').valid()) {
                     //$("form#recupera-cuenta-form").find('span').removeClass("help-block").css("display", "none");
                     return;
+                } else {
+                    $("#modal-containerRecupera form#recupera-cuenta-form button#btn-RecuperaCE").hide();
+                    $('#recupera-cuenta-form').submit();
                 }
-                $("#modal-containerRecupera form#recupera-cuenta-form button#btn-RecuperaCE").hide();
-                $('#recupera-cuenta-form').submit();
             });
     });
 }

@@ -1,11 +1,12 @@
 ﻿.nav.navbar-top-links li .fa-user {
     font-size: 20px;
 }
+
 .nav > li.active {
     border-left: 4px solid #53D5E9;
 }
 
-.img-fluid.img-max{
+.img-fluid.img-max {
     max-height: 250px;
 }
 
@@ -55,6 +56,7 @@
     position: absolute;
     width: 100%;
 }
+
     #custom_signin_button .abcRioButton.abcRioButtonLightBlue,
     #my-signin2 .abcRioButton.abcRioButtonLightBlue {
         width: 100% !important;
@@ -79,14 +81,14 @@
     margin: 0px auto 1em;
 }
 
-.line::before, .line::after {
-    content: "";
-    display: table-cell;
-    position: relative;
-    top: 0.8em;
-    width: 42%;
-    border-top: 1px solid rgb(189, 189, 189);
-}
+    .line::before, .line::after {
+        content: "";
+        display: table-cell;
+        position: relative;
+        top: 0.8em;
+        width: 42%;
+        border-top: 1px solid rgb(189, 189, 189);
+    }
 
 .btn-borderBlue {
     border: 2px solid #002642;
@@ -103,7 +105,6 @@
 
 .wizard > .steps .done a, .wizard > .steps .done a:hover, .wizard > .steps .done a:active {
     background-color: #4ab9ca
-    
 }
 
 .wizard > .actions a, .wizard > .actions a:hover, .wizard > .actions a:active {
@@ -128,7 +129,7 @@
     border-color: #53D5E9
 }
 
-.viewpass-input + label.error{
+.viewpass-input + label.error {
     width: 100% !important;
 }
 
@@ -156,6 +157,7 @@
     background-color: #53D5E9;
     outline: 0;
 }
+
 .onoffswitch {
     width: 70px;
 }
@@ -167,6 +169,7 @@
 .onoffswitch-inner:after {
     content: "Inactiva";
 }
+
 .onoffswitch-inner:before {
     content: "Activa";
 }
@@ -175,6 +178,7 @@
     color: red;
     font-size: 2em;
 }
+
 .svg-inline--fa.green {
     color: green;
     font-size: 2em;
@@ -182,4 +186,21 @@
 
 .input-group-text {
     padding: 4px 0.75rem;
+}
+
+
+@media (min-width: 768px) {
+    .btn-login-left {
+        padding-left: 2px !important;
+    }
+
+    .btn-login-right {
+        padding-right: 2px !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .btn-margin-top{
+        padding-top: 10px
+    }
 }

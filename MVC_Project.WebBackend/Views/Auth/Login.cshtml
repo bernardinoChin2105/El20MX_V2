@@ -80,13 +80,13 @@
                 <button type="submit" class="btn btn-color block full-width m-b"><span><i class="fa fa-sign-in-alt"></i> &nbsp;@ViewLabels.AUTH_LOGIN_SUBMIT </span></button>
                 <div><h5 class="line">O</h5></div>
                 <div class="row">
-                    <div class="col-md-6" style="padding-right: 2px !important;">
+                    <div class="col-md-6 btn-login-right">
                         <button type="button" class="btn btn-facebook btn-block" onclick="Loguear()">
                             <span>Entrar con &nbsp;<i class="fa fa-facebook-f"></i></span>
                         </button>
                     </div>
 
-                    <div class="col-md-6 btn-google" style="padding-left: 2px !important;">
+                    <div class="col-md-6 btn-google btn-login-left btn-margin-top">
                         <div id="custom_signin_button" onclick=""></div>
                         <button type="button" class="btn btn-google btn-block" style="">
                             <span>Entrar con &nbsp;<i class="fa fa-google"></i></span>
@@ -100,7 +100,7 @@
                 <a href="javascript:void(0);" onclick="javascript:resetPassModal();" data-target="#modal-containerRecupera" data-toggle="modal"><small>@ViewLabels.AUTH_LOGIN_RECOVERPASS</small></a>
                 <br />
 
-                <p class="text-muted text-center">¿No tienes una cuenta? <a class="btn btn-sm btn-default btn-block" href="@Url.Action("Index", "Register")"><span><i class="fa fa-user-plus"></i> &nbsp;Regístrate</span></a></p>
+                <p class="text-muted text-center">¿No tienes una cuenta? <a class="btn btn-sm btn-default btn-block" href="@Url.Action("Index", "Register")"><span><i class="fa fa-user-plus"></i> &nbsp;Registrate</span></a></p>
 
 
             }
