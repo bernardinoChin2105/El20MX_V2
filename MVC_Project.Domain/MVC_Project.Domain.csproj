@@ -51,6 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\Account.cs" />
+    <Compile Include="Entities\Alliance.cs" />
+    <Compile Include="Entities\Ally.cs" />
     <Compile Include="Entities\Bank.cs" />
     <Compile Include="Entities\BankAccount.cs" />
     <Compile Include="Entities\BankCredential.cs" />
@@ -61,8 +63,8 @@
     <Compile Include="Entities\PlanAssignmentConfiguration.cs" />
     <Compile Include="Entities\PlanCharge.cs" />
     <Compile Include="Entities\Credential.cs" />
-    <Compile Include="Entities\InvoiceReceived.cs" />
     <Compile Include="Entities\InvoiceIssued.cs" />
+    <Compile Include="Entities\InvoiceReceived.cs" />
     <Compile Include="Entities\PaymentForm.cs" />
     <Compile Include="Entities\PaymentMethod.cs" />
     <Compile Include="Entities\PlanChargeConfiguration.cs" />
@@ -104,6 +106,7 @@
     <Compile Include="Entities\User.cs" />
     <Compile Include="Entities\Webhook.cs" />
     <Compile Include="Helpers\IUnitOfWork.cs" />
+    <Compile Include="Model\AllianceList.cs" />
     <Compile Include="Model\BanksViewModel.cs" />
     <Compile Include="Model\BasePagination.cs" />
     <Compile Include="Model\ListProviders.cs" />
@@ -114,16 +117,19 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IRepository.cs" />
     <Compile Include="Services\AccountService.cs" />
+    <Compile Include="Services\AllyService.cs" />
     <Compile Include="Services\BankAccountService.cs" />
     <Compile Include="Services\BankCredentialService.cs" />
     <Compile Include="Services\BankService.cs" />
     <Compile Include="Services\CountryService.cs" />
     <Compile Include="Services\CredentialService.cs" />
+    <Compile Include="Services\AllianceService.cs" />
     <Compile Include="Services\CustomerContactService.cs" />
     <Compile Include="Services\InvoiceIssuedService.cs" />
     <Compile Include="Services\InvoiceReceivedService.cs" />
     <Compile Include="Services\CurrencyService.cs" />
     <Compile Include="Services\PaymentFormService.cs" />
+    <Compile Include="Services\PaymentMethodService.cs" />
     <Compile Include="Services\TypeVoucherService.cs" />
     <Compile Include="Services\PlanAssignmentConfigService.cs" />
     <Compile Include="Services\PlanAssignmentService.cs" />
@@ -153,7 +159,6 @@
     <Compile Include="Services\IService.cs" />
     <Compile Include="Services\RoleService.cs" />
     <Compile Include="Services\SocialNetworkLoginServices.cs" />
-    <Compile Include="Services\PaymentMethodService.cs" />
     <Compile Include="Services\StateService.cs" />
     <Compile Include="Services\UserService.cs" />
     <Compile Include="Services\WebhookService.cs" />

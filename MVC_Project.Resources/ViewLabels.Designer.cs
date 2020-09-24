@@ -302,9 +302,19 @@ namespace MVC_Project.Resources {
             }
         }
 
+        /// <summary>
+        ///   Busca una cadena traducida similar a ALIANZAS Y DESCUENTOS.
+        /// </summary>
+        public static string MODULE_ALLIANCE_DISCOUNT
+        {
+            get
+            {
+                return ResourceManager.GetString("MODULE_ALLIANCE_DISCOUNT", resourceCulture);
+            }
+        }        
 
         /// <summary>
-        ///   Busca una cadena traducida similar a BANCOS.
+        ///   Busca una cadena traducida similar a PLANES.
         /// </summary>
         public static string MODULE_PLANS
         {

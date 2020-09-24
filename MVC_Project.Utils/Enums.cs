@@ -114,11 +114,12 @@ namespace MVC_Project.Utils
         [Display(Name = "Proveedores")]
         PROVIDERS,
         [Display(Name = "Bancos")]
-        BANKS,
-
+        BANKS,        
         #region Modulos del BackOffice
         [Display(Name = "Planes")]
-        PLANS
+        PLANS,
+        [Display(Name = "Alianzas y Descuentos")]
+        ALLIANCES_DISCOUNTS
         #endregion
     }
 

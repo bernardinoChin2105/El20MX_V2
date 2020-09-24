@@ -253,6 +253,7 @@
     <Compile Include="AuthManagement\AuthorizeUsersAttribute.cs" />
     <Compile Include="AuthManagement\Models\AuthUser.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\AllianceController.cs" />
     <Compile Include="Controllers\AuthController.cs" />
     <Compile Include="Controllers\BankController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
@@ -277,11 +278,12 @@
     </Compile>
     <Compile Include="Helpers\HTMLHelperExtensions.cs" />
     <Compile Include="Models\AccountViewModel.cs" />
+    <Compile Include="Models\AllianceViewModel.cs" />
     <Compile Include="Models\AuthViewModel.cs" />
     <Compile Include="Models\BankViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
-    <Compile Include="Models\InvoicesVM.cs" />
     <Compile Include="Models\PlanViewModel.cs" />
+    <Compile Include="Models\InvoicesVM.cs" />
     <Compile Include="Models\ProductVM.cs" />
     <Compile Include="Models\ProviderViewModel.cs" />
     <Compile Include="Models\CustomerViewModel.cs" />
@@ -1806,6 +1808,8 @@
     <Content Include="Scripts\popper.min.js" />
     <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
+    <Content Include="Scripts\views\Alliance\Index.js" />
+    <Content Include="Scripts\views\Ally\Index.js" />
     <Content Include="Scripts\views\Auth\Index.js" />
     <Content Include="Scripts\views\Customer\CustomerInvoices.js" />
     <Content Include="Scripts\views\Bank\BankTransaction.js" />
@@ -1948,6 +1952,11 @@
     <Content Include="Views\Plan\Index.cshtml" />
     <Content Include="Views\Plan\Create.cshtml" />
     <Content Include="Views\Plan\Edit.cshtml" />
+    <Content Include="Views\Alliance\Index.cshtml" />
+    <Content Include="Views\Alliance\AllyCreate.cshtml" />
+    <Content Include="Views\Alliance\AllyIndex.cshtml" />
+    <Content Include="Views\Alliance\AllyEdit.cshtml" />
+    <Content Include="Views\Alliance\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

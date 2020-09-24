@@ -556,10 +556,9 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                Error = ex.Message;
                 return new JsonResult
                 {
-                    Data = new { Mensaje = new { title = "Error", message = Error }, Success = false, Url = "" },
+                    Data = new { Mensaje = new { title = "Error", message = ex.Message }, Success = false, Url = "" },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
                 };

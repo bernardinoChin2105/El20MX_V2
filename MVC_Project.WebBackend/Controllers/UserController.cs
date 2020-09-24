@@ -299,7 +299,7 @@ namespace MVC_Project.WebBackend.Controllers
 
             Int64? accountId = userAuth.GetAccountId();
             List<Role> availableRoles = _roleService.FindBy(x => x.account.id == accountId && x.status == SystemStatus.ACTIVE.ToString()).OrderBy(x => x.code).ToList();
-
+            
             var rolesList = new List<SelectListItem>();
             rolesList = availableRoles.Select(role => new SelectListItem
             {
