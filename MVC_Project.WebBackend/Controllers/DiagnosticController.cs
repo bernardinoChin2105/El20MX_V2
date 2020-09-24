@@ -128,271 +128,64 @@ namespace MVC_Project.WebBackend.Controllers
             return View(model);
         }
 
+        [HttpGet]
         public ActionResult GenerateDx0()
         {
-            Diagnostic diagn = new Diagnostic();
             var authUser = Authenticator.AuthenticatedUser;
             try
             {
                 Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
 
-                //Paso1 crear la extracción del periodo y retorna la información del contribuyente
-                //Ajustar tiempo para que la información sea más precisa
-                //Estos ajuste de horario solo funcion para satws, para otros proveedores dependera del horario que manejen
-                //https://api.sandbox.sat.ws/extractions 
-                //DateTime today = DateTime.Now;
-                DateTime todayUTC = DateTime.UtcNow; // se utiliza esté tipo de horario porque SAT.ws maneja esos horarios en sus registros
-                DateTime dateFrom = todayUTC.AddMonths(-4);
-                DateTime dateTo = todayUTC.AddMonths(-1);
+                var provider = ConfigurationManager.AppSettings["SATProvider"];
+                DateTime dateFrom = DateTime.UtcNow.AddMonths(-4);
+                DateTime dateTo = DateTime.UtcNow.AddMonths(-1);
                 dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
                 dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
-
-                var modelInvoices = SATwsService.GetInformationByExtractions(authUser.Account.RFC, dateFrom, dateTo);
-                if (!modelInvoices.Success)
-                    throw new Exception(modelInvoices.Message);
-
-                //crear clientes
-                List<string> customerRfcs = modelInvoices.Customers.Select(c => c.rfc).Distinct().ToList();
-                var ExistC = _customerService.ValidateRFC(customerRfcs, authUser.Account.Id);
-                List<string> NoExistC = customerRfcs.Except(ExistC).ToList();
-
-                if (NoExistC.Count > 0)
-                {
-                    List<Customer> customers = modelInvoices.Customers
-                        .Where(x => NoExistC.Contains(x.rfc)).GroupBy(x => new { x.rfc, x.businessName })
-                        .Select(x => new Customer
-                        {
-                            uuid = Guid.NewGuid(),
-                            account = account,
-                            zipCode = x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault() != null ? x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault().zipCode : null,
-                            businessName = x.Key.businessName,
-                            rfc = x.Key.rfc,
-                            createdAt = DateUtil.GetDateTimeNow(),
-                            modifiedAt = DateUtil.GetDateTimeNow(),
-                            status = SystemStatus.ACTIVE.ToString()
-                        }).ToList();
-
-                    _customerService.Create(customers);                    
-                }
-
-                //crear proveedores
-                List<string> providersRfcs = modelInvoices.Providers.Select(c => c.rfc).Distinct().ToList();
-                var ExistP = _providerService.ValidateRFC(providersRfcs, authUser.Account.Id);
-                List<string> NoExistP = providersRfcs.Except(ExistP).ToList();
-
-                if (NoExistP.Count > 0)
-                {
-                    List<Provider> providers = modelInvoices.Providers
-                        .Where(x => NoExistP.Contains(x.rfc)).GroupBy(x => new { x.rfc, x.businessName })
-                        .Select(x => new Provider
-                        {
-                            uuid = Guid.NewGuid(),
-                            account = account,
-                            zipCode = x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault() != null ? x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault().zipCode : null,
-                            businessName = x.Key.businessName,
-                            rfc = x.Key.rfc,
-                                //taxRegime = 
-                                createdAt = DateUtil.GetDateTimeNow(),
-                            modifiedAt = DateUtil.GetDateTimeNow(),
-                            status = SystemStatus.ACTIVE.ToString()
-                        }).Distinct().ToList();
-
-                    _providerService.Create(providers);                    
-                }
-
-                #region Realizar el guardado de las facturas
-                List<string> IdIssued = modelInvoices.Customers.Select(x => x.idInvoice).ToList();
-                var invoicesIssuedExist = _invoicesIssuedService.FindBy(x => x.account.id == authUser.Account.Id).Select(x => x.uuid.ToString()).ToList();
-
-                IdIssued = IdIssued.Except(invoicesIssuedExist).ToList();
-
-                /*Obtener los CFDI's*/
-                var customersCFDI = SATwsService.GetInvoicesCFDI(IdIssued);
-                var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
+                SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
                 
-                foreach (var cfdi in customersCFDI)
-                {
-                    byte[] byteArray = System.Text.Encoding.ASCII.GetBytes(cfdi.Xml);
-                    System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
-                    var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesIssued, account.rfc);
-                    cfdi.urlXml = upload.Item1;
-                }
-
-                if (customersCFDI.Count > 0)
-                {
-                    List<InvoiceIssued> invoiceIssued = customersCFDI.Select(x => new InvoiceIssued
-                    {
-                        uuid = Guid.Parse(x.id),
-                        folio = x.Folio,
-                        serie = x.Serie,
-                        paymentMethod = x.MetodoPago,
-                        paymentForm = x.FormaPago,
-                        currency = x.Moneda,
-                        //amount = x.SubTotal,
-                        iva = modelInvoices.Customers.FirstOrDefault(y => y.idInvoice == x.id).tax,
-                        //totalAmount = x.Total,
-                        invoicedAt = x.Fecha,
-                        xml = x.urlXml,
-                        createdAt = todayUTC,
-                        modifiedAt = todayUTC,
-                        status = SystemStatus.ACTIVE.ToString(),
-                        account = account,
-                        customer = _customerService.FirstOrDefault(y => y.rfc == x.Receptor.Rfc),
-                        invoiceType = x.TipoDeComprobante,
-                        subtotal = x.SubTotal,
-                        total = x.Total
-                    }).ToList();
-                    _invoicesIssuedService.Create(invoiceIssued);
-                }
-
-                List<string> IdReceived = modelInvoices.Providers.Select(x => x.idInvoice).ToList();
-                var invoicesReceivedExist = _invoicesReceivedService.FindBy(x => x.account.id == authUser.Account.Id).Select(x => x.uuid.ToString()).ToList();
-
-                IdReceived = IdReceived.Except(invoicesReceivedExist).ToList();
-
-                /*Obtener los CFDI's*/
-                var providersCFDI = SATwsService.GetInvoicesCFDI(IdReceived);
-                var StorageInvoicesReceived = ConfigurationManager.AppSettings["StorageInvoicesReceived"];
-
-                foreach (var cfdi in providersCFDI)
-                {
-                    byte[] byteArray = System.Text.Encoding.ASCII.GetBytes(cfdi.Xml);
-                    System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
-                    var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id+".xml", StorageInvoicesReceived, account.rfc);
-                    cfdi.urlXml = upload.Item1;
-                }
-                if (providersCFDI.Count > 0)
-                {
-                    List<InvoiceReceived> invoiceReceiveds = providersCFDI.Select(x => new InvoiceReceived
-                    {
-                        uuid = Guid.Parse(x.id),
-                        folio = x.Folio,
-                        serie = x.Serie,
-                        paymentMethod = x.MetodoPago,
-                        paymentForm = x.FormaPago,
-                        currency = x.Moneda,
-                        //amount = x.SubTotal,
-                        iva = modelInvoices.Providers.FirstOrDefault(y => y.idInvoice == x.id).tax,
-                        //totalAmount = x.Total,
-                        invoicedAt = x.Fecha,
-                        xml = x.urlXml,
-                        createdAt = todayUTC,
-                        modifiedAt = todayUTC,
-                        status = SystemStatus.ACTIVE.ToString(),
-                        account = account,
-                        provider = _providerService.FirstOrDefault(y => y.rfc == x.Emisor.Rfc),
-                        invoiceType = x.TipoDeComprobante,
-                        subtotal=x.SubTotal,
-                        total = x.Total
-                    }).ToList();
-                    _invoicesReceivedService.Create(invoiceReceiveds);
-                }
-
-                #endregion 
-
-                //separar los cfdis por año, mes, recibidas, emitidas
-                List<InvoicesGroup> invoicePeriod = modelInvoices.Invoices.GroupBy(x => new
-                {
-                    x.issuedAt.Year,
-                    x.issuedAt.Month,
-                })
-                .Select(b => new InvoicesGroup
-                {
-                    year = b.Key.Year,
-                    month = DateUtil.GetMonthName(new DateTime(b.Key.Year, b.Key.Month, 1), "es"),
-                    issuer = new IssuerReceiverGroup()
-                    {
-                        type = TypeIssuerReceiver.ISSUER.ToString(),
-                        amountTotal = b.Where(x => x.issuer.rfc == authUser.Account.RFC).Sum(x => x.total),
-                        numberTotal = b.Where(x => x.issuer.rfc == authUser.Account.RFC).Count(),
-                    },
-                    receiver = new IssuerReceiverGroup()
-                    {
-                        type = TypeIssuerReceiver.RECEIVER.ToString(),
-                        amountTotal = b.Where(x => x.receiver.rfc == authUser.Account.RFC).Sum(x => x.total),
-                        numberTotal = b.Where(x => x.receiver.rfc == authUser.Account.RFC).Count(),
-                    }
-                }).ToList();
-
-                //pendiente generara la información del CAD
-
-
-                List<DiagnosticDetail> details = new List<DiagnosticDetail>();
-                //Armado de modelos para guardar información
-                diagn = new Diagnostic()
+                var diagn = new Diagnostic()
                 {
                     uuid = Guid.NewGuid(),
                     account = account,
-                    businessName = modelInvoices.Taxpayer.name,
+                    businessName = account.name,
                     commercialCAD = "",
                     plans = "",
-                    createdAt = DateUtil.GetDateTimeNow()
+                    createdAt = DateUtil.GetDateTimeNow(),
+                    status = SystemStatus.PENDING.ToString()
                 };
 
-                //Obtener la constancia Fiscal
-                try
-                {
-                    var taxStatusModel = SATwsService.GetTaxStatus(authUser.Account.RFC);
-                    if (!taxStatusModel.Success)
-                        throw new Exception(taxStatusModel.Message);
-
-                    var taxStatus = taxStatusModel.TaxStatus
-                        .Select(x => new DiagnosticTaxStatus
-                        {
-                            diagnostic = diagn,
-                            createdAt = DateUtil.GetDateTimeNow(),
-                            statusSAT = x.status,
-                            businessName = x.person != null ? x.person.fullName : x.company.tradeName,
-                            taxMailboxEmail = x.email,
-                            taxRegime = x.taxRegimes.Count > 0 ? String.Join(",", x.taxRegimes.Select(y => y.name).ToArray()) : null,
-                            economicActivities = x.economicActivities.Count > 0 ? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null
-                                //fiscalObligations = ""
-                            }).ToList();
-
-                    diagn.taxStatus = taxStatus;
-                }
-                catch (Exception ex)
-                {
-                    string error = ex.Message.ToString();
-                }
-
-                foreach (var item in invoicePeriod)
-                {
-                    DiagnosticDetail detail = new DiagnosticDetail()
-                    {
-                        diagnostic = diagn,
-                        year = item.year,
-                        month = item.month,
-                        typeTaxPayer = TypeIssuerReceiver.ISSUER.ToString(),
-                        numberCFDI = item.issuer.numberTotal,
-                        totalAmount = item.issuer.amountTotal,
-                        createdAt = DateUtil.GetDateTimeNow()
-                    };
-                    diagn.details.Add(detail);
-
-                    DiagnosticDetail detailR = new DiagnosticDetail()
-                    {
-                        diagnostic = diagn,
-                        year = item.year,
-                        month = item.month,
-                        typeTaxPayer = TypeIssuerReceiver.RECEIVER.ToString(),
-                        totalAmount = item.receiver.amountTotal,
-                        numberCFDI = item.receiver.numberTotal,
-                        createdAt = DateUtil.GetDateTimeNow()
-                    };
-                    diagn.details.Add(detailR);
-                }
-
                 _diagnosticService.Create(diagn);
-                MensajeFlashHandler.RegistrarMensaje("¡Diagnóstico realizado!", TiposMensaje.Success);
-                return RedirectToAction("DiagnosticDetail", new { id = diagn.uuid.ToString() });
+                //MensajeFlashHandler.RegistrarMensaje("¡Diagnóstico realizado!", TiposMensaje.Success);
+                //return RedirectToAction("DiagnosticDetail", new { id = diagn.uuid.ToString() });
+                return Json(new { diagn.uuid, success=true }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                string error = ex.Message.ToString();
+                //string error = ex.Message.ToString();
                 //MensajeFlashHandler.RegistrarMensaje("¡Ocurrio un error en al realizar el diagnóstico!", TiposMensaje.Error);
-                MensajeFlashHandler.RegistrarMensaje(error, TiposMensaje.Error);
-                return RedirectToAction("Index");
+                //MensajeFlashHandler.RegistrarMensaje(error, TiposMensaje.Error);
+                //return RedirectToAction("Index");
+                return Json(new { message = ex.Message, success = false }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult FinishExtraction(string uuid)
+        {
+            try
+            {
+                var diagnostic = _diagnosticService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
+                if (diagnostic == null)
+                    throw new Exception("No fue posible obtener el diagnostico");
+
+                if (diagnostic.status == SystemStatus.ACTIVE.ToString())
+                    return Json(new { success = true, finish = true }, JsonRequestBehavior.AllowGet);
+                else
+                    return Json(new { success = true, finish = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { message = ex.Message, success = false }, JsonRequestBehavior.AllowGet);
             }
         }
 

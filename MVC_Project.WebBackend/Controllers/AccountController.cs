@@ -228,7 +228,8 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     Controller = p.permission.controller,
                     Module = p.permission.module,
-                    Level = p.level
+                    Level = p.level,
+                    isCustomizable = p.permission.isCustomizable
                 }).ToList();
 
                 authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };

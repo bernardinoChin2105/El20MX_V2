@@ -55,6 +55,36 @@ namespace MVC_Project.API
             container.RegisterType<IAuthService, AuthService>();
             container.RegisterType<IRoleService, RoleService>();
             container.RegisterType<IWebhookService, WebhookService>();
+            container.RegisterType<IAccountService, AccountService>();
+            container.RegisterType<IMembershipService, MembershipService>();
+            container.RegisterType<ISocialNetworkLoginService, SocialNetworkLoginService>();
+            container.RegisterType<IMembershipPermissionService, MembershipPermissionService>();
+            container.RegisterType<IFeatureService, FeatureService>();
+            container.RegisterType<ICredentialService, CredentialService>();
+            container.RegisterType<IDiagnosticService, DiagnosticService>();
+            container.RegisterType<ICustomerService, CustomerService>();
+            container.RegisterType<ICustomerContactService, CustomerContactService>();
+            container.RegisterType<IStateService, StateService>();
+            container.RegisterType<IProviderService, ProviderService>();
+            container.RegisterType<IBankService, BankService>();
+            container.RegisterType<IBankCredentialService, BankCredentialService>();
+
+            container.RegisterType<ICurrencyService, CurrencyService>();
+            container.RegisterType<IBankAccountService, BankAccountService>();
+            container.RegisterType<IPaymentFormService, PaymentFormService>();
+            container.RegisterType<IPaymentMethodService, PaymentMethodService>();
+            container.RegisterType<IInvoiceIssuedService, InvoiceIssuedService>();
+            container.RegisterType<IInvoiceReceivedService, InvoiceReceivedService>();
+            container.RegisterType<ICountryService, CountryService>();
+            container.RegisterType<IPlanService, PlanService>();
+            container.RegisterType<IPlanChargeService, PlanChargeService>();
+            container.RegisterType<IPlanFeatureService, PlanFeatureService>();
+            container.RegisterType<IPlanAssignmentsService, PlanAssignmentsService>();
+            container.RegisterType<IPlanChargeConfigService, PlanChargeConfigService>();
+            container.RegisterType<IPlanFeatureConfigService, PlanFeatureConfigService>();
+            container.RegisterType<IPlanAssignmentConfigService, PlanAssignmentConfigService>();
+            container.RegisterType<IDiagnosticDetailService, DiagnosticDetailService>();
+            container.RegisterType<IDiagnosticTaxStatusService, DiagnosticTaxStatusService>();
         }
     }
 }

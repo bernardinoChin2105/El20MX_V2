@@ -95,7 +95,6 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
                 aoData.push({ "name": "filtros", "value": $('form#SearchForm').serialize() });
 
                 $.getJSON(sSource, aoData, function (json) {
-                    debugger;
                     if (json.success) {
                         fnCallback(json);
                     }
@@ -108,4 +107,53 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
             El20Utils.ocultarCargador();
         });
     };
+
+    this.finishExtraction = function (uuid) {
+        $.get("Diagnostic/FinishExtraction", { uuid : uuid }, function (data) {
+            if (data.success) {
+                if (data.finish)
+                {
+                    El20Utils.ocultarCargador();
+                    let form = document.createElement("form");
+                    form.setAttribute("method", "GET");
+                    form.setAttribute("action", "/Diagnostic/DiagnosticDetail");
+
+                    let hiddenClave = document.createElement("input");
+                    hiddenClave.setAttribute("type", "hidden");
+                    hiddenClave.setAttribute("name", "id");
+                    hiddenClave.setAttribute("value", uuid);
+                    form.appendChild(hiddenClave);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+                else {
+                    setTimeout(self.finishExtraction(uuid), 2000);
+                }
+            }
+            else {
+                toastr['error'](data.message);
+                El20Utils.ocultarCargador();
+            }
+        }).fail(function () {
+            toastr['error']('No es posible generar el diagnostico');
+            El20Utils.ocultarCargador();
+        });
+    }
+
+    $('#btn-generate-diagnostic').on("click", function () {
+        El20Utils.mostrarCargador();
+        $.get("Diagnostic/GenerateDx0", function (data) {
+            if (data.success) {
+                self.finishExtraction(data.uuid)
+            }
+            else {
+                toastr['error'](data.message);
+                El20Utils.ocultarCargador();
+            }
+        }).fail(function () {
+            toastr['error']('No es posible generar el diagnostico');
+            El20Utils.ocultarCargador();
+        });
+    });
 };

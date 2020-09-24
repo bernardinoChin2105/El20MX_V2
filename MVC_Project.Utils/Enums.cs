@@ -16,7 +16,11 @@ namespace MVC_Project.Utils
         [Display(Name = "Inactivo")]
         INACTIVE,
         [Display(Name = "No confirmado")]
-        UNCONFIRMED
+        UNCONFIRMED,
+        [Display(Name = "Pendiente")]
+        PENDING,
+        [Display(Name = "En Proceso")]
+        PROCESSING
     }
 
     public enum SystemLevelPermission
@@ -312,5 +316,17 @@ namespace MVC_Project.Utils
     {
         [Display(Name = "Account")]
         ACCOUNT,
+    }
+
+    public enum SatwsEvent
+    {
+        [Display(Name = "extraction.updated")]
+        EXTRACTION_UPDATED
+    }
+
+    public enum SatwsStatusEvent
+    {
+        [Display(Name = "finished")]
+        FINISHED
     }
 }

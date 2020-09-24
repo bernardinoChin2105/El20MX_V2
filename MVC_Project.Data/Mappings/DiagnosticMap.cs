@@ -19,6 +19,9 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.commercialCAD).Column("commercialCAD").Nullable();
             Map(x => x.plans).Column("plans").Nullable();
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
+            Map(x => x.modifiedAt).Column("modifiedAt").Nullable();
+            Map(x => x.status).Column("status").Nullable();
+
             References(x => x.account).Column("accountId").Not.Nullable();
 
             HasMany(x => x.details).Inverse().Cascade.All().KeyColumn("diagnosticId");
