@@ -180,12 +180,11 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 var list = _allyService.GetAll();
-
                 var allyList = list.Select(x => new SelectListItem() { Text = x.name, Value = x.id.ToString() }).ToList();
                 allyList.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
                 model.allyList = new SelectList(allyList);
 
-                model.allyMultList = new MultiSelectList(list, "id", "name");
+                //model.allyMultList = new MultiSelectList(list, "id", "name");
                 //model.allyId = new[];
             }
             catch (Exception ex)
@@ -195,39 +194,50 @@ namespace MVC_Project.WebBackend.Controllers
             return View(model);
         }
 
-        //[Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
-        //public ActionResult Create(AllianceViewModel model)
-        //{
-        //    try
-        //    {
-        //        if (!ModelState.IsValid)
-        //            throw new Exception("El modelo de entrada no es válido");
+        [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
+        public ActionResult Create(AllianceViewModel model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
 
-        //        var authUser = Authenticator.AuthenticatedUser;
+                var authUser = Authenticator.AuthenticatedUser;
 
-        //        if (_allyService.FindBy(x => x.name == model.Name).Any())
-        //            throw new Exception("Ya existe un Aliado con el Nombre proporcionado");
+                if (_allianceService.FindBy(x => x.name == model.name).Any())
+                    throw new Exception("Ya existe un Aliado con el Nombre proporcionado");
 
-        //        DateTime todayDate = DateUtil.GetDateTimeNow();
+                DateTime todayDate = DateUtil.GetDateTimeNow();
 
-        //        Ally ally = new Ally()
-        //        {
-        //            uuid = Guid.NewGuid(),
-        //            name = model.Name,
-        //            createdAt = todayDate,
-        //            modifiedAt = todayDate,
-        //            status = SystemStatus.ACTIVE.ToString(),
-        //        };
+                Alliance alliance = new Alliance()
+                {
+                    uuid = Guid.NewGuid(),
+                    name = model.name,
+                    allyCommisionPercent = model.allyCommisionPercent,
+                    customerDiscountPercent = model.customerDiscountPercent,
+                    promotionCode = model.promotionCode,
+                    allianceValidity = model.allianceValidity,
+                    applyPeriod = model.applyPeriod,
+                    initialPeriod = model.initialPeriod,
+                    finalPeriod = model.finalPeriod,
+                    finalAllyCommisionPercent = model.finalAllyCommisionPercent,
+                    finalDate = model.finalDate,
+                    initialDate = model.finalDate,
+                    createdAt = todayDate,
+                    modifiedAt = todayDate,
+                    status = SystemStatus.ACTIVE.ToString(),                    
+                    ally = new Ally { id = model.id}                                                   
+                };
 
-        //        _allyService.Create(ally);
-        //        MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
-        //        return RedirectToAction("AllyIndex");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return View(model);
-        //    }
-        //}
+                _allianceService.Create(alliance);
+                MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
+                return RedirectToAction("AllyIndex");
+            }
+            catch (Exception ex)
+            {
+                return View(model);
+            }
+        }
         #endregion
 
 

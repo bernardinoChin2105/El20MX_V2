@@ -37,9 +37,9 @@ namespace MVC_Project.WebBackend.Models
         public string name { get; set; }
 
         [Display(Name = "Aliado")]
-        public Int16[] allyId { get; set; }
+        public Int16 allyId { get; set; }
         public SelectList allyList { get; set; }
-        public MultiSelectList allyMultList { get; set; }
+        //public MultiSelectList allyMultList { get; set; }
 
         [Display(Name = "% comisión aliado")]
         public decimal allyCommisionPercent { get; set; }
@@ -76,7 +76,7 @@ namespace MVC_Project.WebBackend.Models
 
             allyList = new SelectList(list);
 
-            allyMultList = new MultiSelectList(list);
+            //allyMultList = new MultiSelectList(list);
         }
     }
 

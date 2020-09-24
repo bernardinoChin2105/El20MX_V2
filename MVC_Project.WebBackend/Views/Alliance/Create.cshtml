@@ -40,14 +40,14 @@
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.allyId, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-md-9">
-                                    @*@Html.DropDownListFor(model => model.allyId, Model.allyList, "Seleccione...", new { @class = "form-control chosen-select required" })*@
+                                    @Html.DropDownListFor(model => model.allyId, Model.allyList, "Seleccione...", new { @class = "form-control chosen-select required" })
                                     @Html.ValidationMessageFor(model => model.allyId)
 
                                     @*@Html.ListBoxFor(m => m.allyId,
                                         new MultiSelectList(Model.allyMultList)
                                         , new { @class = "chosen-select", data_placeholder = "Seleccione" })*@
 
-                                    @Html.DropDownList("allyId", (MultiSelectList)Model.allyMultList, new { multiple = "multiple", @class = "chosen-select", data_placeholder = "Seleccione" })
+                                    @*@Html.DropDownList("allyId", (MultiSelectList)Model.allyMultList, new { multiple = "multiple", @class = "chosen-select", data_placeholder = "Seleccione" })*@
                                     @*@Html.ListBoxFor("allyId", new (MultiSelectList)Model.allyMultList)*@
                                 </div>
                             </div>
@@ -83,19 +83,19 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                @Html.LabelFor(m => m.initialPeriod, new { @class = "col-form-label col-md-3 control-label", type = "number" })
+                                @Html.LabelFor(m => m.initialPeriod, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-12 col-md-3">
-                                    @Html.TextBoxFor(m => m.initialPeriod, new { @class = "form-control required", type = "number", @maxlength = "50" })
+                                    @Html.TextBoxFor(m => m.initialPeriod, new { @class = "form-control required", disabled="disabled", type = "number", @maxlength = "50" })
                                 </div>
-                                @Html.LabelFor(m => m.finalPeriod, new { @class = "col-form-label col-md-3 control-label", type = "number" })
+                                @Html.LabelFor(m => m.finalPeriod, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-12 col-md-3">
-                                    @Html.TextBoxFor(m => m.finalPeriod, new { @class = "form-control required", type = "number", @maxlength = "50" })
+                                    @Html.TextBoxFor(m => m.finalPeriod, new { @class = "form-control required", disabled = "disabled", type = "number", @maxlength = "50" })
                                 </div>
                             </div>
                             <div class="form-group row">
                                 @Html.LabelFor(m => m.finalAllyCommisionPercent, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-12 col-md-9">
-                                    @Html.TextBoxFor(m => m.finalAllyCommisionPercent, new { @class = "form-control porcert required", type = "number", @maxlength = "50" })
+                                    @Html.TextBoxFor(m => m.finalAllyCommisionPercent, new { @class = "form-control porcert required", disabled = "disabled", type = "number", @maxlength = "50" })
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -118,7 +118,7 @@
                                         <div class="input-group date">
                                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                                             @*@Html.TextBoxFor(m => m.finalDate, new { @class = "form-control ", @maxlength = "50" })*@
-                                            <input type="text" name="finalDate" id="finalDate" class="form-control required">
+                                            <input type="text" name="finalDate" id="finalDate" class="form-control required" disabled="disabled">
                                         </div>
                                     </div>
                                 </div>
@@ -166,6 +166,26 @@
                 autoclose: true,
                 dateFormat: "yy-mm-dd"
             });
+
+            $('input').on('ifClicked', function (ev) { $(ev.target).click(); })
+
+            $("#applyPeriod").click(function () {
+                validarDatos();
+            });
+
+            //Validación del check 
+            // bool
+            /*
+             * initialPeriod
+             * finalPeriod
+             * finalAllyCommisionPercent           
+             */
+
+            //Validación del check
+            //allianceValidity bool
+            /*
+             * finalDate
+             */            
 
             //$("#CreateForm").validate({
             //    rules: {
