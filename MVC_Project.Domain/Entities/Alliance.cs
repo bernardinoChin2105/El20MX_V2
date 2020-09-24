@@ -17,7 +17,9 @@ namespace MVC_Project.Domain.Entities
         public virtual decimal allyCommisionPercent { get; set; }
         public virtual decimal customerDiscountPercent { get; set; }
         public virtual string promotionCode { get; set; }
+        public virtual bool allianceValidity { get; set; }
 
+        public virtual bool applyPeriod { get; set; }
         public virtual int initialPeriod { get; set; }
         public virtual int finalPeriod { get; set; }
 

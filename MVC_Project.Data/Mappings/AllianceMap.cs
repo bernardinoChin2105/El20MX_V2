@@ -17,7 +17,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.uuid).Column("uuid").Not.Nullable();
 
             Map(x => x.name).Column("name").Not.Nullable();
-            
+
             Map(x => x.allyCommisionPercent).Column("allyCommisionPercent").Not.Nullable();
             Map(x => x.customerDiscountPercent).Column("customerDiscountPercent").Not.Nullable();
             Map(x => x.promotionCode).Column("promotionCode").Not.Nullable();
@@ -29,6 +29,9 @@ namespace MVC_Project.Data.Mappings
 
             Map(x => x.initialDate).Column("initialDate").Nullable();
             Map(x => x.finalDate).Column("finalDate").Nullable();
+
+            Map(x => x.allianceValidity).Column("allianceValidity").Nullable();
+            Map(x => x.applyPeriod).Column("applyPeriod").Nullable();
 
             References(x => x.ally).Column("allyId").Nullable();
 

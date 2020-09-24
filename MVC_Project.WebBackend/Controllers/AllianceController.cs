@@ -27,7 +27,7 @@ namespace MVC_Project.WebBackend.Controllers
             _allyService = allyService;
             _allianceService = allianceService;
         }
-        
+
         public ActionResult Index()
         {
             return View();
@@ -39,8 +39,8 @@ namespace MVC_Project.WebBackend.Controllers
             var userAuth = Authenticator.AuthenticatedUser;
             int totalDisplay = 0;
             int total = 0;
-            var listResponse = new List<AllianceList>(); 
-            var list = new List<AlliancesListVM>(); 
+            var listResponse = new List<AllianceList>();
+            var list = new List<AlliancesListVM>();
             string error = string.Empty;
             bool success = true;
 
@@ -72,7 +72,7 @@ namespace MVC_Project.WebBackend.Controllers
                         customerDiscountPercent = x.customerDiscountPercent,
                         createdAt = x.createdAt.ToShortDateString(),
                         status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), x.status)).GetDisplayName()
-                    }).ToList();                    
+                    }).ToList();
                 }
 
                 LogUtil.AddEntry(
@@ -176,8 +176,58 @@ namespace MVC_Project.WebBackend.Controllers
 
         public ActionResult Create()
         {
-            return View();
+            AllianceViewModel model = new AllianceViewModel();
+            try
+            {
+                var list = _allyService.GetAll();
+
+                var allyList = list.Select(x => new SelectListItem() { Text = x.name, Value = x.id.ToString() }).ToList();
+                allyList.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
+                model.allyList = new SelectList(allyList);
+
+                model.allyMultList = new MultiSelectList(list, "id", "name");
+                //model.allyId = new[];
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message.ToString();
+            }
+            return View(model);
         }
+
+        //[Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
+        //public ActionResult Create(AllianceViewModel model)
+        //{
+        //    try
+        //    {
+        //        if (!ModelState.IsValid)
+        //            throw new Exception("El modelo de entrada no es válido");
+
+        //        var authUser = Authenticator.AuthenticatedUser;
+
+        //        if (_allyService.FindBy(x => x.name == model.Name).Any())
+        //            throw new Exception("Ya existe un Aliado con el Nombre proporcionado");
+
+        //        DateTime todayDate = DateUtil.GetDateTimeNow();
+
+        //        Ally ally = new Ally()
+        //        {
+        //            uuid = Guid.NewGuid(),
+        //            name = model.Name,
+        //            createdAt = todayDate,
+        //            modifiedAt = todayDate,
+        //            status = SystemStatus.ACTIVE.ToString(),
+        //        };
+
+        //        _allyService.Create(ally);
+        //        MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
+        //        return RedirectToAction("AllyIndex");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return View(model);
+        //    }
+        //}
         #endregion
 
 
@@ -193,8 +243,8 @@ namespace MVC_Project.WebBackend.Controllers
             var userAuth = Authenticator.AuthenticatedUser;
             int totalDisplay = 0;
             int total = 0;
-            var listResponse = new List<AlliesList>(); 
-            var list = new List<AlliesListVM>(); 
+            var listResponse = new List<AlliesList>();
+            var list = new List<AlliesListVM>();
             string error = string.Empty;
             bool success = true;
 
