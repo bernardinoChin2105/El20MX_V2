@@ -181,7 +181,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 var list = _allyService.GetAll();
                 var allyList = list.Select(x => new SelectListItem() { Text = x.name, Value = x.id.ToString() }).ToList();
-                allyList.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
+                //allyList.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
                 model.allyList = new SelectList(allyList);
 
                 //model.allyMultList = new MultiSelectList(list, "id", "name");
@@ -197,15 +197,14 @@ namespace MVC_Project.WebBackend.Controllers
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public ActionResult Create(AllianceViewModel model)
         {
+            var authUser = Authenticator.AuthenticatedUser;
             try
             {
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
 
-                var authUser = Authenticator.AuthenticatedUser;
-
                 if (_allianceService.FindBy(x => x.name == model.name).Any())
-                    throw new Exception("Ya existe un Aliado con el Nombre proporcionado");
+                    throw new Exception("Ya existe una alianza con el Nombre proporcionado");
 
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
@@ -218,25 +217,110 @@ namespace MVC_Project.WebBackend.Controllers
                     promotionCode = model.promotionCode,
                     allianceValidity = model.allianceValidity,
                     applyPeriod = model.applyPeriod,
-                    initialPeriod = model.initialPeriod,
-                    finalPeriod = model.finalPeriod,
-                    finalAllyCommisionPercent = model.finalAllyCommisionPercent,
-                    finalDate = model.finalDate,
-                    initialDate = model.finalDate,
                     createdAt = todayDate,
                     modifiedAt = todayDate,
-                    status = SystemStatus.ACTIVE.ToString(),                    
-                    ally = new Ally { id = model.id}                                                   
+                    status = SystemStatus.ACTIVE.ToString(),
+                    ally = new Ally { id = model.allyId }
                 };
 
+                var ally = _allyService.FirstOrDefault(x => x.id == model.allyId);
+
+                if (ally != null)
+                {
+                    var arrayS = model.promotionCode.Split('-');
+                    var numCons = ally.consecutive + 1;
+                    ally.consecutive = numCons;
+                    ally.modifiedAt = todayDate;
+
+                    if (arrayS.Count() != 3 || arrayS[2] != numCons.ToString())
+                    {
+                        arrayS[2] = numCons.ToString();
+                        model.promotionCode = string.Join("-", arrayS);
+                        ally.consecutive = numCons;
+                    }
+                }
+
+
+                if (model.applyPeriod)
+                {
+                    alliance.initialPeriod = model.initialPeriod;
+                    alliance.finalPeriod = model.finalPeriod;
+                    alliance.finalAllyCommisionPercent = model.finalAllyCommisionPercent;
+                }
+
+                if (model.allianceValidity)
+                {
+                    alliance.finalDate = model.finalDate;
+                    alliance.initialDate = model.finalDate;
+                }
+
                 _allianceService.Create(alliance);
+
+                LogUtil.AddEntry(
+                   "Se creo la alianza con id: " + alliance.id,
+                   ENivelLog.Info,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+
                 MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
-                return RedirectToAction("AllyIndex");
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
+                var list = _allyService.GetAll();
+                var allyList = list.Select(x => new SelectListItem() { Text = x.name, Value = x.id.ToString() }).ToList();
+                //allyList.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
+                model.allyList = new SelectList(allyList);
+
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+
                 return View(model);
             }
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetPromotionCode(Int64 id)
+        {
+            var userAuth = Authenticator.AuthenticatedUser;
+            string code = string.Empty;
+            string error = string.Empty;
+            bool success = true;
+
+            try
+            {
+                var ally = _allyService.FirstOrDefault(x => x.id == id);
+                if (ally == null)
+                    throw new Exception("El registro de Aliado no se encontró en la base de datos");
+
+                code = ally.prefix + "-" + ally.id + "-" + (ally.consecutive + 1);
+
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message.ToString();
+                success = false;
+            }
+
+            return Json(new
+            {
+                success = success,
+                promotionCode = code,
+                error = error
+            }, JsonRequestBehavior.AllowGet);
         }
         #endregion
 

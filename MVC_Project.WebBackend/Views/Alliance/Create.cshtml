@@ -4,7 +4,9 @@
 @{
     /**/
 
-    ViewBag.Title = "Nuevo Aliado";
+    /**/
+
+    ViewBag.Title = "Nueva Alianza";
 }
 
 @section styles{
@@ -27,7 +29,7 @@
 
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <h5>Datos del Aliado</h5>
+                        <h5>Datos de la Alianza</h5>
                     </div>
                     <div class="ibox-content">
                         <div class="form-horizontal">
@@ -40,15 +42,8 @@
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.allyId, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-md-9">
-                                    @Html.DropDownListFor(model => model.allyId, Model.allyList, "Seleccione...", new { @class = "form-control chosen-select required" })
-                                    @Html.ValidationMessageFor(model => model.allyId)
-
-                                    @*@Html.ListBoxFor(m => m.allyId,
-                                        new MultiSelectList(Model.allyMultList)
-                                        , new { @class = "chosen-select", data_placeholder = "Seleccione" })*@
-
-                                    @*@Html.DropDownList("allyId", (MultiSelectList)Model.allyMultList, new { multiple = "multiple", @class = "chosen-select", data_placeholder = "Seleccione" })*@
-                                    @*@Html.ListBoxFor("allyId", new (MultiSelectList)Model.allyMultList)*@
+                                    @Html.DropDownListFor(model => model.allyId, Model.allyList.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                                    @Html.ValidationMessageFor(model => model.allyId)                                    
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -66,7 +61,7 @@
                             <div class="form-group row">
                                 @Html.LabelFor(m => m.promotionCode, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-12 col-md-9">
-                                    @Html.TextBoxFor(m => m.promotionCode, new { @class = "form-control required", @maxlength = "50" })
+                                    @Html.TextBoxFor(m => m.promotionCode, new { @class = "form-control required", @maxlength = "50", @readonly="readonly" })
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -85,7 +80,7 @@
                             <div class="form-group row">
                                 @Html.LabelFor(m => m.initialPeriod, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-12 col-md-3">
-                                    @Html.TextBoxFor(m => m.initialPeriod, new { @class = "form-control required", disabled="disabled", type = "number", @maxlength = "50" })
+                                    @Html.TextBoxFor(m => m.initialPeriod, new { @class = "form-control required", disabled = "disabled", type = "number", @maxlength = "50" })
                                 </div>
                                 @Html.LabelFor(m => m.finalPeriod, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-12 col-md-3">
@@ -138,18 +133,19 @@
 </div>
 
 @section Scripts {
-    @Scripts.Render("~/plugins/validate")
-    @Scripts.Render("~/plugins/toastr")
+    @*@Scripts.Render("~/plugins/validate")
+    @Scripts.Render("~/plugins/toastr")*@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
-    <!-- Data picker -->
-    @*<script src="js/plugins/datapicker/bootstrap-datepicker.js"></script>*@
+    <!-- Data picker -->    
     <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.js"></script>
+    <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.es.js"></script>
 
     <script>
         function validarDatos() {
             if (!$('#CreateForm').valid()) {
                 return;
             }
+            El20Utils.ocultarCargador();
             $('#CreateForm').submit();
         }
 
@@ -157,55 +153,75 @@
             $('.chosen-select').chosen({ width: '100%', "disable_search": true });
             $('.porcert').mask("##0.00", { reverse: true });
 
-            $.datepicker.setDefaults($.datepicker.regional['es']);
+            //$.datepicker.setDefaults($.datepicker.regional['es']);
             var mem = $('#data_1 .input-group.date').datepicker({
-                todayBtn: "linked",
+                //dateFormat: "yy-mm-dd"
                 keyboardNavigation: false,
+                todayBtn: "linked",
                 forceParse: false,
                 calendarWeeks: true,
                 autoclose: true,
-                dateFormat: "yy-mm-dd"
+                format: "dd/mm/yyyy",
+                startDate: "25/09/2020",
+                language: "es"
             });
 
-            $('input').on('ifClicked', function (ev) { $(ev.target).click(); })
+            $('input').on('ifClicked', function (ev) {
+                $(ev.target).click();
+            })
 
             $("#applyPeriod").click(function () {
-                validarDatos();
+                //console.log("aplicar periodo");
+
+                $("#initialPeriod,#finalPeriod,#finalAllyCommisionPercent").prop("disabled", !this.checked)
+                var initialPeriod = $("#initialPeriod");
+                var finalPeriod = $("#finalPeriod");
+                var finalAllyCommisionPercent = $("#finalAllyCommisionPercent");
+
+                if (!this.checked) {
+                    initialPeriod.val("");
+                    finalPeriod.val("");
+                    finalAllyCommisionPercent.val("");
+                }
             });
 
-            //Validación del check 
-            // bool
-            /*
-             * initialPeriod
-             * finalPeriod
-             * finalAllyCommisionPercent           
-             */
+            $("#allianceValidity").click(function () {
+                //console.log("allianceValidity");
+                var finalDate = $("#finalDate");
+                finalDate.prop("disabled", !this.checked);
 
-            //Validación del check
-            //allianceValidity bool
-            /*
-             * finalDate
-             */            
+                if (this.checked) {                    
+                    finalDate.val("");
+                } 
+            });   
 
-            //$("#CreateForm").validate({
-            //    rules: {
-            //        name: {
-            //            required: true,
-            //        },
-            //        allyId: {
-            //            required: true,
-            //        },
-            //        Role: {
-            //            required: true,
-            //        },
-            //        Apellidos: {
-            //            required: true,
-            //        },
-            //        AcceptUser: {
-            //            required: !isBackOffice,
-            //        }
-            //    }
-            //});
+            $("#allyId").change(function () {
+                console.log("aliado", this.value);
+                var code = $("#promotionCode");
+
+                $.ajax({
+                    type: 'GET',
+                    async: true,
+                    data: { id: this.value },
+                    url: "/Alliance/GetPromotionCode",
+                    success: function (data) {
+                        if (!data.success) {
+                            toastr['error'](data.error);
+                            //swal({
+                            //    type: 'error',
+                            //    title: "Error al realizar la operación.",
+                            //    text: data.error
+                            //});
+                        } else {
+                            code.val(data.promotionCode);
+                            //swal("Estatus cambiado!");
+                        }
+                    },
+                    error: function (xhr) {
+                        console.log('error');
+                    }
+                });
+            });
         });
     </script>
 }
