@@ -99,7 +99,7 @@ function validateRFC() {
         $(".businessName").removeClass("hidden");
         $(".FistName").html("Nombre(s) Contacto");
         $(".LastName").html("Apellido(s) Contacto");        
-        taxRegime.val("MORALPERSONSREGIME");
+        //taxRegime.val("PERSONA_MORAL");
         FistName.rules("add", {
             required: false,
             //messages: {
@@ -122,7 +122,7 @@ function validateRFC() {
         $(".businessName").addClass("hidden");
         $(".FistName").html("Nombre(s)");
         $(".LastName").html("Apellido(s)");
-        taxRegime.val("NATURALPERSONSREGIME");
+        //taxRegime.val("PERSONA_FISICA");
         FistName.rules("add", {
             required: true,
             messages: {

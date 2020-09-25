@@ -35,8 +35,8 @@ $('#RegisterAt').daterangepicker({
             toLabel: "a"
         },
         //minDate: DateInit.MinDate,
-        maxDate: DateInit.MaxDate
-        //opens: 'left'
+        maxDate: DateInit.MaxDate,
+        opens: 'left'
     }).on('apply.daterangepicker', function (e, picker) {
         //console.log(picker.startDate.format('DD/MM/YYYY'));
         //console.log(picker.endDate.format('DD/MM/YYYY'));

@@ -329,26 +329,12 @@ namespace MVC_Project.WebBackend.Controllers
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                     );
 
-                MensajeFlashHandler.RegistrarMensaje("Descargando...", TiposMensaje.Success);
-                string rfc = authUser.Account.RFC;
-                //PageSize = Rotativa.Options.Size.Letter, 
-                //return View(model);
-                return new Rotativa.ViewAsPdf("DiagnosticZeroDownload", model) { FileName = rfc + "_D0.pdf" };
+                return new Rotativa.ViewAsPdf("DiagnosticZeroDownload", model) { FileName = authUser.Account.RFC + "_D0.pdf" };
             }
             catch (Exception ex)
             {
-                LogUtil.AddEntry(
-                       "Error al descargar el diagnostico: " + ex.Message.ToString(),
-                       ENivelLog.Error,
-                       authUser.Id,
-                       authUser.Email,
-                       EOperacionLog.ACCESS,
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                    );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                return View();
+                return RedirectToAction("Index");
             }
 
         }

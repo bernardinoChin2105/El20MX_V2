@@ -21,7 +21,7 @@ $('#RegisterAt').daterangepicker(
             fromLabel: "De",
             toLabel: "a"
         },
-        minDate: DateInit.MinDate,
+        //minDate: DateInit.MinDate,
         maxDate: DateInit.MaxDate
         //opens: 'left'
     }).on('apply.daterangepicker', function (e, picker) {
