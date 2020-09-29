@@ -28,7 +28,7 @@ namespace MVC_Project.Data.Helpers
 
         static UnitOfWork()
         {
-            //UpdateSchemaFromMappings();
+            UpdateSchemaFromMappings();
             _sessionFactory = BaseConfiguration()
                 .ExposeConfiguration(cfg => configuration = cfg)
                 .BuildSessionFactory();
