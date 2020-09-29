@@ -88,9 +88,9 @@ namespace MVC_Project.WebBackend.Controllers
                     Session["token"] = token;
                     ViewBag.paybookT = token;
                 }
-                
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
             }
@@ -111,13 +111,16 @@ namespace MVC_Project.WebBackend.Controllers
 
                 listResponse = _bankCredentialService.GetBankCredentials(userAuth.Account.Id);
 
+
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
                 if (listResponse.Count() > 0)
                 {
+                    listResponse.Select(c => { c.status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), c.status)).GetDisplayName(); return c; }).ToList();
+
                     totalDisplay = listResponse[0].Total;
                     total = listResponse.Count();
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -139,8 +142,8 @@ namespace MVC_Project.WebBackend.Controllers
         {
             var authUser = Authenticator.AuthenticatedUser;
             string token = (string)Session["token"];
-            
-            if(string.IsNullOrEmpty(token) || !PaybookService.GetVarifyToken(token))
+
+            if (string.IsNullOrEmpty(token) || !PaybookService.GetVarifyToken(token))
             {
                 var credential = _credentialService.FirstOrDefault(x => x.account.id == authUser.Account.Id && x.provider == SystemProviders.SYNCFY.GetDisplayName());
                 token = PaybookService.CreateToken(credential.idCredentialProvider);
@@ -202,7 +205,7 @@ namespace MVC_Project.WebBackend.Controllers
                             credentialProviderId = itemBank.id_credential,
                             createdAt = todayDate,
                             modifiedAt = todayDate,
-                            status = itemBank.is_authorized != null ? itemBank.is_authorized.Value.ToString() : "1"
+                            status = itemBank.is_authorized != null ? (itemBank.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString()
                         };
 
                         if (bank != null)
@@ -343,7 +346,7 @@ namespace MVC_Project.WebBackend.Controllers
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                 );
 
-                message = "Cuenta desvinculada exitosamente.";                
+                message = "Cuenta desvinculada exitosamente.";
             }
             catch (Exception ex)
             {
@@ -634,21 +637,21 @@ namespace MVC_Project.WebBackend.Controllers
                             }
 
 
-                                BankTransactionMV nuevo = new BankTransactionMV
-                                {
-                                    id = item.id,
-                                    transactionId = item.transactionId,
-                                    description = item.description,
-                                    amountD = item.amount > 0 ? item.amount.ToString("C2") : "",
-                                    amountR = item.amount < 0 ? item.amount.ToString("C2") : "",
-                                    currency = item.currency,
-                                    transactionAt = item.transactionAt.ToShortDateString(),
-                                    balance = balanceA.ToString("C2"),
-                                    bankAccountName = item.bankAccountName + " "+ item.number.PadLeft(10, pad),
-                                    number = item.number.PadLeft(10, pad),
-                                    bankName = item.bankName,
-                                    refreshAt = item.refreshAt.ToString()
-                                };
+                            BankTransactionMV nuevo = new BankTransactionMV
+                            {
+                                id = item.id,
+                                transactionId = item.transactionId,
+                                description = item.description,
+                                amountD = item.amount > 0 ? item.amount.ToString("C2") : "",
+                                amountR = item.amount < 0 ? item.amount.ToString("C2") : "",
+                                currency = item.currency,
+                                transactionAt = item.transactionAt.ToShortDateString(),
+                                balance = balanceA.ToString("C2"),
+                                bankAccountName = item.bankAccountName + " " + item.number.PadLeft(10, pad),
+                                number = item.number.PadLeft(10, pad),
+                                bankName = item.bankName,
+                                refreshAt = item.refreshAt.ToString()
+                            };
 
                             list.Add(nuevo);
                         }
@@ -718,7 +721,7 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 list = _bankAccountService.FindBy(x => x.bankCredential.id == credentialId)
-                    .Select(x => new SelectListItem() { Text = x.name + " "+ x.number.PadLeft(10, pad), Value = x.id.ToString() }).ToList();
+                    .Select(x => new SelectListItem() { Text = x.name + " " + x.number.PadLeft(10, pad), Value = x.id.ToString() }).ToList();
                 list.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
             }
             catch (Exception ex)
