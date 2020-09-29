@@ -176,16 +176,14 @@ namespace MVC_Project.WebBackend.Controllers
 
         public ActionResult Create()
         {
+            ViewBag.Date = DateTime.Now.ToString("dd-MM-yyyy");
+
             AllianceViewModel model = new AllianceViewModel();
             try
             {
                 var list = _allyService.GetAll();
                 var allyList = list.Select(x => new SelectListItem() { Text = x.name, Value = x.id.ToString() }).ToList();
-                //allyList.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
                 model.allyList = new SelectList(allyList);
-
-                //model.allyMultList = new MultiSelectList(list, "id", "name");
-                //model.allyId = new[];
             }
             catch (Exception ex)
             {
@@ -254,7 +252,7 @@ namespace MVC_Project.WebBackend.Controllers
                     alliance.initialDate = model.finalDate;
                 }
 
-                _allianceService.Create(alliance);
+                _allianceService.CreateAlliance(alliance, ally);
 
                 LogUtil.AddEntry(
                    "Se creo la alianza con id: " + alliance.id,
@@ -274,7 +272,6 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 var list = _allyService.GetAll();
                 var allyList = list.Select(x => new SelectListItem() { Text = x.name, Value = x.id.ToString() }).ToList();
-                //allyList.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
                 model.allyList = new SelectList(allyList);
 
                 LogUtil.AddEntry(
@@ -321,6 +318,154 @@ namespace MVC_Project.WebBackend.Controllers
                 promotionCode = code,
                 error = error
             }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult Edit(string uuid)
+        {
+            ViewBag.Date = DateTime.Now.ToString("dd-MM-yyyy");
+
+            try
+            {
+                var userAuth = Authenticator.AuthenticatedUser;
+
+                var alliance = _allianceService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
+                if (alliance == null)
+                    throw new Exception("El registro de Alianza no se encontró en la base de datos");
+
+                AllianceViewModel model = new AllianceViewModel()
+                {
+                    id = alliance.id,
+                    uuid = alliance.uuid,
+                    name = alliance.name,
+                    allyId = alliance.ally.id,
+                    allyCommisionPercent = Math.Round(alliance.allyCommisionPercent, 2),
+                    customerDiscountPercent = Math.Round(alliance.customerDiscountPercent, 2),
+                    promotionCode = alliance.promotionCode,
+                    applyPeriod = alliance.applyPeriod,
+                    initialPeriod = alliance.initialPeriod,
+                    finalPeriod = alliance.finalPeriod,
+                    finalAllyCommisionPercent = Math.Round(alliance.finalAllyCommisionPercent, 2),
+                    allianceValidity = alliance.allianceValidity,
+                    finalDate = alliance.finalDate.Value
+                };
+
+                var list = _allyService.GetAll();
+                var allyList = list.Select(x => new SelectListItem() { Text = x.name, Value = x.id.ToString() }).ToList();
+                model.allyList = new SelectList(allyList);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpPost]
+        public ActionResult Edit(AllianceViewModel model)
+        {
+            var userAuth = Authenticator.AuthenticatedUser;
+            var allianceData = _allianceService.FirstOrDefault(x => x.id == model.id);
+            try
+            {
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
+
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+
+                allianceData.name = model.name;
+                allianceData.allyCommisionPercent = model.allyCommisionPercent;
+                allianceData.customerDiscountPercent = model.customerDiscountPercent;
+                allianceData.promotionCode = model.promotionCode;
+                allianceData.allianceValidity = model.allianceValidity;
+                allianceData.applyPeriod = model.applyPeriod;
+                allianceData.modifiedAt = todayDate;
+
+                if (model.applyPeriod)
+                {
+                    allianceData.initialPeriod = model.initialPeriod;
+                    allianceData.finalPeriod = model.finalPeriod;
+                    allianceData.finalAllyCommisionPercent = model.finalAllyCommisionPercent;
+                }
+                else
+                {
+                    allianceData.initialPeriod = 0;
+                    allianceData.finalPeriod = 0;
+                    allianceData.finalAllyCommisionPercent = 0;
+                }
+
+                if (model.allianceValidity)
+                {
+                    allianceData.finalDate = model.finalDate;
+                    allianceData.initialDate = model.finalDate;
+                }
+                else
+                {
+                    allianceData.finalDate = null;
+                    allianceData.initialDate = null;
+                }
+
+                if (model.allyId != allianceData.ally.id)
+                {
+                    allianceData.ally = new Ally { id = model.allyId };
+                    var ally = _allyService.FirstOrDefault(x => x.id == model.allyId);
+
+                    if (ally != null)
+                    {
+                        var arrayS = model.promotionCode.Split('-');
+                        var numCons = ally.consecutive + 1;
+                        ally.consecutive = numCons;
+                        ally.modifiedAt = todayDate;
+
+                        if (arrayS.Count() != 3 || arrayS[2] != numCons.ToString())
+                        {
+                            arrayS[2] = numCons.ToString();
+                            model.promotionCode = string.Join("-", arrayS);
+                            ally.consecutive = numCons;
+                        }
+                    }
+                    _allianceService.UpdateAlliance(allianceData, ally);
+                }
+                else
+                {
+                    _allianceService.UpdateAlliance(allianceData, null);
+                }
+
+
+                LogUtil.AddEntry(
+                   "Se actualizo la alianza con id: " + allianceData.id,
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
+                MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                var list = _allyService.GetAll();
+                var allyList = list.Select(x => new SelectListItem() { Text = x.name, Value = x.id.ToString() }).ToList();
+                model.allyList = new SelectList(allyList);
+
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return View(model);
+            }
         }
         #endregion
 
@@ -497,6 +642,91 @@ namespace MVC_Project.WebBackend.Controllers
                 return View(model);
             }
         }
+        #endregion
+
+        #region Promociones (Descuentos)
+        //public ActionResult PromotionIndex()
+        //{
+        //    return View();
+        //}
+
+        //[HttpGet, AllowAnonymous]
+        //public JsonResult GetPromotions(JQueryDataTableParams param, string filtros)
+        //{
+        //    var userAuth = Authenticator.AuthenticatedUser;
+        //    int totalDisplay = 0;
+        //    int total = 0;
+        //    var listResponse = new List<AlliesList>();
+        //    var list = new List<AlliesListVM>();
+        //    string error = string.Empty;
+        //    bool success = true;
+
+        //    try
+        //    {
+        //        NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
+        //        string Name = filtersValues.Get("Name");
+
+        //        var pagination = new BasePagination();
+        //        pagination.PageSize = param.iDisplayLength;
+        //        pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
+
+        //        listResponse = _allyService.GetAlliesList(pagination, Name);
+
+        //        //Corroborar los campos iTotalRecords y iTotalDisplayRecords
+        //        if (listResponse.Count() > 0)
+        //        {
+        //            totalDisplay = listResponse[0].Total;
+        //            total = listResponse.Count();
+
+        //            list = listResponse.Select(x => new AlliesListVM
+        //            {
+        //                id = x.id,
+        //                uuid = x.uuid,
+        //                name = x.name,
+        //                createdAt = x.createdAt.ToShortDateString(),
+        //                modifiedAt = x.createdAt.ToShortDateString(),
+        //                status = x.status
+        //            }).ToList();
+        //        }
+
+        //        LogUtil.AddEntry(
+        //           "Lista de Aliados total: " + totalDisplay + ", totalDisplay: " + total,
+        //           ENivelLog.Info,
+        //           userAuth.Id,
+        //           userAuth.Email,
+        //           EOperacionLog.ACCESS,
+        //           string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+        //           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+        //           string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+        //        );
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        error = ex.Message.ToString();
+        //        success = false;
+
+        //        LogUtil.AddEntry(
+        //           "Se encontro un error: " + ex.Message.ToString(),
+        //           ENivelLog.Error,
+        //           userAuth.Id,
+        //           userAuth.Email,
+        //           EOperacionLog.ACCESS,
+        //           string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+        //           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+        //           string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+        //        );
+        //    }
+
+        //    return Json(new
+        //    {
+        //        success = success,
+        //        error = error,
+        //        sEcho = param.sEcho,
+        //        iTotalRecords = total,
+        //        iTotalDisplayRecords = totalDisplay,
+        //        aaData = list
+        //    }, JsonRequestBehavior.AllowGet);
+        //}
         #endregion
     }
 }

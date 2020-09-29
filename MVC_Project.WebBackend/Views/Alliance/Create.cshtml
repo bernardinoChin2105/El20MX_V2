@@ -120,7 +120,7 @@
                             </div>
                             <div class="form-group row pull-right">
                                 <div class="col-md-10 offset-2 text-right">
-                                    <a href='@Url.Action("AllyIndex", "Alliance")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
+                                    <a href='@Url.Action("Index", "Alliance")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
                                     <button type="button" onclick="validarDatos()" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
                                 </div>
                             </div>
@@ -133,8 +133,6 @@
 </div>
 
 @section Scripts {
-    @*@Scripts.Render("~/plugins/validate")
-    @Scripts.Render("~/plugins/toastr")*@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
     <!-- Data picker -->    
     <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.js"></script>
@@ -152,8 +150,7 @@
         $(document).ready(function () {
             $('.chosen-select').chosen({ width: '100%', "disable_search": true });
             $('.porcert').mask("##0.00", { reverse: true });
-
-            //$.datepicker.setDefaults($.datepicker.regional['es']);
+            
             var mem = $('#data_1 .input-group.date').datepicker({
                 //dateFormat: "yy-mm-dd"
                 keyboardNavigation: false,
@@ -162,7 +159,7 @@
                 calendarWeeks: true,
                 autoclose: true,
                 format: "dd/mm/yyyy",
-                startDate: "25/09/2020",
+                startDate: '@Html.Raw(Json.Encode(ViewBag.Date))',
                 language: "es"
             });
 
@@ -190,7 +187,7 @@
                 var finalDate = $("#finalDate");
                 finalDate.prop("disabled", !this.checked);
 
-                if (this.checked) {                    
+                if (!this.checked) {                    
                     finalDate.val("");
                 } 
             });   

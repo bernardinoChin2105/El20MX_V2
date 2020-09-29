@@ -13,6 +13,7 @@ namespace MVC_Project.Domain.Services
     {
         List<AllianceList> GetAlliancesList(BasePagination pagination, string name, string allyName);
         Alliance CreateAlliance(Alliance alliance, Ally ally);
+        Alliance UpdateAlliance(Alliance alliance, Ally ally = null);
     }
 
     public class AllianceService : ServiceBase<Alliance>, IAllianceService
@@ -48,7 +49,27 @@ namespace MVC_Project.Domain.Services
 
                     _repository.Session.Update(ally);
 
-                    //faltan las características
+                    transaction.Commit();
+                    return alliance;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
+                }
+            }
+        }
+
+        public Alliance UpdateAlliance(Alliance alliance, Ally ally = null)
+        {
+            using (var transaction = _repository.Session.BeginTransaction())
+            {
+                try
+                {
+                    _repository.Session.Update(alliance);
+
+                    if(ally != null)
+                        _repository.Session.Update(ally);
 
                     transaction.Commit();
                     return alliance;
