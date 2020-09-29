@@ -333,8 +333,8 @@ namespace MVC_Project.WebBackend.Controllers
                                     {
                                         Id = x.id,
                                         Label = x.name,
-                                        ChargeId = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).id : 0,
-                                        Value = planChargeConfig.Count() > 0 ? Convert.ToDecimal(planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).charge.ToString("0.##")) : 0
+                                        ChargeId = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id) != null? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).id : 0 : 0,
+                                        Value = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id) != null? Convert.ToDecimal(planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).charge.ToString("0.##")) : 0 : 0
                                     }).ToList();
 
                 model.LabelFeatures = _planFeatureService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
@@ -346,9 +346,9 @@ namespace MVC_Project.WebBackend.Controllers
                                        operation = x.operation,
                                        dataType = (x.dataType == "System.Int32" ? "number" : "text"),
                                        providerData = x.providerData,
-                                       AssignmentId = planFeatureConfig.Count() > 0 ? planFeatureConfig.FirstOrDefault(y => y.planFeature.id == x.id).id : 0,
-                                       Value1 = planFeatureConfig.Count() > 0 ? planFeatureConfig.FirstOrDefault(y => y.planFeature.id == x.id).value1 : "",
-                                       Value2 = planFeatureConfig.Count() > 0 ? planFeatureConfig.FirstOrDefault(y => y.planFeature.id == x.id).value2 : "",
+                                       AssignmentId = planFeatureConfig.Count() > 0 ? planFeatureConfig.FirstOrDefault(y => y.planFeature.id == x.id) != null? planFeatureConfig.FirstOrDefault(y => y.planFeature.id == x.id).id : 0 : 0,
+                                       Value1 = planFeatureConfig.Count() > 0 ? planFeatureConfig.FirstOrDefault(y => y.planFeature.id == x.id) != null? planFeatureConfig.FirstOrDefault(y => y.planFeature.id == x.id).value1 : "" : "",
+                                       Value2 = planFeatureConfig.Count() > 0 ? planFeatureConfig.FirstOrDefault(y => y.planFeature.id == x.id) != null? planFeatureConfig.FirstOrDefault(y => y.planFeature.id == x.id).value2 : "": "",
                                    }).ToList();
 
                 model.LabelAssignment = _planAssignmentsService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
@@ -360,9 +360,9 @@ namespace MVC_Project.WebBackend.Controllers
                                         operation = x.operation,
                                         dataType = (x.dataType == "System.Int32" ? "number" : "text"),
                                         providerData = x.providerData,
-                                        AssignmentId = planAssigConfig.Count() > 0 ? planAssigConfig.FirstOrDefault(y => y.planAssignment.id == x.id).id : 0,
-                                        Value1 = planAssigConfig.Count() > 0 ? planAssigConfig.FirstOrDefault(y => y.planAssignment.id == x.id).value1 : "",
-                                        Value2 = planAssigConfig.Count() > 0 ? planAssigConfig.FirstOrDefault(y => y.planAssignment.id == x.id).value2 : "",
+                                        AssignmentId = planAssigConfig.Count() > 0 ? planAssigConfig.FirstOrDefault(y => y.planAssignment.id == x.id) != null ? planAssigConfig.FirstOrDefault(y => y.planAssignment.id == x.id).id : 0 : 0,
+                                        Value1 = planAssigConfig.Count() > 0 ? planAssigConfig.FirstOrDefault(y => y.planAssignment.id == x.id) != null ? planAssigConfig.FirstOrDefault(y => y.planAssignment.id == x.id).value1 : "" : "",
+                                        Value2 = planAssigConfig.Count() > 0 ? planAssigConfig.FirstOrDefault(y => y.planAssignment.id == x.id) != null ? planAssigConfig.FirstOrDefault(y => y.planAssignment.id == x.id).value2 : "" : "",
                                     }).ToList();
                 //Faltan las características
 
