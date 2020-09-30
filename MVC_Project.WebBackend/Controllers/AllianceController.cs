@@ -645,10 +645,10 @@ namespace MVC_Project.WebBackend.Controllers
         #endregion
 
         #region Promociones (Descuentos)
-        //public ActionResult PromotionIndex()
-        //{
-        //    return View();
-        //}
+        public ActionResult PromotionIndex()
+        {
+            return View();
+        }
 
         //[HttpGet, AllowAnonymous]
         //public JsonResult GetPromotions(JQueryDataTableParams param, string filtros)

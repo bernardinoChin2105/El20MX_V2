@@ -136,6 +136,8 @@ namespace MVC_Project.WebBackend
                      "~/Scripts/views/Plan/Index.js"));
             bundles.Add(new ScriptBundle("~/views/allianceIndex").Include(
                      "~/Scripts/views/Alliance/Index.js"));
+            bundles.Add(new ScriptBundle("~/views/promotionIndex").Include(
+                     "~/Scripts/views/Alliance/PromotionIndex.js"));
 
             // toastr notification
             bundles.Add(new ScriptBundle("~/plugins/toastr").Include(
