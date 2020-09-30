@@ -246,6 +246,7 @@ namespace MVC_Project.Integrations.SAT
         public Receptor Receptor { get; set; }
         public string Xml { get; set; }
         public string id { get; set; }
+        public string urlXml { get; set; }
     }
 
     public class Emisor

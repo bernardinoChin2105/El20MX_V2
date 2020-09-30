@@ -29,7 +29,7 @@ namespace MVC_Project.API.Controllers.V1 {
         [HttpGet]
         [Route("{id}")]
         public User Get(int id) {
-            throw new NotImplementedException();
+            return new User { id = 1, name = "Test" };
         }
 
         // POST: api/Users

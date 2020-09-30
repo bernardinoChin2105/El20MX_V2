@@ -10,6 +10,7 @@ using MVC_Project.WebBackend.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -41,18 +42,6 @@ namespace MVC_Project.WebBackend.Controllers
             if (authUser == null)
             {
                 ViewBag.Error = "Sesion del usuario inválida";
-
-                LogUtil.AddEntry(
-                  "Inicio en Account: " + ViewBag.Error,
-                  ENivelLog.Warn,
-                  0,
-                  "",
-                  EOperacionLog.ACCESS,
-                  string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
-                  ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                  string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
-                );
-
                 return RedirectToAction("Index", "Auth");
             }
             
@@ -63,94 +52,100 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult SelectAccount()
         {
             var authUser = Authenticator.AuthenticatedUser;
-            var accountViewModel = new AccountSelectViewModel { accountListViewModels = new List<AccountListViewModel>() };
-            var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
-            if (memberships.Any())
+            if (authUser.isBackOffice)
             {
-                accountViewModel.accountListViewModels = memberships.Select(x => new AccountListViewModel
+                var accounts = _accountService.GetAll();
+                var accountViewModel = new AccountSelectViewModel { accountListItems = new List<SelectListItem>() };
+                accountViewModel.accountListItems = accounts.Select(x => new SelectListItem
                 {
-                    uuid = x.account.uuid,
-                    name = x.account.name,
-                    rfc = x.account.rfc,
-                    role = x.role.name,
-                    accountId = x.account.id,
-                    imagen = x.account.avatar
+                    Text = x.name + " ( " + x.rfc + " )",
+                    Value = x.uuid.ToString()
                 }).ToList();
-
-                #region Obtener información de la credencial para saber si esta ya activo
-                ValidarSat(accountViewModel);
-                #endregion
+                return PartialView("_SelectAccountBackOfficeModal", accountViewModel);
             }
-            accountViewModel.count = accountViewModel.accountListViewModels.Count;
+            else
+            {
+                var accountViewModel = new AccountSelectViewModel { accountListViewModels = new List<AccountListViewModel>() };
+                var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
+                if (memberships.Any())
+                {
+                    accountViewModel.accountListViewModels = memberships.Select(x => new AccountListViewModel
+                    {
+                        uuid = x.account.uuid,
+                        name = x.account.name,
+                        rfc = x.account.rfc,
+                        role = x.role.name,
+                        accountId = x.account.id,
+                        imagen = x.account.avatar
+                    }).ToList();
 
-            LogUtil.AddEntry(
-               "SelectAccount Account total de cuentas: " + accountViewModel.count,
-               ENivelLog.Info,
-               authUser.Id,
-               authUser.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-            );
+                    #region Obtener información de la credencial para saber si esta ya activo
+                    ValidarSat(accountViewModel);
+                    #endregion
+                }
+                accountViewModel.count = accountViewModel.accountListViewModels.Count;
 
-            return PartialView("_SelectAccountModal", accountViewModel);
+                return PartialView("_SelectAccountModal", accountViewModel);
+            }
         }
 
         [AllowAnonymous]
-        public ActionResult SetAccount(Guid uuid)
+        public ActionResult SetAccount(Guid? uuid)
         {
             var authUser = Authenticator.AuthenticatedUser;
-            var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
-
-            if (account != null)
+            if (authUser.isBackOffice)
             {
-                var membership = _membership.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
-
-                if (membership != null)
+                if (!uuid.HasValue)
                 {
-                    var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
-                    {
-                        //Action = p.permission.action,
-                        Controller = p.permission.controller,
-                        Module = p.permission.module,
-                        Level = p.level,
-                        isCustomizable = p.permission.isCustomizable
-                    }).ToList();
-
-                    authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
-                    authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
-                    authUser.Permissions = permissions;
-
+                    authUser.Account = null;
                     Authenticator.RefreshAuthenticatedUser(authUser);
+                }
+                else
+                {
+                    var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
+                    authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
+                    Authenticator.RefreshAuthenticatedUser(authUser);
+                }
+                var inicio = authUser.Permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+                return RedirectToAction("Index", inicio.Controller);
+            }
+            else
+            {
+                var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
 
-                    LogUtil.AddEntry(
-                       "Obtener cuenta y permisos: " + uuid,
-                       ENivelLog.Info,
-                       authUser.Id,
-                       authUser.Email,
-                       EOperacionLog.ACCESS,
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                    );
-                    var inicio = permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
-                    return RedirectToAction("Index", inicio.Controller);
+                if (account != null)
+                {
+                    var membership = _membership.FindBy(x => x.account.id == account.id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
+
+                    if (membership != null)
+                    {
+                        var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
+                        {
+                            Controller = p.permission.controller,
+                            Module = p.permission.module,
+                            Level = p.level,
+                            isCustomizable = p.permission.isCustomizable
+                        }).ToList();
+
+                        authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
+                        authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
+                        authUser.Permissions = permissions;
+
+                        Authenticator.RefreshAuthenticatedUser(authUser);
+
+                        LogUtil.AddEntry("Acceso a la cuenta: " + account.rfc, ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                        );
+                        var inicio = permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+                        return RedirectToAction("Index", inicio.Controller);
+                    }
                 }
             }
 
-            LogUtil.AddEntry(
-               "No se encontro cuenta: " + uuid,
-               ENivelLog.Warn,
-               authUser.Id,
-               authUser.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-            );
-
-            return RedirectToAction("Login", "Auth");
+            MensajeFlashHandler.RegistrarMensaje("No es posible acceder a la cuenta", TiposMensaje.Warning);
+            return RedirectToAction("Index", "Account");
         }
 
         private void SetMembership(Domain.Entities.Membership membership)
@@ -179,19 +174,16 @@ namespace MVC_Project.WebBackend.Controllers
             var authUser = Authenticator.AuthenticatedUser;
             try
             {
+                var provider = ConfigurationManager.AppSettings["SATProvider"];
                 //Realizar la captura de la información
                 //Validar que no se repita el rfc
                 var accountExist = _accountService.ValidateRFC(model.RFC);
 
                 if (accountExist != null)
                     throw new Exception("Existe una cuenta registrada con este RFC.");
-                var loginSat = new LogInSATModel { rfc = model.RFC, password = model.CIEC, type = "ciec" };
-                var satModel = SATwsService.CreateCredentialSat(loginSat);
-                //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
-                //var responseSat = SATws.CallServiceSATws("credentials", loginSat, "Post");
-
-                //var satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
-
+                var loginSat = new CredentialRequest { rfc = model.RFC, ciec = model.CIEC };
+                var satModel = SATService.CreateCredential(loginSat, provider);
+                
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
                 //vamos a crear el account y memberships. Pendiente a que me confirme William los memberships
@@ -234,10 +226,10 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                 {
-                    //Action = p.permission.action,
                     Controller = p.permission.controller,
                     Module = p.permission.module,
-                    Level = p.level
+                    Level = p.level,
+                    isCustomizable = p.permission.isCustomizable
                 }).ToList();
 
                 authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
@@ -245,9 +237,9 @@ namespace MVC_Project.WebBackend.Controllers
                 authUser.Permissions = permissions;
 
                 Authenticator.RefreshAuthenticatedUser(authUser);
-                MensajeFlashHandler.RegistrarMensaje("Cuenta registrada correctamente", TiposMensaje.Success);
+                MensajeFlashHandler.RegistrarMensaje("RFC " + account.rfc + " registrado correctamente", TiposMensaje.Success);
                 LogUtil.AddEntry(
-                   "Cuenta registrada correctamente",
+                   "RFC " + account.rfc + " registrado correctamente",
                    ENivelLog.Info,
                    authUser.Id,
                    authUser.Email,

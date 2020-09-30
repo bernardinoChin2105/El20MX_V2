@@ -10,6 +10,79 @@ namespace MVC_Project.Integrations.SAT
 {
     public class SATwsService
     {
+        public static void GenerateExtractions(string RFC, DateTime DateOnStart, DateTime DateOnEnd)
+        {
+            TaxpayerInfo taxpayer = new TaxpayerInfo();
+
+            //Realiza la solicitud de extracción
+            ExtractionsFilter filter = new ExtractionsFilter()
+            {
+                taxpayer = "/taxpayers/" + RFC,
+                extractor = "invoice",
+                periodFrom = DateOnStart.ToString("s") + "Z",
+                periodTo = DateOnEnd.ToString("s") + "Z"
+            };
+
+            SATws.CallServiceSATws("extractions", filter, "Post");
+        }
+
+        public static InvoicesModel GetInvoicesByExtractions(string rfc, string from, string to)
+        {
+            List<CustomersInfo> customers = new List<CustomersInfo>();
+            List<ProvidersInfo> providers = new List<ProvidersInfo>();
+            List<InvoicesInfo> modelInvoices = new List<InvoicesInfo>();
+            TaxpayerInfo taxpayer = new TaxpayerInfo();
+            try
+            {
+                //Se realiza la búsqueda de los cfdis
+                string url = "/taxpayers/" + rfc + "/invoices?issuedAt[after]=" + from + "&issuedAt[before]=" + to;
+                var responseInvoices = SATws.CallServiceSATws(url, null, "Get");
+                modelInvoices = JsonConvert.DeserializeObject<List<InvoicesInfo>>(responseInvoices);
+                
+
+                //Estamos buscando mis clientes
+                customers = modelInvoices.Where(x => x.issuer.rfc == rfc)
+                    .Select(x => new CustomersInfo
+                    {
+                        idInvoice = x.id,
+                        rfc = x.receiver.rfc,
+                        businessName = x.receiver.name,
+                        tax = (x.tax != null ? x.tax.Value : 0)
+                        //regime = x.
+                    }).ToList();
+
+                //Estamos buscando mis proveedores
+                providers = modelInvoices.Where(x => x.receiver.rfc == rfc)
+                    .Select(x => new ProvidersInfo
+                    {
+                        idInvoice = x.id,
+                        zipCode = x.placeOfIssue,
+                        businessName = x.issuer.name,
+                        rfc = x.issuer.rfc,
+                        tax = (x.tax != null ? x.tax.Value : 0)
+                    }).ToList();
+
+                return new InvoicesModel
+                {
+                    Success = true,
+                    Invoices = modelInvoices,
+                    Providers = providers,
+                    Customers = customers
+                };
+            }
+            catch (Exception ex)
+            {
+                return new InvoicesModel
+                {
+                    Success = false,
+                    Message = ex.Message.ToString(),
+                    Invoices = modelInvoices,
+                    Providers = providers,
+                    Customers = customers
+                };
+            }
+        }
+
         /*
          * Realiza la extracción por el rfc y obtiene información de los CFDIs
          */
@@ -125,8 +198,7 @@ namespace MVC_Project.Integrations.SAT
         public static SatAuthResponseModel CreateCredentialSat(LogInSATModel model)
         {
             SatAuthResponseModel satModel = new SatAuthResponseModel();
-            try
-            {
+
                 string url = "/credentials";                
                 
                 //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
@@ -134,16 +206,7 @@ namespace MVC_Project.Integrations.SAT
 
                 satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
                 
-                //return new InvoicesModel
-                //{
-                //    Success = true,
-                //    TaxStatus = taxStatus
-                //};
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message.ToString());
-            }
+                
             return satModel;
         }
 
@@ -180,11 +243,10 @@ namespace MVC_Project.Integrations.SAT
                         var responsecfdi = SATws.CallServiceSATws(url, null, "get");
                         try
                         {
-                            //var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(responsecfdi);
                             var model = JsonConvert.DeserializeObject<InvoicesCFDI>(responsecfdi);
 
                             var responseXML = SATws.CallServiceSATws(url, null, "get", SATwsEnumsAccept.textxml.GetDescription());
-                            var xml = responseXML;//JsonConvert.DeserializeObject<string>(responseXML);
+                            var xml = responseXML;
                             model.Xml = xml;
                             model.id = id;
 

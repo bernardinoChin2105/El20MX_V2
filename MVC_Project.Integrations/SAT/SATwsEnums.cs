@@ -25,13 +25,10 @@ namespace MVC_Project.Integrations.SAT
 
     public enum SATwsEnumsAccept
     {
-        //[Display(Name = "Persona Física")]
         [Description("text/xml")]
         textxml,
-        //[Display(Name = "Persona Física")]
         [Description("application/pdf")]
         applicationpdf,
-        //[Display(Name = "Persona Física")]
         [Description("application/json")]
         applicationjson
     }

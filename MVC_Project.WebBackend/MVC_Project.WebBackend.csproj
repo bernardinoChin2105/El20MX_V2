@@ -253,6 +253,7 @@
     <Compile Include="AuthManagement\AuthorizeUsersAttribute.cs" />
     <Compile Include="AuthManagement\Models\AuthUser.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\AllianceController.cs" />
     <Compile Include="Controllers\AuthController.cs" />
     <Compile Include="Controllers\BankController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
@@ -261,6 +262,8 @@
     <Compile Include="Controllers\DocumentsController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\PaymentsController.cs" />
+    <Compile Include="Controllers\PlanController.cs" />
     <Compile Include="Controllers\ProviderController.cs" />
     <Compile Include="Controllers\RegisterController.cs" />
     <Compile Include="Controllers\RoleController.cs" />
@@ -275,10 +278,13 @@
     </Compile>
     <Compile Include="Helpers\HTMLHelperExtensions.cs" />
     <Compile Include="Models\AccountViewModel.cs" />
+    <Compile Include="Models\AllianceViewModel.cs" />
     <Compile Include="Models\AuthViewModel.cs" />
     <Compile Include="Models\BankViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
+    <Compile Include="Models\PlanViewModel.cs" />
     <Compile Include="Models\InvoicesVM.cs" />
+    <Compile Include="Models\ProductVM.cs" />
     <Compile Include="Models\ProviderViewModel.cs" />
     <Compile Include="Models\CustomerViewModel.cs" />
     <Compile Include="Models\DataTableModel.cs" />
@@ -293,6 +299,7 @@
     <Compile Include="Models\ReportOrdersViewModel.cs" />
     <Compile Include="Models\RoleViewModel.cs" />
     <Compile Include="Models\RolPermission.cs" />
+    <Compile Include="Models\SatwsResponse.cs" />
     <Compile Include="Models\UserPermissionViewModel.cs" />
     <Compile Include="Models\UserProfile.cs" />
     <Compile Include="Models\UserViewModel.cs" />
@@ -1801,11 +1808,14 @@
     <Content Include="Scripts\popper.min.js" />
     <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
+    <Content Include="Scripts\views\Alliance\Index.js" />
+    <Content Include="Scripts\views\Ally\Index.js" />
     <Content Include="Scripts\views\Auth\Index.js" />
     <Content Include="Scripts\views\Customer\CustomerInvoices.js" />
     <Content Include="Scripts\views\Bank\BankTransaction.js" />
     <Content Include="Scripts\views\Bank\BankAccount.js" />
     <Content Include="Scripts\views\Bank\Index.js" />
+    <Content Include="Scripts\views\Plan\Index.js" />
     <Content Include="Scripts\views\Provider\Create.js" />
     <Content Include="Scripts\views\Provider\ProviderInvoices.js" />
     <Content Include="Scripts\views\Provider\Edit.js" />
@@ -1938,6 +1948,15 @@
     <Content Include="Views\Provider\InvoicesReceived.cshtml" />
     <Content Include="Views\Provider\InvoiceDownloadPDF.cshtml" />
     <Content Include="Views\Customer\InvoiceDownloadPDF.cshtml" />
+    <Content Include="Views\Account\_SelectAccountBackOfficeModal.cshtml" />
+    <Content Include="Views\Plan\Index.cshtml" />
+    <Content Include="Views\Plan\Create.cshtml" />
+    <Content Include="Views\Plan\Edit.cshtml" />
+    <Content Include="Views\Alliance\Index.cshtml" />
+    <Content Include="Views\Alliance\AllyCreate.cshtml" />
+    <Content Include="Views\Alliance\AllyIndex.cshtml" />
+    <Content Include="Views\Alliance\AllyEdit.cshtml" />
+    <Content Include="Views\Alliance\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

@@ -21,7 +21,7 @@ namespace MVC_Project.WebBackend.Controllers
         {
             IStorageServiceProvider storageService = null;
 
-            if (model.StorageProvider == "azure") storageService = new AzureBlobService();
+            //if (model.StorageProvider == "azure") storageService = new AzureBlobService();
             if (model.StorageProvider == "aws") storageService = new AWSBlobService();
             if (storageService != null)
             {

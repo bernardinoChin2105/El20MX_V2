@@ -123,7 +123,7 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Folio")]
         public string Folio { get; set; }
 
-        [Display(Name = @"Nombre\Razón Social")]
+        [Display(Name = @"Nombre/Razón Social")]
         public string NombreRazonSocial { get; set; }
 
         [Display(Name = "RFC Cliente")]

@@ -17,7 +17,7 @@ namespace MVC_Project.Domain.Services
     public interface IUserService : IService<User>
     {
         Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, int? skip, int? take);
-        Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, Int64 accountId, int? skip, int? take);
+        Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, Int64? accountId, int? skip, int? take);
         User CreateUser(User user);
     }
 
@@ -62,7 +62,7 @@ namespace MVC_Project.Domain.Services
             return new Tuple<IEnumerable<User>, int>(list, count);
         }
 
-        public Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, Int64 accountId, int? skip, int? take)
+        public Tuple<IEnumerable<User>, int> FilterBy(NameValueCollection filtersValue, Int64? accountId, int? skip, int? take)
         {
             string FilterName = filtersValue.Get("Name").Trim();
             int FilterStatus = Convert.ToInt32(filtersValue.Get("Status").Trim());
@@ -73,9 +73,14 @@ namespace MVC_Project.Domain.Services
 
             var query = _repository.Session.QueryOver<User>()
                 .JoinAlias(x => x.profile, () => profileAlias)
-                .JoinAlias(x => x.memberships, () => membershipAlias)
-                .JoinAlias(() => membershipAlias.account, () => accountAlias)
-                .Where(() => accountAlias.id == accountId);
+                .JoinAlias(x => x.memberships, () => membershipAlias);
+
+            if (accountId.HasValue)
+                query = query
+                    .JoinAlias(() => membershipAlias.account, () => accountAlias)
+                    .Where(() => accountAlias.id == accountId);
+            else
+                query = query.Where(x => x.isBackOffice);//.WhereRestrictionOn(() => accountAlias.id).IsNull();// .Where(() => membershipAlias.account == null);
 
             if (!string.IsNullOrWhiteSpace(FilterName))
             {

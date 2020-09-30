@@ -91,16 +91,6 @@ namespace MVC_Project.WebBackend.Controllers
                     DateTime todayDate = DateUtil.GetDateTimeNow();
                     if (user.passwordExpiration.Value.Date < todayDate.Date)
                     {
-                        LogUtil.AddEntry(
-                          "Cambiar password, por vencimiento",
-                           ENivelLog.Info,
-                           authUser.Id,
-                           authUser.Email,
-                           EOperacionLog.ACCESS,
-                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                        );
                         return RedirectToAction("ChangePassword", "Auth", new { userUuid = user.uuid });
                     }
                     string daysBeforeExpireToNotifyConfig = ConfigurationManager.AppSettings["DaysBeforeExpireToNotify"];
@@ -115,13 +105,40 @@ namespace MVC_Project.WebBackend.Controllers
                         }
                     }
                 }
+                
+
                 var memberships = user.memberships.Where(x => x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
-                if (memberships.Count() <= 0)//Rol invitado
+
+                if (user.isBackOffice)
+                {
+                    var uniqueMembership = memberships.First();
+                    List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
+                    {
+                        Controller = p.permission.controller,
+                        Module = p.permission.module,
+                        Level = p.level,
+                        isCustomizable = p.permission.isCustomizable
+                    }).ToList();
+
+                    authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
+                    authUser.Permissions = permissionsUniqueMembership;
+                    
+                    Authenticator.StoreAuthenticatedUser(authUser);
+                    MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
+
+                    LogUtil.AddEntry("Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
+
+                    return RedirectToAction("Index", "Account");
+                }
+                else if (memberships.Count() <= 0)//Rol invitado
                 {
                     var guestRole = _roleService.FirstOrDefault(x => x.code == SystemRoles.LEAD.ToString());
                     List<Permission> permissionsGest = guestRole.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                     {
-                        //Action = p.permission.action,
                         Controller = p.permission.controller,
                         Module = p.permission.module,
                         Level = p.level,
@@ -133,12 +150,7 @@ namespace MVC_Project.WebBackend.Controllers
                     Authenticator.StoreAuthenticatedUser(authUser);
                     MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
 
-                    LogUtil.AddEntry(
-                      "Sesión iniciada",
-                       ENivelLog.Info,
-                       authUser.Id,
-                       authUser.Email,
-                       EOperacionLog.ACCESS,
+                    LogUtil.AddEntry( "Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
@@ -146,12 +158,11 @@ namespace MVC_Project.WebBackend.Controllers
 
                     return RedirectToAction("Index", "Account");
                 }
-                else if (memberships.Count() == 1)
+                else
                 {
                     var uniqueMembership = memberships.First();
                     List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                     {
-                        //Action = p.permission.action,
                         Controller = p.permission.controller,
                         Module = p.permission.module,
                         Level = p.level,
@@ -164,47 +175,45 @@ namespace MVC_Project.WebBackend.Controllers
                     Authenticator.StoreAuthenticatedUser(authUser);
                     MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
 
-                    LogUtil.AddEntry(
-                      "Sesión iniciada",
-                       ENivelLog.Info,
-                       authUser.Id,
-                       authUser.Email,
-                       EOperacionLog.ACCESS,
+                    LogUtil.AddEntry("Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                     );
-                    var inicio = permissionsUniqueMembership.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
-                    return RedirectToAction("Index", inicio.Controller);
-                }
-                else
-                {
-                    List<Permission> permissionsUser = new List<Permission>();
-                    permissionsUser.Add(new Permission
+                    
+                    if (memberships.Count() == 1)
                     {
-                        Action = "Index",
-                        Controller = "Account",
-                        Module = "Account",
-                        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
-                        isCustomizable = false
-                    });
-                    authUser.Permissions = permissionsUser;
-                    Authenticator.StoreAuthenticatedUser(authUser);
-                    MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
-
-                    LogUtil.AddEntry(
-                      "Sesión iniciada",
-                       ENivelLog.Info,
-                       authUser.Id,
-                       authUser.Email,
-                       EOperacionLog.ACCESS,
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                    );
-
-                    return RedirectToAction("Index", "Account");
+                        var inicio = permissionsUniqueMembership.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+                        return RedirectToAction("Index", inicio.Controller);
+                    }
+                    else
+                    {
+                        return RedirectToAction("Index", "Account");
+                    }
                 }
+                //else
+                //{
+                //    List<Permission> permissionsUser = new List<Permission>();
+                //    permissionsUser.Add(new Permission
+                //    {
+                //        Action = "Index",
+                //        Controller = "Account",
+                //        Module = "Account",
+                //        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                //        isCustomizable = false
+                //    });
+                //    authUser.Permissions = permissionsUser;
+                //    Authenticator.StoreAuthenticatedUser(authUser);
+                //    MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
+
+                //    LogUtil.AddEntry( "Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                //       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                //       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                //       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                //    );
+
+                //    return RedirectToAction("Index", "Account");
+                //}
                 //if (!string.IsNullOrEmpty(Request.Form["ReturnUrl"]))
                 //{
                 //    return Redirect(Request.Form["ReturnUrl"]);
@@ -213,17 +222,6 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-
-                LogUtil.AddEntry(
-                  "No se pudo iniciar sesión: " + ex.Message.ToString(),
-                  ENivelLog.Error,
-                  0,
-                  "",
-                  EOperacionLog.ACCESS,
-                  string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
-                  ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                  string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
-               );
             }
             return View(model);
         }
@@ -246,13 +244,23 @@ namespace MVC_Project.WebBackend.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(new
-                {
-                    success = false,
-                    issue = model,
-                    errors = ModelState.Keys.Where(k => ModelState[k].Errors.Count > 0)
-                    .Select(k => new { propertyName = k, errorMessage = ModelState[k].Errors[0].ErrorMessage })
-                });
+                //return Json(new
+                //{
+                //    success = false,
+                //    issue = model,
+                //    errors = ModelState.Keys.Where(k => ModelState[k].Errors.Count > 0)
+                //    .Select(k => new { propertyName = k, errorMessage = ModelState[k].Errors[0].ErrorMessage })
+                //});
+
+                var list = ModelState.Keys.Where(k => ModelState[k].Errors.Count > 0)
+                    .Select(k => ModelState[k].Errors[0].ErrorMessage);
+                string errors = string.Join(",", list);
+
+                //ModelState.AddModelError("Email", "No se encontró ninguna cuenta con el correo proporcionado. Verifique su información.");
+                MensajeFlashHandler.RegistrarMensaje("Error: "+errors, TiposMensaje.Error);
+
+                //return View("Login");
+                return RedirectToAction("Login", "Auth");
             }
             try
             {
@@ -275,49 +283,25 @@ namespace MVC_Project.WebBackend.Controllers
                     //MensajesFlash.MensajeFlashHandler.RegistrarMensaje(ImpuestoPredial.Resource.Recursos.OperacionExitosa);
                     ViewBag.Message = "Solicitud realizada";
 
-                    LogUtil.AddEntry(
-                      "Solicitud realizada para resetear el password",
-                       ENivelLog.Info,
-                       0,
-                       "",
-                       EOperacionLog.ACCESS,
+                    LogUtil.AddEntry("Cambio de contraseña", ENivelLog.Info, 0, "", EOperacionLog.UPDATE,
                        string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                        string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
                     );
 
-                    return View("Login");
-
+                    //return View("Login");
+                    return RedirectToAction("Login", "Auth");
                 }
             }
             catch (Exception ex)
             {
-                //ErrorController.SaveLogError(this, listAction.Update, "RecuperarContrasena", ex);
-                LogUtil.AddEntry(
-                  ex.Message.ToString(),
-                   ENivelLog.Error,
-                   0,
-                   "",
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
-                );
             }
 
             ModelState.AddModelError("Email", "No se encontró ninguna cuenta con el correo proporcionado. Verifique su información.");
             MensajeFlashHandler.RegistrarMensaje("No se encontró ninguna cuenta con el correo proporcionado. Verifique su información.", TiposMensaje.Error);
-            LogUtil.AddEntry(
-                  "No se encontró ninguna cuenta con el correo proporcionado.",
-                   ENivelLog.Error,
-                   0,
-                   "",
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
-                );
-            return View("Login");
+            
+            //return View("Login");
+            return RedirectToAction("Login", "Auth");
         }
 
         [HttpGet]
@@ -349,7 +333,7 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception("El token ha expirado");
 
                 ResetPassword model = new ResetPassword();
-                model.Uuid = user.uuid;               
+                model.Uuid = user.uuid;
 
                 return View("ResetPassword", model);
 
@@ -357,16 +341,6 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                LogUtil.AddEntry(
-                  ex.Message.ToString(),
-                   ENivelLog.Error,
-                   0,
-                   "",
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
-                );
                 return View("Login");
             }
         }
@@ -406,12 +380,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 MensajeFlashHandler.RegistrarMensaje("Contraseña actualizada", TiposMensaje.Success);
 
-                LogUtil.AddEntry(
-                   "Actualización: " + JsonConvert.SerializeObject(model),
-                   ENivelLog.Info,
-                   0,
-                   "",
-                   EOperacionLog.ACCESS,
+                LogUtil.AddEntry("Actualización: " + JsonConvert.SerializeObject(model), ENivelLog.Info, 0, "", EOperacionLog.UPDATE,
                    string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
@@ -422,17 +391,6 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                LogUtil.AddEntry(
-                   "Error: "+ ex.Message.ToString(),
-                   ENivelLog.Error,
-                   0,
-                   "",
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
-                );
-
                 MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
                 return View("ChangePassword", model);
             }
@@ -461,12 +419,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 MensajeFlashHandler.RegistrarMensaje("Contraseña actualizada", TiposMensaje.Success);
 
-                LogUtil.AddEntry(
-                   "Contraseña actualizada: " + JsonConvert.SerializeObject(model),
-                   ENivelLog.Info,
-                   0,
-                   "",
-                   EOperacionLog.ACCESS,
+                LogUtil.AddEntry("Contraseña actualizada: " + JsonConvert.SerializeObject(model), ENivelLog.Info, 0, "", EOperacionLog.UPDATE,
                    string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
@@ -478,17 +431,6 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                LogUtil.AddEntry(
-                   "Error: " + ex.Message.ToString(),
-                   ENivelLog.Error,
-                   0,
-                   "",
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
-                );
-
                 return View("ResetPassword", model);
             }
         }
@@ -498,16 +440,6 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult ChangeLanguage(string lang)
         {
             LanguageMngr.SetLanguage(lang);
-            LogUtil.AddEntry(
-                   "Cambio de lenguaje: " + lang,
-                   ENivelLog.Info,
-                   0,
-                   "",
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
-                );
             return RedirectToAction("Index", "Home");
         }
 
@@ -550,7 +482,6 @@ namespace MVC_Project.WebBackend.Controllers
                                     var guestRole = _roleService.FindBy(x => x.code == SystemRoles.LEAD.ToString()).FirstOrDefault();
                                     List<Permission> permissionsGest = guestRole.rolePermissions.Select(p => new Permission
                                     {
-                                        //Action = p.action,
                                         Controller = p.permission.controller,
                                         Module = p.permission.module,
                                         Level = p.level,
@@ -562,12 +493,11 @@ namespace MVC_Project.WebBackend.Controllers
                                     Authenticator.StoreAuthenticatedUser(authUser);
                                     url = "/Account/Index";
                                 }
-                                else if (memberships.Count() == 1)
+                                else
                                 {
                                     var uniqueMembership = memberships.First();
                                     List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Select(p => new Permission
                                     {
-                                        //Action = p.permission.action,
                                         Controller = p.permission.controller,
                                         Module = p.permission.module,
                                         Level = p.level,
@@ -576,27 +506,18 @@ namespace MVC_Project.WebBackend.Controllers
 
                                     authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
                                     authUser.Permissions = permissionsUniqueMembership;
-                                    authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid };
+                                    authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar, Id = uniqueMembership.account.id };
                                     Authenticator.StoreAuthenticatedUser(authUser);
-                                    url = "/Account/Index";
-                                }
-                                else
-                                {
-                                    List<Permission> permissionsUser = new List<Permission>();
-                                    permissionsUser.Add(new Permission
+                                    if (memberships.Count() == 1)
                                     {
-                                        Action = "Index",
-                                        Controller = "Account",
-                                        Module = "Account",
-                                        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
-                                        isCustomizable = false
-                                    });
-                                    authUser.Permissions = permissionsUser;
-                                    Authenticator.StoreAuthenticatedUser(authUser);
-                                    url = "/Account/Index";
-                                    //Manda a seleccionar cuenta
+                                        var inicio = permissionsUniqueMembership.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+                                        url = "/" + inicio.Controller + "/Index";
+                                    }
+                                    else
+                                    {
+                                        url = "/Account/Index";
+                                    }
                                 }
-
                             }
                             else
                             {
@@ -619,12 +540,7 @@ namespace MVC_Project.WebBackend.Controllers
                     Error = "El usuario no existe o contraseña inválida.";
                 }
 
-                LogUtil.AddEntry(
-                   "Validaci+on: "+Error + ", URL: "+url+", Existe: "+exist,
-                   ENivelLog.Info,
-                   0,
-                   "",
-                   EOperacionLog.ACCESS,
+                LogUtil.AddEntry( "Validación: "+Error + ", URL: "+url+", Existe: "+exist, ENivelLog.Info, 0, "", EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
@@ -640,20 +556,9 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
-                Error = ex.Message.ToString();
-                LogUtil.AddEntry(
-                   Error,
-                   ENivelLog.Error,
-                   0,
-                   "",
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
-                );
                 return new JsonResult
                 {
-                    Data = new { Mensaje = new { title = "Error", message = Error }, Success = false, Url = "" },
+                    Data = new { Mensaje = new { title = "Error", message = ex.Message }, Success = false, Url = "" },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                     MaxJsonLength = Int32.MaxValue
                 };
@@ -666,60 +571,30 @@ namespace MVC_Project.WebBackend.Controllers
         public AuthUser GetValidateUserLogin(Domain.Entities.User user)
         {
             AuthUser authUser = null;
-            try
+
+            user.lastLoginAt = DateTime.Now;
+            _userService.Update(user);
+
+            authUser = new AuthUser
             {
-                user.lastLoginAt = DateTime.Now;
-                _userService.Update(user);
+                Id = user.id,
+                FirstName = user.profile.firstName,
+                LastName = user.profile.lastName,
+                Email = user.name,
+                Language = user.profile.language,
+                Uuid = user.uuid,
+                PasswordExpiration = user.passwordExpiration,
+                Avatar = user.profile.avatar,
+                isBackOffice = user.isBackOffice
+            };
 
-                authUser = new AuthUser
-                {
-                    Id = user.id,
-                    FirstName = user.profile.firstName,
-                    LastName = user.profile.lastName,
-                    Email = user.name,
-                    Language = user.profile.language,
-                    Uuid = user.uuid,
-                    PasswordExpiration = user.passwordExpiration,
-                    Avatar = user.profile.avatar,
-                };
-
-                //Set user in sesion
-                //Authenticator.StoreAuthenticatedUser(authUser);
-
-                LogUtil.AddEntry(
-                   "Ingresa al Sistema",
-                   ENivelLog.Info,
-                   authUser.Id,
-                   authUser.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                );
-
-                //Set Language
-                LanguageMngr.SetDefaultLanguage();
-                if (!string.IsNullOrEmpty(authUser.Language))
-                {
-                    LanguageMngr.SetLanguage(authUser.Language);
-                }
-
-            }
-            catch (Exception Ex)
+            //Set Language
+            LanguageMngr.SetDefaultLanguage();
+            if (!string.IsNullOrEmpty(authUser.Language))
             {
-                string Error = Ex.Message.ToString();
-                LogUtil.AddEntry(
-                   Error+", usuario: "+authUser,
-                   ENivelLog.Error,
-                   0,
-                   "",
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
-                );
+                LanguageMngr.SetLanguage(authUser.Language);
             }
-
+            
             return authUser;
         }
 
@@ -738,17 +613,6 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 url = (String)(data.GetType().GetProperty("Url").GetValue(data, null));
             }
-
-            LogUtil.AddEntry(
-                   "Redireccionamiento: "+ url+", respuesta: "+JsonConvert.SerializeObject(response),
-                   ENivelLog.Info,
-                   0,
-                   "",
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
-                );
 
             return Redirect(url);
         }

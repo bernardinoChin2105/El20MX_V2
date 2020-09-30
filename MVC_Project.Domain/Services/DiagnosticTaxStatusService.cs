@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Services
 {
-    //public interface IDiagnosticTaxStatusService : IService<DiagnosticTaxStatus>
-    //{
-    //}
-    //public class DiagnosticTaxStatusService : ServiceBase<DiagnosticTaxStatus>, IDiagnosticTaxStatusService
-    //{
-    //    private IRepository<DiagnosticTaxStatus> _repository;
-    //    public DiagnosticTaxStatusService(IRepository<DiagnosticTaxStatus> baseRepository) : base(baseRepository)
-    //    {
-    //        _repository = baseRepository;
-    //    }
-    //}
+    public interface IDiagnosticTaxStatusService : IService<DiagnosticTaxStatus>
+    {
+    }
+    public class DiagnosticTaxStatusService : ServiceBase<DiagnosticTaxStatus>, IDiagnosticTaxStatusService
+    {
+        private IRepository<DiagnosticTaxStatus> _repository;
+        public DiagnosticTaxStatusService(IRepository<DiagnosticTaxStatus> baseRepository) : base(baseRepository)
+        {
+            _repository = baseRepository;
+        }
+    }
 }

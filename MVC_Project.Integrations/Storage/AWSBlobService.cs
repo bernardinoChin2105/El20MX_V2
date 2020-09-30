@@ -12,7 +12,11 @@ namespace MVC_Project.Integrations.Storage
 {
     public class AWSBlobService: IStorageServiceProvider
     {
-        
+        public MemoryStream DownloadFile(string containerName, string Url)
+        {
+            throw new NotImplementedException();
+        }
+
         public Tuple<string, string> UploadPublicFile(System.IO.Stream fileStream, string keyName, string bucketName, string folder ="")
         {
             try

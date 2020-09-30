@@ -8,16 +8,16 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Services
 {
-    //public interface IDiagnosticDetailService : IService<DiagnosticDetail>
-    //{
-    //}
+    public interface IDiagnosticDetailService : IService<DiagnosticDetail>
+    {
+    }
 
-    //public class DiagnosticDetailService : ServiceBase<DiagnosticDetail>, IDiagnosticDetailService
-    //{
-    //    private IRepository<DiagnosticDetail> _repository;
-    //    public DiagnosticDetailService(IRepository<DiagnosticDetail> baseRepository) : base(baseRepository)
-    //    {
-    //        _repository = baseRepository;
-    //    }
-    //}
+    public class DiagnosticDetailService : ServiceBase<DiagnosticDetail>, IDiagnosticDetailService
+    {
+        private IRepository<DiagnosticDetail> _repository;
+        public DiagnosticDetailService(IRepository<DiagnosticDetail> baseRepository) : base(baseRepository)
+        {
+            _repository = baseRepository;
+        }
+    }
 }

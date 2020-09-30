@@ -102,7 +102,7 @@
                                             text: data.Mensaje.Contenido
                                         })
                                     } else {
-                                        swal("Estatus cambiado!");
+                                        swal("Rol activado");
                                         self.dataTable.ajax.reload();
                                     }
                                 },
@@ -125,7 +125,7 @@
 
                 swal({
                     title: "Confirmación",
-                    text: "¿Desea inactivar el rol?",
+                    text: "¿Desea desactivar el rol?",
                     showCancelButton: true,
                     confirmButtonClass: "btn-danger",
                     confirmButtonText: "Aceptar",
@@ -148,7 +148,7 @@
                                             text: data.Mensaje.Contenido
                                         })
                                     } else {
-                                        swal("Estatus cambiado!");
+                                        swal("Rol desactivado");
                                         self.dataTable.ajax.reload();
                                     }
                                 },

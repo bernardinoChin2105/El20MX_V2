@@ -35,7 +35,7 @@ namespace MVC_Project.WebBackend.Controllers
             _userService = userService;
 
             AppKey = System.Configuration.ConfigurationManager.AppSettings["Payments.DefaultAppKey"];
-            
+
             TransferExpirationDays = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["Payments.TransferExpirationDays"]);
             UseSelective3DSecure = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["Payments.UseSelective3DSecure"]);
             GlobalClientId = System.Configuration.ConfigurationManager.AppSettings["Payments.OpenpayGeneralClientId"];
@@ -69,13 +69,13 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult CheckoutProceed(PaymentViewModel model)
         {
             //Esto puede hacerse dinamico
-            if (model.PaymentMethod == PaymentMethod.BANK_ACCOUNT)
+            if (model.PaymentMethod == Integrations.Payments.PaymentMethod.BANK_ACCOUNT)
             {
                 model.DueDate = DateUtil.GetDateTimeNow().AddDays(TransferExpirationDays);
                 return CreateSPEI(model);
                 //return View("CreateSPEI", model);
             }
-            if (model.PaymentMethod == PaymentMethod.CARD)
+            if (model.PaymentMethod == Integrations.Payments.PaymentMethod.CARD)
             {
                 //Setear variables del conector
                 PaymentApplication paymentApp = _paymentService.GetPaymentApplicationByKey(AppKey);
@@ -107,7 +107,7 @@ namespace MVC_Project.WebBackend.Controllers
                 Description = String.Format("Pago de orden {0}", model.OrderId),
             };
 
-            model.PaymentMethod = PaymentMethod.BANK_ACCOUNT;
+            model.PaymentMethod = Integrations.Payments.PaymentMethod.BANK_ACCOUNT;
             payment = paymentProviderService.CreateBankTransferPayment(payment);
             model.ChargeSuccess = payment.ChargeSuccess;
 
@@ -123,7 +123,7 @@ namespace MVC_Project.WebBackend.Controllers
                 paymentBO.ProviderId = payment.Id;
                 paymentBO.Status = payment.Status;
                 paymentBO.DueDate = payment.DueDate;
-                paymentBO.Method = PaymentMethod.BANK_ACCOUNT;
+                paymentBO.Method = Integrations.Payments.PaymentMethod.BANK_ACCOUNT;
                 paymentBO.TransactionType = PaymentType.CHARGE;
 
                 paymentBO.ConfirmationDate = null;
@@ -182,14 +182,14 @@ namespace MVC_Project.WebBackend.Controllers
             paymentBO.OrderId = model.OrderId;
             paymentBO.ConfirmationEmail = model.ConfirmationEmail;
             paymentBO.Status = PaymentStatus.IN_PROGRESS;
-            paymentBO.Method = PaymentMethod.CARD;
+            paymentBO.Method = Integrations.Payments.PaymentMethod.CARD;
             paymentBO.TransactionType = PaymentType.CHARGE;
 
             paymentBO.ConfirmationDate = null;
             _paymentService.Create(paymentBO);
 
             //Luego cobrar
-            model.PaymentMethod = PaymentMethod.CARD;
+            model.PaymentMethod = Integrations.Payments.PaymentMethod.CARD;
             payment = paymentProviderService.CreateTDCPayment(payment);
 
             //Si hubiera reintento, probar Antifraude
@@ -267,14 +267,14 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     PaymentViewModel resultData = new PaymentViewModel
                     {
-                        Id = Convert.ToString( payment.id ),
+                        Id = Convert.ToString(payment.id),
                         OrderId = payment.OrderId,
                         Amount = payment.Amount,
                         PaymentMethod = payment.Method,
                         ProviderId = payment.ProviderId,
                         Status = payment.Status,
                         CreationDate = payment.CreationDate.ToString(Constants.DATE_FORMAT_CALENDAR),
-                        ConfirmationDate = payment.ConfirmationDate.HasValue?payment.ConfirmationDate.Value.ToString(Constants.DATE_FORMAT_CALENDAR) :"",
+                        ConfirmationDate = payment.ConfirmationDate.HasValue ? payment.ConfirmationDate.Value.ToString(Constants.DATE_FORMAT_CALENDAR) : "",
                         User = payment.User.name
                     };
                     dataResponse.Add(resultData);
@@ -299,7 +299,7 @@ namespace MVC_Project.WebBackend.Controllers
                 };
             }
         }
-        
+
         [AllowAnonymous]
         [HttpPost]
         [ValidateInput(false)]
@@ -321,7 +321,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 if (!string.IsNullOrWhiteSpace(paymentEvent.type))
                 {
-                    System.Diagnostics.Trace.TraceInformation("\tTransaction: " + paymentEvent.transaction); 
+                    System.Diagnostics.Trace.TraceInformation("\tTransaction: " + paymentEvent.transaction);
                     if (paymentEvent.transaction != null)
                     {
                         System.Diagnostics.Trace.TraceInformation("\t\t Transaction Id: " + paymentEvent.transaction.id);
@@ -330,7 +330,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                         Payment paymentBO = _paymentService.GetByOrderId(paymentEvent.transaction.order_id);
                         User user = paymentBO.User;//_userService.GetById(payment.User.Id);
-                        
+
                         if (paymentBO != null)
                         {
                             System.Diagnostics.Trace.TraceInformation("\t\t Payment BO ID: " + paymentBO.id);
@@ -346,7 +346,7 @@ namespace MVC_Project.WebBackend.Controllers
                                 customParams.Add("param2", paymentEvent.transaction.order_id);
                                 customParams.Add("param3", paymentBO.AuthorizationCode);
                                 customParams.Add("param4", paymentEvent.transaction.id);
-                                customParams.Add("param5", paymentBO.ConfirmationDate.Value.ToString(Constants.DATE_FORMAT) );
+                                customParams.Add("param5", paymentBO.ConfirmationDate.Value.ToString(Constants.DATE_FORMAT));
                                 customParams.Add("param6", string.Format("{0:#.00}", paymentBO.Amount));
                                 customParams.Add("param7", paymentBO.Method);
                                 string confirmationEmail = !string.IsNullOrWhiteSpace(paymentBO.ConfirmationEmail) ? paymentBO.ConfirmationEmail : user.name;

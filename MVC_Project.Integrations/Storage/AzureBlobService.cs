@@ -11,27 +11,29 @@ using System.IO; // Namespace for Blob storage types
 
 namespace MVC_Project.Integrations.Storage
 {
-    public class AzureBlobService : IStorageServiceProvider
+    public class AzureBlobService
     {
 
-        public Tuple<string, string> UploadPublicFile(System.IO.Stream fileStream, string fileName, string containerName, string folder = "")
+        public static Tuple<string, string> UploadPublicFile(System.IO.Stream fileStream, string fileName, string containerName, string folder = "")
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
 
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
-            CloudBlobContainer container = blobClient.GetContainerReference(containerName.ToLower().Replace("_", "-")+"-public");
+            CloudBlobContainer container = blobClient.GetContainerReference(containerName);
             container.CreateIfNotExists(BlobContainerPublicAccessType.Blob);
 
             container.SetPermissions(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
-
-            string uuid = Guid.NewGuid().ToString();
-            string finalBlobName = folder + uuid.Substring(24) + "-" + fileName;// + Path.GetExtension(fileName);
+            
+            //CloudBlobDirectory directory = container.GetDirectoryReference(folder);
+            
+            //string uuid = Guid.NewGuid().ToString();
+            string finalBlobName = folder + "/" + fileName;
             CloudBlockBlob blockBlob = container.GetBlockBlobReference(finalBlobName);
-
+            
             blockBlob.UploadFromStream(fileStream);
 
-            return new Tuple<string, string>(blockBlob.StorageUri.PrimaryUri.ToString(), uuid);
+            return new Tuple<string, string>(blockBlob.StorageUri.PrimaryUri.ToString(), fileName);
         }
 
         public static Tuple<string, string> UploadFile(System.IO.Stream fileStream, string fileName, string containerName, string folder = "")
@@ -114,7 +116,7 @@ namespace MVC_Project.Integrations.Storage
             return fileSize;
         }
         
-        public static System.IO.Stream DownloadFile(string containerName, string Url)
+        public static MemoryStream DownloadFile(string containerName, string Url)
         {
             string SASToken = CloudConfigurationManager.GetSetting("StorageSASToken");
 
@@ -124,11 +126,10 @@ namespace MVC_Project.Integrations.Storage
 
             CloudBlobContainer container = blobClient.GetContainerReference(containerName);
             
-            CloudBlockBlob blockBlob = container.GetBlockBlobReference(Url + SASToken);
+            CloudBlockBlob blockBlob = container.GetBlockBlobReference(Url);
 
-            System.IO.Stream fileStream = new MemoryStream();
+            var fileStream = new MemoryStream();
             blockBlob.DownloadToStream(fileStream);
-
             return fileStream;
         }
     }

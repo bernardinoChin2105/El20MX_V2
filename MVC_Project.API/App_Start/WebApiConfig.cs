@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Formatting;
 using System.Web.Http;
 using System.Web.Http.Routing;
 
@@ -17,7 +18,7 @@ namespace MVC_Project.API
                 ConstraintMap = { ["apiVersion"] = typeof(ApiVersionRouteConstraint) }
             };
             config.AddApiVersioning();
-
+            config.EnableCors();
             // Web API routes
             config.MapHttpAttributeRoutes(constraintResolver);
 
@@ -28,6 +29,16 @@ namespace MVC_Project.API
             );
 
             config.Filters.Add(new ActionFilterHelper());
+            //config.Formatters.Add(new JsonMediaTypeFormatter());
+
+            config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new System.Net.Http.Headers.MediaTypeHeaderValue("application/ld+json"));
+
+            //var json = config.Formatters.JsonFormatter;
+            //json.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.None;
+
+            //config.Formatters.Remove(config.Formatters.XmlFormatter);
+
+
         }
     }
 }

@@ -22,6 +22,8 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
 
         public Account Account { get; set; }
 
+        public bool isBackOffice { get; set; }
+
         public bool HasAccessToModule(string module)
         {
             if (this.Permissions != null && this.Permissions.Count > 0)
@@ -62,6 +64,24 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
                 return per.Count() > 0 ? per.First<Permission>().Module : string.Empty;
             }
             return string.Empty;
+        }
+        public bool isBackOfficeConfiguration()
+        {
+            return this.isBackOffice && this.Account == null;
+        }
+
+        public Int64? GetAccountId()
+        {
+            if (this.isBackOffice)
+            {
+                return this.Account == null ? (Int64?)null : this.Account.Id;
+            }
+            else
+            {
+                if (this.Account == null)
+                    throw new Exception("El usuario no tiene asignado una cuenta");
+                return this.Account.Id;
+            }
         }
     }
 

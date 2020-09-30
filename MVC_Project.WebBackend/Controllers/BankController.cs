@@ -13,6 +13,7 @@ using System.Web.Mvc;
 using MVC_Project.Domain.Model;
 using Newtonsoft.Json;
 using System.Collections.Specialized;
+using MVC_Project.FlashMessages;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -38,68 +39,60 @@ namespace MVC_Project.WebBackend.Controllers
         [AllowAnonymous]
         public ActionResult Index()
         {
-            var authUser = Authenticator.AuthenticatedUser;
-
-            string token = (string)Session["token"];
-            string tokenUser = string.Empty;
-            if (token != null && token != "")
+            try
             {
-                try
+                var authUser = Authenticator.AuthenticatedUser;
+
+                string token = (string)Session["token"];
+
+                if (!string.IsNullOrEmpty(token) && PaybookService.GetVarifyToken(token))
                 {
-                    if (PaybookService.GetVarifyToken(token))
-                        tokenUser = token;
+                    ViewBag.paybookT = token;
                 }
-                catch (Exception ex)
+                else
                 {
-                    token = null;
-                }
+                    //Crear credencial el usuario de la cuenta rfc, si aun no ha sido creada
+                    var credential = _credentialService.FirstOrDefault(x => x.account.id == authUser.Account.Id && x.provider == SystemProviders.SYNCFY.GetDisplayName());
 
-                ViewBag.paybookT = tokenUser;
-            }
-
-            if (tokenUser == null || tokenUser == "")
-            {
-                #region Crear credencial el usuario de la cuenta rfc, si aun no ha sido creada
-                //Crear usuario si aun no ha sido creado
-                //Obtener idUsuario
-                var credential = _credentialService.FirstOrDefault(x => x.account.id == authUser.Account.Id && x.provider == SystemProviders.SYNCFY.GetDisplayName());
-                DateTime todayDate = DateUtil.GetDateTimeNow();
-
-                if (credential == null)
-                {
-                    var credentialPaybook = PaybookService.CreateUser(authUser.Account.RFC, authUser.Account.Uuid.ToString());
-
-                    credential = new Domain.Entities.Credential()
+                    if (credential == null)
                     {
-                        account = new Domain.Entities.Account() { id = authUser.Account.Id },
-                        provider = SystemProviders.SYNCFY.GetDisplayName(), //"Paybook",
-                        idCredentialProvider = credentialPaybook.id_user,
-                        statusProvider = SystemStatus.ACTIVE.ToString(),
-                        createdAt = todayDate,
-                        modifiedAt = todayDate,
-                        status = SystemStatus.ACTIVE.ToString()
-                    };
+                        var credentialPaybook = PaybookService.CreateUser(authUser.Account.RFC, authUser.Account.Uuid.ToString());
 
-                    _credentialService.Create(credential);
+                        credential = new Credential()
+                        {
+                            account = new Account() { id = authUser.Account.Id },
+                            provider = SystemProviders.SYNCFY.GetDisplayName(), //"Paybook",
+                            idCredentialProvider = credentialPaybook.id_user,
+                            statusProvider = SystemStatus.ACTIVE.ToString(),
+                            createdAt = DateUtil.GetDateTimeNow(),
+                            modifiedAt = DateUtil.GetDateTimeNow(),
+                            status = SystemStatus.ACTIVE.ToString()
+                        };
+
+                        _credentialService.Create(credential);
+
+                        LogUtil.AddEntry(
+                           "Credencial creada - RFC: " + authUser.Account.RFC,
+                           ENivelLog.Info,
+                           authUser.Id,
+                           authUser.Email,
+                           EOperacionLog.ACCESS,
+                           string.Format("Usuario {0} | Fecha {1} | RFC {2}", authUser.Email, DateUtil.GetDateTimeNow(), authUser.Account.RFC),
+                           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                           JsonConvert.SerializeObject(credential)
+                        );
+                    }
+
+                    //Obtener token de paybook para retornar
+                    token = PaybookService.CreateToken(credential.idCredentialProvider);
+                    Session["token"] = token;
+                    ViewBag.paybookT = token;
                 }
 
-                //Obtener token de paybook para retornar
-                tokenUser = PaybookService.CreateToken(credential.idCredentialProvider);
-                Session["token"] = tokenUser;
-                ViewBag.paybookT = tokenUser;
-
-                LogUtil.AddEntry(
-                   "Se Creo el token en el inicio: " + tokenUser,
-                   ENivelLog.Info,
-                   authUser.Id,
-                   authUser.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                );
-
-                #endregion
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
             }
             return View();
         }
@@ -118,47 +111,20 @@ namespace MVC_Project.WebBackend.Controllers
 
                 listResponse = _bankCredentialService.GetBankCredentials(userAuth.Account.Id);
 
+
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
                 if (listResponse.Count() > 0)
                 {
+                    listResponse.Select(c => { c.status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), c.status)).GetDisplayName(); return c; }).ToList();
+
                     totalDisplay = listResponse[0].Total;
                     total = listResponse.Count();
                 }
 
-                LogUtil.AddEntry(
-                   "Lista de Bancos total: " + totalDisplay + ", totalDisplay: " + total,
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
-
             }
             catch (Exception ex)
             {
-                LogUtil.AddEntry(
-                   "Se encontro un error: " + ex.Message.ToString(),
-                   ENivelLog.Error,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
                 error = ex.Message.ToString();
-
-                //return new JsonResult
-                //{
-                //    Data = new { success = false, message = ex.Message },
-                //    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                //    MaxJsonLength = Int32.MaxValue
-                //};
             }
 
             return Json(new
@@ -176,28 +142,15 @@ namespace MVC_Project.WebBackend.Controllers
         {
             var authUser = Authenticator.AuthenticatedUser;
             string token = (string)Session["token"];
-            string tokenUser = string.Empty;
-            if (token != null && token != "")
-            {
-                try
-                {
-                    if (PaybookService.GetVarifyToken(token))
-                        tokenUser = token;
-                }
-                catch (Exception ex)
-                {
-                    token = null;
-                }
-            }
 
-            if (tokenUser == null)
+            if (string.IsNullOrEmpty(token) || !PaybookService.GetVarifyToken(token))
             {
                 var credential = _credentialService.FirstOrDefault(x => x.account.id == authUser.Account.Id && x.provider == SystemProviders.SYNCFY.GetDisplayName());
-                tokenUser = PaybookService.CreateToken(credential.idCredentialProvider);
-                Session["token"] = tokenUser;
+                token = PaybookService.CreateToken(credential.idCredentialProvider);
+                Session["token"] = token;
             }
 
-            return tokenUser;
+            return token;
         }
 
         //Llamadas para paybook
@@ -208,77 +161,14 @@ namespace MVC_Project.WebBackend.Controllers
 
             try
             {
-                //string token = (string)Session["token"];
-                //string tokenUser = string.Empty;
-                //if (token != null && token != "")
-                //{
-                //    tokenUser = PaybookService.GetVarifyToken(token) ? token : null;
-                //}
-
-                //if (tokenUser == null || tokenUser == "")
-                //{
-                //    #region Crear credencial el usuario de la cuenta rfc, si aun no ha sido creada
-                //    //Crear usuario si aun no ha sido creado
-                //    //Obtener idUsuario
-                //    var credential = _credentialService.FirstOrDefault(x => x.account.id == authUser.Account.Id && x.provider == SystemProviders.SYNCFY.GetDisplayName());
-                //    DateTime todayDate = DateUtil.GetDateTimeNow();
-
-                //    if (credential == null)
-                //    {
-                //        var credentialPaybook = PaybookService.CreateUser(authUser.Account.RFC, authUser.Account.Uuid.ToString());
-
-                //        credential = new Domain.Entities.Credential()
-                //        {
-                //            account = new Domain.Entities.Account() { id = authUser.Account.Id },
-                //            provider = SystemProviders.SYNCFY.GetDisplayName(), //"Paybook",
-                //            idCredentialProvider = credentialPaybook.id_user,
-                //            statusProvider = SystemStatus.ACTIVE.ToString(),
-                //            createdAt = todayDate,
-                //            modifiedAt = todayDate,
-                //            status = SystemStatus.ACTIVE.ToString()
-                //        };
-
-                //        _credentialService.Create(credential);
-                //    }
-
-                //    //Obtener token de paybook para retornar
-                //    tokenUser = PaybookService.CreateToken(credential.idCredentialProvider);
-                //    Session["token"] = tokenUser;
-                //    #endregion
-                //}
-
-                string token = Token();
-
-                LogUtil.AddEntry(
-                   "Obtener token del cliente",
-                   ENivelLog.Info,
-                   authUser.Id,
-                   authUser.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                );
-
                 return new JsonResult
                 {
-                    Data = new { success = true, data = token },
+                    Data = new { success = true, data = Token() },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet
                 };
             }
             catch (Exception ex)
             {
-                LogUtil.AddEntry(
-                   "Se encontro un error: " + ex.Message.ToString(),
-                   ENivelLog.Error,
-                   authUser.Id,
-                   authUser.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                );
-
                 return new JsonResult
                 {
                     Data = new { success = false, Mensaje = new { title = "Error", message = ex.Message } },
@@ -315,7 +205,7 @@ namespace MVC_Project.WebBackend.Controllers
                             credentialProviderId = itemBank.id_credential,
                             createdAt = todayDate,
                             modifiedAt = todayDate,
-                            status = itemBank.is_authorized != null ? itemBank.is_authorized.Value.ToString() : "1"
+                            status = itemBank.is_authorized != null ? (itemBank.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString()
                         };
 
                         if (bank != null)
@@ -456,7 +346,7 @@ namespace MVC_Project.WebBackend.Controllers
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                 );
 
-                message = "Se desvinculo la cuenta exitosamente.";                
+                message = "Cuenta desvinculada exitosamente.";
             }
             catch (Exception ex)
             {
@@ -747,21 +637,21 @@ namespace MVC_Project.WebBackend.Controllers
                             }
 
 
-                                BankTransactionMV nuevo = new BankTransactionMV
-                                {
-                                    id = item.id,
-                                    transactionId = item.transactionId,
-                                    description = item.description,
-                                    amountD = item.amount > 0 ? item.amount.ToString("C2") : "",
-                                    amountR = item.amount < 0 ? item.amount.ToString("C2") : "",
-                                    currency = item.currency,
-                                    transactionAt = item.transactionAt.ToShortDateString(),
-                                    balance = balanceA.ToString("C2"),
-                                    bankAccountName = item.bankAccountName + " "+ item.number.PadLeft(10, pad),
-                                    number = item.number.PadLeft(10, pad),
-                                    bankName = item.bankName,
-                                    refreshAt = item.refreshAt.ToString()
-                                };
+                            BankTransactionMV nuevo = new BankTransactionMV
+                            {
+                                id = item.id,
+                                transactionId = item.transactionId,
+                                description = item.description,
+                                amountD = item.amount > 0 ? item.amount.ToString("C2") : "",
+                                amountR = item.amount < 0 ? item.amount.ToString("C2") : "",
+                                currency = item.currency,
+                                transactionAt = item.transactionAt.ToShortDateString(),
+                                balance = balanceA.ToString("C2"),
+                                bankAccountName = item.bankAccountName + " " + item.number.PadLeft(10, pad),
+                                number = item.number.PadLeft(10, pad),
+                                bankName = item.bankName,
+                                refreshAt = item.refreshAt.ToString()
+                            };
 
                             list.Add(nuevo);
                         }
@@ -831,7 +721,7 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 list = _bankAccountService.FindBy(x => x.bankCredential.id == credentialId)
-                    .Select(x => new SelectListItem() { Text = x.name + " "+ x.number.PadLeft(10, pad), Value = x.id.ToString() }).ToList();
+                    .Select(x => new SelectListItem() { Text = x.name + " " + x.number.PadLeft(10, pad), Value = x.id.ToString() }).ToList();
                 list.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
             }
             catch (Exception ex)

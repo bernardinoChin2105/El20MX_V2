@@ -98,18 +98,21 @@
                                     @Html.ValidationMessageFor(model => model.Role)
                                 </div>
                             </div>
-                            <div class="form-group row">
+                            @if (!Model.isBackOffice)
+                            {
+                                <div class="form-group row">
 
-                                <div class="col-md-8 offset-2">
-                                    <div class="i-checks">
-                                        <label style="font-weight:initial">
-                                            @Html.CheckBoxFor(m => m.AcceptUser, new { @class = "form-control" })
-                                            Acepto que el usuario pueda acceder a mi cuenta
-                                        </label>
+                                    <div class="col-md-8 offset-2">
+                                        <div class="i-checks">
+                                            <label style="font-weight:initial">
+                                                @Html.CheckBoxFor(m => m.AcceptUser, new { @class = "form-control" })
+                                                Acepto que el usuario pueda acceder a mi cuenta
+                                            </label>
+                                        </div>
+                                        @Html.ValidationMessageFor(model => model.AcceptUser)
                                     </div>
-                                    @Html.ValidationMessageFor(model => model.AcceptUser)
                                 </div>
-                            </div>
+                            }
                             <div class="form-group row">
                                 <div class="offset-md-2 col-md-8 text-right">
 
@@ -147,17 +150,26 @@
             // Get the Cropper.js instance after initialized
             var cropper = $image.data('cropper');
 
+            var isBackOffice = '@Model.isBackOffice' == 'true';
+
             $('.chosen-select').chosen({ width: '100%', "disable_search": true });
-            $.validator.addMethod("PasswordTrue",
+
+            $('input').on('ifClicked', function (ev) { $(ev.target).click(); })
+
+            $("#AcceptUser").click(function () {
+                validarDatos();                
+            });
+
+            $("#Role").change(function () {                
+                validarDatos();
+            });
+
+            $.validator.addMethod("ConfirmTermTrue",
                 function (value, element) {
-                    return value.match(/^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/);
-                }, "La contraseña debe contener al menos un número, mayúsculas, minúsculas y caracteres especiales"
+                    return $("input[type='checkbox']").is(":checked")
+                }, ""
             );
-            $.validator.addMethod("ConfirmPassEqPassword",
-                function (value, element) {
-                    return value == $("#Password").val();
-                }, "las contraseñas no coinciden"
-            );
+
             $("#CreateForm").validate({
                 rules: {
                     Name: {
@@ -173,7 +185,8 @@
                         required: true,
                     },
                     AcceptUser: {
-                        required: true,
+                        required: !isBackOffice,
+                        ConfirmTermTrue: true,
                     }
                 }
             });
