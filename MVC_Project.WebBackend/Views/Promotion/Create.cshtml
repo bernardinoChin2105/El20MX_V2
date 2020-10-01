@@ -1,0 +1,220 @@
+﻿@model MVC_Project.WebBackend.Models.AllianceViewModel
+@using MVC_Project.Utils
+
+@{
+
+    ViewBag.Title = "Nueva Promoción";
+}
+
+@section styles{
+    <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
+    <link href="~/Content/template/plugins/datapicker/datepicker3.css" rel="stylesheet" />
+    @*<style>
+        .hidden {
+            display: none;
+        }
+    </style>*@
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="">
+        @using (Html.BeginForm("Create", "Promotion", FormMethod.Post, new { role = "form", @id = "CreateForm", @class = "row" }))
+        {
+            <div class="col-lg-12">
+                @Html.AntiForgeryToken()
+
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>Datos de la Alianza</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="form-horizontal">
+                            <div class="form-group row">
+                                @Html.LabelFor(m => m.name, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-9">
+                                    @Html.TextBoxFor(m => m.name, new { @class = "form-control required", @maxlength = "50" })
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.allyId, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-md-9">
+                                    @Html.DropDownListFor(model => model.allyId, Model.allyList.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                                    @Html.ValidationMessageFor(model => model.allyId)
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(m => m.allyCommisionPercent, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-9">
+                                    @Html.TextBoxFor(m => m.allyCommisionPercent, new { @class = "form-control porcert required", @maxlength = "50" })
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(m => m.customerDiscountPercent, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-9">
+                                    @Html.TextBoxFor(m => m.customerDiscountPercent, new { @class = "form-control porcert required", @maxlength = "50" })
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(m => m.promotionCode, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-9">
+                                    @Html.TextBoxFor(m => m.promotionCode, new { @class = "form-control required", @maxlength = "50", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-12 col-md-3 text-right">
+                                    <div class="i-checks">
+                                        <label style="font-weight:initial">
+                                            @Html.CheckBoxFor(m => m.applyPeriod, new { @class = "form-control" })
+                                            @Html.LabelFor(m => m.applyPeriod)
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-9">
+                                    <hr />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(m => m.initialPeriod, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-3">
+                                    @Html.TextBoxFor(m => m.initialPeriod, new { @class = "form-control required", disabled = "disabled", type = "number", @maxlength = "50" })
+                                </div>
+                                @Html.LabelFor(m => m.finalPeriod, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-3">
+                                    @Html.TextBoxFor(m => m.finalPeriod, new { @class = "form-control required", disabled = "disabled", type = "number", @maxlength = "50" })
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(m => m.finalAllyCommisionPercent, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-9">
+                                    @Html.TextBoxFor(m => m.finalAllyCommisionPercent, new { @class = "form-control porcert required", disabled = "disabled", type = "number", @maxlength = "50" })
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-12 col-md-3 text-right">
+                                    <div class="i-checks">
+                                        <label style="font-weight:initial">
+                                            @Html.CheckBoxFor(m => m.allianceValidity, new { @class = "form-control" })
+                                            @Html.LabelFor(m => m.allianceValidity)
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-9">
+                                    <hr />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(m => m.finalDate, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-9">
+                                    <div id="data_1">
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            @*@Html.TextBoxFor(m => m.finalDate, new { @class = "form-control ", @maxlength = "50" })*@
+                                            <input type="text" name="finalDate" id="finalDate" class="form-control required" disabled="disabled">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row pull-right">
+                                <div class="col-md-10 offset-2 text-right">
+                                    <a href='@Url.Action("Index", "Alliance")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
+                                    <button type="button" onclick="validarDatos()" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
+    <!-- Data picker -->
+    <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.js"></script>
+    <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.es.js"></script>
+
+    <script>
+        function validarDatos() {
+            if (!$('#CreateForm').valid()) {
+                return;
+            }
+            El20Utils.ocultarCargador();
+            $('#CreateForm').submit();
+        }
+
+        $(document).ready(function () {
+            $('.chosen-select').chosen({ width: '100%', "disable_search": true });
+            $('.porcert').mask("##0.00", { reverse: true });
+
+            var mem = $('#data_1 .input-group.date').datepicker({
+                //dateFormat: "yy-mm-dd"
+                keyboardNavigation: false,
+                todayBtn: "linked",
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true,
+                format: "dd/mm/yyyy",
+                startDate: '@Html.Raw(Json.Encode(ViewBag.Date))',
+                language: "es"
+            });
+
+            $('input').on('ifClicked', function (ev) {
+                $(ev.target).click();
+            })
+
+            $("#applyPeriod").click(function () {
+                //console.log("aplicar periodo");
+
+                $("#initialPeriod,#finalPeriod,#finalAllyCommisionPercent").prop("disabled", !this.checked)
+                var initialPeriod = $("#initialPeriod");
+                var finalPeriod = $("#finalPeriod");
+                var finalAllyCommisionPercent = $("#finalAllyCommisionPercent");
+
+                if (!this.checked) {
+                    initialPeriod.val("");
+                    finalPeriod.val("");
+                    finalAllyCommisionPercent.val("");
+                }
+            });
+
+            $("#allianceValidity").click(function () {
+                //console.log("allianceValidity");
+                var finalDate = $("#finalDate");
+                finalDate.prop("disabled", !this.checked);
+
+                if (!this.checked) {
+                    finalDate.val("");
+                }
+            });
+
+            $("#allyId").change(function () {
+                console.log("aliado", this.value);
+                var code = $("#promotionCode");
+
+                $.ajax({
+                    type: 'GET',
+                    async: true,
+                    data: { id: this.value },
+                    url: "/Alliance/GetPromotionCode",
+                    success: function (data) {
+                        if (!data.success) {
+                            toastr['error'](data.error);
+                            //swal({
+                            //    type: 'error',
+                            //    title: "Error al realizar la operación.",
+                            //    text: data.error
+                            //});
+                        } else {
+                            code.val(data.promotionCode);
+                            //swal("Estatus cambiado!");
+                        }
+                    },
+                    error: function (xhr) {
+                        console.log('error');
+                    }
+                });
+            });
+        });
+    </script>
+}

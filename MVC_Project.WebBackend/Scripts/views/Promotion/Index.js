@@ -40,8 +40,8 @@ var PromotionIndexControlador = function (htmlTableId, baseUrl, editUrl, ActiveI
                 { data: 'id', title: "Id", visible: false },
                 { data: 'name', title: "Nombre" },
                 { data: 'type', title: "Tipo" },
-                { data: 'allyCommisionPercent', title: "%" },
-                { data: 'customerDiscountPercent', title: "$" },
+                { data: 'discountRate', title: "%" },
+                { data: 'discountRate', title: "$" },
                 {
                     data: null,
                     title: "Opciones",

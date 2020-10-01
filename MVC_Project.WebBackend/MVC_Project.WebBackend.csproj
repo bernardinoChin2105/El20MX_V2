@@ -1808,7 +1808,7 @@
     <Content Include="Scripts\popper.min.js" />
     <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
-    <Content Include="Scripts\views\Alliance\PromotionIndex.js" />
+    <Content Include="Scripts\views\Promotion\Index.js" />
     <Content Include="Scripts\views\Alliance\Index.js" />
     <Content Include="Scripts\views\Ally\Index.js" />
     <Content Include="Scripts\views\Auth\Index.js" />
@@ -1959,8 +1959,8 @@
     <Content Include="Views\Alliance\AllyEdit.cshtml" />
     <Content Include="Views\Alliance\Create.cshtml" />
     <Content Include="Views\Alliance\Edit.cshtml" />
-    <Content Include="Views\Alliance\PromotionIndex.cshtml" />
     <Content Include="Views\Promotion\Index.cshtml" />
+    <Content Include="Views\Promotion\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
