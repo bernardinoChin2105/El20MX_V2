@@ -263,17 +263,6 @@ namespace MVC_Project.WebBackend.Controllers
                 });
             }
 
-            LogUtil.AddEntry(
-               "Acciones Populares: " + JsonConvert.SerializeObject(systemaActions),
-               ENivelLog.Info,
-               userAuth.Id,
-               userAuth.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-            );
-
             return systemaActions;
         }
 

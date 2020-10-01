@@ -12,6 +12,8 @@ namespace MVC_Project.Domain.Entities
         public virtual Guid uuid { get; set; }
 
         public virtual string name { get; set; }
+        public virtual string prefix { get; set; }
+        public virtual int consecutive { get; set; }        
 
         public virtual DateTime createdAt { get; set; }
         public virtual DateTime modifiedAt { get; set; }

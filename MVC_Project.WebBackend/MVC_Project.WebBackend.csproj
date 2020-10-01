@@ -264,6 +264,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\PaymentsController.cs" />
     <Compile Include="Controllers\PlanController.cs" />
+    <Compile Include="Controllers\PromotionController.cs" />
     <Compile Include="Controllers\ProviderController.cs" />
     <Compile Include="Controllers\RegisterController.cs" />
     <Compile Include="Controllers\RoleController.cs" />
@@ -1664,6 +1665,7 @@
     <Content Include="Scripts\plugins\cropper\cropper.min.js" />
     <Content Include="Scripts\plugins\d3\d3.min.js" />
     <Content Include="Scripts\plugins\datamaps\datamaps.all.min.js" />
+    <Content Include="Scripts\plugins\datapicker\bootstrap-datepicker.es.js" />
     <Content Include="Scripts\plugins\datapicker\bootstrap-datepicker.js" />
     <Content Include="Scripts\plugins\dataTables\dataTables.bootstrap4.min.js" />
     <Content Include="Scripts\plugins\dataTables\datatables.min.js" />
@@ -1808,6 +1810,7 @@
     <Content Include="Scripts\popper.min.js" />
     <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
+    <Content Include="Scripts\views\Promotion\Index.js" />
     <Content Include="Scripts\views\Alliance\Index.js" />
     <Content Include="Scripts\views\Ally\Index.js" />
     <Content Include="Scripts\views\Auth\Index.js" />
@@ -1957,6 +1960,9 @@
     <Content Include="Views\Alliance\AllyIndex.cshtml" />
     <Content Include="Views\Alliance\AllyEdit.cshtml" />
     <Content Include="Views\Alliance\Create.cshtml" />
+    <Content Include="Views\Alliance\Edit.cshtml" />
+    <Content Include="Views\Promotion\Index.cshtml" />
+    <Content Include="Views\Promotion\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

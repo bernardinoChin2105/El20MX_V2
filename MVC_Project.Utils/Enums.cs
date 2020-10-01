@@ -284,6 +284,19 @@ namespace MVC_Project.Utils
         EQUAL
     }
 
+    public enum TypePromotions
+    {
+        [Display(Name = "Referido")]
+        [Description("Referido")]
+        REFERRED,
+        [Display(Name = "Descuento Inicial")]
+        [Description("Descuento Inicial")]
+        INITIAL_DISCOUNT,
+        [Display(Name = "Clientes")]
+        [Description("Clientes")]
+        CUSTOMERS,
+    }
+
     //public enum MoralPersonsRegime
     //{
     //    Regime601 = 601,

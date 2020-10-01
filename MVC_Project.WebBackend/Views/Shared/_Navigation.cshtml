@@ -124,10 +124,11 @@
                     <a href="#"><i class="fas fa-handshake"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_ALLIANCE_DISCOUNT</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("Alliance"))
                     {
-                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Alliance", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "Alliance", action: "Index")"><a href="@Url.Action("Index", "Alliance")">Alianzas</a></li>
-                            <li class="@Html.IsSelected(controller: "Alliance", action: "AllyIndex")"><a href="@Url.Action("AllyIndex", "Alliance")">Aliados</a></li>
-                        </ul>
+                    <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Alliance", cssClass: "in")">
+                        <li class="@Html.IsSelected(controller: "Alliance", action: "AllyIndex")"><a href="@Url.Action("AllyIndex", "Alliance")">Aliados</a></li>
+                        <li class="@Html.IsSelected(controller: "Alliance", action: "Index")"><a href="@Url.Action("Index", "Alliance")">Alianzas</a></li>
+                        <li class="@Html.IsSelected(controller: "Promotion", action: "Index")"><a href="@Url.Action("Index", "Promotion")">Promociones</a></li>
+                    </ul>
                     }
                 </li>
             }

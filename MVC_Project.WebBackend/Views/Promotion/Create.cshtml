@@ -2,27 +2,23 @@
 @using MVC_Project.Utils
 
 @{
-    /**/
 
-    /**/
-
-    ViewBag.Title = "Nueva Alianza";
+    ViewBag.Title = "Nueva Promoción";
 }
 
 @section styles{
     <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
     <link href="~/Content/template/plugins/datapicker/datepicker3.css" rel="stylesheet" />
-    <style>
+    @*<style>
         .hidden {
             display: none;
         }
-    </style>
+    </style>*@
 }
-
 
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="">
-        @using (Html.BeginForm("Create", "Alliance", FormMethod.Post, new { role = "form", @id = "CreateForm", @class = "row" }))
+        @using (Html.BeginForm("Create", "Promotion", FormMethod.Post, new { role = "form", @id = "CreateForm", @class = "row" }))
         {
             <div class="col-lg-12">
                 @Html.AntiForgeryToken()
@@ -43,7 +39,7 @@
                                 @Html.LabelFor(model => model.allyId, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-md-9">
                                     @Html.DropDownListFor(model => model.allyId, Model.allyList.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
-                                    @Html.ValidationMessageFor(model => model.allyId)                                    
+                                    @Html.ValidationMessageFor(model => model.allyId)
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -61,7 +57,7 @@
                             <div class="form-group row">
                                 @Html.LabelFor(m => m.promotionCode, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-12 col-md-9">
-                                    @Html.TextBoxFor(m => m.promotionCode, new { @class = "form-control required", @maxlength = "50", @readonly="readonly" })
+                                    @Html.TextBoxFor(m => m.promotionCode, new { @class = "form-control required", @maxlength = "50", @readonly = "readonly" })
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -134,7 +130,7 @@
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
-    <!-- Data picker -->    
+    <!-- Data picker -->
     <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.js"></script>
     <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.es.js"></script>
 
@@ -150,7 +146,7 @@
         $(document).ready(function () {
             $('.chosen-select').chosen({ width: '100%', "disable_search": true });
             $('.porcert').mask("##0.00", { reverse: true });
-            
+
             var mem = $('#data_1 .input-group.date').datepicker({
                 //dateFormat: "yy-mm-dd"
                 keyboardNavigation: false,
@@ -187,10 +183,10 @@
                 var finalDate = $("#finalDate");
                 finalDate.prop("disabled", !this.checked);
 
-                if (!this.checked) {                    
+                if (!this.checked) {
                     finalDate.val("");
-                } 
-            });   
+                }
+            });
 
             $("#allyId").change(function () {
                 console.log("aliado", this.value);

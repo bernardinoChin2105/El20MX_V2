@@ -58,6 +58,9 @@
     <Compile Include="Entities\BankCredential.cs" />
     <Compile Include="Entities\BankTransaction.cs" />
     <Compile Include="Entities\Currency.cs" />
+    <Compile Include="Entities\Discount.cs" />
+    <Compile Include="Entities\PaymentForm.cs" />
+    <Compile Include="Entities\PaymentMethod.cs" />
     <Compile Include="Entities\Plan.cs" />
     <Compile Include="Entities\PlanAssignment.cs" />
     <Compile Include="Entities\PlanAssignmentConfiguration.cs" />
@@ -65,11 +68,11 @@
     <Compile Include="Entities\Credential.cs" />
     <Compile Include="Entities\InvoiceIssued.cs" />
     <Compile Include="Entities\InvoiceReceived.cs" />
-    <Compile Include="Entities\PaymentForm.cs" />
-    <Compile Include="Entities\PaymentMethod.cs" />
     <Compile Include="Entities\PlanChargeConfiguration.cs" />
     <Compile Include="Entities\PlanFeature.cs" />
     <Compile Include="Entities\PlanFeatureConfiguration.cs" />
+    <Compile Include="Entities\Promotion.cs" />
+    <Compile Include="Entities\PromotionAccount.cs" />
     <Compile Include="Entities\Provider.cs" />
     <Compile Include="Entities\ProviderContact.cs" />
     <Compile Include="Entities\CustomerContact.cs" />
@@ -130,6 +133,7 @@
     <Compile Include="Services\CurrencyService.cs" />
     <Compile Include="Services\PaymentFormService.cs" />
     <Compile Include="Services\PaymentMethodService.cs" />
+    <Compile Include="Services\PromotionService.cs" />
     <Compile Include="Services\TypeVoucherService.cs" />
     <Compile Include="Services\PlanAssignmentConfigService.cs" />
     <Compile Include="Services\PlanAssignmentService.cs" />
