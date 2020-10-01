@@ -23,15 +23,17 @@ namespace MVC_Project.WebBackend.Controllers
         private ICredentialService _credentialService;
         private IRoleService _roleService;
         private IUserService _userService;
+        private IPromotionService _promotionService;
 
         public AccountController(IMembershipService accountUserService, IAccountService accountService,
-            ICredentialService credentialService, IRoleService roleService, IUserService userService)
+            ICredentialService credentialService, IRoleService roleService, IUserService userService, IPromotionService promotionService)
         {
             _membership = accountUserService;
             _accountService = accountService;
             _credentialService = credentialService;
             _roleService = roleService;
             _userService = userService;
+            _promotionService = promotionService;
         }
 
         // GET: Account
@@ -223,8 +225,34 @@ namespace MVC_Project.WebBackend.Controllers
                     modifiedAt = todayDate,
                     status = SystemStatus.ACTIVE.ToString()
                 };
+                
+                var promotion = _promotionService.GetValidityPromotion(TypePromotions.INITIAL_DISCOUNT.ToString());
 
-                _credentialService.CreateCredentialAccount(credential);
+                if (promotion == null)
+                {
+                    _credentialService.CreateCredentialAccount(credential);
+                }
+                else
+                {
+                    var discount = new Domain.Entities.Discount
+                    {
+                        type = promotion.type,
+                        discount = promotion.discount,
+                        discountRate = promotion.discountRate,
+                        hasPeriod = promotion.hasPeriod,
+                        periodInitial = promotion.periodInitial,
+                        periodFinal = promotion.periodFinal,
+                        hasValidity = promotion.hasValidity,
+                        validityInitialAt = promotion.validityInitialAt,
+                        validityFinalAt = promotion.validityInitialAt,
+                        createdAt = DateTime.Now,
+                        modifiedAt = DateTime.Now,
+                        status = SystemStatus.ACTIVE.ToString(),
+                        account = account,
+                        promotion = promotion
+                    };
+                    _credentialService.CreateCredentialAccount(credential, discount);
+                }
 
                 var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                 {
@@ -248,7 +276,7 @@ namespace MVC_Project.WebBackend.Controllers
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                   JsonConvert.SerializeObject(account)
                 );
 
                 return RedirectToAction("Index", "User");

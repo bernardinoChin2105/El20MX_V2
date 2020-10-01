@@ -1,6 +1,7 @@
 ﻿using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Model;
 using MVC_Project.Domain.Repositories;
+using MVC_Project.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace MVC_Project.Domain.Services
     public interface IPromotionService : IService<Promotion>
     {
         List<PromotionsList> GetPromotionList(BasePagination pagination, string name, string type);
+        Promotion GetValidityPromotion(string type);
     }
 
     public class PromotionService : ServiceBase<Promotion>, IPromotionService
@@ -35,6 +37,25 @@ namespace MVC_Project.Domain.Services
 
             if (list != null) return list.ToList();
             return null;
+        }
+
+        public Promotion GetValidityPromotion(string type)
+        {
+            var promocion = _repository.FirstOrDefault(x => x.type == type &&
+               x.status == SystemStatus.ACTIVE.ToString());
+
+            if (promocion == null)
+                return null;
+
+            if (promocion.hasValidity)
+            {
+                if (promocion.validityInitialAt > DateTime.Now.Date || promocion.validityFinalAt < DateTime.Now.Date)
+                {
+                    return null;
+                }
+            }
+            
+            return promocion;
         }
     }
 }
