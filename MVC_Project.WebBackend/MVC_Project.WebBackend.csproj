@@ -263,6 +263,7 @@
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\PlanController.cs" />
+    <Compile Include="Controllers\PromotionController.cs" />
     <Compile Include="Controllers\ProviderController.cs" />
     <Compile Include="Controllers\RegisterController.cs" />
     <Compile Include="Controllers\RoleController.cs" />
@@ -1959,6 +1960,7 @@
     <Content Include="Views\Alliance\Create.cshtml" />
     <Content Include="Views\Alliance\Edit.cshtml" />
     <Content Include="Views\Alliance\PromotionIndex.cshtml" />
+    <Content Include="Views\Promotion\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

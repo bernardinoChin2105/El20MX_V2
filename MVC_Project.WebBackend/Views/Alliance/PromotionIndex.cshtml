@@ -1,4 +1,4 @@
-﻿@model MVC_Project.WebBackend.Models.AllianceFilterViewModel
+﻿@model MVC_Project.WebBackend.Models.PromotionFilterViewModel
 @using MVC_Project.WebBackend.AuthManagement
 @using MVC_Project.WebBackend.AuthManagement.Models
 @{
@@ -37,8 +37,8 @@
                             </div>
                             <div class="col-12 col-sm-4">
                                 <div class="form-group">
-                                    @Html.LabelFor(m => m.AllyName, new { @class = "" })
-                                    @Html.TextBoxFor(m => m.AllyName, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "100", @autocomplete = "off" })
+                                    @Html.LabelFor(m => m.Type, new { @class = "" })
+                                    @Html.DropDownListFor(m => m.Type, Model.typeList.Items as List<SelectListItem>, new { @class = "form-control form-height" })                                   
                                 </div>
                             </div>
                             <div class="col-12 col-sm-4 col-lg-4">
@@ -59,7 +59,7 @@
                     @if (hasFullAccessController)
                     {
                         <div class="ibox-tools">
-                            <a href="@Url.Action("Create", "Alliance")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Crear Aliado</a>
+                            <a href="@Url.Action("PromotionCreate", "Alliance")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Crear Aliado</a>
                         </div>
                     }
                 </div>

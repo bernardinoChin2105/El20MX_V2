@@ -66,16 +66,12 @@ namespace MVC_Project.WebBackend.Models
         
         [Display(Name = "Fecha Fin")]
         public DateTime finalDate { get; set; }
-        //public DateTime initialDate { get; set; }
-        //public string status { get; set; }
 
         public AllianceViewModel() {
             var list = new List<SelectListItem>();
             list.Add(new SelectListItem() { Text = "Seleccionar", Value = "-1" });
 
-            allyList = new SelectList(list);
-
-            //allyMultList = new MultiSelectList(list);
+            allyList = new SelectList(list);            
         }
     }
 
@@ -96,4 +92,26 @@ namespace MVC_Project.WebBackend.Models
         public string modifiedAt { get; set; }
         public string status { get; set; }
     }
+
+    #region modelos para promociones
+    public class PromotionFilterViewModel
+    {
+        [Display(Name = "Nombre")]
+        public string Name { get; set; }
+
+        [Display(Name = "Tipo")]
+        public Int64 Type { get; set; }
+        public SelectList typeList { get; set; }
+
+        public PromotionFilterViewModel()
+        {
+            var list = new List<SelectListItem>();
+            list.Add(new SelectListItem() { Text = "Todos", Value = "-1" });
+
+            typeList = new SelectList(list);
+
+        }
+    }
+
+    #endregion
 }
