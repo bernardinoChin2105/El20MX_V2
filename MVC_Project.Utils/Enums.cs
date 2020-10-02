@@ -119,7 +119,9 @@ namespace MVC_Project.Utils
         [Display(Name = "Planes")]
         PLANS,
         [Display(Name = "Alianzas y Descuentos")]
-        ALLIANCES_DISCOUNTS
+        ALLIANCES_DISCOUNTS,
+        [Display(Name = "Regularizaciones")]
+        QUOTATION
         #endregion
     }
 

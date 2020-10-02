@@ -323,5 +323,17 @@ namespace MVC_Project.Resources {
                 return ResourceManager.GetString("MODULE_PLANS", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Busca una cadena traducida similar a PLANES.
+        /// </summary>
+        public static string MODULE_QUOTATION
+        {
+            get
+            {
+                return ResourceManager.GetString("MODULE_QUOTATION", resourceCulture);
+            }
+        }
+        
     }
 }

@@ -102,6 +102,7 @@
     <Compile Include="Mappings\InvoiceIssuedMap.cs" />
     <Compile Include="Mappings\PromotionAccountMap.cs" />
     <Compile Include="Mappings\PromotionMap.cs" />
+    <Compile Include="Mappings\QuotationMap.cs" />
     <Compile Include="Mappings\TypeVoucherMap.cs" />
     <Compile Include="Mappings\CurrencyMap.cs" />
     <Compile Include="Mappings\PaymentFormMap.cs" />

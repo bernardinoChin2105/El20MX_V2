@@ -95,6 +95,7 @@
     <Compile Include="Entities\ProcessExecution.cs" />
     <Compile Include="Entities\Producto.cs" />
     <Compile Include="Entities\Profile.cs" />
+    <Compile Include="Entities\Quotation.cs" />
     <Compile Include="Entities\Role.cs" />
     <Compile Include="Entities\RolePermission.cs" />
     <Compile Include="Entities\Settlement.cs" />
@@ -134,6 +135,7 @@
     <Compile Include="Services\PaymentFormService.cs" />
     <Compile Include="Services\PaymentMethodService.cs" />
     <Compile Include="Services\PromotionService.cs" />
+    <Compile Include="Services\QuotationService.cs" />
     <Compile Include="Services\TypeVoucherService.cs" />
     <Compile Include="Services\PlanAssignmentConfigService.cs" />
     <Compile Include="Services\PlanAssignmentService.cs" />
