@@ -12,6 +12,7 @@ namespace MVC_Project.Domain.Services
     public interface IPromotionService : IService<Promotion>
     {
         List<PromotionsList> GetPromotionList(BasePagination pagination, string name, string type);
+        Promotion Save(Promotion promotion, List<PromotionAccount> promotionsAccount, List<Discount> discounts);
     }
 
     public class PromotionService : ServiceBase<Promotion>, IPromotionService
@@ -36,5 +37,52 @@ namespace MVC_Project.Domain.Services
             if (list != null) return list.ToList();
             return null;
         }
+
+        public Promotion Save(Promotion promotion, List<PromotionAccount> promotionsAccount, List<Discount> discounts)
+        {
+            using (var transaction = _repository.Session.BeginTransaction())
+            {
+                try
+                {
+                    _repository.Session.Save(promotion);
+
+                    foreach(var item in promotionsAccount)
+                        _repository.Session.Save(item);
+
+                    foreach (var item in discounts)
+                        _repository.Session.Save(item);
+
+                    transaction.Commit();
+                    return promotion;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
+                }
+            }
+        }
+
+        //public Alliance UpdateAlliance(Alliance alliance, Ally ally = null)
+        //{
+        //    using (var transaction = _repository.Session.BeginTransaction())
+        //    {
+        //        try
+        //        {
+        //            _repository.Session.Update(alliance);
+
+        //            if (ally != null)
+        //                _repository.Session.Update(ally);
+
+        //            transaction.Commit();
+        //            return alliance;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            transaction.Rollback();
+        //            throw ex;
+        //        }
+        //    }
+        //}
     }
 }

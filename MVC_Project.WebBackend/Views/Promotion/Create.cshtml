@@ -1,4 +1,4 @@
-﻿@model MVC_Project.WebBackend.Models.AllianceViewModel
+﻿@model MVC_Project.WebBackend.Models.PromotionViewModel
 @using MVC_Project.Utils
 
 @{
@@ -36,30 +36,33 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                @Html.LabelFor(model => model.allyId, new { @class = "col-form-label col-md-3 control-label" })
+                                @Html.LabelFor(m => m.discount, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-3">
+                                    @Html.TextBoxFor(m => m.discount, new { @class = "form-control porcert required", @maxlength = "50" })
+                                </div>
+                                @Html.LabelFor(m => m.discountRate, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-3">
+                                    @Html.TextBoxFor(m => m.discountRate, new { @class = "form-control porcert required", @maxlength = "50" })
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.TypeId, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-md-9">
-                                    @Html.DropDownListFor(model => model.allyId, Model.allyList.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
-                                    @Html.ValidationMessageFor(model => model.allyId)
+                                    @Html.DropDownListFor(model => model.TypeId, Model.TypeList.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                                    @*@Html.ValidationMessageFor(model => model.allyId)*@
                                 </div>
                             </div>
+
                             <div class="form-group row">
-                                @Html.LabelFor(m => m.allyCommisionPercent, new { @class = "col-form-label col-md-3 control-label" })
-                                <div class="col-12 col-md-9">
-                                    @Html.TextBoxFor(m => m.allyCommisionPercent, new { @class = "form-control porcert required", @maxlength = "50" })
+                                @Html.LabelFor(model => model.AccountId, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-md-9">
+                                    @Html.DropDownList("allyId", (MultiSelectList)Model.allyMultList, new { multiple = "multiple", @class = "chosen-select", data_placeholder = "Seleccione" })
+                                    @*@Html.DropDownListFor(model => model.TypeId, Model.TypeList.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })*@
+                                    @*@Html.ValidationMessageFor(model => model.allyId)*@
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                @Html.LabelFor(m => m.customerDiscountPercent, new { @class = "col-form-label col-md-3 control-label" })
-                                <div class="col-12 col-md-9">
-                                    @Html.TextBoxFor(m => m.customerDiscountPercent, new { @class = "form-control porcert required", @maxlength = "50" })
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                @Html.LabelFor(m => m.promotionCode, new { @class = "col-form-label col-md-3 control-label" })
-                                <div class="col-12 col-md-9">
-                                    @Html.TextBoxFor(m => m.promotionCode, new { @class = "form-control required", @maxlength = "50", @readonly = "readonly" })
-                                </div>
-                            </div>
+
+
                             <div class="form-group row">
                                 <div class="col-12 col-md-3 text-right">
                                     <div class="i-checks">
