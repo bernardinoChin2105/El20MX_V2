@@ -128,6 +128,7 @@
     <Compile Include="Services\CredentialService.cs" />
     <Compile Include="Services\AllianceService.cs" />
     <Compile Include="Services\CustomerContactService.cs" />
+    <Compile Include="Services\DiscountService.cs" />
     <Compile Include="Services\InvoiceIssuedService.cs" />
     <Compile Include="Services\InvoiceReceivedService.cs" />
     <Compile Include="Services\CurrencyService.cs" />
