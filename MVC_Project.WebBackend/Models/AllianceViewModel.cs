@@ -145,7 +145,7 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Periodo final")]
         public int finalPeriod { get; set; }
 
-        [Display(Name = "Vigencia promoción")]
+        [Display(Name = "Vigencia de código")]
         public bool hasValidity { get; set; }
 
         [Display(Name = "Fecha Fin")]

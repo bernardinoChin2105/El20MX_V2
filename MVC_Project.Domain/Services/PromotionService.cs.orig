@@ -5,15 +5,19 @@ using MVC_Project.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Services
 {
     public interface IPromotionService : IService<Promotion>
     {
         List<PromotionsList> GetPromotionList(BasePagination pagination, string name, string type);
+<<<<<<< HEAD
         Promotion Save(Promotion promotion, List<PromotionAccount> promotionsAccount, List<Discount> discounts);
+=======
         Promotion GetValidityPromotion(string type);
-        Promotion Update(Promotion promotion, List<PromotionAccount> promotionsAccount = null, List<Discount> discounts = null);
+>>>>>>> 46da106bb5efe5b2be7a0b29885e8f8d4a7755ea
     }
 
     public class PromotionService : ServiceBase<Promotion>, IPromotionService
@@ -39,25 +43,7 @@ namespace MVC_Project.Domain.Services
             return null;
         }
 
-        public Promotion GetValidityPromotion(string type)
-        {
-            var promocion = _repository.FirstOrDefault(x => x.type == type &&
-               x.status == SystemStatus.ACTIVE.ToString());
-
-            if (promocion == null)
-                return null;
-
-            if (promocion.hasValidity)
-            {
-                if (promocion.validityInitialAt > DateTime.Now.Date || promocion.validityFinalAt < DateTime.Now.Date)
-                {
-                    return null;
-                }
-            }
-            
-            return promocion;
-        }
-
+<<<<<<< HEAD
         public Promotion Save(Promotion promotion, List<PromotionAccount> promotionsAccount, List<Discount> discounts)
         {
             using (var transaction = _repository.Session.BeginTransaction())
@@ -83,32 +69,46 @@ namespace MVC_Project.Domain.Services
             }
         }
 
-        public Promotion Update(Promotion promotion, List<PromotionAccount> promotionsAccount = null, List<Discount> discounts = null)
+        //public Alliance UpdateAlliance(Alliance alliance, Ally ally = null)
+        //{
+        //    using (var transaction = _repository.Session.BeginTransaction())
+        //    {
+        //        try
+        //        {
+        //            _repository.Session.Update(alliance);
+
+        //            if (ally != null)
+        //                _repository.Session.Update(ally);
+
+        //            transaction.Commit();
+        //            return alliance;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            transaction.Rollback();
+        //            throw ex;
+        //        }
+        //    }
+        //}
+=======
+        public Promotion GetValidityPromotion(string type)
         {
-            using (var transaction = _repository.Session.BeginTransaction())
+            var promocion = _repository.FirstOrDefault(x => x.type == type &&
+               x.status == SystemStatus.ACTIVE.ToString());
+
+            if (promocion == null)
+                return null;
+
+            if (promocion.hasValidity)
             {
-                try
+                if (promocion.validityInitialAt > DateTime.Now.Date || promocion.validityFinalAt < DateTime.Now.Date)
                 {
-                    _repository.Session.Update(promotion);
-
-                    if (promotionsAccount != null) {
-                        _repository.Session.Update(promotionsAccount);
-                    }
-
-                    if (discounts != null)
-                    {
-                        _repository.Session.Update(discounts);
-                    }
-
-                    transaction.Commit();
-                    return promotion;
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    throw ex;
+                    return null;
                 }
             }
+            
+            return promocion;
         }
+>>>>>>> 46da106bb5efe5b2be7a0b29885e8f8d4a7755ea
     }
 }

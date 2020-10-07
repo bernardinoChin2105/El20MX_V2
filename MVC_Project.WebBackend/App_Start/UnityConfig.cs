@@ -87,6 +87,8 @@ namespace MVC_Project.WebBackend
             container.RegisterType<IAllianceService, AllianceService>();
             container.RegisterType<IAllyService, AllyService>();
             container.RegisterType<IPromotionService, PromotionService>();
+            container.RegisterType<IPromotionAccountService, PromotionAccountService>();
+            container.RegisterType<IDiscountService, DiscountService>();
         }
     }
 }

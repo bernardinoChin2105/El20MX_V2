@@ -19,11 +19,16 @@ namespace MVC_Project.WebBackend.Controllers
     {
         private IPromotionService _promotionService;
         private IAccountService _accountService;
+        private IPromotionAccountService _promotionAccountService;
+        private IDiscountService _discountService;
 
-        public PromotionController(IPromotionService promotionService, IAccountService accountService)
+        public PromotionController(IPromotionService promotionService, IAccountService accountService, IDiscountService discountService,
+            IPromotionAccountService promotionAccountService)
         {
             _promotionService = promotionService;
+            _promotionAccountService = promotionAccountService;
             _accountService = accountService;
+            _discountService = discountService;
         }
 
         public ActionResult Index()
@@ -109,17 +114,12 @@ namespace MVC_Project.WebBackend.Controllers
             PromotionViewModel model = new PromotionViewModel();
             try
             {
-                var list = new List<SelectListItem>();
-                list.Add(new SelectListItem() { Text = "Seleccionar", Value = "-1" });
-
-                var types = Enum.GetValues(typeof(TypePromotions)).Cast<TypePromotions>()
+                var list = Enum.GetValues(typeof(TypePromotions)).Cast<TypePromotions>()
                     .Select(e => new SelectListItem
                     {
                         Value = e.ToString(),
                         Text = EnumUtils.GetDisplayName(e)
                     }).ToList();
-                list.AddRange(types);
-
 
                 var accounts = _accountService.GetAll();
                 var accountViewModel = new AccountSelectViewModel { accountListItems = new List<SelectListItem>() };
@@ -130,7 +130,7 @@ namespace MVC_Project.WebBackend.Controllers
                 }).ToList();
 
                 model.TypeList = new SelectList(list);
-                model.AccountMultipleList = new MultiSelectList(list, "Value", "Text");
+                model.AccountMultipleList = new MultiSelectList(accountViewModel.accountListItems, "Value", "Text");
 
             }
             catch (Exception ex)
@@ -150,7 +150,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var authUser = Authenticator.AuthenticatedUser;
 
-                if (_promotionService.FindBy(x => x.name == model.Name).Any())
+                if (_promotionService.FindBy(x => x.name == model.name).Any())
                     throw new Exception("Ya existe una con el Nombre proporcionado");
 
                 DateTime todayDate = DateUtil.GetDateTimeNow();
@@ -238,10 +238,9 @@ namespace MVC_Project.WebBackend.Controllers
 
         public ActionResult Edit(string uuid)
         {
+            var userAuth = Authenticator.AuthenticatedUser;
             try
             {
-                var userAuth = Authenticator.AuthenticatedUser;
-
                 var promotion = _promotionService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
                 if (promotion == null)
                     throw new Exception("El registro de promoción no se encontró en la base de datos");
@@ -261,10 +260,13 @@ namespace MVC_Project.WebBackend.Controllers
                     finalDate = promotion.validityFinalAt
                 };
 
+                var discounts = _discountService.GetDiscounts(promotion.uuid.ToString());
+                var promotionAccount = _promotionAccountService.GetPromotionAccount(promotion.uuid.ToString());
 
-                /*                                   
-           //Int64[] AccountId { get; set; }           
-                    */
+                if (promotionAccount != null)
+                {
+                    model.AccountId = promotionAccount.Select(x => x.account.id).ToArray();
+                }
 
                 var list = new List<SelectListItem>();
                 list.Add(new SelectListItem() { Text = "Seleccionar", Value = "-1" });
@@ -286,7 +288,7 @@ namespace MVC_Project.WebBackend.Controllers
                 }).ToList();
 
                 model.TypeList = new SelectList(list);
-                model.AccountMultipleList = new MultiSelectList(list, "Value", "Text");
+                model.AccountMultipleList = new MultiSelectList(list, "Value", "Text", model.AccountId);
 
                 return View(model);
             }
@@ -297,31 +299,107 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
-        //[HttpPost]
-        //public ActionResult AllyEdit(AllyFilterViewModel model)
-        //{
-        //    var userAuth = Authenticator.AuthenticatedUser;
-        //    var allyData = _allyService.FirstOrDefault(x => x.id == model.Id);
-        //    try
-        //    {
-        //        if (!ModelState.IsValid)
-        //            throw new Exception("El modelo de entrada no es válido");
+        [HttpPost]
+        public ActionResult Edit(PromotionViewModel model)
+        {
+            var userAuth = Authenticator.AuthenticatedUser;
+            try
+            {
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
 
-        //        DateTime todayDate = DateUtil.GetDateTimeNow();
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+                Promotion promotion = _promotionService.FirstOrDefault(x => x.id == model.id);
 
-        //        allyData.name = model.Name;
-        //        allyData.modifiedAt = todayDate;
-        //        allyData.status = SystemStatus.ACTIVE.ToString();
+                promotion.name = model.name;
+                promotion.modifiedAt = todayDate;
+                promotion.discount = model.discount;
+                promotion.discountRate = model.discountRate;
+                promotion.type = model.TypeId;           
 
-        //        _allyService.Update(allyData);
-        //        MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
-        //        return RedirectToAction("AllyIndex");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-        //        return View(model);
-        //    }
-        //}
+                PromotionViewModel model2 = new PromotionViewModel()
+                {
+                  
+                    hasPeriod = promotion.hasPeriod,
+                    initialPeriod = promotion.periodInitial,
+                    finalPeriod = promotion.periodFinal,
+                    hasValidity = promotion.hasValidity,
+                    finalDate = promotion.validityFinalAt
+                };
+
+                var discountsData = _discountService.GetDiscounts(promotion.uuid.ToString());
+                var promotionAccountData = _promotionAccountService.GetPromotionAccount(promotion.uuid.ToString());
+
+                if (promotionAccountData != null)
+                {
+                    model.AccountId = promotionAccountData.Select(x => x.account.id).ToArray();
+                }
+
+                if (model.hasPeriod)
+                {
+                    promotion.periodInitial = model.initialPeriod;
+                    promotion.periodFinal = model.finalPeriod;
+                }
+
+                if (model.hasValidity)
+                {
+                    promotion.validityInitialAt = model.finalDate;
+                    promotion.validityFinalAt = model.finalDate;
+                }
+
+                List<PromotionAccount> promotionsXaccounts = new List<PromotionAccount>();
+                List<Discount> discounts = new List<Discount>();
+                foreach (var item in model.AccountId)
+                {
+
+                    PromotionAccount promotionAccount = new PromotionAccount()
+                    {
+                        account = new Account { id = item },
+                        promotion = promotion
+                    };
+
+                    promotionsXaccounts.Add(promotionAccount);
+
+                    Discount discount = new Discount()
+                    {
+                        uuid = Guid.NewGuid(),
+                        name = model.name,
+                        type = model.TypeId,
+                        discount = model.discount,
+                        discountRate = model.discountRate,
+                        hasPeriod = model.hasPeriod,
+                        hasValidity = model.hasValidity,
+                        account = new Account { id = item },
+                        promotion = promotion,
+                        createdAt = todayDate,
+                        modifiedAt = todayDate,
+                        status = SystemStatus.ACTIVE.ToString()
+                    };
+
+                    if (model.hasPeriod)
+                    {
+                        discount.periodInitial = model.initialPeriod;
+                        discount.periodFinal = model.finalPeriod;
+                    }
+
+                    if (model.hasValidity)
+                    {
+                        discount.validityInitialAt = model.finalDate;
+                        discount.validityFinalAt = model.finalDate;
+                    }
+
+                    discounts.Add(discount);
+                }
+
+                _promotionService.Update(promotion, promotionsXaccounts, discounts);
+                MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return View(model);
+            }
+        }
     }
 }

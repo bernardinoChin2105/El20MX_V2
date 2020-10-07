@@ -25,7 +25,7 @@
 
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <h5>Datos de la Alianza</h5>
+                        <h5>Datos de Promoción</h5>
                     </div>
                     <div class="ibox-content">
                         <div class="form-horizontal">
@@ -56,7 +56,7 @@
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.AccountId, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-md-9">
-                                    @Html.DropDownList("allyId", (MultiSelectList)Model.allyMultList, new { multiple = "multiple", @class = "chosen-select", data_placeholder = "Seleccione" })
+                                    @Html.DropDownList("AccountId", (MultiSelectList)Model.AccountMultipleList, new { multiple = "multiple", @class = "chosen-select", data_placeholder = "Seleccione", disabled="disabled" })
                                     @*@Html.DropDownListFor(model => model.TypeId, Model.TypeList.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })*@
                                     @*@Html.ValidationMessageFor(model => model.allyId)*@
                                 </div>
@@ -67,8 +67,8 @@
                                 <div class="col-12 col-md-3 text-right">
                                     <div class="i-checks">
                                         <label style="font-weight:initial">
-                                            @Html.CheckBoxFor(m => m.applyPeriod, new { @class = "form-control" })
-                                            @Html.LabelFor(m => m.applyPeriod)
+                                            @Html.CheckBoxFor(m => m.hasPeriod, new { @class = "form-control" })
+                                            @Html.LabelFor(m => m.hasPeriod)
                                         </label>
                                     </div>
                                 </div>
@@ -87,17 +87,11 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                @Html.LabelFor(m => m.finalAllyCommisionPercent, new { @class = "col-form-label col-md-3 control-label" })
-                                <div class="col-12 col-md-9">
-                                    @Html.TextBoxFor(m => m.finalAllyCommisionPercent, new { @class = "form-control porcert required", disabled = "disabled", type = "number", @maxlength = "50" })
-                                </div>
-                            </div>
-                            <div class="form-group row">
                                 <div class="col-12 col-md-3 text-right">
                                     <div class="i-checks">
                                         <label style="font-weight:initial">
-                                            @Html.CheckBoxFor(m => m.allianceValidity, new { @class = "form-control" })
-                                            @Html.LabelFor(m => m.allianceValidity)
+                                            @Html.CheckBoxFor(m => m.hasValidity, new { @class = "form-control" })
+                                            @Html.LabelFor(m => m.hasValidity)
                                         </label>
                                     </div>
                                 </div>
@@ -162,26 +156,64 @@
                 language: "es"
             });
 
-            $('input').on('ifClicked', function (ev) {
-                $(ev.target).click();
-            })
+            $("#TypeId").change(function () {
+                console.log("cambio", $(this).val());
+                var value = $(this).val();
+                var hasPeriod = $("#hasPeriod");
+                var customers = $("#AccountId");
 
-            $("#applyPeriod").click(function () {
-                //console.log("aplicar periodo");
-
-                $("#initialPeriod,#finalPeriod,#finalAllyCommisionPercent").prop("disabled", !this.checked)
-                var initialPeriod = $("#initialPeriod");
-                var finalPeriod = $("#finalPeriod");
-                var finalAllyCommisionPercent = $("#finalAllyCommisionPercent");
-
-                if (!this.checked) {
-                    initialPeriod.val("");
-                    finalPeriod.val("");
-                    finalAllyCommisionPercent.val("");
+                if ("REFERRED" == value) {
+                    console.log("referido")
+                    customers.prop("disabled", false).trigger("chosen:updated");
+                    //hasPeriod.prop("checked", true)
+                    hasPeriod.trigger("click");
+                    hasPeriod.iCheck('update');
+                }
+                //else
+                //{
+                //    $("#hasPeriod").attr("checked", false).trigger("click");
+                //    $("#AccountId").attr("disabled", true).trigger("chosen:updated");
+                //}
+                if ("INITIAL_DISCOUNT" == value) {
+                    console.log("descuento inicial")
+                    $("#hasPeriod").attr("checked", false).trigger("click");
+                    $("#AccountId").attr("disabled", true).trigger("chosen:updated");
+                    //Poner "N/A" en los campos que estan en los checkeds
+                }
+                if ("CUSTOMERS" == value) {
+                    console.log("clientes")
+                    $("#hasPeriod").attr("checked", false).trigger("click");
+                    $("#AccountId").attr("disabled", false).trigger("chosen:updated");
                 }
             });
 
-            $("#allianceValidity").click(function () {
+            $('input').on('ifChecked', function (event) {
+                console.log("que pasa");
+                alert(event.type + ' callback');
+            });
+
+            $('input').on('ifClicked', function (ev) {  
+                console.log("holas")
+                $(ev.target).click();
+            })
+
+            $("#hasPeriod").click(function () {                
+                console.log(this.checked, "que valor tiene")
+                var vchecked = $(this).is(":checked");
+                console.log("aplicar periodo", !vchecked);
+
+
+                $("#initialPeriod,#finalPeriod").prop("disabled", !vchecked)
+                var initialPeriod = $("#initialPeriod");
+                var finalPeriod = $("#finalPeriod");
+
+                if (!vchecked) {
+                    initialPeriod.val("");
+                    finalPeriod.val("");
+                }
+            });
+
+            $("#hasValidity").click(function () {
                 //console.log("allianceValidity");
                 var finalDate = $("#finalDate");
                 finalDate.prop("disabled", !this.checked);
@@ -189,35 +221,7 @@
                 if (!this.checked) {
                     finalDate.val("");
                 }
-            });
-
-            $("#allyId").change(function () {
-                console.log("aliado", this.value);
-                var code = $("#promotionCode");
-
-                $.ajax({
-                    type: 'GET',
-                    async: true,
-                    data: { id: this.value },
-                    url: "/Alliance/GetPromotionCode",
-                    success: function (data) {
-                        if (!data.success) {
-                            toastr['error'](data.error);
-                            //swal({
-                            //    type: 'error',
-                            //    title: "Error al realizar la operación.",
-                            //    text: data.error
-                            //});
-                        } else {
-                            code.val(data.promotionCode);
-                            //swal("Estatus cambiado!");
-                        }
-                    },
-                    error: function (xhr) {
-                        console.log('error');
-                    }
-                });
-            });
+            });           
         });
     </script>
 }

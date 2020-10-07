@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Entities
 {
-    public class PromotionAccount
+    public class PromotionAccount : IEntity
     {
         public virtual Int64 id { get; set; }
         
