@@ -1967,6 +1967,8 @@
     <Content Include="Views\Promotion\Index.cshtml" />
     <Content Include="Views\Promotion\Create.cshtml" />
     <Content Include="Views\Quotation\Index.cshtml" />
+    <Content Include="Views\Quotation\Create.cshtml" />
+    <Content Include="Views\Quotation\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

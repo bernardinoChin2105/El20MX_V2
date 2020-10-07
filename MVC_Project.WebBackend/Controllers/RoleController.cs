@@ -203,18 +203,7 @@ namespace MVC_Project.WebBackend.Controllers
                 Id = permission.id,
                 Name = permission.description
             }).ToList();
-
-            LogUtil.AddEntry(
-               "Permisos populares: " + JsonConvert.SerializeObject(permissionsVM),
-               ENivelLog.Info,
-               userAuth.Id,
-               userAuth.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-            );
-
+            
             return permissionsVM;
         }
 
@@ -234,18 +223,7 @@ namespace MVC_Project.WebBackend.Controllers
                     SystemActions = PopulateActions()
                 }).ToList()
             }).ToList();
-
-            LogUtil.AddEntry(
-               "Populares por modulo: " + JsonConvert.SerializeObject(permissionsVM),
-               ENivelLog.Info,
-               userAuth.Id,
-               userAuth.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-            );
-
+            
             return permissionsVM;
         }
 
