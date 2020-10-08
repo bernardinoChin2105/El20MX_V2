@@ -37,7 +37,7 @@ namespace MVC_Project.Integrations.Paybook
         public int ready_in { get; set; }
         public string username { get; set; }
         public int code { get; set; }
-        public List<string> keywords { get; set; }
+        //public List<string> keywords { get; set; }
         public string dt_authorized { get; set; }
         public string dt_execute { get; set; }
         public string dt_ready { get; set; }
@@ -63,7 +63,7 @@ namespace MVC_Project.Integrations.Paybook
         public string account_type { get; set; }
         public SitePaybook site { get; set; }
         public ExtraAccountPaybook extra { get; set; }
-        public List<string> keywords { get; set; }
+        //public List<string> keywords { get; set; }
         public long dt_refresh { get; set; }
     }
 
@@ -110,7 +110,7 @@ namespace MVC_Project.Integrations.Paybook
         public List<string> attachments { get; set; }
         public ExtraTransactionPaybook extra { get; set; }
         public string reference { get; set; }
-        public List<string> keywords { get; set; }
+        //public List<string> keywords { get; set; }
         public long dt_transaction { get; set; }
         public long dt_refresh { get; set; }
         public long? dt_disable { get; set; }
