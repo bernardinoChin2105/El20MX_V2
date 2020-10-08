@@ -40,11 +40,23 @@ namespace MVC_Project.WebBackend.Models
         public virtual decimal advancePayment { get; set; }
         [DisplayName("Mensualidad")]
         public virtual decimal monthlyCharge { get; set; }
-        
+
         public List<SelectListItem> accounts { get; set; }
         [DisplayName("Cliente")]
         public Int64 accountId { get; set; }
         [DisplayName("Cotización")]
         public HttpPostedFileBase file { get; set; }
+
+        public List<SelectListItem> statusQuotation { get; set; }
+        [DisplayName("Estatus de la Cotización")]
+        public string quoteStatus { get; set; }
+
+        public QuotationCreate()
+        {
+            var list = new List<SelectListItem>();
+            list.Add(new SelectListItem() { Text = "Seleccionar", Value = "-1" });
+
+            accounts = list;
+        }
     }
 }

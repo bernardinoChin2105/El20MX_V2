@@ -23,6 +23,16 @@ namespace MVC_Project.Utils
         PROCESSING
     }
 
+    public enum SystemQuotation
+    {        
+        [Display(Name = "Aprobada")]
+        APPROVED,
+        [Display(Name = "Cancelada")]
+        CANCELLED,
+        [Display(Name = "En proceso")]
+        IN_PROCESS
+    }
+
     public enum SystemLevelPermission
     {
         [Display(Name = "No access")]

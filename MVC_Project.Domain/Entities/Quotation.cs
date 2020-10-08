@@ -22,6 +22,8 @@ namespace MVC_Project.Domain.Entities
         public virtual string quoteLink { get; set; }
         public virtual string quoteName { get; set; }
 
+        public virtual string quoteStatus { get; set; }
+
         public virtual Account account{ get; set; }
 
         public virtual DateTime createdAt { get; set; }

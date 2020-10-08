@@ -87,6 +87,15 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 var model = new QuotationCreate();
                 model.accounts = PopulateAccounts();
+                
+                List<SelectListItem> quoteStatus = Enum.GetValues(typeof(SystemQuotation)).Cast<SystemQuotation>()
+                    .Select(e => new SelectListItem
+                    {
+                        Value = e.ToString(),
+                        Text = EnumUtils.GetDisplayName(e)
+                    }).ToList();
+
+                model.statusQuotation = quoteStatus;
                 return View(model);
             }
             catch (Exception ex)
@@ -132,9 +141,9 @@ namespace MVC_Project.WebBackend.Controllers
                     monthlyCharge = model.monthlyCharge,
                     quoteLink = upload.Item1,
                     quoteName = upload.Item2,
+                    quoteStatus = model.quoteStatus,
                     status = SystemStatus.ACTIVE.ToString(),
                     createdAt = DateTime.Now,
-
                 };
 
                 _quotationService.Create(quotation);
@@ -183,11 +192,11 @@ namespace MVC_Project.WebBackend.Controllers
                     accountId = quotation.account.id,
                     accounts = PopulateAccounts(),
                     startedAt = quotation.startedAt,
-                    total = quotation.total,
+                    total = Math.Round(quotation.total),
                     hasDeferredPayment = quotation.hasDeferredPayment,
-                    advancePayment = quotation.advancePayment,
+                    advancePayment = Math.Round(quotation.advancePayment, 2),
                     partialitiesNumber = quotation.partialitiesNumber,
-                    monthlyCharge = quotation.monthlyCharge
+                    monthlyCharge = Math.Round(quotation.monthlyCharge, 2)
                 };
                 
                 return View(model);
