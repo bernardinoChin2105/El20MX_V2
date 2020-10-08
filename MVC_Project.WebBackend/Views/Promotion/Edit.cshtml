@@ -100,7 +100,7 @@
                                     <div id="data_1">
                                         <div class="input-group date">
                                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                            <input type="text" name="finalDate" id="finalDate" class="form-control required" value="@(Model.hasValidity ? Model.finalDate.ToShortDateString() : "" )" disabled="@(!Model.hasValidity)">
+                                            <input type="text" name="finalDate" id="finalDate" autocomplete="off" class="form-control required" value="@(Model.hasValidity ? Model.finalDate.ToShortDateString() : "" )" disabled="@(!Model.hasValidity)">
                                         </div>
                                     </div>
                                 </div>

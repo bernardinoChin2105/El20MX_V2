@@ -113,7 +113,7 @@
                                         <div class="input-group date">
                                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                                             @*@Html.TextBoxFor(m => m.finalDate, new { @class = "form-control ", @maxlength = "50" })*@                                            
-                                            <input type="text" name="finalDate" id="finalDate" class="form-control required" value="@(Model.allianceValidity ? Model.finalDate.ToShortDateString() : "" )" disabled="@(!Model.allianceValidity)">
+                                            <input type="text" name="finalDate" id="finalDate" class="form-control required" autocomplete="off" value="@(Model.allianceValidity ? Model.finalDate.ToShortDateString() : "" )" disabled="@(!Model.allianceValidity)">
                                         </div>
                                     </div>
                                 </div>

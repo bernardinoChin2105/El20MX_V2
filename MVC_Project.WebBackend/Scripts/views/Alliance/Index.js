@@ -56,7 +56,7 @@ var AllianceIndexControlador = function (htmlTableId, baseUrl, editUrl, ActiveIn
 
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             deshabilitar+
-                            '<a href="' + self.editUrl + '?uuid=' + data.uuid + '" class="btn btn-light" title="Editar al aliado"><span class="fas fa-edit"></span></a>' +                                                        
+                            '<a href="' + self.editUrl + '?uuid=' + data.uuid + '" class="btn btn-light" title="Editar Alianza"><span class="fas fa-edit"></span></a>' +                                                        
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }

@@ -54,7 +54,7 @@ var PromotionIndexControlador = function (htmlTableId, baseUrl, editUrl, ActiveI
 
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             deshabilitar+
-                            '<a href="' + self.editUrl + '?uuid=' + data.uuid + '" class="btn btn-light" title="Editar al aliado"><span class="fas fa-edit"></span></a>' +
+                            '<a href="' + self.editUrl + '?uuid=' + data.uuid + '" class="btn btn-light" title="Editar Promoción"><span class="fas fa-edit"></span></a>' +
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }
