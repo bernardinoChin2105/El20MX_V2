@@ -75,12 +75,12 @@
                             </div>
                             <div class="form-group row">
                                 @Html.LabelFor(m => m.initialPeriod, new { @class = "col-form-label col-md-3 control-label" })
-                                <div class="col-12 col-md-3">
-                                    @Html.TextBoxFor(m => m.initialPeriod, new { @class = "form-control required", disabled = "disabled", type = "number", @maxlength = "50" })
+                                <div class="col-12 col-md-3">                                    
+                                    <input type="number" name="initialPeriod" id="initialPeriod" class="form-control required" value="@Model.initialPeriod" disabled="@(!Model.hasPeriod)">
                                 </div>
                                 @Html.LabelFor(m => m.finalPeriod, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-12 col-md-3">
-                                    @Html.TextBoxFor(m => m.finalPeriod, new { @class = "form-control required", disabled = "disabled", type = "number", @maxlength = "50" })
+                                    <input type="number" name="finalPeriod" id="finalPeriod" class="form-control required" value="@Model.finalPeriod" disabled="@(!Model.hasPeriod)">                                    
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -103,7 +103,7 @@
                                         <div class="input-group date">
                                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                                             @*@Html.TextBoxFor(m => m.finalDate, new { @class = "form-control ", @maxlength = "50" })*@
-                                            <input type="text" name="finalDate" id="finalDate" class="form-control required" disabled="disabled">
+                                            <input type="text" name="finalDate" id="finalDate" class="form-control required" value="@(Model.hasValidity ? Model.finalDate.ToShortDateString() : "" )" disabled="@(!Model.hasValidity)">
                                         </div>
                                     </div>
                                 </div>

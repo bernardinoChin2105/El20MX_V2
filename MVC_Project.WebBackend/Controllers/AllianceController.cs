@@ -285,6 +285,7 @@ namespace MVC_Project.WebBackend.Controllers
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                 );
 
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return View(model);
             }
         }
@@ -346,7 +347,7 @@ namespace MVC_Project.WebBackend.Controllers
                     finalPeriod = alliance.finalPeriod,
                     finalAllyCommisionPercent = Math.Round(alliance.finalAllyCommisionPercent, 2),
                     allianceValidity = alliance.allianceValidity,
-                    finalDate = alliance.finalDate.Value
+                    finalDate = alliance.finalDate
                 };
 
                 var list = _allyService.GetAll();
@@ -380,30 +381,12 @@ namespace MVC_Project.WebBackend.Controllers
                 allianceData.allianceValidity = model.allianceValidity;
                 allianceData.applyPeriod = model.applyPeriod;
                 allianceData.modifiedAt = todayDate;
+                allianceData.initialPeriod = model.initialPeriod;
+                allianceData.finalPeriod = model.finalPeriod;
+                allianceData.finalAllyCommisionPercent = model.finalAllyCommisionPercent;
+                allianceData.finalDate = model.finalDate;
+                allianceData.initialDate = model.finalDate;
 
-                if (model.applyPeriod)
-                {
-                    allianceData.initialPeriod = model.initialPeriod;
-                    allianceData.finalPeriod = model.finalPeriod;
-                    allianceData.finalAllyCommisionPercent = model.finalAllyCommisionPercent;
-                }
-                else
-                {
-                    allianceData.initialPeriod = 0;
-                    allianceData.finalPeriod = 0;
-                    allianceData.finalAllyCommisionPercent = 0;
-                }
-
-                if (model.allianceValidity)
-                {
-                    allianceData.finalDate = model.finalDate;
-                    allianceData.initialDate = model.finalDate;
-                }
-                else
-                {
-                    allianceData.finalDate = null;
-                    allianceData.initialDate = null;
-                }
 
                 if (model.allyId != allianceData.ally.id)
                 {
@@ -590,6 +573,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return View(model);
             }
         }

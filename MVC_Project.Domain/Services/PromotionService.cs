@@ -95,14 +95,12 @@ namespace MVC_Project.Domain.Services
                     _repository.Session.Update(promotion);
 
                     foreach (var item in prmAccountAdd)
-                        _repository.Session.Update(item);
-                    foreach (var item in prmAccountUpd)
-                        _repository.Session.Update(item);
+                        _repository.Session.Save(item);
                     foreach (var item in prmAccountDel)
                         _repository.Session.Delete(item);
 
                     foreach (var item in discountsAdd)
-                        _repository.Session.Update(item);
+                        _repository.Session.Save(item);
                     foreach (var item in discountsUpd)
                         _repository.Session.Update(item);
                     foreach (var item in discountsDel)
