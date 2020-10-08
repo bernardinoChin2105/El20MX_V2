@@ -13,7 +13,8 @@ namespace MVC_Project.Domain.Services
         List<PromotionsList> GetPromotionList(BasePagination pagination, string name, string type);
         Promotion Save(Promotion promotion, List<PromotionAccount> promotionsAccount, List<Discount> discounts);
         Promotion GetValidityPromotion(string type);
-        Promotion Update(Promotion promotion, List<PromotionAccount> promotionsAccount = null, List<Discount> discounts = null);
+        Promotion Update(Promotion promotion, List<PromotionAccount> prmAccountAdd, List<PromotionAccount> prmAccountDel,
+            List<Discount> discountsAdd, List<Discount> discountsUpd, List<Discount> discountsDel);
     }
 
     public class PromotionService : ServiceBase<Promotion>, IPromotionService
@@ -54,7 +55,7 @@ namespace MVC_Project.Domain.Services
                     return null;
                 }
             }
-            
+
             return promocion;
         }
 
@@ -66,11 +67,12 @@ namespace MVC_Project.Domain.Services
                 {
                     _repository.Session.Save(promotion);
 
-                    foreach(var item in promotionsAccount)
+                    foreach (var item in promotionsAccount)
                         _repository.Session.Save(item);
 
                     foreach (var item in discounts)
                         _repository.Session.Save(item);
+
 
                     transaction.Commit();
                     return promotion;
@@ -83,7 +85,8 @@ namespace MVC_Project.Domain.Services
             }
         }
 
-        public Promotion Update(Promotion promotion, List<PromotionAccount> promotionsAccount = null, List<Discount> discounts = null)
+        public Promotion Update(Promotion promotion, List<PromotionAccount> prmAccountAdd, List<PromotionAccount> prmAccountDel,
+            List<Discount> discountsAdd, List<Discount> discountsUpd, List<Discount> discountsDel)
         {
             using (var transaction = _repository.Session.BeginTransaction())
             {
@@ -91,14 +94,19 @@ namespace MVC_Project.Domain.Services
                 {
                     _repository.Session.Update(promotion);
 
-                    if (promotionsAccount != null) {
-                        _repository.Session.Update(promotionsAccount);
-                    }
+                    foreach (var item in prmAccountAdd)
+                        _repository.Session.Update(item);
+                    foreach (var item in prmAccountUpd)
+                        _repository.Session.Update(item);
+                    foreach (var item in prmAccountDel)
+                        _repository.Session.Delete(item);
 
-                    if (discounts != null)
-                    {
-                        _repository.Session.Update(discounts);
-                    }
+                    foreach (var item in discountsAdd)
+                        _repository.Session.Update(item);
+                    foreach (var item in discountsUpd)
+                        _repository.Session.Update(item);
+                    foreach (var item in discountsDel)
+                        _repository.Session.Delete(item);
 
                     transaction.Commit();
                     return promotion;

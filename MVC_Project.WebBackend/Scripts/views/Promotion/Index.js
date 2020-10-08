@@ -40,7 +40,7 @@ var PromotionIndexControlador = function (htmlTableId, baseUrl, editUrl, ActiveI
                 { data: 'id', title: "Id", visible: false },
                 { data: 'name', title: "Nombre" },
                 { data: 'type', title: "Tipo" },
-                { data: 'discountRate', title: "%" },
+                { data: 'discount', title: "%" },
                 { data: 'discountRate', title: "$" },
                 {
                     data: null,
@@ -49,11 +49,11 @@ var PromotionIndexControlador = function (htmlTableId, baseUrl, editUrl, ActiveI
                     render: function (data) {
                         //Menu para más opciones de cliente
                         //console.log(data)
-                        //var deshabilitar = data.status === "Activo" ? '<button class="btn btn-light btn-delete" title="Desactivar" style="margin-left:5px;"><span class="far fa-check-square "></span></button>' :
-                        //    '<button class="btn btn-light btn-active" title="Activar" style="margin-left:5px;"><span class="far fa-square"></span></button>';
+                        var deshabilitar = data.status === "Activo" ? '<button class="btn btn-light btn-delete" title="Desactivar" style="margin-left:5px;"><span class="far fa-check-square "></span></button>' :
+                            '<button class="btn btn-light btn-active" title="Activar" style="margin-left:5px;"><span class="far fa-square"></span></button>';
 
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            //deshabilitar+
+                            deshabilitar+
                             '<a href="' + self.editUrl + '?uuid=' + data.uuid + '" class="btn btn-light" title="Editar al aliado"><span class="fas fa-edit"></span></a>' +
                             '</div>';
                         return hasFullAccessController ? buttons : "";
@@ -78,98 +78,98 @@ var PromotionIndexControlador = function (htmlTableId, baseUrl, editUrl, ActiveI
         });
 
 
-        //$(this.htmlTable, "tbody").on('click',
-        //    'td.menu-options .btn-group .btn-active',
-        //    function () {
-        //        var tr = $(this).closest('tr');
-        //        var row = self.dataTable.row(tr);
-        //        console.log(row.data().uuid, "josad");
-        //        var id = row.data().uuid;
+        $(this.htmlTable, "tbody").on('click',
+            'td.menu-options .btn-group .btn-active',
+            function () {
+                var tr = $(this).closest('tr');
+                var row = self.dataTable.row(tr);
+                console.log(row.data().uuid, "josad");
+                var id = row.data().uuid;
 
-        //        swal({
-        //            title: "Confirmación",
-        //            text: "¿Desea activar la alianza?",
-        //            showCancelButton: true,
-        //            confirmButtonClass: "btn-danger",
-        //            confirmButtonText: "Aceptar",
-        //            cancelButtonText: "Cancelar",
-        //            closeOnConfirm: false,
-        //            closeOnCancel: false
-        //        },
-        //            function (isConfirm) {
-        //                if (isConfirm) {
-        //                    $.ajax({
-        //                        type: 'POST',
-        //                        async: true,
-        //                        data: { uuid: id },
-        //                        url: self.ActiveInactiveUrl,
-        //                        success: function (data) {
-        //                            if (!data.success) {
-        //                                swal({
-        //                                    type: 'error',
-        //                                    title: "Error al realizar la operación.",
-        //                                    text: data.error
-        //                                });
-        //                            } else {
-        //                                swal("Estatus cambiado!");
-        //                                self.dataTable.draw();
-        //                            }
-        //                        },
-        //                        error: function (xhr) {
-        //                            console.log('error');
-        //                        }
-        //                    });
-        //                } else {
-        //                    swal("Cancelado", "Operación cancelada", "error");
-        //                }
-        //            });
-        //    });
+                swal({
+                    title: "Confirmación",
+                    text: "¿Desea activar la promoción?",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-danger",
+                    confirmButtonText: "Aceptar",
+                    cancelButtonText: "Cancelar",
+                    closeOnConfirm: false,
+                    closeOnCancel: false
+                },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            $.ajax({
+                                type: 'POST',
+                                async: true,
+                                data: { uuid: id },
+                                url: self.ActiveInactiveUrl,
+                                success: function (data) {
+                                    if (!data.success) {
+                                        swal({
+                                            type: 'error',
+                                            title: "Error al realizar la operación.",
+                                            text: data.error
+                                        });
+                                    } else {
+                                        swal("Estatus cambiado!");
+                                        self.dataTable.draw();
+                                    }
+                                },
+                                error: function (xhr) {
+                                    console.log('error');
+                                }
+                            });
+                        } else {
+                            swal("Cancelado", "Operación cancelada", "error");
+                        }
+                    });
+            });
 
-        //$(this.htmlTable, "tbody").on('click',
-        //    'td.menu-options .btn-group .btn-delete',
-        //    function () {
-        //        var tr = $(this).closest('tr');
-        //        var row = self.dataTable.row(tr);
-        //        console.log(row.data().uuid, "josad");
-        //        var id = row.data().uuid;
+        $(this.htmlTable, "tbody").on('click',
+            'td.menu-options .btn-group .btn-delete',
+            function () {
+                var tr = $(this).closest('tr');
+                var row = self.dataTable.row(tr);
+                console.log(row.data().uuid, "josad");
+                var id = row.data().uuid;
 
-        //        swal({
-        //            title: "Confirmación",
-        //            text: "¿Desea inactivar la alianza?",
-        //            showCancelButton: true,
-        //            confirmButtonClass: "btn-danger",
-        //            confirmButtonText: "Aceptar",
-        //            cancelButtonText: "Cancelar",
-        //            closeOnConfirm: false,
-        //            closeOnCancel: false
-        //        },
-        //            function (isConfirm) {
-        //                if (isConfirm) {
-        //                    $.ajax({
-        //                        type: 'POST',
-        //                        async: true,
-        //                        data: { uuid: id },
-        //                        url: self.ActiveInactiveUrl,
-        //                        success: function (data) {
-        //                            if (!data.success) {
-        //                                swal({
-        //                                    type: 'error',
-        //                                    title: "Error al realizar la operación.",
-        //                                    text: data.error
-        //                                });
-        //                            } else {
-        //                                swal("Estatus cambiado!");
-        //                                self.dataTable.draw();
-        //                            }
-        //                        },
-        //                        error: function (xhr) {
-        //                            console.log('error');
-        //                        }
-        //                    });
-        //                } else {
-        //                    swal("Cancelado", "Operación cancelada", "error");
-        //                }
-        //            });
-        //    });
+                swal({
+                    title: "Confirmación",
+                    text: "¿Desea inactivar la prommoción?",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-danger",
+                    confirmButtonText: "Aceptar",
+                    cancelButtonText: "Cancelar",
+                    closeOnConfirm: false,
+                    closeOnCancel: false
+                },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            $.ajax({
+                                type: 'POST',
+                                async: true,
+                                data: { uuid: id },
+                                url: self.ActiveInactiveUrl,
+                                success: function (data) {
+                                    if (!data.success) {
+                                        swal({
+                                            type: 'error',
+                                            title: "Error al realizar la operación.",
+                                            text: data.error
+                                        });
+                                    } else {
+                                        swal("Estatus cambiado!");
+                                        self.dataTable.draw();
+                                    }
+                                },
+                                error: function (xhr) {
+                                    console.log('error');
+                                }
+                            });
+                        } else {
+                            swal("Cancelado", "Operación cancelada", "error");
+                        }
+                    });
+            });
     };
 };

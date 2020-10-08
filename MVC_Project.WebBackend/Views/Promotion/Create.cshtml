@@ -57,11 +57,8 @@
                                 @Html.LabelFor(model => model.AccountId, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-md-9">
                                     @Html.DropDownList("AccountId", (MultiSelectList)Model.AccountMultipleList, new { multiple = "multiple", @class = "chosen-select", data_placeholder = "Seleccione", disabled="disabled" })
-                                    @*@Html.DropDownListFor(model => model.TypeId, Model.TypeList.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })*@
-                                    @*@Html.ValidationMessageFor(model => model.allyId)*@
                                 </div>
                             </div>
-
 
                             <div class="form-group row">
                                 <div class="col-12 col-md-3 text-right">
@@ -113,7 +110,7 @@
                             </div>
                             <div class="form-group row pull-right">
                                 <div class="col-md-10 offset-2 text-right">
-                                    <a href='@Url.Action("Index", "Alliance")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
+                                    <a href='@Url.Action("Index", "Promotion")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
                                     <button type="button" onclick="validarDatos()" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
                                 </div>
                             </div>
@@ -142,6 +139,7 @@
 
         $(document).ready(function () {
             $('.chosen-select').chosen({ width: '100%', "disable_search": true });
+            $("#AccountId").val(@Html.Raw(Json.Encode(Model.AccountId))).trigger("chosen:updated");
             $('.porcert').mask("##0.00", { reverse: true });
 
             var mem = $('#data_1 .input-group.date').datepicker({
@@ -160,48 +158,52 @@
                 console.log("cambio", $(this).val());
                 var value = $(this).val();
                 var hasPeriod = $("#hasPeriod");
+                var hasValidity = $("#hasValidity");
                 var customers = $("#AccountId");
 
                 if ("REFERRED" == value) {
-                    console.log("referido")
+                    //console.log("referido")
                     customers.prop("disabled", false).trigger("chosen:updated");
-                    //hasPeriod.prop("checked", true)
-                    hasPeriod.trigger("click");
-                    hasPeriod.iCheck('update');
+                    hasPeriod.prop("checked", true).iCheck('update');
+                    changeHasPeriod(hasPeriod);
                 }
-                //else
-                //{
-                //    $("#hasPeriod").attr("checked", false).trigger("click");
-                //    $("#AccountId").attr("disabled", true).trigger("chosen:updated");
-                //}
-                if ("INITIAL_DISCOUNT" == value) {
-                    console.log("descuento inicial")
-                    $("#hasPeriod").attr("checked", false).trigger("click");
-                    $("#AccountId").attr("disabled", true).trigger("chosen:updated");
+                else if ("INITIAL_DISCOUNT" == value) {
+                    //console.log("descuento inicial")
+                    customers.prop("disabled", true).trigger("chosen:updated");
+                    //hasPeriod.prop("checked", false).iCheck('update');
+                    hasPeriod.prop({ "checked": false, "disabled": true }).iCheck('update');
+                    changeHasPeriod(hasPeriod);
                     //Poner "N/A" en los campos que estan en los checkeds
-                }
-                if ("CUSTOMERS" == value) {
-                    console.log("clientes")
-                    $("#hasPeriod").attr("checked", false).trigger("click");
-                    $("#AccountId").attr("disabled", false).trigger("chosen:updated");
+                } else if ("CUSTOMERS" == value) {
+                    //console.log("clientes")
+                    customers.prop("disabled", false).trigger("chosen:updated");
+                    hasPeriod.prop({ "checked": false, "disabled": true }).iCheck('update');
+                    hasValidity.prop({ "checked": false, "disabled": true }).iCheck('update');
+                    changeHasPeriod(hasPeriod);
+                    changeHasValidity(hasValidity);
+                } else {
+                    customers.prop("disabled", true).trigger("chosen:updated");
+                    hasPeriod.prop({ "checked": false, "disabled": false }).iCheck('update');
+                    hasValidity.prop({ "checked": false, "disabled": false }).iCheck('update');
+                    changeHasPeriod(hasPeriod);
+                    changeHasValidity(hasValidity);
                 }
             });
 
-            $('input').on('ifChecked', function (event) {
-                console.log("que pasa");
-                alert(event.type + ' callback');
+            $('input').on('ifChanged', function (ev) {
+                //console.log("que pasa check", ev.target.id, $(ev.target).is(":checked"));
+
+                if (ev.target.id == "hasPeriod") {
+                    changeHasPeriod($(ev.target))
+                } else {
+                    changeHasValidity($(ev.target))
+                }
             });
 
-            $('input').on('ifClicked', function (ev) {  
-                console.log("holas")
-                $(ev.target).click();
-            })
-
-            $("#hasPeriod").click(function () {                
-                console.log(this.checked, "que valor tiene")
-                var vchecked = $(this).is(":checked");
-                console.log("aplicar periodo", !vchecked);
-
+            function changeHasPeriod(input) {
+                //console.log("funcion de valor", input.is(":checked"))
+                var vchecked = input.is(":checked");
+                //console.log("aplicar periodo", !vchecked);
 
                 $("#initialPeriod,#finalPeriod").prop("disabled", !vchecked)
                 var initialPeriod = $("#initialPeriod");
@@ -211,16 +213,25 @@
                     initialPeriod.val("");
                     finalPeriod.val("");
                 }
+            }
+
+            function changeHasValidity(input) {
+                //console.log("allianceValidity");
+                var vchecked = input.is(":checked");
+                var finalDate = $("#finalDate");
+                finalDate.prop("disabled", !vchecked);
+
+                if (!vchecked) {
+                    finalDate.val("");
+                }
+            }
+
+            $("#hasPeriod").click(function () {    
+                changeHasPeriod($(this));
             });
 
             $("#hasValidity").click(function () {
-                //console.log("allianceValidity");
-                var finalDate = $("#finalDate");
-                finalDate.prop("disabled", !this.checked);
-
-                if (!this.checked) {
-                    finalDate.val("");
-                }
+                changeHasValidity($(this));
             });           
         });
     </script>
