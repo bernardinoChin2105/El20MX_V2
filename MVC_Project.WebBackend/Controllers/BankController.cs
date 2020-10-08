@@ -195,7 +195,8 @@ namespace MVC_Project.WebBackend.Controllers
                     foreach (var itemBank in newBanks)
                     {
                         //Buscar el banco
-                        var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site);
+                        //var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site);
+                        var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site_organization);
 
                         //Guardar los listado de bancos nuevos
                         BankCredential newBankCred = new BankCredential()
