@@ -73,7 +73,7 @@
             function () {
                 var tr = $(this).closest('tr');
                 var row = self.dataTable.row(tr);
-                var id = row.data().Uuid;
+                var id = row.data().uuid;
 
                 swal({
                     title: "Confirmación",
@@ -119,7 +119,7 @@
             function () {
                 var tr = $(this).closest('tr');
                 var row = self.dataTable.row(tr);
-                var id = row.data().Uuid;
+                var id = row.data().uuid;
 
                 swal({
                     title: "Confirmación",
@@ -165,7 +165,7 @@
             function () {
                 var tr = $(this).closest('tr');
                 var row = self.dataTable.row(tr);
-                var uuid = row.data().Uuid;
+                var uuid = row.data().uuid;
 
                 var form = document.createElement('form');
                 document.body.appendChild(form);
