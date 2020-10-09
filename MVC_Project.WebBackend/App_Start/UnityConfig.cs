@@ -89,6 +89,7 @@ namespace MVC_Project.WebBackend
             container.RegisterType<IPromotionService, PromotionService>();
             container.RegisterType<IPromotionAccountService, PromotionAccountService>();
             container.RegisterType<IDiscountService, DiscountService>();
+            container.RegisterType<IQuotationService, QuotationService>();
         }
     }
 }

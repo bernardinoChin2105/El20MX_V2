@@ -1,0 +1,281 @@
+﻿@model MVC_Project.WebBackend.Models.QuotationCreate
+
+@{
+    ViewBag.Title = "Regularizaciones";
+}
+
+@section Styles {
+
+    <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
+    <link href="~/Content/template/plugins/datapicker/datepicker3.css" rel="stylesheet" />
+
+    <style>
+        /*.btn-primary {
+            color: #000;
+            background-color: #ffffff;
+            border-color: #e5e6e7;
+        }
+        .btn-primary:hover, .btn-primary:focus, .btn-primary.focus {
+            background-color: #002642;
+            border-color: #002642;
+            color: #FFFFFF;
+        }
+        .float-e-margins .btn {
+            margin-bottom: 0px;
+        }*/
+        .btn-touch-spin{
+            color: #000;
+            background-color: #ffffff;
+            border-color: #e5e6e7;
+        }
+    </style>
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Crear</h5>
+                </div>
+                <div class="ibox-content">
+
+                    @using (Html.BeginForm("Create", "Quotation", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "CreateForm", @enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-horizontal">
+                            @Html.ValidationSummary(true)
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.accountId, new { @class = "col-form-label control-label col-md-2" })
+                                <div class="col-md-8">
+                                    @Html.DropDownListFor(model => model.accountId, Model.accounts, new { @class = "chosen-select" })
+                                    @Html.ValidationMessageFor(model => model.accountId)
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.startedAt, new { @class = "col-form-label control-label col-md-2" })
+                                <div class="col-md-8">
+                                    @*@Html.TextBoxFor(model => model.startedAt, new { @class = "form-control", required = "required", @autocomplete = "off" })
+                                        @Html.ValidationMessageFor(model => model.startedAt)*@
+                                    <div id="data_1">
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input type="text" name="startedAt" id="startedAt" class="form-control required" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.total, new { @class = "col-form-label control-label col-md-2" })
+                                <div class="col-md-8">
+                                    @Html.TextBoxFor(model => model.total, new { @class = "form-control porcert", required = "required", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.total)
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.file, new { @class = "col-form-label control-label col-md-2" })
+                                <div class="col-md-8">
+                                    <div class="custom-file form-control">
+                                        @Html.TextBoxFor(model => model.file, new { @class = "custom-file-input", @autocomplete = "off", type = "file" })
+                                        <label for="File" class="custom-file-label"></label>
+                                        @Html.ValidationMessageFor(model => model.file)
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="form-group row">
+                                <div class="col-md-8 offset-2">
+                                    <div class="i-checks">
+                                        <label style="font-weight:initial">
+                                            @Html.CheckBoxFor(m => m.hasDeferredPayment, new { @class = "form-control" })
+                                            Pagos diferidos
+                                        </label>
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.hasDeferredPayment)
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.partialitiesNumber, new { @class = "col-form-label control-label col-md-2" })
+                                <div class="col-md-8">
+                                    @Html.TextBoxFor(model => model.partialitiesNumber, new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" })
+                                    @Html.ValidationMessageFor(model => model.partialitiesNumber)
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.advancePayment, new { @class = "col-form-label control-label col-md-2" })
+                                <div class="col-md-8">
+                                    @Html.TextBoxFor(model => model.advancePayment, new { @class = "form-control porcert", @autocomplete = "off", @readonly = "readonly" })
+                                    @Html.ValidationMessageFor(model => model.advancePayment)
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.monthlyCharge, new { @class = "col-form-label control-label col-md-2" })
+                                <div class="col-md-8">
+                                    @Html.TextBoxFor(model => model.monthlyCharge, new { @class = "form-control porcert", @autocomplete = "off", @readonly = "readonly" })
+                                    @Html.ValidationMessageFor(model => model.monthlyCharge)
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.quoteStatus, new { @class = "col-form-label control-label col-md-2" })
+                                <div class="col-md-8">
+                                    @Html.DropDownListFor(model => model.quoteStatus, Model.statusQuotation, new { @class = "chosen-select" })
+                                    @Html.ValidationMessageFor(model => model.quoteStatus)
+                                </div>
+                            </div>
+
+                            <div class="form-group row pull-right">
+                                <div class="col-md-8 offset-2 text-right">
+                                    <a href='@Url.Action("Index", "Quotation")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
+                                    <button type="button" id="btn-save" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.js"></script>
+    <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.es.js"></script>
+    @*<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>*@
+    <script src="~/Scripts/plugins/touchspin/jquery.bootstrap-touchspin.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.chosen-select').chosen({ width: '100%', "disable_search": true });
+            //$('.porcert').mask("###,##0.00", { reverse: true });
+             var mem = $('#data_1 .input-group.date').datepicker({
+                //dateFormat: "yy-mm-dd"
+                keyboardNavigation: false,
+                todayBtn: "linked",
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true,
+                format: "dd/mm/yyyy",
+                //startDate: '@Html.Raw(Json.Encode(ViewBag.Date))',
+                language: "es"
+            });
+
+            $.validator.addMethod("Alphanumeric",
+                function (value, element) {
+                    return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
+                }, "El campo debe ser alfanumérico"
+            );
+            $("#CreateForm").validate({
+                rules: {
+
+                }
+            });
+
+            $('.custom-file-input').on('change', function (e) {
+                let fileName = $(this).val().split('\\').pop();
+                $(this).next('.custom-file-label').addClass("selected").html(fileName);
+            });
+
+            $("#total").TouchSpin({
+                min: 0,
+                max: 1000000000,
+                step: 0.1,
+                decimals: 2,
+                //boostat: 5,
+                //maxboostedstep: 10,
+                //postfix: '$'
+                buttondown_class: "btn-touch-spin",
+                buttonup_class: "btn-touch-spin"
+            });
+            $("#partialitiesNumber").TouchSpin({
+                min: 1,
+                max: 100,
+                step: 1,
+                decimals: 0,
+                //boostat: 5,
+                //maxboostedstep: 10,
+                //postfix: '$'
+                buttondown_class: "btn-touch-spin btn-opt",
+                buttonup_class: "btn-touch-spin btn-opt"
+            });
+            $("#advancePayment").TouchSpin({
+                min: 0,
+                max: 1000000000,
+                step: 0.1,
+                decimals: 2,
+                //boostat: 5,
+                //maxboostedstep: 10,
+                //postfix: '$'
+                buttondown_class: "btn-touch-spin btn-opt",
+                buttonup_class: "btn-touch-spin btn-opt"
+            });
+
+
+            $(".btn-opt").prop("disabled", true);
+        });
+
+        $("#btn-save").on("click", function () {
+            if (!$('#CreateForm').valid()) {
+                return;
+            }
+            $('#CreateForm').submit();
+        });
+
+        $("#total").on("change", function () {
+            var partialitiesNumber = $("#partialitiesNumber").val();
+            var total = $(this).val();
+            var advancePayment = $("#advancePayment").val();
+
+            saveMonthlyCharge(total, partialitiesNumber, advancePayment);
+        });
+
+        $("#partialitiesNumber").on("change", function () {
+            var partialitiesNumber = $(this).val();
+            var total = $("#total").val();
+            var advancePayment = $("#advancePayment").val();
+
+            saveMonthlyCharge(total, partialitiesNumber, advancePayment);
+        });
+
+        $("#advancePayment").on("change", function () {
+            var partialitiesNumber = $("#partialitiesNumber").val();
+            var total = $("#total").val();
+            var advancePayment = $(this).val();
+
+            saveMonthlyCharge(total, partialitiesNumber, advancePayment);
+            
+        });
+
+        function saveMonthlyCharge(total, partialitiesNumber, advancePayment) {
+            if (partialitiesNumber && total && advancePayment) {
+                var monthlyCharge = (parseFloat(total) - parseFloat(advancePayment)) / parseInt(partialitiesNumber);
+                monthlyCharge = Math.round(monthlyCharge * 100) / 100;
+                $("#monthlyCharge").val(monthlyCharge);
+            }
+        }
+
+        $("#hasDeferredPayment").on("ifChanged", function () {
+            if (this.checked) {
+                $("#partialitiesNumber").prop('readonly', false);
+                $("#advancePayment").prop('readonly', false);
+                $(".btn-opt").prop("disabled", false);
+            }
+            else {
+                $("#partialitiesNumber").val(1);
+                $("#advancePayment").val(0);
+                $("#monthlyCharge").val($("#total").val());
+                $("#partialitiesNumber").prop('readonly', true);
+                $("#advancePayment").prop('readonly', true);
+                $(".btn-opt").prop("disabled", true);
+            }
+        })
+
+    </script>
+}

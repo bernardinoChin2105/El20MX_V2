@@ -266,6 +266,7 @@
     <Compile Include="Controllers\PlanController.cs" />
     <Compile Include="Controllers\PromotionController.cs" />
     <Compile Include="Controllers\ProviderController.cs" />
+    <Compile Include="Controllers\QuotationController.cs" />
     <Compile Include="Controllers\RegisterController.cs" />
     <Compile Include="Controllers\RoleController.cs" />
     <Compile Include="Controllers\StorageController.cs" />
@@ -296,6 +297,7 @@
     <Compile Include="Models\JQueryDataTableParams.cs" />
     <Compile Include="Models\LogInSATModel.cs" />
     <Compile Include="Models\PaymentViewModel.cs" />
+    <Compile Include="Models\QuotationViewModel.cs" />
     <Compile Include="Models\RegisterViewModel.cs" />
     <Compile Include="Models\ReportOrdersViewModel.cs" />
     <Compile Include="Models\RoleViewModel.cs" />
@@ -1829,6 +1831,7 @@
     <Content Include="Scripts\views\Diagnostic\Index.js" />
     <Content Include="Scripts\views\Payments\Index.js" />
     <Content Include="Scripts\views\PdfSignature\Index.js" />
+    <Content Include="Scripts\views\Quotation\Index.js" />
     <Content Include="Scripts\views\Reports\OrderIndex.js" />
     <Content Include="Scripts\views\rol\Index.js" />
     <Content Include="Scripts\views\UserPermission\Index.js" />
@@ -1964,6 +1967,9 @@
     <Content Include="Views\Promotion\Index.cshtml" />
     <Content Include="Views\Promotion\Create.cshtml" />
     <Content Include="Views\Promotion\Edit.cshtml" />
+    <Content Include="Views\Quotation\Index.cshtml" />
+    <Content Include="Views\Quotation\Create.cshtml" />
+    <Content Include="Views\Quotation\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

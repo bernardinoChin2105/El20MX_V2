@@ -20,7 +20,11 @@ namespace MVC_Project.Utils
         [Display(Name = "Pendiente")]
         PENDING,
         [Display(Name = "En Proceso")]
-        PROCESSING
+        PROCESSING,
+        [Display(Name = "Aprobado")]
+        APPROVED,
+        [Display(Name = "Cancelado")]
+        CANCELLED,
     }
 
     public enum SystemLevelPermission
@@ -119,7 +123,9 @@ namespace MVC_Project.Utils
         [Display(Name = "Planes")]
         PLANS,
         [Display(Name = "Alianzas y Descuentos")]
-        ALLIANCES_DISCOUNTS
+        ALLIANCES_DISCOUNTS,
+        [Display(Name = "Regularizaciones")]
+        QUOTATION
         #endregion
     }
 
