@@ -23,15 +23,14 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.partialitiesNumber).Column("partialitiesNumber").Nullable();
             Map(x => x.advancePayment).Column("advancePayment").Nullable();
             Map(x => x.monthlyCharge).Column("monthlyCharge").Nullable();
-            Map(x => x.quoteLink).Column("quoteLink").Nullable();
-            Map(x => x.quoteName).Column("quoteName").Nullable();
-            //Map(x => x.quoteStatus).Column("quoteStatus").Nullable();
-
+            
             References(x => x.account).Column("accountId");
 
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
             Map(x => x.status).Column("status").Nullable();
+
+            HasMany(x => x.quotationDetails).Inverse().Cascade.All().KeyColumn("quotationId");
         }
     }
 }

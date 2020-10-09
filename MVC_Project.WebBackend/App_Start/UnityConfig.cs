@@ -88,6 +88,7 @@ namespace MVC_Project.WebBackend
             container.RegisterType<IAllyService, AllyService>();
             container.RegisterType<IPromotionService, PromotionService>();
             container.RegisterType<IQuotationService, QuotationService>();
+            container.RegisterType<IQuotationDetailService, QuotationDetailService>();
         }
     }
 }
