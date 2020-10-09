@@ -14,7 +14,7 @@ namespace MVC_Project.WebBackend.Models
 
     public class QuotationData
     {
-        public Guid uuid { get; set; }
+        public string uuid { get; set; }
         public Int64 id { get; set; }
         public string account { get; set; }
         public decimal total { get; set; }

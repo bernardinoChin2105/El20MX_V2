@@ -50,14 +50,15 @@ namespace MVC_Project.WebBackend.Controllers
                 foreach (var quotation in quotations.Item1)
                 {
                     QuotationData data = new QuotationData();
-                    data.uuid = quotation.uuid;
+                    data.uuid = quotation.uuid.ToString();
                     data.id = quotation.id;
-                    data.account = quotation.account.name + "( "+ quotation.account.rfc +" )";
+                    data.account = quotation.account.name + "( " + quotation.account.rfc + " )";
                     data.total = quotation.total;
                     data.partialitiesNumber = quotation.partialitiesNumber;
-                    data.status = quotation.status;
+                    data.status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), quotation.status)).GetDisplayName();
                     data.quoteLink = quotation.quoteLink;
                     data.quoteName = quotation.quoteName;
+                    data.startedAt = quotation.startedAt;
                     response.Add(data);
                 }
 
@@ -87,15 +88,8 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 var model = new QuotationCreate();
                 model.accounts = PopulateAccounts();
-                
-                List<SelectListItem> quoteStatus = Enum.GetValues(typeof(SystemQuotation)).Cast<SystemQuotation>()
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.ToString(),
-                        Text = EnumUtils.GetDisplayName(e)
-                    }).ToList();
-
-                model.statusQuotation = quoteStatus;
+                model.partialitiesNumber = 1;
+                model.statusQuotation = PopulateStatus();
                 return View(model);
             }
             catch (Exception ex)
@@ -104,6 +98,30 @@ namespace MVC_Project.WebBackend.Controllers
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Index");
             }
+        }
+
+        private List<SelectListItem> PopulateStatus()
+        {
+            List<SelectListItem> quoteStatus = new List<SelectListItem>();
+            quoteStatus.Add(new SelectListItem
+            {
+                Value = SystemStatus.PROCESSING.ToString(),
+                Text = EnumUtils.GetDisplayName(SystemStatus.PROCESSING)
+            });
+            quoteStatus.Add(new SelectListItem
+            {
+                Value = SystemStatus.APPROVED.ToString(),
+                Text = EnumUtils.GetDisplayName(SystemStatus.APPROVED)
+            });
+
+            quoteStatus.Add(new SelectListItem
+            {
+                Value = SystemStatus.CANCELLED.ToString(),
+                Text = EnumUtils.GetDisplayName(SystemStatus.CANCELLED)
+            });
+
+            return quoteStatus;
+
         }
 
         private List<SelectListItem> PopulateAccounts()
@@ -141,8 +159,7 @@ namespace MVC_Project.WebBackend.Controllers
                     monthlyCharge = model.monthlyCharge,
                     quoteLink = upload.Item1,
                     quoteName = upload.Item2,
-                    quoteStatus = model.quoteStatus,
-                    status = SystemStatus.ACTIVE.ToString(),
+                    status = model.quoteStatus,
                     createdAt = DateTime.Now,
                 };
 
@@ -173,16 +190,17 @@ namespace MVC_Project.WebBackend.Controllers
                 );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
                 model.accounts = PopulateAccounts();
+                model.statusQuotation = PopulateStatus();
                 return View(model);
             }
         }
 
-        public ActionResult Edit(Guid uuid)
+        public ActionResult Edit(string uuid)
         {
             var userAuth = Authenticator.AuthenticatedUser;
             try
             {
-                var quotation = _quotationService.FirstOrDefault(x => x.uuid == uuid);
+                var quotation = _quotationService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
                 if (quotation == null)
                     throw new Exception("La regularización no se encontró en la base de datos");
 
@@ -196,23 +214,15 @@ namespace MVC_Project.WebBackend.Controllers
                     hasDeferredPayment = quotation.hasDeferredPayment,
                     advancePayment = Math.Round(quotation.advancePayment, 2),
                     partialitiesNumber = quotation.partialitiesNumber,
-                    monthlyCharge = Math.Round(quotation.monthlyCharge, 2)
+                    monthlyCharge = Math.Round(quotation.monthlyCharge, 2),
+                    statusQuotation = PopulateStatus(),
+                    quoteStatus = quotation.status,
                 };
                 
                 return View(model);
             }
             catch (Exception ex)
             {
-                LogUtil.AddEntry(
-                   "Se encontro un error: " + ex.Message.ToString(),
-                   ENivelLog.Error,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return RedirectToAction("Index");
             }
@@ -227,13 +237,15 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
+
                 quotation.startedAt = model.startedAt;
                 quotation.total = model.total;
                 quotation.hasDeferredPayment = model.hasDeferredPayment;
                 quotation.partialitiesNumber = model.partialitiesNumber;
                 quotation.advancePayment = model.advancePayment;
                 quotation.monthlyCharge = model.monthlyCharge;
-                
+                quotation.status = model.quoteStatus;
+
                 _quotationService.Update(quotation);
 
                 LogUtil.AddEntry(
@@ -258,6 +270,7 @@ namespace MVC_Project.WebBackend.Controllers
                 );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
                 model.accounts = PopulateAccounts();
+                model.statusQuotation = PopulateStatus();
                 return View(model);
             }
         }

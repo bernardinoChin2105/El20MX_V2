@@ -25,7 +25,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.monthlyCharge).Column("monthlyCharge").Nullable();
             Map(x => x.quoteLink).Column("quoteLink").Nullable();
             Map(x => x.quoteName).Column("quoteName").Nullable();
-            Map(x => x.quoteStatus).Column("quoteStatus").Nullable();
+            //Map(x => x.quoteStatus).Column("quoteStatus").Nullable();
 
             References(x => x.account).Column("accountId");
 

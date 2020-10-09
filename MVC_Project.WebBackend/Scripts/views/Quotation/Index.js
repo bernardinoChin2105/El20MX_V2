@@ -18,7 +18,7 @@
             columns: [
                 { data: 'id', title: "Id", visible: false },
                 { data: 'uuid', title: "Uuid", visible: false },
-                { data: 'customer', title: "Cliente" },
+                { data: 'account', title: "Cliente" },
                 {
                     data: null, orderName: "startedAt", title: "Fecha Inicio", autoWidth: false, className: "dt-center td-actions thead-dark",
                     render: function (data, type, row, meta) {

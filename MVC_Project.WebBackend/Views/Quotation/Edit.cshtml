@@ -22,87 +22,95 @@
                     {
                         @Html.AntiForgeryToken()
 
-                        <div class="form-horizontal">
-                            @Html.ValidationSummary(true)
+                    <div class="form-horizontal">
+                        @Html.ValidationSummary(true)
 
-                            <div class="form-group row">
-                                @Html.LabelFor(model => model.accountId, new { @class = "col-form-label control-label col-md-2" })
-                                <div class="col-md-8">
-                                    @Html.DropDownListFor(model => model.accountId, Model.accounts, new { @class = "chosen-select" })
-                                    @Html.ValidationMessageFor(model => model.accountId)
-                                </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.accountId, new { @class = "col-form-label control-label col-md-2" })
+                            <div class="col-md-8">
+                                @Html.DropDownListFor(model => model.accountId, Model.accounts, new { @class = "chosen-select" })
+                                @Html.ValidationMessageFor(model => model.accountId)
                             </div>
+                        </div>
 
-                            <div class="form-group row">
-                                @Html.LabelFor(model => model.startedAt, new { @class = "col-form-label control-label col-md-2" })
-                                <div class="col-md-8">
-                                    @Html.TextBoxFor(model => model.startedAt, new { @class = "form-control", required = "required", @autocomplete = "off" })
-                                    @Html.ValidationMessageFor(model => model.startedAt)
-                                </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.startedAt, new { @class = "col-form-label control-label col-md-2" })
+                            <div class="col-md-8">
+                                @Html.TextBoxFor(model => model.startedAt, new { @class = "form-control", required = "required", @autocomplete = "off" })
+                                @Html.ValidationMessageFor(model => model.startedAt)
                             </div>
+                        </div>
 
-                            <div class="form-group row">
-                                @Html.LabelFor(model => model.total, new { @class = "col-form-label control-label col-md-2" })
-                                <div class="col-md-8">
-                                    @Html.TextBoxFor(model => model.total, new { @class = "form-control", required = "required", @autocomplete = "off" })
-                                    @Html.ValidationMessageFor(model => model.total)
-                                </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.total, new { @class = "col-form-label control-label col-md-2" })
+                            <div class="col-md-8">
+                                @Html.TextBoxFor(model => model.total, new { @class = "form-control", required = "required", @autocomplete = "off" })
+                                @Html.ValidationMessageFor(model => model.total)
                             </div>
+                        </div>
 
-                            <div class="form-group row">
-                                @Html.LabelFor(model => model.file, new { @class = "col-form-label control-label col-md-2" })
-                                <div class="col-md-8">
-                                    <div class="custom-file form-control">
-                                        @Html.TextBoxFor(model => model.file, new { @class = "custom-file-input", @autocomplete = "off", type = "file" })
-                                        <label for="File" class="custom-file-label"></label>
-                                        @Html.ValidationMessageFor(model => model.file)
-                                    </div>
-                                </div>
-                            </div>
-                            <br />
-                            <div class="form-group row">
-                                <div class="col-md-8 offset-2">
-                                    <div class="i-checks">
-                                        <label style="font-weight:initial">
-                                            @Html.CheckBoxFor(m => m.hasDeferredPayment, new { @class = "form-control" })
-                                            Pagos diferidos
-                                        </label>
-                                    </div>
-                                    @Html.ValidationMessageFor(model => model.hasDeferredPayment)
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                @Html.LabelFor(model => model.partialitiesNumber, new { @class = "col-form-label control-label col-md-2" })
-                                <div class="col-md-8">
-                                    @Html.TextBoxFor(model => model.partialitiesNumber, new { @class = "form-control", @autocomplete = "off" })
-                                    @Html.ValidationMessageFor(model => model.partialitiesNumber)
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                @Html.LabelFor(model => model.advancePayment, new { @class = "col-form-label control-label col-md-2" })
-                                <div class="col-md-8">
-                                    @Html.TextBoxFor(model => model.advancePayment, new { @class = "form-control", @autocomplete = "off" })
-                                    @Html.ValidationMessageFor(model => model.advancePayment)
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                @Html.LabelFor(model => model.monthlyCharge, new { @class = "col-form-label control-label col-md-2" })
-                                <div class="col-md-8">
-                                    @Html.TextBoxFor(model => model.monthlyCharge, new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" })
-                                    @Html.ValidationMessageFor(model => model.monthlyCharge)
-                                </div>
-                            </div>
-
-                            <div class="form-group row pull-right">
-                                <div class="col-md-8 offset-2 text-right">
-                                    <a href='@Url.Action("Index", "Quotation")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
-                                    <button type="button" id="btn-save" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.file, new { @class = "col-form-label control-label col-md-2" })
+                            <div class="col-md-8">
+                                <div class="custom-file form-control">
+                                    @Html.TextBoxFor(model => model.file, new { @class = "custom-file-input", @autocomplete = "off", type = "file" })
+                                    <label for="File" class="custom-file-label"></label>
+                                    @Html.ValidationMessageFor(model => model.file)
                                 </div>
                             </div>
                         </div>
+                        <br />
+                        <div class="form-group row">
+                            <div class="col-md-8 offset-2">
+                                <div class="i-checks">
+                                    <label style="font-weight:initial">
+                                        @Html.CheckBoxFor(m => m.hasDeferredPayment, new { @class = "form-control" })
+                                        Pagos diferidos
+                                    </label>
+                                </div>
+                                @Html.ValidationMessageFor(model => model.hasDeferredPayment)
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.partialitiesNumber, new { @class = "col-form-label control-label col-md-2" })
+                            <div class="col-md-8">
+                                @Html.TextBoxFor(model => model.partialitiesNumber, new { @class = "form-control", @autocomplete = "off" })
+                                @Html.ValidationMessageFor(model => model.partialitiesNumber)
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.advancePayment, new { @class = "col-form-label control-label col-md-2" })
+                            <div class="col-md-8">
+                                @Html.TextBoxFor(model => model.advancePayment, new { @class = "form-control", @autocomplete = "off" })
+                                @Html.ValidationMessageFor(model => model.advancePayment)
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.monthlyCharge, new { @class = "col-form-label control-label col-md-2" })
+                            <div class="col-md-8">
+                                @Html.TextBoxFor(model => model.monthlyCharge, new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(model => model.monthlyCharge)
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.quoteStatus, new { @class = "col-form-label control-label col-md-2" })
+                            <div class="col-md-8">
+                                @Html.DropDownListFor(model => model.quoteStatus, Model.statusQuotation, new { @class = "chosen-select" })
+                                @Html.ValidationMessageFor(model => model.quoteStatus)
+                            </div>
+                        </div>
+
+                        <div class="form-group row pull-right">
+                            <div class="col-md-8 offset-2 text-right">
+                                <a href='@Url.Action("Index", "Quotation")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
+                                <button type="button" id="btn-save" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                            </div>
+                        </div>
+                    </div>
                     }
                 </div>
             </div>
