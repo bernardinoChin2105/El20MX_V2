@@ -127,7 +127,7 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Descuento en $")]
         public decimal discountRate { get; set; }
 
-        [Display(Name = "Typo")]
+        [Display(Name = "Tipo")]
         public string TypeId { get; set; }
         public SelectList TypeList { get; set; }
 

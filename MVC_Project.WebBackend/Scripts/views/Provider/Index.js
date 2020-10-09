@@ -98,11 +98,10 @@ var ProviderIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                 $.getJSON(sSource, aoData, function (json) {
                     //console.log(json)
                     primeravez = false;
+                    fnCallback(json);
                     if (json.success === false) {
-                        toastr['error'](json.Mensaje.message);
+                        toastr['error'](json.message);
                         console.log(json.Mensaje + " Error al obtener los elementos");
-                    } else {
-                        fnCallback(json);
                     }
                 });
             }
@@ -161,7 +160,7 @@ $('.custom-file-input').on('change', function () {
     let fileName = $(this).val().split('\\').pop();
     $(this).next('.custom-file-label').addClass("selected").html(fileName);
     $(".btn-save-import").attr("disabled", false);
-}); 
+});
 
 var loadFile = function (event, imgid, input) {
     if (input.type === "file") {

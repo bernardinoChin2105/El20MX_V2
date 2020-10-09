@@ -186,46 +186,49 @@ namespace MVC_Project.WebBackend.Controllers
 
                 List<PromotionAccount> promotionsXaccounts = new List<PromotionAccount>();
                 List<Discount> discounts = new List<Discount>();
-                foreach (var item in model.AccountId)
+                if (model.AccountId != null)
                 {
-
-                    PromotionAccount promotionAccount = new PromotionAccount()
+                    foreach (var item in model.AccountId)
                     {
-                        account = new Account { id = item },
-                        promotion = promotion
-                    };
 
-                    promotionsXaccounts.Add(promotionAccount);
+                        PromotionAccount promotionAccount = new PromotionAccount()
+                        {
+                            account = new Account { id = item },
+                            promotion = promotion
+                        };
 
-                    Discount discount = new Discount()
-                    {
-                        uuid = Guid.NewGuid(),
-                        name = model.name,
-                        type = model.TypeId,
-                        discount = model.discount,
-                        discountRate = model.discountRate,
-                        hasPeriod = model.hasPeriod,
-                        hasValidity = model.hasValidity,
-                        account = new Account { id = item },
-                        promotion = promotion,
-                        createdAt = todayDate,
-                        modifiedAt = todayDate,
-                        status = SystemStatus.ACTIVE.ToString()
-                    };
+                        promotionsXaccounts.Add(promotionAccount);
 
-                    if (model.hasPeriod)
-                    {
-                        discount.periodInitial = model.initialPeriod;
-                        discount.periodFinal = model.finalPeriod;
+                        Discount discount = new Discount()
+                        {
+                            uuid = Guid.NewGuid(),
+                            name = model.name,
+                            type = model.TypeId,
+                            discount = model.discount,
+                            discountRate = model.discountRate,
+                            hasPeriod = model.hasPeriod,
+                            hasValidity = model.hasValidity,
+                            account = new Account { id = item },
+                            promotion = promotion,
+                            createdAt = todayDate,
+                            modifiedAt = todayDate,
+                            status = SystemStatus.ACTIVE.ToString()
+                        };
+
+                        if (model.hasPeriod)
+                        {
+                            discount.periodInitial = model.initialPeriod;
+                            discount.periodFinal = model.finalPeriod;
+                        }
+
+                        if (model.hasValidity)
+                        {
+                            discount.validityInitialAt = model.finalDate;
+                            discount.validityFinalAt = model.finalDate;
+                        }
+
+                        discounts.Add(discount);
                     }
-
-                    if (model.hasValidity)
-                    {
-                        discount.validityInitialAt = model.finalDate;
-                        discount.validityFinalAt = model.finalDate;
-                    }
-
-                    discounts.Add(discount);
                 }
 
                 _promotionService.Save(promotion, promotionsXaccounts, discounts);
@@ -385,7 +388,7 @@ namespace MVC_Project.WebBackend.Controllers
                                 };
                                 prmAccountsAdd.Add(promotionAccount);
                             }
-                        }                        
+                        }
 
                         //Eliminar
                         List<Int64> NoExistPE = idsPro.Except(model.AccountId).ToList();

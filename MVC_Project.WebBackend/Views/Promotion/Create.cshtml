@@ -164,14 +164,15 @@
                 if ("REFERRED" == value) {
                     //console.log("referido")
                     customers.prop("disabled", false).trigger("chosen:updated");
-                    hasPeriod.prop("checked", true).iCheck('update');
+                    hasPeriod.prop({ "checked": true, "disabled": false }).iCheck('update');
+                    hasValidity.prop({ "disabled": false }).iCheck('update');
                     changeHasPeriod(hasPeriod);
                 }
                 else if ("INITIAL_DISCOUNT" == value) {
                     //console.log("descuento inicial")
-                    customers.prop("disabled", true).trigger("chosen:updated");
-                    //hasPeriod.prop("checked", false).iCheck('update');
+                    customers.prop("disabled", true).val("").trigger("chosen:updated");
                     hasPeriod.prop({ "checked": false, "disabled": true }).iCheck('update');
+                    hasValidity.prop({ "disabled": false }).iCheck('update');
                     changeHasPeriod(hasPeriod);
                     //Poner "N/A" en los campos que estan en los checkeds
                 } else if ("CUSTOMERS" == value) {
@@ -182,7 +183,7 @@
                     changeHasPeriod(hasPeriod);
                     changeHasValidity(hasValidity);
                 } else {
-                    customers.prop("disabled", true).trigger("chosen:updated");
+                    customers.prop("disabled", true).val("").trigger("chosen:updated");
                     hasPeriod.prop({ "checked": false, "disabled": false }).iCheck('update');
                     hasValidity.prop({ "checked": false, "disabled": false }).iCheck('update');
                     changeHasPeriod(hasPeriod);
