@@ -3,29 +3,44 @@
 
 @{
 
-    ViewBag.Title = "Nueva Promoción";
+    ViewBag.Title = "Editar Promoción";
+
+    var inactivePeriod = false;
+    var inactiveValidity = false;
+    var inactiveCustomer = false;
+
+    if (Model.TypeId == TypePromotions.REFERRED.ToString())
+    {
+    }
+    else if (Model.TypeId == TypePromotions.INITIAL_DISCOUNT.ToString())
+    {
+        inactivePeriod = true;
+        inactiveCustomer = true;
+    }
+    else if (Model.TypeId == TypePromotions.CUSTOMERS.ToString())
+    {
+        inactivePeriod = true;
+        inactiveValidity = true;
+    }
 }
 
 @section styles{
     <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
     <link href="~/Content/template/plugins/datapicker/datepicker3.css" rel="stylesheet" />
-    @*<style>
-        .hidden {
-            display: none;
-        }
-    </style>*@
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="">
-        @using (Html.BeginForm("Create", "Promotion", FormMethod.Post, new { role = "form", @id = "CreateForm", @class = "row" }))
+        @using (Html.BeginForm("Edit", "Promotion", FormMethod.Post, new { role = "form", @id = "CreateForm", @class = "row" }))
         {
             <div class="col-lg-12">
                 @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
 
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
                         <h5>Datos de Promoción</h5>
+                        <input name="id" type="hidden" value="@Model.id" />
                     </div>
                     <div class="ibox-content">
                         <div class="form-horizontal">
@@ -49,14 +64,21 @@
                                 @Html.LabelFor(model => model.TypeId, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-md-9">
                                     @Html.DropDownListFor(model => model.TypeId, Model.TypeList.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
-                                    @*@Html.ValidationMessageFor(model => model.allyId)*@
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.AccountId, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-md-9">
-                                    @Html.DropDownList("AccountId", (MultiSelectList)Model.AccountMultipleList, new { multiple = "multiple", @class = "chosen-select", data_placeholder = "Seleccione", disabled="disabled" })
+                                    @*@Html.DropDownList(model => model.AccountId, new MultiSelectList(Model.AccountMultipleList, "Value", "Text", Model.AccountId), new { multiple = "multiple", @class = "chosen-select", data_placeholder = "Seleccione" })*@
+                                    @if (inactiveCustomer)
+                                    {
+                                        @Html.DropDownListFor(model => model.AccountId, new MultiSelectList(Model.AccountMultipleList, "Value", "Text", Model.AccountId), new { multiple = "multiple", @class = "chosen-select", data_placeholder = "Seleccione", @disabled = "disabled" })
+                                    }
+                                    else
+                                    {
+                                        @Html.DropDownListFor(model => model.AccountId, new MultiSelectList(Model.AccountMultipleList, "Value", "Text", Model.AccountId), new { multiple = "multiple", @class = "chosen-select", data_placeholder = "Seleccione" })
+                                    }
                                 </div>
                             </div>
 
@@ -64,7 +86,14 @@
                                 <div class="col-12 col-md-3 text-right">
                                     <div class="i-checks">
                                         <label style="font-weight:initial">
-                                            @Html.CheckBoxFor(m => m.hasPeriod, new { @class = "form-control" })
+                                            @if (inactivePeriod)
+                                            {
+                                                @Html.CheckBoxFor(m => m.hasPeriod, new { @class = "form-control", @disabled = "disabled" })
+                                            }
+                                            else
+                                            {
+                                                @Html.CheckBoxFor(m => m.hasPeriod, new { @class = "form-control" })
+                                            }
                                             @Html.LabelFor(m => m.hasPeriod)
                                         </label>
                                     </div>
@@ -75,19 +104,26 @@
                             </div>
                             <div class="form-group row">
                                 @Html.LabelFor(m => m.initialPeriod, new { @class = "col-form-label col-md-3 control-label" })
-                                <div class="col-12 col-md-3">                                    
+                                <div class="col-12 col-md-3">
                                     <input type="number" name="initialPeriod" id="initialPeriod" class="form-control required" value="@Model.initialPeriod" disabled="@(!Model.hasPeriod)">
                                 </div>
                                 @Html.LabelFor(m => m.finalPeriod, new { @class = "col-form-label col-md-3 control-label" })
                                 <div class="col-12 col-md-3">
-                                    <input type="number" name="finalPeriod" id="finalPeriod" class="form-control required" value="@Model.finalPeriod" disabled="@(!Model.hasPeriod)">                                    
+                                    <input type="number" name="finalPeriod" id="finalPeriod" class="form-control required" value="@Model.finalPeriod" disabled="@(!Model.hasPeriod)">
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <div class="col-12 col-md-3 text-right">
                                     <div class="i-checks">
                                         <label style="font-weight:initial">
-                                            @Html.CheckBoxFor(m => m.hasValidity, new { @class = "form-control" })
+                                            @if (inactiveValidity)
+                                            {
+                                                @Html.CheckBoxFor(m => m.hasValidity, new { @class = "form-control", @disabled = "disabled" })
+                                            }
+                                            else
+                                            {
+                                                @Html.CheckBoxFor(m => m.hasValidity, new { @class = "form-control" })
+                                            }
                                             @Html.LabelFor(m => m.hasValidity)
                                         </label>
                                     </div>
@@ -102,7 +138,6 @@
                                     <div id="data_1">
                                         <div class="input-group date">
                                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                            @*@Html.TextBoxFor(m => m.finalDate, new { @class = "form-control ", @maxlength = "50" })*@
                                             <input type="text" name="finalDate" id="finalDate" autocomplete="off" class="form-control required" value="@(Model.hasValidity ? Model.finalDate.ToShortDateString() : "" )" disabled="@(!Model.hasValidity)">
                                         </div>
                                     </div>
@@ -140,6 +175,7 @@
         $(document).ready(function () {
             $('.chosen-select').chosen({ width: '100%', "disable_search": true });
             $("#AccountId").val(@Html.Raw(Json.Encode(Model.AccountId))).trigger("chosen:updated");
+
             $('.porcert').mask("##0.00", { reverse: true });
 
             var mem = $('#data_1 .input-group.date').datepicker({
@@ -227,13 +263,13 @@
                 }
             }
 
-            $("#hasPeriod").click(function () {    
+            $("#hasPeriod").click(function () {
                 changeHasPeriod($(this));
             });
 
             $("#hasValidity").click(function () {
                 changeHasValidity($(this));
-            });           
+            });
         });
     </script>
 }

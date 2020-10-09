@@ -128,11 +128,13 @@
     <Compile Include="Services\CredentialService.cs" />
     <Compile Include="Services\AllianceService.cs" />
     <Compile Include="Services\CustomerContactService.cs" />
+    <Compile Include="Services\DiscountService.cs" />
     <Compile Include="Services\InvoiceIssuedService.cs" />
     <Compile Include="Services\InvoiceReceivedService.cs" />
     <Compile Include="Services\CurrencyService.cs" />
     <Compile Include="Services\PaymentFormService.cs" />
     <Compile Include="Services\PaymentMethodService.cs" />
+    <Compile Include="Services\PromotionAccountService.cs" />
     <Compile Include="Services\PromotionService.cs" />
     <Compile Include="Services\TypeVoucherService.cs" />
     <Compile Include="Services\PlanAssignmentConfigService.cs" />

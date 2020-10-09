@@ -33,7 +33,7 @@ var PlanIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAcces
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": this.baseUrl,
-            deferLoading: 0,
+            //deferLoading: 0,
             orderMulti: false,
             searching: false,
             ordering: false,

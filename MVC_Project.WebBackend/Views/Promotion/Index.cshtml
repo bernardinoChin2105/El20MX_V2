@@ -81,6 +81,7 @@
             var promotion = new PromotionIndexControlador('table',
                 '@Url.Action("GetPromotions")',
                 '@Url.Action("Edit")',
+                '@Url.Action("Delete")',
                 '@hasFullAccessController' == 'True'
             );
             promotion.init();

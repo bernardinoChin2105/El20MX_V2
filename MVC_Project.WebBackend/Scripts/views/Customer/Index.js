@@ -92,11 +92,10 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
 
                 $.getJSON(sSource, aoData, function (json) {
                     primeravez = false;
+                    fnCallback(json);
                     if (json.success === false) {
-                        toastr['error'](json.Mensaje.message);
+                        toastr['error'](json.message);
                         console.log(json.Mensaje + " Error al obtener los elementos");
-                    } else {
-                        fnCallback(json);
                     }
                 });
             }

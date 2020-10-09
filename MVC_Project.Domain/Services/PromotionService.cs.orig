@@ -5,16 +5,19 @@ using MVC_Project.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Services
 {
     public interface IPromotionService : IService<Promotion>
     {
         List<PromotionsList> GetPromotionList(BasePagination pagination, string name, string type);
+<<<<<<< HEAD
         Promotion Save(Promotion promotion, List<PromotionAccount> promotionsAccount, List<Discount> discounts);
+=======
         Promotion GetValidityPromotion(string type);
-        Promotion Update(Promotion promotion, List<PromotionAccount> prmAccountAdd, List<PromotionAccount> prmAccountDel,
-            List<Discount> discountsAdd, List<Discount> discountsUpd, List<Discount> discountsDel);
+>>>>>>> 46da106bb5efe5b2be7a0b29885e8f8d4a7755ea
     }
 
     public class PromotionService : ServiceBase<Promotion>, IPromotionService
@@ -40,6 +43,54 @@ namespace MVC_Project.Domain.Services
             return null;
         }
 
+<<<<<<< HEAD
+        public Promotion Save(Promotion promotion, List<PromotionAccount> promotionsAccount, List<Discount> discounts)
+        {
+            using (var transaction = _repository.Session.BeginTransaction())
+            {
+                try
+                {
+                    _repository.Session.Save(promotion);
+
+                    foreach(var item in promotionsAccount)
+                        _repository.Session.Save(item);
+
+                    foreach (var item in discounts)
+                        _repository.Session.Save(item);
+
+                    transaction.Commit();
+                    return promotion;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
+                }
+            }
+        }
+
+        //public Alliance UpdateAlliance(Alliance alliance, Ally ally = null)
+        //{
+        //    using (var transaction = _repository.Session.BeginTransaction())
+        //    {
+        //        try
+        //        {
+        //            _repository.Session.Update(alliance);
+
+        //            if (ally != null)
+        //                _repository.Session.Update(ally);
+
+        //            transaction.Commit();
+        //            return alliance;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            transaction.Rollback();
+        //            throw ex;
+        //        }
+        //    }
+        //}
+=======
         public Promotion GetValidityPromotion(string type)
         {
             var promocion = _repository.FirstOrDefault(x => x.type == type &&
@@ -55,66 +106,9 @@ namespace MVC_Project.Domain.Services
                     return null;
                 }
             }
-
+            
             return promocion;
         }
-
-        public Promotion Save(Promotion promotion, List<PromotionAccount> promotionsAccount, List<Discount> discounts)
-        {
-            using (var transaction = _repository.Session.BeginTransaction())
-            {
-                try
-                {
-                    _repository.Session.Save(promotion);
-
-                    foreach (var item in promotionsAccount)
-                        _repository.Session.Save(item);
-
-                    foreach (var item in discounts)
-                        _repository.Session.Save(item);
-
-
-                    transaction.Commit();
-                    return promotion;
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    throw ex;
-                }
-            }
-        }
-
-        public Promotion Update(Promotion promotion, List<PromotionAccount> prmAccountAdd, List<PromotionAccount> prmAccountDel,
-            List<Discount> discountsAdd, List<Discount> discountsUpd, List<Discount> discountsDel)
-        {
-            using (var transaction = _repository.Session.BeginTransaction())
-            {
-                try
-                {
-                    _repository.Session.Update(promotion);
-
-                    foreach (var item in prmAccountAdd)
-                        _repository.Session.Save(item);
-                    foreach (var item in prmAccountDel)
-                        _repository.Session.Delete(item);
-
-                    foreach (var item in discountsAdd)
-                        _repository.Session.Save(item);
-                    foreach (var item in discountsUpd)
-                        _repository.Session.Update(item);
-                    foreach (var item in discountsDel)
-                        _repository.Session.Delete(item);
-
-                    transaction.Commit();
-                    return promotion;
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    throw ex;
-                }
-            }
-        }
+>>>>>>> 46da106bb5efe5b2be7a0b29885e8f8d4a7755ea
     }
 }
