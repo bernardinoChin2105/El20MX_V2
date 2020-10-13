@@ -636,6 +636,7 @@ namespace MVC_Project.WebBackend.Controllers
                             else
                             {
                                 balanceA = balanceA - amountB;
+                                amountB = (double)item.amount;
                             }
 
 
