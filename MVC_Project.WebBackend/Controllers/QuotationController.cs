@@ -21,11 +21,13 @@ namespace MVC_Project.WebBackend.Controllers
 
         private QuotationService _quotationService;
         private AccountService _accountService;
+        private QuotationDetailService _quotationDetailService;
 
-        public QuotationController(QuotationService quotationService, AccountService accountService)
+        public QuotationController(QuotationService quotationService, AccountService accountService, QuotationDetailService quotationDetailService)
         {
             _quotationService = quotationService;
             _accountService = accountService;
+            _quotationDetailService = quotationDetailService;
         }
         // GET: Quotation
         public ActionResult Index()
@@ -56,8 +58,9 @@ namespace MVC_Project.WebBackend.Controllers
                     data.total = quotation.total;
                     data.partialitiesNumber = quotation.partialitiesNumber;
                     data.status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), quotation.status)).GetDisplayName();
-                    data.quoteLink = quotation.quoteLink;
-                    data.quoteName = quotation.quoteName;
+                    //data.quoteLink = quotation.quoteLink;
+                    //data.quoteName = quotation.quoteName;
+                    data.details = quotation.quotationDetails.Select(x => new QuotationDetails { link = x.link, name = x.name }).ToList();
                     data.startedAt = quotation.startedAt;
                     response.Add(data);
                 }
@@ -145,8 +148,7 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception("El modelo de entrada no es válido");
                 var account = _accountService.GetById(model.accountId);
                 var storageQuotation = ConfigurationManager.AppSettings["StorageQuotation"];
-                var upload = AzureBlobService.UploadPublicFile(model.file.InputStream, model.file.FileName, storageQuotation, account.rfc);
-
+                
                 var quotation = new Quotation()
                 {
                     uuid = Guid.NewGuid(),
@@ -157,11 +159,28 @@ namespace MVC_Project.WebBackend.Controllers
                     partialitiesNumber = model.partialitiesNumber,
                     advancePayment = model.advancePayment,
                     monthlyCharge = model.monthlyCharge,
-                    quoteLink = upload.Item1,
-                    quoteName = upload.Item2,
                     status = model.quoteStatus,
                     createdAt = DateTime.Now,
                 };
+
+                foreach (var file in model.files)
+                {
+                    if (file != null)
+                    {
+                        var upload = AzureBlobService.UploadPublicFile(file.InputStream, file.FileName, storageQuotation, account.rfc);
+                        var detail = new QuotationDetail()
+                        {
+                            uuid = Guid.NewGuid(),
+                            name = upload.Item2,
+                            link = upload.Item1,
+                            status = SystemStatus.ACTIVE.ToString(),
+                            createdAt = DateTime.Now,
+                            quotation = quotation
+                        };
+
+                        quotation.quotationDetails.Add(detail);
+                    }
+                }
 
                 _quotationService.Create(quotation);
 
@@ -203,7 +222,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var quotation = _quotationService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
                 if (quotation == null)
                     throw new Exception("La regularización no se encontró en la base de datos");
-
+                
                 var model = new QuotationCreate()
                 {
                     id = quotation.id,
@@ -217,6 +236,7 @@ namespace MVC_Project.WebBackend.Controllers
                     monthlyCharge = Math.Round(quotation.monthlyCharge, 2),
                     statusQuotation = PopulateStatus(),
                     quoteStatus = quotation.status,
+                    detail = quotation.quotationDetails.Select(x => new QuotationDetails { link = x.link, name = x.name }).ToList()
                 };
                 
                 return View(model);
@@ -232,11 +252,16 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult Edit(QuotationCreate model)
         {
             var userAuth = Authenticator.AuthenticatedUser;
-            var quotation = _quotationService.FirstOrDefault(x => x.id == model.id);
+            
             try
             {
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
+                var quotation = _quotationService.FirstOrDefault(x => x.id == model.id);
+                if (quotation == null)
+                    throw new Exception("No se encontró la regularización en el sistema");
+
+                var storageQuotation = ConfigurationManager.AppSettings["StorageQuotation"];
 
                 quotation.startedAt = model.startedAt;
                 quotation.total = model.total;
@@ -246,6 +271,25 @@ namespace MVC_Project.WebBackend.Controllers
                 quotation.monthlyCharge = model.monthlyCharge;
                 quotation.status = model.quoteStatus;
 
+                foreach (var file in model.files)
+                {
+                    if (file != null)
+                    {
+                        var upload = AzureBlobService.UploadPublicFile(file.InputStream, file.FileName, storageQuotation, quotation.account.rfc);
+                        var detail = new QuotationDetail()
+                        {
+                            uuid = Guid.NewGuid(),
+                            name = upload.Item2,
+                            link = upload.Item1,
+                            status = SystemStatus.ACTIVE.ToString(),
+                            createdAt = DateTime.Now,
+                            quotation = quotation
+                        };
+
+                        quotation.quotationDetails.Add(detail);
+                    }
+                }
+                
                 _quotationService.Update(quotation);
 
                 LogUtil.AddEntry(

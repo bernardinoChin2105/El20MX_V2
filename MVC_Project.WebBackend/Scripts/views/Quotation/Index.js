@@ -36,7 +36,11 @@
                     title: "Detalle",
                     className: '',
                     render: function (data) {
-                        var link = "<a href='" + data.quoteLink+"'>" + data.quoteName + " </a>";
+                        var link = "<ul>";
+                        $.each(data.details, function (key, value) {
+                            link += "<li><a href='" + value.link + "'>" + value.name + " </a></li>";//class='btn btn-success btn-xs btn-block btn-outline'
+                        });
+                        link += "</ul>";
                         return link;
                     }
                 },
