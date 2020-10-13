@@ -257,7 +257,7 @@ namespace MVC_Project.WebBackend.Controllers
                                     amount = itemTransaction.amount,
                                     currency = itemTransaction.currency,
                                     reference = itemTransaction.reference,
-                                    transactionAt = date_transaction,,
+                                    transactionAt = date_transaction,
                                     createdAt = todayDate,
                                     modifiedAt = todayDate,
                                     status = SystemStatus.ACTIVE.ToString()
