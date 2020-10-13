@@ -334,6 +334,16 @@ namespace MVC_Project.Resources {
                 return ResourceManager.GetString("MODULE_QUOTATION", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Busca una cadena traducida similar a FACTURACIÓN.
+        /// </summary>
+        public static string MODULE_INVOICING
+        {
+            get
+            {
+                return ResourceManager.GetString("MODULE_INVOICING", resourceCulture);
+            }
+        }
     }
 }

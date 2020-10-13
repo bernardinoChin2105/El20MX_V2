@@ -118,7 +118,9 @@ namespace MVC_Project.Utils
         [Display(Name = "Proveedores")]
         PROVIDERS,
         [Display(Name = "Bancos")]
-        BANKS,        
+        BANKS,
+        [Display(Name = "Facturación")]
+        INVOICING,
         #region Modulos del BackOffice
         [Display(Name = "Planes")]
         PLANS,

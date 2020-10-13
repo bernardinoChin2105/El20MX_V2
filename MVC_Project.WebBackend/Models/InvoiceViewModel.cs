@@ -15,7 +15,7 @@ namespace MVC_Project.WebBackend.Models
         public string TypeInvoice { get; set; }
         public SelectList ListTypeInvoices { get; set; }
 
-        [Display(Name = "Tipo de Factura")]
+        [Display(Name = "Tipo de Relación")]
         public string TypeRelationship { get; set; }
         public SelectList ListTypeRelationship { get; set; }
 
@@ -29,36 +29,28 @@ namespace MVC_Project.WebBackend.Models
         #endregion
 
         #region Información Receptor de Facturación
-        [Display(Name = "Customer")]
+        [Display(Name = "Cliente")]
         public string CustomerName { get; set; }
         public Int64 CustomerId { get; set; }
-        //public SelectList ListEmails { get; set; }
 
         [Display(Name = "RFC Cliente")]
         public string RFC { get; set; }
         public Int64 RFCId { get; set; }
-        public SelectList ListRFC { get; set; }
 
         [Display(Name = "Ave./Calle")]
         public string Street { get; set; }
-        public Int64 StreetId { get; set; }
-        public SelectList ListStreet { get; set; }
 
         [Display(Name = "No. Ext.")]
         public string OutdoorNumber { get; set; }
-        public Int64 OutdoorNumberId { get; set; }
-        public SelectList ListOutdoorNumber { get; set; }
 
         [Display(Name = "No. Int.")]
         public string InteriorNumber { get; set; }
-        public Int64 InteriorNumberId { get; set; }
-        public SelectList ListInteriorNumber { get; set; }
 
         [Display(Name = "Colonia")]
         public Int64 Colony { get; set; }
         public SelectList ListColony { get; set; }
 
-        [Required]
+        //[Required]
         [Display(Name = "C.P.")]
         public string ZipCode { get; set; }
 
@@ -87,7 +79,6 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "Serie y Folio")]
         public string SerieFolio { get; set; }
-        public SelectList ListSerieFolio { get; set; }
 
         [Display(Name = "Uso de CFDI")]
         public string UseCFDI { get; set; }
@@ -155,12 +146,41 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Total")]
         public decimal Total { get; set; }
         #endregion
+
+        public InvoiceViewModel()
+        {
+            var list = new List<SelectListItem>();
+            list.Add(new SelectListItem() { Text = "Seleccionar...", Value = "-1" });
+
+            ListTypeInvoices = new SelectList(list);
+            ListTypeRelationship = new SelectList(list);
+            ListBranchOffice = new SelectList(list);
+            ListEmailIssued = new SelectList(list);
+            ListColony = new SelectList(list);
+            ListMunicipality = new SelectList(list);
+            ListState = new SelectList(list);
+            ListCountry = new SelectList(list);
+            ListCustomerEmail = new SelectList(list);
+            ListTypeVoucher = new SelectList(list);
+            ListUseCFDI = new SelectList(list);
+            ListPaymentForm = new SelectList(list);
+            ListPaymentMethod = new SelectList(list);
+            ListCurrency = new SelectList(list);
+            ListExchangeRate = new SelectList(list);
+            ListCustomsPatent = new SelectList(list);
+            ListCustoms = new SelectList(list);
+            ListMotionNumber = new SelectList(list);
+
+            ListPaymentConditions = new SelectList(list);
+
+            ProductServices = new List<ProductServiceDescriptionView>();
+        }
     }
 
     public class ProductServiceDescriptionView
     {
-        [Display(Name = "#")]
-        public int NumberLine { get; set; }
+        //[Display(Name = "#")]
+        //public int NumberLine { get; set; }
 
         [Display(Name = "Cantidad")]
         public int Quantity { get; set; }
@@ -184,6 +204,6 @@ namespace MVC_Project.WebBackend.Models
         public decimal Taxes { get; set; }
 
         [Display(Name = "Subtotal")]
-        public decimal Subtotal { get; set; }   
+        public decimal Subtotal { get; set; }
     }
 }

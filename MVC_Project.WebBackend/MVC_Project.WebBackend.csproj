@@ -2010,7 +2010,6 @@
   <ItemGroup>
     <Folder Include="Content\img\gallery\" />
     <Folder Include="Content\img\landing\" />
-    <Folder Include="Views\Invoices\" />
     <Folder Include="Views\Webhooks\" />
     <Folder Include="Views\Webhook\" />
   </ItemGroup>
