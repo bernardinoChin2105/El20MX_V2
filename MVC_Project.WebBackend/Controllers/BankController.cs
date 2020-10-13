@@ -246,6 +246,7 @@ namespace MVC_Project.WebBackend.Controllers
                             {
                                 //long d_rt = itemTransaction.dt_refresh;
                                 DateTime date_refresht = DateUtil.UnixTimeToDateTime(itemTransaction.dt_refresh);
+                                DateTime date_transaction = DateUtil.UnixTimeToDateTime(itemTransaction.dt_transaction);
 
                                 BankTransaction bt = new BankTransaction()
                                 {
@@ -256,7 +257,7 @@ namespace MVC_Project.WebBackend.Controllers
                                     amount = itemTransaction.amount,
                                     currency = itemTransaction.currency,
                                     reference = itemTransaction.reference,
-                                    transactionAt = date_refresht,
+                                    transactionAt = date_transaction,,
                                     createdAt = todayDate,
                                     modifiedAt = todayDate,
                                     status = SystemStatus.ACTIVE.ToString()
