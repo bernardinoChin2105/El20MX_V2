@@ -62,7 +62,7 @@ namespace MVC_Project.Integrations.Paybook
         public string currency { get; set; }
         public string account_type { get; set; }
         public SitePaybook site { get; set; }
-        public ExtraAccountPaybook extra { get; set; }
+        //public ExtraAccountPaybook extra { get; set; }
         //public List<string> keywords { get; set; }
         public long dt_refresh { get; set; }
     }
