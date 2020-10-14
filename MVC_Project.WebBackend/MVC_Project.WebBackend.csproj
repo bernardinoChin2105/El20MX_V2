@@ -257,6 +257,7 @@
     <Compile Include="Controllers\AuthController.cs" />
     <Compile Include="Controllers\BankController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\BranchOfficeController.cs" />
     <Compile Include="Controllers\CalendarController.cs" />
     <Compile Include="Controllers\DiagnosticController.cs" />
     <Compile Include="Controllers\DocumentsController.cs" />
@@ -283,6 +284,7 @@
     <Compile Include="Models\AllianceViewModel.cs" />
     <Compile Include="Models\AuthViewModel.cs" />
     <Compile Include="Models\BankViewModel.cs" />
+    <Compile Include="Models\BranchOfficeViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
     <Compile Include="Models\PlanViewModel.cs" />
     <Compile Include="Models\InvoicesVM.cs" />
@@ -1812,6 +1814,7 @@
     <Content Include="Scripts\popper.min.js" />
     <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
+    <Content Include="Scripts\views\BranchOffice\Index.js" />
     <Content Include="Scripts\views\Promotion\Index.js" />
     <Content Include="Scripts\views\Alliance\Index.js" />
     <Content Include="Scripts\views\Ally\Index.js" />
@@ -1970,6 +1973,8 @@
     <Content Include="Views\Quotation\Index.cshtml" />
     <Content Include="Views\Quotation\Create.cshtml" />
     <Content Include="Views\Quotation\Edit.cshtml" />
+    <Content Include="Views\BranchOffice\Index.cshtml" />
+    <Content Include="Views\BranchOffice\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
