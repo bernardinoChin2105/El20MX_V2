@@ -161,44 +161,7 @@
                 var name = names.join(', ');
                 $(this).next('.custom-file-label').addClass("selected").html(name);
             });
-
-            $("#total").TouchSpin({
-                min: 0,
-                max: 1000000000,
-                step: 0.1,
-                decimals: 2,
-                //boostat: 5,
-                //maxboostedstep: 10,
-                //postfix: '$'
-                buttondown_class: "btn-touch-spin",
-                buttonup_class: "btn-touch-spin"
-            });
-            $("#partialitiesNumber").TouchSpin({
-                min: 1,
-                max: 100,
-                step: 1,
-                decimals: 0,
-                //boostat: 5,
-                //maxboostedstep: 10,
-                //postfix: '$'
-                buttondown_class: "btn-touch-spin btn-opt",
-                buttonup_class: "btn-touch-spin btn-opt"
-            });
-            $("#advancePayment").TouchSpin({
-                min: 0,
-                max: 1000000000,
-                step: 0.1,
-                decimals: 2,
-                //boostat: 5,
-                //maxboostedstep: 10,
-                //postfix: '$'
-                buttondown_class: "btn-touch-spin btn-opt",
-                buttonup_class: "btn-touch-spin btn-opt"
-            });
-
-
-            $(".btn-opt").prop("disabled", true);
-
+            
             if ($('#hasDeferredPayment').prop("checked")) {
                 $("#partialitiesNumber").prop('readonly', false);
                 $("#advancePayment").prop('readonly', false);
@@ -220,40 +183,7 @@
             }
             $('#EditForm').submit();
         });
-
-        $("#total").on("change", function () {
-            var partialitiesNumber = $("#partialitiesNumber").val();
-            var total = $(this).val();
-            var advancePayment = $("#advancePayment").val();
-
-            saveMonthlyCharge(total, partialitiesNumber, advancePayment);
-        });
-
-        $("#partialitiesNumber").on("change", function () {
-            var partialitiesNumber = $(this).val();
-            var total = $("#total").val();
-            var advancePayment = $("#advancePayment").val();
-
-            saveMonthlyCharge(total, partialitiesNumber, advancePayment);
-        });
-
-        $("#advancePayment").on("change", function () {
-            var partialitiesNumber = $("#partialitiesNumber").val();
-            var total = $("#total").val();
-            var advancePayment = $(this).val();
-
-            saveMonthlyCharge(total, partialitiesNumber, advancePayment);
-
-        });
-
-        function saveMonthlyCharge(total, partialitiesNumber, advancePayment) {
-            if (partialitiesNumber && total && advancePayment) {
-                var monthlyCharge = (parseFloat(total) - parseFloat(advancePayment)) / parseInt(partialitiesNumber);
-                monthlyCharge = Math.round(monthlyCharge * 100) / 100;
-                $("#monthlyCharge").val(monthlyCharge);
-            }
-        }
-
+        
         $("#hasDeferredPayment").on("ifChanged", function () {
             if (this.checked) {
                 $("#partialitiesNumber").prop('readonly', false);

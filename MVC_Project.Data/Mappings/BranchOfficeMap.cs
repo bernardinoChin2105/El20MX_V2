@@ -24,9 +24,9 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.zipCode).Column("zipCode").Nullable();
 
             References(x => x.colony).Column("colonyId").Nullable();
-            References(x => x.municipality).Column("municipality").Nullable();
-            References(x => x.state).Column("state").Nullable();
-            References(x => x.country).Column("country").Nullable();
+            References(x => x.municipality).Column("municipalityId").Nullable();
+            References(x => x.state).Column("stateId").Nullable();
+            References(x => x.country).Column("countryId").Nullable();
 
             
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
@@ -40,7 +40,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.ciecStatus).Column("ciecStatus").Nullable();
 
             Map(x => x.cer).Column("cer").Nullable();
-            Map(x => x.key).Column("key").Nullable();
+            Map(x => x.key).Column("[key]").Nullable();
             Map(x => x.fiel).Column("fiel").Nullable();
             Map(x => x.fielStatus).Column("fielStatus").Nullable();
 
