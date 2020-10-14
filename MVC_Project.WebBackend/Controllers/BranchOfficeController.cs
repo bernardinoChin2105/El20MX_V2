@@ -18,9 +18,11 @@ namespace MVC_Project.WebBackend.Controllers
     public class BranchOfficeController : Controller
     {
         BranchOfficeService _branchOfficeService;
-        public BranchOfficeController(BranchOfficeService branchOfficeService)
+        StateService _stateService;
+        public BranchOfficeController(BranchOfficeService branchOfficeService, StateService stateService)
         {
             _branchOfficeService = branchOfficeService;
+            _stateService = stateService;
         }
         // GET: BranchOffice
         public ActionResult Index()
@@ -92,6 +94,30 @@ namespace MVC_Project.WebBackend.Controllers
                     
                 };
 
+                if (!string.IsNullOrEmpty(branchOffice.zipCode))
+                {
+                    var listResponse = _stateService.GetLocationList(branchOffice.zipCode);
+
+                    var countries = listResponse.Select(x => new { id = x.countryId, name = x.nameCountry }).Distinct();
+                    model.listCountry = countries.Select(x => new SelectListItem
+                    {
+                        Text = x.name,
+                        Value = x.id.ToString(),
+                    }).Distinct().ToList();
+
+                    var municipalities = listResponse.Select(x => new { id = x.municipalityId, name = x.nameMunicipality }).Distinct();
+                    model.listMunicipality = municipalities.Select(x => new SelectListItem
+                    {
+                        Text = x.name,
+                        Value = x.id.ToString(),
+                    }).Distinct().ToList();
+
+                    model.listColony = listResponse.Select(x => new SelectListItem
+                    {
+                        Text = x.nameSettlement,
+                        Value = x.id.ToString(),
+                    }).Distinct().ToList();
+                }
                 return View(model);
             }
             catch (Exception ex)

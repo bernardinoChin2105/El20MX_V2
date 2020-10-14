@@ -226,6 +226,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var branchOffice = new Domain.Entities.BranchOffice()
                 {
+                    uuid = Guid.NewGuid(),
                     account = account,
                     name = "Matriz/Oficina Central",
                     serie = model.RFC.Substring(0, 4),
