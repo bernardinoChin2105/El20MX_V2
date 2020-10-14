@@ -488,7 +488,7 @@ namespace MVC_Project.WebBackend.Controllers
                         balance = x.balance.ToString("C2"),
                         currency = x.currency,
                         //number = x.number,
-                        number = x.number.PadLeft(10, pad),
+                        number = !string.IsNullOrEmpty(x.number)? x.number.PadLeft(10, pad): string.Empty,
                         isDisable = x.isDisable,
                         refreshAt = x.refreshAt,
                         clabe = x.clabe,
@@ -724,7 +724,7 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 list = _bankAccountService.FindBy(x => x.bankCredential.id == credentialId)
-                    .Select(x => new SelectListItem() { Text = x.name + " " + x.number.PadLeft(10, pad), Value = x.id.ToString() }).ToList();
+                    .Select(x => new SelectListItem() { Text = x.name + " " + (!String.IsNullOrEmpty(x.number)? x.number.PadLeft(10, pad) : string.Empty ), Value = x.id.ToString() }).ToList();
                 list.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
             }
             catch (Exception ex)
