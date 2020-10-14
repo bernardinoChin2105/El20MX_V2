@@ -57,6 +57,7 @@
     <Compile Include="Entities\BankAccount.cs" />
     <Compile Include="Entities\BankCredential.cs" />
     <Compile Include="Entities\BankTransaction.cs" />
+    <Compile Include="Entities\BranchOffice.cs" />
     <Compile Include="Entities\Currency.cs" />
     <Compile Include="Entities\Discount.cs" />
     <Compile Include="Entities\PaymentForm.cs" />
@@ -126,6 +127,7 @@
     <Compile Include="Services\BankAccountService.cs" />
     <Compile Include="Services\BankCredentialService.cs" />
     <Compile Include="Services\BankService.cs" />
+    <Compile Include="Services\BranchOfficeService.cs" />
     <Compile Include="Services\CountryService.cs" />
     <Compile Include="Services\CredentialService.cs" />
     <Compile Include="Services\AllianceService.cs" />

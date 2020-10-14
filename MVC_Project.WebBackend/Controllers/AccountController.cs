@@ -223,12 +223,24 @@ namespace MVC_Project.WebBackend.Controllers
                     modifiedAt = todayDate,
                     status = SystemStatus.ACTIVE.ToString()
                 };
+
+                var branchOffice = new Domain.Entities.BranchOffice()
+                {
+                    account = account,
+                    name = "Matriz/Oficina Central",
+                    serie = model.RFC.Substring(0, 4),
+                    folio = 1,
+                    createdAt = DateTime.Now,
+                    status = SystemStatus.ACTIVE.ToString(),
+                    ciec = model.CIEC,
+                    ciecStatus = SystemStatus.ACTIVE.ToString()
+                };
                 
                 var promotion = _promotionService.GetValidityPromotion(TypePromotions.INITIAL_DISCOUNT.ToString());
 
                 if (promotion == null)
                 {
-                    _credentialService.CreateCredentialAccount(credential);
+                    _credentialService.CreateCredentialAccount(credential, branchOffice);
                 }
                 else
                 {
@@ -249,7 +261,7 @@ namespace MVC_Project.WebBackend.Controllers
                         account = account,
                         promotion = promotion
                     };
-                    _credentialService.CreateCredentialAccount(credential, discount);
+                    _credentialService.CreateCredentialAccount(credential, discount, branchOffice);
                 }
 
                 var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission

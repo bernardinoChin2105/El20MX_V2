@@ -231,7 +231,7 @@ namespace MVC_Project.API.Controllers
                     List<InvoiceIssued> invoiceIssued = new List<InvoiceIssued>();
                     foreach (var cfdi in customersCFDI)
                     {
-                        byte[] byteArray = System.Text.Encoding.ASCII.GetBytes(cfdi.Xml);
+                        byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(cfdi.Xml);
                         System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
                         var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesIssued, account.rfc);
 
@@ -270,7 +270,7 @@ namespace MVC_Project.API.Controllers
                     List<InvoiceReceived> invoiceReceiveds = new List<InvoiceReceived>();
                     foreach (var cfdi in providersCFDI)
                     {
-                        byte[] byteArray = System.Text.Encoding.ASCII.GetBytes(cfdi.Xml);
+                        byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(cfdi.Xml);
                         System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
                         var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesReceived, account.rfc);
 
