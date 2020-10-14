@@ -62,7 +62,7 @@ namespace MVC_Project.Integrations.Paybook
         public string currency { get; set; }
         public string account_type { get; set; }
         public SitePaybook site { get; set; }
-        public ExtraAccountPaybook extra { get; set; }
+        //public ExtraAccountPaybook extra { get; set; }
         //public List<string> keywords { get; set; }
         public long dt_refresh { get; set; }
     }
@@ -107,8 +107,8 @@ namespace MVC_Project.Integrations.Paybook
         public string description { get; set; }
         public decimal amount { get; set; }
         public string currency { get; set; }
-        public List<string> attachments { get; set; }
-        public ExtraTransactionPaybook extra { get; set; }
+        //public List<string> attachments { get; set; } temporalmente comentado
+        //public ExtraTransactionPaybook extra { get; set; }
         public string reference { get; set; }
         //public List<string> keywords { get; set; }
         public long dt_transaction { get; set; }
