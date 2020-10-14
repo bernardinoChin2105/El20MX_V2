@@ -1293,7 +1293,8 @@ namespace MVC_Project.WebBackend.Controllers
                 string varLugarExpedicion = nodeComprobante.Attributes["LugarExpedicion"].Value;
                 string varFecha = nodeComprobante.Attributes["Fecha"].Value;
                 string varMoneda = nodeComprobante.Attributes["Moneda"].Value;
-                string varDescuento1 = nodeComprobante.Attributes["Descuento"].Value;
+                //string varDescuento1 = nodeComprobante.Attributes["Descuento"].Value;
+                string varDescuento1 = nodeComprobante.Attributes["Descuento"] != null ? nodeComprobante.Attributes["Descuento"].Value : string.Empty;
 
                 MonedaUtils formatoTexto = new MonedaUtils();
                 var fecha = varFecha != null || varFecha != "" ? Convert.ToDateTime(varFecha).ToString("yyyy-MM-dd HH:mm:ss") : varFecha;
@@ -1388,7 +1389,8 @@ namespace MVC_Project.WebBackend.Controllers
                         string varCantidad = nodeConcepto.Attributes["Cantidad"].Value;
                         string varClaveUnidad = nodeConcepto.Attributes["ClaveUnidad"].Value;
                         string varDescripcion = nodeConcepto.Attributes["Descripcion"].Value;
-                        string varDescuento = nodeConcepto.Attributes["Descuento"].Value;
+                        //string varDescuento = nodeConcepto.Attributes["Descuento"].Value;
+                        string varDescuento = nodeConcepto.Attributes["Descuento"] != null ? nodeConcepto.Attributes["Descuento"].Value : string.Empty;
                         string varImporte = nodeConcepto.Attributes["Importe"].Value;
                         string varValorUnitario = nodeConcepto.Attributes["ValorUnitario"].Value;
 
