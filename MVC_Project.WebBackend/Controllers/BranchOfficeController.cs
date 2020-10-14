@@ -42,7 +42,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 Int64? accountId = userAuth.GetAccountId();
 
-                var branchOffices = _branchOfficeService.GetBranchOffice(filtros, param.iDisplayStart, param.iDisplayLength);
+                var branchOffices = _branchOfficeService.GetBranchOffice(filtros, accountId, param.iDisplayStart, param.iDisplayLength);
                 totalDisplay = branchOffices.Item2;
                 foreach (var branchOffice in branchOffices.Item1)
                 {
@@ -87,37 +87,23 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     id = branchOffice.id,
                     name = branchOffice.name,
-                    cerUrl =branchOffice.cer,
+                    cerUrl = branchOffice.cer,
                     keyUrl = branchOffice.key,
-                    fiel=branchOffice.fiel,
+                    eFirma = branchOffice.eFirma,
                     ciec = branchOffice.ciec,
-                    
+                    folio = branchOffice.folio,
+                    serie = branchOffice.serie,
+                    street = branchOffice.street,
+                    outdoorNumber = branchOffice.outdoorNumber,
+                    interiorNumber = branchOffice.interiorNumber,
+                    zipCode = branchOffice.zipCode,
+                    colony = branchOffice.colony != null ? branchOffice.colony.id : 0,
+                    municipality = branchOffice.municipality != null ? branchOffice.municipality.id : 0,
+                    state = branchOffice.state != null ? branchOffice.state.id : 0,
+                    country = branchOffice.country != null ? branchOffice.country.id : 0
                 };
 
-                if (!string.IsNullOrEmpty(branchOffice.zipCode))
-                {
-                    var listResponse = _stateService.GetLocationList(branchOffice.zipCode);
-
-                    var countries = listResponse.Select(x => new { id = x.countryId, name = x.nameCountry }).Distinct();
-                    model.listCountry = countries.Select(x => new SelectListItem
-                    {
-                        Text = x.name,
-                        Value = x.id.ToString(),
-                    }).Distinct().ToList();
-
-                    var municipalities = listResponse.Select(x => new { id = x.municipalityId, name = x.nameMunicipality }).Distinct();
-                    model.listMunicipality = municipalities.Select(x => new SelectListItem
-                    {
-                        Text = x.name,
-                        Value = x.id.ToString(),
-                    }).Distinct().ToList();
-
-                    model.listColony = listResponse.Select(x => new SelectListItem
-                    {
-                        Text = x.nameSettlement,
-                        Value = x.id.ToString(),
-                    }).Distinct().ToList();
-                }
+                SetCombos(branchOffice.zipCode, ref model);
                 return View(model);
             }
             catch (Exception ex)
@@ -141,12 +127,32 @@ namespace MVC_Project.WebBackend.Controllers
                 if (branchOffice == null)
                     throw new Exception("No se encontró la regularización en el sistema");
 
-                var storageQuotation = ConfigurationManager.AppSettings["StorageQuotation"];
+                branchOffice.name = model.name;
+
+                branchOffice.ciec = model.ciec;
+
+                var storageEFirma = ConfigurationManager.AppSettings["StorageEFirma"];
                 
-                if (model.ciec != null)
+                if (model.cer != null)
                 {
-                    var upload = AzureBlobService.UploadPublicFile(model.cer.InputStream, model.cer.FileName, storageQuotation, branchOffice.account.rfc);
+                    var cer = AzureBlobService.UploadPublicFile(model.cer.InputStream, model.cer.FileName, storageEFirma, branchOffice.account.rfc);
+                    branchOffice.cer = cer.Item1;
                 }
+                if (model.key != null)
+                {
+                    var key = AzureBlobService.UploadPublicFile(model.key.InputStream, model.key.FileName, storageEFirma, branchOffice.account.rfc);
+                    branchOffice.key = key.Item1;
+                }
+                branchOffice.eFirma = model.eFirma;
+
+                branchOffice.street = model.street;
+                branchOffice.outdoorNumber = model.outdoorNumber;
+                branchOffice.interiorNumber = model.interiorNumber;
+                branchOffice.zipCode = model.zipCode;
+                branchOffice.colony = new Domain.Entities.Settlement { id = model.colony };
+                branchOffice.municipality = new Domain.Entities.Municipality { id = model.municipality};
+                branchOffice.state = new Domain.Entities.State { id = model.state };
+                branchOffice.country = new Domain.Entities.Country { id = model.country };
 
                 _branchOfficeService.Update(branchOffice);
 
@@ -171,8 +177,64 @@ namespace MVC_Project.WebBackend.Controllers
                    ex.Message
                 );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
-
+                SetCombos(model.zipCode, ref model);
                 return View(model);
+            }
+        }
+
+        private void SetCombos(string zipCode, ref BranchOfficeViewModel model)
+        {
+            var stateList = _stateService.GetAll().Select(x => new SelectListItem { Text = x.nameState, Value = x.id.ToString() }).ToList();
+            stateList.Insert(0, (new SelectListItem { Text = "Seleccione...", Value = "-1" }));
+            model.listState = stateList;
+
+            if (!string.IsNullOrEmpty(zipCode))
+            {
+                var listResponse = _stateService.GetLocationList(zipCode);
+
+                var countries = listResponse.Select(x => new { id = x.countryId, name = x.nameCountry }).Distinct();
+                model.listCountry = countries.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+
+                var municipalities = listResponse.Select(x => new { id = x.municipalityId, name = x.nameMunicipality }).Distinct();
+                model.listMunicipality = municipalities.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+
+                model.listColony = listResponse.Select(x => new SelectListItem
+                {
+                    Text = x.nameSettlement,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+            }
+
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetLocations(string zipCode)
+        {
+            try
+            {
+                var listResponse = _stateService.GetLocationList(zipCode);
+
+                return Json(new
+                {
+                    Data = new { success = true, data = listResponse },
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult
+                {
+                    Data = new { success = false, Mensaje = new { title = "Error", message = ex.Message } },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
             }
         }
     }

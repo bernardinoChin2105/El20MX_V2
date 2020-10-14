@@ -34,8 +34,8 @@ namespace MVC_Project.Domain.Entities
 
         public virtual string cer { get; set; }
         public virtual string key { get; set; }
-        public virtual string fiel { get; set; }
-        public virtual string fielStatus { get; set; }
+        public virtual string eFirma { get; set; }
+        public virtual string eFirmaStatus { get; set; }
 
         public virtual DateTime createdAt { get; set; }
         public virtual DateTime modifiedAt { get; set; }
