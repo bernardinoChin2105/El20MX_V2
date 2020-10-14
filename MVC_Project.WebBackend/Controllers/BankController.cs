@@ -650,8 +650,8 @@ namespace MVC_Project.WebBackend.Controllers
                                 currency = item.currency,
                                 transactionAt = item.transactionAt.ToShortDateString(),
                                 balance = balanceA.ToString("C2"),
-                                bankAccountName = item.bankAccountName + " " + item.number.PadLeft(10, pad),
-                                number = item.number.PadLeft(10, pad),
+                                bankAccountName = item.bankAccountName + " " + (!string.IsNullOrEmpty(item.number) ? item.number.PadLeft(10, pad) : string.Empty),
+                                number = (!string.IsNullOrEmpty(item.number) ? item.number.PadLeft(10, pad) : string.Empty),
                                 bankName = item.bankName,
                                 refreshAt = item.refreshAt.ToString()
                             };
