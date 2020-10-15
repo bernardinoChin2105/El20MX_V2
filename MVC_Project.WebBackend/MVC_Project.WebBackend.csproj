@@ -263,6 +263,7 @@
     <Compile Include="Controllers\DocumentsController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\InvoicingController.cs" />
     <Compile Include="Controllers\PaymentsController.cs" />
     <Compile Include="Controllers\PlanController.cs" />
     <Compile Include="Controllers\PromotionController.cs" />
@@ -286,6 +287,7 @@
     <Compile Include="Models\BankViewModel.cs" />
     <Compile Include="Models\BranchOfficeViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
+    <Compile Include="Models\InvoiceViewModel.cs" />
     <Compile Include="Models\PlanViewModel.cs" />
     <Compile Include="Models\InvoicesVM.cs" />
     <Compile Include="Models\ProductVM.cs" />
@@ -1975,6 +1977,7 @@
     <Content Include="Views\Quotation\Edit.cshtml" />
     <Content Include="Views\BranchOffice\Index.cshtml" />
     <Content Include="Views\BranchOffice\Edit.cshtml" />
+    <Content Include="Views\Invoicing\Invoice.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
@@ -2012,7 +2015,6 @@
   <ItemGroup>
     <Folder Include="Content\img\gallery\" />
     <Folder Include="Content\img\landing\" />
-    <Folder Include="Views\Invoices\" />
     <Folder Include="Views\Webhooks\" />
     <Folder Include="Views\Webhook\" />
   </ItemGroup>

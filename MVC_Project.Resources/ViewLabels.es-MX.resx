@@ -207,4 +207,7 @@
   <data name="MODULE_QUOTATION" xml:space="preserve">
     <value>Regularizaciones</value>
   </data>
+  <data name="MODULE_INVOICING" xml:space="preserve">
+    <value>Facturación</value>
+  </data>
 </root>

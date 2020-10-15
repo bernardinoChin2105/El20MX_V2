@@ -146,7 +146,20 @@
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Quotation", cssClass: "in")">
                             <li class="@Html.IsSelected(controller: "Quotation", action: "Index")"><a href="@Url.Action("Index", "Quotation")">Regularizaciones</a></li>
-                            
+
+                        </ul>
+                    }
+                </li>
+            }
+            @if (user.HasAccessToModule(SystemModules.INVOICING.ToString()))
+            {
+                <li class="@Html.IsModuleSelected(user, SystemModules.INVOICING.ToString())">
+                    <a href="#"><i class="fas fa-balance-scale"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_INVOICING</span> <span class="fain arrow"></span></a>
+                    @if (user.HasAccessController("Invoicing"))
+                    {
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Invoicing", cssClass: "in")">
+                            <li class="@Html.IsSelected(controller: "Invoicing", action: "Invoice")"><a href="@Url.Action("Invoice", "Invoicing")">Generar Factura</a></li>
+
                         </ul>
                     }
                 </li>

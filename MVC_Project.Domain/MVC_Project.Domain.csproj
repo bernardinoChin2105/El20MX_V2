@@ -59,7 +59,9 @@
     <Compile Include="Entities\BankTransaction.cs" />
     <Compile Include="Entities\BranchOffice.cs" />
     <Compile Include="Entities\Currency.cs" />
+    <Compile Include="Entities\Customs.cs" />
     <Compile Include="Entities\Discount.cs" />
+    <Compile Include="Entities\DriveKey.cs" />
     <Compile Include="Entities\PaymentForm.cs" />
     <Compile Include="Entities\PaymentMethod.cs" />
     <Compile Include="Entities\Plan.cs" />
@@ -72,6 +74,7 @@
     <Compile Include="Entities\PlanChargeConfiguration.cs" />
     <Compile Include="Entities\PlanFeature.cs" />
     <Compile Include="Entities\PlanFeatureConfiguration.cs" />
+    <Compile Include="Entities\ProductServiceKey.cs" />
     <Compile Include="Entities\Promotion.cs" />
     <Compile Include="Entities\PromotionAccount.cs" />
     <Compile Include="Entities\Provider.cs" />

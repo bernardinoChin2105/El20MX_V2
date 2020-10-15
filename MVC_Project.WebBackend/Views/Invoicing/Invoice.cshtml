@@ -1,0 +1,330 @@
+﻿@model  MVC_Project.WebBackend.Models.InvoiceViewModel
+@{
+    ViewBag.Title = "Factura";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="ibox-content p-xl">
+    @using (Html.BeginForm("Invoice", "Invoicing", FormMethod.Post, new { @id = "InvoicingForm", @role = "form" }))
+    {
+        <div class="row">
+            <div class="col-12">
+                <h3>Información Emisor de Factura</h3>
+                <hr />
+            </div>
+            <div class="col-md-2">
+                logo
+            </div>
+            <div class="col-md-5">
+                <h5>Información Emisor de Factura</h5>
+                <strong>Tecnología con Ingenio R20, S.A.P.I. de C.V.</strong><br>
+                <strong>RFC: TIR1602182NB.</strong><br>
+                <strong>Régimen Fiscal: General de Ley Personas Morales</strong><br>
+                <abbr title="Phone">P:</abbr> (123) 601-4590
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.BranchOffice, new { @class = "col-form-label col-md-3 control-label" })
+                    <div class="col-md-9">
+                        @Html.DropDownListFor(model => model.BranchOffice, Model.ListBranchOffice.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @*@Html.ValidationMessageFor(model => model.allyId)*@
+                    </div>
+                </div>
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.EmailIssuedId, new { @class = "col-form-label col-md-3 control-label" })
+                    <div class="col-md-9">
+                        @Html.DropDownListFor(model => model.EmailIssuedId, Model.ListEmailIssued.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @*@Html.ValidationMessageFor(model => model.allyId)*@
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.TypeInvoice, new { @class = "col-form-label col-md-3 control-label" })
+                    <div class="col-md-9">
+                        @Html.DropDownListFor(model => model.TypeInvoice, Model.ListTypeInvoices.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @*@Html.ValidationMessageFor(model => model.allyId)*@
+                    </div>
+                </div>
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.TypeRelationship, new { @class = "col-form-label col-md-3 control-label" })
+                    <div class="col-md-9">
+                        @Html.DropDownListFor(model => model.TypeRelationship, Model.ListTypeRelationship.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @*@Html.ValidationMessageFor(model => model.allyId)*@
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <br />
+                <h3>Información Receptor de Factura</h3>
+                <hr />
+                <h5>Facturar a:</h5>
+            </div>
+            <div class="col-12">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.CustomerName, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control required", @maxlength = "200", @autocomplete = "off" })
+                        <input type="hidden" name="CustomerId" id="CustomerId" />
+                    </div>
+                    @Html.LabelFor(m => m.RFC, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.TextBoxFor(m => m.RFC, new { @class = "form-control required", @maxlength = "200", @autocomplete = "off" })
+                        <input type="hidden" name="RFCId" id="RFCId" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.Street, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.TextBoxFor(m => m.Street, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off" })
+                    </div>
+                    @Html.LabelFor(m => m.OutdoorNumber, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.TextBoxFor(m => m.OutdoorNumber, new { @class = "form-control required", @maxlength = "200", @autocomplete = "off" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.InteriorNumber, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.TextBoxFor(m => m.InteriorNumber, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off" })
+                    </div>
+                    @Html.LabelFor(m => m.Colony, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.DropDownListFor(model => model.Colony, Model.ListColony.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.ZipCode, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off" })
+                    </div>
+                    @Html.LabelFor(m => m.Municipality, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.DropDownListFor(model => model.Municipality, Model.ListMunicipality.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.State, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.DropDownListFor(model => model.State, Model.ListState.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                    </div>
+                    @Html.LabelFor(m => m.Country, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.DropDownListFor(model => model.Country, Model.ListCountry.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.CustomerEmailId, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.DropDownListFor(model => model.CustomerEmailId, Model.ListCustomerEmail.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <br />
+                <h3>Datos Fiscales para Facturar:</h3>
+                <hr />
+            </div>
+
+            <div class="col-12">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.TypeVoucherId, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.DropDownListFor(model => model.TypeVoucherId, Model.ListTypeVoucher.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                    </div>
+                    @Html.LabelFor(m => m.SerieFolio, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.TextBoxFor(m => m.SerieFolio, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.UseCFDI, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.DropDownListFor(model => model.UseCFDI, Model.ListUseCFDI.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select" })
+                    </div>
+                    @Html.LabelFor(m => m.PaymentForm, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.DropDownListFor(model => model.PaymentForm, Model.ListPaymentForm.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.PaymentMethod, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.DropDownListFor(model => model.PaymentMethod, Model.ListPaymentMethod.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select" })
+                    </div>
+                    @Html.LabelFor(m => m.Currency, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.DropDownListFor(model => model.Currency, Model.ListCurrency.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.DropDownListFor(model => model.ExchangeRate, Model.ListExchangeRate.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <hr />
+                <h5>Comercio Internacional: </h5>
+            </div>
+            <div class="col-12">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.CustomsPatent, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.DropDownListFor(model => model.CustomsPatent, Model.ListCustomsPatent.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                    </div>
+                    @Html.LabelFor(m => m.Customs, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.DropDownListFor(model => model.Customs, Model.ListCustoms.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.MotionNumber, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.DropDownListFor(model => model.MotionNumber, Model.ListMotionNumber.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <br />
+                <h3>Condiciones y Comentarios a Facturar</h3>
+                <hr />
+            </div>
+            <div class="col-12">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.PaymentConditions, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.DropDownListFor(model => model.PaymentConditions, Model.ListPaymentConditions.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                    </div>
+                    @Html.LabelFor(m => m.DiscountRate, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        @Html.TextBoxFor(m => m.DiscountRate, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.Comments, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextAreaFor(m => m.Comments, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off" })
+                        @*@Html.TextBoxFor(m => m.DiscountRate, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off" })*@
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive m-t">
+            <table class="table invoice-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Cantidad</th>
+                        <th>Código SAT</th>
+                        <th>Descripción Producto o Servicio</th>
+                        <th>Unidad SAT</th>
+                        <th>Precio Unitario</th>
+                        <th>% Descuento</th>
+                        <th>
+                            Impuesto
+                            <small>(IVA/IEPS)</small>
+                        </th>
+                        <th>SubTotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ProductServices.Count > 0)
+                    {
+                        var index = 1;
+                        foreach (var item in Model.ProductServices)
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.SATCode</td>
+                                <td>@item.ProductServiceDescription</td>
+                                <td>@item.SATUnit</td>
+                                <td>@item.UnitPrice</td>
+                                <td>@item.DiscountRate</td>
+                                <td>@item.Taxes</td>
+                                <td>@item.Subtotal</td>
+                            </tr>
+                            @(index++);
+                        }
+                    }
+                </tbody>
+            </table>
+        </div><!-- /table-responsive -->
+
+        @*<input type="hidden" name="TokenId" id="token_id">
+            @Html.HiddenFor(m => m.OrderId)
+            @Html.HiddenFor(m => m.Amount)
+            @Html.AntiForgeryToken()*@
+        <table class="table invoice-total">
+            <tbody>
+                <tr>
+                    <td><strong>@Html.LabelFor(m => m.Subtotal, new { @class = " control-label" }) :</strong></td>
+                    <td>@Model.Subtotal.ToString("C2")</td>
+                </tr>
+                <tr>
+                    <td><strong>@Html.LabelFor(m => m.TotalDiscount, new { @class = " control-label" }) :</strong></td>
+                    <td>@Model.TotalDiscount.ToString("C2")</td>
+                </tr>
+                <tr>
+                    <td><strong>@Html.LabelFor(m => m.TaxTransferred, new { @class = " control-label" }) :</strong></td>
+                    <td>@Model.TaxTransferred.ToString("C2")</td>
+                </tr>
+                <tr>
+                    <td><strong>@Html.LabelFor(m => m.TaxWithheldIVA, new { @class = " control-label" }) :</strong></td>
+                    <td>@Model.TaxWithheldIVA.ToString("C2")</td>
+                </tr>
+                <tr>
+                    <td><strong>@Html.LabelFor(m => m.TaxWithheldISR, new { @class = " control-label" }) :</strong></td>
+                    <td>@Model.TaxWithheldISR.ToString("C2")</td>
+                </tr>
+                <tr>
+                    <td><strong>@Html.LabelFor(m => m.Total, new { @class = " control-label" }) :</strong></td>
+                    <td>@Model.Total.ToString("C2")</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group row pull-right">
+                    <div class="col-md-10 offset-2 text-right">
+                        <a href="#" class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
+                        @*<a href='@Url.Action("Index", "Plan")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>*@
+                        <button type="button" onclick="validarDatos()" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                        <button type="button" onclick="validarDatos()" class="btn btn-color"> <i class="fa fa-save"></i> Timbrar Factura </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*<div class="text-right">
+                <div class="row">
+                    <div class="col-sm-4">
+                        Confirmation Email:
+                        <input id="ConfirmationEmail" name="ConfirmationEmail" type="email" value="" class="form-control" />
+                    </div>
+                    <div class="col-sm-8">
+                        &nbsp;
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <input id="PaymentMethod" name="PaymentMethod" type="radio" value="card" checked="checked" /> Credit/Debit Card
+                    <br /><br />
+                    <input id="PaymentMethod" name="PaymentMethod" type="radio" value="bank_account" /> Bank Transfer
+                </div>
+
+                <button class="btn btn-primary" type="submit"><i class="fa fa-dollar"></i>  Proceed Checkout</button>
+            </div>*@
+    }
+</div>
