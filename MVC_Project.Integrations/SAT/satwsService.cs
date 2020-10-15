@@ -216,7 +216,7 @@ namespace MVC_Project.Integrations.SAT
             SatAuthResponseModel satModel = new SatAuthResponseModel();
             try
             {
-                string url = "/credentials";
+                string url = "/credentials/"+ idCredential;
 
                 //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
                 var responseSat = SATws.CallServiceSATws(url, null, "Get");
