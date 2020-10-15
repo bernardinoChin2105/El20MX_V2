@@ -14,6 +14,7 @@ namespace MVC_Project.Domain.Entities
         public virtual string provider { get; set; }
         public virtual string idCredentialProvider { get; set; }
         public virtual string statusProvider { get; set; }
+        public virtual string credentialType { get; set; }
         public virtual DateTime createdAt { get; set; }
         public virtual DateTime modifiedAt { get; set; }
         public virtual string status { get; set; }

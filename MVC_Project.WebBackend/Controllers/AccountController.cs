@@ -201,7 +201,7 @@ namespace MVC_Project.WebBackend.Controllers
                     createdAt = todayDate,
                     modifiedAt = todayDate,
                     avatar = "/Images/p1.jpg",
-                    status = SystemStatus.ACTIVE.ToString()
+                    status = SystemStatus.PENDING.ToString()
                 };
 
                 var membership = new Domain.Entities.Membership
@@ -221,7 +221,8 @@ namespace MVC_Project.WebBackend.Controllers
                     statusProvider = satModel.status,
                     createdAt = todayDate,
                     modifiedAt = todayDate,
-                    status = SystemStatus.ACTIVE.ToString()
+                    status = SystemStatus.ACTIVE.ToString(),
+                    credentialType = SATCredentialType.CIEC.ToString()
                 };
 
                 var branchOffice = new Domain.Entities.BranchOffice()

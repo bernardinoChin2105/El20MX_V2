@@ -33,10 +33,12 @@ namespace MVC_Project.API.Controllers
         private IDiagnosticService _diagnosticService;
         private IDiagnosticDetailService _diagnosticDetailService;
         private IDiagnosticTaxStatusService _diagnosticTaxStatusService;
+        private ICredentialService _credentialService;
 
         public WebhooksController(IWebhookService webhookService, ICustomerService customerService, IProviderService providerService,
             IInvoiceIssuedService invoicesIssuedService, IInvoiceReceivedService invoicesReceivedService, IAccountService accountService,
-            IDiagnosticService diagnosticService, IDiagnosticDetailService diagnosticDetailService, IDiagnosticTaxStatusService diagnosticTaxStatusService)
+            IDiagnosticService diagnosticService, IDiagnosticDetailService diagnosticDetailService, IDiagnosticTaxStatusService diagnosticTaxStatusService,
+            ICredentialService credentialService)
         {
             _webhookService = webhookService;
             _customerService = customerService;
@@ -47,6 +49,7 @@ namespace MVC_Project.API.Controllers
             _diagnosticService = diagnosticService;
             _diagnosticDetailService = diagnosticDetailService;
             _diagnosticTaxStatusService = diagnosticTaxStatusService;
+            _credentialService = credentialService;
         }
 
         [HttpPost]
@@ -368,6 +371,57 @@ namespace MVC_Project.API.Controllers
                     LogUtil.AddEntry(descripcion: webhookEventModel.ToString(), eLogLevel: ENivelLog.Debug,
                     usuarioId: (Int64)1, usuario: "Success", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "Webhook", detalle: "Webhook");
                 }
+            }
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(descripcion: webhookEventModel.ToString(), eLogLevel: ENivelLog.Debug,
+                       usuarioId: (Int64)1, usuario: "Error: " + ex.Message, eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "Webhook", detalle: "Webhook");
+
+            }
+            return Request.CreateResponse(HttpStatusCode.OK);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("SatwsCredentialUpdateHandler")]
+        public HttpResponseMessage SatwsCredentialUpdateHandler(Object webhookEventModel)
+        {
+            try
+            {
+                //var data = JsonConvert.DeserializeObject<WebhookEventModel>(webhookEventModel.ToString());
+
+                //if (data != null && data.data != null && data.data.@object != null && data.type == SatwsEvent.CREDENTIAL_UPDATE.GetDisplayName())
+                //{
+                //    var account = _accountService.FirstOrDefault(x => x.rfc == data.data.@object.taxpayer.id);
+
+                //    if (account == null)
+                //        throw new Exception("No existe rfc a procesar");
+                //    var credential = _credentialService.FirstOrDefault(x => x.account.id == account.id && x.provider == SystemProviders.SATWS.GetDisplayName() && x.credentialType==SATCredentialType.CIEC.ToString());
+                //    credential.statusProvider = data.data.@object.status;
+
+                //    switch (data.data.@object.status)
+                //    {
+                //        case "pending":
+                //            break;
+                //        case "valid":
+                //            account.status = SystemStatus.ACTIVE.ToString();
+                //            break;
+                //        case "invalid":
+                //            account.status = SystemStatus.INVALID.ToString();
+                //            break;
+                //        case "deactivated":
+                //            account.status = SystemStatus.INACTIVE.ToString();
+                //            break;
+                //        case "error":
+                //            account.status = SystemStatus.INACTIVE.ToString();
+                //            break;
+                //        default:
+                //            break;
+                //    }
+
+                    LogUtil.AddEntry(descripcion: webhookEventModel.ToString(), eLogLevel: ENivelLog.Debug,
+                    usuarioId: (Int64)1, usuario: "Success", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: "Webhook");
+                //}
             }
             catch (Exception ex)
             {

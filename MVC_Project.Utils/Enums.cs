@@ -25,6 +25,8 @@ namespace MVC_Project.Utils
         APPROVED,
         [Display(Name = "Cancelado")]
         CANCELLED,
+        [Display(Name ="No válido")]
+        INVALID
     }
 
     public enum SystemLevelPermission
@@ -201,6 +203,14 @@ namespace MVC_Project.Utils
         FINERIO
     }
 
+    public enum SATCredentialType
+    {
+        [Display(Name = "ciec")]
+        CIEC,
+        [Display(Name = "e.firma")]
+        EFIRMA
+    }
+
     public enum MetodoPago
     {
         [Description("Pago en una sola exhibición")]
@@ -341,7 +351,9 @@ namespace MVC_Project.Utils
     public enum SatwsEvent
     {
         [Display(Name = "extraction.updated")]
-        EXTRACTION_UPDATED
+        EXTRACTION_UPDATED,
+        [Display(Name = "credential.updated")]
+        CREDENTIAL_UPDATE
     }
 
     public enum SatwsStatusEvent
