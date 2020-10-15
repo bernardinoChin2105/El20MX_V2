@@ -10,7 +10,7 @@ namespace MVC_Project.Domain.Services
 {
     public interface IBranchOfficeService : IService<BranchOffice>
     {
-        Tuple<IEnumerable<BranchOffice>, int> GetBranchOffice(string filtros, int? skip, int? take);
+        Tuple<IEnumerable<BranchOffice>, int> GetBranchOffice(string filtros, Int64? accountId, int? skip, int? take);
     }
     public class BranchOfficeService : ServiceBase<BranchOffice>, IBranchOfficeService
     {
@@ -20,9 +20,11 @@ namespace MVC_Project.Domain.Services
             _repository = baseRepository;
         }
 
-        public Tuple<IEnumerable<BranchOffice>, int> GetBranchOffice(string filtros, int? skip, int? take)
+        public Tuple<IEnumerable<BranchOffice>, int> GetBranchOffice(string filtros, Int64? accountId, int? skip, int? take)
         {
-            var branchOffice = _repository.Session.QueryOver<BranchOffice>();
+
+            var branchOffice = _repository.Session.QueryOver<BranchOffice>()
+                .Where(x => x.account.id == accountId);
 
             var count = branchOffice.RowCount();
 

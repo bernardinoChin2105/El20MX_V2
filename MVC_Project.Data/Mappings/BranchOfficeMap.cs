@@ -41,10 +41,9 @@ namespace MVC_Project.Data.Mappings
 
             Map(x => x.cer).Column("cer").Nullable();
             Map(x => x.key).Column("[key]").Nullable();
-            Map(x => x.fiel).Column("fiel").Nullable();
-            Map(x => x.fielStatus).Column("fielStatus").Nullable();
-
-
+            Map(x => x.eFirma).Column("eFirma").Nullable();
+            Map(x => x.eFirmaStatus).Column("eFirmaStatus").Nullable();
+            
             References(x => x.account).Column("accountId").Nullable();
             
         }
