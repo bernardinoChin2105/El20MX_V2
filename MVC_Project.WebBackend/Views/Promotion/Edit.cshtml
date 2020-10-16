@@ -1,0 +1,275 @@
+﻿@model MVC_Project.WebBackend.Models.PromotionViewModel
+@using MVC_Project.Utils
+
+@{
+
+    ViewBag.Title = "Editar Promoción";
+
+    var inactivePeriod = false;
+    var inactiveValidity = false;
+    var inactiveCustomer = false;
+
+    if (Model.TypeId == TypePromotions.REFERRED.ToString())
+    {
+    }
+    else if (Model.TypeId == TypePromotions.INITIAL_DISCOUNT.ToString())
+    {
+        inactivePeriod = true;
+        inactiveCustomer = true;
+    }
+    else if (Model.TypeId == TypePromotions.CUSTOMERS.ToString())
+    {
+        inactivePeriod = true;
+        inactiveValidity = true;
+    }
+}
+
+@section styles{
+    <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
+    <link href="~/Content/template/plugins/datapicker/datepicker3.css" rel="stylesheet" />
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="">
+        @using (Html.BeginForm("Edit", "Promotion", FormMethod.Post, new { role = "form", @id = "CreateForm", @class = "row" }))
+        {
+            <div class="col-lg-12">
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
+
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>Datos de Promoción</h5>
+                        <input name="id" type="hidden" value="@Model.id" />
+                    </div>
+                    <div class="ibox-content">
+                        <div class="form-horizontal">
+                            <div class="form-group row">
+                                @Html.LabelFor(m => m.name, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-9">
+                                    @Html.TextBoxFor(m => m.name, new { @class = "form-control required", @maxlength = "50" })
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(m => m.discount, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-3">
+                                    @Html.TextBoxFor(m => m.discount, new { @class = "form-control porcert required", @maxlength = "50" })
+                                </div>
+                                @Html.LabelFor(m => m.discountRate, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-3">
+                                    @Html.TextBoxFor(m => m.discountRate, new { @class = "form-control porcert required", @maxlength = "50" })
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.TypeId, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-md-9">
+                                    @Html.DropDownListFor(model => model.TypeId, Model.TypeList.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.AccountId, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-md-9">
+                                    @*@Html.DropDownList(model => model.AccountId, new MultiSelectList(Model.AccountMultipleList, "Value", "Text", Model.AccountId), new { multiple = "multiple", @class = "chosen-select", data_placeholder = "Seleccione" })*@
+                                    @if (inactiveCustomer)
+                                    {
+                                        @Html.DropDownListFor(model => model.AccountId, new MultiSelectList(Model.AccountMultipleList, "Value", "Text", Model.AccountId), new { multiple = "multiple", @class = "chosen-select", data_placeholder = "Seleccione", @disabled = "disabled" })
+                                    }
+                                    else
+                                    {
+                                        @Html.DropDownListFor(model => model.AccountId, new MultiSelectList(Model.AccountMultipleList, "Value", "Text", Model.AccountId), new { multiple = "multiple", @class = "chosen-select", data_placeholder = "Seleccione" })
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-12 col-md-3 text-right">
+                                    <div class="i-checks">
+                                        <label style="font-weight:initial">
+                                            @if (inactivePeriod)
+                                            {
+                                                @Html.CheckBoxFor(m => m.hasPeriod, new { @class = "form-control", @disabled = "disabled" })
+                                            }
+                                            else
+                                            {
+                                                @Html.CheckBoxFor(m => m.hasPeriod, new { @class = "form-control" })
+                                            }
+                                            @Html.LabelFor(m => m.hasPeriod)
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-9">
+                                    <hr />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(m => m.initialPeriod, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-3">
+                                    <input type="number" name="initialPeriod" id="initialPeriod" class="form-control required" value="@Model.initialPeriod" disabled="@(!Model.hasPeriod)">
+                                </div>
+                                @Html.LabelFor(m => m.finalPeriod, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-3">
+                                    <input type="number" name="finalPeriod" id="finalPeriod" class="form-control required" value="@Model.finalPeriod" disabled="@(!Model.hasPeriod)">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-12 col-md-3 text-right">
+                                    <div class="i-checks">
+                                        <label style="font-weight:initial">
+                                            @if (inactiveValidity)
+                                            {
+                                                @Html.CheckBoxFor(m => m.hasValidity, new { @class = "form-control", @disabled = "disabled" })
+                                            }
+                                            else
+                                            {
+                                                @Html.CheckBoxFor(m => m.hasValidity, new { @class = "form-control" })
+                                            }
+                                            @Html.LabelFor(m => m.hasValidity)
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-9">
+                                    <hr />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(m => m.finalDate, new { @class = "col-form-label col-md-3 control-label" })
+                                <div class="col-12 col-md-9">
+                                    <div id="data_1">
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input type="text" name="finalDate" id="finalDate" autocomplete="off" class="form-control required" value="@(Model.hasValidity ? Model.finalDate.ToShortDateString() : "" )" disabled="@(!Model.hasValidity)">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row pull-right">
+                                <div class="col-md-10 offset-2 text-right">
+                                    <a href='@Url.Action("Index", "Promotion")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
+                                    <button type="button" onclick="validarDatos()" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
+    <!-- Data picker -->
+    <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.js"></script>
+    <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.es.js"></script>
+
+    <script>
+        function validarDatos() {
+            if (!$('#CreateForm').valid()) {
+                return;
+            }
+            El20Utils.ocultarCargador();
+            $('#CreateForm').submit();
+        }
+
+        $(document).ready(function () {
+            $('.chosen-select').chosen({ width: '100%', "disable_search": true });
+            $("#AccountId").val(@Html.Raw(Json.Encode(Model.AccountId))).trigger("chosen:updated");
+
+            $('.porcert').mask("##0.00", { reverse: true });
+
+            var mem = $('#data_1 .input-group.date').datepicker({
+                //dateFormat: "yy-mm-dd"
+                keyboardNavigation: false,
+                todayBtn: "linked",
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true,
+                format: "dd/mm/yyyy",
+                startDate: '@Html.Raw(Json.Encode(ViewBag.Date))',
+                language: "es"
+            });
+
+            $("#TypeId").change(function () {
+                console.log("cambio", $(this).val());
+                var value = $(this).val();
+                var hasPeriod = $("#hasPeriod");
+                var hasValidity = $("#hasValidity");
+                var customers = $("#AccountId");
+
+                if ("REFERRED" == value) {
+                    //console.log("referido")
+                    customers.prop("disabled", false).trigger("chosen:updated");
+                    hasPeriod.prop({ "checked": true, "disabled": false }).iCheck('update');
+                    hasValidity.prop({ "disabled": false }).iCheck('update');
+                    changeHasPeriod(hasPeriod);
+                }
+                else if ("INITIAL_DISCOUNT" == value) {
+                    //console.log("descuento inicial")
+                    customers.prop("disabled", true).val("").trigger("chosen:updated");
+                    hasPeriod.prop({ "checked": false, "disabled": true }).iCheck('update');
+                    hasValidity.prop({ "disabled": false }).iCheck('update');
+                    changeHasPeriod(hasPeriod);
+                    //Poner "N/A" en los campos que estan en los checkeds
+                } else if ("CUSTOMERS" == value) {
+                    //console.log("clientes")
+                    customers.prop("disabled", false).trigger("chosen:updated");
+                    hasPeriod.prop({ "checked": false, "disabled": true }).iCheck('update');
+                    hasValidity.prop({ "checked": false, "disabled": true }).iCheck('update');
+                    changeHasPeriod(hasPeriod);
+                    changeHasValidity(hasValidity);
+                } else {
+                    customers.prop("disabled", true).val("").trigger("chosen:updated");
+                    hasPeriod.prop({ "checked": false, "disabled": false }).iCheck('update');
+                    hasValidity.prop({ "checked": false, "disabled": false }).iCheck('update');
+                    changeHasPeriod(hasPeriod);
+                    changeHasValidity(hasValidity);
+                }
+            });
+
+            $('input').on('ifChanged', function (ev) {
+                //console.log("que pasa check", ev.target.id, $(ev.target).is(":checked"));
+
+                if (ev.target.id == "hasPeriod") {
+                    changeHasPeriod($(ev.target))
+                } else {
+                    changeHasValidity($(ev.target))
+                }
+            });
+
+            function changeHasPeriod(input) {
+                //console.log("funcion de valor", input.is(":checked"))
+                var vchecked = input.is(":checked");
+                //console.log("aplicar periodo", !vchecked);
+
+                $("#initialPeriod,#finalPeriod").prop("disabled", !vchecked)
+                var initialPeriod = $("#initialPeriod");
+                var finalPeriod = $("#finalPeriod");
+
+                if (!vchecked) {
+                    initialPeriod.val("");
+                    finalPeriod.val("");
+                }
+            }
+
+            function changeHasValidity(input) {
+                //console.log("allianceValidity");
+                var vchecked = input.is(":checked");
+                var finalDate = $("#finalDate");
+                finalDate.prop("disabled", !vchecked);
+
+                if (!vchecked) {
+                    finalDate.val("");
+                }
+            }
+
+            $("#hasPeriod").click(function () {
+                changeHasPeriod($(this));
+            });
+
+            $("#hasValidity").click(function () {
+                changeHasValidity($(this));
+            });
+        });
+    </script>
+}

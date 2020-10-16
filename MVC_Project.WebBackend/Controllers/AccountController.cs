@@ -24,15 +24,20 @@ namespace MVC_Project.WebBackend.Controllers
         private ICredentialService _credentialService;
         private IRoleService _roleService;
         private IUserService _userService;
+        private IPromotionService _promotionService;
+        private IDiscountService _discountService;
 
         public AccountController(IMembershipService accountUserService, IAccountService accountService,
-            ICredentialService credentialService, IRoleService roleService, IUserService userService)
+            ICredentialService credentialService, IRoleService roleService, IUserService userService, IPromotionService promotionService,
+            IDiscountService discountService)
         {
             _membership = accountUserService;
             _accountService = accountService;
             _credentialService = credentialService;
             _roleService = roleService;
             _userService = userService;
+            _promotionService = promotionService;
+            _discountService = discountService;
         }
 
         // GET: Account
@@ -52,9 +57,10 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult SelectAccount()
         {
             var authUser = Authenticator.AuthenticatedUser;
+            var provider = ConfigurationManager.AppSettings["SATProvider"];
             if (authUser.isBackOffice)
             {
-                var accounts = _accountService.GetAll();
+                var accounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString());
                 var accountViewModel = new AccountSelectViewModel { accountListItems = new List<SelectListItem>() };
                 accountViewModel.accountListItems = accounts.Select(x => new SelectListItem
                 {
@@ -69,19 +75,21 @@ namespace MVC_Project.WebBackend.Controllers
                 var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
                 if (memberships.Any())
                 {
-                    accountViewModel.accountListViewModels = memberships.Select(x => new AccountListViewModel
+                    foreach (var membership in memberships)
                     {
-                        uuid = x.account.uuid,
-                        name = x.account.name,
-                        rfc = x.account.rfc,
-                        role = x.role.name,
-                        accountId = x.account.id,
-                        imagen = x.account.avatar
-                    }).ToList();
-
-                    #region Obtener información de la credencial para saber si esta ya activo
-                    ValidarSat(accountViewModel);
-                    #endregion
+                        var credential = _credentialService.FirstOrDefault(x => x.account.id == membership.account.id && x.provider == provider && x.credentialType == SATCredentialType.CIEC.ToString());
+                        accountViewModel.accountListViewModels.Add(new AccountListViewModel
+                        {
+                            uuid = membership.account.uuid,
+                            name = membership.account.name,
+                            rfc = membership.account.rfc,
+                            role = membership.role.name,
+                            accountId = membership.account.id,
+                            imagen = membership.account.avatar,
+                            credentialStatus = credential != null ? credential.status : SystemStatus.INACTIVE.ToString(),
+                            accountStatus = credential != null ? membership.account.status : SystemStatus.PENDING.ToString(),
+                        });
+                    }
                 }
                 accountViewModel.count = accountViewModel.accountListViewModels.Count;
 
@@ -161,69 +169,198 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult CreateAccount()
+        public ActionResult CreateAccount(string uuid, string rfc)
         {
-            return View();
+            LoginSATViewModel model = new LoginSATViewModel { uuid = uuid, RFC = rfc };
+            return View(model);
         }
 
         [HttpPost]
-        [AllowAnonymous]
-        //[Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public ActionResult CreateCredential(LoginSATViewModel model)
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+            DateTime todayDate = DateUtil.GetDateTimeNow();
+            try
+            {
+                var provider = ConfigurationManager.AppSettings["SATProvider"];
+                Domain.Entities.Account account = null;
+                if (string.IsNullOrEmpty(model.uuid))
+                {
+                    var accountExist = _accountService.ValidateRFC(model.RFC);
+
+                    if (accountExist != null)
+                        throw new Exception("Existe una cuenta registrada con este RFC");
+
+                    var satModel = SATService.CreateCredential(new CredentialRequest { rfc = model.RFC, ciec = model.CIEC }, provider);
+                    
+                    account = new Domain.Entities.Account()
+                    {
+                        uuid = Guid.NewGuid(),
+                        name = authUser.FirstName + " " + authUser.LastName,
+                        rfc = model.RFC,
+                        createdAt = todayDate,
+                        modifiedAt = todayDate,
+                        avatar = "/Images/p1.jpg",
+                        status = SystemStatus.PENDING.ToString(),
+                        ciec = model.CIEC
+                    };
+                    var role = _roleService.FirstOrDefault(x => x.code == SystemRoles.ACCOUNT_OWNER.ToString());
+                    var user = _userService.FirstOrDefault(x => x.uuid == authUser.Uuid);
+
+                    var membership = new Domain.Entities.Membership
+                    {
+                        account = account,
+                        user = user,
+                        role = role,
+                        status = SystemStatus.ACTIVE.ToString()
+                    };
+
+                    account.memberships.Add(membership);
+
+                    var credential = new Domain.Entities.Credential()
+                    {
+                        account = account,
+                        provider = provider,
+                        idCredentialProvider = satModel.id,
+                        statusProvider = satModel.status,
+                        createdAt = todayDate,
+                        modifiedAt = todayDate,
+                        status = SystemStatus.PROCESSING.ToString(),
+                        credentialType = SATCredentialType.CIEC.ToString()
+                    };
+                    
+                    _credentialService.Create(credential, account);
+                }
+                else
+                {
+                    account = _accountService.FirstOrDefault(x=>x.uuid == Guid.Parse(model.uuid));
+                    if (account == null)
+                        throw new Exception("El id de la cuenta es invalida");
+
+                    if (_accountService.FindBy(x => x.rfc == model.RFC && x.id != account.id).Any())
+                        throw new Exception("Existe una cuenta registrada con este RFC");
+
+                    account.rfc = model.RFC;
+                    account.ciec = model.CIEC;
+                    account.modifiedAt = todayDate;
+                    _accountService.Update(account);
+                    
+                    var satModel = SATService.CreateCredential(new CredentialRequest { rfc = model.RFC, ciec = model.CIEC }, provider);
+
+                    var credential = _credentialService.FirstOrDefault(x => x.account.id == account.id && x.provider == provider && x.credentialType == SATCredentialType.CIEC.ToString());
+                    if (credential == null)
+                    {
+                        credential = new Domain.Entities.Credential()
+                        {
+                            account = account,
+                            provider = provider,
+                            idCredentialProvider = satModel.id,
+                            statusProvider = satModel.status,
+                            createdAt = todayDate,
+                            modifiedAt = todayDate,
+                            status = SystemStatus.PROCESSING.ToString(),
+                            credentialType = SATCredentialType.CIEC.ToString()
+                        };
+                        _credentialService.Create(credential);
+                    }
+                    else
+                    {
+
+                        credential.idCredentialProvider = satModel.id;
+                        credential.statusProvider = satModel.status;
+                        credential.status = SystemStatus.PROCESSING.ToString();
+                        credential.modifiedAt = todayDate;
+                        _credentialService.Update(credential);
+                    }
+                }
+                
+                LogUtil.AddEntry(
+                   "RFC " + account.rfc + " por validar", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   JsonConvert.SerializeObject(account)
+                );
+
+                return Json(new { account.uuid, success = true }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(), ENivelLog.Error, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+                return Json(new { message = ex.Message, success = false }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        [HttpGet]
+        public ActionResult AccountValidation(string uuid)
+        {
+            try
+            {
+                var provider = ConfigurationManager.AppSettings["SATProvider"];
+                var account = _accountService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
+                if (account == null)
+                    throw new Exception("No fue posible obtener la cuenta");
+
+                var credential = _credentialService.FirstOrDefault(x => x.account.id == account.id && x.provider == provider && x.credentialType == SATCredentialType.CIEC.ToString());
+
+                if (credential.status == SystemStatus.PROCESSING.ToString())
+                    return Json(new { success = true, finish = false }, JsonRequestBehavior.AllowGet);
+                else if (credential.status == SystemStatus.ACTIVE.ToString())
+                    return Json(new { success = true, finish = true }, JsonRequestBehavior.AllowGet);
+                else
+                    return Json(new { success = false, finish = true, message = "No fue posible validar el RFC, credential " + credential.statusProvider }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { message = ex.Message, success = false, finish = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult CreateFinish(string uuid)
         {
             var authUser = Authenticator.AuthenticatedUser;
             try
             {
-                var provider = ConfigurationManager.AppSettings["SATProvider"];
-                //Realizar la captura de la información
-                //Validar que no se repita el rfc
-                var accountExist = _accountService.ValidateRFC(model.RFC);
-
-                if (accountExist != null)
-                    throw new Exception("Existe una cuenta registrada con este RFC.");
-                var loginSat = new CredentialRequest { rfc = model.RFC, ciec = model.CIEC };
-                var satModel = SATService.CreateCredential(loginSat, provider);
-                
                 DateTime todayDate = DateUtil.GetDateTimeNow();
+                
+                var account = _accountService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
+                if (account == null)
+                    throw new Exception("No fue posible obtener la cuenta");
 
-                //vamos a crear el account y memberships. Pendiente a que me confirme William los memberships
+                account.status = SystemStatus.ACTIVE.ToString();
+                _accountService.Update(account);
+                
+                var promotion = _promotionService.GetValidityPromotion(TypePromotions.INITIAL_DISCOUNT.ToString());
 
-                var roleD = _roleService.FirstOrDefault(x => x.code == SystemRoles.ACCOUNT_OWNER.ToString());
-                var userD = _userService.FirstOrDefault(x => x.uuid == authUser.Uuid);
-
-                Domain.Entities.Account account = new Domain.Entities.Account()
+                if (promotion != null)
                 {
-                    uuid = Guid.NewGuid(),
-                    name = authUser.FirstName + " " + authUser.LastName,
-                    rfc = model.RFC,
-                    createdAt = todayDate,
-                    modifiedAt = todayDate,
-                    avatar = "/Images/p1.jpg",
-                    status = SystemStatus.ACTIVE.ToString()
-                };
+                    var discount = new Domain.Entities.Discount
+                    {
+                        type = promotion.type,
+                        discount = promotion.discount,
+                        discountRate = promotion.discountRate,
+                        hasPeriod = promotion.hasPeriod,
+                        periodInitial = promotion.periodInitial,
+                        periodFinal = promotion.periodFinal,
+                        hasValidity = promotion.hasValidity,
+                        validityInitialAt = promotion.validityInitialAt,
+                        validityFinalAt = promotion.validityInitialAt,
+                        createdAt = DateTime.Now,
+                        modifiedAt = DateTime.Now,
+                        status = SystemStatus.ACTIVE.ToString(),
+                        account = account,
+                        promotion = promotion
+                    };
+                    _discountService.Create(discount);
+                }
 
-                var membership = new Domain.Entities.Membership
-                {
-                    account = account,
-                    user = userD,
-                    role = roleD,
-                    status = SystemStatus.ACTIVE.ToString()
-                };
-                account.memberships.Add(membership);
-
-                Domain.Entities.Credential credential = new Domain.Entities.Credential()
-                {
-                    account = account,
-                    provider = SystemProviders.SATWS.GetDisplayName(), //"SAT.ws",
-                    idCredentialProvider = satModel.id,
-                    statusProvider = satModel.status,
-                    createdAt = todayDate,
-                    modifiedAt = todayDate,
-                    status = SystemStatus.ACTIVE.ToString()
-                };
-
-                _credentialService.CreateCredentialAccount(credential);
-
+                var membership = _membership.FirstOrDefault(x => x.account.id == account.id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString());
                 var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                 {
                     Controller = p.permission.controller,
@@ -246,10 +383,11 @@ namespace MVC_Project.WebBackend.Controllers
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                   JsonConvert.SerializeObject(account)
                 );
 
-                return RedirectToAction("Index", "User");
+                var inicio = authUser.Permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+                return RedirectToAction("Index", inicio.Controller);
             }
             catch (Exception ex)
             {
@@ -260,7 +398,7 @@ namespace MVC_Project.WebBackend.Controllers
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                 );
-                return View("CreateAccount", model);
+                return View("CreateAccount");
             }
 
         }
@@ -291,11 +429,11 @@ namespace MVC_Project.WebBackend.Controllers
                     });
 
                     accountViewModel = ValidarSat(accountViewModel);
-                    if (accountViewModel.accountListViewModels[0].statusValidate == "valid")
+                    if (accountViewModel.accountListViewModels[0].credentialStatus == "valid")
                     {
                         result = true;
                     }
-                    message = "Cuenta con estatus: " + accountViewModel.accountListViewModels[0].statusValidate;
+                    message = "Cuenta con estatus: " + accountViewModel.accountListViewModels[0].credentialStatus;
                     uuid = accountViewModel.accountListViewModels[0].uuid;
                 }
 
@@ -381,7 +519,7 @@ namespace MVC_Project.WebBackend.Controllers
                            );
                         }
                     }
-                    item.statusValidate = credential.statusProvider;
+                    item.credentialStatus = credential.statusProvider;
                 }
             }
 

@@ -2,7 +2,7 @@
 @using MVC_Project.WebBackend.AuthManagement
 @using MVC_Project.WebBackend.AuthManagement.Models
 @{
-    ViewBag.Title = "Aliados";
+    ViewBag.Title = "Alianzas";
 
     var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
     AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
@@ -61,7 +61,7 @@
                     @if (hasFullAccessController)
                     {
                         <div class="ibox-tools">
-                            <a href="@Url.Action("Create", "Alliance")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Crear Aliado</a>
+                            <a href="@Url.Action("Create", "Alliance")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Crear Alianza</a>
                         </div>
                     }
                 </div>

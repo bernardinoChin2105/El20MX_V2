@@ -25,7 +25,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.initialPeriod).Column("initialPeriod").Nullable();
             Map(x => x.finalPeriod).Column("finalPeriod").Nullable();
 
-            Map(x => x.finalAllyCommisionPercent).Column("finalAllyCommisionPercent").Not.Nullable();
+            Map(x => x.finalAllyCommisionPercent).Column("finalAllyCommisionPercent").Nullable();
 
             Map(x => x.initialDate).Column("initialDate").Nullable();
             Map(x => x.finalDate).Column("finalDate").Nullable();

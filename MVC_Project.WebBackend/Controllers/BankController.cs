@@ -195,7 +195,8 @@ namespace MVC_Project.WebBackend.Controllers
                     foreach (var itemBank in newBanks)
                     {
                         //Buscar el banco
-                        var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site);
+                        //var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site);
+                        var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site_organization);
 
                         //Guardar los listado de bancos nuevos
                         BankCredential newBankCred = new BankCredential()
@@ -245,6 +246,7 @@ namespace MVC_Project.WebBackend.Controllers
                             {
                                 //long d_rt = itemTransaction.dt_refresh;
                                 DateTime date_refresht = DateUtil.UnixTimeToDateTime(itemTransaction.dt_refresh);
+                                DateTime date_transaction = DateUtil.UnixTimeToDateTime(itemTransaction.dt_transaction);
 
                                 BankTransaction bt = new BankTransaction()
                                 {
@@ -255,7 +257,7 @@ namespace MVC_Project.WebBackend.Controllers
                                     amount = itemTransaction.amount,
                                     currency = itemTransaction.currency,
                                     reference = itemTransaction.reference,
-                                    transactionAt = date_refresht,
+                                    transactionAt = date_transaction,
                                     createdAt = todayDate,
                                     modifiedAt = todayDate,
                                     status = SystemStatus.ACTIVE.ToString()
@@ -486,7 +488,7 @@ namespace MVC_Project.WebBackend.Controllers
                         balance = x.balance.ToString("C2"),
                         currency = x.currency,
                         //number = x.number,
-                        number = x.number.PadLeft(10, pad),
+                        number = !string.IsNullOrEmpty(x.number)? x.number.PadLeft(10, pad): string.Empty,
                         isDisable = x.isDisable,
                         refreshAt = x.refreshAt,
                         clabe = x.clabe,
@@ -634,6 +636,7 @@ namespace MVC_Project.WebBackend.Controllers
                             else
                             {
                                 balanceA = balanceA - amountB;
+                                amountB = (double)item.amount;
                             }
 
 
@@ -647,8 +650,8 @@ namespace MVC_Project.WebBackend.Controllers
                                 currency = item.currency,
                                 transactionAt = item.transactionAt.ToShortDateString(),
                                 balance = balanceA.ToString("C2"),
-                                bankAccountName = item.bankAccountName + " " + item.number.PadLeft(10, pad),
-                                number = item.number.PadLeft(10, pad),
+                                bankAccountName = item.bankAccountName + " " + (!string.IsNullOrEmpty(item.number) ? item.number.PadLeft(10, pad) : string.Empty),
+                                number = (!string.IsNullOrEmpty(item.number) ? item.number.PadLeft(10, pad) : string.Empty),
                                 bankName = item.bankName,
                                 refreshAt = item.refreshAt.ToString()
                             };
@@ -721,7 +724,7 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 list = _bankAccountService.FindBy(x => x.bankCredential.id == credentialId)
-                    .Select(x => new SelectListItem() { Text = x.name + " " + x.number.PadLeft(10, pad), Value = x.id.ToString() }).ToList();
+                    .Select(x => new SelectListItem() { Text = x.name + " " + (!String.IsNullOrEmpty(x.number)? x.number.PadLeft(10, pad) : string.Empty ), Value = x.id.ToString() }).ToList();
                 list.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
             }
             catch (Exception ex)

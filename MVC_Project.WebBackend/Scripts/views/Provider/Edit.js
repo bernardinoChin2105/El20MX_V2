@@ -69,6 +69,9 @@
             },
             InteriorNumber: {
                 Alphanumeric: true,
+            },
+            BusinessName: {
+                Alphanumeric: true
             }
         }
     });
@@ -219,7 +222,6 @@ $('.listContacts').on('click', '.btn-remove', function () {
 });
 
 $("#ZipCode").blur(function () {
-    debugger;
     //console.log("perdio el focus");
     var value = $(this).val();
     if (!value) {

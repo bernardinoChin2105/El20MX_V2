@@ -151,12 +151,13 @@
                                                 {
                                                     if (item.fieldType == "select")
                                                     {
-                                                        <select class="form-control required" name="Assig@(item.Id)Value1">
-                                                            @foreach (var type in Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>())
-                                                            {
-                                                                <option value="@type.ToString("D")">@EnumUtils.GetDescription(type)</option>
-                                                            }
-                                                        </select>
+                                                    <select class="form-control required" name="Assig@(item.Id)Value1">
+                                                        @foreach (var type in Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>())
+                                                        {
+                                                            <option value="@type.ToString("D")">@EnumUtils.GetDescription(type)</option>
+                                                        }
+                                                        <option value="BOTH">Ambos</option>
+                                                    </select>
                                                     }
                                                 }
 

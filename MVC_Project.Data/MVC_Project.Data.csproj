@@ -91,7 +91,11 @@
     <Compile Include="Mappings\BankCredentialMap.cs" />
     <Compile Include="Mappings\BankMap.cs" />
     <Compile Include="Mappings\BankTransactionMap.cs" />
+    <Compile Include="Mappings\BranchOfficeMap.cs" />
     <Compile Include="Mappings\CredentialMap.cs" />
+    <Compile Include="Mappings\CustomsMap.cs" />
+    <Compile Include="Mappings\DiscountMap.cs" />
+    <Compile Include="Mappings\DriveKeyMap.cs" />
     <Compile Include="Mappings\InvoiceReceivedMap.cs" />
     <Compile Include="Mappings\PlanAssignmentConfigurationMap.cs" />
     <Compile Include="Mappings\PlanAssignmentMap.cs" />
@@ -99,6 +103,11 @@
     <Compile Include="Mappings\PlanChargeMap.cs" />
     <Compile Include="Mappings\PlanFeatureConfigurationMap.cs" />
     <Compile Include="Mappings\InvoiceIssuedMap.cs" />
+    <Compile Include="Mappings\ProductServiceKeyMap.cs" />
+    <Compile Include="Mappings\PromotionAccountMap.cs" />
+    <Compile Include="Mappings\PromotionMap.cs" />
+    <Compile Include="Mappings\QuotationDetailMap.cs" />
+    <Compile Include="Mappings\QuotationMap.cs" />
     <Compile Include="Mappings\TypeVoucherMap.cs" />
     <Compile Include="Mappings\CurrencyMap.cs" />
     <Compile Include="Mappings\PaymentFormMap.cs" />

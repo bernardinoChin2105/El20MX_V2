@@ -157,6 +157,7 @@
                                                             {
                                                                 <option value="@type.ToString("D")" @(type.ToString("D") == item.Value1 ? "selected" : "")>@EnumUtils.GetDescription(type)</option>
                                                             }
+                                                            <option value="BOTH" @("BOTH" == item.Value1 ? "selected" : "")>Ambos</option>
                                                         </select>
                                                     }
                                                 }

@@ -37,9 +37,8 @@ namespace MVC_Project.WebBackend.Models
         public string name { get; set; }
 
         [Display(Name = "Aliado")]
-        public Int16[] allyId { get; set; }
+        public Int64 allyId { get; set; }
         public SelectList allyList { get; set; }
-        public MultiSelectList allyMultList { get; set; }
 
         [Display(Name = "% comisión aliado")]
         public decimal allyCommisionPercent { get; set; }
@@ -64,24 +63,20 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "Vigencia de alianza")]
         public bool allianceValidity { get; set; }
-        
+
         [Display(Name = "Fecha Fin")]
         public DateTime finalDate { get; set; }
-        //public DateTime initialDate { get; set; }
-        //public string status { get; set; }
 
         public AllianceViewModel() {
             var list = new List<SelectListItem>();
             list.Add(new SelectListItem() { Text = "Seleccionar", Value = "-1" });
 
             allyList = new SelectList(list);
-
-            allyMultList = new MultiSelectList(list);
         }
     }
 
     public class AllyFilterViewModel
-    {        
+    {
         public Int64 Id { get; set; }
 
         [Display(Name = "Nombre")]
@@ -97,4 +92,77 @@ namespace MVC_Project.WebBackend.Models
         public string modifiedAt { get; set; }
         public string status { get; set; }
     }
+
+    #region modelos para promociones
+    public class PromotionFilterViewModel
+    {
+        [Display(Name = "Nombre")]
+        public string Name { get; set; }
+
+        [Display(Name = "Tipo")]
+        public Int64 Type { get; set; }
+        public SelectList typeList { get; set; }
+
+        public PromotionFilterViewModel()
+        {
+            var list = new List<SelectListItem>();
+            list.Add(new SelectListItem() { Text = "Todos", Value = "-1" });
+
+            typeList = new SelectList(list);
+
+        }
+    }
+
+    public class PromotionViewModel
+    {
+        public Int64 id { get; set; }
+        public Guid uuid { get; set; }
+
+        [Display(Name = "Nombre")]
+        public string name { get; set; }
+
+        [Display(Name = "Descuento en %")]
+        public decimal discount { get; set; }
+
+        [Display(Name = "Descuento en $")]
+        public decimal discountRate { get; set; }
+
+        [Display(Name = "Tipo")]
+        public string TypeId { get; set; }
+        public SelectList TypeList { get; set; }
+
+        [Display(Name = "Clientes")]
+        public Int64[] AccountId { get; set; }
+        //public SelectList AccountList { get; set; }
+        public MultiSelectList AccountMultipleList { get; set; }
+
+        [Display(Name = "Periodo a aplicar")]
+        public bool hasPeriod { get; set; }
+
+        [Display(Name = "Periodo inicial")]
+        public int initialPeriod { get; set; }
+
+        [Display(Name = "Periodo final")]
+        public int finalPeriod { get; set; }
+
+        [Display(Name = "Vigencia de código")]
+        public bool hasValidity { get; set; }
+
+        [Display(Name = "Fecha Fin")]
+        public DateTime finalDate { get; set; }
+
+        //public DateTime validityInitialAt { get; set; }
+        //public DateTime validityFinalAt { get; set; }
+
+        public PromotionViewModel()
+        {
+            var list = new List<SelectListItem>();
+            list.Add(new SelectListItem() { Text = "Seleccionar", Value = "-1" });
+            TypeList = new SelectList(list);
+
+        }
+    }
+
+    #endregion
 }
+ 

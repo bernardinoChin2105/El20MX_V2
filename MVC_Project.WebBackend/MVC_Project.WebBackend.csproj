@@ -257,14 +257,18 @@
     <Compile Include="Controllers\AuthController.cs" />
     <Compile Include="Controllers\BankController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\BranchOfficeController.cs" />
     <Compile Include="Controllers\CalendarController.cs" />
     <Compile Include="Controllers\DiagnosticController.cs" />
     <Compile Include="Controllers\DocumentsController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\InvoicingController.cs" />
     <Compile Include="Controllers\PaymentsController.cs" />
     <Compile Include="Controllers\PlanController.cs" />
+    <Compile Include="Controllers\PromotionController.cs" />
     <Compile Include="Controllers\ProviderController.cs" />
+    <Compile Include="Controllers\QuotationController.cs" />
     <Compile Include="Controllers\RegisterController.cs" />
     <Compile Include="Controllers\RoleController.cs" />
     <Compile Include="Controllers\StorageController.cs" />
@@ -281,7 +285,9 @@
     <Compile Include="Models\AllianceViewModel.cs" />
     <Compile Include="Models\AuthViewModel.cs" />
     <Compile Include="Models\BankViewModel.cs" />
+    <Compile Include="Models\BranchOfficeViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
+    <Compile Include="Models\InvoiceViewModel.cs" />
     <Compile Include="Models\PlanViewModel.cs" />
     <Compile Include="Models\InvoicesVM.cs" />
     <Compile Include="Models\ProductVM.cs" />
@@ -295,6 +301,7 @@
     <Compile Include="Models\JQueryDataTableParams.cs" />
     <Compile Include="Models\LogInSATModel.cs" />
     <Compile Include="Models\PaymentViewModel.cs" />
+    <Compile Include="Models\QuotationViewModel.cs" />
     <Compile Include="Models\RegisterViewModel.cs" />
     <Compile Include="Models\ReportOrdersViewModel.cs" />
     <Compile Include="Models\RoleViewModel.cs" />
@@ -1664,6 +1671,7 @@
     <Content Include="Scripts\plugins\cropper\cropper.min.js" />
     <Content Include="Scripts\plugins\d3\d3.min.js" />
     <Content Include="Scripts\plugins\datamaps\datamaps.all.min.js" />
+    <Content Include="Scripts\plugins\datapicker\bootstrap-datepicker.es.js" />
     <Content Include="Scripts\plugins\datapicker\bootstrap-datepicker.js" />
     <Content Include="Scripts\plugins\dataTables\dataTables.bootstrap4.min.js" />
     <Content Include="Scripts\plugins\dataTables\datatables.min.js" />
@@ -1808,6 +1816,8 @@
     <Content Include="Scripts\popper.min.js" />
     <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
+    <Content Include="Scripts\views\BranchOffice\Index.js" />
+    <Content Include="Scripts\views\Promotion\Index.js" />
     <Content Include="Scripts\views\Alliance\Index.js" />
     <Content Include="Scripts\views\Ally\Index.js" />
     <Content Include="Scripts\views\Auth\Index.js" />
@@ -1826,6 +1836,7 @@
     <Content Include="Scripts\views\Diagnostic\Index.js" />
     <Content Include="Scripts\views\Payments\Index.js" />
     <Content Include="Scripts\views\PdfSignature\Index.js" />
+    <Content Include="Scripts\views\Quotation\Index.js" />
     <Content Include="Scripts\views\Reports\OrderIndex.js" />
     <Content Include="Scripts\views\rol\Index.js" />
     <Content Include="Scripts\views\UserPermission\Index.js" />
@@ -1957,6 +1968,16 @@
     <Content Include="Views\Alliance\AllyIndex.cshtml" />
     <Content Include="Views\Alliance\AllyEdit.cshtml" />
     <Content Include="Views\Alliance\Create.cshtml" />
+    <Content Include="Views\Alliance\Edit.cshtml" />
+    <Content Include="Views\Promotion\Index.cshtml" />
+    <Content Include="Views\Promotion\Create.cshtml" />
+    <Content Include="Views\Promotion\Edit.cshtml" />
+    <Content Include="Views\Quotation\Index.cshtml" />
+    <Content Include="Views\Quotation\Create.cshtml" />
+    <Content Include="Views\Quotation\Edit.cshtml" />
+    <Content Include="Views\BranchOffice\Index.cshtml" />
+    <Content Include="Views\BranchOffice\Edit.cshtml" />
+    <Content Include="Views\Invoicing\Invoice.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
@@ -1994,7 +2015,6 @@
   <ItemGroup>
     <Folder Include="Content\img\gallery\" />
     <Folder Include="Content\img\landing\" />
-    <Folder Include="Views\Invoices\" />
     <Folder Include="Views\Webhooks\" />
     <Folder Include="Views\Webhook\" />
   </ItemGroup>

@@ -20,7 +20,13 @@ namespace MVC_Project.Utils
         [Display(Name = "Pendiente")]
         PENDING,
         [Display(Name = "En Proceso")]
-        PROCESSING
+        PROCESSING,
+        [Display(Name = "Aprobado")]
+        APPROVED,
+        [Display(Name = "Cancelado")]
+        CANCELLED,
+        [Display(Name ="No válido")]
+        INVALID
     }
 
     public enum SystemLevelPermission
@@ -114,12 +120,16 @@ namespace MVC_Project.Utils
         [Display(Name = "Proveedores")]
         PROVIDERS,
         [Display(Name = "Bancos")]
-        BANKS,        
+        BANKS,
+        [Display(Name = "Facturación")]
+        INVOICING,
         #region Modulos del BackOffice
         [Display(Name = "Planes")]
         PLANS,
         [Display(Name = "Alianzas y Descuentos")]
-        ALLIANCES_DISCOUNTS
+        ALLIANCES_DISCOUNTS,
+        [Display(Name = "Regularizaciones")]
+        QUOTATION
         #endregion
     }
 
@@ -164,7 +174,7 @@ namespace MVC_Project.Utils
         PERSONA_FISICA,
         [Display(Name = "Persona Moral")]
         [Description("Persona Moral")]
-        PERSONA_MORAL,        
+        PERSONA_MORAL,
     }
 
     public enum TypeMovements
@@ -178,9 +188,9 @@ namespace MVC_Project.Utils
     }
 
     public enum BooleanText
-    {        
+    {
         [Description("SI")]
-        YES,        
+        YES,
         [Description("NO")]
         NO,
     }
@@ -195,6 +205,14 @@ namespace MVC_Project.Utils
         FINERIO
     }
 
+    public enum SATCredentialType
+    {
+        [Display(Name = "ciec")]
+        CIEC,
+        [Display(Name = "efirma")]
+        EFIRMA
+    }
+
     public enum MetodoPago
     {
         [Description("Pago en una sola exhibición")]
@@ -207,83 +225,6 @@ namespace MVC_Project.Utils
         [Description("General de Ley Personas Morales")]
         RegimenFiscal601
     }
-    public enum TipoComprobante
-    {
-        [Description("Ingreso")]
-        I,
-        [Description("Egreso")]
-        E,
-        [Description("Pago")]
-        P,
-        [Description("Nómina")]
-        N,
-        [Description("Traslado")]
-        T
-    }
-    public enum UsoCFDI
-    {
-        [Description("Por definir")]
-        P01
-    }
-    public enum ClaveUnidad
-    {
-        [Description("Carga masiva")]
-        Unidad48
-    }
-
-    public enum MoralPersonsRegime
-    {
-        Regime601 = 601,
-        Regime603 = 603,
-        Regime607 = 607,
-        Regime609 = 609,
-        Regime620 = 620,
-        Regime622 = 622,
-        Regime623 = 623,
-        Regime624 = 624,
-        Regime628 = 628,
-    }
-
-    public enum NaturalPersonsRegime
-    {
-        Regime605 = 605,
-        Regime606 = 606,
-        Regime608 = 608,
-        Regime611 = 611,
-        Regime612 = 612,
-        Regime614 = 614,
-        Regime615 = 615,
-        Regime616 = 616,
-        Regime621 = 621,
-        Regime622 = 622,
-        Regime629 = 626,
-        Regime630 = 630,
-    }
-
-    public enum ChangeType
-    {
-        [Display(Name = "Fijo")]
-        FIXED,
-        [Display(Name = "Variable")]
-        VARIABLE
-    }
-
-    public enum Operation
-    {
-        [Display(Name = "Adición")]
-        ADDITION,
-        [Display(Name = "Subtracción")]
-        SUBTRACTION,
-        [Display(Name = "División")]
-        DIVIDE,
-        [Display(Name = "Multiplicación")]
-        MULTIPLICITY,
-        [Display(Name = "Rango")]
-        RANGE,
-        [Display(Name = "Igual")]
-        EQUAL
-    }
-
     //public enum MoralPersonsRegime
     //{
     //    Regime601 = 601,
@@ -313,6 +254,121 @@ namespace MVC_Project.Utils
     //    Regime630 = 630,
     //}
 
+    public enum TipoComprobante
+    {
+        [Description("Ingreso")]
+        I,
+        [Description("Egreso")]
+        E,
+        [Description("Pago")]
+        P,
+        [Description("Nómina")]
+        N,
+        [Description("Traslado")]
+        T
+    }
+
+    public enum TypeCurrency
+    {
+        [Description("Peso Mexicano")]
+        MXN,
+        [Description("Dolar Americano")]
+        USD,
+        [Description("Euro")]
+        EUR
+    }
+
+    public enum UsoCFDI
+    {
+        
+        [Description("Adquisición de Mercancías")]
+        G01,
+        [Description("Devoluciones, Descuentos o Bonificaciones")]
+        G02,   
+        [Description("Gastos en General")]
+        G03,   
+        [Description("Construcciones")]
+        I01,    
+        [Description("Mobiliario y Equipo de Oficina por Inversiones")]
+        I02,    
+        [Description("Equipo de Transporte")]
+        I03,   
+        [Description("Equipo de Cómputo y Accesorios")]
+        I04,    
+        [Description("Dados, Troqueles, Moldes, Matrices y Herramental")]
+        I05,    
+        [Description("Comunicaciones Telefónicas")]
+        I06,    
+        [Description("Comunicaciones Satelitales")]
+        I07,    
+        [Description("Otra Maquinaria y Equipo")]
+        I08,    
+        [Description("Honorarios Médicos, Dentales y Gastos Hospitalarios")]
+        D01,    
+        [Description("Gastos Médicos por Incapacidad o Discapacidad")]
+        D02,   
+        [Description("Gastos Funerales")]
+        D03,    
+        [Description("Donativos")]
+        D04,    
+        [Description("Intereses Reales Efectivamente Pagados por Créditos Hipotecarios (Casa Habitación)")]
+        D05,   
+        [Description("Aportaciones Voluntarias al SAR")]
+        D06,   
+        [Description("Primas por Seguros de Gastos Médicos")]
+        D07,    
+        [Description("Gastos de Transportación Escolar Obligatoria")]
+        D08,    
+        [Description("Depósitos en Cuentas para el Ahorro, Primas que tengan como Base Planes de Pensiones")]
+        D09,    
+        [Description("Pagos por Servicios Educativos (Colegiaturas)")]
+        D10,    
+        [Description("Por definir")]
+        P01,
+    }
+    public enum ClaveUnidad
+    {
+        [Description("Carga masiva")]
+        Unidad48
+    }
+
+    public enum ChangeType
+    {
+        [Display(Name = "Fijo")]
+        FIXED,
+        [Display(Name = "Variable")]
+        VARIABLE
+    }
+
+    public enum Operation
+    {
+        [Display(Name = "Adición")]
+        ADDITION,
+        [Display(Name = "Subtracción")]
+        SUBTRACTION,
+        [Display(Name = "División")]
+        DIVIDE,
+        [Display(Name = "Multiplicación")]
+        MULTIPLICITY,
+        [Display(Name = "Rango")]
+        RANGE,
+        [Display(Name = "Igual")]
+        EQUAL
+    }
+
+    public enum TypePromotions
+    {
+        [Display(Name = "Referido")]
+        [Description("Referido")]
+        REFERRED,
+        [Display(Name = "Descuento Inicial")]
+        [Description("Descuento Inicial")]
+        INITIAL_DISCOUNT,
+        [Display(Name = "Clientes")]
+        [Description("Clientes")]
+        CUSTOMERS,
+    }
+
     public enum SystemControllers
     {
         [Display(Name = "Account")]
@@ -322,7 +378,9 @@ namespace MVC_Project.Utils
     public enum SatwsEvent
     {
         [Display(Name = "extraction.updated")]
-        EXTRACTION_UPDATED
+        EXTRACTION_UPDATED,
+        [Display(Name = "credential.updated")]
+        CREDENTIAL_UPDATE
     }
 
     public enum SatwsStatusEvent

@@ -176,17 +176,14 @@ namespace MVC_Project.WebBackend.Controllers
 
         public ActionResult Create()
         {
+            ViewBag.Date = DateTime.Now.ToString("dd-MM-yyyy");
+
             AllianceViewModel model = new AllianceViewModel();
             try
             {
                 var list = _allyService.GetAll();
-
                 var allyList = list.Select(x => new SelectListItem() { Text = x.name, Value = x.id.ToString() }).ToList();
-                allyList.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
                 model.allyList = new SelectList(allyList);
-
-                model.allyMultList = new MultiSelectList(list, "id", "name");
-                //model.allyId = new[];
             }
             catch (Exception ex)
             {
@@ -195,39 +192,264 @@ namespace MVC_Project.WebBackend.Controllers
             return View(model);
         }
 
-        //[Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
-        //public ActionResult Create(AllianceViewModel model)
-        //{
-        //    try
-        //    {
-        //        if (!ModelState.IsValid)
-        //            throw new Exception("El modelo de entrada no es válido");
+        [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
+        public ActionResult Create(AllianceViewModel model)
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+            try
+            {
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
 
-        //        var authUser = Authenticator.AuthenticatedUser;
+                if (_allianceService.FindBy(x => x.name == model.name).Any())
+                    throw new Exception("Ya existe una alianza con el Nombre proporcionado");
 
-        //        if (_allyService.FindBy(x => x.name == model.Name).Any())
-        //            throw new Exception("Ya existe un Aliado con el Nombre proporcionado");
+                DateTime todayDate = DateUtil.GetDateTimeNow();
 
-        //        DateTime todayDate = DateUtil.GetDateTimeNow();
+                Alliance alliance = new Alliance()
+                {
+                    uuid = Guid.NewGuid(),
+                    name = model.name,
+                    allyCommisionPercent = model.allyCommisionPercent,
+                    customerDiscountPercent = model.customerDiscountPercent,
+                    promotionCode = model.promotionCode,
+                    allianceValidity = model.allianceValidity,
+                    applyPeriod = model.applyPeriod,
+                    createdAt = todayDate,
+                    modifiedAt = todayDate,
+                    status = SystemStatus.ACTIVE.ToString(),
+                    ally = new Ally { id = model.allyId }
+                };
 
-        //        Ally ally = new Ally()
-        //        {
-        //            uuid = Guid.NewGuid(),
-        //            name = model.Name,
-        //            createdAt = todayDate,
-        //            modifiedAt = todayDate,
-        //            status = SystemStatus.ACTIVE.ToString(),
-        //        };
+                var ally = _allyService.FirstOrDefault(x => x.id == model.allyId);
 
-        //        _allyService.Create(ally);
-        //        MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
-        //        return RedirectToAction("AllyIndex");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return View(model);
-        //    }
-        //}
+                if (ally != null)
+                {
+                    var arrayS = model.promotionCode.Split('-');
+                    var numCons = ally.consecutive + 1;
+                    ally.consecutive = numCons;
+                    ally.modifiedAt = todayDate;
+
+                    if (arrayS.Count() != 3 || arrayS[2] != numCons.ToString())
+                    {
+                        arrayS[2] = numCons.ToString();
+                        model.promotionCode = string.Join("-", arrayS);
+                        ally.consecutive = numCons;
+                    }
+                }
+
+
+                if (model.applyPeriod)
+                {
+                    alliance.initialPeriod = model.initialPeriod;
+                    alliance.finalPeriod = model.finalPeriod;
+                    alliance.finalAllyCommisionPercent = model.finalAllyCommisionPercent;
+                }
+
+                if (model.allianceValidity)
+                {
+                    alliance.finalDate = model.finalDate;
+                    alliance.initialDate = model.finalDate;
+                }
+
+                _allianceService.CreateAlliance(alliance, ally);
+
+                LogUtil.AddEntry(
+                   "Se creo la alianza con id: " + alliance.id,
+                   ENivelLog.Info,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+
+                MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                var list = _allyService.GetAll();
+                var allyList = list.Select(x => new SelectListItem() { Text = x.name, Value = x.id.ToString() }).ToList();
+                model.allyList = new SelectList(allyList);
+
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
+
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return View(model);
+            }
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetPromotionCode(Int64 id)
+        {
+            var userAuth = Authenticator.AuthenticatedUser;
+            string code = string.Empty;
+            string error = string.Empty;
+            bool success = true;
+
+            try
+            {
+                var ally = _allyService.FirstOrDefault(x => x.id == id);
+                if (ally == null)
+                    throw new Exception("El registro de Aliado no se encontró en la base de datos");
+
+                code = ally.prefix + "-" + ally.id + "-" + (ally.consecutive + 1);
+
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message.ToString();
+                success = false;
+            }
+
+            return Json(new
+            {
+                success = success,
+                promotionCode = code,
+                error = error
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult Edit(string uuid)
+        {
+            ViewBag.Date = DateTime.Now.ToString("dd-MM-yyyy");
+
+            try
+            {
+                var userAuth = Authenticator.AuthenticatedUser;
+
+                var alliance = _allianceService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
+                if (alliance == null)
+                    throw new Exception("El registro de Alianza no se encontró en la base de datos");
+
+                AllianceViewModel model = new AllianceViewModel()
+                {
+                    id = alliance.id,
+                    uuid = alliance.uuid,
+                    name = alliance.name,
+                    allyId = alliance.ally.id,
+                    allyCommisionPercent = Math.Round(alliance.allyCommisionPercent, 2),
+                    customerDiscountPercent = Math.Round(alliance.customerDiscountPercent, 2),
+                    promotionCode = alliance.promotionCode,
+                    applyPeriod = alliance.applyPeriod,
+                    initialPeriod = alliance.initialPeriod,
+                    finalPeriod = alliance.finalPeriod,
+                    finalAllyCommisionPercent = Math.Round(alliance.finalAllyCommisionPercent, 2),
+                    allianceValidity = alliance.allianceValidity,
+                    finalDate = alliance.finalDate
+                };
+
+                var list = _allyService.GetAll();
+                var allyList = list.Select(x => new SelectListItem() { Text = x.name, Value = x.id.ToString() }).ToList();
+                model.allyList = new SelectList(allyList);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpPost]
+        public ActionResult Edit(AllianceViewModel model)
+        {
+            var userAuth = Authenticator.AuthenticatedUser;
+            var allianceData = _allianceService.FirstOrDefault(x => x.id == model.id);
+            try
+            {
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
+
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+
+                allianceData.name = model.name;
+                allianceData.allyCommisionPercent = model.allyCommisionPercent;
+                allianceData.customerDiscountPercent = model.customerDiscountPercent;
+                allianceData.promotionCode = model.promotionCode;
+                allianceData.allianceValidity = model.allianceValidity;
+                allianceData.applyPeriod = model.applyPeriod;
+                allianceData.modifiedAt = todayDate;
+                allianceData.initialPeriod = model.initialPeriod;
+                allianceData.finalPeriod = model.finalPeriod;
+                allianceData.finalAllyCommisionPercent = model.finalAllyCommisionPercent;
+                allianceData.finalDate = model.finalDate;
+                allianceData.initialDate = model.finalDate;
+
+
+                if (model.allyId != allianceData.ally.id)
+                {
+                    allianceData.ally = new Ally { id = model.allyId };
+                    var ally = _allyService.FirstOrDefault(x => x.id == model.allyId);
+
+                    if (ally != null)
+                    {
+                        var arrayS = model.promotionCode.Split('-');
+                        var numCons = ally.consecutive + 1;
+                        ally.consecutive = numCons;
+                        ally.modifiedAt = todayDate;
+
+                        if (arrayS.Count() != 3 || arrayS[2] != numCons.ToString())
+                        {
+                            arrayS[2] = numCons.ToString();
+                            model.promotionCode = string.Join("-", arrayS);
+                            ally.consecutive = numCons;
+                        }
+                    }
+                    _allianceService.UpdateAlliance(allianceData, ally);
+                }
+                else
+                {
+                    _allianceService.UpdateAlliance(allianceData, null);
+                }
+
+
+                LogUtil.AddEntry(
+                   "Se actualizo la alianza con id: " + allianceData.id,
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
+                MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                var list = _allyService.GetAll();
+                var allyList = list.Select(x => new SelectListItem() { Text = x.name, Value = x.id.ToString() }).ToList();
+                model.allyList = new SelectList(allyList);
+
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message.ToString(),
+                   ENivelLog.Error,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                );
+
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return View(model);
+            }
+        }
         #endregion
 
 
@@ -351,6 +573,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return View(model);
             }
         }
@@ -403,6 +626,6 @@ namespace MVC_Project.WebBackend.Controllers
                 return View(model);
             }
         }
-        #endregion
+        #endregion        
     }
 }

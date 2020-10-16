@@ -17,7 +17,9 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.uuid).Column("uuid").Not.Nullable();
 
             Map(x => x.name).Column("name").Not.Nullable();
-            
+            Map(x => x.prefix).Column("prefix").Not.Nullable();
+            Map(x => x.consecutive).Column("consecutive").Not.Nullable();
+
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
             Map(x => x.status).Column("status").Nullable();

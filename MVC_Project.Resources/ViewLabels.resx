@@ -202,6 +202,12 @@
     <value>Alliances and Discounts</value>
   </data>
   <data name="MODULE_PLANS" xml:space="preserve">
-    <value>Plans</value>  
+    <value>Plans</value>
+  </data>
+  <data name="MODULE_QUOTATION" xml:space="preserve">
+    <value>Quotation</value>
+  </data>
+  <data name="MODULE_INVOICING" xml:space="preserve">
+    <value>Invoicing</value>
   </data>
 </root>

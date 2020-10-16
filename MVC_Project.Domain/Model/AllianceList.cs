@@ -38,4 +38,19 @@ namespace MVC_Project.Domain.Model
         public string status { get; set; }
         public Int32 Total { get; set; }
     }
+
+    public class PromotionsList
+    {
+        public Int64 id { get; set; }
+        public Guid uuid { get; set; }
+        public string name { get; set; }
+        public string type { get; set; }
+        public decimal discount { get; set; }
+        public decimal discountRate { get; set; }
+
+        public DateTime createdAt { get; set; }
+        public DateTime modifiedAt { get; set; }
+        public string status { get; set; }
+        public Int32 Total { get; set; }
+    }
 }

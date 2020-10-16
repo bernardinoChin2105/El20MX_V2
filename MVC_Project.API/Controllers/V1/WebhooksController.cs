@@ -33,10 +33,12 @@ namespace MVC_Project.API.Controllers
         private IDiagnosticService _diagnosticService;
         private IDiagnosticDetailService _diagnosticDetailService;
         private IDiagnosticTaxStatusService _diagnosticTaxStatusService;
+        private ICredentialService _credentialService;
 
         public WebhooksController(IWebhookService webhookService, ICustomerService customerService, IProviderService providerService,
             IInvoiceIssuedService invoicesIssuedService, IInvoiceReceivedService invoicesReceivedService, IAccountService accountService,
-            IDiagnosticService diagnosticService, IDiagnosticDetailService diagnosticDetailService, IDiagnosticTaxStatusService diagnosticTaxStatusService)
+            IDiagnosticService diagnosticService, IDiagnosticDetailService diagnosticDetailService, IDiagnosticTaxStatusService diagnosticTaxStatusService,
+            ICredentialService credentialService)
         {
             _webhookService = webhookService;
             _customerService = customerService;
@@ -47,6 +49,7 @@ namespace MVC_Project.API.Controllers
             _diagnosticService = diagnosticService;
             _diagnosticDetailService = diagnosticDetailService;
             _diagnosticTaxStatusService = diagnosticTaxStatusService;
+            _credentialService = credentialService;
         }
 
         [HttpPost]
@@ -231,7 +234,7 @@ namespace MVC_Project.API.Controllers
                     List<InvoiceIssued> invoiceIssued = new List<InvoiceIssued>();
                     foreach (var cfdi in customersCFDI)
                     {
-                        byte[] byteArray = System.Text.Encoding.ASCII.GetBytes(cfdi.Xml);
+                        byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(cfdi.Xml);
                         System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
                         var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesIssued, account.rfc);
 
@@ -270,7 +273,7 @@ namespace MVC_Project.API.Controllers
                     List<InvoiceReceived> invoiceReceiveds = new List<InvoiceReceived>();
                     foreach (var cfdi in providersCFDI)
                     {
-                        byte[] byteArray = System.Text.Encoding.ASCII.GetBytes(cfdi.Xml);
+                        byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(cfdi.Xml);
                         System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
                         var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesReceived, account.rfc);
 
@@ -366,13 +369,71 @@ namespace MVC_Project.API.Controllers
                     _diagnosticService.Update(diagnostic);
 
                     LogUtil.AddEntry(descripcion: webhookEventModel.ToString(), eLogLevel: ENivelLog.Debug,
-                    usuarioId: (Int64)1, usuario: "Success", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "Webhook", detalle: "Webhook");
+                    usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: "Webhook");
                 }
             }
             catch (Exception ex)
             {
                 LogUtil.AddEntry(descripcion: webhookEventModel.ToString(), eLogLevel: ENivelLog.Debug,
-                       usuarioId: (Int64)1, usuario: "Error: " + ex.Message, eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "Webhook", detalle: "Webhook");
+                       usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: ex.Message);
+
+            }
+            return Request.CreateResponse(HttpStatusCode.OK);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("SatwsCredentialUpdateHandler")]
+        public HttpResponseMessage SatwsCredentialUpdateHandler(Object webhookEventModel)
+        {
+            try
+            {
+                var data = JsonConvert.DeserializeObject<WebhookEventModel>(webhookEventModel.ToString());
+
+                if (data != null && data.data != null && data.data.@object != null && data.type == SatwsEvent.CREDENTIAL_UPDATE.GetDisplayName())
+                {
+                    var account = _accountService.FirstOrDefault(x => x.rfc == data.data.@object.rfc);
+
+                    if (account == null)
+                        throw new Exception("No existe rfc a procesar");
+
+                    var credential = _credentialService.FirstOrDefault(x => x.account.id == account.id && x.provider == SystemProviders.SATWS.ToString() && x.credentialType == SATCredentialType.CIEC.ToString());
+                    if (credential == null)
+                        throw new Exception("No existe una credencial para el rfc " + account.rfc);
+
+                    credential.statusProvider = data.data.@object.status;
+                    
+                    switch (data.data.@object.status)
+                    {
+                        case "pending":
+                            break;
+                        case "valid":
+                            credential.status = SystemStatus.ACTIVE.ToString();
+                            break;
+                        case "invalid":
+                            credential.status = SystemStatus.INACTIVE.ToString();
+                            break;
+                        case "deactivated":
+                            credential.status = SystemStatus.INACTIVE.ToString();
+                            break;
+                        case "error":
+                            credential.status = SystemStatus.INACTIVE.ToString();
+                            break;
+                        default:
+                            credential.status = SystemStatus.INACTIVE.ToString();
+                            break;
+                    }
+
+                    _credentialService.Update(credential);
+
+                    LogUtil.AddEntry(descripcion: webhookEventModel.ToString(), eLogLevel: ENivelLog.Debug,
+                    usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: "Webhook");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(descripcion: webhookEventModel.ToString(), eLogLevel: ENivelLog.Debug,
+                       usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: ex.Message);
 
             }
             return Request.CreateResponse(HttpStatusCode.OK);

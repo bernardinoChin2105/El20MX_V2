@@ -15,6 +15,7 @@
                     {
 
                         @Html.AntiForgeryToken()
+                        @Html.HiddenFor(mode => Model.uuid);
                         <div class="form-horizontal">
                             @Html.ValidationSummary(true)
                             <div class="form-group row">
@@ -110,11 +111,62 @@
                 }
             });
         });
+        var self = this;
+        this.finishValidation = function (uuid) {
+            $.get('@Url.Action("AccountValidation")', { uuid: uuid }, function (data) {
+                if (data.finish) {
+                    if (data.success) {
+                        El20Utils.ocultarCargador();
+                        let form = document.createElement("form");
+                        form.setAttribute("method", "POST");
+                        form.setAttribute("action", '@Url.Action("CreateFinish")');
+
+                        let hiddenClave = document.createElement("input");
+                        hiddenClave.setAttribute("type", "hidden");
+                        hiddenClave.setAttribute("name", "uuid");
+                        hiddenClave.setAttribute("value", uuid);
+                        form.appendChild(hiddenClave);
+
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                    else {
+                        El20Utils.ocultarCargador();
+                        toastr['error'](data.message);
+                    }
+                }
+                else {
+                    setTimeout(self.finishValidation(uuid), 2000);
+                }
+                
+            }).fail(function () {
+                toastr['error']('No es posible generar el diagnostico');
+                El20Utils.ocultarCargador();
+            });
+        }
+
         function validarDatos() {
-            if (!$('#RegisterRFCForm').valid()) {
+            var form = $('#RegisterRFCForm');
+            if (!form.valid()) {
                 return;
             }
-            $('#RegisterRFCForm').submit();
+
+            El20Utils.mostrarCargador();
+            $.post(form.attr('action'), form.serialize(), function (data) {
+                if (data.success) {
+                    $("#uuid").val(data.uuid);
+                    self.finishValidation(data.uuid)
+                }
+                else {
+                    toastr['error'](data.message);
+                    El20Utils.ocultarCargador();
+                }
+            }).fail(function () {
+                toastr['error']('No es posible validar el RFC');
+                El20Utils.ocultarCargador();
+            });
+
+            //$('#RegisterRFCForm').submit();
         }
     </script>
 }

@@ -86,6 +86,12 @@ namespace MVC_Project.WebBackend
             container.RegisterType<IPlanAssignmentConfigService, PlanAssignmentConfigService>();
             container.RegisterType<IAllianceService, AllianceService>();
             container.RegisterType<IAllyService, AllyService>();
+            container.RegisterType<IPromotionService, PromotionService>();
+            container.RegisterType<IPromotionAccountService, PromotionAccountService>();
+            container.RegisterType<IDiscountService, DiscountService>();
+            container.RegisterType<IQuotationService, QuotationService>();
+            container.RegisterType<IQuotationDetailService, QuotationDetailService>();
+            container.RegisterType<IBranchOfficeService, BranchOfficeService>();
         }
     }
 }
