@@ -69,6 +69,9 @@
             },
             InteriorNumber: {
                 Alphanumeric: true,
+            },
+            BusinessName: {
+                Alphanumeric: true
             }
         }
     });
