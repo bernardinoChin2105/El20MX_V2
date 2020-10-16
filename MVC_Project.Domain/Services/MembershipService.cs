@@ -10,6 +10,7 @@ namespace MVC_Project.Domain.Services
 {
     public interface IMembershipService : IService<Membership>
     {
+        Membership Create(Membership membership, Discount discount);
     }
 
     public class MembershipService : ServiceBase<Membership>, IMembershipService
@@ -19,5 +20,24 @@ namespace MVC_Project.Domain.Services
         {
             _repository = baseRepository;
         }
+        public Membership Create(Membership membership, Discount discount)
+        {
+            using (var transaction = _repository.Session.BeginTransaction())
+            {
+                try
+                {
+                    _repository.Session.Save(membership);
+                    _repository.Session.Save(discount);
+                    transaction.Commit();
+                    return membership;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
+                }
+            }
+        }
+
     }
 }

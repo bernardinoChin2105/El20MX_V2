@@ -9,5 +9,6 @@ namespace MVC_Project.WebBackend.Models
     {
         public string RFC { get; set; }
         public string CIEC { get; set; }
+        public string uuid { get; set; }
     }
 }

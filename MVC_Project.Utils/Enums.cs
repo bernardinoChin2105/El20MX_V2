@@ -209,7 +209,7 @@ namespace MVC_Project.Utils
     {
         [Display(Name = "ciec")]
         CIEC,
-        [Display(Name = "e.firma")]
+        [Display(Name = "efirma")]
         EFIRMA
     }
 

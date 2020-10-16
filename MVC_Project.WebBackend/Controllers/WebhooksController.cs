@@ -133,7 +133,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 uuid = Guid.NewGuid(),
                 createdAt = today,
-                provider = SystemProviders.SATWS.GetDisplayName(),
+                provider = SystemProviders.SATWS.ToString(),
                 response = JsonConvert.SerializeObject(response.ToString()),
             };
 

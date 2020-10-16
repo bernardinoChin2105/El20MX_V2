@@ -1,4 +1,5 @@
 ﻿@model MVC_Project.WebBackend.Models.AccountSelectViewModel
+@using MVC_Project.Utils
 @{
     Layout = null;
     string mensaje = ViewBag.mensajeError;
@@ -21,16 +22,35 @@
         {
             <div class="col-md-4">
                 <div class="ibox-content text-center">
-                    
+
                     <h4>@m.rfc</h4>
                     <h5>@m.name</h5>
-                    @*<h6>Estatus Validación: @m.statusValidate</h6>*@
+
                     <div class="m-b-sm">
-                        <a href='@Url.Action("SetAccount", new { uuid = m.uuid })'>
-                            <img alt="image" class="rounded-circle" src="@m.imagen" style="width:30%" />
-                        </a>
+                        @if (m.accountStatus == SystemStatus.ACTIVE.ToString())
+                        {
+                            <a href='@Url.Action("SetAccount", new { uuid = m.uuid })'>
+                                <img alt="image" class="rounded-circle" src="@m.imagen" style="width:30%" />
+                            </a>
+                        }
+                        else
+                        {
+                            <a href='@Url.Action("CreateAccount", new { uuid = m.uuid, rfc=m.rfc })'>
+                                <img alt="image" class="rounded-circle" src="@m.imagen" style="width:30%" />
+                            </a>
+                        }
                     </div>
                     <abbr title="Su rol es">@m.role</abbr>
+                    <div class="text-center">
+                        @if (m.credentialStatus == SystemStatus.ACTIVE.ToString())
+                        {
+                            <button class="btn btn-primary btn-xs"><i class="fa fa-thumbs-up"></i> SAT</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-danger btn-xs"><i class="fa fa-thumbs-down"></i> SAT</button>
+                        }
+                    </div>
                 </div>
             </div>
         }
