@@ -28,6 +28,15 @@ namespace MVC_Project.Utils
         [Display(Name ="No válido")]
         INVALID
     }
+    public enum IssueStatus
+    {
+        [Display(Name ="Guardado")]
+        SAVED,
+        [Display(Name ="Timbrado")]
+        STAMPED,
+        [Display(Name = "Cancelado")]
+        CANCELED
+    }
 
     public enum SystemLevelPermission
     {

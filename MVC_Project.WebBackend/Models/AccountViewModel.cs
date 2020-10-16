@@ -20,6 +20,7 @@ namespace MVC_Project.WebBackend.Models
         public string credentialStatus { get; set; }
         public string imagen { get; set; }
         public string accountStatus { get; set; }
+        public string credentialId { get; set; }
     }
 
     public class AccountSelectViewModel

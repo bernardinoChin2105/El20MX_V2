@@ -31,5 +31,8 @@ namespace MVC_Project.Domain.Entities
 
         public virtual Account account { get; set; }
         public virtual Customer customer { get; set; }        
+
+        public virtual bool homemade { get; set; }
+        public virtual string json { get; set; }
     }
 }

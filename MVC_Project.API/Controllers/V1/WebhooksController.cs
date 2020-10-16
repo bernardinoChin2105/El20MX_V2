@@ -251,12 +251,13 @@ namespace MVC_Project.API.Controllers
                             xml = upload.Item1,
                             createdAt = DateTime.Now,
                             modifiedAt = DateTime.Now,
-                            status = SystemStatus.ACTIVE.ToString(),
+                            status = IssueStatus.STAMPED.ToString(),
                             account = account,
                             customer = _customerService.FirstOrDefault(y => y.rfc == cfdi.Receptor.Rfc),
                             invoiceType = cfdi.TipoDeComprobante,
                             subtotal = cfdi.SubTotal,
-                            total = cfdi.Total
+                            total = cfdi.Total,
+                            homemade = false
                         });
                     }
 
@@ -290,12 +291,13 @@ namespace MVC_Project.API.Controllers
                             xml = upload.Item1,
                             createdAt = DateTime.Now,
                             modifiedAt = DateTime.Now,
-                            status = SystemStatus.ACTIVE.ToString(),
+                            status = IssueStatus.STAMPED.ToString(),
                             account = account,
                             provider = _providerService.FirstOrDefault(y => y.rfc == cfdi.Emisor.Rfc),
                             invoiceType = cfdi.TipoDeComprobante,
                             subtotal = cfdi.SubTotal,
-                            total = cfdi.Total
+                            total = cfdi.Total,
+                            homemade = false
                         });
                     }
                     

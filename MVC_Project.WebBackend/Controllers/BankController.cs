@@ -197,6 +197,8 @@ namespace MVC_Project.WebBackend.Controllers
                         //Buscar el banco
                         //var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site);
                         var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site_organization);
+                        if (bank == null)
+                            throw new Exception("El banco no se encuentra en el sistema, comuniquese al area de soporte");
 
                         //Guardar los listado de bancos nuevos
                         BankCredential newBankCred = new BankCredential()
@@ -206,14 +208,10 @@ namespace MVC_Project.WebBackend.Controllers
                             credentialProviderId = itemBank.id_credential,
                             createdAt = todayDate,
                             modifiedAt = todayDate,
-                            status = itemBank.is_authorized != null ? (itemBank.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString()
+                            status = itemBank.is_authorized != null ? (itemBank.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString(),
+                            bank = bank
                         };
-
-                        if (bank != null)
-                        {
-                            newBankCred.bank = new Bank { id = bank.id };
-                        }
-
+                        
                         //Obtener las cuentas de los bancos nuevos
                         var bankAccounts = PaybookService.GetAccounts(itemBank.id_credential, token);
                         foreach (var itemAccount in bankAccounts)
@@ -269,7 +267,7 @@ namespace MVC_Project.WebBackend.Controllers
                         }
 
                         //Preguntarle por el guardado
-                        _bankCredentialService.Create(newBankCred);
+                        _bankCredentialService.CreateWithTransaction(newBankCred);
                     }
                 }
 

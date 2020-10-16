@@ -88,9 +88,11 @@ namespace MVC_Project.WebBackend.Controllers
                             imagen = membership.account.avatar,
                             credentialStatus = credential != null ? credential.status : SystemStatus.INACTIVE.ToString(),
                             accountStatus = credential != null ? membership.account.status : SystemStatus.PENDING.ToString(),
+                            credentialId = credential != null ? credential.idCredentialProvider : string.Empty
                         });
                     }
                 }
+                //ValidarSat(ref accountViewModel);
                 accountViewModel.count = accountViewModel.accountListViewModels.Count;
 
                 return PartialView("_SelectAccountModal", accountViewModel);
@@ -428,7 +430,7 @@ namespace MVC_Project.WebBackend.Controllers
                         imagen = memberships.account.avatar
                     });
 
-                    accountViewModel = ValidarSat(accountViewModel);
+                    //accountViewModel = ValidarSat(accountViewModel);
                     if (accountViewModel.accountListViewModels[0].credentialStatus == "valid")
                     {
                         result = true;
@@ -476,54 +478,45 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
-        private AccountSelectViewModel ValidarSat(AccountSelectViewModel accountViewModel)
+        private void ValidarSat(ref AccountSelectViewModel accountViewModel)
         {
             var authUser = Authenticator.AuthenticatedUser;
             foreach (var item in accountViewModel.accountListViewModels)
             {
-                var credential = _credentialService.FindBy(x => x.account.id == item.accountId).FirstOrDefault();
-                if (credential != null)
+                if (!string.IsNullOrEmpty(item.credentialId))
                 {
-                    if (credential.statusProvider == "pending")
+                    try
                     {
-                        try
-                        {
-                            //var responseSat = SATws.CallServiceSATws("credentials/" + credential.idCredentialProvider, null, "Get");
-                            //var model = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
-                            var model = SATwsService.GetCredentialSat(credential.idCredentialProvider);
-                            credential.statusProvider = model.status;
-                            _credentialService.Update(credential);
+                        var model = SATwsService.GetCredentialSat(item.credentialId);
 
-                            LogUtil.AddEntry(
-                               "Se actualizo el estatus del sat credentialId: "+ credential.id,
-                               ENivelLog.Info,
-                               authUser.Id,
-                               authUser.Email,
-                               EOperacionLog.ACCESS,
-                               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                               string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                            );
-                        }
-                        catch (Exception ex)
+                        switch (model.status)
                         {
-                            LogUtil.AddEntry(
-                              "Se encontro un error: " + ex.Message.ToString(),
-                              ENivelLog.Error,
-                              authUser.Id,
-                              authUser.Email,
-                              EOperacionLog.ACCESS,
-                              string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                              ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                              string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                           );
+                            case "pending":
+                                break;
+                            case "valid":
+                                item.credentialStatus = SystemStatus.ACTIVE.ToString();
+                                break;
+                            case "invalid":
+                                item.credentialStatus = SystemStatus.INACTIVE.ToString();
+                                break;
+                            case "deactivated":
+                                item.credentialStatus = SystemStatus.INACTIVE.ToString();
+                                break;
+                            case "error":
+                                item.credentialStatus = SystemStatus.INACTIVE.ToString();
+                                break;
+                            default:
+                                item.credentialStatus = SystemStatus.INACTIVE.ToString();
+                                break;
                         }
                     }
-                    item.credentialStatus = credential.statusProvider;
-                }
-            }
+                    catch (Exception ex)
+                    {
 
-            return accountViewModel;
+                    }
+                }
+                    
+                }
         }
     }
 }
