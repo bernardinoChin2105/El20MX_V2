@@ -110,9 +110,8 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
 
     this.finishExtraction = function (uuid) {
         $.get("Diagnostic/FinishExtraction", { uuid : uuid }, function (data) {
-            if (data.success) {
-                if (data.finish)
-                {
+            if (data.finish) {
+                if (data.success) {
                     El20Utils.ocultarCargador();
                     let form = document.createElement("form");
                     form.setAttribute("method", "GET");
@@ -128,15 +127,15 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
                     form.submit();
                 }
                 else {
-                    setTimeout(self.finishExtraction(uuid), 2000);
+                    El20Utils.ocultarCargador();  
+                    toastr['error'](data.message);
                 }
             }
             else {
-                toastr['error'](data.message);
-                El20Utils.ocultarCargador();
+                setTimeout(self.finishExtraction(uuid), 2000);
             }
         }).fail(function () {
-            toastr['error']('No es posible generar el diagnostico');
+            toastr['error']('No es posible finalizar el diagnostico');
             El20Utils.ocultarCargador();
         });
     }

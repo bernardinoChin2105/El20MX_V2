@@ -26,7 +26,9 @@ namespace MVC_Project.Utils
         [Display(Name = "Cancelado")]
         CANCELLED,
         [Display(Name ="No válido")]
-        INVALID
+        INVALID,
+        [Display(Name = "Fallido")]
+        FAILED
     }
     public enum IssueStatus
     {
@@ -395,6 +397,8 @@ namespace MVC_Project.Utils
     public enum SatwsStatusEvent
     {
         [Display(Name = "finished")]
-        FINISHED
+        FINISHED,
+        [Display(Name = "failed")]
+        FAILED
     }
 }

@@ -198,7 +198,7 @@ namespace MVC_Project.WebBackend.Controllers
                         //var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site);
                         var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site_organization);
                         if (bank == null)
-                            throw new Exception("El banco no se encuentra en el sistema, comuniquese al area de soporte");
+                            throw new Exception("El banco no se encuentra en el sistema, comuniquese al área de soporte");
 
                         //Guardar los listado de bancos nuevos
                         BankCredential newBankCred = new BankCredential()

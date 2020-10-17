@@ -158,17 +158,28 @@ namespace MVC_Project.API.Controllers
             {
                 var data = JsonConvert.DeserializeObject<WebhookEventModel>(webhookEventModel.ToString());
 
-                if (data != null && data.data != null && data.type == SatwsEvent.EXTRACTION_UPDATED.GetDisplayName() && data.data.@object.status == SatwsStatusEvent.FINISHED.GetDisplayName())
+                if (data != null && data.data != null && data.type == SatwsEvent.EXTRACTION_UPDATED.GetDisplayName() &&
+                    (data.data.@object.status == SatwsStatusEvent.FINISHED.GetDisplayName() || data.data.@object.status == SatwsStatusEvent.FAILED.GetDisplayName()))
                 {
                     var account = _accountService.FirstOrDefault(x => x.rfc == data.data.@object.taxpayer.id);
 
                     if (account == null)
                         throw new Exception("No existe rfc a procesar");
-                   
+
                     var diagnostic = _diagnosticService.FirstOrDefault(x => x.account.id == account.id && x.status == SystemStatus.PENDING.ToString());
 
                     if (diagnostic == null)
                         throw new Exception("No existe diagnostico");
+
+                    if (data.data.@object.status == SatwsStatusEvent.FAILED.GetDisplayName())
+                    {
+
+                        diagnostic.businessName = data.data.@object.taxpayer.name;
+                        diagnostic.status = SystemStatus.FAILED.ToString();
+                        diagnostic.modifiedAt = DateTime.Now;
+                        _diagnosticService.Update(diagnostic);
+                        throw new Exception("Se generó un fallo durante la extracción");
+                    }
 
                     account.name = data.data.@object.taxpayer.name;
                     _accountService.Update(account);
@@ -179,13 +190,13 @@ namespace MVC_Project.API.Controllers
                     _diagnosticService.Update(diagnostic);
 
                     var modelInvoices = SATService.GetInvoicesByExtractions(data.data.@object.taxpayer.id, data.data.@object.options.period.from, data.data.@object.options.period.to, "SATWS");
-                    
+
                     //Crear clientes
 
                     List<string> customerRfcs = modelInvoices.Customers.Select(c => c.rfc).Distinct().ToList();
                     var ExistC = _customerService.ValidateRFC(customerRfcs, account.id);
                     List<string> NoExistC = customerRfcs.Except(ExistC).ToList();
-                    
+
                     List<Customer> customers = modelInvoices.Customers
                         .Where(x => NoExistC.Contains(x.rfc)).GroupBy(x => new { x.rfc, x.businessName })
                         .Select(x => new Customer
@@ -303,7 +314,7 @@ namespace MVC_Project.API.Controllers
                             homemade = false
                         });
                     }
-                    
+
                     _invoicesReceivedService.Create(invoiceReceiveds);
 
                     DateTime from = DateTime.Parse(data.data.@object.options.period.from);
@@ -349,7 +360,7 @@ namespace MVC_Project.API.Controllers
                         createdAt = DateUtil.GetDateTimeNow()
                     }));
                     _diagnosticDetailService.Create(details);
-                    
+
                     var taxStatusModel = SATService.GetTaxStatus(account.rfc, provider);
                     if (!taxStatusModel.Success)
                         throw new Exception(taxStatusModel.Message);
@@ -373,14 +384,14 @@ namespace MVC_Project.API.Controllers
 
                     _diagnosticService.Update(diagnostic);
 
-                    LogUtil.AddEntry(descripcion: webhookEventModel.ToString(), eLogLevel: ENivelLog.Debug,
-                    usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: "Webhook");
+                    LogUtil.AddEntry(descripcion: "Extraccón finalizada con exito", eLogLevel: ENivelLog.Debug,
+                    usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
                 }
             }
             catch (Exception ex)
             {
-                LogUtil.AddEntry(descripcion: webhookEventModel.ToString(), eLogLevel: ENivelLog.Debug,
-                       usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: ex.Message);
+                LogUtil.AddEntry(descripcion: "Error en la extracción " + ex.Message, eLogLevel: ENivelLog.Debug,
+                       usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
 
             }
             return Request.CreateResponse(HttpStatusCode.OK);
@@ -431,14 +442,14 @@ namespace MVC_Project.API.Controllers
 
                     _credentialService.Update(credential);
 
-                    LogUtil.AddEntry(descripcion: webhookEventModel.ToString(), eLogLevel: ENivelLog.Debug,
-                    usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: "Webhook");
+                    LogUtil.AddEntry(descripcion: "Credencial actualizadá con exito", eLogLevel: ENivelLog.Debug,
+                    usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: webhookEventModel.ToString());
                 }
             }
             catch (Exception ex)
             {
-                LogUtil.AddEntry(descripcion: webhookEventModel.ToString(), eLogLevel: ENivelLog.Debug,
-                       usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: ex.Message);
+                LogUtil.AddEntry(descripcion: "Error en la actualización de credenciales " + ex.Message, eLogLevel: ENivelLog.Debug,
+                       usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: webhookEventModel.ToString());
 
             }
             return Request.CreateResponse(HttpStatusCode.OK);
