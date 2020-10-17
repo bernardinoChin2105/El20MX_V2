@@ -32,55 +32,43 @@ namespace MVC_Project.Integrations.SAT
             List<ProvidersInfo> providers = new List<ProvidersInfo>();
             List<InvoicesInfo> modelInvoices = new List<InvoicesInfo>();
             TaxpayerInfo taxpayer = new TaxpayerInfo();
-            try
-            {
-                //Se realiza la búsqueda de los cfdis
-                string url = "/taxpayers/" + rfc + "/invoices?issuedAt[after]=" + from + "&issuedAt[before]=" + to;
-                var responseInvoices = SATws.CallServiceSATws(url, null, "Get");
-                modelInvoices = JsonConvert.DeserializeObject<List<InvoicesInfo>>(responseInvoices);
-                
 
-                //Estamos buscando mis clientes
-                customers = modelInvoices.Where(x => x.issuer.rfc == rfc)
-                    .Select(x => new CustomersInfo
-                    {
-                        idInvoice = x.id,
-                        rfc = x.receiver.rfc,
-                        businessName = x.receiver.name,
-                        tax = (x.tax != null ? x.tax.Value : 0)
+            //Se realiza la búsqueda de los cfdis
+            string url = "/taxpayers/" + rfc + "/invoices?issuedAt[after]=" + from + "&issuedAt[before]=" + to;
+            var responseInvoices = SATws.CallServiceSATws(url, null, "Get");
+            modelInvoices = JsonConvert.DeserializeObject<List<InvoicesInfo>>(responseInvoices);
+
+
+            //Estamos buscando mis clientes
+            customers = modelInvoices.Where(x => x.issuer.rfc == rfc)
+                .Select(x => new CustomersInfo
+                {
+                    idInvoice = x.id,
+                    rfc = x.receiver.rfc,
+                    businessName = x.receiver.name,
+                    tax = (x.tax != null ? x.tax.Value : 0)
                         //regime = x.
                     }).ToList();
 
-                //Estamos buscando mis proveedores
-                providers = modelInvoices.Where(x => x.receiver.rfc == rfc)
-                    .Select(x => new ProvidersInfo
-                    {
-                        idInvoice = x.id,
-                        zipCode = x.placeOfIssue,
-                        businessName = x.issuer.name,
-                        rfc = x.issuer.rfc,
-                        tax = (x.tax != null ? x.tax.Value : 0)
-                    }).ToList();
+            //Estamos buscando mis proveedores
+            providers = modelInvoices.Where(x => x.receiver.rfc == rfc)
+                .Select(x => new ProvidersInfo
+                {
+                    idInvoice = x.id,
+                    zipCode = x.placeOfIssue,
+                    businessName = x.issuer.name,
+                    rfc = x.issuer.rfc,
+                    tax = (x.tax != null ? x.tax.Value : 0)
+                }).ToList();
 
-                return new InvoicesModel
-                {
-                    Success = true,
-                    Invoices = modelInvoices,
-                    Providers = providers,
-                    Customers = customers
-                };
-            }
-            catch (Exception ex)
+            return new InvoicesModel
             {
-                return new InvoicesModel
-                {
-                    Success = false,
-                    Message = ex.Message.ToString(),
-                    Invoices = modelInvoices,
-                    Providers = providers,
-                    Customers = customers
-                };
-            }
+                Success = true,
+                Invoices = modelInvoices,
+                Providers = providers,
+                Customers = customers
+            };
+
         }
 
         /*
@@ -171,27 +159,16 @@ namespace MVC_Project.Integrations.SAT
         public static InvoicesModel GetTaxStatus(string RFC)
         {
             List<TaxStatus> taxStatus = new List<TaxStatus>();
-            try
-            {
-                string url = "/taxpayers/" + RFC + "/tax-status";
-                var responseInvoices = SATws.CallServiceSATws(url, null, "Get");
-                taxStatus = JsonConvert.DeserializeObject<List<TaxStatus>>(responseInvoices);
 
-                return new InvoicesModel
-                {
-                    Success = true,
-                    TaxStatus = taxStatus
-                };
-            }
-            catch (Exception ex)
+            string url = "/taxpayers/" + RFC + "/tax-status";
+            var responseInvoices = SATws.CallServiceSATws(url, null, "Get");
+            taxStatus = JsonConvert.DeserializeObject<List<TaxStatus>>(responseInvoices);
+
+            return new InvoicesModel
             {
-                return new InvoicesModel
-                {
-                    Success = false,
-                    Message = ex.Message.ToString(),
-                    TaxStatus = taxStatus,
-                };
-            }
+                Success = true,
+                TaxStatus = taxStatus
+            };
         }
 
         //Crear la cuenta del registro de RFC en SATws
@@ -199,14 +176,13 @@ namespace MVC_Project.Integrations.SAT
         {
             SatAuthResponseModel satModel = new SatAuthResponseModel();
 
-                string url = "/credentials";                
-                
-                //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
-                var responseSat = SATws.CallServiceSATws(url, model, "Post");
+            string url = "/credentials";
 
-                satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
-                
-                
+            //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
+            var responseSat = SATws.CallServiceSATws(url, model, "Post");
+
+            satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
+            
             return satModel;
         }
 
@@ -214,60 +190,50 @@ namespace MVC_Project.Integrations.SAT
         public static SatAuthResponseModel GetCredentialSat(string idCredential)
         {
             SatAuthResponseModel satModel = new SatAuthResponseModel();
-            try
-            {
-                string url = "/credentials/"+ idCredential;
 
-                //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
-                var responseSat = SATws.CallServiceSATws(url, null, "Get");
+            string url = "/credentials/" + idCredential;
 
-                satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message.ToString());
-            }
+            //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
+            var responseSat = SATws.CallServiceSATws(url, null, "Get");
+
+            satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
             return satModel;
         }
+
         /*Obtener los CFDI's*/
         public static List<InvoicesCFDI> GetInvoicesCFDI(List<string> CFDIIds)
         {
             List<InvoicesCFDI> CFDI = new List<InvoicesCFDI>();
-            try
+
+            foreach (var id in CFDIIds)
             {
-                foreach (var id in CFDIIds)
+                try
                 {
+                    string url = "invoices/" + id + "/cfdi";
+                    var responsecfdi = SATws.CallServiceSATws(url, null, "get");
                     try
                     {
-                        string url = "invoices/" + id + "/cfdi";
-                        var responsecfdi = SATws.CallServiceSATws(url, null, "get");
-                        try
-                        {
-                            var model = JsonConvert.DeserializeObject<InvoicesCFDI>(responsecfdi);
+                        var model = JsonConvert.DeserializeObject<InvoicesCFDI>(responsecfdi);
 
-                            var responseXML = SATws.CallServiceSATws(url, null, "get", SATwsEnumsAccept.textxml.GetDescription());
-                            var xml = responseXML;
-                            model.Xml = xml;
-                            model.id = id;
+                        var responseXML = SATws.CallServiceSATws(url, null, "get", SATwsEnumsAccept.textxml.GetDescription());
+                        var xml = responseXML;
+                        model.Xml = xml;
+                        model.id = id;
 
-                            CFDI.Add(model);
-                        }
-                        catch (Exception ex)
-                        {
-                            string error = ex.Message.ToString();
-                        }
-
+                        CFDI.Add(model);
                     }
                     catch (Exception ex)
                     {
                         string error = ex.Message.ToString();
                     }
+
+                }
+                catch (Exception ex)
+                {
+                    string error = ex.Message.ToString();
                 }
             }
-            catch (Exception ex)
-            {
-                string error = ex.Message.ToString();
-            }
+
             return CFDI;
         }
     }

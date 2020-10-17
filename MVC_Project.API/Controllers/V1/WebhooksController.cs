@@ -164,11 +164,14 @@ namespace MVC_Project.API.Controllers
 
                     if (account == null)
                         throw new Exception("No existe rfc a procesar");
-
+                   
                     var diagnostic = _diagnosticService.FirstOrDefault(x => x.account.id == account.id && x.status == SystemStatus.PENDING.ToString());
 
                     if (diagnostic == null)
                         throw new Exception("No existe diagnostico");
+
+                    account.name = data.data.@object.taxpayer.name;
+                    _accountService.Update(account);
 
                     diagnostic.businessName = data.data.@object.taxpayer.name;
                     diagnostic.status = SystemStatus.PROCESSING.ToString();
