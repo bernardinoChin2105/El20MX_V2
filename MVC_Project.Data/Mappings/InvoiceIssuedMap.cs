@@ -32,7 +32,10 @@ namespace MVC_Project.Data.Mappings
             //Map(x => x.xml).CustomType("StringClob").CustomSqlType("nvarchar(max)");
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
-            Map(x => x.status).Column("status").Nullable();            
+            Map(x => x.status).Column("status").Nullable();
+
+            Map(x => x.homemade).Column("homemade").Nullable();
+            Map(x => x.json).Column("json").Nullable();
 
             References(x => x.account).Column("accountId").Not.Nullable();
             References(x => x.customer).Column("customerId").Not.Nullable();

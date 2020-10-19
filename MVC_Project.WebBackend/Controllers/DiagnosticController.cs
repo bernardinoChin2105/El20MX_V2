@@ -178,14 +178,18 @@ namespace MVC_Project.WebBackend.Controllers
                 if (diagnostic == null)
                     throw new Exception("No fue posible obtener el diagnostico");
 
-                if (diagnostic.status == SystemStatus.ACTIVE.ToString())
-                    return Json(new { success = true, finish = true }, JsonRequestBehavior.AllowGet);
-                else
+                if (diagnostic.status == SystemStatus.PENDING.ToString() || diagnostic.status == SystemStatus.PROCESSING.ToString())
                     return Json(new { success = true, finish = false }, JsonRequestBehavior.AllowGet);
+                else if (diagnostic.status == SystemStatus.ACTIVE.ToString())
+                    return Json(new { success = true, finish = true }, JsonRequestBehavior.AllowGet);
+                else if (diagnostic.status == SystemStatus.FAILED.ToString())
+                    return Json(new { success = false, finish = true, message= "Se generó un fallo durante la extracción" }, JsonRequestBehavior.AllowGet);
+                else
+                    return Json(new { success = false, finish = true, message = "No fue posible generar el diagnostico, comuniquese al área de soporte" }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                return Json(new { message = ex.Message, success = false }, JsonRequestBehavior.AllowGet);
+                return Json(new { message = ex.Message, success = false, finish = true }, JsonRequestBehavior.AllowGet);
             }
         }
 

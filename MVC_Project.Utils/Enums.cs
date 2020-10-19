@@ -26,7 +26,18 @@ namespace MVC_Project.Utils
         [Display(Name = "Cancelado")]
         CANCELLED,
         [Display(Name ="No válido")]
-        INVALID
+        INVALID,
+        [Display(Name = "Fallido")]
+        FAILED
+    }
+    public enum IssueStatus
+    {
+        [Display(Name ="Guardado")]
+        SAVED,
+        [Display(Name ="Timbrado")]
+        STAMPED,
+        [Display(Name = "Cancelado")]
+        CANCELED
     }
 
     public enum SystemLevelPermission
@@ -386,6 +397,8 @@ namespace MVC_Project.Utils
     public enum SatwsStatusEvent
     {
         [Display(Name = "finished")]
-        FINISHED
+        FINISHED,
+        [Display(Name = "failed")]
+        FAILED
     }
 }

@@ -15,6 +15,7 @@ namespace MVC_Project.Domain.Services
         List<BankCredentialsList> GetBankCredentials(Int64 AccountId);
         List<BankAccountsList> GetBanksAccounts(Int64 idCredential);
         List<BankTransactionList> GetBankTransactionList(BasePagination pagination, BankTransactionFilter filter);
+        BankCredential CreateWithTransaction(BankCredential bankCredential);
     }
     public class BankCredentialService : ServiceBase<BankCredential>, IBankCredentialService
     {
@@ -61,13 +62,13 @@ namespace MVC_Project.Domain.Services
                 dateend = Convert.ToDateTime(pagination.CreatedOnEnd).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo);
             }
             var list = _repository.Session.CreateSQLQuery("exec dbo.st_bankTransactionList " +
-                "@PageNum =:PageNum, @PageSize =:PageSize, @createdOnStart=:createdOnStart, @createdOnEnd=:createdOnEnd, "+
+                "@PageNum =:PageNum, @PageSize =:PageSize, @createdOnStart=:createdOnStart, @createdOnEnd=:createdOnEnd, " +
                 "@accountId=:accountId, @bankId=:bankId, @bankAccountId=:bankAccountId, @movements=:movements ")
                     .SetParameter("PageNum", pagination.PageNum)
                     .SetParameter("PageSize", pagination.PageSize)
                     .SetParameter("createdOnStart", dateinit)
                     .SetParameter("createdOnEnd", dateend)
-                    .SetParameter("accountId", filter.accountId)                    
+                    .SetParameter("accountId", filter.accountId)
                     .SetParameter("bankId", filter.bankId)
                     .SetParameter("bankAccountId", filter.bankAccountId)
                     .SetParameter("movements", filter.movements)
@@ -76,6 +77,24 @@ namespace MVC_Project.Domain.Services
 
             if (list != null) return list.ToList();
             return null;
+        }
+
+        public BankCredential CreateWithTransaction(BankCredential bankCredential)
+        {
+            using (var transaction = _repository.Session.BeginTransaction())
+            {
+                try
+                {
+                    _repository.Session.Save(bankCredential);
+                    transaction.Commit();
+                    return bankCredential;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
+                }
+            }
         }
     }
 }
