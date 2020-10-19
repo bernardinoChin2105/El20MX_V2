@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Entities
 {
-    public class Customs : IEntity
+    public class UseCFDI
     {
         public virtual Int64 id { get; set; }
         public virtual string code { get; set; }
-        public virtual string description { get; set; }        
+        public virtual string description { get; set; }
+        public virtual bool physical { get; set; }
+        public virtual bool moral { get; set; }
     }
 }

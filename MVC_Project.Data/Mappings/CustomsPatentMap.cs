@@ -8,15 +8,14 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Data.Mappings
 {
-    public class PaymentFormMap : ClassMap<PaymentForm>
+    public class CustomsPatentMap : ClassMap<CustomsPatent>
     {
-        public PaymentFormMap()
+        public CustomsPatentMap()
         {
-            Table("paymentForms");
+            Table("customsPatents");
             Id(x => x.id).GeneratedBy.Identity().Column("id");
             Map(x => x.code).Column("code").Not.Nullable();
-            Map(x => x.Description).Column("Description").Not.Nullable();
-            Map(x => x.banked).Column("banked").Not.Nullable();
+            Map(x => x.dateInitial).Column("dateInitial").Nullable();
         }
     }
 }

@@ -93,6 +93,8 @@
     <Compile Include="Mappings\BankTransactionMap.cs" />
     <Compile Include="Mappings\CredentialMap.cs" />
     <Compile Include="Mappings\CustomsMap.cs" />
+    <Compile Include="Mappings\CustomsPatentMap.cs" />
+    <Compile Include="Mappings\CustomsRequestNumberMap.cs" />
     <Compile Include="Mappings\DiscountMap.cs" />
     <Compile Include="Mappings\DriveKeyMap.cs" />
     <Compile Include="Mappings\InvoiceReceivedMap.cs" />
@@ -106,6 +108,9 @@
     <Compile Include="Mappings\PromotionAccountMap.cs" />
     <Compile Include="Mappings\PromotionMap.cs" />
     <Compile Include="Mappings\QuotationMap.cs" />
+    <Compile Include="Mappings\TaxMap.cs" />
+    <Compile Include="Mappings\TaxRegimeMap.cs" />
+    <Compile Include="Mappings\TypeRelationshipMap.cs" />
     <Compile Include="Mappings\TypeVoucherMap.cs" />
     <Compile Include="Mappings\CurrencyMap.cs" />
     <Compile Include="Mappings\PaymentFormMap.cs" />
@@ -143,6 +148,7 @@
     <Compile Include="Mappings\CountryMap.cs" />
     <Compile Include="Mappings\StateMap.cs" />
     <Compile Include="Mappings\StoreMap.cs" />
+    <Compile Include="Mappings\UseCFDIMap.cs" />
     <Compile Include="Mappings\UserMap.cs" />
     <Compile Include="Mappings\WebhookMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

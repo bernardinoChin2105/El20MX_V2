@@ -59,6 +59,8 @@
     <Compile Include="Entities\BankTransaction.cs" />
     <Compile Include="Entities\Currency.cs" />
     <Compile Include="Entities\Customs.cs" />
+    <Compile Include="Entities\CustomsPatent.cs" />
+    <Compile Include="Entities\CustomsRequestNumber.cs" />
     <Compile Include="Entities\Discount.cs" />
     <Compile Include="Entities\DriveKey.cs" />
     <Compile Include="Entities\PaymentForm.cs" />
@@ -109,7 +111,11 @@
     <Compile Include="Entities\State.cs" />
     <Compile Include="Entities\Store.cs" />
     <Compile Include="Entities\DiagnosticTaxStatus.cs" />
+    <Compile Include="Entities\Tax.cs" />
+    <Compile Include="Entities\TaxRegime.cs" />
+    <Compile Include="Entities\TypeRelationship.cs" />
     <Compile Include="Entities\TypeVoucher.cs" />
+    <Compile Include="Entities\UseCFDI.cs" />
     <Compile Include="Entities\User.cs" />
     <Compile Include="Entities\Webhook.cs" />
     <Compile Include="Helpers\IUnitOfWork.cs" />
