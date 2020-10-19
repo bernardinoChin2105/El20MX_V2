@@ -100,6 +100,7 @@ namespace MVC_Project.WebBackend
             container.RegisterType<ITypeRelationshipService, TypeRelationshipService>();
             container.RegisterType<IUseCFDIService, UseCFDIService>();
             container.RegisterType<ITypeInvoiceService, TypeInvoiceService>();
+            container.RegisterType<ITypeVoucherService, TypeVoucherService>();
         }
     }
 }
