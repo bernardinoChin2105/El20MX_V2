@@ -170,9 +170,7 @@ namespace MVC_Project.WebBackend.Models
             ListCustomsPatent = new SelectList(list);
             ListCustoms = new SelectList(list);
             ListMotionNumber = new SelectList(list);
-
             ListPaymentConditions = new SelectList(list);
-
             ProductServices = new List<ProductServiceDescriptionView>();
         }
     }

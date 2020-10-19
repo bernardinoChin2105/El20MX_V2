@@ -90,6 +90,16 @@ namespace MVC_Project.WebBackend
             container.RegisterType<IPromotionAccountService, PromotionAccountService>();
             container.RegisterType<IDiscountService, DiscountService>();
             container.RegisterType<IQuotationService, QuotationService>();
+            container.RegisterType<ICustomsService, CustomsService>();
+            container.RegisterType<ICustomsPatentService, CustomsPatentService>();
+            container.RegisterType<ICustomsRequestNumberService, CustomsRequestNumberService>();
+            container.RegisterType<IDriveKeyService, DriveKeyService>();
+            container.RegisterType<IProductServiceKeyService, ProductServiceKeyService>();
+            container.RegisterType<ITaxService, TaxService>();
+            container.RegisterType<ITaxRegimeService, TaxRegimeService>();
+            container.RegisterType<ITypeRelationshipService, TypeRelationshipService>();
+            container.RegisterType<IUseCFDIService, UseCFDIService>();
+            container.RegisterType<ITypeInvoiceService, TypeInvoiceService>();
         }
     }
 }
