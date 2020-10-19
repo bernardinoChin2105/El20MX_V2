@@ -85,7 +85,11 @@ namespace MVC_Project.WebBackend.Controllers
                 #endregion
 
                 #region Información de los catalogos para las facturas y datos fiscales
-                //model.ListTypeInvoices = ;
+                model.ListTypeInvoices = _typeVoucherService.GetAll().Select(x => new SelectListItem
+                {
+                    Text = "(" + x.code + ") " + x.Description.ToString(),
+                    Value = x.id.ToString()
+                }).ToList();
                 //model.ListTypeRelationship = ;
                 //model.ListTypeVoucher = ;
                 //model.ListUseCFDI = ;

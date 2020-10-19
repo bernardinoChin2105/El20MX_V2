@@ -13,7 +13,7 @@ namespace MVC_Project.WebBackend.Models
         [Required]
         [Display(Name = "Tipo de Factura")]
         public string TypeInvoice { get; set; }
-        public SelectList ListTypeInvoices { get; set; }
+        public List<SelectListItem> ListTypeInvoices { get; set; }
 
         [Display(Name = "Tipo de Relación")]
         public string TypeRelationship { get; set; }
@@ -152,7 +152,7 @@ namespace MVC_Project.WebBackend.Models
             var list = new List<SelectListItem>();
             list.Add(new SelectListItem() { Text = "Seleccionar...", Value = "-1" });
 
-            ListTypeInvoices = new SelectList(list);
+            ListTypeInvoices = new List<SelectListItem>();
             ListTypeRelationship = new SelectList(list);
             ListBranchOffice = new SelectList(list);
             ListEmailIssued = new SelectList(list);

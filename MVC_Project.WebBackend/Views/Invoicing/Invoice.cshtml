@@ -40,7 +40,7 @@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.TypeInvoice, new { @class = "col-form-label col-md-3 control-label" })
                     <div class="col-md-9">
-                        @Html.DropDownListFor(model => model.TypeInvoice, Model.ListTypeInvoices.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.TypeInvoice, Model.ListTypeInvoices, "Seleccione...", new { @class = "form-control chosen-select required" })
                         @*@Html.ValidationMessageFor(model => model.allyId)*@
                     </div>
                 </div>
