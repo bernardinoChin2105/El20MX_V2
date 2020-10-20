@@ -271,6 +271,7 @@
     <Compile Include="Controllers\QuotationController.cs" />
     <Compile Include="Controllers\RegisterController.cs" />
     <Compile Include="Controllers\RoleController.cs" />
+    <Compile Include="Controllers\SATController.cs" />
     <Compile Include="Controllers\StorageController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\CustomerController.cs" />
@@ -306,6 +307,7 @@
     <Compile Include="Models\ReportOrdersViewModel.cs" />
     <Compile Include="Models\RoleViewModel.cs" />
     <Compile Include="Models\RolPermission.cs" />
+    <Compile Include="Models\SATViewModel.cs" />
     <Compile Include="Models\SatwsResponse.cs" />
     <Compile Include="Models\UserPermissionViewModel.cs" />
     <Compile Include="Models\UserProfile.cs" />
@@ -1980,6 +1982,7 @@
     <Content Include="Views\BranchOffice\Edit.cshtml" />
     <Content Include="Views\Invoicing\Invoice.cshtml" />
     <Content Include="Views\Invoicing\InvoicesSaved.cshtml" />
+	<Content Include="Views\SAT\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
