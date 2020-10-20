@@ -1408,6 +1408,7 @@
     <Content Include="Images\landing\perspective.png" />
     <Content Include="Images\logos\El20mx-logo-estes-donde-e.png" />
     <Content Include="Images\logos\loading_animate.svg" />
+    <Content Include="Images\logos\logo-192x192.png" />
     <Content Include="Images\logos\logo-blanco.png" />
     <Content Include="Images\logos\logo_sin_texto.png" />
     <Content Include="Images\logo_el20mx.png" />
