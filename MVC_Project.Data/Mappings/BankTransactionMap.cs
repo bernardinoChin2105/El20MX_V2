@@ -17,7 +17,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.uuid).Column("uuid").Not.Nullable();
 
             Map(x => x.transactionId).Column("transactionId").Not.Nullable();
-            Map(x => x.description).Column("description").Not.Nullable();
+            Map(x => x.description).Column("description").Length(8000).Nullable();
             Map(x => x.amount).Column("amount").Not.Nullable();
             Map(x => x.currency).Column("currency").Not.Nullable();
             Map(x => x.reference).Column("reference").Nullable();

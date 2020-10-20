@@ -19,15 +19,17 @@ namespace MVC_Project.Domain.Entities
         public virtual decimal advancePayment { get; set; }
         public virtual decimal monthlyCharge { get; set; }
 
-        public virtual string quoteLink { get; set; }
-        public virtual string quoteName { get; set; }
-
-        //public virtual string quoteStatus { get; set; }
-
         public virtual Account account{ get; set; }
 
         public virtual DateTime createdAt { get; set; }
         public virtual DateTime modifiedAt { get; set; }
         public virtual string status { get; set; }
+
+        public virtual IList<QuotationDetail> quotationDetails { get; set; }
+
+        public Quotation()
+        {
+            quotationDetails = new List<QuotationDetail>();
+        }
     }
 }

@@ -26,6 +26,8 @@ namespace MVC_Project.API.Models
         public string status { get; set; }
         public WebhookTaxpayer taxpayer { get; set; }
         public WebhookOptions options { get; set; }
+        public string rfc { get; set; }
+        public string type { get; set; }
     }
 
     public class WebhookTaxpayer

@@ -25,11 +25,13 @@ namespace MVC_Project.WebBackend.Controllers
         private IUseCFDIService _useCFDIService;
         private ICustomerService _customerService;
         private IProviderService _providerService;
+        private IBranchOfficeService _branchOfficeService;
 
         public InvoicingController(IAccountService accountService, ICustomsService customsService, ICustomsPatentService customsPatentService,
             ICustomsRequestNumberService customsRequestNumberService, ITypeInvoiceService typeInvoiceService, IUseCFDIService useCFDIService,
             ITypeRelationshipService typeRelationshipService, ITypeVoucherService typeVoucherService, ICurrencyService currencyService,
-            IPaymentFormService paymentFormService, IPaymentMethodService paymentMethodService, ICustomerService customerService, IProviderService providerService)
+            IPaymentFormService paymentFormService, IPaymentMethodService paymentMethodService, ICustomerService customerService, 
+            IProviderService providerService, IBranchOfficeService branchOfficeService)
         {
             _accountService = accountService;
             _currencyService = currencyService;
@@ -45,24 +47,8 @@ namespace MVC_Project.WebBackend.Controllers
 
             _customerService = customerService;
             _providerService = providerService;
+            _branchOfficeService = branchOfficeService;
         }
-
-        /*                                                              
-            ListExchangeRate = new SelectList(list);
-            ListPaymentConditions = new SelectList(list);
-
-            //receptor
-            ListCustomerEmail = new SelectList(list);
-            ListMunicipality = new SelectList(list);
-            ListColony = new SelectList(list);
-            ListState = new SelectList(list);
-            ListCountry = new SelectList(list);
-
-            //cuenta y sucursales
-            ListBranchOffice = new SelectList(list);
-            ListEmailIssued = new SelectList(list);
-            ProductServices = new List<ProductServiceDescriptionView>();
-             */
 
         // GET: Invoicing
         public ActionResult Index()
@@ -75,72 +61,7 @@ namespace MVC_Project.WebBackend.Controllers
             InvoiceViewModel model = new InvoiceViewModel();
             try
             {
-                /*
-                 Obtener información de la cuenta para los datos del cliente a facturar
-                 */
-                #region Información de email y sucursales del cliente
-                //model.ListBranchOffice = ;
-                //model.ListEmailIssued = ;
-                //model.SerieFolio = ;
-                #endregion
-
-                #region Información de los catalogos para las facturas y datos fiscales
-                //model.ListTypeInvoices = ;
-                //model.ListTypeRelationship = ;
-                //model.ListTypeVoucher = ;
-                //model.ListUseCFDI = ;
-                //model.ListPaymentForm = ;
-                //model.ListPaymentMethod = ;
-                //model.ListCurrency = ;
-                //model.ListExchangeRate = ;
-                //model.ListCustomsPatent = ;
-                //model.ListCustoms = ;
-                //model.ListMotionNumber = ;
-                //model.ListPaymentConditions = ;
-
-                #endregion
-
-                //    //stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
-
-                //    //Tipo de Comprobante
-                //    var TypeVoucher = Enum.GetValues(typeof(TipoComprobante)).Cast<TipoComprobante>()
-                //        .Select(e => new SelectListItem
-                //        {
-                //            Value = e.ToString(),
-                //            Text = EnumUtils.GetDescription(e)
-                //        }).Where(x => x.Value != "N" & x.Value != "T");
-
-                //    //Forma de pago
-                //    var PaymentForm = Enum.GetValues(typeof(MetodoPago)).Cast<MetodoPago>()
-                //       .Select(e => new SelectListItem
-                //       {
-                //           Value = e.ToString(),
-                //           Text = EnumUtils.GetDescription(e)
-                //       });
-
-                //    //Metodo de pago
-                //    var PaymentMethod = Enum.GetValues(typeof(MetodoPago)).Cast<MetodoPago>()
-                //      .Select(e => new SelectListItem
-                //      {
-                //          Value = e.ToString(),
-                //          Text = EnumUtils.GetDescription(e)
-                //      });
-
-                //    //Uso de CFDI
-                //    var UseCFDI = Enum.GetValues(typeof(UsoCFDI)).Cast<UsoCFDI>()
-                //      .Select(e => new SelectListItem
-                //      {
-                //          Value = e.ToString(),
-                //          Text = EnumUtils.GetDescription(e)
-                //      });
-
-                //    //Moneda
-                //    var Currency = Enum.GetValues(typeof(TypeCurrency)).Cast<TypeCurrency>()
-                //      .Select(e => new SelectListItem
-                //      {
-                //          Value = e.ToString(),
-                //          Text = EnumUtils.GetDescription(e)
-                //      });
+                SetCombos(ref model);
 
             }
             catch (Exception ex)
@@ -149,6 +70,68 @@ namespace MVC_Project.WebBackend.Controllers
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
             }
             return View(model);
+        }
+
+        private void SetCombos(ref InvoiceViewModel model)
+        {
+            model.ListTypeInvoices = _typeVoucherService.GetAll().Select(x => new SelectListItem
+            {
+                Text = "(" + x.code + ") " + x.Description.ToString(),
+                Value = x.id.ToString()
+            }).ToList();
+
+            model.ListTypeRelationship = _typeRelationShipService.GetAll().Select(x => new SelectListItem
+            {
+                Text = "(" + x.code + ") " + x.description.ToString(),
+                Value = x.id.ToString()
+            }).ToList();
+
+            model.ListBranchOffice = _branchOfficeService.GetAll().Select(x => new SelectListItem
+            {
+                Text = x.name
+.ToString(),
+                Value = x.id.ToString()
+            }).ToList();
+
+            model.ListUseCFDI = _useCFDIService.GetAll().Select(x => new SelectListItem
+            {
+                Text = "(" + x.code + ") " + x.description.ToString(),
+                Value = x.id.ToString()
+            }).ToList();
+
+            model.ListPaymentForm = _paymentFormService.GetAll().Select(x => new SelectListItem
+            {
+                Text = "(" + x.code + ") " + x.Description.ToString(),
+                Value = x.id.ToString()
+            }).ToList();
+
+            model.ListPaymentMethod = _paymentMethodService.GetAll().Select(x => new SelectListItem
+            {
+                Text = "(" + x.code + ") " + x.Description.ToString(),
+                Value = x.id.ToString()
+            }).ToList();
+
+            model.ListCurrency = _currencyService.GetAll().Select(x => new SelectListItem
+            {
+                Text = "(" + x.code + ") " + x.description.ToString(),
+                Value = x.id.ToString()
+            }).ToList();
+        }
+
+        public JsonResult GetSerieFolio(Int64 sucursalId)
+        {
+            try
+            {
+                var branchOffice = _branchOfficeService.GetById(sucursalId);
+                if (branchOffice == null)
+                    throw new Exception("Sucursal no encontrada en el sistema");
+
+                return Json(new { success = true, serie = branchOffice.serie, folio = branchOffice.folio }, JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
     }
 }

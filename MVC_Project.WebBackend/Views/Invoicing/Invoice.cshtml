@@ -21,17 +21,11 @@
                 <strong>RFC: TIR1602182NB.</strong><br>
                 <strong>Régimen Fiscal: General de Ley Personas Morales</strong><br>
                 <abbr title="Phone">P:</abbr> (123) 601-4590
+                <abbr title="Email">E:</abbr> mai@mail.com
                 <div class="form-group row">
                     @Html.LabelFor(m => m.BranchOffice, new { @class = "col-form-label col-md-3 control-label" })
                     <div class="col-md-9">
-                        @Html.DropDownListFor(model => model.BranchOffice, Model.ListBranchOffice.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
-                        @*@Html.ValidationMessageFor(model => model.allyId)*@
-                    </div>
-                </div>
-                <div class="form-group row">
-                    @Html.LabelFor(m => m.EmailIssuedId, new { @class = "col-form-label col-md-3 control-label" })
-                    <div class="col-md-9">
-                        @Html.DropDownListFor(model => model.EmailIssuedId, Model.ListEmailIssued.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.BranchOffice, Model.ListBranchOffice, "Seleccione...", new { @class = "form-control chosen-select required" })
                         @*@Html.ValidationMessageFor(model => model.allyId)*@
                     </div>
                 </div>
@@ -40,14 +34,14 @@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.TypeInvoice, new { @class = "col-form-label col-md-3 control-label" })
                     <div class="col-md-9">
-                        @Html.DropDownListFor(model => model.TypeInvoice, Model.ListTypeInvoices.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.TypeInvoice, Model.ListTypeInvoices, "Seleccione...", new { @class = "form-control chosen-select required" })
                         @*@Html.ValidationMessageFor(model => model.allyId)*@
                     </div>
                 </div>
                 <div class="form-group row">
                     @Html.LabelFor(m => m.TypeRelationship, new { @class = "col-form-label col-md-3 control-label" })
                     <div class="col-md-9">
-                        @Html.DropDownListFor(model => model.TypeRelationship, Model.ListTypeRelationship.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.TypeRelationship, Model.ListTypeRelationship, "Seleccione...", new { @class = "form-control chosen-select required" })
                         @*@Html.ValidationMessageFor(model => model.allyId)*@
                     </div>
                 </div>
@@ -144,27 +138,27 @@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.UseCFDI, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.UseCFDI, Model.ListUseCFDI.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select" })
+                        @Html.DropDownListFor(model => model.UseCFDI, Model.ListUseCFDI, "Seleccione...", new { @class = "form-control chosen-select" })
                     </div>
                     @Html.LabelFor(m => m.PaymentForm, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.PaymentForm, Model.ListPaymentForm.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.PaymentForm, Model.ListPaymentForm, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
                 </div>
                 <div class="form-group row">
                     @Html.LabelFor(m => m.PaymentMethod, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.PaymentMethod, Model.ListPaymentMethod.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select" })
+                        @Html.DropDownListFor(model => model.PaymentMethod, Model.ListPaymentMethod, "Seleccione...", new { @class = "form-control chosen-select" })
                     </div>
                     @Html.LabelFor(m => m.Currency, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.Currency, Model.ListCurrency.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select" })
+                        @Html.DropDownListFor(model => model.Currency, Model.ListCurrency, "Seleccione...", new { @class = "form-control chosen-select" })
                     </div>
                 </div>
                 <div class="form-group row">
                     @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.ExchangeRate, Model.ListExchangeRate.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select" })
+                        @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off" })
                     </div>
                 </div>
             </div>
@@ -202,7 +196,7 @@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.PaymentConditions, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.PaymentConditions, Model.ListPaymentConditions.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.TextBoxFor(m => m.PaymentConditions, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off" })
                     </div>
                     @Html.LabelFor(m => m.DiscountRate, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">

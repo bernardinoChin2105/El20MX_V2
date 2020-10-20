@@ -18,6 +18,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.provider).Column("provider").Not.Nullable();
             Map(x => x.idCredentialProvider).Column("idCredentialProvider").Not.Nullable();
             Map(x => x.statusProvider).Column("statusProvider").Nullable();
+            Map(x => x.credentialType).Column("credentialType").Nullable();
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
             Map(x => x.status).Column("status").Nullable();            

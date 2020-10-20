@@ -13,15 +13,15 @@ namespace MVC_Project.WebBackend.Models
         [Required]
         [Display(Name = "Tipo de Factura")]
         public string TypeInvoice { get; set; }
-        public SelectList ListTypeInvoices { get; set; }
+        public List<SelectListItem> ListTypeInvoices { get; set; }
 
         [Display(Name = "Tipo de Relación")]
         public string TypeRelationship { get; set; }
-        public SelectList ListTypeRelationship { get; set; }
+        public List<SelectListItem> ListTypeRelationship { get; set; }
 
         [Display(Name = "Sucursal")]
         public string BranchOffice { get; set; }
-        public SelectList ListBranchOffice { get; set; }
+        public List<SelectListItem> ListBranchOffice { get; set; }
 
         [Display(Name = "E-mail")]
         public Int64 EmailIssuedId { get; set; }
@@ -82,19 +82,19 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "Uso de CFDI")]
         public string UseCFDI { get; set; }
-        public SelectList ListUseCFDI { get; set; }
+        public List<SelectListItem> ListUseCFDI { get; set; }
 
         [Display(Name = "Forma de Pago")]
         public string PaymentForm { get; set; }
-        public SelectList ListPaymentForm { get; set; }
+        public List<SelectListItem> ListPaymentForm { get; set; }
 
         [Display(Name = "Método de Pago")]
         public string PaymentMethod { get; set; }
-        public SelectList ListPaymentMethod { get; set; }
+        public List<SelectListItem> ListPaymentMethod { get; set; }
 
         [Display(Name = "Moneda")]
         public string Currency { get; set; }
-        public SelectList ListCurrency { get; set; }
+        public List<SelectListItem> ListCurrency { get; set; }
 
         [Display(Name = "Tipo de Cambio")]
         public string ExchangeRate { get; set; }
@@ -114,7 +114,7 @@ namespace MVC_Project.WebBackend.Models
         #endregion
 
         #region Condiciones y Comentarios a Facturar:
-        [Display(Name = "Núm. Pedimento")]
+        [Display(Name = "Condiciones de Pago")]
         public string PaymentConditions { get; set; }
         public SelectList ListPaymentConditions { get; set; }
 
@@ -152,9 +152,9 @@ namespace MVC_Project.WebBackend.Models
             var list = new List<SelectListItem>();
             list.Add(new SelectListItem() { Text = "Seleccionar...", Value = "-1" });
 
-            ListTypeInvoices = new SelectList(list);
-            ListTypeRelationship = new SelectList(list);
-            ListBranchOffice = new SelectList(list);
+            ListTypeInvoices = new List<SelectListItem>();
+            ListTypeRelationship = new List<SelectListItem>();
+            ListBranchOffice = new List<SelectListItem>();
             ListEmailIssued = new SelectList(list);
             ListColony = new SelectList(list);
             ListMunicipality = new SelectList(list);
@@ -162,10 +162,10 @@ namespace MVC_Project.WebBackend.Models
             ListCountry = new SelectList(list);
             ListCustomerEmail = new SelectList(list);
             ListTypeVoucher = new SelectList(list);
-            ListUseCFDI = new SelectList(list);
-            ListPaymentForm = new SelectList(list);
-            ListPaymentMethod = new SelectList(list);
-            ListCurrency = new SelectList(list);
+            ListUseCFDI = new List<SelectListItem>();
+            ListPaymentForm = new List<SelectListItem>();
+            ListPaymentMethod = new List<SelectListItem>();
+            ListCurrency = new List<SelectListItem>();
             ListExchangeRate = new SelectList(list);
             ListCustomsPatent = new SelectList(list);
             ListCustoms = new SelectList(list);
