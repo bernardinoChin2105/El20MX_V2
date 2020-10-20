@@ -35,15 +35,8 @@ namespace MVC_Project.Data.Mappings
 
             Map(x => x.serie).Column("serie").Nullable();
             Map(x => x.folio).Column("folio").Nullable();
+            Map(x => x.logo).Column("logo").Nullable();
 
-            Map(x => x.ciec).Column("ciec").Nullable();
-            Map(x => x.ciecStatus).Column("ciecStatus").Nullable();
-
-            Map(x => x.cer).Column("cer").Nullable();
-            Map(x => x.key).Column("[key]").Nullable();
-            Map(x => x.eFirma).Column("eFirma").Nullable();
-            Map(x => x.eFirmaStatus).Column("eFirmaStatus").Nullable();
-            
             References(x => x.account).Column("accountId").Nullable();
             
         }

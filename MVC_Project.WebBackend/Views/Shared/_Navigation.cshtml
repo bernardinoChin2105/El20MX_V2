@@ -34,6 +34,18 @@
             {
             <li class="@Html.IsModuleSelected(user, SystemModules.CONFIGURATION.ToString())">
                 <a href="#"><i class="fa fa-cogs"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CONFIGURATION</span> <span class="fain arrow"></span></a>
+                @if (user.HasAccessController("SAT"))
+                {
+                    <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "SAT", cssClass: "in")">
+                        <li class="@Html.IsSelected(controller: "SAT")"><a href="@Url.Action("Index", "SAT")">Mi SAT</a></li>
+                    </ul>
+                }
+                @if (user.HasAccessController("BranchOffice"))
+                {
+                    <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "BranchOffice", cssClass: "in")">
+                        <li class="@Html.IsSelected(controller: "BranchOffice")"><a href="@Url.Action("Index", "BranchOffice")">Sucursales</a></li>
+                    </ul>
+                }
                 @if (user.HasAccessController("User"))
                 {
                     <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "User", cssClass: "in")">
@@ -46,12 +58,7 @@
                         <li class="@Html.IsSelected(controller: "Role")"><a href="@Url.Action("Index", "Role")">Roles</a></li>
                     </ul>
                 }
-                @if (user.HasAccessController("BranchOffice"))
-                {
-                    <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "BranchOffice", cssClass: "in")">
-                        <li class="@Html.IsSelected(controller: "BranchOffice")"><a href="@Url.Action("Index", "BranchOffice")">Sucursales</a></li>
-                    </ul>
-                }
+
             </li>
             }
 

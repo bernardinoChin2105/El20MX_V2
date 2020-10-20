@@ -87,10 +87,6 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     id = branchOffice.id,
                     name = branchOffice.name,
-                    cerUrl = branchOffice.cer,
-                    keyUrl = branchOffice.key,
-                    eFirma = branchOffice.eFirma,
-                    ciec = branchOffice.ciec,
                     folio = branchOffice.folio,
                     serie = branchOffice.serie,
                     street = branchOffice.street,
@@ -128,23 +124,6 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception("No se encontró la regularización en el sistema");
 
                 branchOffice.name = model.name;
-
-                branchOffice.ciec = model.ciec;
-
-                var storageEFirma = ConfigurationManager.AppSettings["StorageEFirma"];
-                
-                if (model.cer != null)
-                {
-                    var cer = AzureBlobService.UploadPublicFile(model.cer.InputStream, model.cer.FileName, storageEFirma, branchOffice.account.rfc);
-                    branchOffice.cer = cer.Item1;
-                }
-                if (model.key != null)
-                {
-                    var key = AzureBlobService.UploadPublicFile(model.key.InputStream, model.key.FileName, storageEFirma, branchOffice.account.rfc);
-                    branchOffice.key = key.Item1;
-                }
-                branchOffice.eFirma = model.eFirma;
-
                 branchOffice.street = model.street;
                 branchOffice.outdoorNumber = model.outdoorNumber;
                 branchOffice.interiorNumber = model.interiorNumber;

@@ -21,7 +21,14 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
             Map(x => x.status).Column("status").Nullable();
             Map(x => x.avatar).Column("avatar").Nullable();
+
             Map(x => x.ciec).Column("ciec").Nullable();
+            Map(x => x.ciecStatus).Column("ciecStatus").Nullable();
+
+            Map(x => x.cer).Column("cer").Nullable();
+            Map(x => x.key).Column("[key]").Nullable();
+            Map(x => x.eFirma).Column("eFirma").Nullable();
+            Map(x => x.eFirmaStatus).Column("eFirmaStatus").Nullable();
 
             HasMany(x => x.memberships).Inverse().Cascade.All().KeyColumn("accountId");
 

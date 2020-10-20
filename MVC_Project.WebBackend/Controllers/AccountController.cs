@@ -178,6 +178,7 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public ActionResult CreateCredential(LoginSATViewModel model)
         {
             var authUser = Authenticator.AuthenticatedUser;
