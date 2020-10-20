@@ -159,7 +159,7 @@
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Invoicing", cssClass: "in")">
                             <li class="@Html.IsSelected(controller: "Invoicing", action: "Invoice")"><a href="@Url.Action("Invoice", "Invoicing")">Generar Factura</a></li>
-
+                            <li class="@Html.IsSelected(controller: "Invoicing", action: "InvoicesSaved")"><a href="@Url.Action("InvoicesSaved", "Invoicing")">Facturas guardadas</a></li>
                         </ul>
                     }
                 </li>

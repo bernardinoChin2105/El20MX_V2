@@ -204,4 +204,34 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Subtotal")]
         public decimal Subtotal { get; set; }
     }
+
+    public class InvoicesSavedViewModel
+    {
+        [Required]
+        [Display(Name = "Tipo de Factura")]
+        public string TypeInvoice { get; set; }
+        public List<SelectListItem> ListTypeInvoices { get; set; }
+
+        [Display(Name = "Folio")]
+        public string Folio { get; set; }
+
+        [Display(Name = "Serie")]
+        public string Serie { get; set; }
+    }
+
+    public class InvoicesSavedList
+    {
+        public Int64 id { get; set; }
+        public string folio { get; set; }
+        public string serie { get; set; }
+        public string paymentMethod { get; set; }
+        public string paymentForm { get; set; }
+        public string currency { get; set; }
+        public string iva { get; set; }
+        public string invoicedAt { get; set; }
+        public string invoiceType { get; set; }
+        public string total { get; set; }
+        public string subtotal { get; set; }
+        public string xml { get; set; }
+    }
 }
