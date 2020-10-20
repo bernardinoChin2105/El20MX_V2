@@ -25,11 +25,13 @@ namespace MVC_Project.WebBackend.Controllers
         private IUseCFDIService _useCFDIService;
         private ICustomerService _customerService;
         private IProviderService _providerService;
+        private IBranchOfficeService _branchOfficeService;
 
         public InvoicingController(IAccountService accountService, ICustomsService customsService, ICustomsPatentService customsPatentService,
             ICustomsRequestNumberService customsRequestNumberService, ITypeInvoiceService typeInvoiceService, IUseCFDIService useCFDIService,
             ITypeRelationshipService typeRelationshipService, ITypeVoucherService typeVoucherService, ICurrencyService currencyService,
-            IPaymentFormService paymentFormService, IPaymentMethodService paymentMethodService, ICustomerService customerService, IProviderService providerService)
+            IPaymentFormService paymentFormService, IPaymentMethodService paymentMethodService, ICustomerService customerService, 
+            IProviderService providerService, IBranchOfficeService branchOfficeService)
         {
             _accountService = accountService;
             _currencyService = currencyService;
@@ -45,6 +47,7 @@ namespace MVC_Project.WebBackend.Controllers
 
             _customerService = customerService;
             _providerService = providerService;
+            _branchOfficeService = branchOfficeService;
         }
 
         // GET: Invoicing
@@ -83,6 +86,13 @@ namespace MVC_Project.WebBackend.Controllers
                 Value = x.id.ToString()
             }).ToList();
 
+            model.ListBranchOffice = _branchOfficeService.GetAll().Select(x => new SelectListItem
+            {
+                Text = x.name
+.ToString(),
+                Value = x.id.ToString()
+            }).ToList();
+
             model.ListUseCFDI = _useCFDIService.GetAll().Select(x => new SelectListItem
             {
                 Text = "(" + x.code + ") " + x.description.ToString(),
@@ -106,6 +116,22 @@ namespace MVC_Project.WebBackend.Controllers
                 Text = "(" + x.code + ") " + x.description.ToString(),
                 Value = x.id.ToString()
             }).ToList();
+        }
+
+        public JsonResult GetSerieFolio(Int64 sucursalId)
+        {
+            try
+            {
+                var branchOffice = _branchOfficeService.GetById(sucursalId);
+                if (branchOffice == null)
+                    throw new Exception("Sucursal no encontrada en el sistema");
+
+                return Json(new { success = true, serie = branchOffice.serie, folio = branchOffice.folio }, JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
     }
 }

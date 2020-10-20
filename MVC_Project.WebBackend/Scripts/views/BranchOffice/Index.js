@@ -1,4 +1,4 @@
-﻿var QuotationIndexControlador = function (htmlTableId, baseUrl, modalEditAction, modalDeleteAction, hasFullAccessController) {
+﻿var BranchOfficeIndexControlador = function (htmlTableId, baseUrl, modalEditAction, modalDeleteAction, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
@@ -18,32 +18,8 @@
             columns: [
                 { data: 'id', title: "Id", visible: false },
                 { data: 'uuid', title: "Uuid", visible: false },
-                { data: 'account', title: "Cliente" },
-                {
-                    data: null, orderName: "startedAt", title: "Fecha Inicio", autoWidth: false, className: "dt-center td-actions thead-dark",
-                    render: function (data, type, row, meta) {
-                        if (data.startedAt != null && data.startedAt !== "") {
-                            return moment(data.startedAt).format('DD-MMM-YYYY');
-                        }
-                        return '';
-                    }
-                },
-                { data: 'total', title: "Monto" },
-                { data: 'partialitiesNumber', title: "Parcialidades" },
+                { data: 'name', title: "Nombre" },
                 { data: 'status', title: "Estatus" },
-                {
-                    data: null,
-                    title: "Detalle",
-                    className: '',
-                    render: function (data) {
-                        var link = "<ul>";
-                        $.each(data.details, function (key, value) {
-                            link += "<li><a href='" + value.link + "'>" + value.name + " </a></li>";//class='btn btn-success btn-xs btn-block btn-outline'
-                        });
-                        link += "</ul>";
-                        return link;
-                    }
-                },
                 {
                     data: null,
                     className: 'personal-options',
@@ -81,7 +57,7 @@
 
                 swal({
                     title: "Confirmación",
-                    text: "¿Desea activar la cotización?",
+                    text: "¿Desea activar la sucursal?",
                     showCancelButton: true,
                     confirmButtonClass: "btn-danger",
                     confirmButtonText: "Aceptar",
@@ -95,7 +71,7 @@
                                 type: 'POST',
                                 async: true,
                                 data: { uuid: id },
-                                url: '/Quotation/Delete',
+                                url: '/BranchOffice/Delete',
                                 success: function (data) {
                                     if (!data) {
                                         swal({
@@ -104,7 +80,7 @@
                                             text: data.Mensaje.Contenido
                                         })
                                     } else {
-                                        swal("Cotización activada");
+                                        swal("Sucursal activada");
                                         self.dataTable.ajax.reload();
                                     }
                                 },
@@ -127,7 +103,7 @@
 
                 swal({
                     title: "Confirmación",
-                    text: "¿Desea desactivar la cotización?",
+                    text: "¿Desea desactivar la sucursal?",
                     showCancelButton: true,
                     confirmButtonClass: "btn-danger",
                     confirmButtonText: "Aceptar",
@@ -141,7 +117,7 @@
                                 type: 'POST',
                                 async: true,
                                 data: { uuid: id },
-                                url: '/Quotation/Delete',
+                                url: '/BranchOffice/Delete',
                                 success: function (data) {
                                     if (!data) {
                                         swal({
@@ -150,7 +126,7 @@
                                             text: data.Mensaje.Contenido
                                         })
                                     } else {
-                                        swal("Cotización desactivada");
+                                        swal("Sucursal desactivada");
                                         self.dataTable.ajax.reload();
                                     }
                                 },
@@ -174,7 +150,7 @@
                 var form = document.createElement('form');
                 document.body.appendChild(form);
                 form.method = 'GET';
-                form.action = "/Quotation/Edit?uuid=" + uuid;
+                form.action = "/BranchOffice/Edit?uuid=" + uuid;
 
                 var input = document.createElement('input');
                 input.type = 'hidden';

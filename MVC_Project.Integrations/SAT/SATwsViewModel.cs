@@ -77,7 +77,7 @@ namespace MVC_Project.Integrations.SAT
     {
         public decimal taxRate { get; set; }
         public string taxType { get; set; }
-        public int quantity { get; set; }
+        public decimal quantity { get; set; }
         public string unitCode { get; set; }
         public decimal taxAmount { get; set; }
         public decimal unitAmount { get; set; }

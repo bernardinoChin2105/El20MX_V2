@@ -23,6 +23,7 @@ namespace MVC_Project.WebBackend.Models
         public string quoteLink { get; set; }
         public string quoteName { get; set; }
         public DateTime startedAt { get; set; }
+        public List<QuotationDetails> details { get; set; }
     }
 
     public class QuotationCreate
@@ -45,11 +46,13 @@ namespace MVC_Project.WebBackend.Models
         [DisplayName("Cliente")]
         public Int64 accountId { get; set; }
         [DisplayName("Cotización")]
-        public HttpPostedFileBase file { get; set; }
+        public HttpPostedFileBase[] files { get; set; }
 
         public List<SelectListItem> statusQuotation { get; set; }
         [DisplayName("Estatus de la Cotización")]
         public string quoteStatus { get; set; }
+
+        public List<QuotationDetails> detail { get; set; }
 
         public QuotationCreate()
         {
@@ -58,5 +61,11 @@ namespace MVC_Project.WebBackend.Models
 
             accounts = list;
         }
+    }
+
+    public class QuotationDetails
+    {
+        public string name { get; set; }
+        public string link { get; set; }
     }
 }

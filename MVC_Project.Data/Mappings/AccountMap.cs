@@ -21,6 +21,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
             Map(x => x.status).Column("status").Nullable();
             Map(x => x.avatar).Column("avatar").Nullable();
+            Map(x => x.ciec).Column("ciec").Nullable();
 
             HasMany(x => x.memberships).Inverse().Cascade.All().KeyColumn("accountId");
 

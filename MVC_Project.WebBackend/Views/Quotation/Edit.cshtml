@@ -26,10 +26,10 @@
                 </div>
                 <div class="ibox-content">
 
-                    @using (Html.BeginForm("Edit", "Quotation", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "EditForm" }))
+                    @using (Html.BeginForm("Edit", "Quotation", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "EditForm", @enctype = "multipart/form-data" }))
                     {
                         @Html.AntiForgeryToken()
-
+                        @Html.HiddenFor(x => x.id);
                         <div class="form-horizontal">
                             @Html.ValidationSummary(true)
 
@@ -47,8 +47,8 @@
                                     <div id="data_1">
                                         <div class="input-group date">
                                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                            @Html.TextBoxFor(model => model.startedAt, new { @class = "form-control", required = "required", @autocomplete = "off", @readonly = "readonly" })
-                                            @*<input type="text" name="startedAt" id="startedAt" class="form-control required" readonly>*@
+                                            @*@Html.TextBoxFor(model => model.startedAt, new { @class = "form-control", required = "required", @autocomplete = "off", @readonly = "readonly" })*@
+                                            <input type="text" name="startedAt" id="startedAt" class="form-control required" readonly  value="@(Model.startedAt.ToShortDateString())">
                                         </div>
                                     </div>
                                 </div>
@@ -63,16 +63,29 @@
                             </div>
 
                             <div class="form-group row">
-                                @Html.LabelFor(model => model.file, new { @class = "col-form-label control-label col-md-2" })
+                                @Html.LabelFor(model => model.files, new { @class = "col-form-label control-label col-md-2" })
                                 <div class="col-md-8">
                                     <div class="custom-file form-control">
-                                        @Html.TextBoxFor(model => model.file, new { @class = "custom-file-input", @autocomplete = "off", type = "file" })
-                                        <label for="File" class="custom-file-label"></label>
-                                        @Html.ValidationMessageFor(model => model.file)
+                                        @Html.TextBoxFor(model => model.files, new { @class = "custom-file-input", @autocomplete = "off", type = "file", @multiple = "multiple", @accept = "application/pdf" })
+                                        <label for="files" class="custom-file-label"></label>
+                                        @Html.ValidationMessageFor(model => model.files)
                                     </div>
                                 </div>
                             </div>
-                            <br />
+                            <div class="form-group row">
+                                <label class="col-form-label control-label col-md-2">Archivos actuales</label>
+                                <div class="col-md-8">
+                                    <ul>
+                                        @if (Model.detail != null)
+                                        {
+                                            foreach (var item in Model.detail)
+                                            {
+                                            <li><a href="@item.link">@item.name</a></li>
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
                             <div class="form-group row">
                                 <div class="col-md-8 offset-2">
                                     <div class="i-checks">
@@ -138,8 +151,7 @@
     <script src="~/Scripts/plugins/touchspin/jquery.bootstrap-touchspin.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            $('.chosen-select').chosen({ width: '100%', "disable_search": true });
-            //$('.porcert').mask("###,##0.00", { reverse: true });
+            $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
              var mem = $('#data_1 .input-group.date').datepicker({
                 //dateFormat: "yy-mm-dd"
                 keyboardNavigation: false,
@@ -148,10 +160,9 @@
                 calendarWeeks: true,
                 autoclose: true,
                 format: "dd/mm/yyyy",
-                startDate: '@Html.Raw(Json.Encode(Model.startedAt))',
                 language: "es"
             });
-            //$('#data_1 .input-group.date').datepicker("setDate", '@Html.Raw(Json.Encode(Model.startedAt))');
+
             $.validator.addMethod("Alphanumeric",
                 function (value, element) {
                     return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
@@ -164,8 +175,10 @@
             });
 
             $('.custom-file-input').on('change', function (e) {
-                let fileName = $(this).val().split('\\').pop();
-                $(this).next('.custom-file-label').addClass("selected").html(fileName);
+                var files = $('#files').prop("files");
+                var names = $.map(files, function (val) { return val.name; });
+                var name = names.join(', ');
+                $(this).next('.custom-file-label').addClass("selected").html(name);
             });
 
             $("#total").TouchSpin({
@@ -204,6 +217,20 @@
 
 
             $(".btn-opt").prop("disabled", true);
+
+            if ($('#hasDeferredPayment').prop("checked")) {
+                $("#partialitiesNumber").prop('readonly', false);
+                $("#advancePayment").prop('readonly', false);
+                $(".btn-opt").prop("disabled", false);
+            } else {
+                $("#partialitiesNumber").val(1);
+                $("#advancePayment").val(0);
+                $("#monthlyCharge").val($("#total").val());
+                $("#partialitiesNumber").prop('readonly', true);
+                $("#advancePayment").prop('readonly', true);
+                $(".btn-opt").prop("disabled", true);
+            }
+            
         });
 
         $("#btn-save").on("click", function () {
