@@ -30,7 +30,7 @@ namespace MVC_Project.WebBackend.Controllers
         public InvoicingController(IAccountService accountService, ICustomsService customsService, ICustomsPatentService customsPatentService,
             ICustomsRequestNumberService customsRequestNumberService, ITypeInvoiceService typeInvoiceService, IUseCFDIService useCFDIService,
             ITypeRelationshipService typeRelationshipService, ITypeVoucherService typeVoucherService, ICurrencyService currencyService,
-            IPaymentFormService paymentFormService, IPaymentMethodService paymentMethodService, ICustomerService customerService, 
+            IPaymentFormService paymentFormService, IPaymentMethodService paymentMethodService, ICustomerService customerService,
             IProviderService providerService, IBranchOfficeService branchOfficeService)
         {
             _accountService = accountService;
@@ -74,7 +74,13 @@ namespace MVC_Project.WebBackend.Controllers
 
         private void SetCombos(ref InvoiceViewModel model)
         {
-            model.ListTypeInvoices = _typeVoucherService.GetAll().Select(x => new SelectListItem
+            model.ListTypeInvoices = _typeInvoiceService.GetAll().Select(x => new SelectListItem
+            {
+                Text = x.description.ToString(),
+                Value = x.id.ToString()
+            }).ToList();
+
+            model.ListTypeVoucher = _typeVoucherService.GetAll().Select(x => new SelectListItem
             {
                 Text = "(" + x.code + ") " + x.Description.ToString(),
                 Value = x.id.ToString()
@@ -88,8 +94,7 @@ namespace MVC_Project.WebBackend.Controllers
 
             model.ListBranchOffice = _branchOfficeService.GetAll().Select(x => new SelectListItem
             {
-                Text = x.name
-.ToString(),
+                Text = x.name.ToString(),
                 Value = x.id.ToString()
             }).ToList();
 
@@ -128,7 +133,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 return Json(new { success = true, serie = branchOffice.serie, folio = branchOffice.folio }, JsonRequestBehavior.AllowGet);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
             }

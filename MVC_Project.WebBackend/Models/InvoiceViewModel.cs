@@ -75,7 +75,7 @@ namespace MVC_Project.WebBackend.Models
         [Required]
         [Display(Name = "Tipo Comprobante")]
         public string TypeVoucherId { get; set; }
-        public SelectList ListTypeVoucher { get; set; }
+        public List<SelectListItem> ListTypeVoucher { get; set; }
 
         [Display(Name = "Serie y Folio")]
         public string SerieFolio { get; set; }
@@ -155,17 +155,18 @@ namespace MVC_Project.WebBackend.Models
             ListTypeInvoices = new List<SelectListItem>();
             ListTypeRelationship = new List<SelectListItem>();
             ListBranchOffice = new List<SelectListItem>();
+            ListUseCFDI = new List<SelectListItem>();
+            ListPaymentForm = new List<SelectListItem>();
+            ListPaymentMethod = new List<SelectListItem>();
+            ListCurrency = new List<SelectListItem>();
+            ListTypeVoucher = new List<SelectListItem>();
+
             ListEmailIssued = new SelectList(list);
             ListColony = new SelectList(list);
             ListMunicipality = new SelectList(list);
             ListState = new SelectList(list);
             ListCountry = new SelectList(list);
             ListCustomerEmail = new SelectList(list);
-            ListTypeVoucher = new SelectList(list);
-            ListUseCFDI = new List<SelectListItem>();
-            ListPaymentForm = new List<SelectListItem>();
-            ListPaymentMethod = new List<SelectListItem>();
-            ListCurrency = new List<SelectListItem>();
             ListExchangeRate = new SelectList(list);
             ListCustomsPatent = new SelectList(list);
             ListCustoms = new SelectList(list);
