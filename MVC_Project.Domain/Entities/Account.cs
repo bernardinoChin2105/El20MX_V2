@@ -16,7 +16,14 @@ namespace MVC_Project.Domain.Entities
         public virtual DateTime modifiedAt { get; set; }
         public virtual string status { get; set; }
         public virtual string avatar { get; set; }
+
         public virtual string ciec { get; set; }
+        public virtual string ciecStatus { get; set; }
+
+        public virtual string cer { get; set; }
+        public virtual string key { get; set; }
+        public virtual string eFirma { get; set; }
+        public virtual string eFirmaStatus { get; set; }
 
         public virtual IList<Membership> memberships { get; set; }
         public virtual IList<BankCredential> bankCredentials { get; set; }

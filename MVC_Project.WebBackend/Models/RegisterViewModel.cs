@@ -20,7 +20,7 @@ namespace MVC_Project.WebBackend.Models
         [Required]
         [Display(Name = "Correo electrónico")]
         [EmailAddress]
-        [RegularExpression("^[a-z0-9_\\+-]+(\\.[a-z0-9_\\+-]+)*@[a-z0-9-]+(\\.[a-z0-9]+)*\\.([a-z]{2,6})$", ErrorMessage = "El Email no es válido")]
+        //[RegularExpression("^[a-z0-9_\\+-]+(\\.[a-z0-9_\\+-]+)*@[a-z0-9-]+(\\.[a-z0-9]+)*\\.([a-z]{2,6})$", ErrorMessage = "El Email no es válido")]
         public string Email { get; set; }
 
         [Required]

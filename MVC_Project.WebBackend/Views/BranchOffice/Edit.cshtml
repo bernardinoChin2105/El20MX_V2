@@ -43,77 +43,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="ibox float-e-margins">
-                            <div class="ibox-title">
-                                <h5>CIEC</h5>
-                            </div>
-                            <div class="ibox-content">
-                                <div class="form-group row">
-                                    <div class="col-12 col-md-4">
-                                        @Html.LabelFor(model => model.ciec, new { @class = "col-form-label control-label" })
-                                            <div class="input-group">
-                                                <div class="input-group-append view-ciec">
-                                                    <span class="input-group-text" title="Ver contraseña">
-                                                        <i class="fa fa-eye"></i>
-                                                    </span>
-                                                </div>
-                                                @Html.TextBoxFor(model => model.ciec, new { @class = "form-control view-ciec-input", @type = "password", @autocomplete = "off" })
-                                                @Html.ValidationMessageFor(model => model.ciec)
-                                            </div>
-                                        </div>
-                                    </div>
-                            </div>
-                        </div>
-                        <div class="ibox float-e-margins">
-                            <div class="ibox-title">
-                                <h5>FIEL</h5>
-                            </div>
-                            <div class="ibox-content">
-                                <div class="form-group row">
-                                    <div class="col-12 col-md-4">
-                                        @Html.LabelFor(model => model.cer, new { @class = "col-form-label control-label" })
-                                        <div class="custom-file form-control">
-                                            @Html.TextBoxFor(model => model.cer, new { @class = "custom-file-input", @autocomplete = "off", type = "file" })
-                                            <label for="files" class="custom-file-label"></label>
-                                            @Html.ValidationMessageFor(model => model.cer)
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12 col-md-4">
-                                        @Html.LabelFor(model => model.key, new { @class = "col-form-label control-label" })
-                                        <div class="custom-file form-control">
-                                            @Html.TextBoxFor(model => model.key, new { @class = "custom-file-input", @autocomplete = "off", type = "file" })
-                                            <label for="files" class="custom-file-label"></label>
-                                            @Html.ValidationMessageFor(model => model.key)
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        @Html.LabelFor(model => model.eFirma, new { @class = "col-form-label control-label" })
-                                        <div class="input-group">
-                                            <div class="input-group-append view-e-firma">
-                                                <span class="input-group-text" title="Ver contraseña">
-                                                    <i class="fa fa-eye"></i>
-                                                </span>
-                                            </div>
-                                            @Html.TextBoxFor(model => model.eFirma, new { @class = "form-control view-e-firma-input", @type = "password" , @autocomplete = "off" })
-                                            @Html.ValidationMessageFor(model => model.eFirma)
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        @if (!string.IsNullOrEmpty(Model.cerUrl))
-                                        {
-                                            <a href="@Model.cerUrl">.cer actual</a>
-                                        }
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        @if (!string.IsNullOrEmpty(Model.keyUrl))
-                                        {
-                                            <a href="@Model.keyUrl">.key actual</a>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        
                         <div class="ibox float-e-margins">
                             <div class="ibox-title">
                                 <h5>Domicilio fiscal</h5>

@@ -1,4 +1,5 @@
-﻿using MVC_Project.Domain.Model;
+using MVC_Project.Domain.Model;
+﻿using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
 using MVC_Project.Utils;
@@ -29,12 +30,14 @@ namespace MVC_Project.WebBackend.Controllers
         private ICustomerService _customerService;
         private IProviderService _providerService;
         private IBranchOfficeService _branchOfficeService;
+        private IInvoiceIssuedService _invoiceIssuedService;
 
         public InvoicingController(IAccountService accountService, ICustomsService customsService, ICustomsPatentService customsPatentService,
             ICustomsRequestNumberService customsRequestNumberService, ITypeInvoiceService typeInvoiceService, IUseCFDIService useCFDIService,
             ITypeRelationshipService typeRelationshipService, ITypeVoucherService typeVoucherService, ICurrencyService currencyService,
-            IPaymentFormService paymentFormService, IPaymentMethodService paymentMethodService, ICustomerService customerService,
-            IProviderService providerService, IBranchOfficeService branchOfficeService, ITaxRegimeService taxRegimeService)
+            IPaymentFormService paymentFormService, IPaymentMethodService paymentMethodService, ICustomerService customerService,             
+            IProviderService providerService, IBranchOfficeService branchOfficeService, ITaxRegimeService taxRegimeService, IInvoiceIssuedService invoiceIssuedService)
+
         {
             _accountService = accountService;
             _currencyService = currencyService;
@@ -52,6 +55,7 @@ namespace MVC_Project.WebBackend.Controllers
             _customerService = customerService;
             _providerService = providerService;
             _branchOfficeService = branchOfficeService;
+            _invoiceIssuedService = invoiceIssuedService;
         }
 
         // GET: Invoicing
@@ -208,5 +212,70 @@ namespace MVC_Project.WebBackend.Controllers
             return Json(new { success = success, message = message }, JsonRequestBehavior.AllowGet);
         }
         #endregion
+
+        public ActionResult InvoicesSaved()
+        {
+            InvoicesSavedViewModel model = new InvoicesSavedViewModel();
+            try
+            {
+                model.ListTypeInvoices = _typeVoucherService.GetAll().Select(x => new SelectListItem
+                {
+                    Text = "(" + x.code + ") " + x.Description.ToString(),
+                    Value = x.id.ToString()
+                }).ToList();
+            }
+            catch(Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+            }
+            return View(model);
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetInvoicesSaved(JQueryDataTableParams param, string filtros)
+        {
+            var listResponse = new List<InvoiceIssued>();
+            var list = new List<InvoicesSavedList>();
+
+            try
+            {
+                listResponse = _invoiceIssuedService.GetAll().ToList();
+
+                list = listResponse.Select(x => new InvoicesSavedList
+                {
+                    id = x.id,
+                    folio = x.folio,
+                    serie = x.serie,
+                    paymentMethod = x.paymentMethod,
+                    paymentForm = x.paymentForm,
+                    currency = x.currency,
+                    iva = x.iva.ToString("C2"),
+                    invoicedAt = x.invoicedAt.ToShortDateString(),
+                    invoiceType = x.invoiceType,
+                    total = x.total.ToString("C2"),
+                    subtotal = x.subtotal.ToString("C2"),
+                    xml = x.xml
+                }).ToList();
+
+                return Json(new
+                {
+                    success = true,
+                    param.sEcho,
+                    iTotalRecords = list.Count(),
+                    iTotalDisplayRecords = list,
+                    aaData = list
+                }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult
+                {
+                    Data = new { Mensaje = new { title = "Error", message = ex.Message } },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = Int32.MaxValue
+                };
+            }
+        }
     }
 }
