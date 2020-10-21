@@ -10,6 +10,23 @@ namespace MVC_Project.WebBackend.Models
     public class InvoiceViewModel
     {
         #region Información Emisor de Factura
+        [Display(Name = "Logo Empresa")]
+        public string Logo { get; set; }
+
+        [Display(Name = "Razón Social")]
+        public string BusinessName { get; set; }
+
+        [Display(Name = "RFC")]
+        public string IssuingRFC { get; set; }
+
+        [Display(Name = "Régimen Fiscal")]
+        public string IssuingTaxRegime { get; set; }
+        public string IssuingTaxRegimeId { get; set; }
+        public List<SelectListItem> ListTaxRegime { get; set; }
+
+        [Display(Name = "Núm. Cuenta Predial")]
+        public string PropertyAccountNumber { get; set; }
+
         [Required]
         [Display(Name = "Tipo de Factura")]
         public string TypeInvoice { get; set; }
@@ -26,6 +43,7 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "E-mail")]
         public Int64 EmailIssuedId { get; set; }
         public SelectList ListEmailIssued { get; set; }
+        public string IssuingTaxEmail { get; set; }
         #endregion
 
         #region Información Receptor de Facturación
@@ -79,6 +97,8 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "Serie y Folio")]
         public string SerieFolio { get; set; }
+        public string Serie { get; set; }
+        public string Folio { get; set; }
 
         [Display(Name = "Uso de CFDI")]
         public string UseCFDI { get; set; }
@@ -123,6 +143,23 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "Comentarios")]
         public string Comments { get; set; }
+
+        [Display(Name = "Impuestos")]
+        public bool TaxesChk { get; set; }
+        #endregion
+
+        #region Impuestos - depende del check de impuestos
+        [Display(Name = "Retenciones")]
+        public string Withholdings { get; set; }
+        public List<SelectListItem> ListWithholdings { get; set; }
+
+        [Display(Name = "Trasladados")]
+        public string Transferred { get; set; }
+        public List<SelectListItem> ListTransferred { get; set; }
+
+        [Display(Name = "Trasladados")]
+        public string Rate { get; set; }
+        public List<SelectListItem> ListRate { get; set; }
         #endregion
 
         #region Productos y/o Servicios a facturar        
@@ -160,6 +197,9 @@ namespace MVC_Project.WebBackend.Models
             ListPaymentMethod = new List<SelectListItem>();
             ListCurrency = new List<SelectListItem>();
             ListTypeVoucher = new List<SelectListItem>();
+            ListWithholdings = new List<SelectListItem>();
+            ListTransferred = new List<SelectListItem>();
+            ListRate = new List<SelectListItem>();
 
             ListEmailIssued = new SelectList(list);
             ListColony = new SelectList(list);
@@ -178,9 +218,6 @@ namespace MVC_Project.WebBackend.Models
 
     public class ProductServiceDescriptionView
     {
-        //[Display(Name = "#")]
-        //public int NumberLine { get; set; }
-
         [Display(Name = "Cantidad")]
         public int Quantity { get; set; }
 
@@ -204,5 +241,77 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "Subtotal")]
         public decimal Subtotal { get; set; }
+    }
+
+    public class InvoiceViewModelJson //Objeto json para guardar en formato 
+    {
+        #region Información Emisor de Factura        
+        public string Logo { get; set; }        
+        public string BusinessName { get; set; }      
+        public string IssuingRFC { get; set; }
+        public string IssuingTaxRegime { get; set; }
+        public string IssuingTaxRegimeId { get; set; }
+        public string PropertyAccountNumber { get; set; }
+        public string TypeInvoice { get; set; }
+        public string TypeRelationship { get; set; }
+        public string BranchOffice { get; set; }
+        public Int64 EmailIssuedId { get; set; }
+        public string IssuingTaxEmail { get; set; }
+        #endregion
+
+        #region Información Receptor de Facturación
+        public string CustomerName { get; set; }
+        public Int64 CustomerId { get; set; }
+        public string RFC { get; set; }
+        public Int64 RFCId { get; set; }
+        public string Street { get; set; }
+        public string OutdoorNumber { get; set; }
+        public string InteriorNumber { get; set; }
+        public Int64 Colony { get; set; }        
+        public string ZipCode { get; set; }
+        public Int64 Municipality { get; set; }
+        public Int64? State { get; set; }
+        public Int64? Country { get; set; }
+        public Int64 CustomerEmailId { get; set; }
+        #endregion
+
+        #region Datos Fiscales para Facturar
+        public string TypeVoucherId { get; set; }
+        public string SerieFolio { get; set; }
+        public string Serie { get; set; }
+        public string Folio { get; set; }
+        public string UseCFDI { get; set; }
+        public string PaymentForm { get; set; }
+        public string PaymentMethod { get; set; }
+        public string Currency { get; set; }
+        public string ExchangeRate { get; set; }
+        public string CustomsPatent { get; set; }
+        public string Customs { get; set; }
+        public string MotionNumber { get; set; }
+        #endregion
+
+        #region Condiciones y Comentarios a Facturar:
+        public string PaymentConditions { get; set; }
+        public decimal DiscountRate { get; set; }    
+        public string Comments { get; set; }
+        public bool TaxesChk { get; set; }
+        #endregion
+
+        #region Impuestos - depende del check de impuestos
+        public string Withholdings { get; set; }
+        public string Transferred { get; set; }
+        public string Rate { get; set; }
+        #endregion
+
+        #region Productos y/o Servicios a facturar        
+        public List<ProductServiceDescriptionView> ProductServices { get; set; }
+        
+        public decimal Subtotal { get; set; }
+        public decimal TotalDiscount { get; set; }
+        public decimal TaxTransferred { get; set; }
+        public decimal TaxWithheldIVA { get; set; }
+        public decimal TaxWithheldISR { get; set; }
+        public decimal Total { get; set; }
+        #endregion
     }
 }

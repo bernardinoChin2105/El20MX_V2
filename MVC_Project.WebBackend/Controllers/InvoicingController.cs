@@ -1,6 +1,8 @@
-﻿using MVC_Project.Domain.Services;
+﻿using MVC_Project.Domain.Model;
+using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
 using MVC_Project.Utils;
+using MVC_Project.WebBackend.AuthManagement;
 using MVC_Project.WebBackend.Models;
 using System;
 using System.Collections.Generic;
@@ -22,6 +24,7 @@ namespace MVC_Project.WebBackend.Controllers
         private ITypeInvoiceService _typeInvoiceService;
         private ITypeRelationshipService _typeRelationShipService;
         private ITypeVoucherService _typeVoucherService;
+        private ITaxRegimeService _taxRegimeService;
         private IUseCFDIService _useCFDIService;
         private ICustomerService _customerService;
         private IProviderService _providerService;
@@ -31,7 +34,7 @@ namespace MVC_Project.WebBackend.Controllers
             ICustomsRequestNumberService customsRequestNumberService, ITypeInvoiceService typeInvoiceService, IUseCFDIService useCFDIService,
             ITypeRelationshipService typeRelationshipService, ITypeVoucherService typeVoucherService, ICurrencyService currencyService,
             IPaymentFormService paymentFormService, IPaymentMethodService paymentMethodService, ICustomerService customerService,
-            IProviderService providerService, IBranchOfficeService branchOfficeService)
+            IProviderService providerService, IBranchOfficeService branchOfficeService, ITaxRegimeService taxRegimeService)
         {
             _accountService = accountService;
             _currencyService = currencyService;
@@ -43,6 +46,7 @@ namespace MVC_Project.WebBackend.Controllers
             _typeInvoiceService = typeInvoiceService;
             _typeRelationShipService = typeRelationshipService;
             _typeVoucherService = typeVoucherService;
+            _taxRegimeService = taxRegimeService;
             _useCFDIService = useCFDIService;
 
             _customerService = customerService;
@@ -59,10 +63,19 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult Invoice()
         {
             InvoiceViewModel model = new InvoiceViewModel();
+            var authUser = Authenticator.AuthenticatedUser;
             try
             {
-                SetCombos(ref model);
+                //obtener información de mi emisor                
+                var account = authUser.Account;
+                model.IssuingRFC = account.RFC;
+                model.BusinessName = account.Name;
+                model.IssuingTaxEmail = authUser.Email; //Preguntar si este sería o buscaar el fiscal
+                //model.IssuingTaxRegime = ""; //Faltan estos datos del cliente
+                //model.IssuingTaxRegimeId = "";//Faltan estos datos del cliente
 
+                //Obtener listas de los combos
+                SetCombos(ref model);
             }
             catch (Exception ex)
             {
@@ -74,13 +87,13 @@ namespace MVC_Project.WebBackend.Controllers
 
         private void SetCombos(ref InvoiceViewModel model)
         {
-            model.ListTypeInvoices = _typeInvoiceService.GetAll().Select(x => new SelectListItem
+            model.ListTaxRegime = _taxRegimeService.GetAll().Select(x => new SelectListItem
             {
-                Text = x.description.ToString(),
+                Text = "(" + x.code + ") " + x.description.ToString(),
                 Value = x.id.ToString()
             }).ToList();
 
-            model.ListTypeVoucher = _typeVoucherService.GetAll().Select(x => new SelectListItem
+            model.ListTypeInvoices = _typeVoucherService.GetAll().Select(x => new SelectListItem
             {
                 Text = "(" + x.code + ") " + x.Description.ToString(),
                 Value = x.id.ToString()
@@ -138,5 +151,62 @@ namespace MVC_Project.WebBackend.Controllers
                 return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        #region
+        //Busca a los cliente o proveedores por rfc o razon social
+        public JsonResult GetSearchReceiver(string field, string value, string typeInvoice)
+        {
+            bool success = false;
+            string message = string.Empty;
+            List<ListCustomersAC> result = new List<ListCustomersAC>();
+            try
+            {
+                ReceiverFilter filters = new ReceiverFilter();
+                if (typeInvoice != "-1") filters.typeInvoice = typeInvoice;
+
+                if (value != "")
+                {
+                    if (field == "RFC")
+                    {
+                        filters.rfc = value;
+                    }
+                    else if (field == "Name")
+                    {
+                        filters.businessName = value;
+                    }
+                }
+
+                result = _customerService.ReceiverSearchList(filters);
+                if (result != null)
+                {
+                    success = true;
+                }       
+            }
+            catch (Exception ex)
+            {
+                success = false;
+                message = ex.Message.ToString();
+            }
+
+            return Json(new { success = success, message = message, data = result }, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetReceiverInformation(Int64 AccountId)
+        {
+            bool success = false;
+            string message = string.Empty;
+            try
+            {
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                success = false;
+                message = ex.Message.ToString();
+
+            }
+            return Json(new { success = success, message = message }, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
     }
 }

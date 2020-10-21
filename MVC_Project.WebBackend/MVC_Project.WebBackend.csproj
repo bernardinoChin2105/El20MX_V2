@@ -1817,6 +1817,7 @@
     <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
     <Content Include="Scripts\views\BranchOffice\Index.js" />
+    <Content Include="Scripts\views\Invoicing\Invoice.js" />
     <Content Include="Scripts\views\Promotion\Index.js" />
     <Content Include="Scripts\views\Alliance\Index.js" />
     <Content Include="Scripts\views\Ally\Index.js" />
