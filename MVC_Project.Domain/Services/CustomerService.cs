@@ -19,7 +19,7 @@ namespace MVC_Project.Domain.Services
         List<string> ValidateRFC(List<string> rfcs, Int64 id);
         List<InvoicesIssuedList> CustomerCDFIList(BasePagination pagination, CustomerCFDIFilter filter);
         List<ListCustomersAC> ListCustomerAutoComplete(Int64 id);
-        List<ListCustomersAC> ReceiverSearchList(ReceiverFilter filter);
+        List<ListCustomersProvider> ReceiverSearchList(ReceiverFilter filter);
     }
 
     public class CustomerService : ServiceBase<Customer>, ICustomerService
@@ -122,16 +122,16 @@ namespace MVC_Project.Domain.Services
             return null;
         }
 
-        public List<ListCustomersAC> ReceiverSearchList(ReceiverFilter filter)
+        public List<ListCustomersProvider> ReceiverSearchList(ReceiverFilter filter)
         {
             var list = _repository.Session.CreateSQLQuery("exec dbo.st_receiverSearchList " +
-                "@uuid =:uuid, @rfc=:rfc, @businessName=:businessName, @typeIncoive=:typeIncoive ")                   
+                "@uuid =:uuid, @rfc=:rfc, @businessName=:businessName, @typeInvoice=:typeInvoice ")                   
                     .SetParameter("uuid", filter.uuid)
                     .SetParameter("rfc", filter.rfc)
                     .SetParameter("businessName", filter.businessName)
-                    .SetParameter("typeIncoive", filter.typeInvoice)
-                    .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(ListCustomersAC)))
-                    .List<ListCustomersAC>();
+                    .SetParameter("typeInvoice", filter.typeInvoice)
+                    .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(ListCustomersProvider)))
+                    .List<ListCustomersProvider>();
 
             if (list != null) return list.ToList();
             return null;

@@ -78,11 +78,11 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, codeSATUr
         //    El20Utils.ocultarCargador();
         //});
 
-        $.validator.addMethod("Alphanumeric",
-            function (value, element) {
-                return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
-            }, "El campo debe ser alfanumérico"
-        );
+        //$.validator.addMethod("Alphanumeric",
+        //    function (value, element) {
+        //        return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
+        //    }, "El campo debe ser alfanumérico"
+        //);
 
         //$("#SearchForm").validate({
         //    rules: {
@@ -100,23 +100,66 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, codeSATUr
         //        },
 
         //    }
-        //});        
+        //});   
+
+        //Validar si el régimen es de arrandamiento para habilitar el campo de numero de cuenta
+        $("#IssuingTaxRegimeId").change(function () {
+            console.log("valor", $(this).val());
+            var val = $(this).val();
+            if (val === "606")
+                $("#PropertyAccNum").removeClass("hide");
+            else
+            {
+                $("#PropertyAccNum").addClass("hide");
+                $("#PropertyAccountNumber").val("");
+            }
+        });
+
+        //Validar el checkbox de impuestos
+        $('input').on('ifClicked', function (ev) {
+            $(ev.target).click();
+        });
+
+        $("#TaxesChk").click(function () {
+            console.log("estoy dento", !this.checked);
+            var taxes = $("#taxes");                
+
+            if (!this.checked) {
+                taxes.addClass("hide");
+                $("#Withholdings").val("");
+                $("#Transferred").val("");
+                $("#Valuation").val("");
+            }
+            else
+                taxes.removeClass("hide");
+        });       
 
         //Buscar información del cliente por Razon Social
         $('#CustomerName').typeahead({
             source: function (query, process) {
                 console.log(query, process, "esto trae");
                 var type = $("#TypeInvoice").val();
-                return $.get(self.searchUrl + "?field=Name&value=" + query + "&typeInvoice=" + type, function (data) {
-                    console.log(data, "respuesta");
+                return $.get(self.searchUrl + "?field=Name&value=" + query + "&typeInvoice=" + type, function (result) {
+                    console.log(result, "respuesta");
 
-                    //var resultList = data.map(function (item) {
-                    //    var aItem = { id: item.Id, name: item.Name };
-                    //    return JSON.stringify(aItem);
-                    //});
-
-                    return process(data.search_results);
+                    var resultList = result.data.map(function (item) {
+                        var aItem = { id: item.id, name: item.businessName };
+                        return JSON.stringify(aItem);
+                    });
+                    return process(resultList);
                 });
+            },
+            highlighter: function (obj) {
+                var item = JSON.parse(obj);
+                var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+                return item.name.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+                    return '<strong>' + match + '</strong>';
+                });
+            },
+            updater: function (obj) {
+                var item = JSON.parse(obj);
+                $('#RFCId').attr('value', item.id);
+                return item.name;
             }
         });
 
@@ -125,16 +168,43 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, codeSATUr
             source: function (query, process) {
                 console.log(query, process, "esto trae");
                 var type = $("#TypeInvoice").val();
-                return $.get(self.searchUrl + "?field=RFC&value=" + query + "&typeInvoice=" + type, function (data) {
-                    console.log(data, "respuesta");
-                    return process(data.search_results);
+                return $.get(self.searchUrl + "?field=RFC&value=" + query + "&typeInvoice=" + type, function (result) {
+                    console.log(result.data, "respuesta");
+                    var resultList = result.data.map(function (item) {
+                        var aItem = { id: item.id, name: item.rfc };
+                        return JSON.stringify(aItem);
+                    });
+                    return process(resultList);
                 });
+            },
+            //matcher: function (obj) {
+            //    var item = JSON.parse(obj);
+            //    return ~item.name.toLowerCase().indexOf(this.query.toLowerCase());
+            //},
+            //sorter: function (items) {
+            //    var beginswith = [], caseSensitive = [], caseInsensitive = [], item;
+            //    while (aItem = items.shift()) {
+            //        var item2 = JSON.parse(aItem);
+            //        if (!item.name.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(JSON.stringify(item));
+            //        else if (~item.name.indexOf(this.query)) caseSensitive.push(JSON.stringify(item));
+            //        else caseInsensitive.push(JSON.stringify(item));
+            //    }
+
+            //    return beginswith.concat(caseSensitive, caseInsensitive);
+            //},
+            highlighter: function (obj) {
+                var item = JSON.parse(obj);
+                var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+                return item.name.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+                    return '<strong>' + match + '</strong>';
+                });
+            },
+            updater: function (obj) {
+                var item = JSON.parse(obj);
+                $('#RFCId').attr('value', item.id);
+                return item.name;
             }
         });
-
-        //$.get(self.autocompleteURL, function (data) {
-        //    $(".typeahead_2").typeahead({ source: data.Data });
-        //}, 'json');
     };
 
 };

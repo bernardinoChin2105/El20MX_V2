@@ -31,12 +31,14 @@ namespace MVC_Project.WebBackend.Controllers
         private IProviderService _providerService;
         private IBranchOfficeService _branchOfficeService;
         private IInvoiceIssuedService _invoiceIssuedService;
+        private IProductServiceKeyService _productServiceKeyService;
 
         public InvoicingController(IAccountService accountService, ICustomsService customsService, ICustomsPatentService customsPatentService,
             ICustomsRequestNumberService customsRequestNumberService, ITypeInvoiceService typeInvoiceService, IUseCFDIService useCFDIService,
             ITypeRelationshipService typeRelationshipService, ITypeVoucherService typeVoucherService, ICurrencyService currencyService,
             IPaymentFormService paymentFormService, IPaymentMethodService paymentMethodService, ICustomerService customerService,             
-            IProviderService providerService, IBranchOfficeService branchOfficeService, ITaxRegimeService taxRegimeService, IInvoiceIssuedService invoiceIssuedService)
+            IProviderService providerService, IBranchOfficeService branchOfficeService, ITaxRegimeService taxRegimeService, IInvoiceIssuedService invoiceIssuedService,
+            IProductServiceKeyService productServiceKeyService)
 
         {
             _accountService = accountService;
@@ -56,6 +58,7 @@ namespace MVC_Project.WebBackend.Controllers
             _providerService = providerService;
             _branchOfficeService = branchOfficeService;
             _invoiceIssuedService = invoiceIssuedService;
+            _productServiceKeyService = productServiceKeyService;
         }
 
         // GET: Invoicing
@@ -94,19 +97,19 @@ namespace MVC_Project.WebBackend.Controllers
             model.ListTaxRegime = _taxRegimeService.GetAll().Select(x => new SelectListItem
             {
                 Text = "(" + x.code + ") " + x.description.ToString(),
-                Value = x.id.ToString()
+                Value = x.code.ToString()
             }).ToList();
 
             model.ListTypeInvoices = _typeVoucherService.GetAll().Select(x => new SelectListItem
             {
                 Text = "(" + x.code + ") " + x.Description.ToString(),
-                Value = x.id.ToString()
+                Value = x.code.ToString()
             }).ToList();
 
             model.ListTypeRelationship = _typeRelationShipService.GetAll().Select(x => new SelectListItem
             {
                 Text = "(" + x.code + ") " + x.description.ToString(),
-                Value = x.id.ToString()
+                Value = x.code.ToString()
             }).ToList();
 
             model.ListBranchOffice = _branchOfficeService.GetAll().Select(x => new SelectListItem
@@ -118,26 +121,65 @@ namespace MVC_Project.WebBackend.Controllers
             model.ListUseCFDI = _useCFDIService.GetAll().Select(x => new SelectListItem
             {
                 Text = "(" + x.code + ") " + x.description.ToString(),
-                Value = x.id.ToString()
+                Value = x.code.ToString()
             }).ToList();
 
             model.ListPaymentForm = _paymentFormService.GetAll().Select(x => new SelectListItem
             {
                 Text = "(" + x.code + ") " + x.Description.ToString(),
-                Value = x.id.ToString()
+                Value = x.code.ToString()
             }).ToList();
 
             model.ListPaymentMethod = _paymentMethodService.GetAll().Select(x => new SelectListItem
             {
                 Text = "(" + x.code + ") " + x.Description.ToString(),
-                Value = x.id.ToString()
+                Value = x.code.ToString()
             }).ToList();
 
             model.ListCurrency = _currencyService.GetAll().Select(x => new SelectListItem
             {
                 Text = "(" + x.code + ") " + x.description.ToString(),
-                Value = x.id.ToString()
+                Value = x.code.ToString()
             }).ToList();
+
+            model.ListCustoms = _customsService.GetAll().Select(x => new SelectListItem
+            {
+                Text = "(" + x.code + ") " + x.description.ToString(),
+                Value = x.code.ToString()
+            }).ToList();
+
+            model.ListCustomsPatent = _customsPatentService.GetAll().Select(x => new SelectListItem
+            {
+                Text = x.code.ToString(),
+                Value = x.code.ToString()
+            }).ToList();
+
+            model.ListMotionNumber = _customsRequestNumberService.GetAll().Select(x => new SelectListItem
+            {
+                Text = "(" + x.code + ") " + x.patent.ToString(),
+                Value = x.code.ToString()
+            }).ToList();
+
+            model.ListWithholdings = Enum.GetValues(typeof(TypeRetention)).Cast<TypeRetention>()
+                   .Select(e => new SelectListItem
+                   {
+                       Value = e.ToString(),
+                       Text = EnumUtils.GetDescription(e)
+                   }).ToList();
+
+            model.ListValuation = Enum.GetValues(typeof(TypeValuation)).Cast<TypeValuation>()
+                   .Select(e => new SelectListItem
+                   {
+                       Value = ((int)e).ToString(),
+                       Text = EnumUtils.GetDescription(e)
+                   }).ToList();
+
+            model.ListTransferred = Enum.GetValues(typeof(TypeTransferred)).Cast<TypeTransferred>()
+                    .Select(e => new SelectListItem
+                    {
+                        Value = e.ToString(),
+                        Text = EnumUtils.GetDescription(e)
+                    }).ToList();
         }
 
         public JsonResult GetSerieFolio(Int64 sucursalId)
@@ -160,12 +202,17 @@ namespace MVC_Project.WebBackend.Controllers
         //Busca a los cliente o proveedores por rfc o razon social
         public JsonResult GetSearchReceiver(string field, string value, string typeInvoice)
         {
+            var authUser = Authenticator.AuthenticatedUser;
             bool success = false;
             string message = string.Empty;
-            List<ListCustomersAC> result = new List<ListCustomersAC>();
+            List<ListCustomersProvider> result = new List<ListCustomersProvider>();
             try
             {
-                ReceiverFilter filters = new ReceiverFilter();
+                ReceiverFilter filters = new ReceiverFilter()
+                {
+                    uuid = authUser.Account.Id.ToString()
+                };
+
                 if (typeInvoice != "-1") filters.typeInvoice = typeInvoice;
 
                 if (value != "")
@@ -183,6 +230,12 @@ namespace MVC_Project.WebBackend.Controllers
                 result = _customerService.ReceiverSearchList(filters);
                 if (result != null)
                 {
+                    //Validar que los datos no sean vacios por los nombres
+                    result = result.Select(c => {
+                        c.businessName = (c.first_name != null || c.last_name != null? c.first_name + " " + c.last_name : c.businessName);
+                        return c;
+                    }).ToList();
+
                     success = true;
                 }       
             }
@@ -195,6 +248,7 @@ namespace MVC_Project.WebBackend.Controllers
             return Json(new { success = success, message = message, data = result }, JsonRequestBehavior.AllowGet);
         }
 
+        //obtenet la información del cliente
         public JsonResult GetReceiverInformation(Int64 AccountId)
         {
             bool success = false;
@@ -210,6 +264,29 @@ namespace MVC_Project.WebBackend.Controllers
 
             }
             return Json(new { success = success, message = message }, JsonRequestBehavior.AllowGet);
+        }
+
+        //Obtener listado de productos por codigo
+        public JsonResult GetProdServSAT(string Concept)
+        {
+            bool success = false;
+            string message = string.Empty;
+            List<ProductServiceKeyViewModel> result = new List<ProductServiceKeyViewModel>();
+            try
+            {                
+                result = _productServiceKeyService.GetProdServ(Concept);
+
+                if (result != null)
+                {
+                    success = true;
+                }
+            }
+            catch (Exception ex)
+            {                
+                message = ex.Message.ToString();
+            }
+
+            return Json(new { success = success, message = message, data = result }, JsonRequestBehavior.AllowGet);
         }
         #endregion
 
