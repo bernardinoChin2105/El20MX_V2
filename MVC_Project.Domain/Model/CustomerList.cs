@@ -114,4 +114,16 @@ namespace MVC_Project.Domain.Model
         public string first_name { get; set; }
         public string last_name { get; set; }
     }
+
+    public class ListCustomersProvider
+    {
+        public Int64 id { get; set; }
+        public string rfc { get; set; }
+        public string businessName { get; set; }
+        public string first_name { get; set; }
+        public string last_name { get; set; }
+        public string taxRegime { get; set; }
+    }
+
+    
 }

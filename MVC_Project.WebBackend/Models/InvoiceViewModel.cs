@@ -90,10 +90,10 @@ namespace MVC_Project.WebBackend.Models
         #endregion
 
         #region Datos Fiscales para Facturar
-        [Required]
-        [Display(Name = "Tipo Comprobante")]
-        public string TypeVoucherId { get; set; }
-        public List<SelectListItem> ListTypeVoucher { get; set; }
+        //[Required]
+        //[Display(Name = "Tipo Comprobante")]
+        //public string TypeVoucherId { get; set; }
+        //public List<SelectListItem> ListTypeVoucher { get; set; }
 
         [Display(Name = "Serie y Folio")]
         public string SerieFolio { get; set; }
@@ -118,25 +118,25 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "Tipo de Cambio")]
         public string ExchangeRate { get; set; }
-        public SelectList ListExchangeRate { get; set; }
+        public List<SelectListItem> ListExchangeRate { get; set; }
 
         [Display(Name = "Patente Aduanal")]
         public string CustomsPatent { get; set; }
-        public SelectList ListCustomsPatent { get; set; }
+        public List<SelectListItem> ListCustomsPatent { get; set; }
 
         [Display(Name = "Aduana")]
         public string Customs { get; set; }
-        public SelectList ListCustoms { get; set; }
+        public List<SelectListItem> ListCustoms { get; set; }
 
         [Display(Name = "Núm. Pedimento")]
         public string MotionNumber { get; set; }
-        public SelectList ListMotionNumber { get; set; }
+        public List<SelectListItem> ListMotionNumber { get; set; }
         #endregion
 
         #region Condiciones y Comentarios a Facturar:
         [Display(Name = "Condiciones de Pago")]
         public string PaymentConditions { get; set; }
-        public SelectList ListPaymentConditions { get; set; }
+        //public SelectList ListPaymentConditions { get; set; }
 
         [Display(Name = "% Descuento")]
         public decimal DiscountRate { get; set; }
@@ -157,9 +157,9 @@ namespace MVC_Project.WebBackend.Models
         public string Transferred { get; set; }
         public List<SelectListItem> ListTransferred { get; set; }
 
-        [Display(Name = "Trasladados")]
-        public string Rate { get; set; }
-        public List<SelectListItem> ListRate { get; set; }
+        [Display(Name = "Tasa")]
+        public string Valuation { get; set; }
+        public List<SelectListItem> ListValuation { get; set; }
         #endregion
 
         #region Productos y/o Servicios a facturar        
@@ -196,10 +196,13 @@ namespace MVC_Project.WebBackend.Models
             ListPaymentForm = new List<SelectListItem>();
             ListPaymentMethod = new List<SelectListItem>();
             ListCurrency = new List<SelectListItem>();
-            ListTypeVoucher = new List<SelectListItem>();
             ListWithholdings = new List<SelectListItem>();
             ListTransferred = new List<SelectListItem>();
-            ListRate = new List<SelectListItem>();
+            ListValuation = new List<SelectListItem>();
+            ListCustomsPatent = new List<SelectListItem>();
+            ListCustoms = new List<SelectListItem>();
+            ListMotionNumber = new List<SelectListItem>();
+            ListExchangeRate = new List<SelectListItem>();
 
             ListEmailIssued = new SelectList(list);
             ListColony = new SelectList(list);
@@ -207,12 +210,9 @@ namespace MVC_Project.WebBackend.Models
             ListState = new SelectList(list);
             ListCountry = new SelectList(list);
             ListCustomerEmail = new SelectList(list);
-            ListExchangeRate = new SelectList(list);
-            ListCustomsPatent = new SelectList(list);
-            ListCustoms = new SelectList(list);
-            ListMotionNumber = new SelectList(list);
-            ListPaymentConditions = new SelectList(list);
             ProductServices = new List<ProductServiceDescriptionView>();
+
+
         }
     }
 
