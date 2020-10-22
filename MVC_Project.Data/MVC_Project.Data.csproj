@@ -112,6 +112,7 @@
     <Compile Include="Mappings\QuotationMap.cs" />
     <Compile Include="Mappings\TaxMap.cs" />
     <Compile Include="Mappings\TaxRegimeMap.cs" />
+    <Compile Include="Mappings\TypeInvoiceMap.cs" />
     <Compile Include="Mappings\TypeRelationshipMap.cs" />
     <Compile Include="Mappings\TypeVoucherMap.cs" />
     <Compile Include="Mappings\CurrencyMap.cs" />

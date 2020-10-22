@@ -23,7 +23,15 @@ namespace MVC_Project.Domain.Model
         public string rfc { get; set; }
         public string businessName { get; set; }
         public string email { get; set; }
-    }    
+    }
+
+    public class ReceiverFilter
+    {
+        public string uuid { get; set; }
+        public string rfc { get; set; }
+        public string businessName { get; set; }
+        public string typeInvoice { get; set; }
+    }
 
     public class ExportListCustomer
     {
