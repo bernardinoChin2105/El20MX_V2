@@ -205,7 +205,7 @@ namespace MVC_Project.WebBackend.Controllers
             var authUser = Authenticator.AuthenticatedUser;
             bool success = false;
             string message = string.Empty;
-            List<ListCustomersAC> result = new List<ListCustomersAC>();
+            List<ListCustomersProvider> result = new List<ListCustomersProvider>();
             try
             {
                 ReceiverFilter filters = new ReceiverFilter()

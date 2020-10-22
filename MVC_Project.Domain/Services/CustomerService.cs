@@ -130,8 +130,8 @@ namespace MVC_Project.Domain.Services
                     .SetParameter("rfc", filter.rfc)
                     .SetParameter("businessName", filter.businessName)
                     .SetParameter("typeInvoice", filter.typeInvoice)
-                    .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(ListCustomersAC)))
-                    .List<ListCustomersAC>();
+                    .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(ListCustomersProvider)))
+                    .List<ListCustomersProvider>();
 
             if (list != null) return list.ToList();
             return null;

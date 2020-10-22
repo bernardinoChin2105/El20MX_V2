@@ -140,10 +140,10 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, codeSATUr
                 console.log(query, process, "esto trae");
                 var type = $("#TypeInvoice").val();
                 return $.get(self.searchUrl + "?field=Name&value=" + query + "&typeInvoice=" + type, function (result) {
-                    console.log(data, "respuesta");
+                    console.log(result, "respuesta");
 
                     var resultList = result.data.map(function (item) {
-                        var aItem = { id: item.id, name: item.rfc };
+                        var aItem = { id: item.id, name: item.businessName };
                         return JSON.stringify(aItem);
                     });
                     return process(resultList);
@@ -205,11 +205,6 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, codeSATUr
                 return item.name;
             }
         });
-
-
-        //$.get(self.autocompleteURL, function (data) {
-        //    $(".typeahead_2").typeahead({ source: data.Data });
-        //}, 'json');
     };
 
 };
