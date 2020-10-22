@@ -595,6 +595,12 @@ var El20Utils = El20Utils || {};
     };
 
     //Methods
+    x.mostrarCargadorForzado = function () {
+        $('#CargadorPantalla').modal({
+            backdrop: 'static',
+            keyboard: false
+        });
+    };
     x.mostrarCargador = function () {
         $('#CargadorPantalla').modal('show');
     };

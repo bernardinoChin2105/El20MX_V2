@@ -186,6 +186,20 @@ namespace MVC_Project.Integrations.SAT
             return satModel;
         }
 
+        public static SatAuthResponseModel CreateCredentialEfirma(EfirmaModel model)
+        {
+            SatAuthResponseModel satModel = new SatAuthResponseModel();
+
+            string url = "/credentials";
+
+            //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
+            var responseSat = SATws.CallServiceSATws(url, model, "Post");
+
+            satModel = JsonConvert.DeserializeObject<SatAuthResponseModel>(responseSat);
+
+            return satModel;
+        }
+
         //Obtener idCredencial del RFC
         public static SatAuthResponseModel GetCredentialSat(string idCredential)
         {

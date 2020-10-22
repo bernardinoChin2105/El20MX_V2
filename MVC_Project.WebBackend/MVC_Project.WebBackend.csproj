@@ -288,6 +288,7 @@
     <Compile Include="Models\BankViewModel.cs" />
     <Compile Include="Models\BranchOfficeViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
+    <Compile Include="Models\CredentialViewModel.cs" />
     <Compile Include="Models\InvoiceViewModel.cs" />
     <Compile Include="Models\PlanViewModel.cs" />
     <Compile Include="Models\InvoicesVM.cs" />
@@ -1841,6 +1842,7 @@
     <Content Include="Scripts\views\Quotation\Index.js" />
     <Content Include="Scripts\views\Reports\OrderIndex.js" />
     <Content Include="Scripts\views\rol\Index.js" />
+    <Content Include="Scripts\views\SAT\Index.js" />
     <Content Include="Scripts\views\UserPermission\Index.js" />
     <Content Include="Scripts\views\user\Index.js" />
     <Content Include="Web.config">

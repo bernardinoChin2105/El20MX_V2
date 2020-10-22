@@ -9,12 +9,37 @@ namespace MVC_Project.Integrations.SAT
 {
     public class SATService
     {
+        public static string GetCredentialStatusSat(string credentialId, string provider)
+        {
+            var SATResponse = SATwsService.GetCredentialSat(credentialId);
+
+            if (SATResponse.status == "valid")
+                return SystemStatus.ACTIVE.ToString();
+            else
+                return SystemStatus.INACTIVE.ToString();
+        }
+
         public static CredentialsResponse CreateCredential(CredentialRequest request, string provider)
         {
             if (provider == SystemProviders.SATWS.ToString())
             {
                 var loginSat = new LogInSATModel { rfc = request.rfc, password = request.ciec, type = "ciec" };
                 var satModel = SATwsService.CreateCredentialSat(loginSat);
+
+                return new CredentialsResponse { id = satModel.id, status = satModel.status };
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
+        public static CredentialsResponse CreateCredentialEfirma(string cer, string key, string password, string provider)
+        {
+            if (provider == SystemProviders.SATWS.ToString())
+            {
+                var loginSat = new EfirmaModel { certificate = cer, privateKey=key, password = password, type = "efirma" };
+                var satModel = SATwsService.CreateCredentialEfirma(loginSat);
 
                 return new CredentialsResponse { id = satModel.id, status = satModel.status };
             }

@@ -24,13 +24,16 @@ namespace MVC_Project.WebBackend.Models
 
         [DisplayName("ciec")]
         public string ciec { get; set; }
-        [DisplayName("e.firma")]
-        public string eFirma { get; set; }
+        [DisplayName("efirma")]
+        public string efirma { get; set; }
 
         [DisplayName("Conexión CIEC")]
         public string ciecStatus { get; set; }
         [DisplayName("Conexión FIEL")]
-        public string fielStatus { get; set; }
+        public string efirmaStatus { get; set; }
+
+        public string ciecUuid { get; set; }
+        public string efirmaUuid { get; set; }
 
         [DisplayName("Avatar")]
         public string avatar { get; set; }
