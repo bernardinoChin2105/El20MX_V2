@@ -22,6 +22,19 @@ namespace MVC_Project.Integrations.SAT
         }
     }
 
+    public class EfirmaModel
+    {
+        public string type { get; set; }
+        public string certificate { get; set; }
+        public string privateKey { get; set; }
+        public string password { get; set; }
+
+        public EfirmaModel()
+        {
+            type = "efirma";
+        }
+    }
+
     public class SatAuthResponseModel
     {
         public string id { get; set; }

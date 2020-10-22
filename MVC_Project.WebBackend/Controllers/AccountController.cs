@@ -223,6 +223,7 @@ namespace MVC_Project.WebBackend.Controllers
                     var credential = new Domain.Entities.Credential()
                     {
                         account = account,
+                        uuid = Guid.NewGuid(),
                         provider = provider,
                         idCredentialProvider = satModel.id,
                         statusProvider = satModel.status,
@@ -256,6 +257,7 @@ namespace MVC_Project.WebBackend.Controllers
                         credential = new Domain.Entities.Credential()
                         {
                             account = account,
+                            uuid=Guid.NewGuid(),
                             provider = provider,
                             idCredentialProvider = satModel.id,
                             statusProvider = satModel.status,

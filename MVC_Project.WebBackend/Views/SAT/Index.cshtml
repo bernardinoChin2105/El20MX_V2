@@ -1,4 +1,5 @@
 ﻿@model MVC_Project.WebBackend.Models.SATViewModel
+@using MVC_Project.Utils
 
 @{
     ViewBag.Title = "Sucursales";
@@ -10,6 +11,23 @@
         /* Limit image width to avoid overflow the container */
         img {
             max-width: 100%; /* This rule is very important, please do not ignore this! */
+        }
+
+        .label {
+            cursor: pointer;
+        }
+
+        .progress {
+            display: none;
+            margin-bottom: 1rem;
+        }
+
+        .alert {
+            display: none;
+        }
+
+        .img-container img {
+            max-width: 100%;
         }
     </style>
     <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
@@ -27,7 +45,9 @@
                     @using (Html.BeginForm("Edit", "SATController", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "EditForm", @enctype = "multipart/form-data" }))
                     {
                         @Html.AntiForgeryToken()
-                        @Html.HiddenFor(x => x.id);
+                        @Html.HiddenFor(x => x.id)
+                        @Html.HiddenFor(x => x.ciecUuid)
+                        @Html.HiddenFor(x => x.efirmaUuid)
                         <div class="form-horizontal">
                             @Html.ValidationSummary(true)
                             <div class="ibox float-e-margins">
@@ -43,27 +63,35 @@
                                         </div>
                                         <div class="col-12 col-md-4">
                                             @Html.LabelFor(model => model.name, new { @class = "col-form-label control-label" })
-                                            @Html.TextBoxFor(model => model.name, new { @class = "form-control", required = "required", @autocomplete = "off" })
+                                            @Html.TextBoxFor(model => model.name, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
                                             @Html.ValidationMessageFor(model => model.name)
                                         </div>
                                         <div class="col-12 col-md-4">
-                                            <div class="col-md-3">
-                                                <img id="image" src="/Content/img/profile_small.jpg">
-
+                                            <label class="label" data-toggle="tooltip" title="Cambiar imagen" data-original-title="Cambiar imagen">
+                                                <img id="avatar" src="/Content/img/profile_small.jpg">
+                                                <input type="file" class="sr-only" id="input" name="image" accept="image/*">
+                                            </label>
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
                                             </div>
-                                            <div class="col-md-1">
-                                                <label title="Subir imagen" for="inputImage" class="btn btn-default btn-sm" style="margin-top:100%">
-                                                    <input type="file" accept="image/*" name="file" id="inputImage" style="display:none">
-                                                    <i class="fas fa-upload"></i>
-                                                </label>
-                                            </div>
+                                            <div class="alert" role="alert"></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="ibox float-e-margins">
                                 <div class="ibox-title">
-                                    <h5>CIEC</h5>
+
+                                    @if (Model.ciecStatus == SystemStatus.ACTIVE.ToString())
+                                    {
+                                        <i class="fa fa-thumbs-up btn btn-primary btn-circle btn-lg" title="Estatus de conexión"></i>
+                                    }
+                                    else
+                                    {
+                                       <i class="fa fa-thumbs-down btn btn-danger btn-circle btn-lg" title="Estatus de conexión"></i>
+                                    }
+
+                                    <h5> CIEC </h5>
                                 </div>
                                 <div class="ibox-content">
                                     <div class="form-group row">
@@ -79,19 +107,33 @@
                                                 @Html.ValidationMessageFor(model => model.ciec)
                                             </div>
                                         </div>
+                                        @if (Model.ciecStatus != SystemStatus.ACTIVE.ToString())
+                                        {
+                                            <div class="col-12 col-md-4">
+                                                <button class="btn btn-color" type="button" id="btn-ciec" style="margin-top:35px"><i class="fas fa-sign-in-alt"></i> Validar ciec </button> 
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
                             <div class="ibox float-e-margins">
                                 <div class="ibox-title">
-                                    <h5>FIEL</h5>
+                                    @if (Model.efirmaStatus == SystemStatus.ACTIVE.ToString())
+                                    {
+                                        <i class="fa fa-thumbs-up btn btn-primary btn-circle btn-lg" title="Estatus de conexión"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa fa-thumbs-down btn btn-danger btn-circle btn-lg" title="Estatus de conexión"></i>
+                                    }
+                                    <h5> FIEL </h5>
                                 </div>
                                 <div class="ibox-content">
                                     <div class="form-group row">
                                         <div class="col-12 col-md-4">
                                             @Html.LabelFor(model => model.cer, new { @class = "col-form-label control-label" })
                                             <div class="custom-file form-control">
-                                                @Html.TextBoxFor(model => model.cer, new { @class = "custom-file-input", @autocomplete = "off", type = "file" })
+                                                @Html.TextBoxFor(model => model.cer, new { @class = "custom-file-input", @autocomplete = "off", type = "file", @accept = "application/x-x509-ca-cert" })
                                                 <label for="files" class="custom-file-label"></label>
                                                 @Html.ValidationMessageFor(model => model.cer)
                                             </div>
@@ -106,15 +148,15 @@
                                             </div>
                                         </div>
                                         <div class="col-12 col-md-4">
-                                            @Html.LabelFor(model => model.eFirma, new { @class = "col-form-label control-label" })
+                                            @Html.LabelFor(model => model.efirma, new { @class = "col-form-label control-label" })
                                             <div class="input-group">
                                                 <div class="input-group-append view-e-firma">
                                                     <span class="input-group-text" title="Ver contraseña">
                                                         <i class="fa fa-eye"></i>
                                                     </span>
                                                 </div>
-                                                @Html.TextBoxFor(model => model.eFirma, new { @class = "form-control view-e-firma-input", @type = "password", @autocomplete = "off" })
-                                                @Html.ValidationMessageFor(model => model.eFirma)
+                                                @Html.TextBoxFor(model => model.efirma, new { @class = "form-control view-e-firma-input", @type = "password", @autocomplete = "off" })
+                                                @Html.ValidationMessageFor(model => model.efirma)
                                             </div>
                                         </div>
                                         <div class="col-12 col-md-4">
@@ -129,16 +171,43 @@
                                                 <a href="@Model.keyUrl">.key actual</a>
                                             }
                                         </div>
+                                        @if (Model.efirmaStatus != SystemStatus.ACTIVE.ToString())
+                                        {
+                                            <div class="col-12 col-md-4 text-right">
+                                                <button class="btn btn-color" type="button" id="btn-efirma" style="margin-top:35px"><i class="fas fa-sign-in-alt"></i> Validar efirma</button>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group row pull-right">
+                            @*<div class="form-group row pull-right">
                                 <div class="col-md-8 offset-2 text-right">
                                     <button type="button" id="btn-save" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
                                 </div>
-                            </div>
+                            </div>*@
                         </div>
                     }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Crop the image</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="img-container">
+                        <img id="image" src="./Cropper.js_files/3456749(1)">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="crop">Crop</button>
                 </div>
             </div>
         </div>
@@ -150,118 +219,11 @@
     <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.es.js"></script>
     <script src="~/Scripts/plugins/cropper/cropper.min.js"></script>
     <script src="~/Scripts/plugins/touchspin/jquery.bootstrap-touchspin.min.js"></script>
+    <script src="~/Scripts/views/SAT/Index.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            var $image = $('#image');
-
-            $image.cropper({
-                aspectRatio: 16 / 9,
-                crop: function (event) {
-                    console.log(event.detail.x);
-                    console.log(event.detail.y);
-                    console.log(event.detail.width);
-                    console.log(event.detail.height);
-                    console.log(event.detail.rotate);
-                    console.log(event.detail.scaleX);
-                    console.log(event.detail.scaleY);
-                }
-            });
-
-            // Get the Cropper.js instance after initialized
-            var cropper = $image.data('cropper');
-
-            $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
-
-            $(".view-ciec").mouseup(function () {
-                $(".view-ciec-input").attr('type', 'password').data("view", false);
-            }).mousedown(function () {
-                if ($(".view-ciec-input").val() !== "") {
-                    $(".view-ciec-input").attr('type', 'text').data("view", true);
-                }
-            });
-
-            $(".view-e-firma").mouseup(function () {
-                $(".view-e-firma-input").attr('type', 'password').data("view", false);
-            }).mousedown(function () {
-                if ($(".view-e-firma-input").val() !== "") {
-                    $(".view-e-firma-input").attr('type', 'text').data("view", true);
-                }
-            });
-
-            $('.custom-file-input').on('change', function (e) {
-                let fileName = $(this).val().split('\\').pop();
-                $(this).next('.custom-file-label').addClass("selected").html(fileName);
-            });
-
-            var mem = $('#data_1 .input-group.date').datepicker({
-                //dateFormat: "yy-mm-dd"
-                keyboardNavigation: false,
-                todayBtn: "linked",
-                forceParse: false,
-                calendarWeeks: true,
-                autoclose: true,
-                format: "dd/mm/yyyy",
-                language: "es"
-            });
-
-            $.validator.addMethod("Alphanumeric",
-                function (value, element) {
-                    return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
-                }, "El campo debe ser alfanumérico"
-            );
-
-            $.validator.addMethod("Numeric",
-                function (value, element) {
-                    return value.match(/^[0-9]+$|^$/);
-                }, "El campo debe ser numérico"
-            );
-
-            $.validator.addMethod("Alphabetic",
-                function (value, element) {
-                    return value.match(/^[a-zA-ZÀ-ÿ\u00f1\u00d1 ]+$|^$/);
-                }, "El campo debe ser alfabético"
-            );
-            $("#EditForm").validate({
-                rules: {
-                }
-            });
-
-            if ($('#hasDeferredPayment').prop("checked")) {
-                $("#partialitiesNumber").prop('readonly', false);
-                $("#advancePayment").prop('readonly', false);
-                $(".btn-opt").prop("disabled", false);
-            } else {
-                $("#partialitiesNumber").val(1);
-                $("#advancePayment").val(0);
-                $("#monthlyCharge").val($("#total").val());
-                $("#partialitiesNumber").prop('readonly', true);
-                $("#advancePayment").prop('readonly', true);
-                $(".btn-opt").prop("disabled", true);
-            }
-
-        });
-
-        $("#btn-save").on("click", function () {
-            if (!$('#EditForm').valid()) {
-                return;
-            }
-            $('#EditForm').submit();
-        });
-
-        $("#hasDeferredPayment").on("ifChanged", function () {
-            if (this.checked) {
-                $("#partialitiesNumber").prop('readonly', false);
-                $("#advancePayment").prop('readonly', false);
-                $(".btn-opt").prop("disabled", false);
-            }
-            else {
-                $("#partialitiesNumber").val(1);
-                $("#advancePayment").val(0);
-                $("#monthlyCharge").val($("#total").val());
-                $("#partialitiesNumber").prop('readonly', true);
-                $("#advancePayment").prop('readonly', true);
-                $(".btn-opt").prop("disabled", true);
-            }
+            var controller = new SATController();
+            controller.init();
         });
     </script>
 }
