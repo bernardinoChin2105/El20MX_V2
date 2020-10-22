@@ -205,8 +205,8 @@
             $modal.modal('hide');
             if (cropper) {
                 canvas = cropper.getCroppedCanvas({
-                    width: 160,
-                    height: 160,
+                    width: 120,
+                    height: 120,
                 });
                 initialAvatarURL = avatar.attr('src');
                 avatar.attr("src", canvas.toDataURL());

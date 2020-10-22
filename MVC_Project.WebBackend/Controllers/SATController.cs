@@ -45,6 +45,7 @@ namespace MVC_Project.WebBackend.Controllers
                 keyUrl = account.key,
                 efirma = account.eFirma,
                 ciec = account.ciec,
+                avatar = account.avatar
             };
 
             var efirmaStatus = SystemStatus.INACTIVE.ToString();
