@@ -17,12 +17,14 @@ namespace MVC_Project.WebBackend.Controllers
 {
     public class BranchOfficeController : Controller
     {
-        BranchOfficeService _branchOfficeService;
-        StateService _stateService;
-        public BranchOfficeController(BranchOfficeService branchOfficeService, StateService stateService)
+        IBranchOfficeService _branchOfficeService;
+        IStateService _stateService;
+        IAccountService _accountService;
+        public BranchOfficeController(IBranchOfficeService branchOfficeService, IStateService stateService, IAccountService accountService)
         {
             _branchOfficeService = branchOfficeService;
             _stateService = stateService;
+            _accountService = accountService;
         }
         // GET: BranchOffice
         public ActionResult Index()
@@ -86,6 +88,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var model = new BranchOfficeViewModel()
                 {
                     id = branchOffice.id,
+                    uuid = branchOffice.uuid.ToString(),
                     name = branchOffice.name,
                     folio = branchOffice.folio,
                     serie = branchOffice.serie,
@@ -96,7 +99,8 @@ namespace MVC_Project.WebBackend.Controllers
                     colony = branchOffice.colony != null ? branchOffice.colony.id : 0,
                     municipality = branchOffice.municipality != null ? branchOffice.municipality.id : 0,
                     state = branchOffice.state != null ? branchOffice.state.id : 0,
-                    country = branchOffice.country != null ? branchOffice.country.id : 0
+                    country = branchOffice.country != null ? branchOffice.country.id : 0,
+                    logo = branchOffice.logo
                 };
 
                 SetCombos(branchOffice.zipCode, ref model);
@@ -215,6 +219,35 @@ namespace MVC_Project.WebBackend.Controllers
                     MaxJsonLength = Int32.MaxValue
                 };
             }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public ActionResult UpdateLogo(LogoBranchOfficeViewModel data)
+        {
+            try
+            {
+                var branchOffice = _branchOfficeService.FirstOrDefault(x => x.uuid == Guid.Parse(data.uuid));
+                if (branchOffice == null)
+                    throw new Exception("La cuenta no es válida");
+
+                var StorageImages = ConfigurationManager.AppSettings["StorageImages"];
+
+                if (data.image == null)
+                    throw new Exception("No se proporcionó una imagen");
+
+                var image = AzureBlobService.UploadPublicFile(data.image.InputStream, data.fileName, StorageImages, branchOffice.account.rfc + "/sucursal_" + branchOffice.id);
+                branchOffice.logo = image.Item1;
+                branchOffice.modifiedAt = DateTime.Now;
+                _branchOfficeService.Update(branchOffice);
+
+                return Json(new { branchOffice.uuid, success = true }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { message = ex.Message, success = false }, JsonRequestBehavior.AllowGet);
+            }
+
         }
     }
 }

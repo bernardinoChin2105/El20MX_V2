@@ -35,10 +35,11 @@ namespace MVC_Project.WebBackend.Controllers
             var account = _accountService.GetById(userAuth.Account.Id);
             if (account == null)
                 throw new Exception("La cuenta no existe en el sistema");
-            
+
             var model = new SATViewModel()
             {
                 id = account.id,
+                uuid = account.uuid.ToString(),
                 rfc = account.rfc,
                 name = account.name,
                 cerUrl = account.cer,
@@ -292,6 +293,35 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 return Json(new { message = ex.Message, success = false, finish = true }, JsonRequestBehavior.AllowGet);
             }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public ActionResult UpdateImage(AvatarAccountViewMovel data)
+        {
+            try
+            {
+                var account = _accountService.FirstOrDefault(x => x.uuid == Guid.Parse(data.uuid));
+                if (account == null)
+                    throw new Exception("La cuenta no es válida");
+
+                var StorageImages = ConfigurationManager.AppSettings["StorageImages"];
+
+                if (data.image == null)
+                    throw new Exception("No se proporcionó una imagen");
+
+                var image = AzureBlobService.UploadPublicFile(data.image.InputStream, data.fileName, StorageImages, account.rfc);
+                account.avatar = image.Item1;
+                account.modifiedAt = DateTime.Now;
+                _accountService.Update(account);
+                
+                return Json(new { account.uuid, success = true }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { message = ex.Message, success = false }, JsonRequestBehavior.AllowGet);
+            }
+
         }
     }
 }

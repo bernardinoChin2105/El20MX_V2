@@ -1672,6 +1672,7 @@
     <Content Include="Scripts\plugins\codemirror\mode\z80\z80.js" />
     <Content Include="Scripts\plugins\colorpicker\bootstrap-colorpicker.min.js" />
     <Content Include="Scripts\plugins\cropper\cropper.min.js" />
+    <Content Include="Scripts\plugins\cropper\cropper1.js" />
     <Content Include="Scripts\plugins\d3\d3.min.js" />
     <Content Include="Scripts\plugins\datamaps\datamaps.all.min.js" />
     <Content Include="Scripts\plugins\datapicker\bootstrap-datepicker.es.js" />
@@ -1819,6 +1820,7 @@
     <Content Include="Scripts\popper.min.js" />
     <Content Include="Scripts\timeout-dialog.js" />
     <Content Include="Scripts\views\Account\Index.js" />
+    <Content Include="Scripts\views\BranchOffice\Edit.js" />
     <Content Include="Scripts\views\BranchOffice\Index.js" />
     <Content Include="Scripts\views\Invoicing\Invoice.js" />
     <Content Include="Scripts\views\Invoicing\InvoicesSaved.js" />
@@ -1985,7 +1987,7 @@
     <Content Include="Views\BranchOffice\Edit.cshtml" />
     <Content Include="Views\Invoicing\Invoice.cshtml" />
     <Content Include="Views\Invoicing\InvoicesSaved.cshtml" />
-	<Content Include="Views\SAT\Index.cshtml" />
+    <Content Include="Views\SAT\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

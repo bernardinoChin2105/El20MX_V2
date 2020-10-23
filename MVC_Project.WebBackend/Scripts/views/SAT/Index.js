@@ -138,17 +138,13 @@
             rules: {
             }
         });
-
         
         var avatar = $('#avatar');
-        var $image = $('#image');
+        var image = document.getElementById('image');
         var input = $('#input');
-        var $progress = $('.progress');
-        var $progressBar = $('.progress-bar');
-        var $alert = $('.alert');
         var $modal = $('#modal');
         var cropper;
-
+        var fileName = "";
         $('[data-toggle="tooltip"]').tooltip();
 
         input.on("change", function () {
@@ -156,20 +152,16 @@
             var done = function (url) {
                 input.value = '';
                 image.src = url;
-                $alert.hide();
                 $modal.modal('show');
             };
-            var reader;
-            var file;
-            var url;
-
+            
             if (files && files.length > 0) {
-                file = files[0];
-
+                var file = files[0];
+                fileName = file.name;
                 if (URL) {
                     done(URL.createObjectURL(file));
                 } else if (FileReader) {
-                    reader = new FileReader();
+                    var reader = new FileReader();
                     reader.onload = function (e) {
                         done(reader.result);
                     };
@@ -179,23 +171,12 @@
         });
 
         $modal.on('shown.bs.modal', function () {
-            $image.cropper({
-                aspectRatio: 16 / 9,
-                crop: function (event) {
-                    console.log(event.detail.x);
-                    console.log(event.detail.y);
-                    console.log(event.detail.width);
-                    console.log(event.detail.height);
-                    console.log(event.detail.rotate);
-                    console.log(event.detail.scaleX);
-                    console.log(event.detail.scaleY);
-                }
+            cropper = new Cropper(image, {
+                aspectRatio: 16 / 9
             });
-
-            cropper = $image.data('cropper');
         }).on('hidden.bs.modal', function () {
-            //cropper.destroy();
-            //cropper = null;
+            cropper.destroy();
+            cropper = null;
         });
 
         $("#crop").on("click", function () {
@@ -203,6 +184,7 @@
             var canvas;
 
             $modal.modal('hide');
+            El20Utils.mostrarCargador();
             if (cropper) {
                 canvas = cropper.getCroppedCanvas({
                     width: 120,
@@ -210,41 +192,30 @@
                 });
                 initialAvatarURL = avatar.attr('src');
                 avatar.attr("src", canvas.toDataURL());
-                $progress.show();
-                $alert.removeClass('alert-success alert-warning');
                 canvas.toBlob(function (blob) {
                     var formData = new FormData();
+                    formData.append('uuid', $('#uuid').val());
+                    formData.append('fileName', fileName);
+                    formData.append('image', blob);
 
-                    formData.append('avatar', blob, 'avatar.jpg');
-                    $.ajax('https://jsonplaceholder.typicode.com/posts', {
-                        method: 'POST',
+                    $.ajax({
+                        type: 'POST',
+                        url: 'SAT/UpdateImage',
                         data: formData,
                         processData: false,
                         contentType: false,
-                        xhr: function () {
-                            var xhr = new XMLHttpRequest();
-                            xhr.upload.onprogress = function (e) {
-                                var percent = '0';
-                                var percentage = '0%';
-
-                                if (e.lengthComputable) {
-                                    percent = Math.round((e.loaded / e.total) * 100);
-                                    percentage = percent + '%';
-                                    $progressBar.width(percentage).attr('aria-valuenow', percent).text(percentage);
-                                }
-                            };
-                            return xhr;
-                        },
-                        success: function () {
-                            toastr['success']('Actualización exitosa');
-
+                        success: function (data) {
+                            if (data.success)
+                                toastr['success']('Actualización exitosa');
+                            else
+                                toastr['error'](data.message);
                         },
                         error: function () {
                             avatar.attr("src", initialAvatarURL);
-                            toastr['error']('Error al actualizar');
+                            toastr['error']('No fue posible realizar la actualización');
                         },
                         complete: function () {
-                            $progress.hide();
+                            El20Utils.ocultarCargador();
                         },
                     });
                 });
