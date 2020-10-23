@@ -15,6 +15,7 @@ using LogHubSDK.Models;
 using static MVC_Project.Utils.Constants;
 using Newtonsoft.Json;
 using MVC_Project.FlashMessages;
+using MVC_Project.Integrations.Pipedrive;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -41,6 +42,22 @@ namespace MVC_Project.WebBackend.Controllers
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
+            // ESTO VA DONDE SE VAYA A INTEGRAR EL CRM
+            //bool IsCRMEnabled = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["Pipedrive.Enabled"]);
+            //if (IsCRMEnabled)
+            //{
+            //    PipedriveClient pdClient = new PipedriveClient();
+            //    PipedriveResponse response = pdClient.CreatePerson(new PipedrivePerson()
+            //    {
+            //        Name = "Liza Simpson",
+            //        FirstName = "Liza",
+            //        LastName = "Simpson",
+            //        Email = "liza@mail.com",
+            //        RFC = "RFCLIZATEST",
+            //        CIEC = "CIECLIZATEST"
+            //    });
+            //}
+            
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
