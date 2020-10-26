@@ -42,7 +42,7 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "E-mail")]
         public Int64 EmailIssuedId { get; set; }
-        public SelectList ListEmailIssued { get; set; }
+        public List<SelectListItem> ListEmailIssued { get; set; }
         public string IssuingTaxEmail { get; set; }
         #endregion
 
@@ -53,7 +53,7 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "RFC Cliente")]
         public string RFC { get; set; }
-        public Int64 RFCId { get; set; }
+        public string ReceiverType { get; set; }
 
         [Display(Name = "Ave./Calle")]
         public string Street { get; set; }
@@ -66,7 +66,7 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "Colonia")]
         public Int64 Colony { get; set; }
-        public SelectList ListColony { get; set; }
+        public List<SelectListItem> ListColony { get; set; }
 
         //[Required]
         [Display(Name = "C.P.")]
@@ -74,19 +74,19 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "Alc./Mpo")]
         public Int64 Municipality { get; set; }
-        public SelectList ListMunicipality { get; set; }
+        public List<SelectListItem> ListMunicipality { get; set; }
 
         [Display(Name = "Estado")]
         public Int64? State { get; set; }
-        public SelectList ListState { get; set; }
+        public List<SelectListItem> ListState { get; set; }
 
         [Display(Name = "País")]
         public Int64? Country { get; set; }
-        public SelectList ListCountry { get; set; }
+        public List<SelectListItem> ListCountry { get; set; }
 
         [Display(Name = "E-mail")]
         public Int64 CustomerEmailId { get; set; }
-        public SelectList ListCustomerEmail { get; set; }
+        public List<SelectListItem> ListCustomerEmail { get; set; }
         #endregion
 
         #region Datos Fiscales para Facturar
@@ -204,12 +204,12 @@ namespace MVC_Project.WebBackend.Models
             ListMotionNumber = new List<SelectListItem>();
             ListExchangeRate = new List<SelectListItem>();
 
-            ListEmailIssued = new SelectList(list);
-            ListColony = new SelectList(list);
-            ListMunicipality = new SelectList(list);
-            ListState = new SelectList(list);
-            ListCountry = new SelectList(list);
-            ListCustomerEmail = new SelectList(list);
+            ListCountry = new List<SelectListItem>();
+            ListEmailIssued = new List<SelectListItem>();
+            ListColony = new List<SelectListItem>();
+            ListMunicipality = new List<SelectListItem>();
+            ListState = new List<SelectListItem>();
+            ListCustomerEmail = new List<SelectListItem>();
             ProductServices = new List<ProductServiceDescriptionView>();
 
 
@@ -234,10 +234,13 @@ namespace MVC_Project.WebBackend.Models
         public decimal UnitPrice { get; set; }
 
         [Display(Name = "% Descuento")]
-        public decimal DiscountRate { get; set; }
+        public decimal DiscountRateProServ { get; set; }
 
-        [Display(Name = "Impuesto (IVA/IEPS)")]
-        public decimal Taxes { get; set; }
+        [Display(Name = "Impuesto (IEPS)")]
+        public decimal TaxesIEPS { get; set; }
+
+        [Display(Name = "Impuesto (IVA)")]
+        public decimal TaxesIVA { get; set; }
 
         [Display(Name = "Subtotal")]
         public decimal Subtotal { get; set; }

@@ -24,7 +24,7 @@
             <div class="col-md-2">
                 <img src="@Model.Logo" class="img" />
             </div>
-            <div class="col-md-5">                
+            <div class="col-md-5">
                 <strong>@Model.BusinessName</strong><br>
                 <strong>RFC: @Model.IssuingRFC.</strong><br>
                 <strong><abbr title="Email">E-mail:</abbr> @Model.IssuingTaxEmail</strong><br /><br />
@@ -79,13 +79,13 @@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.CustomerName, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control required", @maxlength = "200", @autocomplete = "off" })
+                        @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control", @maxlength = "200", @autocomplete = "off" })
                         <input type="hidden" name="CustomerId" id="CustomerId" />
+                        <input type="hidden" name="TypeReceptor" id="TypeReceptor" />
                     </div>
                     @Html.LabelFor(m => m.RFC, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
                         @Html.TextBoxFor(m => m.RFC, new { @class = "form-control required", @maxlength = "200", @autocomplete = "off" })
-                        <input type="hidden" name="RFCId" id="RFCId" />
                     </div>
                 </div>
                 <div class="form-group row">
@@ -105,7 +105,7 @@
                     </div>
                     @Html.LabelFor(m => m.Colony, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.Colony, Model.ListColony.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.Colony, Model.ListColony, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
                 </div>
                 <div class="form-group row">
@@ -115,23 +115,23 @@
                     </div>
                     @Html.LabelFor(m => m.Municipality, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.Municipality, Model.ListMunicipality.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.Municipality, Model.ListMunicipality, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
                 </div>
                 <div class="form-group row">
                     @Html.LabelFor(m => m.State, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.State, Model.ListState.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.State, Model.ListState, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
                     @Html.LabelFor(m => m.Country, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.Country, Model.ListCountry.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.Country, Model.ListCountry, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
                 </div>
                 <div class="form-group row">
                     @Html.LabelFor(m => m.CustomerEmailId, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.CustomerEmailId, Model.ListCustomerEmail.Items as List<SelectListItem>, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.CustomerEmailId, Model.ListCustomerEmail, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
                 </div>
             </div>
@@ -152,7 +152,7 @@
                         </div>*@
                     @Html.LabelFor(m => m.SerieFolio, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.TextBoxFor(m => m.SerieFolio, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off" })
+                        @Html.TextBoxFor(m => m.SerieFolio, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off", disabled = "disabled" })
                         @Html.HiddenFor(m => m.Serie)
                         @Html.HiddenFor(m => m.Folio)
                     </div>
@@ -282,7 +282,7 @@
         </div>
 
         <div class="table-responsive m-t">
-            <table class="table invoice-table">
+            <table id="table" class="table invoice-table">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -294,7 +294,11 @@
                         <th>% Descuento</th>
                         <th>
                             Impuesto
-                            <small>(IVA/IEPS)</small>
+                            <small>(IVA)</small>
+                        </th>
+                        <th>
+                            Impuesto
+                            <small>(IEPS)</small>
                         </th>
                         <th>SubTotal</th>
                     </tr>
@@ -312,8 +316,9 @@
                                 <td>@item.ProductServiceDescription</td>
                                 <td>@item.SATUnit</td>
                                 <td>@item.UnitPrice</td>
-                                <td>@item.DiscountRate</td>
-                                <td>@item.Taxes</td>
+                                <td>@item.DiscountRateProServ</td>
+                                <td>@item.TaxesIVA</td>
+                                <td>@item.TaxesIEPS</td>
                                 <td>@item.Subtotal</td>
                             </tr>
                             @(index++);
@@ -362,7 +367,7 @@
                     <div class="col-md-10 offset-2 text-right">
                         <a href="#" class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
                         @*<a href='@Url.Action("Index", "Plan")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>*@
-                        <button type="button" onclick="validarDatos()" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                        <button type="button" onclick="SavedInvoice()" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
                         <button type="button" onclick="validarDatos()" class="btn btn-color"> <i class="fa fa-save"></i> Timbrar Factura </button>
                     </div>
                 </div>
@@ -375,57 +380,82 @@
 <div class="modal fade" id="ServProdModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Agregar Servicio o Producto</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <table class="table invoice-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Cantidad</th>
-                            <th>Código SAT</th>
-                            <th>Descripción Producto o Servicio</th>
-                            <th>Unidad SAT</th>
-                            <th>Precio Unitario</th>
-                            <th>% Descuento</th>
-                            <th>
-                                Impuesto
-                                <small>(IVA/IEPS)</small>
-                            </th>
-                            <th>SubTotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @*@if (Model.ProductServices.Count > 0)
-                            {
-                                var index = 1;
-                                foreach (var item in Model.ProductServices)
-                                {
-                                    <tr>
-                                        <td>@index</td>
-                                        <td>@item.Quantity</td>
-                                        <td>@item.SATCode</td>
-                                        <td>@item.ProductServiceDescription</td>
-                                        <td>@item.SATUnit</td>
-                                        <td>@item.UnitPrice</td>
-                                        <td>@item.DiscountRate</td>
-                                        <td>@item.Taxes</td>
-                                        <td>@item.Subtotal</td>
-                                    </tr>
-                                    @(index++);
-                                }
-                            }*@
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-color">Agregar</button>
-            </div>
+            @using (Html.BeginForm("Invoice", "Invoicing", FormMethod.Post, new { @id = "ConceptForm", @role = "form" }))
+            {
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Agregar Servicio o Producto</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Cantidad</label>
+                        <div class="col-md-9">
+                            <input type="number" class="form-control" name="Quantity" id="Quantity" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Concepto</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" name="SATCode" id="SATCode" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Descripción</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" name="ProductServiceDescription" id="ProductServiceDescription" autocomplete="off" maxlength="150" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Unidad</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" name="SATUnit" id="SATUnit" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Precio Unitario</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control money" name="UnitPrice" id="UnitPrice" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">% Descuento</label>
+                        <div class="col-md-9">
+                            @*<input type="text" class="form-control money" name="DiscountRate" id="DiscountRate" autocomplete="off" />*@
+                            <input type="text" class="form-control money" name="DiscountRateProServ" id="DiscountRateProServ" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">
+                            Impuesto
+                            <small>(IVA)</small>
+                        </label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control money" name="TaxesIVA" id="TaxesIVA" readonly autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">
+                            Impuesto
+                            <small>(IEPS)</small>
+                        </label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control money" name="TaxesIEPS" id="TaxesIEPS" readonly autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">SubTotal</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control money" name="Subtotal" id="Subtotal" readonly autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-color" id="addConcept">Agregar</button>
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -436,15 +466,18 @@
     @*@Scripts.Render("~/plugins/dataTables")
         @Scripts.Render("~/plugins/daterangepicker")*@
     @Scripts.Render("~/plugins/typehead")
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
     <script src="~/Scripts/views/Invoicing/Invoice.js"></script>
     <script>
 
         $(function () {
             var invoices = new InvoiceControlador('table',
                 '@Url.Action("GetSearchReceiver")',
-                '',//'@Url.Action("GetDownloadPDF")',
-                '',// '@Url.Action("GetDownloadXML")',
-                '',//'@Url.Action("GetAutoComplite")',
+                '@Url.Action("GetReceiverInformation")',
+                '@Url.Action("GetSerieFolio")',
+                '@Url.Action("GetLocations")',
+                '@Url.Action("GetProdServSAT")',
+                '@Url.Action("GetUnitSAT")',
                 '@hasFullAccessController' == 'True'
             );
             invoices.init();

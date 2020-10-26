@@ -96,5 +96,29 @@ namespace MVC_Project.Integrations.SAT
                 throw new Exception("No se encontró un proveedor de acceso al información fiscal");
             }
         }
+
+        public static InvoicesInfo PostIssueIncomeInvoices(InvoiceJson invoice,string provider)
+        {
+            if (provider == SystemProviders.SATWS.ToString())
+            {
+                return SATwsService.PostIssueIncomeInvoices(invoice);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
+        public static InvoicesInfo PostIssuePaymentInvoices(InvoiceComplementJson invoice, string provider)
+        {
+            if (provider == SystemProviders.SATWS.ToString())
+            {
+                return SATwsService.PostIssuePaymentInvoices(invoice);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
     }
 }

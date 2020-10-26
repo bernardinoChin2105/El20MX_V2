@@ -250,5 +250,25 @@ namespace MVC_Project.Integrations.SAT
 
             return CFDI;
         }
+
+        /*Crear timbrado de factura*/
+        public static InvoicesInfo PostIssueIncomeInvoices(InvoiceJson invoiceJson)
+        {            
+            InvoicesInfo invoice = new InvoicesInfo();
+
+            var responseInvoices =  SATws.CallServiceSATws("invoices", invoiceJson, "Post");
+            invoice = JsonConvert.DeserializeObject<InvoicesInfo>(responseInvoices);
+            return invoice;
+        }
+
+        /*Crear timbrado de factura complemento*/
+        public static InvoicesInfo PostIssuePaymentInvoices(InvoiceComplementJson invoiceComplementJson)
+        {
+            InvoicesInfo invoice = new InvoicesInfo();
+            
+            var responseInvoices = SATws.CallServiceSATws("invoices/payment", invoiceComplementJson, "Post");
+            invoice = JsonConvert.DeserializeObject<InvoicesInfo>(responseInvoices);
+            return invoice;
+        }
     }
 }
