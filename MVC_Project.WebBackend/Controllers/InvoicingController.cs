@@ -13,6 +13,9 @@ using System.Web.Mvc;
 using Newtonsoft.Json;
 using MVC_Project.Integrations.SAT;
 using System.Configuration;
+using System.IO;
+using MVC_Project.Integrations.Storage;
+using System.Xml;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -112,14 +115,40 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
-
                 if (model.TypeInvoice != "E")
                 {
                     //Validar que se exista el receptor
+                    Customer customer = new Customer();
                     if (model.CustomerId > 0)
                     {
-                        //Poder guardar el cliente si no existe
+                        //Poder guardar el cliente si no existe       
+                        customer = new Customer()
+                        {
+                            uuid = Guid.NewGuid(),
+                            account = new Account { id = authUser.Account.Id },
+                            businessName = model.BusinessName,
+                            rfc = model.RFC,
+                            //taxRegime = model.taxRegime,
+                            street = model.Street,
+                            interiorNumber = model.InteriorNumber,
+                            outdoorNumber = model.OutdoorNumber,
+                            zipCode = model.ZipCode,
+                            createdAt = todayDate,
+                            modifiedAt = todayDate,
+                            status = SystemStatus.ACTIVE.ToString()
+                        };
+
+                        if (model.Colony.Value > 0)
+                            customer.colony = model.Colony.Value;
+                        if (model.Municipality.Value > 0)
+                            customer.municipality = model.Municipality.Value;
+                        if (model.State.Value > 0)
+                            customer.state = model.State.Value;
+                        if (model.Country.Value > 0)
+                            customer.country = model.Country.Value;
                     }
+                    else
+                        customer = new Customer() { id = model.CustomerId };
 
                     InvoiceIssued invoice = new InvoiceIssued()
                     {
@@ -133,8 +162,7 @@ namespace MVC_Project.WebBackend.Controllers
                         total = model.Total,
                         subtotal = model.Subtotal,
                         account = new Account() { id = authUser.Account.Id },
-                        customer = new Customer() { id = model.CustomerId },
-
+                        customer = customer,
                         createdAt = todayDate,
                         modifiedAt = todayDate,
                         json = JsonConvert.SerializeObject(model),
@@ -143,14 +171,42 @@ namespace MVC_Project.WebBackend.Controllers
                     //validar que exista la el iva para guardar
                     //iva = model.TaxWithheldIVA,
 
-                    _invoiceIssuedService.Create(invoice);
+                    //_invoiceIssuedService.Create(invoice);
+                    _invoiceIssuedService.SaveInvoice(invoice, null, customer);
                 }
                 else
                 {
-                    if (model.CustomerId > 0)
+                    Provider provider = new Provider();
+                    if (model.CustomerId == 0)
                     {
-                        //Poder guardar el cliente si no existe
+                        //Poder guardar el cliente si no existe        
+                        provider = new Provider()
+                        {
+                            uuid = Guid.NewGuid(),
+                            account = new Account { id = authUser.Account.Id },
+                            businessName = model.BusinessName,
+                            rfc = model.RFC,
+                            //taxRegime = model.taxRegime,
+                            street = model.Street,
+                            interiorNumber = model.InteriorNumber,
+                            outdoorNumber = model.OutdoorNumber,
+                            zipCode = model.ZipCode,
+                            createdAt = todayDate,
+                            modifiedAt = todayDate,
+                            status = SystemStatus.ACTIVE.ToString()
+                        };
+
+                        if (model.Colony.Value > 0)
+                            provider.colony = model.Colony.Value;
+                        if (model.Municipality.Value > 0)
+                            provider.municipality = model.Municipality.Value;
+                        if (model.State.Value > 0)
+                            provider.state = model.State.Value;
+                        if (model.Country.Value > 0)
+                            provider.country = model.Country.Value;
                     }
+                    else
+                        provider = new Provider() { id = model.CustomerId };
 
                     InvoiceReceived invoice = new InvoiceReceived()
                     {
@@ -164,8 +220,7 @@ namespace MVC_Project.WebBackend.Controllers
                         total = model.Total,
                         subtotal = model.Subtotal,
                         account = new Account() { id = authUser.Account.Id },
-                        provider = new Provider() { id = model.CustomerId },
-
+                        provider = provider,
                         createdAt = todayDate,
                         modifiedAt = todayDate,
                         json = JsonConvert.SerializeObject(model),
@@ -174,7 +229,7 @@ namespace MVC_Project.WebBackend.Controllers
                     //validar que exista la el iva para guardar
                     //iva = model.TaxWithheldIVA,
 
-                    _invoiceReceivedService.Create(invoice);
+                    _invoiceReceivedService.SaveInvoice(invoice, provider, null);
                 }
 
                 MensajeFlashHandler.RegistrarMensaje("Factura Guardada", TiposMensaje.Success);
@@ -185,6 +240,148 @@ namespace MVC_Project.WebBackend.Controllers
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 return View(model);
             }
+        }
+        #endregion
+
+        #region Realizar timbrado de factura
+        [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
+        public ActionResult IssueIncomeInvoice(InvoiceViewModel model)
+       {
+
+            bool success = false;
+            try
+            {
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+                var provider = ConfigurationManager.AppSettings["SATProvider"];
+
+                var issuer = new InvoiceIssuer
+                {
+                    Rfc = model.IssuingRFC,
+                    Nombre = model.BusinessName,
+                    RegimenFiscal = model.IssuingTaxRegime,
+                };
+
+                var receiver = new InvoiceReceiver
+                {
+                    Rfc = model.RFC,
+                    Nombre = model.CustomerName,
+                    //ResidenciaFiscal = model.Street, //tengo dudas de que dato va
+                    //NumRegIdTrib = model, // que dato va
+                    UsoCFDI = model.UseCFDI
+                };
+
+                var conceptos = new List<ConceptsData>();
+                foreach (var item in model.ProductServices)
+                {
+                    var conceptsData = new ConceptsData
+                    {
+                        ClaveProdServ = item.SATCode.ToString(),
+                        //NoIdentificacion = que dato es?
+                        Cantidad = item.Quantity,
+                        ClaveUnidad = item.SATUnit,
+                        //Unidad  = que dato es?
+                        Descripcion = item.ProductServiceDescription,
+                        ValorUnitario = item.UnitPrice,
+                        Descuento = item.DiscountRateProServ,
+                        Importe = item.Subtotal,
+                        CuentaPredial = new CuentaPredial { Numero = model.PropertyAccountNumber },
+
+                        //dudas por el llenado de datos
+
+                        //public List<Traslados> Traslados { get; set; }
+                        //public List<Retenciones> Retenciones { get; set; }
+                        //public List<InformacionAduanera> InformacionAduanera { get; set; }
+                        //public List<Parte> Parte { get; set; }
+                    };
+                    conceptos.Add(conceptsData);
+                }
+
+                if (model.TypeInvoice == "PAYMENT")
+                {
+                    //tengo dudas de los complementos
+                    List<Pagos> pagos = new List<Pagos>();
+                    //foreach (var item in model.varios)
+                    //{
+                    //    var pago = new Pagos
+                    //    {
+                    //        //FechaPago //dudas de que dato se agrega
+                    //        FormaDePagoP = model.PaymentForm,
+                    //        MonedaP = model.Currency,
+                    //        //TipoCambioP { get; set; }
+                    //        Monto = model.Total.ToString(),
+                    //        //List<DoctoRelacionado> DoctoRelacionado { get; set; }
+                    //    };
+                    //}
+                    var invoiceComplementData = new InvoiceComplementData
+                    {
+                        Serie = model.Serie,
+                        Folio = Convert.ToInt32(model.Folio),
+                        Fecha = todayDate,
+                        Moneda = model.Currency,
+                        //TipoCambio = model.ExchangeRate.,
+                        TipoDeComprobante = model.TypeInvoice,
+                        LugarExpedicion = model.ZipCode,
+                        //Complemento = new Complemento() { pagos = pagos },
+                        Emisor = issuer,
+                        Receptor = receiver,
+                        Conceptos = conceptos
+                    };
+
+                    var invoice = new InvoiceComplementJson
+                    {
+                        data = invoiceComplementData
+                    };
+
+                    var result = SATService.PostIssuePaymentInvoices(invoice, provider);
+                    if (result != null)
+                    {
+                        success = true;
+                    }
+                }
+                else
+                {
+                    var invoiceData = new InvoiceData
+                    {
+                        Serie = model.Serie,
+                        Folio = Convert.ToInt32(model.Folio),
+                        Fecha = todayDate,
+                        Moneda = model.Currency,
+                        //TipoCambio = model.ExchangeRate.,
+                        TipoDeComprobante = model.TypeInvoice,
+                        CondicionesDePago = model.PaymentConditions,
+                        FormaPago = model.PaymentForm,
+                        MetodoPago = model.PaymentMethod,
+                        //Confirmacion = model.
+                        LugarExpedicion = model.ZipCode,
+                        Emisor = issuer,
+                        Receptor = receiver,
+                        Conceptos = conceptos
+                    };
+                    var invoice = new InvoiceJson
+                    {
+                        data = invoiceData
+                    };
+
+                    var result = SATService.PostIssueIncomeInvoices(invoice, provider);
+                    if (result != null)
+                    {
+                        success = true;
+                    }
+                }
+
+                if (!success)
+                {
+                    throw new Exception("Error al crear la factura");
+                }
+
+                MensajeFlashHandler.RegistrarMensaje("Se creo la factura", TiposMensaje.Success);
+                return RedirectToAction("InvoicesSaved");
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+            }
+            return View();
         }
         #endregion
 
@@ -505,147 +702,213 @@ namespace MVC_Project.WebBackend.Controllers
                 };
             }
         }
+        #endregion
 
-        public ActionResult IssueIncomeInvoice(InvoiceViewModel model)
+        #region Generar PDF
+        [HttpGet, AllowAnonymous]
+        public ActionResult GetDownloadPDF(Int64 id)
         {
-            bool success = false;
+            var authUser = Authenticator.AuthenticatedUser;
+
             try
             {
-                DateTime todayDate = DateUtil.GetDateTimeNow();
-                var provider = ConfigurationManager.AppSettings["SATProvider"];
+                var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
+                var invoice = _invoiceIssuedService.FirstOrDefault(x => x.id == id);
 
-                var issuer = new InvoiceIssuer
+                if (invoice == null)
+                    throw new Exception("No se encontro la factura emitida");
+
+                if (invoice.xml == null)
+                    throw new Exception("El registro no cuenta con el xml de la factura emitida");
+
+                MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoicesIssued, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
+                stream.Position = 0;
+
+                XmlDocument doc = new XmlDocument();
+                doc.Load(stream);
+
+                //agregamos un Namespace, que usaremos para buscar que el nodo no exista:
+                XmlNamespaceManager nsm = new XmlNamespaceManager(doc.NameTable);
+                nsm.AddNamespace("cfdi", "http://www.sat.gob.mx/cfd/3"); ;
+
+                //Accedemos a nodo "Comprobante"
+                XmlNode nodeComprobante = doc.SelectSingleNode("//cfdi:Comprobante", nsm);
+
+                //Obtener Folio, Serie, SubTotal y Total
+                string varFolio = nodeComprobante.Attributes["Folio"].Value;
+                string varSerie = nodeComprobante.Attributes["Serie"].Value;
+                string varSubTotal = nodeComprobante.Attributes["SubTotal"].Value;
+                string varTotal = nodeComprobante.Attributes["Total"].Value;
+                string varTipoComprobante = nodeComprobante.Attributes["TipoDeComprobante"].Value;
+                string varCertificado = nodeComprobante.Attributes["Certificado"].Value;
+                string varNoCertificado = nodeComprobante.Attributes["NoCertificado"].Value;
+                string varSello = nodeComprobante.Attributes["Sello"].Value;
+                string varFormaPago = nodeComprobante.Attributes["FormaPago"].Value;
+                string varMetodoPago = nodeComprobante.Attributes["MetodoPago"].Value;
+                string varLugarExpedicion = nodeComprobante.Attributes["LugarExpedicion"].Value;
+                string varFecha = nodeComprobante.Attributes["Fecha"].Value;
+                string varMoneda = nodeComprobante.Attributes["Moneda"].Value;
+                string varDescuento1 = nodeComprobante.Attributes["Descuento"] != null ? nodeComprobante.Attributes["Descuento"].Value : string.Empty;
+
+                MonedaUtils formatoTexto = new MonedaUtils();
+                var fecha = varFecha != null || varFecha != "" ? Convert.ToDateTime(varFecha).ToString("yyyy-MM-dd HH:mm:ss") : varFecha;
+
+                InvoicesVM cfdipdf = new InvoicesVM()
                 {
-                    Rfc = model.IssuingRFC,
-                    Nombre = model.BusinessName,
-                    RegimenFiscal = model.IssuingTaxRegime,
+                    Folio = varFolio,
+                    Serie = varSerie,
+                    SubTotal = varSubTotal,
+                    Total = varTotal,
+                    TipoDeComprobante = ((TipoComprobante)Enum.Parse(typeof(TipoComprobante), varTipoComprobante, true)).GetDescription(),
+                    Certificado = varCertificado,
+                    NoCertificado = varNoCertificado,
+                    Sello = varSello,
+                    FormaPago = varFormaPago,
+                    MetodoPago = ((MetodoPago)Enum.Parse(typeof(MetodoPago), varMetodoPago, true)).GetDescription(),
+                    LugarExpedicion = varLugarExpedicion,
+                    Fecha = fecha,
+                    //Moneda = varMoneda,
+                    Moneda = formatoTexto.Convertir(varTotal.ToString(), true),
+                    Descuento = varDescuento1
                 };
 
-                var receiver = new InvoiceReceiver
+
+                XmlNode nodeEmisor = nodeComprobante.SelectSingleNode("cfdi:Emisor", nsm);
+                if (nodeEmisor != null)
                 {
-                    Rfc = model.RFC,
-                    Nombre = model.CustomerName,
-                    //ResidenciaFiscal = model.Street, //tengo dudas de que dato va
-                    //NumRegIdTrib = model, // que dato va
-                    UsoCFDI = model.UseCFDI
-                };
+                    string varNombre = nodeEmisor.Attributes["Nombre"].Value;
+                    string varRfc = nodeEmisor.Attributes["Rfc"].Value;
+                    string varRegimenFiscal = nodeEmisor.Attributes["RegimenFiscal"].Value;
+                    string varRegimenFiscalText = string.Empty;
 
-                var conceptos = new List<ConceptsData>();
-                foreach (var item in model.ProductServices)
-                {
-                    var conceptsData = new ConceptsData
+                    try
                     {
-                        ClaveProdServ = item.SATCode.ToString(),
-                        //NoIdentificacion = que dato es?
-                        Cantidad = item.Quantity,
-                        ClaveUnidad = item.SATUnit,
-                        //Unidad  = que dato es?
-                        Descripcion = item.ProductServiceDescription,
-                        ValorUnitario = item.UnitPrice,
-                        Descuento = item.DiscountRateProServ,
-                        Importe = item.Subtotal,
-                        CuentaPredial =  new CuentaPredial { Numero = model.PropertyAccountNumber },
-
-                        //dudas por el llenado de datos
-
-                        //public List<Traslados> Traslados { get; set; }
-                        //public List<Retenciones> Retenciones { get; set; }
-                        //public List<InformacionAduanera> InformacionAduanera { get; set; }
-                        //public List<Parte> Parte { get; set; }
-                    };
-                    conceptos.Add(conceptsData);
-                }
-
-                if (model.TypeInvoice == "PAYMENT")
-                {
-                    //tengo dudas de los complementos
-                    List<Pagos> pagos = new List<Pagos>();
-                    //foreach (var item in model.varios)
-                    //{
-                    //    var pago = new Pagos
-                    //    {
-                    //        //FechaPago //dudas de que dato se agrega
-                    //        FormaDePagoP = model.PaymentForm,
-                    //        MonedaP = model.Currency,
-                    //        //TipoCambioP { get; set; }
-                    //        Monto = model.Total.ToString(),
-                    //        //List<DoctoRelacionado> DoctoRelacionado { get; set; }
-                    //    };
-                    //}
-                    var invoiceComplementData = new InvoiceComplementData
-                    {
-                        Serie = model.Serie,
-                        Folio = Convert.ToInt32(model.Folio),
-                        Fecha = todayDate,
-                        Moneda = model.Currency,
-                        //TipoCambio = model.ExchangeRate.,
-                        TipoDeComprobante = model.TypeInvoice,
-                        LugarExpedicion = model.ZipCode,
-                        //Complemento = new Complemento() { pagos = pagos },
-                        Emisor = issuer,
-                        Receptor = receiver,
-                        Conceptos = conceptos
-                    };
-
-                    var invoice = new InvoiceComplementJson
-                    {
-                        data = invoiceComplementData
-                    };
-
-                    var result = SATService.PostIssuePaymentInvoices(invoice, provider);
-                    if (result != null)
-                    {
-                        success = true;
+                        varRegimenFiscalText = ((RegimenFiscal)Enum.Parse(typeof(RegimenFiscal), "RegimenFiscal" + varRegimenFiscal, true)).GetDescription();
                     }
-                }
-                else
-                {
-                    var invoiceData = new InvoiceData
+                    catch (Exception ex)
                     {
-                        Serie = model.Serie,
-                        Folio = Convert.ToInt32(model.Folio),
-                        Fecha = todayDate,
-                        Moneda = model.Currency,
-                        //TipoCambio = model.ExchangeRate.,
-                        TipoDeComprobante = model.TypeInvoice,
-                        CondicionesDePago = model.PaymentConditions,
-                        FormaPago = model.PaymentForm,
-                        MetodoPago = model.PaymentMethod,
-                        //Confirmacion = model.
-                        LugarExpedicion = model.ZipCode,
-                        Emisor = issuer,
-                        Receptor = receiver,
-                        Conceptos = conceptos
-                    };
-                    var invoice = new InvoiceJson
+                    }
+
+                    Models.Emisor emisor = new Models.Emisor()
                     {
-                        data = invoiceData
+                        Nombre = varNombre,
+                        Rfc = varRfc,
+                        RegimenFiscal = varRegimenFiscal,
+                        RegimenFiscalTexto = varRegimenFiscalText != null ? varRegimenFiscalText : varRegimenFiscal
                     };
 
-                    var result = SATService.PostIssueIncomeInvoices(invoice, provider);
-                    if (result != null)
+                    cfdipdf.Emisor = emisor;
+                }
+
+                XmlNode nodeReceptor = nodeComprobante.SelectSingleNode("cfdi:Receptor", nsm);
+                if (nodeReceptor != null)
+                {
+                    string varNombre = nodeReceptor.Attributes["Nombre"].Value;
+                    string varRfc = nodeReceptor.Attributes["Rfc"].Value;
+                    string varUsoCFDI = nodeReceptor.Attributes["UsoCFDI"].Value;
+                    string varUsoCFDIText = string.Empty;
+                    try
                     {
-                        success = true;
+                        varUsoCFDIText = ((UsoCFDI)Enum.Parse(typeof(UsoCFDI), varUsoCFDI, true)).GetDescription();
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+
+                    Models.Receptor receptor = new Models.Receptor()
+                    {
+                        Nombre = varNombre,
+                        Rfc = varRfc,
+                        UsoCFDI = varUsoCFDI,
+                        UsoCFDITexto = varUsoCFDIText != null ? varUsoCFDIText : varUsoCFDI
+                    };
+
+                    cfdipdf.Receptor = receptor;
+                }
+
+                GeneradorQR generador = new GeneradorQR();
+                string selloQR = cfdipdf.Sello.Substring((cfdipdf.Sello.Length - 8), 8);
+                string urlQR = "https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx?id=" + cfdipdf.Folio + "&re=" + cfdipdf.Emisor.Rfc + "&rr=" + cfdipdf.Receptor.Rfc + "&tt=" + cfdipdf.Total + "&fe=" + selloQR;
+                var byteImage = generador.CrearCodigo(urlQR);
+                cfdipdf.QR = "data:image/png;base64," + Convert.ToBase64String(byteImage);
+
+                XmlNode nodeConceptos = nodeComprobante.SelectSingleNode("cfdi:Conceptos", nsm);
+                if (nodeConceptos != null)
+                {
+                    XmlNode nodeConcepto = nodeConceptos.SelectSingleNode("cfdi:Concepto", nsm);
+                    if (nodeConcepto != null)
+                    {
+                        string varNoIdentificacion = nodeConcepto.Attributes["NoIdentificacion"].Value;
+                        string varClaveProdServ = nodeConcepto.Attributes["ClaveProdServ"].Value;
+                        string varCantidad = nodeConcepto.Attributes["Cantidad"].Value;
+                        string varClaveUnidad = nodeConcepto.Attributes["ClaveUnidad"].Value;
+                        string varDescripcion = nodeConcepto.Attributes["Descripcion"].Value;
+                        string varDescuento = nodeConcepto.Attributes["Descuento"] != null ? nodeConcepto.Attributes["Descuento"].Value : string.Empty;
+                        string varImporte = nodeConcepto.Attributes["Importe"].Value;
+                        string varValorUnitario = nodeConcepto.Attributes["ValorUnitario"].Value;
+
+                        Concepto concepto = new Concepto()
+                        {
+                            ClaveProdServ = varClaveProdServ,
+                            NoIdentificacion = varNoIdentificacion,
+                            Cantidad = varCantidad,
+                            ClaveUnidad = varClaveUnidad,
+                            Descripcion = varDescripcion,
+                            Descuento = varDescuento,
+                            Importe = varImporte,
+                            ValorUnitario = varValorUnitario
+                            //Unidad 
+                        };
+                        cfdipdf.Conceptos.Concepto = concepto;
                     }
                 }
 
-                if (!success)
+                XmlNode nodoComplemento = nodeComprobante.SelectSingleNode("cfdi:Complemento", nsm);
+                if (nodoComplemento != null)
                 {
-                    throw new Exception("Error al crear la factura");
+                    nsm.AddNamespace("tfd", "http://www.sat.gob.mx/TimbreFiscalDigital");
+
+                    XmlNode nodoTimbrado = nodoComplemento.SelectSingleNode("tfd:TimbreFiscalDigital", nsm);
+                    if (nodoTimbrado != null)
+                    {
+                        string varUUID = nodoTimbrado.Attributes["UUID"].Value;
+                        string varFechaTimbrado = nodoTimbrado.Attributes["FechaTimbrado"].Value;
+                        string varSelloCFD = nodoTimbrado.Attributes["SelloCFD"].Value;
+                        string varNoCertificadoSAT = nodoTimbrado.Attributes["NoCertificadoSAT"].Value;
+                        string varSelloSAT = nodoTimbrado.Attributes["SelloSAT"].Value;
+                        string varRfcProvCertif = nodoTimbrado.Attributes["RfcProvCertif"].Value;
+                        string varVersion = nodoTimbrado.Attributes["Version"].Value;
+
+                        var fechaTimbrado = varFechaTimbrado != null || varFechaTimbrado != "" ? Convert.ToDateTime(varFechaTimbrado).ToString("yyyy-MM-dd HH:mm:ss") : varFechaTimbrado;
+
+                        TimbreFiscalDigital timbre = new TimbreFiscalDigital()
+                        {
+                            UUID = varUUID,
+                            FechaTimbrado = fechaTimbrado,
+                            NoCertificadoSAT = varNoCertificadoSAT,
+                            RfcProvCertif = varRfcProvCertif,
+                            SelloCFD = varSelloCFD,
+                            SelloSAT = varSelloSAT,
+                            Version = varVersion
+                        };
+
+                        cfdipdf.Complemento.TimbreFiscalDigital = timbre;
+                    }
                 }
 
-                MensajeFlashHandler.RegistrarMensaje("Se creo la factura", TiposMensaje.Success);
-                return RedirectToAction("InvoicesSaved");
+                MensajeFlashHandler.RegistrarMensaje("Descargando...", TiposMensaje.Success);
+                string rfc = authUser.Account.RFC;
+                return new Rotativa.ViewAsPdf("InvoiceDownloadPDF", cfdipdf) { FileName = invoice.uuid + ".pdf" };
             }
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                //return View("InvoicesIssued", model);
+                return RedirectToAction("InvoicesIssued");
             }
-            return View();
+
         }
         #endregion
-
-
 
         public ActionResult InvoicesSaved()
         {

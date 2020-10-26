@@ -12,6 +12,7 @@ namespace MVC_Project.Domain.Services
     public interface IInvoiceIssuedService : IService<InvoiceIssued>
     {
         List<ListInvoiceIssued> GetAllInvoicesIssued();
+        InvoiceIssued SaveInvoice(InvoiceIssued invoice, Provider provider = null, Customer customer = null);
     }
 
     public class InvoiceIssuedService : ServiceBase<InvoiceIssued>, IInvoiceIssuedService
@@ -25,6 +26,34 @@ namespace MVC_Project.Domain.Services
         public List<ListInvoiceIssued> GetAllInvoicesIssued()
         {
             return null;
+        }
+
+        public InvoiceIssued SaveInvoice(InvoiceIssued invoice, Provider provider = null, Customer customer = null)
+        {
+            using (var transaction = _repository.Session.BeginTransaction())
+            {
+                try
+                {
+                    if (invoice.id > 0)
+                        _repository.Session.Save(invoice);
+                    else
+                        _repository.Session.Update(invoice);
+
+                    if (provider != null)
+                        _repository.Session.Save(provider);
+
+                    if (customer != null)
+                        _repository.Session.Save(customer);
+
+                    transaction.Commit();
+                    return invoice;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
+                }
+            }
         }
     }
 }

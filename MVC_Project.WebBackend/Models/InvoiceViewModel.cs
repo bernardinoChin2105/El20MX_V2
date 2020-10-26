@@ -65,7 +65,7 @@ namespace MVC_Project.WebBackend.Models
         public string InteriorNumber { get; set; }
 
         [Display(Name = "Colonia")]
-        public Int64 Colony { get; set; }
+        public Int64? Colony { get; set; }
         public List<SelectListItem> ListColony { get; set; }
 
         //[Required]
@@ -73,7 +73,7 @@ namespace MVC_Project.WebBackend.Models
         public string ZipCode { get; set; }
 
         [Display(Name = "Alc./Mpo")]
-        public Int64 Municipality { get; set; }
+        public Int64? Municipality { get; set; }
         public List<SelectListItem> ListMunicipality { get; set; }
 
         [Display(Name = "Estado")]

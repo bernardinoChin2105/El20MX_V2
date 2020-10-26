@@ -26,7 +26,9 @@
             </div>
             <div class="col-md-5">
                 <strong>@Model.BusinessName</strong><br>
-                <strong>RFC: @Model.IssuingRFC.</strong><br>
+                <strong>RFC: @Model.IssuingRFC</strong><br>
+                <input type="hidden" name="IssuingRFC" id="IssuingRFC" />
+                <input type="hidden" name="BusinessName" id="BusinessName" />
                 <strong><abbr title="Email">E-mail:</abbr> @Model.IssuingTaxEmail</strong><br /><br />
                 @*<strong>Régimen Fiscal: @Model.IssuingTaxRegime</strong><br>*@
                 <div class="form-group row">
@@ -81,7 +83,7 @@
                     <div class="col-md-4">
                         @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control", @maxlength = "200", @autocomplete = "off" })
                         <input type="hidden" name="CustomerId" id="CustomerId" />
-                        <input type="hidden" name="TypeReceptor" id="TypeReceptor" />
+                        <input type="hidden" name="TypeReceptor" id="TypeReceptor" />                        
                     </div>
                     @Html.LabelFor(m => m.RFC, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
@@ -111,7 +113,7 @@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.ZipCode, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off" })
+                        @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control required", @maxlength = "200", @autocomplete = "off" })
                     </div>
                     @Html.LabelFor(m => m.Municipality, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
@@ -160,7 +162,7 @@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.UseCFDI, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.UseCFDI, Model.ListUseCFDI, "Seleccione...", new { @class = "form-control chosen-select" })
+                        @Html.DropDownListFor(model => model.UseCFDI, Model.ListUseCFDI, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
                     @Html.LabelFor(m => m.PaymentForm, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
@@ -170,11 +172,11 @@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.PaymentMethod, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.PaymentMethod, Model.ListPaymentMethod, "Seleccione...", new { @class = "form-control chosen-select" })
+                        @Html.DropDownListFor(model => model.PaymentMethod, Model.ListPaymentMethod, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
                     @Html.LabelFor(m => m.Currency, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.Currency, Model.ListCurrency, "Seleccione...", new { @class = "form-control chosen-select" })
+                        @Html.DropDownListFor(model => model.Currency, Model.ListCurrency, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
                 </div>
                 <div class="form-group row">
@@ -301,6 +303,7 @@
                             <small>(IEPS)</small>
                         </th>
                         <th>SubTotal</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -320,6 +323,7 @@
                                 <td>@item.TaxesIVA</td>
                                 <td>@item.TaxesIEPS</td>
                                 <td>@item.Subtotal</td>
+                                <td class=""></td>
                             </tr>
                             @(index++);
                         }
@@ -336,27 +340,33 @@
             <tbody>
                 <tr>
                     <td><strong>@Html.LabelFor(m => m.Subtotal, new { @class = " control-label" }) :</strong></td>
-                    <td>@Model.Subtotal.ToString("C2")</td>
+                    <td id="lblSubtotal">@Model.Subtotal.ToString("C2")</td>
+                    @Html.HiddenFor(m => m.Subtotal)
                 </tr>
                 <tr>
                     <td><strong>@Html.LabelFor(m => m.TotalDiscount, new { @class = " control-label" }) :</strong></td>
-                    <td>@Model.TotalDiscount.ToString("C2")</td>
+                    <td id="lblTotalDiscount">@Model.TotalDiscount.ToString("C2")</td>
+                    @Html.HiddenFor(m => m.TotalDiscount)
                 </tr>
                 <tr>
                     <td><strong>@Html.LabelFor(m => m.TaxTransferred, new { @class = " control-label" }) :</strong></td>
-                    <td>@Model.TaxTransferred.ToString("C2")</td>
+                    <td id="lblTaxTransferred">@Model.TaxTransferred.ToString("C2")</td>
+                    @Html.HiddenFor(m => m.TaxTransferred)
                 </tr>
                 <tr>
                     <td><strong>@Html.LabelFor(m => m.TaxWithheldIVA, new { @class = " control-label" }) :</strong></td>
-                    <td>@Model.TaxWithheldIVA.ToString("C2")</td>
+                    <td id="lblTaxWithheldIVA">@Model.TaxWithheldIVA.ToString("C2")</td>
+                    @Html.HiddenFor(m => m.TaxWithheldIVA)
                 </tr>
                 <tr>
                     <td><strong>@Html.LabelFor(m => m.TaxWithheldISR, new { @class = " control-label" }) :</strong></td>
-                    <td>@Model.TaxWithheldISR.ToString("C2")</td>
+                    <td id="lblTaxWithheldISR">@Model.TaxWithheldISR.ToString("C2")</td>
+                    @Html.HiddenFor(m => m.TaxWithheldISR)
                 </tr>
                 <tr>
                     <td><strong>@Html.LabelFor(m => m.Total, new { @class = " control-label" }) :</strong></td>
-                    <td>@Model.Total.ToString("C2")</td>
+                    <td id="lblTotal">@Model.Total.ToString("C2")</td>
+                    @Html.HiddenFor(m => m.Total)
                 </tr>
             </tbody>
         </table>
@@ -392,31 +402,31 @@
                     <div class="form-group row">
                         <label class="control-label col-md-3">Cantidad</label>
                         <div class="col-md-9">
-                            <input type="number" class="form-control" name="Quantity" id="Quantity" autocomplete="off">
+                            <input type="number" class="form-control required" name="Quantity" id="Quantity" autocomplete="off">
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="control-label col-md-3">Concepto</label>
                         <div class="col-md-9">
-                            <input type="text" class="form-control" name="SATCode" id="SATCode" autocomplete="off" />
+                            <input type="text" class="form-control required" name="SATCode" id="SATCode" autocomplete="off" />
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="control-label col-md-3">Descripción</label>
                         <div class="col-md-9">
-                            <input type="text" class="form-control" name="ProductServiceDescription" id="ProductServiceDescription" autocomplete="off" maxlength="150" />
+                            <input type="text" class="form-control required" name="ProductServiceDescription" id="ProductServiceDescription" autocomplete="off" maxlength="150" />
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="control-label col-md-3">Unidad</label>
                         <div class="col-md-9">
-                            <input type="text" class="form-control" name="SATUnit" id="SATUnit" autocomplete="off" />
+                            <input type="text" class="form-control required" name="SATUnit" id="SATUnit" autocomplete="off" />
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="control-label col-md-3">Precio Unitario</label>
                         <div class="col-md-9">
-                            <input type="text" class="form-control money" name="UnitPrice" id="UnitPrice" autocomplete="off" />
+                            <input type="text" class="form-control required money" name="UnitPrice" id="UnitPrice" autocomplete="off" />
                         </div>
                     </div>
                     <div class="form-group row">
@@ -447,7 +457,7 @@
                     <div class="form-group row">
                         <label class="control-label col-md-3">SubTotal</label>
                         <div class="col-md-9">
-                            <input type="text" class="form-control money" name="Subtotal" id="Subtotal" readonly autocomplete="off" />
+                            <input type="text" class="form-control required money" name="Subtotal" id="Subtotal" readonly autocomplete="off" />
                         </div>
                     </div>
                 </div>

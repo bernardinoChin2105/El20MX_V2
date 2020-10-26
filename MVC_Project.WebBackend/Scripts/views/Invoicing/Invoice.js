@@ -21,14 +21,13 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
     this.dataTable = {};
 
     this.quantity = $("#Quantity");
-    this.unitPrice = $("#UnitPrice");    
+    this.unitPrice = $("#UnitPrice");
     this.discountRate = $("#DiscountRateProServ");
     this.taxesIEPS = $("#TaxesIEPS");
     this.taxesIVA = $("#TaxesIVA");
     this.subtotal = $("#Subtotal");
 
     this.init = function () {
-
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();
         }).DataTable({
@@ -41,34 +40,169 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             "bInfo": false,
             "paging": false,
             searching: false,
-            ordering: false               
+            ordering: false,
+            "createdRow": function (row, data, index) {
+                console.log(data);
+
+                $("#Subtotal").val();
+                $("#TotalDiscount").val();
+                $("#TaxTransferred").val();
+                $("#TaxWithheldIVA").val();
+                $("#TaxWithheldISR").val();
+                $("#Total").val();
+
+                $("#lblSubtotal").val();
+                $("#lblTotalDiscount").val();
+                $("#lblTaxTransferred").val();
+                $("#lblTaxWithheldIVA").val();
+                $("#lblTaxWithheldISR").val();
+                $("#lblTotal").val();
+
+                var html = '<div class="btn-group" role="group" aria-label="Opciones">' +
+                    '<button class="btn btn-light btn-edit"  title="Editar Producto o Servicio" style="margin-left:5px;"><span class="fas fa-edit"></span></button>' +
+                    '</div>';
+                $('td', row).eq(10).html(html);
+
+                //var txtEstatus = "";
+                ////debugger;
+                //if (data.ESTATUS === 0) {
+                //    txtEstatus = "Pendiente";
+                //    if (data.ID_BOLETO === 0 && data.BOLETO_ESPECIAL === 1) {
+                //        var text = 'PENDIENTE Asignar/ Liberar Boleto Especial';
+                //        var html = '';
+                //        if (data.ESTATUS_SORTEO === "I") {
+                //            html = '<p class="msgDisabled"><span>SORTEO A\u00DAN NO DISPONIBLE</span></p>';
+                //        } else {
+                //            html = '<p class="msgDisabled"><span>BOLETO ESPECIAL</span></p>';
+                //        }
+                //        $('td', row).eq(5).html(html);
+                //        $('td', row).eq(3).remove();
+                //        $('td', row).eq(2).attr("colspan", 2).html('<p class="msg">' + text + "</p>");
+                //        $('td', row).eq(3).html(txtEstatus);
+                //    } else if (data.ID_BOLETO === 0 && data.NUMERO_BOLETO === "") { //&& data.ESTATUS_PAGO === 1
+                //        var text = 'PENDIENTE Rotular y  Seleccionar boleto';
+                //        var html = "";
+                //        var ultimosdias = "";
+                //        //console.log("pendiente", data.ESTATUS_SORTEO, data.ROTULAR_DIAS)
+                //        if (data.ESTATUS_SORTEO === "I") {//|| data.ESTATUS_PAGO === 0
+                //            html = '<p class="msgDisabled"><b>Rotular y seleccionar boleto</b> <br> <span>SORTEO A\u00DAN NO DISPONIBLE</span></p>';
+                //        } else if (data.ROTULAR_DIAS > 0) {
+                //            ultimosdias = "ultimos";
+                //            html = '<a href="' + PATHPROJECT + '/mi-cuenta/membresia/seleccionar-y-rotular/" class="link">Rotular y seleccionar boleto</a>';
+                //            text += '</br><span>&iexcl;Quedan ' + data.ROTULAR_DIAS + ' d&iacute;as para hacerlos!</span>';
+                //        } else if (data.FECHA_LIMITE != "") {
+                //            ultimosdias = "ultimos"
+                //            html = '<a href="' + PATHPROJECT + '/mi-cuenta/membresia/seleccionar-y-rotular/" class="link">Rotular y seleccionar boleto</a>';
+                //            text += '</br><span>&iexcl;Queda el d&iacute;a de hoy para hacerlos!</span>';
+                //        }
+
+                //        $(row).addClass(ultimosdias);
+                //        $('td', row).eq(5).html(html);
+                //        $('td', row).eq(3).remove();
+                //        $('td', row).eq(2).attr("colspan", 2).html('<p class="msg">' + text + "</p>");
+                //        $('td', row).eq(3).html(txtEstatus);
+                //    } else {
+                //        $('td', row).eq(4).html(txtEstatus);
+                //        var regalo = "";
+                //        if (data.TIPO_SELECCION == 12) {
+                //            regalo += '<span>REGALO</span>';
+                //        }
+
+                //        var html = '<a href="javascript:void(0)" class="link disabled" style="margin-right: 10px;">Ver Boleto</a>' +
+                //            '<div class="help-tooltip"><div>Boleto Apartado</div></div>' +
+                //            //'<a href="javascript:void(0)" class="link disabled">Descargar</a>' +
+                //            regalo +
+                //            '<div class="help-tooltip right"><div>Boleto Apartado</div></div>';
+
+
+                //        $('td', row).eq(5).html(html);
+                //    }
+                //} else if (data.ESTATUS === 1) {
+                //    txtEstatus = "Celebrado";
+                //    //$(row).addClass("celebrados");
+                //    $('td', row).eq(4).html(txtEstatus);
+                //}
+
+                //if (data.GANADOR === 1) {
+                //    var html = "";
+                //    txtEstatus = "&iexcl;Ganaste!";
+                //    $('td', row).eq(4).html(txtEstatus);
+                //    $(row).addClass("win");
+
+                //    if (data.VIGENTE == 1 && data.BOLETO_RECLAMADO == 0) {
+                //        html = '<a href="javascript:void(0)" class="link reclamarpremio" data-index="' + index + '">Reclamar Premio</a>';
+                //    } else {
+                //        //html = '<p class="msgDisabled"><b>Premio Reclamado</b></p>';
+                //        html = '<b>Premio Reclamado</b>';
+                //        $(row).addClass("bold");
+                //        /*html = '<p class="msgDisabled"><b>Reclamar Premio</b></p>';
+                //        if (data.BOLETO_RECLAMADO > 0) {
+                //            //tooltip
+                //            html += '<div class="help-tooltip"><div>Solicitud ya realizada</div></div>';
+                //        }*/
+                //    }
+                //    $('td', row).eq(5).html(html);
+                //} else if (data.CERTIFICADO !== "" && data.CERTIFICADO != null) {
+                //    var html = '<a href="javascript:void(0)" class="link verboleto" data-index="' + index + '" style="margin-right: 10px;">Ver Boleto</a>';
+                //    //+'<a href="' + PATHPROJECT + '/umbraco/Surface/ModalsMisBoletos/DownloadPDFCertificado?certificado=' + data.CERTIFICADO + '" class="link descargar">Descargar</a>';
+                //    if (data.TIPO_SELECCION == 12) {
+                //        html += '<span>REGALO</span>';
+                //    }
+
+                //    //'<a href="' + data.Boleto + '" class="link descargar" download="Mi-certificado.pdf">Descargar</a>';
+                //    $('td', row).eq(5).html(html);
+                //}
+
+                //$('td', row).eq(1).html(data.FECHA_SORTEO);
+            },
         }).on('xhr.dt', function (e, settings, data) {
             El20Utils.ocultarCargador();
         });
 
-        //$.validator.addMethod("Alphanumeric",
-        //    function (value, element) {
-        //        return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
-        //    }, "El campo debe ser alfanumérico"
-        //);
+        $(this.htmlTable, "tbody").on('click',
+            //'td.menu-options .btn-group .btn-edit',
+            '.btn-group .btn-edit',
+            function () {
+                var tr = $(this).closest('tr');
+                var row = self.dataTable.row(tr);
+                console.log(row.data(), "validar que datos estan trayendo ");
 
-        //$("#SearchForm").validate({
-        //    rules: {
-        //        Folio: {
-        //            Alphanumeric: true
-        //        },
-        //        Serie: {
-        //            Alphanumeric: true
-        //        },
-        //        RFCP: {
-        //            Alphanumeric: true
-        //        },
-        //        NombreRazonSocial: {
-        //            Alphanumeric: true
-        //        },
+                //var id = row.data().uuid;   
+                self.quantity.val("");
+                $("#SATCode").val("");
+                $("#ProductServiceDescription").val("");
+                $("#SATUnit").val("");
+                self.unitPrice.val("");
+                self.discountRate.val("");
+                self.taxesIEPS.val("");
+                self.taxesIVA.val("");
+                self.subtotal.val("");
+            
+                $("#ServProdModal").modal("show");
+            });
 
-        //    }
-        //});   
+        $.validator.addMethod("Alphanumeric",
+            function (value, element) {
+                return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
+            }, "El campo debe ser alfanumérico"
+        );
+
+        $("#InvoicingForm").validate({
+            rules: {
+                Folio: {
+                    Alphanumeric: true
+                },
+                Serie: {
+                    Alphanumeric: true
+                },
+                RFCP: {
+                    Alphanumeric: true
+                },
+                NombreRazonSocial: {
+                    Alphanumeric: true
+                },
+            }
+        });
 
         $('.money').mask("##,###,##0.00", { reverse: true });
 
@@ -78,8 +212,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         $("#Quantity,#UnitPrice,#DiscountRateProServ").keyup(function () {
             var quantity = parseFloat(self.quantity.val() !== "" ? self.quantity.val() : 0);
-            var unitPrice = parseFloat(self.unitPrice.val() !== "" ? (self.unitPrice.val().replace(",","")) : 0);
-            var discountRate = parseFloat(self.discountRate.val() !== "" ? self.discountRate.val() : 0);    
+            var unitPrice = parseFloat(self.unitPrice.val() !== "" ? (self.unitPrice.val().replace(",", "")) : 0);
+            var discountRate = parseFloat(self.discountRate.val() !== "" ? self.discountRate.val() : 0);
             //console.log(discountRate, "descuento");
 
             //dudas con el impuesto
@@ -113,9 +247,14 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         //Agregar a la lista de conceptos del producto
         $("#addConcept").click(function () {
             //console.log("estoy aqui")
+
+            if (!$('#ConceptForm').valid()) {
+                return;
+            }
+            //$('#ConceptForm').submit();
+
             var t = self.dataTable;
             var ind = t.data().count();
-            console.log("hhajas", index);
             var index = parseInt(ind);
             index++;
 
@@ -174,11 +313,13 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         $("#IssuingTaxRegimeId").change(function () {
             //console.log("valor", $(this).val());
             var val = $(this).val();
-            if (val === "606")
+            if (val === "606") {
                 $("#PropertyAccNum").removeClass("hide");
+                $("#PropertyAccountNumber").addClass("required");
+            }
             else {
                 $("#PropertyAccNum").addClass("hide");
-                $("#PropertyAccountNumber").val("");
+                $("#PropertyAccountNumber").removeClass("required").val("");
             }
         });
 
@@ -433,6 +574,25 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     //cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
                 }
             });
+        }
+
+        function SavedInvoice() {
+            if (!$('#InvoicingForm').valid()) {
+                return;
+            }
+            $('#InvoicingForm').submit();
+        }
+
+        function validarDatos() {
+            if (!$('#InvoicingForm').valid()) {
+                return;
+            }
+
+            //mandar información de la tabla
+
+
+            $("#InvoicingForm").attr('action', 'InvoiceIncome');
+            $('#InvoicingForm').submit();
         }
     };
 
