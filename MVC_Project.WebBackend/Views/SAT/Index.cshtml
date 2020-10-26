@@ -46,6 +46,7 @@
                     {
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(x => x.id)
+                        @Html.HiddenFor(x => x.uuid)
                         @Html.HiddenFor(x => x.ciecUuid)
                         @Html.HiddenFor(x => x.efirmaUuid)
                         <div class="form-horizontal">
@@ -66,34 +67,33 @@
                                             @Html.TextBoxFor(model => model.name, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
                                             @Html.ValidationMessageFor(model => model.name)
                                         </div>
-                                        <div class="col-12 col-md-4">
-                                            <label class="label" data-toggle="tooltip" title="Cambiar imagen" data-original-title="Cambiar imagen">
-                                                <img id="avatar" src="/Content/img/profile_small.jpg">
+                                        <div class="col-12 col-md-4 text-center">
+                                            <label class="label" data-toggle="tooltip" title="Cambiar imagen de la cuenta" data-original-title="Cambiar imagen de la cuenta">
+                                                <img id="avatar" class="rounded-circle" src="@Model.avatar" width="120" height="120" style="background-color:#e9ecef">
                                                 <input type="file" class="sr-only" id="input" name="image" accept="image/*">
                                             </label>
-                                            <div class="progress">
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
-                                            </div>
-                                            <div class="alert" role="alert"></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="ibox float-e-margins">
                                 <div class="ibox-title">
-
-                                    @if (Model.ciecStatus == SystemStatus.ACTIVE.ToString())
-                                    {
-                                        <i class="fa fa-thumbs-up btn btn-primary btn-circle btn-lg" title="Estatus de conexión"></i>
-                                    }
-                                    else
-                                    {
-                                       <i class="fa fa-thumbs-down btn btn-danger btn-circle btn-lg" title="Estatus de conexión"></i>
-                                    }
-
                                     <h5> CIEC </h5>
                                 </div>
                                 <div class="ibox-content">
+                                    <div class="form-group row">
+                                        <div class="col-12 col-md-4">
+                                            @if (Model.ciecStatus == SystemStatus.ACTIVE.ToString())
+                                            {
+                                                <i class="fa fa-thumbs-up btn btn-primary btn-circle btn-lg" title="Estatus de conexión"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="fa fa-thumbs-down btn btn-danger btn-circle btn-lg" title="Estatus de conexión"></i>
+                                            }
+                                            <label class="col-form-label control-label"> Estatus ciec </label>
+                                        </div>
+                                    </div>
                                     <div class="form-group row">
                                         <div class="col-12 col-md-4">
                                             @Html.LabelFor(model => model.ciec, new { @class = "col-form-label control-label" })
@@ -110,7 +110,7 @@
                                         @if (Model.ciecStatus != SystemStatus.ACTIVE.ToString())
                                         {
                                             <div class="col-12 col-md-4">
-                                                <button class="btn btn-color" type="button" id="btn-ciec" style="margin-top:35px"><i class="fas fa-sign-in-alt"></i> Validar ciec </button> 
+                                                <button class="btn btn-color" type="button" id="btn-ciec" style="margin-top:35px"><i class="fas fa-sign-in-alt"></i> Validar ciec </button>
                                             </div>
                                         }
                                     </div>
@@ -118,17 +118,22 @@
                             </div>
                             <div class="ibox float-e-margins">
                                 <div class="ibox-title">
-                                    @if (Model.efirmaStatus == SystemStatus.ACTIVE.ToString())
-                                    {
-                                        <i class="fa fa-thumbs-up btn btn-primary btn-circle btn-lg" title="Estatus de conexión"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="fa fa-thumbs-down btn btn-danger btn-circle btn-lg" title="Estatus de conexión"></i>
-                                    }
-                                    <h5> FIEL </h5>
+                                    <h5> Sello fiscal </h5>
                                 </div>
                                 <div class="ibox-content">
+                                    <div class="form-group row">
+                                        <div class="col-12 col-md-4">
+                                            @if (Model.efirmaStatus == SystemStatus.ACTIVE.ToString())
+                                            {
+                                                <i class="fa fa-thumbs-up btn btn-primary btn-circle btn-lg" title="Estatus de conexión"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="fa fa-thumbs-down btn btn-danger btn-circle btn-lg" title="Estatus de conexión"></i>
+                                            }
+                                        <label class="col-form-label control-label"> Estatus sello fiscal </label>
+                                        </div>
+                                    </div>
                                     <div class="form-group row">
                                         <div class="col-12 col-md-4">
                                             @Html.LabelFor(model => model.cer, new { @class = "col-form-label control-label" })
@@ -181,10 +186,10 @@
                                 </div>
                             </div>
                             @*<div class="form-group row pull-right">
-                                <div class="col-md-8 offset-2 text-right">
-                                    <button type="button" id="btn-save" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
-                                </div>
-                            </div>*@
+                                    <div class="col-md-8 offset-2 text-right">
+                                        <button type="button" id="btn-save" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                                    </div>
+                                </div>*@
                         </div>
                     }
                 </div>
@@ -195,19 +200,19 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalLabel">Crop the image</h5>
+                    <h5 class="modal-title" id="modalLabel">Ajustar imagen</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="img-container">
-                        <img id="image" src="./Cropper.js_files/3456749(1)">
+                        <img id="image" src="">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="crop">Crop</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-color" id="crop">Guardar</button>
                 </div>
             </div>
         </div>
@@ -217,7 +222,7 @@
 @section Scripts {
     <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.js"></script>
     <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.es.js"></script>
-    <script src="~/Scripts/plugins/cropper/cropper.min.js"></script>
+    <script src="~/Scripts/plugins/cropper/cropper1.js"></script>
     <script src="~/Scripts/plugins/touchspin/jquery.bootstrap-touchspin.min.js"></script>
     <script src="~/Scripts/views/SAT/Index.js"></script>
     <script type="text/javascript">

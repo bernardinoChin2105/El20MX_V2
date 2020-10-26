@@ -9,6 +9,7 @@ namespace MVC_Project.WebBackend.Models
 {
     public class BranchOfficeViewModel
     {
+        public string uuid { get; set; }
         public Int64 id { get; set; }
         [DisplayName("Nombre")]
         public string name { get; set; }
@@ -58,5 +59,12 @@ namespace MVC_Project.WebBackend.Models
         public Int64 id { get; set; }
         public string name { get; set; }
         public string status { get; set; }
+    }
+
+    public class LogoBranchOfficeViewModel
+    {
+        public string uuid { get; set; }
+        public string fileName { get; set; }
+        public HttpPostedFileBase image { get; set; }
     }
 }

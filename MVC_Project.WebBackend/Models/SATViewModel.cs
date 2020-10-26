@@ -9,6 +9,7 @@ namespace MVC_Project.WebBackend.Models
     public class SATViewModel
     {
         public Int64 id { get; set; }
+        public string uuid {get; set;}
         [DisplayName("RFC")]
         public string rfc { get; set; }
         [DisplayName("Razón Social")]
