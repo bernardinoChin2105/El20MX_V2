@@ -224,6 +224,32 @@ namespace MVC_Project.Utils
         EFIRMA
     }
 
+    public enum TypeRetention
+    {
+        [Description("ISR")]
+        ISR,
+        [Description("IVA")]
+        IVA
+    }
+
+    public enum TypeTransferred
+    {
+        [Description("IVA")]
+        IVA,
+        [Description("IEPS")]
+        IEPS
+    }
+
+    public enum TypeValuation
+    {
+        [Description("Sin Tasa")]
+        ST0 = 0,
+        [Description("8%")]
+        T8 = 8,
+        [Description("16%")]
+        T16 = 16
+    }
+
     public enum MetodoPago
     {
         [Description("Pago en una sola exhibición")]
@@ -235,35 +261,7 @@ namespace MVC_Project.Utils
     {
         [Description("General de Ley Personas Morales")]
         RegimenFiscal601
-    }
-    //public enum MoralPersonsRegime
-    //{
-    //    Regime601 = 601,
-    //    Regime603 = 603,
-    //    Regime607 = 607,
-    //    Regime609 = 609,
-    //    Regime620 = 620,
-    //    Regime622 = 622,
-    //    Regime623 = 623,
-    //    Regime624 = 624,
-    //    Regime628 = 628,
-    //}
-
-    //public enum NaturalPersonsRegime
-    //{
-    //    Regime605 = 605,
-    //    Regime606 = 606,
-    //    Regime608 = 608,
-    //    Regime611 = 611,
-    //    Regime612 = 612,
-    //    Regime614 = 614,
-    //    Regime615 = 615,
-    //    Regime616 = 616,
-    //    Regime621 = 621,
-    //    Regime622 = 622,
-    //    Regime629 = 626,
-    //    Regime630 = 630,
-    //}
+    }  
 
     public enum TipoComprobante
     {

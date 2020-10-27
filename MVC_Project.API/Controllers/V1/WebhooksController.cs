@@ -408,14 +408,9 @@ namespace MVC_Project.API.Controllers
 
                 if (data != null && data.data != null && data.data.@object != null && data.type == SatwsEvent.CREDENTIAL_UPDATE.GetDisplayName())
                 {
-                    var account = _accountService.FirstOrDefault(x => x.rfc == data.data.@object.rfc);
-
-                    if (account == null)
-                        throw new Exception("No existe rfc a procesar");
-
-                    var credential = _credentialService.FirstOrDefault(x => x.account.id == account.id && x.provider == SystemProviders.SATWS.ToString() && x.credentialType == SATCredentialType.CIEC.ToString());
+                    var credential = _credentialService.FirstOrDefault(x => x.idCredentialProvider == data.data.@object.id);
                     if (credential == null)
-                        throw new Exception("No existe una credencial para el rfc " + account.rfc);
+                        throw new Exception("No existe una credencial para el rfc " + data.data.@object.rfc);
 
                     credential.statusProvider = data.data.@object.status;
                     

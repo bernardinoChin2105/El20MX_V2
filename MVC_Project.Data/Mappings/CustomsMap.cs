@@ -12,7 +12,7 @@ namespace MVC_Project.Data.Mappings
     {
         public CustomsMap()
         {
-            Table("Customs");
+            Table("customs");
             Id(x => x.id).GeneratedBy.Identity().Column("id");
             Map(x => x.code).Column("code").Not.Nullable();
             Map(x => x.description).Column("description").Not.Nullable();                 

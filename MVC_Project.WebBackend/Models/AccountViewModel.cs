@@ -31,4 +31,11 @@ namespace MVC_Project.WebBackend.Models
         public List<SelectListItem> accountListItems;
         public int accountListItem;
     }
+
+    public class AvatarAccountViewMovel
+    {
+        public string uuid { get; set; }
+        public string fileName { get; set; }
+        public HttpPostedFileBase image { get; set; }
+    }
 }

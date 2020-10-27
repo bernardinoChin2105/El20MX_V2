@@ -9,7 +9,7 @@ namespace MVC_Project.Domain.Entities
     public class Credential : IEntity
     {
         public virtual Int64 id { get; set; }
-        //public virtual Guid uuid { get; set; }
+        public virtual Guid uuid { get; set; }
         public virtual Account account { get; set; }
         public virtual string provider { get; set; }
         public virtual string idCredentialProvider { get; set; }

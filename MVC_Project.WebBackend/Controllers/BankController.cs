@@ -60,6 +60,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                         credential = new Credential()
                         {
+                            uuid=Guid.NewGuid(),
                             account = new Account() { id = authUser.Account.Id },
                             provider = SystemProviders.SYNCFY.GetDisplayName(), //"Paybook",
                             idCredentialProvider = credentialPaybook.id_user,

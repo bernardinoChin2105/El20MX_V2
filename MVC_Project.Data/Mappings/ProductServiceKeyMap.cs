@@ -12,7 +12,7 @@ namespace MVC_Project.Data.Mappings
     {
         public ProductServiceKeyMap()
         {
-            Table("ProductServiceKeys");
+            Table("productServiceKeys");
             Id(x => x.id).GeneratedBy.Identity().Column("id");
             Map(x => x.code).Column("code").Not.Nullable();
             Map(x => x.description).Column("description").Not.Nullable();
@@ -20,7 +20,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.includeIVATransferred).Column("includeIVATransferred").Not.Nullable();
             Map(x => x.includeIEPSTranslated).Column("includeIEPSTranslated").Not.Nullable();
             Map(x => x.borderStripStimulus).Column("borderStripStimulus").Not.Nullable();
-            Map(x => x.similarWords).Column("similarWords").Not.Nullable();
+            Map(x => x.similarWords).Column("similarWords").Nullable();
         }
     }
 }
