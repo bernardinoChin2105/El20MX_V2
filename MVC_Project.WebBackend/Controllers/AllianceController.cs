@@ -565,6 +565,8 @@ namespace MVC_Project.WebBackend.Controllers
                     createdAt = todayDate,
                     modifiedAt = todayDate,
                     status = SystemStatus.ACTIVE.ToString(),
+                    prefix = "ALI",
+                    consecutive = 1
                 };
 
                 _allyService.Create(ally);
