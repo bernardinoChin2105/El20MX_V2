@@ -85,6 +85,7 @@ namespace MVC_Project.WebBackend.Models
         public List<SelectListItem> ListCountry { get; set; }
 
         [Display(Name = "E-mail")]
+        public string CustomerEmail { get; set; }
         public Int64 CustomerEmailId { get; set; }
         public List<SelectListItem> ListCustomerEmail { get; set; }
         #endregion
@@ -118,7 +119,7 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "Tipo de Cambio")]
         public string ExchangeRate { get; set; }
-        public List<SelectListItem> ListExchangeRate { get; set; }
+        //public List<SelectListItem> ListExchangeRate { get; set; }
 
         [Display(Name = "Patente Aduanal")]
         public string CustomsPatent { get; set; }
@@ -202,7 +203,7 @@ namespace MVC_Project.WebBackend.Models
             ListCustomsPatent = new List<SelectListItem>();
             ListCustoms = new List<SelectListItem>();
             ListMotionNumber = new List<SelectListItem>();
-            ListExchangeRate = new List<SelectListItem>();
+            //ListExchangeRate = new List<SelectListItem>();
 
             ListCountry = new List<SelectListItem>();
             ListEmailIssued = new List<SelectListItem>();

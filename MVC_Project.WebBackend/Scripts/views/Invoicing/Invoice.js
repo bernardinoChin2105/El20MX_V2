@@ -177,7 +177,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 self.taxesIEPS.val("");
                 self.taxesIVA.val("");
                 self.subtotal.val("");
-            
+
                 $("#ServProdModal").modal("show");
             });
 
@@ -273,6 +273,31 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
             $("#ServProdModal").modal("hide");
         });
+
+        //Validar que sea obligatorio el tipo de cambio cuando sea distinto a MXN
+        $("#Currency").change(function () {
+            var currency = $(this).val();
+            if (currency !== "MXN") {
+                $("#exchange").addClass("hide");
+                $("#ExchangeRate").addClass("required");
+            }
+            else {
+                $("#exchange").removeClass("hide");
+                $("#ExchangeRate").removeClass("required");
+            }
+        });
+
+        //Validar que sea aparezca el IEPS
+        $("#Valuation").change(function () {
+            var value = $(this).val();
+            var column = table.column(8);
+
+                // Toggle the visibility
+            if (value === "IEPS") 
+                column.visible(true);            
+            else            
+                column.visible(false);            
+        });        
 
         //Obtener información de las sucursales
         $("#BranchOffice").change(function () {
@@ -557,6 +582,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         $("#Municipality").val(data.Municipality);
                         $("#State").val(data.State);
                         $("#Country").val(data.Country);
+                        $("#CustomerEmail").val();
 
                         //Falta agregar el email
                         //ListCustomerEmail lista

@@ -395,7 +395,7 @@ namespace MVC_Project.WebBackend.Controllers
                 Value = x.code.ToString()
             }).ToList();
 
-            model.ListTypeInvoices = _typeVoucherService.GetAll().Where(x => x.code != "N").Select(x => new SelectListItem
+            model.ListTypeInvoices = _typeVoucherService.GetAll().Where(x => x.code != "N" && x.code != "T").Select(x => new SelectListItem
             {
                 Text = "(" + x.code + ") " + x.Description.ToString(),
                 Value = x.code.ToString()
@@ -436,6 +436,7 @@ namespace MVC_Project.WebBackend.Controllers
                 Text = "(" + x.code + ") " + x.description.ToString(),
                 Value = x.code.ToString()
             }).ToList();
+            model.Currency = model.ListCurrency.Where(x => x.Value == "MXN").FirstOrDefault().Value;
 
             model.ListCustoms = _customsService.GetAll().Select(x => new SelectListItem
             {

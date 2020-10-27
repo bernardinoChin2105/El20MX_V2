@@ -131,9 +131,10 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    @Html.LabelFor(m => m.CustomerEmailId, new { @class = "col-form-label col-md-2 control-label" })
-                    <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.CustomerEmailId, Model.ListCustomerEmail, "Seleccione...", new { @class = "form-control chosen-select required" })
+                    @Html.LabelFor(m => m.CustomerEmail, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">                        
+                        @Html.TextBoxFor(m => m.CustomerEmail, new { @class = "form-control required", @maxlength = "200", @autocomplete = "off" })
+                        @*@Html.DropDownListFor(model => model.CustomerEmailId, Model.ListCustomerEmail, "Seleccione...", new { @class = "form-control chosen-select required" })*@
                     </div>
                 </div>
             </div>
@@ -158,32 +159,32 @@
                         @Html.HiddenFor(m => m.Serie)
                         @Html.HiddenFor(m => m.Folio)
                     </div>
-                </div>
-                <div class="form-group row">
                     @Html.LabelFor(m => m.UseCFDI, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
                         @Html.DropDownListFor(model => model.UseCFDI, Model.ListUseCFDI, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
+                </div>
+                <div class="form-group row">
                     @Html.LabelFor(m => m.PaymentForm, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
                         @Html.DropDownListFor(model => model.PaymentForm, Model.ListPaymentForm, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
-                </div>
-                <div class="form-group row">
                     @Html.LabelFor(m => m.PaymentMethod, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
                         @Html.DropDownListFor(model => model.PaymentMethod, Model.ListPaymentMethod, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
+                </div>
+                <div class="form-group row">
                     @Html.LabelFor(m => m.Currency, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
                         @Html.DropDownListFor(model => model.Currency, Model.ListCurrency, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
+                    @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label exchange" })
+                    <div class="col-md-4">
+                        @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control exchange", @maxlength = "200", @autocomplete = "off" })
+                    </div>
                 </div>
                 <div class="form-group row">
-                    @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label" })
-                    <div class="col-md-4">
-                        @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off" })
-                    </div>
                     <div class="col-12 col-md-6">
                         <div class="i-checks">
                             <label class="control-label">
@@ -202,17 +203,17 @@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.CustomsPatent, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.CustomsPatent, Model.ListCustomsPatent, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.CustomsPatent, Model.ListCustomsPatent, "Seleccione...", new { @class = "form-control chosen-select" })
                     </div>
                     @Html.LabelFor(m => m.Customs, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.Customs, Model.ListCustoms, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.Customs, Model.ListCustoms, "Seleccione...", new { @class = "form-control chosen-select" })
                     </div>
                 </div>
                 <div class="form-group row">
                     @Html.LabelFor(m => m.MotionNumber, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.MotionNumber, Model.ListMotionNumber, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.MotionNumber, Model.ListMotionNumber, "Seleccione...", new { @class = "form-control chosen-select" })
                     </div>
                 </div>
             </div>
@@ -258,7 +259,7 @@
                     </div>
                     @Html.LabelFor(m => m.DiscountRate, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.TextBoxFor(m => m.DiscountRate, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off" })
+                        @Html.TextBoxFor(m => m.DiscountRate, new { @class = "form-control money", @maxlength = "200", @autocomplete = "off" })
                     </div>
                 </div>
                 <div class="form-group row">
@@ -343,22 +344,22 @@
                     <td id="lblSubtotal">@Model.Subtotal.ToString("C2")</td>
                     @Html.HiddenFor(m => m.Subtotal)
                 </tr>
-                <tr>
+                <tr class="trDiscount">
                     <td><strong>@Html.LabelFor(m => m.TotalDiscount, new { @class = " control-label" }) :</strong></td>
                     <td id="lblTotalDiscount">@Model.TotalDiscount.ToString("C2")</td>
                     @Html.HiddenFor(m => m.TotalDiscount)
                 </tr>
-                <tr>
+                <tr class="trTaxT">
                     <td><strong>@Html.LabelFor(m => m.TaxTransferred, new { @class = " control-label" }) :</strong></td>
                     <td id="lblTaxTransferred">@Model.TaxTransferred.ToString("C2")</td>
                     @Html.HiddenFor(m => m.TaxTransferred)
                 </tr>
-                <tr>
+                <tr class="trTaxWIVA">
                     <td><strong>@Html.LabelFor(m => m.TaxWithheldIVA, new { @class = " control-label" }) :</strong></td>
                     <td id="lblTaxWithheldIVA">@Model.TaxWithheldIVA.ToString("C2")</td>
                     @Html.HiddenFor(m => m.TaxWithheldIVA)
                 </tr>
-                <tr>
+                <tr class="trTaxWISR">
                     <td><strong>@Html.LabelFor(m => m.TaxWithheldISR, new { @class = " control-label" }) :</strong></td>
                     <td id="lblTaxWithheldISR">@Model.TaxWithheldISR.ToString("C2")</td>
                     @Html.HiddenFor(m => m.TaxWithheldISR)
@@ -442,7 +443,7 @@
                             <small>(IVA)</small>
                         </label>
                         <div class="col-md-9">
-                            <input type="text" class="form-control money" name="TaxesIVA" id="TaxesIVA" readonly autocomplete="off" />
+                            <input type="text" class="form-control money" name="TaxesIVA" id="TaxesIVA" autocomplete="off" />
                         </div>
                     </div>
                     <div class="form-group row">
@@ -451,7 +452,7 @@
                             <small>(IEPS)</small>
                         </label>
                         <div class="col-md-9">
-                            <input type="text" class="form-control money" name="TaxesIEPS" id="TaxesIEPS" readonly autocomplete="off" />
+                            <input type="text" class="form-control money" name="TaxesIEPS" id="TaxesIEPS" autocomplete="off" />
                         </div>
                     </div>
                     <div class="form-group row">
