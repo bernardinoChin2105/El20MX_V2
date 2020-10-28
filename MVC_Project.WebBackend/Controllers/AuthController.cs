@@ -85,27 +85,31 @@ namespace MVC_Project.WebBackend.Controllers
                 //Asignar usuario en sesión
                 var authUser = GetValidateUserLogin(user);
 
-                if (user.passwordExpiration.HasValue)
-                {
-                    DateTime passwordExpiration = user.passwordExpiration.Value;
-                    DateTime todayDate = DateUtil.GetDateTimeNow();
-                    if (user.passwordExpiration.Value.Date < todayDate.Date)
-                    {
-                        return RedirectToAction("ChangePassword", "Auth", new { userUuid = user.uuid });
-                    }
-                    string daysBeforeExpireToNotifyConfig = ConfigurationManager.AppSettings["DaysBeforeExpireToNotify"];
-                    int daysBeforeExpireToNotify = 0;
-                    if (Int32.TryParse(daysBeforeExpireToNotifyConfig, out daysBeforeExpireToNotify))
-                    {
-                        int daysLeft = ((TimeSpan)(passwordExpiration.Date - todayDate.Date)).Days + 1;
-                        if (daysLeft <= daysBeforeExpireToNotify)
-                        {
-                            string message = String.Format(ViewLabels.PASSWORD_EXPIRATION_MESSAGE, daysLeft);
-                            MensajeFlashHandler.RegistrarMensaje(message, TiposMensaje.Info);
-                        }
-                    }
-                }
-                
+
+                #region Se comenta para evitar validar la expiración del password
+
+                //if (user.passwordExpiration.HasValue)
+                //{
+                //    DateTime passwordExpiration = user.passwordExpiration.Value;
+                //    DateTime todayDate = DateUtil.GetDateTimeNow();
+                //    if (user.passwordExpiration.Value.Date < todayDate.Date)
+                //    {
+                //        return RedirectToAction("ChangePassword", "Auth", new { userUuid = user.uuid });
+                //    }
+                //    string daysBeforeExpireToNotifyConfig = ConfigurationManager.AppSettings["DaysBeforeExpireToNotify"];
+                //    int daysBeforeExpireToNotify = 0;
+                //    if (Int32.TryParse(daysBeforeExpireToNotifyConfig, out daysBeforeExpireToNotify))
+                //    {
+                //        int daysLeft = ((TimeSpan)(passwordExpiration.Date - todayDate.Date)).Days + 1;
+                //        if (daysLeft <= daysBeforeExpireToNotify)
+                //        {
+                //            string message = String.Format(ViewLabels.PASSWORD_EXPIRATION_MESSAGE, daysLeft);
+                //            MensajeFlashHandler.RegistrarMensaje(message, TiposMensaje.Info);
+                //        }
+                //    }
+                //}
+
+                #endregion
 
                 var memberships = user.memberships.Where(x => x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
 
