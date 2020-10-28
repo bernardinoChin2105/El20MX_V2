@@ -96,7 +96,7 @@ namespace MVC_Project.WebBackend.Controllers
                 //model.IssuingTaxRegimeId = "";//Faltan estos datos del cliente
 
                 //Obtener listas de los combos
-                SetCombos(ref model);
+                SetCombos(null, ref model);
             }
             catch (Exception ex)
             {
@@ -115,122 +115,122 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
-                if (model.TypeInvoice != "E")
+                //if (model.TypeInvoice != "E")
+                //{
+                //Validar que se exista el receptor
+                Customer customer = new Customer();
+                if ((model.CustomerId != 0 && model.TypeInvoice == "E") || model.CustomerId != 0)
                 {
-                    //Validar que se exista el receptor
-                    Customer customer = new Customer();
-                    if (model.CustomerId > 0)
-                    {
-                        //Poder guardar el cliente si no existe       
-                        customer = new Customer()
-                        {
-                            uuid = Guid.NewGuid(),
-                            account = new Account { id = authUser.Account.Id },
-                            businessName = model.BusinessName,
-                            rfc = model.RFC,
-                            //taxRegime = model.taxRegime,
-                            street = model.Street,
-                            interiorNumber = model.InteriorNumber,
-                            outdoorNumber = model.OutdoorNumber,
-                            zipCode = model.ZipCode,
-                            createdAt = todayDate,
-                            modifiedAt = todayDate,
-                            status = SystemStatus.ACTIVE.ToString()
-                        };
-
-                        if (model.Colony.Value > 0)
-                            customer.colony = model.Colony.Value;
-                        if (model.Municipality.Value > 0)
-                            customer.municipality = model.Municipality.Value;
-                        if (model.State.Value > 0)
-                            customer.state = model.State.Value;
-                        if (model.Country.Value > 0)
-                            customer.country = model.Country.Value;
-                    }
-                    else
-                        customer = new Customer() { id = model.CustomerId };
-
-                    InvoiceIssued invoice = new InvoiceIssued()
+                    //Poder guardar el cliente si no existe       
+                    customer = new Customer()
                     {
                         uuid = Guid.NewGuid(),
-                        folio = model.Folio,
-                        serie = model.Serie,
-                        paymentMethod = model.PaymentMethod,
-                        paymentForm = model.PaymentForm,
-                        currency = model.Currency,
-                        invoiceType = model.TypeInvoice,
-                        total = model.Total,
-                        subtotal = model.Subtotal,
-                        account = new Account() { id = authUser.Account.Id },
-                        customer = customer,
+                        account = new Account { id = authUser.Account.Id },
+                        businessName = model.CustomerName,
+                        rfc = model.RFC,
+                        //taxRegime = model.taxRegime,
+                        street = model.Street,
+                        interiorNumber = model.InteriorNumber,
+                        outdoorNumber = model.OutdoorNumber,
+                        zipCode = model.ZipCode,
                         createdAt = todayDate,
                         modifiedAt = todayDate,
-                        json = JsonConvert.SerializeObject(model),
-                        status = IssueStatus.SAVED.ToString(), // para saber si esta guardado
+                        status = SystemStatus.ACTIVE.ToString()
                     };
-                    //validar que exista la el iva para guardar
-                    //iva = model.TaxWithheldIVA,
 
-                    //_invoiceIssuedService.Create(invoice);
-                    _invoiceIssuedService.SaveInvoice(invoice, null, customer);
+                    if (model.Colony.Value > 0)
+                        customer.colony = model.Colony.Value;
+                    if (model.Municipality.Value > 0)
+                        customer.municipality = model.Municipality.Value;
+                    if (model.State.Value > 0)
+                        customer.state = model.State.Value;
+                    if (model.Country.Value > 0)
+                        customer.country = model.Country.Value;
                 }
                 else
+                    customer = new Customer() { id = model.CustomerId };
+
+                InvoiceIssued invoice = new InvoiceIssued()
                 {
-                    Provider provider = new Provider();
-                    if (model.CustomerId == 0)
-                    {
-                        //Poder guardar el cliente si no existe        
-                        provider = new Provider()
-                        {
-                            uuid = Guid.NewGuid(),
-                            account = new Account { id = authUser.Account.Id },
-                            businessName = model.BusinessName,
-                            rfc = model.RFC,
-                            //taxRegime = model.taxRegime,
-                            street = model.Street,
-                            interiorNumber = model.InteriorNumber,
-                            outdoorNumber = model.OutdoorNumber,
-                            zipCode = model.ZipCode,
-                            createdAt = todayDate,
-                            modifiedAt = todayDate,
-                            status = SystemStatus.ACTIVE.ToString()
-                        };
+                    uuid = Guid.NewGuid(),
+                    folio = model.Folio,
+                    serie = model.Serie,
+                    paymentMethod = model.PaymentMethod,
+                    paymentForm = model.PaymentForm,
+                    currency = model.Currency,
+                    invoiceType = model.TypeInvoice,
+                    total = model.Total,
+                    subtotal = model.Subtotal,
+                    account = new Account() { id = authUser.Account.Id },
+                    customer = customer,
+                    createdAt = todayDate,
+                    modifiedAt = todayDate,
+                    json = JsonConvert.SerializeObject(model),
+                    status = IssueStatus.SAVED.ToString(), // para saber si esta guardado
+                };
+                //validar que exista la el iva para guardar
+                //iva = model.TaxWithheldIVA,
 
-                        if (model.Colony.Value > 0)
-                            provider.colony = model.Colony.Value;
-                        if (model.Municipality.Value > 0)
-                            provider.municipality = model.Municipality.Value;
-                        if (model.State.Value > 0)
-                            provider.state = model.State.Value;
-                        if (model.Country.Value > 0)
-                            provider.country = model.Country.Value;
-                    }
-                    else
-                        provider = new Provider() { id = model.CustomerId };
+                //_invoiceIssuedService.Create(invoice);
+                _invoiceIssuedService.SaveInvoice(invoice, null, customer);
+                //}
+                //else
+                //{
+                //    Provider provider = new Provider();
+                //    if (model.CustomerId == 0)
+                //    {
+                //        //Poder guardar el cliente si no existe        
+                //        provider = new Provider()
+                //        {
+                //            uuid = Guid.NewGuid(),
+                //            account = new Account { id = authUser.Account.Id },
+                //            businessName = model.BusinessName,
+                //            rfc = model.RFC,
+                //            //taxRegime = model.taxRegime,
+                //            street = model.Street,
+                //            interiorNumber = model.InteriorNumber,
+                //            outdoorNumber = model.OutdoorNumber,
+                //            zipCode = model.ZipCode,
+                //            createdAt = todayDate,
+                //            modifiedAt = todayDate,
+                //            status = SystemStatus.ACTIVE.ToString()
+                //        };
 
-                    InvoiceReceived invoice = new InvoiceReceived()
-                    {
-                        uuid = Guid.NewGuid(),
-                        folio = model.Folio,
-                        serie = model.Serie,
-                        paymentMethod = model.PaymentMethod,
-                        paymentForm = model.PaymentForm,
-                        currency = model.Currency,
-                        invoiceType = model.TypeInvoice,
-                        total = model.Total,
-                        subtotal = model.Subtotal,
-                        account = new Account() { id = authUser.Account.Id },
-                        provider = provider,
-                        createdAt = todayDate,
-                        modifiedAt = todayDate,
-                        json = JsonConvert.SerializeObject(model),
-                        status = IssueStatus.SAVED.ToString(), // para saber si esta guardado
-                    };
-                    //validar que exista la el iva para guardar
-                    //iva = model.TaxWithheldIVA,
+                //        if (model.Colony.Value > 0)
+                //            provider.colony = model.Colony.Value;
+                //        if (model.Municipality.Value > 0)
+                //            provider.municipality = model.Municipality.Value;
+                //        if (model.State.Value > 0)
+                //            provider.state = model.State.Value;
+                //        if (model.Country.Value > 0)
+                //            provider.country = model.Country.Value;
+                //    }
+                //    else
+                //        provider = new Provider() { id = model.CustomerId };
 
-                    _invoiceReceivedService.SaveInvoice(invoice, provider, null);
-                }
+                //    InvoiceReceived invoice = new InvoiceReceived()
+                //    {
+                //        uuid = Guid.NewGuid(),
+                //        folio = model.Folio,
+                //        serie = model.Serie,
+                //        paymentMethod = model.PaymentMethod,
+                //        paymentForm = model.PaymentForm,
+                //        currency = model.Currency,
+                //        invoiceType = model.TypeInvoice,
+                //        total = model.Total,
+                //        subtotal = model.Subtotal,
+                //        account = new Account() { id = authUser.Account.Id },
+                //        provider = provider,
+                //        createdAt = todayDate,
+                //        modifiedAt = todayDate,
+                //        json = JsonConvert.SerializeObject(model),
+                //        status = IssueStatus.SAVED.ToString(), // para saber si esta guardado
+                //    };
+                //    //validar que exista la el iva para guardar
+                //    //iva = model.TaxWithheldIVA,
+
+                //    _invoiceReceivedService.SaveInvoice(invoice, provider, null);
+                //}
 
                 MensajeFlashHandler.RegistrarMensaje("Factura Guardada", TiposMensaje.Success);
                 return RedirectToAction("InvoicesSaved");
@@ -246,7 +246,7 @@ namespace MVC_Project.WebBackend.Controllers
         #region Realizar timbrado de factura
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public ActionResult IssueIncomeInvoice(InvoiceViewModel model)
-       {
+        {
 
             bool success = false;
             try
@@ -385,7 +385,7 @@ namespace MVC_Project.WebBackend.Controllers
         }
         #endregion
 
-        private void SetCombos(ref InvoiceViewModel model)
+        private void SetCombos(string zipCode, ref InvoiceViewModel model)
         {
             var authUser = Authenticator.AuthenticatedUser;
 
@@ -489,6 +489,41 @@ namespace MVC_Project.WebBackend.Controllers
                 Text = x.nameCountry.ToString(),
                 Value = x.id.ToString()
             }).ToList();
+
+            var stateList = _stateService.GetAll().Select(x => new SelectListItem { Text = x.nameState, Value = x.id.ToString() }).ToList();
+            stateList.Insert(0, (new SelectListItem { Text = "Seleccione...", Value = "-1" }));
+            model.ListState = stateList;
+
+            if (!string.IsNullOrEmpty(zipCode))
+            {
+                var listResponse = _stateService.GetLocationList(zipCode);
+
+                var countries = listResponse.Select(x => new { id = x.countryId, name = x.nameCountry }).Distinct();
+                model.ListCountry = countries.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+
+                var municipalities = listResponse.Select(x => new { id = x.municipalityId, name = x.nameMunicipality }).Distinct();
+                model.ListMunicipality = municipalities.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+
+                model.ListColony = listResponse.Select(x => new SelectListItem
+                {
+                    Text = x.nameSettlement,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+            }
+            else
+            {
+                model.ListCountry = new List<SelectListItem>();
+                model.ListMunicipality = new List<SelectListItem>();
+                model.ListColony = new List<SelectListItem>();
+            }
         }
 
         public JsonResult GetSerieFolio(Int64 sucursalId)

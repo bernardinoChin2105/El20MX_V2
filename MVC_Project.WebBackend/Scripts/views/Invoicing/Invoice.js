@@ -25,7 +25,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
     this.discountRate = $("#DiscountRateProServ");
     this.taxesIEPS = $("#TaxesIEPS");
     this.taxesIVA = $("#TaxesIVA");
-    this.subtotal = $("#Subtotal");
+    this.subtotal = $("#SubtotalM");
 
     this.init = function () {
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
@@ -41,120 +41,146 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             "paging": false,
             searching: false,
             ordering: false,
-            "createdRow": function (row, data, index) {
-                console.log(data);
+            "columnDefs": [                              
+                {
+                    "targets": 0, render: function (data, type, row, meta) {
+                        return '<input type="text" class="form-control" readonly name="indexPD" value="' + data + '" />';     
+                    }
+                },
+                {
+                    "targets": 1, render: function (data, type, row, meta) {
+                        //console.log(data, type, row, meta, "todos")
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].Quantity" value="' + data + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 2, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].SATCode" value="' + data + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 3, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].ProductServiceDescription" value="' + data + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 4, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].SATUnit" value="' + data + '" />';
+                        return html;
+                    } },
+                {
+                    "targets": 5, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].UnitPrice" value="' + data + '" />';
+                        return html;
+                    } },
+                {
+                    "targets": 6, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].DiscountRateProServ" value="' + data + '" />';
+                        return html;
+                    } },          
+                {
+                    "targets": 7, render: function (data, type, row, meta) {
+                        //console.log(data, type, row, meta, "todos")
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].TaxesIEPS" value="' + data + '" />';
+                        return html;
+                    } },
+                {
+                    "targets": 8, render: function (data, type, row, meta) {                        
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].TaxesIVA" value="' + data + '" />';
+                        return html;
+                    } },
+                {
+                    "targets": 9, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].Subtotal" value="' + data + '" />';
+                        return html;
+                    } },
+                {
+                    "targets": 10, render: function (data, type, row, meta) {
+                        var button = '<div class="btn-group" role="group" aria-label="Opciones">' +
+                            '<button class="btn btn-light btn-edit"  title="Editar Producto o Servicio" style="margin-left:5px;"><span class="fas fa-edit"></span></button>' +
+                            '</div>';
+                        return button;
+                    }
+                }
+            ],
+            //"createdRow": function (row, data, index) {
+            //    //"rowCallback": function (row, data, index) {
+            //    console.log(row, data, "create row");
+            //    console.log(row, data, index, "create row");
+            //    //   var index = 0;                      
+            //},
+            "footerCallback": function (row, data, start, end, display) {
+                console.log(row, data, start, end, display, "lo que trae")
+                var api = this.api();
 
-                $("#Subtotal").val();
+                // Remove the formatting to get integer data for summation
+                var intVal = function (i) {
+                    return typeof i === 'string' ?
+                        i.replace(/[\$,]/g, '') * 1 :
+                        typeof i === 'number' ?
+                            i : 0;
+                };
+
+                // Total over all pages
+                //total = api
+                //    .column(9)
+                //    .data()
+                //    .reduce(function (a, b) {
+                //        return intVal(a) + intVal(b);
+                //    }, 0);
+
+                //total = api
+                //    .column(9)
+                //    .data()
+                //    .reduce(function (a, b) {
+                //        return intVal(a) + intVal(b);
+                //    }, 0);
+
+                trasladosIEPSIVA = api
+                    .column(8)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total over this page
+                subtotal = api
+                    .column(9, { page: 'current' })
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Update footer
+                console.log("total,", subtotal);
+                //$(api.column(4).footer()).html(
+                //    '$' + pageTotal + ' ( $' + total + ' total)'
+                //);
+
+                var total = subtotal + trasladosIEPSIVA;
+
+                $("#Subtotal").val(subtotal);
+                $("#lblSubtotal").html('$' + subtotal);
+
                 $("#TotalDiscount").val();
-                $("#TaxTransferred").val();
-                $("#TaxWithheldIVA").val();
-                $("#TaxWithheldISR").val();
-                $("#Total").val();
-
-                $("#lblSubtotal").val();
                 $("#lblTotalDiscount").val();
-                $("#lblTaxTransferred").val();
-                $("#lblTaxWithheldIVA").val();
-                $("#lblTaxWithheldISR").val();
-                $("#lblTotal").val();
-
-                var html = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                    '<button class="btn btn-light btn-edit"  title="Editar Producto o Servicio" style="margin-left:5px;"><span class="fas fa-edit"></span></button>' +
-                    '</div>';
-                $('td', row).eq(10).html(html);
-
-                //var txtEstatus = "";
-                ////debugger;
-                //if (data.ESTATUS === 0) {
-                //    txtEstatus = "Pendiente";
-                //    if (data.ID_BOLETO === 0 && data.BOLETO_ESPECIAL === 1) {
-                //        var text = 'PENDIENTE Asignar/ Liberar Boleto Especial';
-                //        var html = '';
-                //        if (data.ESTATUS_SORTEO === "I") {
-                //            html = '<p class="msgDisabled"><span>SORTEO A\u00DAN NO DISPONIBLE</span></p>';
-                //        } else {
-                //            html = '<p class="msgDisabled"><span>BOLETO ESPECIAL</span></p>';
-                //        }
-                //        $('td', row).eq(5).html(html);
-                //        $('td', row).eq(3).remove();
-                //        $('td', row).eq(2).attr("colspan", 2).html('<p class="msg">' + text + "</p>");
-                //        $('td', row).eq(3).html(txtEstatus);
-                //    } else if (data.ID_BOLETO === 0 && data.NUMERO_BOLETO === "") { //&& data.ESTATUS_PAGO === 1
-                //        var text = 'PENDIENTE Rotular y  Seleccionar boleto';
-                //        var html = "";
-                //        var ultimosdias = "";
-                //        //console.log("pendiente", data.ESTATUS_SORTEO, data.ROTULAR_DIAS)
-                //        if (data.ESTATUS_SORTEO === "I") {//|| data.ESTATUS_PAGO === 0
-                //            html = '<p class="msgDisabled"><b>Rotular y seleccionar boleto</b> <br> <span>SORTEO A\u00DAN NO DISPONIBLE</span></p>';
-                //        } else if (data.ROTULAR_DIAS > 0) {
-                //            ultimosdias = "ultimos";
-                //            html = '<a href="' + PATHPROJECT + '/mi-cuenta/membresia/seleccionar-y-rotular/" class="link">Rotular y seleccionar boleto</a>';
-                //            text += '</br><span>&iexcl;Quedan ' + data.ROTULAR_DIAS + ' d&iacute;as para hacerlos!</span>';
-                //        } else if (data.FECHA_LIMITE != "") {
-                //            ultimosdias = "ultimos"
-                //            html = '<a href="' + PATHPROJECT + '/mi-cuenta/membresia/seleccionar-y-rotular/" class="link">Rotular y seleccionar boleto</a>';
-                //            text += '</br><span>&iexcl;Queda el d&iacute;a de hoy para hacerlos!</span>';
-                //        }
-
-                //        $(row).addClass(ultimosdias);
-                //        $('td', row).eq(5).html(html);
-                //        $('td', row).eq(3).remove();
-                //        $('td', row).eq(2).attr("colspan", 2).html('<p class="msg">' + text + "</p>");
-                //        $('td', row).eq(3).html(txtEstatus);
-                //    } else {
-                //        $('td', row).eq(4).html(txtEstatus);
-                //        var regalo = "";
-                //        if (data.TIPO_SELECCION == 12) {
-                //            regalo += '<span>REGALO</span>';
-                //        }
-
-                //        var html = '<a href="javascript:void(0)" class="link disabled" style="margin-right: 10px;">Ver Boleto</a>' +
-                //            '<div class="help-tooltip"><div>Boleto Apartado</div></div>' +
-                //            //'<a href="javascript:void(0)" class="link disabled">Descargar</a>' +
-                //            regalo +
-                //            '<div class="help-tooltip right"><div>Boleto Apartado</div></div>';
 
 
-                //        $('td', row).eq(5).html(html);
-                //    }
-                //} else if (data.ESTATUS === 1) {
-                //    txtEstatus = "Celebrado";
-                //    //$(row).addClass("celebrados");
-                //    $('td', row).eq(4).html(txtEstatus);
-                //}
+                $("#TaxTransferred").val(trasladosIEPSIVA);
+                $("#lblTaxTransferred").html('$' + trasladosIEPSIVA);
 
-                //if (data.GANADOR === 1) {
-                //    var html = "";
-                //    txtEstatus = "&iexcl;Ganaste!";
-                //    $('td', row).eq(4).html(txtEstatus);
-                //    $(row).addClass("win");
+                $("#TaxWithheldIVA").val();
+                $("#lblTaxWithheldIVA").html('$');
 
-                //    if (data.VIGENTE == 1 && data.BOLETO_RECLAMADO == 0) {
-                //        html = '<a href="javascript:void(0)" class="link reclamarpremio" data-index="' + index + '">Reclamar Premio</a>';
-                //    } else {
-                //        //html = '<p class="msgDisabled"><b>Premio Reclamado</b></p>';
-                //        html = '<b>Premio Reclamado</b>';
-                //        $(row).addClass("bold");
-                //        /*html = '<p class="msgDisabled"><b>Reclamar Premio</b></p>';
-                //        if (data.BOLETO_RECLAMADO > 0) {
-                //            //tooltip
-                //            html += '<div class="help-tooltip"><div>Solicitud ya realizada</div></div>';
-                //        }*/
-                //    }
-                //    $('td', row).eq(5).html(html);
-                //} else if (data.CERTIFICADO !== "" && data.CERTIFICADO != null) {
-                //    var html = '<a href="javascript:void(0)" class="link verboleto" data-index="' + index + '" style="margin-right: 10px;">Ver Boleto</a>';
-                //    //+'<a href="' + PATHPROJECT + '/umbraco/Surface/ModalsMisBoletos/DownloadPDFCertificado?certificado=' + data.CERTIFICADO + '" class="link descargar">Descargar</a>';
-                //    if (data.TIPO_SELECCION == 12) {
-                //        html += '<span>REGALO</span>';
-                //    }
+                $("#TaxWithheldISR").val();
+                $("#lblTaxWithheldISR").html('$');
 
-                //    //'<a href="' + data.Boleto + '" class="link descargar" download="Mi-certificado.pdf">Descargar</a>';
-                //    $('td', row).eq(5).html(html);
-                //}
-
-                //$('td', row).eq(1).html(data.FECHA_SORTEO);
-            },
+                $("#Total").val();
+                $("#lblTotal").html('$' + total);
+            }
         }).on('xhr.dt', function (e, settings, data) {
             El20Utils.ocultarCargador();
         });
@@ -165,18 +191,20 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             function () {
                 var tr = $(this).closest('tr');
                 var row = self.dataTable.row(tr);
+                var data = row.data();
                 console.log(row.data(), "validar que datos estan trayendo ");
 
                 //var id = row.data().uuid;   
-                self.quantity.val("");
-                $("#SATCode").val("");
-                $("#ProductServiceDescription").val("");
-                $("#SATUnit").val("");
-                self.unitPrice.val("");
-                self.discountRate.val("");
-                self.taxesIEPS.val("");
-                self.taxesIVA.val("");
-                self.subtotal.val("");
+                $("#Row").val(data[0]);
+                self.quantity.val(data[1]);
+                $("#SATCode").val(data[2]);
+                $("#ProductServiceDescription").val(data[3]);
+                $("#SATUnit").val(data[4]);
+                self.unitPrice.val(data[5]);
+                self.discountRate.val(data[6]);
+                self.taxesIEPS.val(data[7]);
+                self.taxesIVA.val(data[8]);
+                self.subtotal.val(data[9]);
 
                 $("#ServProdModal").modal("show");
             });
@@ -241,6 +269,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             $("#ConceptForm").each(function () {
                 //console.log("holas");
                 this.reset();
+                $("#Row").val("");
             });
         });
 
@@ -251,38 +280,63 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             if (!$('#ConceptForm').valid()) {
                 return;
             }
-            //$('#ConceptForm').submit();
 
             var t = self.dataTable;
-            var ind = t.data().count();
-            var index = parseInt(ind);
-            index++;
+            var row = $("#Row").val();
 
-            t.row.add([
-                index,
-                self.quantity.val(),
-                $("#SATCode").val(),
-                $("#ProductServiceDescription").val(),
-                $("#SATUnit").val(),
-                self.unitPrice.val(),
-                self.discountRate.val(),
-                self.taxesIEPS.val(),
-                self.taxesIVA.val(),
-                self.subtotal.val()
-            ]).draw(false);
+            if (row !== "") {
+                var indexR = parseInt(row);
+                //indexR--;
+                t.row(indexR - 1).data(
+                    [
+                        indexR,
+                        self.quantity.val(),
+                        $("#SATCode").val(),
+                        $("#ProductServiceDescription").val(),
+                        $("#SATUnit").val(),
+                        self.unitPrice.val(),
+                        self.discountRate.val(),
+                        self.taxesIEPS.val(),
+                        self.taxesIVA.val(),
+                        self.subtotal.val(),
+                        indexR
+                    ]
+                ).draw(false);
+            } else {
+                var ind = t.rows().count();
+                var index = parseInt(ind);
+                index++;
+
+                t.row.add(
+                    [
+                        index,
+                        self.quantity.val(),
+                        $("#SATCode").val(),
+                        $("#ProductServiceDescription").val(),
+                        $("#SATUnit").val(),
+                        self.unitPrice.val(),
+                        self.discountRate.val(),
+                        self.taxesIEPS.val(),
+                        self.taxesIVA.val(),
+                        self.subtotal.val(),
+                        index
+                    ]
+                ).draw(false);
+            }
 
             $("#ServProdModal").modal("hide");
         });
 
         //Validar que sea obligatorio el tipo de cambio cuando sea distinto a MXN
         $("#Currency").change(function () {
+            console.log("pruebas")
             var currency = $(this).val();
             if (currency !== "MXN") {
-                $("#exchange").addClass("hide");
+                $(".exchange").removeClass("hide");
                 $("#ExchangeRate").addClass("required");
             }
             else {
-                $("#exchange").removeClass("hide");
+                $(".exchange").addClass("hide");
                 $("#ExchangeRate").removeClass("required");
             }
         });
@@ -292,12 +346,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var value = $(this).val();
             var column = table.column(8);
 
-                // Toggle the visibility
-            if (value === "IEPS") 
-                column.visible(true);            
-            else            
-                column.visible(false);            
-        });        
+            // Toggle the visibility
+            if (value === "IEPS")
+                column.visible(true);
+            else
+                column.visible(false);
+        });
 
         //Obtener información de las sucursales
         $("#BranchOffice").change(function () {
@@ -443,8 +497,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
         $("#ZipCode").blur(function () {
-            //console.log("perdio el focus");
+            //console.log("perdio el focus");            
             var value = $(this).val();
+            if (!value) {
+                ClearCombos();
+                return;
+            }
             var cmbColony = $("#Colony");
             var cmbMunicipality = $("#Municipality");
             var cmbState = $("#State");
@@ -482,29 +540,32 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                             }));
                             cmbColony.val(datos[0].id);
                         } else {
-                            cmbState.val(-1);
-                            cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
-                            cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
+                            ClearCombos()
                             toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
                         }
                     } else {
-                        cmbState.val(-1);
-                        cmbCountry.html('<option value="-1">Seleccione...</option>').val(-1);
-                        cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
-                        cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
+                        ClearCombos()
                         toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
                     }
 
                 },
                 error: function (xhr) {
-                    console.log('error');
-                    cmbState.val(-1);
-                    cmbCountry.html('<option value="-1">Seleccione...</option>').val(-1);
-                    cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
-                    cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
+                    ClearCombos();
                 }
             });
         });
+
+        function ClearCombos() {
+            var cmbColony = $("#Colony");
+            var cmbMunicipality = $("#Municipality");
+            var cmbState = $("#State");
+            var cmbCountry = $("#Country");
+
+            cmbState.val(-1);
+            cmbCountry.html('<option value="-1">Seleccione...</option>').val(-1);
+            cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
+            cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
+        }
 
         //Buscar información de la clave de producto o servicio
         $('#SATCode').typeahead({
@@ -563,6 +624,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         function GetReceiver(id, type) {
             //console.log(id, type, "respuesta");
+            El20Utils.mostrarCargador();
             $.ajax({
                 type: 'Get',
                 async: true,
@@ -583,6 +645,10 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         $("#State").val(data.State);
                         $("#Country").val(data.Country);
                         $("#CustomerEmail").val();
+                        if (data.ZipCode !== null) {
+                            $("#ZipCode").trigger("blur");
+                        }
+                        El20Utils.ocultarCargador();
 
                         //Falta agregar el email
                         //ListCustomerEmail lista
@@ -602,24 +668,23 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             });
         }
 
-        function SavedInvoice() {
+        $("#SavedInvoice").click(function () {
             if (!$('#InvoicingForm').valid()) {
                 return;
             }
+            $("#InvoicingForm").attr('action', 'Invoice');
             $('#InvoicingForm').submit();
-        }
+        });
 
-        function validarDatos() {
+        $("#validarDatos").click(function () {
             if (!$('#InvoicingForm').valid()) {
                 return;
             }
 
             //mandar información de la tabla
-
-
             $("#InvoicingForm").attr('action', 'InvoiceIncome');
             $('#InvoicingForm').submit();
-        }
+        });
     };
 
 };

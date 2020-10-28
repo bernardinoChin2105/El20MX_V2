@@ -34,16 +34,17 @@ namespace MVC_Project.Domain.Services
             {
                 try
                 {
-                    if (invoice.id > 0)
-                        _repository.Session.Save(invoice);
-                    else
-                        _repository.Session.Update(invoice);
 
-                    if (provider != null)
+                    if (provider != null && provider.id == 0)
                         _repository.Session.Save(provider);
 
-                    if (customer != null)
+                    if (customer != null && customer.id == 0)
                         _repository.Session.Save(customer);
+
+                    if (invoice.id > 0)
+                        _repository.Session.Update(invoice);
+                    else
+                        _repository.Session.Save(invoice);
 
                     transaction.Commit();
                     return invoice;

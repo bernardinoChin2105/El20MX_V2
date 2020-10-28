@@ -7,10 +7,21 @@
     var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
     AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
     var hasFullAccessController = user.HasFullAccessController(controllerName);
+
+    //var exchange = Model.Currency == "MXN" ? "hide" : "";
 }
 
 @section styles{
     <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
+    <style>
+        table.invoices-table tr td  {
+            padding: 0px;
+        }
+        table.invoices-table tr td input.form-control {
+            font-size: 11px;
+            padding: 5px;
+        }
+    </style>
 }
 
 <div class="ibox-content p-xl">
@@ -23,12 +34,15 @@
             </div>
             <div class="col-md-2">
                 <img src="@Model.Logo" class="img" />
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
             </div>
             <div class="col-md-5">
                 <strong>@Model.BusinessName</strong><br>
                 <strong>RFC: @Model.IssuingRFC</strong><br>
-                <input type="hidden" name="IssuingRFC" id="IssuingRFC" />
-                <input type="hidden" name="BusinessName" id="BusinessName" />
+                <input type="hidden" name="IssuingRFC" id="IssuingRFC" value="@Model.IssuingRFC" />
+                <input type="hidden" name="BusinessName" id="BusinessName" value="@Model.BusinessName" />
+                <input type="hidden" name="IssuingTaxEmail" id="IssuingTaxEmail" value="@Model.IssuingTaxEmail" />
                 <strong><abbr title="Email">E-mail:</abbr> @Model.IssuingTaxEmail</strong><br /><br />
                 @*<strong>Régimen Fiscal: @Model.IssuingTaxRegime</strong><br>*@
                 <div class="form-group row">
@@ -83,7 +97,7 @@
                     <div class="col-md-4">
                         @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control", @maxlength = "200", @autocomplete = "off" })
                         <input type="hidden" name="CustomerId" id="CustomerId" />
-                        <input type="hidden" name="TypeReceptor" id="TypeReceptor" />                        
+                        <input type="hidden" name="TypeReceptor" id="TypeReceptor" />
                     </div>
                     @Html.LabelFor(m => m.RFC, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
@@ -132,7 +146,7 @@
                 </div>
                 <div class="form-group row">
                     @Html.LabelFor(m => m.CustomerEmail, new { @class = "col-form-label col-md-2 control-label" })
-                    <div class="col-md-4">                        
+                    <div class="col-md-4">
                         @Html.TextBoxFor(m => m.CustomerEmail, new { @class = "form-control required", @maxlength = "200", @autocomplete = "off" })
                         @*@Html.DropDownListFor(model => model.CustomerEmailId, Model.ListCustomerEmail, "Seleccione...", new { @class = "form-control chosen-select required" })*@
                     </div>
@@ -179,10 +193,22 @@
                     <div class="col-md-4">
                         @Html.DropDownListFor(model => model.Currency, Model.ListCurrency, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
-                    @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label exchange" })
-                    <div class="col-md-4">
-                        @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control exchange", @maxlength = "200", @autocomplete = "off" })
-                    </div>
+
+                    @if (Model.Currency == "MXN")
+                    {
+                        @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label exchange hide" })
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control exchange hide", @maxlength = "200", @autocomplete = "off" })
+                        </div>
+                    }
+                    else
+                    {
+                        @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label exchange required" })
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control exchange required", @maxlength = "200", @autocomplete = "off" })
+                        </div>
+                    }
+
                 </div>
                 <div class="form-group row">
                     <div class="col-12 col-md-6">
@@ -285,7 +311,7 @@
         </div>
 
         <div class="table-responsive m-t">
-            <table id="table" class="table invoice-table">
+            <table id="table" class="table table-responsive invoices-table">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -304,7 +330,7 @@
                             <small>(IEPS)</small>
                         </th>
                         <th>SubTotal</th>
-                        <th></th>
+                        <th>Opciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -330,47 +356,54 @@
                         }
                     }
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="9" style="text-align:right">
+                            @Html.LabelFor(m => m.Subtotal, new { @class = " control-label" }):
+                            @Html.HiddenFor(m => m.Subtotal)
+                        </th>
+                        <th colspan="2" id="lblSubtotal">
+                            @Model.Subtotal.ToString("C2")
+                        </th>
+                    </tr>
+                    <tr class="trDiscount">
+                        <th colspan="9" style="text-align:right">
+                            @Html.LabelFor(m => m.TotalDiscount, new { @class = " control-label" }):
+                            @Html.HiddenFor(m => m.TotalDiscount)
+                        </th>
+                        <th colspan="9" id="lblTotalDiscount">@Model.TotalDiscount.ToString("C2")</th>
+                    </tr>
+                    <tr class="trTaxT">
+                        <th colspan="9" style="text-align:right">
+                            @Html.LabelFor(m => m.TaxTransferred, new { @class = " control-label" }):
+                            @Html.HiddenFor(m => m.TaxTransferred)
+                        </th>
+                        <th colspan="2" id="lblTaxTransferred">@Model.TaxTransferred.ToString("C2")</th>
+                    </tr>
+                    <tr class="trTaxWIVA">
+                        <th colspan="9" style="text-align:right">
+                            @Html.LabelFor(m => m.TaxWithheldIVA, new { @class = " control-label" }):
+                            @Html.HiddenFor(m => m.TaxWithheldIVA)
+                        </th>
+                        <th colspan="2" id="lblTaxWithheldIVA">@Model.TaxWithheldIVA.ToString("C2")</th>
+                    </tr>
+                    <tr class="trTaxWISR">
+                        <th colspan="9" style="text-align:right">
+                            @Html.LabelFor(m => m.TaxWithheldISR, new { @class = " control-label" }):
+                            @Html.HiddenFor(m => m.TaxWithheldISR)
+                        </th>
+                        <th colspan="2" id="lblTaxWithheldISR">@Model.TaxWithheldISR.ToString("C2")</th>
+                    </tr>
+                    <tr>
+                        <th colspan="9" style="text-align:right">
+                            @Html.LabelFor(m => m.Total, new { @class = " control-label" }):
+                            @Html.HiddenFor(m => m.Total)
+                        </th>
+                        <th colspan="2" id="lblTotal">@Model.Total.ToString("C2")</th>
+                    </tr>
+                </tfoot>
             </table>
-        </div><!-- /table-responsive -->
-
-        @*<input type="hidden" name="TokenId" id="token_id">
-            @Html.HiddenFor(m => m.OrderId)
-            @Html.HiddenFor(m => m.Amount)
-            @Html.AntiForgeryToken()*@
-        <table class="table invoice-total">
-            <tbody>
-                <tr>
-                    <td><strong>@Html.LabelFor(m => m.Subtotal, new { @class = " control-label" }) :</strong></td>
-                    <td id="lblSubtotal">@Model.Subtotal.ToString("C2")</td>
-                    @Html.HiddenFor(m => m.Subtotal)
-                </tr>
-                <tr class="trDiscount">
-                    <td><strong>@Html.LabelFor(m => m.TotalDiscount, new { @class = " control-label" }) :</strong></td>
-                    <td id="lblTotalDiscount">@Model.TotalDiscount.ToString("C2")</td>
-                    @Html.HiddenFor(m => m.TotalDiscount)
-                </tr>
-                <tr class="trTaxT">
-                    <td><strong>@Html.LabelFor(m => m.TaxTransferred, new { @class = " control-label" }) :</strong></td>
-                    <td id="lblTaxTransferred">@Model.TaxTransferred.ToString("C2")</td>
-                    @Html.HiddenFor(m => m.TaxTransferred)
-                </tr>
-                <tr class="trTaxWIVA">
-                    <td><strong>@Html.LabelFor(m => m.TaxWithheldIVA, new { @class = " control-label" }) :</strong></td>
-                    <td id="lblTaxWithheldIVA">@Model.TaxWithheldIVA.ToString("C2")</td>
-                    @Html.HiddenFor(m => m.TaxWithheldIVA)
-                </tr>
-                <tr class="trTaxWISR">
-                    <td><strong>@Html.LabelFor(m => m.TaxWithheldISR, new { @class = " control-label" }) :</strong></td>
-                    <td id="lblTaxWithheldISR">@Model.TaxWithheldISR.ToString("C2")</td>
-                    @Html.HiddenFor(m => m.TaxWithheldISR)
-                </tr>
-                <tr>
-                    <td><strong>@Html.LabelFor(m => m.Total, new { @class = " control-label" }) :</strong></td>
-                    <td id="lblTotal">@Model.Total.ToString("C2")</td>
-                    @Html.HiddenFor(m => m.Total)
-                </tr>
-            </tbody>
-        </table>
+        </div><!-- /table-responsive -->       
 
         <div class="row">
             <div class="col-12">
@@ -378,8 +411,8 @@
                     <div class="col-md-10 offset-2 text-right">
                         <a href="#" class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
                         @*<a href='@Url.Action("Index", "Plan")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>*@
-                        <button type="button" onclick="SavedInvoice()" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
-                        <button type="button" onclick="validarDatos()" class="btn btn-color"> <i class="fa fa-save"></i> Timbrar Factura </button>
+                        <button type="button" id="SavedInvoice" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                        <button type="button" id="validarDatos" class="btn btn-color"> <i class="fa fa-save"></i> Timbrar Factura </button>
                     </div>
                 </div>
             </div>
@@ -400,6 +433,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    <input type="hidden" class="form-control" name="Row" id="Row">
                     <div class="form-group row">
                         <label class="control-label col-md-3">Cantidad</label>
                         <div class="col-md-9">
@@ -458,7 +492,7 @@
                     <div class="form-group row">
                         <label class="control-label col-md-3">SubTotal</label>
                         <div class="col-md-9">
-                            <input type="text" class="form-control required money" name="Subtotal" id="Subtotal" readonly autocomplete="off" />
+                            <input type="text" class="form-control required money" name="SubtotalM" id="SubtotalM" readonly autocomplete="off" />
                         </div>
                     </div>
                 </div>
