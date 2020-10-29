@@ -45,8 +45,14 @@ namespace MVC_Project.WebBackend.Models
         public List<SelectListItem> ListEmailIssued { get; set; }
         public string IssuingTaxEmail { get; set; }
 
+        [Display(Name = "CFDI Relacionado")]
+        public bool InvoiceComplementChk { get; set; }
+
         [Display(Name = "Factura relacionada")]
         public string InvoiceComplement { get; set; }
+
+        //[Display(Name = "Factura relacionada")]
+        public List<string> InvoicesCFDI { get; set; }
         #endregion
 
         #region Información Receptor de Facturación
@@ -150,6 +156,9 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "Impuestos")]
         public bool TaxesChk { get; set; }
+
+        [Display(Name = "Comercio Internacional")]
+        public bool InternationalChk { get; set; }
         #endregion
 
         #region Impuestos - depende del check de impuestos
