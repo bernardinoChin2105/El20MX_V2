@@ -258,7 +258,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     Rfc = model.IssuingRFC,
                     Nombre = model.BusinessName,
-                    RegimenFiscal = model.IssuingTaxRegime,
+                    RegimenFiscal = model.IssuingTaxRegimeId,
                 };
 
                 var receiver = new InvoiceReceiver
@@ -284,7 +284,6 @@ namespace MVC_Project.WebBackend.Controllers
                         ValorUnitario = item.UnitPrice,
                         Descuento = item.DiscountRateProServ,
                         Importe = item.Subtotal,
-                        CuentaPredial = new CuentaPredial { Numero = model.PropertyAccountNumber },
 
                         //dudas por el llenado de datos
 
@@ -293,53 +292,56 @@ namespace MVC_Project.WebBackend.Controllers
                         //public List<InformacionAduanera> InformacionAduanera { get; set; }
                         //public List<Parte> Parte { get; set; }
                     };
+
+                    if (!string.IsNullOrEmpty(model.PropertyAccountNumber))
+                        conceptsData.CuentaPredial = new CuentaPredial { Numero = model.PropertyAccountNumber };
                     conceptos.Add(conceptsData);
                 }
 
-                if (model.TypeInvoice == "PAYMENT")
-                {
-                    //tengo dudas de los complementos
-                    List<Pagos> pagos = new List<Pagos>();
-                    //foreach (var item in model.varios)
-                    //{
-                    //    var pago = new Pagos
-                    //    {
-                    //        //FechaPago //dudas de que dato se agrega
-                    //        FormaDePagoP = model.PaymentForm,
-                    //        MonedaP = model.Currency,
-                    //        //TipoCambioP { get; set; }
-                    //        Monto = model.Total.ToString(),
-                    //        //List<DoctoRelacionado> DoctoRelacionado { get; set; }
-                    //    };
-                    //}
-                    var invoiceComplementData = new InvoiceComplementData
-                    {
-                        Serie = model.Serie,
-                        Folio = Convert.ToInt32(model.Folio),
-                        Fecha = todayDate,
-                        Moneda = model.Currency,
-                        //TipoCambio = model.ExchangeRate.,
-                        TipoDeComprobante = model.TypeInvoice,
-                        LugarExpedicion = model.ZipCode,
-                        //Complemento = new Complemento() { pagos = pagos },
-                        Emisor = issuer,
-                        Receptor = receiver,
-                        Conceptos = conceptos
-                    };
+                //if (model.TypeInvoice == "PAYMENT")
+                //{
+                //    //tengo dudas de los complementos
+                //    List<Pagos> pagos = new List<Pagos>();
+                //    //foreach (var item in model.varios)
+                //    //{
+                //    //    var pago = new Pagos
+                //    //    {
+                //    //        //FechaPago //dudas de que dato se agrega
+                //    //        FormaDePagoP = model.PaymentForm,
+                //    //        MonedaP = model.Currency,
+                //    //        //TipoCambioP { get; set; }
+                //    //        Monto = model.Total.ToString(),
+                //    //        //List<DoctoRelacionado> DoctoRelacionado { get; set; }
+                //    //    };
+                //    //}
+                //    var invoiceComplementData = new InvoiceComplementData
+                //    {
+                //        Serie = model.Serie,
+                //        Folio = Convert.ToInt32(model.Folio),
+                //        Fecha = todayDate,
+                //        Moneda = model.Currency,
+                //        //TipoCambio = model.ExchangeRate.,
+                //        TipoDeComprobante = model.TypeInvoice,
+                //        LugarExpedicion = model.ZipCode,
+                //        //Complemento = new Complemento() { pagos = pagos },
+                //        Emisor = issuer,
+                //        Receptor = receiver,
+                //        Conceptos = conceptos
+                //    };
 
-                    var invoice = new InvoiceComplementJson
-                    {
-                        data = invoiceComplementData
-                    };
+                //    var invoice = new InvoiceComplementJson
+                //    {
+                //        data = invoiceComplementData
+                //    };
 
-                    var result = SATService.PostIssuePaymentInvoices(invoice, provider);
-                    if (result != null)
-                    {
-                        success = true;
-                    }
-                }
-                else
-                {
+                //    var result = SATService.PostIssuePaymentInvoices(invoice, provider);
+                //    if (result != null)
+                //    {
+                //        success = true;
+                //    }
+                //}
+                //else
+                //{
                     var invoiceData = new InvoiceData
                     {
                         Serie = model.Serie,
@@ -367,7 +369,7 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         success = true;
                     }
-                }
+                //}
 
                 if (!success)
                 {
@@ -534,7 +536,7 @@ namespace MVC_Project.WebBackend.Controllers
                 if (branchOffice == null)
                     throw new Exception("Sucursal no encontrada en el sistema");
 
-                return Json(new { success = true, serie = branchOffice.serie, folio = branchOffice.folio }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = true, serie = branchOffice.serie, folio = branchOffice.folio, logo = branchOffice.logo }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

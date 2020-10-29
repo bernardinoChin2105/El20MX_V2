@@ -44,6 +44,9 @@ namespace MVC_Project.WebBackend.Models
         public Int64 EmailIssuedId { get; set; }
         public List<SelectListItem> ListEmailIssued { get; set; }
         public string IssuingTaxEmail { get; set; }
+
+        [Display(Name = "Factura relacionada")]
+        public string InvoiceComplement { get; set; }
         #endregion
 
         #region Información Receptor de Facturación

@@ -200,6 +200,12 @@ namespace MVC_Project.Integrations.SAT
             return satModel;
         }
 
+        ///*Para crear el certificado*/
+        //public static CreateCertificates(EfirmaModel model)
+        //{
+        //    https://api.sandbox.sat.ws/certificates
+        //}
+
         //Obtener idCredencial del RFC
         public static SatAuthResponseModel GetCredentialSat(string idCredential)
         {

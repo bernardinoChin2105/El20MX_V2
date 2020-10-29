@@ -41,10 +41,10 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             "paging": false,
             searching: false,
             ordering: false,
-            "columnDefs": [                              
+            "columnDefs": [
                 {
                     "targets": 0, render: function (data, type, row, meta) {
-                        return '<input type="text" class="form-control" readonly name="indexPD" value="' + data + '" />';     
+                        return '<input type="text" class="form-control" readonly name="indexPD" value="' + data + '" />';
                     }
                 },
                 {
@@ -70,33 +70,39 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 4, render: function (data, type, row, meta) {
                         var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].SATUnit" value="' + data + '" />';
                         return html;
-                    } },
+                    }
+                },
                 {
                     "targets": 5, render: function (data, type, row, meta) {
                         var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].UnitPrice" value="' + data + '" />';
                         return html;
-                    } },
+                    }
+                },
                 {
                     "targets": 6, render: function (data, type, row, meta) {
                         var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].DiscountRateProServ" value="' + data + '" />';
                         return html;
-                    } },          
+                    }
+                },
                 {
                     "targets": 7, render: function (data, type, row, meta) {
                         //console.log(data, type, row, meta, "todos")
                         var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].TaxesIEPS" value="' + data + '" />';
                         return html;
-                    } },
+                    }
+                },
                 {
-                    "targets": 8, render: function (data, type, row, meta) {                        
+                    "targets": 8, render: function (data, type, row, meta) {
                         var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].TaxesIVA" value="' + data + '" />';
                         return html;
-                    } },
+                    }
+                },
                 {
                     "targets": 9, render: function (data, type, row, meta) {
                         var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].Subtotal" value="' + data + '" />';
                         return html;
-                    } },
+                    }
+                },
                 {
                     "targets": 10, render: function (data, type, row, meta) {
                         var button = '<div class="btn-group" role="group" aria-label="Opciones">' +
@@ -113,7 +119,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //    //   var index = 0;                      
             //},
             "footerCallback": function (row, data, start, end, display) {
-                console.log(row, data, start, end, display, "lo que trae")
+                //console.log(row, data, start, end, display, "lo que trae")
                 var api = this.api();
 
                 // Remove the formatting to get integer data for summation
@@ -155,7 +161,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     }, 0);
 
                 // Update footer
-                console.log("total,", subtotal);
+                //console.log("total,", subtotal);
                 //$(api.column(4).footer()).html(
                 //    '$' + pageTotal + ' ( $' + total + ' total)'
                 //);
@@ -167,19 +173,35 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                 $("#TotalDiscount").val();
                 $("#lblTotalDiscount").val();
-
+                $(".trDiscount").removeClass("hide");
 
                 $("#TaxTransferred").val(trasladosIEPSIVA);
                 $("#lblTaxTransferred").html('$' + trasladosIEPSIVA);
+                if (trasladosIEPSIVA > 0) {
+                    $(".trTaxT").removeClass("hide");
+                } else {
+                    $(".trTaxT").addClass("hide");
+                }
 
                 $("#TaxWithheldIVA").val();
                 $("#lblTaxWithheldIVA").html('$');
+                //if (trasladosIEPSIVA > 0) {
+                //    $(".trTaxWIVA").removeClass("hide");
+                //} else {
+                    $(".trTaxWIVA").addClass("hide");
+                //}
 
                 $("#TaxWithheldISR").val();
                 $("#lblTaxWithheldISR").html('$');
+                //if (trasladosIEPSIVA > 0) {
+                //    $(".trTaxWISR").removeClass("hide");
+                //} else {
+                $(".trTaxWISR").addClass("hide");
+                //}
 
-                $("#Total").val();
+                $("#Total").val(total);
                 $("#lblTotal").html('$' + total);
+
             }
         }).on('xhr.dt', function (e, settings, data) {
             El20Utils.ocultarCargador();
@@ -192,7 +214,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 var tr = $(this).closest('tr');
                 var row = self.dataTable.row(tr);
                 var data = row.data();
-                console.log(row.data(), "validar que datos estan trayendo ");
+                //console.log(row.data(), "validar que datos estan trayendo ");
 
                 //var id = row.data().uuid;   
                 $("#Row").val(data[0]);
@@ -329,7 +351,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         //Validar que sea obligatorio el tipo de cambio cuando sea distinto a MXN
         $("#Currency").change(function () {
-            console.log("pruebas")
+            //console.log("pruebas")
             var currency = $(this).val();
             if (currency !== "MXN") {
                 $(".exchange").removeClass("hide");
@@ -344,13 +366,17 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         //Validar que sea aparezca el IEPS
         $("#Valuation").change(function () {
             var value = $(this).val();
-            var column = table.column(8);
+            var column = self.dataTable.column(8);
 
             // Toggle the visibility
-            if (value === "IEPS")
+            if (value === "IEPS") {
+                $(".trTaxT").removeClass("hide");
                 column.visible(true);
-            else
+            }
+            else {
+                $(".trTaxT").addClass("hide");
                 column.visible(false);
+            }
         });
 
         //Obtener información de las sucursales
@@ -368,10 +394,14 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     data: { sucursalId: value },
                     url: self.branchOfficeUrl,
                     success: function (json) {
-                        //console.log(json, "respuesta");
+                        console.log(json, "respuesta");
                         SerieFolio.val(json.serie + " " + json.folio);
                         Serie.val(json.serie);
                         Folio.val(json.folio);
+                        if (json.logo !== null)
+                            $("#logo").attr("src", json.logo);
+                        else
+                            $("#logo").attr("src", "#");
                     },
                     error: function (xhr) {
                         //console.log('error');
@@ -682,7 +712,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             }
 
             //mandar información de la tabla
-            $("#InvoicingForm").attr('action', 'InvoiceIncome');
+            $("#InvoicingForm").attr('action', 'IssueIncomeInvoice');
             $('#InvoicingForm').submit();
         });
     };
