@@ -10,22 +10,40 @@ namespace MVC_Project.WebBackend.Models
     public class InvoiceViewModel
     {
         #region Información Emisor de Factura
+        [Display(Name = "Logo Empresa")]
+        public string Logo { get; set; }
+
+        [Display(Name = "Razón Social")]
+        public string BusinessName { get; set; }
+
+        [Display(Name = "RFC")]
+        public string IssuingRFC { get; set; }
+
+        [Display(Name = "Régimen Fiscal")]
+        public string IssuingTaxRegime { get; set; }
+        public string IssuingTaxRegimeId { get; set; }
+        public List<SelectListItem> ListTaxRegime { get; set; }
+
+        [Display(Name = "Núm. Cuenta Predial")]
+        public string PropertyAccountNumber { get; set; }
+
         [Required]
         [Display(Name = "Tipo de Factura")]
         public string TypeInvoice { get; set; }
-        public SelectList ListTypeInvoices { get; set; }
+        public List<SelectListItem> ListTypeInvoices { get; set; }
 
         [Display(Name = "Tipo de Relación")]
         public string TypeRelationship { get; set; }
-        public SelectList ListTypeRelationship { get; set; }
+        public List<SelectListItem> ListTypeRelationship { get; set; }
 
         [Display(Name = "Sucursal")]
         public string BranchOffice { get; set; }
-        public SelectList ListBranchOffice { get; set; }
+        public List<SelectListItem> ListBranchOffice { get; set; }
 
         [Display(Name = "E-mail")]
         public Int64 EmailIssuedId { get; set; }
         public SelectList ListEmailIssued { get; set; }
+        public string IssuingTaxEmail { get; set; }
         #endregion
 
         #region Información Receptor de Facturación
@@ -72,57 +90,76 @@ namespace MVC_Project.WebBackend.Models
         #endregion
 
         #region Datos Fiscales para Facturar
-        [Required]
-        [Display(Name = "Tipo Comprobante")]
-        public string TypeVoucherId { get; set; }
-        public SelectList ListTypeVoucher { get; set; }
+        //[Required]
+        //[Display(Name = "Tipo Comprobante")]
+        //public string TypeVoucherId { get; set; }
+        //public List<SelectListItem> ListTypeVoucher { get; set; }
 
         [Display(Name = "Serie y Folio")]
         public string SerieFolio { get; set; }
+        public string Serie { get; set; }
+        public string Folio { get; set; }
 
         [Display(Name = "Uso de CFDI")]
         public string UseCFDI { get; set; }
-        public SelectList ListUseCFDI { get; set; }
+        public List<SelectListItem> ListUseCFDI { get; set; }
 
         [Display(Name = "Forma de Pago")]
         public string PaymentForm { get; set; }
-        public SelectList ListPaymentForm { get; set; }
+        public List<SelectListItem> ListPaymentForm { get; set; }
 
         [Display(Name = "Método de Pago")]
         public string PaymentMethod { get; set; }
-        public SelectList ListPaymentMethod { get; set; }
+        public List<SelectListItem> ListPaymentMethod { get; set; }
 
         [Display(Name = "Moneda")]
         public string Currency { get; set; }
-        public SelectList ListCurrency { get; set; }
+        public List<SelectListItem> ListCurrency { get; set; }
 
         [Display(Name = "Tipo de Cambio")]
         public string ExchangeRate { get; set; }
-        public SelectList ListExchangeRate { get; set; }
+        public List<SelectListItem> ListExchangeRate { get; set; }
 
         [Display(Name = "Patente Aduanal")]
         public string CustomsPatent { get; set; }
-        public SelectList ListCustomsPatent { get; set; }
+        public List<SelectListItem> ListCustomsPatent { get; set; }
 
         [Display(Name = "Aduana")]
         public string Customs { get; set; }
-        public SelectList ListCustoms { get; set; }
+        public List<SelectListItem> ListCustoms { get; set; }
 
         [Display(Name = "Núm. Pedimento")]
         public string MotionNumber { get; set; }
-        public SelectList ListMotionNumber { get; set; }
+        public List<SelectListItem> ListMotionNumber { get; set; }
         #endregion
 
         #region Condiciones y Comentarios a Facturar:
-        [Display(Name = "Núm. Pedimento")]
+        [Display(Name = "Condiciones de Pago")]
         public string PaymentConditions { get; set; }
-        public SelectList ListPaymentConditions { get; set; }
+        //public SelectList ListPaymentConditions { get; set; }
 
         [Display(Name = "% Descuento")]
         public decimal DiscountRate { get; set; }
 
         [Display(Name = "Comentarios")]
         public string Comments { get; set; }
+
+        [Display(Name = "Impuestos")]
+        public bool TaxesChk { get; set; }
+        #endregion
+
+        #region Impuestos - depende del check de impuestos
+        [Display(Name = "Retenciones")]
+        public string Withholdings { get; set; }
+        public List<SelectListItem> ListWithholdings { get; set; }
+
+        [Display(Name = "Trasladados")]
+        public string Transferred { get; set; }
+        public List<SelectListItem> ListTransferred { get; set; }
+
+        [Display(Name = "Tasa")]
+        public string Valuation { get; set; }
+        public List<SelectListItem> ListValuation { get; set; }
         #endregion
 
         #region Productos y/o Servicios a facturar        
@@ -152,36 +189,35 @@ namespace MVC_Project.WebBackend.Models
             var list = new List<SelectListItem>();
             list.Add(new SelectListItem() { Text = "Seleccionar...", Value = "-1" });
 
-            ListTypeInvoices = new SelectList(list);
-            ListTypeRelationship = new SelectList(list);
-            ListBranchOffice = new SelectList(list);
+            ListTypeInvoices = new List<SelectListItem>();
+            ListTypeRelationship = new List<SelectListItem>();
+            ListBranchOffice = new List<SelectListItem>();
+            ListUseCFDI = new List<SelectListItem>();
+            ListPaymentForm = new List<SelectListItem>();
+            ListPaymentMethod = new List<SelectListItem>();
+            ListCurrency = new List<SelectListItem>();
+            ListWithholdings = new List<SelectListItem>();
+            ListTransferred = new List<SelectListItem>();
+            ListValuation = new List<SelectListItem>();
+            ListCustomsPatent = new List<SelectListItem>();
+            ListCustoms = new List<SelectListItem>();
+            ListMotionNumber = new List<SelectListItem>();
+            ListExchangeRate = new List<SelectListItem>();
+
             ListEmailIssued = new SelectList(list);
             ListColony = new SelectList(list);
             ListMunicipality = new SelectList(list);
             ListState = new SelectList(list);
             ListCountry = new SelectList(list);
             ListCustomerEmail = new SelectList(list);
-            ListTypeVoucher = new SelectList(list);
-            ListUseCFDI = new SelectList(list);
-            ListPaymentForm = new SelectList(list);
-            ListPaymentMethod = new SelectList(list);
-            ListCurrency = new SelectList(list);
-            ListExchangeRate = new SelectList(list);
-            ListCustomsPatent = new SelectList(list);
-            ListCustoms = new SelectList(list);
-            ListMotionNumber = new SelectList(list);
-
-            ListPaymentConditions = new SelectList(list);
-
             ProductServices = new List<ProductServiceDescriptionView>();
+
+
         }
     }
 
     public class ProductServiceDescriptionView
     {
-        //[Display(Name = "#")]
-        //public int NumberLine { get; set; }
-
         [Display(Name = "Cantidad")]
         public int Quantity { get; set; }
 
@@ -205,5 +241,107 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "Subtotal")]
         public decimal Subtotal { get; set; }
+    }
+
+    public class InvoiceViewModelJson //Objeto json para guardar en formato 
+    {
+        #region Información Emisor de Factura        
+        public string Logo { get; set; }        
+        public string BusinessName { get; set; }      
+        public string IssuingRFC { get; set; }
+        public string IssuingTaxRegime { get; set; }
+        public string IssuingTaxRegimeId { get; set; }
+        public string PropertyAccountNumber { get; set; }
+        public string TypeInvoice { get; set; }
+        public string TypeRelationship { get; set; }
+        public string BranchOffice { get; set; }
+        public Int64 EmailIssuedId { get; set; }
+        public string IssuingTaxEmail { get; set; }
+        #endregion
+
+        #region Información Receptor de Facturación
+        public string CustomerName { get; set; }
+        public Int64 CustomerId { get; set; }
+        public string RFC { get; set; }
+        public Int64 RFCId { get; set; }
+        public string Street { get; set; }
+        public string OutdoorNumber { get; set; }
+        public string InteriorNumber { get; set; }
+        public Int64 Colony { get; set; }        
+        public string ZipCode { get; set; }
+        public Int64 Municipality { get; set; }
+        public Int64? State { get; set; }
+        public Int64? Country { get; set; }
+        public Int64 CustomerEmailId { get; set; }
+        #endregion
+
+        #region Datos Fiscales para Facturar
+        public string TypeVoucherId { get; set; }
+        public string SerieFolio { get; set; }
+        public string Serie { get; set; }
+        public string Folio { get; set; }
+        public string UseCFDI { get; set; }
+        public string PaymentForm { get; set; }
+        public string PaymentMethod { get; set; }
+        public string Currency { get; set; }
+        public string ExchangeRate { get; set; }
+        public string CustomsPatent { get; set; }
+        public string Customs { get; set; }
+        public string MotionNumber { get; set; }
+        #endregion
+
+        #region Condiciones y Comentarios a Facturar:
+        public string PaymentConditions { get; set; }
+        public decimal DiscountRate { get; set; }    
+        public string Comments { get; set; }
+        public bool TaxesChk { get; set; }
+        #endregion
+
+        #region Impuestos - depende del check de impuestos
+        public string Withholdings { get; set; }
+        public string Transferred { get; set; }
+        public string Rate { get; set; }
+        #endregion
+
+        #region Productos y/o Servicios a facturar        
+        public List<ProductServiceDescriptionView> ProductServices { get; set; }
+        
+        public decimal Subtotal { get; set; }
+        public decimal TotalDiscount { get; set; }
+        public decimal TaxTransferred { get; set; }
+        public decimal TaxWithheldIVA { get; set; }
+        public decimal TaxWithheldISR { get; set; }
+        public decimal Total { get; set; }
+        #endregion
+    }
+
+    public class InvoicesSavedViewModel
+    {
+        [Required]
+        [Display(Name = "Tipo de Factura")]
+        public string TypeInvoice { get; set; }
+        public List<SelectListItem> ListTypeInvoices { get; set; }
+
+        [Display(Name = "Folio")]
+        public string Folio { get; set; }
+
+        [Display(Name = "Serie")]
+        public string Serie { get; set; }
+    }
+
+    public class InvoicesSavedList
+    {
+        public Int64 id { get; set; }
+        public string folio { get; set; }
+        public string serie { get; set; }
+        public string paymentMethod { get; set; }
+        public string paymentForm { get; set; }
+        public string currency { get; set; }
+        public string iva { get; set; }
+        public string invoicedAt { get; set; }
+        public string invoiceType { get; set; }
+        public string total { get; set; }
+        public string subtotal { get; set; }
+        public string xml { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MVC_Project.Domain.Entities;
+using MVC_Project.Domain.Model;
 using MVC_Project.Domain.Repositories;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace MVC_Project.Domain.Services
 {
     public interface IInvoiceIssuedService : IService<InvoiceIssued>
     {
+        List<ListInvoiceIssued> GetAllInvoicesIssued();
     }
 
     public class InvoiceIssuedService : ServiceBase<InvoiceIssued>, IInvoiceIssuedService
@@ -18,6 +20,11 @@ namespace MVC_Project.Domain.Services
         public InvoiceIssuedService(IRepository<InvoiceIssued> baseRepository) : base(baseRepository)
         {
             _repository = baseRepository;
-        }       
+        }
+
+        public List<ListInvoiceIssued> GetAllInvoicesIssued()
+        {
+            return null;
+        }
     }
 }

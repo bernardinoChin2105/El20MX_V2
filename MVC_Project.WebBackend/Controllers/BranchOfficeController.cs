@@ -17,12 +17,14 @@ namespace MVC_Project.WebBackend.Controllers
 {
     public class BranchOfficeController : Controller
     {
-        BranchOfficeService _branchOfficeService;
-        StateService _stateService;
-        public BranchOfficeController(BranchOfficeService branchOfficeService, StateService stateService)
+        IBranchOfficeService _branchOfficeService;
+        IStateService _stateService;
+        IAccountService _accountService;
+        public BranchOfficeController(IBranchOfficeService branchOfficeService, IStateService stateService, IAccountService accountService)
         {
             _branchOfficeService = branchOfficeService;
             _stateService = stateService;
+            _accountService = accountService;
         }
         // GET: BranchOffice
         public ActionResult Index()
@@ -74,6 +76,73 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
+        public ActionResult Create()
+        {
+            var model = new BranchOfficeViewModel();
+            model.folio = 1;
+            model.serie = "A";
+            SetCombos(string.Empty, ref model);
+            return View(model);
+        }
+        [HttpPost]
+        public ActionResult Create(BranchOfficeViewModel model)
+        {
+            var userAuth = Authenticator.AuthenticatedUser;
+
+            try
+            {
+                var account = _accountService.FirstOrDefault(x => x.id == userAuth.Account.Id);
+                if (account == null)
+                    throw new Exception("La cuenta no es válida");
+
+                if (!ModelState.IsValid)
+                    throw new Exception("El modelo de entrada no es válido");
+                var branchOffice = new Domain.Entities.BranchOffice
+                {
+                    uuid = Guid.NewGuid(),
+                    name = model.name,
+                    account = account,
+                    folio = model.folio,
+                    serie = model.serie,
+                    street = model.street,
+                    outdoorNumber = model.outdoorNumber,
+                    interiorNumber = model.interiorNumber,
+                    zipCode = model.zipCode,
+                    colony = new Domain.Entities.Settlement { id = model.colony },
+                    municipality = new Domain.Entities.Municipality { id = model.municipality },
+                    state = new Domain.Entities.State { id = model.state },
+                    country = new Domain.Entities.Country { id = model.country },
+                    createdAt = DateTime.Now,
+                    status = SystemStatus.ACTIVE.ToString(),
+                };
+                _branchOfficeService.Create(branchOffice);
+
+                LogUtil.AddEntry(
+                   "Creacion de sucursal: " + branchOffice.account.rfc,
+                   ENivelLog.Info, userAuth.Id, userAuth.Email, EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   JsonConvert.SerializeObject(branchOffice)
+                );
+
+                MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
+                return RedirectToAction("Edit", new { uuid = branchOffice.uuid });
+            }
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(
+                   "Error al crear la sucursal para el rfc " + userAuth.Account.RFC,
+                   ENivelLog.Error, userAuth.Id, userAuth.Email, EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   ex.Message
+                );
+                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
+                SetCombos(model.zipCode, ref model);
+                return View(model);
+            }
+        }
+
         public ActionResult Edit(string uuid)
         {
             var userAuth = Authenticator.AuthenticatedUser;
@@ -86,11 +155,8 @@ namespace MVC_Project.WebBackend.Controllers
                 var model = new BranchOfficeViewModel()
                 {
                     id = branchOffice.id,
+                    uuid = branchOffice.uuid.ToString(),
                     name = branchOffice.name,
-                    cerUrl = branchOffice.cer,
-                    keyUrl = branchOffice.key,
-                    eFirma = branchOffice.eFirma,
-                    ciec = branchOffice.ciec,
                     folio = branchOffice.folio,
                     serie = branchOffice.serie,
                     street = branchOffice.street,
@@ -100,7 +166,8 @@ namespace MVC_Project.WebBackend.Controllers
                     colony = branchOffice.colony != null ? branchOffice.colony.id : 0,
                     municipality = branchOffice.municipality != null ? branchOffice.municipality.id : 0,
                     state = branchOffice.state != null ? branchOffice.state.id : 0,
-                    country = branchOffice.country != null ? branchOffice.country.id : 0
+                    country = branchOffice.country != null ? branchOffice.country.id : 0,
+                    logo = branchOffice.logo
                 };
 
                 SetCombos(branchOffice.zipCode, ref model);
@@ -125,26 +192,9 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var branchOffice = _branchOfficeService.FirstOrDefault(x => x.id == model.id);
                 if (branchOffice == null)
-                    throw new Exception("No se encontró la regularización en el sistema");
+                    throw new Exception("No se encontró la sucursal en el sistema");
 
                 branchOffice.name = model.name;
-
-                branchOffice.ciec = model.ciec;
-
-                var storageEFirma = ConfigurationManager.AppSettings["StorageEFirma"];
-                
-                if (model.cer != null)
-                {
-                    var cer = AzureBlobService.UploadPublicFile(model.cer.InputStream, model.cer.FileName, storageEFirma, branchOffice.account.rfc);
-                    branchOffice.cer = cer.Item1;
-                }
-                if (model.key != null)
-                {
-                    var key = AzureBlobService.UploadPublicFile(model.key.InputStream, model.key.FileName, storageEFirma, branchOffice.account.rfc);
-                    branchOffice.key = key.Item1;
-                }
-                branchOffice.eFirma = model.eFirma;
-
                 branchOffice.street = model.street;
                 branchOffice.outdoorNumber = model.outdoorNumber;
                 branchOffice.interiorNumber = model.interiorNumber;
@@ -212,6 +262,12 @@ namespace MVC_Project.WebBackend.Controllers
                     Value = x.id.ToString(),
                 }).Distinct().ToList();
             }
+            else
+            {
+                model.listCountry = new List<SelectListItem>();
+                model.listMunicipality = new List<SelectListItem>();
+                model.listColony = new List<SelectListItem>();
+            }
 
         }
 
@@ -236,6 +292,35 @@ namespace MVC_Project.WebBackend.Controllers
                     MaxJsonLength = Int32.MaxValue
                 };
             }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public ActionResult UpdateLogo(LogoBranchOfficeViewModel data)
+        {
+            try
+            {
+                var branchOffice = _branchOfficeService.FirstOrDefault(x => x.uuid == Guid.Parse(data.uuid));
+                if (branchOffice == null)
+                    throw new Exception("La cuenta no es válida");
+
+                var StorageImages = ConfigurationManager.AppSettings["StorageImages"];
+
+                if (data.image == null)
+                    throw new Exception("No se proporcionó una imagen");
+
+                var image = AzureBlobService.UploadPublicFile(data.image.InputStream, data.fileName, StorageImages, branchOffice.account.rfc + "/sucursal_" + branchOffice.id);
+                branchOffice.logo = image.Item1;
+                branchOffice.modifiedAt = DateTime.Now;
+                _branchOfficeService.Update(branchOffice);
+
+                return Json(new { branchOffice.uuid, success = true }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { message = ex.Message, success = false }, JsonRequestBehavior.AllowGet);
+            }
+
         }
     }
 }

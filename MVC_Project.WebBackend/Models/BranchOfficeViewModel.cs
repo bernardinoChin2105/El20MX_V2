@@ -9,6 +9,7 @@ namespace MVC_Project.WebBackend.Models
 {
     public class BranchOfficeViewModel
     {
+        public string uuid { get; set; }
         public Int64 id { get; set; }
         [DisplayName("Nombre")]
         public string name { get; set; }
@@ -18,23 +19,8 @@ namespace MVC_Project.WebBackend.Models
         [DisplayName("Folio")]
         public Int64 folio { get; set; }
 
-        [DisplayName(".cer")]
-        public HttpPostedFileBase cer { get; set; }
-        [DisplayName(".key")]
-        public HttpPostedFileBase key { get; set; }
-
-        public string cerUrl { get; set; }
-        public string keyUrl { get; set; }
-
-        [DisplayName("ciec")]
-        public string ciec { get; set; }
-        [DisplayName("e.firma")]
-        public string eFirma { get; set; }
-
-        [DisplayName("Conexión CIEC")]
-        public string ciecStatus { get; set; }
-        [DisplayName("Conexión FIEL")]
-        public string fielStatus { get; set; }
+        [DisplayName("Logo")]
+        public string logo { get; set; }
 
         [DisplayName("Calle")]
         public string street { get; set; }
@@ -73,5 +59,12 @@ namespace MVC_Project.WebBackend.Models
         public Int64 id { get; set; }
         public string name { get; set; }
         public string status { get; set; }
+    }
+
+    public class LogoBranchOfficeViewModel
+    {
+        public string uuid { get; set; }
+        public string fileName { get; set; }
+        public HttpPostedFileBase image { get; set; }
     }
 }
