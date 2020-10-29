@@ -27,13 +27,13 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
     this.dataTable = {};
 
     this.init = function () {
-        var primeravez = true;
+        var primeravez = false;
 
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();
         }).DataTable({
             language: El20Utils.lenguajeTabla({}),
-            "bProcessing": true,
+            "bProcessing": false,
             "bServerSide": true,
             "sAjaxSource": this.baseUrl,
             orderMulti: false,
@@ -91,7 +91,7 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                 aoData.push({ "name": "first", "value": primeravez });
 
                 $.getJSON(sSource, aoData, function (json) {
-                    primeravez = false;
+                    primeravez = true;
                     fnCallback(json);
                     if (json.success === false) {
                         toastr['error'](json.message);
