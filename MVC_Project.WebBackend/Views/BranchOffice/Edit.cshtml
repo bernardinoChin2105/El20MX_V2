@@ -46,101 +46,153 @@
                             @Html.AntiForgeryToken()
                             @Html.HiddenFor(x => x.id)
                             @Html.HiddenFor(x => x.uuid)
-                            <div class="form-horizontal">
-                                @Html.ValidationSummary(true)
-                                <div class="ibox float-e-margins">
-                                    <div class="ibox-title">
-                                        <h5>General</h5>
-                                    </div>
-                                    <div class="ibox-content">
-                                        <div class="form-group row">
-                                            <div class="col-12 col-md-4">
-
-                                            </div>
-                                            <div class="col-12 col-md-4">
-
-                                            </div>
-                                            <div class="col-12 col-md-4 text-right">
-                                                <label class="label" data-toggle="tooltip" title="Cambiar logo para facturación" data-original-title="Cambiar logo para facturación">
-                                                    <img id="avatar" src="@Model.logo" width="160" height="160" style="background-color:#e9ecef">
-                                                    <input type="file" class="sr-only" id="input" name="image" accept="image/*">
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <div class="col-12 col-md-4">
-                                                @Html.LabelFor(model => model.name, new { @class = "col-form-label control-label" })
-                                                @Html.TextBoxFor(model => model.name, new { @class = "form-control", required = "required", @autocomplete = "off" })
-                                                @Html.ValidationMessageFor(model => model.name)
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                @Html.LabelFor(model => model.folio, new { @class = "col-form-label control-label" })
-                                                @Html.TextBoxFor(model => model.folio, new { @class = "form-control", @autocomplete = "off" })
-                                                @Html.ValidationMessageFor(model => model.folio)
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                @Html.LabelFor(model => model.serie, new { @class = "col-form-label control-label" })
-                                                @Html.TextBoxFor(model => model.serie, new { @class = "form-control", @autocomplete = "off" })
-                                                @Html.ValidationMessageFor(model => model.serie)
-                                            </div>
-                                        </div>
-                                    </div>
+                        <div class="form-horizontal">
+                            @Html.ValidationSummary(true)
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-title">
+                                    <h5>General</h5>
                                 </div>
+                                <div class="ibox-content">
+                                    <div class="form-group row">
+                                        <div class="col-12 col-md-4">
 
-                                <div class="ibox float-e-margins">
-                                    <div class="ibox-title">
-                                        <h5>Domicilio fiscal</h5>
-                                    </div>
-                                    <div class="ibox-content">
-                                        <div class="form-group row">
-                                            <div class="col-12 col-md-8">
-                                                @Html.LabelFor(m => m.street, new { @class = "col-form-label control-label" })
-                                                @Html.TextBoxFor(m => m.street, new { @class = "form-control", @maxlength = "250" })
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                @Html.LabelFor(m => m.outdoorNumber, new { @class = "col-form-label control-label" })
-                                                @Html.TextBoxFor(m => m.outdoorNumber, new { @class = "form-control", @maxlength = "100" })
-                                            </div>
                                         </div>
+                                        <div class="col-12 col-md-4">
 
-                                        <div class="form-group row">
-                                            <div class="col-12 col-md-4">
-                                                @Html.LabelFor(m => m.interiorNumber, new { @class = "col-form-label control-label" })
-                                                @Html.TextBoxFor(m => m.interiorNumber, new { @class = "form-control", @maxlength = "20" })
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                @Html.LabelFor(m => m.zipCode, new { @class = "col-form-label control-label" })
-                                                @Html.TextBoxFor(m => m.zipCode, new { @class = "form-control", @maxlength = "5" })
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                @Html.LabelFor(m => m.colony, new { @class = "col-form-label control-label" })
-                                                @Html.DropDownListFor(m => m.colony, Model.listColony, new { @class = "form-control" })
-                                            </div>
                                         </div>
-
-                                        <div class="form-group row">
-                                            <div class="col-12 col-md-4">
-                                                @Html.LabelFor(m => m.municipality, new { @class = "col-form-label control-label" })
-                                                @Html.DropDownListFor(m => m.municipality, Model.listMunicipality, new { @class = "form-control" })
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                @Html.LabelFor(m => m.state, new { @class = "col-form-label control-label" })
-                                                @Html.DropDownListFor(m => m.state, Model.listState, new { @class = "form-control" })
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                @Html.LabelFor(m => m.country, new { @class = "col-form-label control-label" })
-                                                @Html.DropDownListFor(m => m.country, Model.listCountry, new { @class = "form-control" })
-                                            </div>
+                                        <div class="col-12 col-md-4 text-right">
+                                            <label class="label" data-toggle="tooltip" title="Cambiar logo para facturación" data-original-title="Cambiar logo para facturación">
+                                                <img id="avatar" src="@Model.logo" width="160" height="160" style="background-color:#e9ecef">
+                                                <input type="file" class="sr-only" id="input" name="image" accept="image/*">
+                                            </label>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="form-group row pull-right">
-                                    <div class="col-md-8 offset-2 text-right">
-                                        <a href='@Url.Action("Index", "BranchOffice")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
-                                        <button type="button" id="btn-save" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                                    <div class="form-group row">
+                                        <div class="col-12 col-md-4">
+                                            @Html.LabelFor(model => model.name, new { @class = "col-form-label control-label" })
+                                            @Html.TextBoxFor(model => model.name, new { @class = "form-control", required = "required", @autocomplete = "off" })
+                                            @Html.ValidationMessageFor(model => model.name)
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            @Html.LabelFor(model => model.folio, new { @class = "col-form-label control-label" })
+                                            @Html.TextBoxFor(model => model.folio, new { @class = "form-control", @autocomplete = "off" })
+                                            @Html.ValidationMessageFor(model => model.folio)
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            @Html.LabelFor(model => model.serie, new { @class = "col-form-label control-label" })
+                                            @Html.TextBoxFor(model => model.serie, new { @class = "form-control", @autocomplete = "off" })
+                                            @Html.ValidationMessageFor(model => model.serie)
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-title">
+                                    <h5>Domicilio fiscal</h5>
+                                </div>
+                                <div class="ibox-content">
+                                    <div class="form-group row">
+                                        <div class="col-12 col-md-8">
+                                            @Html.LabelFor(m => m.street, new { @class = "col-form-label control-label" })
+                                            @Html.TextBoxFor(m => m.street, new { @class = "form-control", @maxlength = "250" })
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            @Html.LabelFor(m => m.outdoorNumber, new { @class = "col-form-label control-label" })
+                                            @Html.TextBoxFor(m => m.outdoorNumber, new { @class = "form-control", @maxlength = "100" })
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-12 col-md-4">
+                                            @Html.LabelFor(m => m.interiorNumber, new { @class = "col-form-label control-label" })
+                                            @Html.TextBoxFor(m => m.interiorNumber, new { @class = "form-control", @maxlength = "20" })
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            @Html.LabelFor(m => m.zipCode, new { @class = "col-form-label control-label" })
+                                            @Html.TextBoxFor(m => m.zipCode, new { @class = "form-control", @maxlength = "5" })
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            @Html.LabelFor(m => m.colony, new { @class = "col-form-label control-label" })
+                                            @Html.DropDownListFor(m => m.colony, Model.listColony, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-12 col-md-4">
+                                            @Html.LabelFor(m => m.municipality, new { @class = "col-form-label control-label" })
+                                            @Html.DropDownListFor(m => m.municipality, Model.listMunicipality, new { @class = "form-control" })
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            @Html.LabelFor(m => m.state, new { @class = "col-form-label control-label" })
+                                            @Html.DropDownListFor(m => m.state, Model.listState, new { @class = "form-control" })
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            @Html.LabelFor(m => m.country, new { @class = "col-form-label control-label" })
+                                            @Html.DropDownListFor(m => m.country, Model.listCountry, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-title">
+                                    <h5> Sello fiscal </h5>
+                                </div>
+                                <div class="ibox-content">
+                                    <div class="form-group row">
+                                        <div class="col-12 col-md-4">
+                                            @Html.LabelFor(model => model.cer, new { @class = "col-form-label control-label" })
+                                            <div class="custom-file form-control">
+                                                @Html.TextBoxFor(model => model.cer, new { @class = "custom-file-input", @autocomplete = "off", type = "file", @accept = "application/x-x509-ca-cert" })
+                                                <label for="files" class="custom-file-label"></label>
+                                                @Html.ValidationMessageFor(model => model.cer)
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-md-4">
+                                            @Html.LabelFor(model => model.key, new { @class = "col-form-label control-label" })
+                                            <div class="custom-file form-control">
+                                                @Html.TextBoxFor(model => model.key, new { @class = "custom-file-input", @autocomplete = "off", type = "file" })
+                                                <label for="files" class="custom-file-label"></label>
+                                                @Html.ValidationMessageFor(model => model.key)
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            @Html.LabelFor(model => model.password, new { @class = "col-form-label control-label" })
+                                            <div class="input-group">
+                                                <div class="input-group-append view-password">
+                                                    <span class="input-group-text" title="Ver contraseña">
+                                                        <i class="fa fa-eye"></i>
+                                                    </span>
+                                                </div>
+                                                @Html.TextBoxFor(model => model.password, new { @class = "form-control view-password-input", @type = "password", @autocomplete = "off" })
+                                                @Html.ValidationMessageFor(model => model.password)
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            @if (!string.IsNullOrEmpty(Model.cerUrl))
+                                            {
+                                                <a href="@Model.cerUrl">.cer actual</a>
+                                            }
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            @if (!string.IsNullOrEmpty(Model.keyUrl))
+                                            {
+                                                <a href="@Model.keyUrl">.key actual</a>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row pull-right">
+                                <div class="col-md-8 offset-2 text-right">
+                                    <a href='@Url.Action("Index", "BranchOffice")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
+                                    <button type="button" id="btn-save" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                                </div>
+                            </div>
+                        </div>
                         }
                     </div>
                 </div>

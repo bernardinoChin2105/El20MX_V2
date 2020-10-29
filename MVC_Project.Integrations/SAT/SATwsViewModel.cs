@@ -176,6 +176,30 @@ namespace MVC_Project.Integrations.SAT
         }
     }
 
+    public class CertificateModel
+    {
+        public string type { get; set; }
+        public string certificate { get; set; }
+        public string privateKey { get; set; }
+        public string password { get; set; }
+
+        public CertificateModel()
+        {
+            type = "csd";
+        }
+    }
+
+    public class CertificateResponseModel
+    {
+        public string id { get; set; }
+        public string type { get; set; }
+        public string rfc { get; set; }
+        public string validFrom { get; set; }
+        public string validTo { get; set; }
+        public string createdAt { get; set; }
+        public string updatedAt { get; set; }
+    }
+
     public class SatAuthResponseModel
     {
         public string id { get; set; }

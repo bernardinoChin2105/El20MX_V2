@@ -126,37 +126,46 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     if (Path.GetExtension(model.cer.FileName) == ".cer" && Path.GetExtension(model.key.FileName) == ".key")
                     {
-                        var storageEFirma = ConfigurationManager.AppSettings["StorageEFirma"];
-
-                        branchOffice.password = model.password;
-                        
-                        var cer = AzureBlobService.UploadPublicFile(model.cer.InputStream, model.cer.FileName, storageEFirma, account.rfc + "/csd_sucursal_" + branchOffice.id);
-                        branchOffice.cer = cer.Item1;
-
-                        model.cer.InputStream.Position = 0;
-                        byte[] result = null;
-                        using (var streamReader = new MemoryStream())
+                        try
                         {
-                            model.cer.InputStream.CopyTo(streamReader);
-                            result = streamReader.ToArray();
-                        }
-                        string cerStr = Convert.ToBase64String(result);
-                        
-                        var key = AzureBlobService.UploadPublicFile(model.key.InputStream, model.key.FileName, storageEFirma, account.rfc + "/csd_sucursal_" + branchOffice.id);
-                        branchOffice.key = key.Item1;
+                            var storageEFirma = ConfigurationManager.AppSettings["StorageEFirma"];
 
-                        model.key.InputStream.Position = 0;
-                        result = null;
-                        using (var streamReader = new MemoryStream())
+                            model.cer.InputStream.Position = 0;
+                            byte[] result = null;
+                            using (var streamReader = new MemoryStream())
+                            {
+                                model.cer.InputStream.CopyTo(streamReader);
+                                result = streamReader.ToArray();
+                            }
+                            string cerStr = Convert.ToBase64String(result);
+
+                            model.key.InputStream.Position = 0;
+                            result = null;
+                            using (var streamReader = new MemoryStream())
+                            {
+                                model.key.InputStream.CopyTo(streamReader);
+                                result = streamReader.ToArray();
+                            }
+                            string keyStr = Convert.ToBase64String(result);
+
+                            var satModel = SATService.CreateCertificates(cerStr, keyStr, model.password, _provider);
+
+                            branchOffice.password = model.password;
+
+                            model.cer.InputStream.Position = 0;
+                            var cer = AzureBlobService.UploadPublicFile(model.cer.InputStream, model.cer.FileName, storageEFirma, account.rfc + "/csd_sucursal_" + branchOffice.id);
+                            branchOffice.cer = cer.Item1;
+                            model.key.InputStream.Position = 0;
+                            var key = AzureBlobService.UploadPublicFile(model.key.InputStream, model.key.FileName, storageEFirma, account.rfc + "/csd_sucursal_" + branchOffice.id);
+                            branchOffice.key = key.Item1;
+
+                            _branchOfficeService.Update(branchOffice);
+                        }
+                        catch (Exception ex)
                         {
-                            model.key.InputStream.CopyTo(streamReader);
-                            result = streamReader.ToArray();
+                            MensajeFlashHandler.RegistrarMensaje("No se pudo completar la carga de los archivos csd. " + ex.Message, TiposMensaje.Warning);
+                            return RedirectToAction("Edit", new { uuid = branchOffice.uuid });
                         }
-                        string keyStr = Convert.ToBase64String(result);
-                        
-                        var satModel = SATService.CreateCredentialEfirma(cerStr, keyStr, model.password, _provider);
-
-                        _branchOfficeService.Update(branchOffice);
                     }
                 }
 
@@ -210,7 +219,10 @@ namespace MVC_Project.WebBackend.Controllers
                     municipality = branchOffice.municipality != null ? branchOffice.municipality.id : 0,
                     state = branchOffice.state != null ? branchOffice.state.id : 0,
                     country = branchOffice.country != null ? branchOffice.country.id : 0,
-                    logo = branchOffice.logo
+                    logo = branchOffice.logo,
+                    cerUrl = branchOffice.cer,
+                    keyUrl = branchOffice.key,
+                    password = branchOffice.password
                 };
 
                 SetCombos(branchOffice.zipCode, ref model);
@@ -248,6 +260,53 @@ namespace MVC_Project.WebBackend.Controllers
                 branchOffice.country = new Domain.Entities.Country { id = model.country };
 
                 _branchOfficeService.Update(branchOffice);
+
+                if (model.cer != null && model.key != null && !string.IsNullOrEmpty(model.password))
+                {
+                    if (Path.GetExtension(model.cer.FileName) == ".cer" && Path.GetExtension(model.key.FileName) == ".key")
+                    {
+                        try
+                        {
+                            var storageEFirma = ConfigurationManager.AppSettings["StorageEFirma"];
+
+                            model.cer.InputStream.Position = 0;
+                            byte[] result = null;
+                            using (var streamReader = new MemoryStream())
+                            {
+                                model.cer.InputStream.CopyTo(streamReader);
+                                result = streamReader.ToArray();
+                            }
+                            string cerStr = Convert.ToBase64String(result);
+
+                            model.key.InputStream.Position = 0;
+                            result = null;
+                            using (var streamReader = new MemoryStream())
+                            {
+                                model.key.InputStream.CopyTo(streamReader);
+                                result = streamReader.ToArray();
+                            }
+                            string keyStr = Convert.ToBase64String(result);
+
+                            var satModel = SATService.CreateCertificates(cerStr, keyStr, model.password, _provider);
+
+                            branchOffice.password = model.password;
+
+                            model.cer.InputStream.Position = 0;
+                            var cer = AzureBlobService.UploadPublicFile(model.cer.InputStream, model.cer.FileName, storageEFirma, branchOffice.account.rfc + "/csd_sucursal_" + branchOffice.id);
+                            branchOffice.cer = cer.Item1;
+                            model.key.InputStream.Position = 0;
+                            var key = AzureBlobService.UploadPublicFile(model.key.InputStream, model.key.FileName, storageEFirma, branchOffice.account.rfc + "/csd_sucursal_" + branchOffice.id);
+                            branchOffice.key = key.Item1;
+
+                            _branchOfficeService.Update(branchOffice);
+                        }
+                        catch (Exception ex)
+                        {
+                            MensajeFlashHandler.RegistrarMensaje("No se pudo completar la carga de los archivos csd. " + ex.Message, TiposMensaje.Warning);
+                            return RedirectToAction("Edit", new { uuid = branchOffice.uuid });
+                        }
+                    }
+                }
 
                 LogUtil.AddEntry(
                    "Edicion de sucursal: " + branchOffice.account.rfc,
