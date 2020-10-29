@@ -10,7 +10,7 @@ namespace MVC_Project.Integrations.SAT
 {
     public static class SATwsEnums
     {
-        public static string GetDescription(this Enum elemento)
+        public static string GetDescriptionSAT(this Enum elemento)
         {
             Type type = elemento.GetType();
             MemberInfo[] member = type.GetMember(elemento.ToString());

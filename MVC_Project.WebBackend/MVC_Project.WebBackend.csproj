@@ -1991,6 +1991,7 @@
     <Content Include="Views\Invoicing\InvoicesSaved.cshtml" />
     <Content Include="Views\SAT\Index.cshtml" />
     <Content Include="Views\BranchOffice\Create.cshtml" />
+    <Content Include="Views\Invoicing\InvoiceDownloadPDF.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

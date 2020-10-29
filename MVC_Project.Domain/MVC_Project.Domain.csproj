@@ -131,6 +131,7 @@
     <Compile Include="Model\DiagnosticList.cs" />
     <Compile Include="Model\LocationsViewModel.cs" />
     <Compile Include="Model\PlansViewModel.cs" />
+    <Compile Include="Model\DriveKeyViewModel.cs" />
     <Compile Include="Model\ProductServiceKeyViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IRepository.cs" />
