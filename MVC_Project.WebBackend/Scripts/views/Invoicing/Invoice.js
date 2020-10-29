@@ -9,7 +9,7 @@
 //    this.value = this.value.toUpperCase();
 //});
 
-var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOfficeUrl, locationsUrl, codeSATUrl, UnitSATUrl, hasFullAccessController) {
+var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOfficeUrl, locationsUrl, codeSATUrl, UnitSATUrl, searchCDFIUrl, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.searchUrl = searchUrl;
@@ -18,6 +18,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
     this.locationsUrl = locationsUrl;
     this.codeSATUrl = codeSATUrl;
     this.UnitSATUrl = UnitSATUrl;
+    this.searchCDFIUrl = searchCDFIUrl;
     this.dataTable = {};
 
     this.quantity = $("#Quantity");
@@ -36,6 +37,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //"bServerSide": true,
             //"sAjaxSource": this.baseUrl,
             //orderMulti: false,
+            "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
             "bLengthChange": false,
             "bInfo": false,
             "paging": false,
@@ -160,20 +162,25 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         return intVal(a) + intVal(b);
                     }, 0);
 
-                // Update footer
-                //console.log("total,", subtotal);
-                //$(api.column(4).footer()).html(
-                //    '$' + pageTotal + ' ( $' + total + ' total)'
-                //);
+                //var discount = discountRate > 0 || discountRate < 0 ? (discountRate * sub) / 100 : 0;
+                //var discount = subtotal;
 
-                var total = subtotal + trasladosIEPSIVA;
 
-                $("#Subtotal").val(subtotal);
-                $("#lblSubtotal").html('$' + subtotal);
+                $("#Subtotal").val(subtotal.toFixed(2));
+                $("#lblSubtotal").html('$' + subtotal.toFixed(2));
 
-                $("#TotalDiscount").val();
-                $("#lblTotalDiscount").val();
-                $(".trDiscount").removeClass("hide");
+
+                var discountTXT = $("#DiscountRate").val();
+                var discountRate = parseFloat(discountTXT !== "" ? discountTXT : 0);
+                var discount = discountRate > 0 || discountRate < 0 ? (discountRate * subtotal) / 100 : 0;
+
+                $("#TotalDiscount").val(discount.toFixed(2));
+                $("#lblTotalDiscount").html("$" + discount.toFixed(2));
+                if (discount > 0) {
+                    $(".trDiscount").removeClass("hide");
+                } else {
+                    $(".trDiscount").addClass("hide");
+                }
 
                 $("#TaxTransferred").val(trasladosIEPSIVA);
                 $("#lblTaxTransferred").html('$' + trasladosIEPSIVA);
@@ -188,7 +195,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 //if (trasladosIEPSIVA > 0) {
                 //    $(".trTaxWIVA").removeClass("hide");
                 //} else {
-                    $(".trTaxWIVA").addClass("hide");
+                $(".trTaxWIVA").addClass("hide");
                 //}
 
                 $("#TaxWithheldISR").val();
@@ -199,6 +206,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $(".trTaxWISR").addClass("hide");
                 //}
 
+                var total = (subtotal + discount + trasladosIEPSIVA).toFixed(2);
                 $("#Total").val(total);
                 $("#lblTotal").html('$' + total);
 
@@ -449,6 +457,30 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             }
             else
                 taxes.removeClass("hide");
+        });
+
+        $("#InternationalChk").click(function () {
+            //console.log("estoy dento", !this.checked);
+            var international = $(".international");
+
+            if (!this.checked) {
+                international.addClass("hide");
+                $("#MotionNumber").val("");
+            }
+            else
+                international.removeClass("hide");
+        });
+
+        $("#InvoiceComplementChk").click(function () {
+            //console.log("estoy dento", !this.checked);
+            var complement = $(".complement");
+
+            if (!this.checked) {
+                complement.addClass("hide");
+                $("#InvoiceComplement").val("");
+            }
+            else
+                complement.removeClass("hide");
         });
 
         //Buscar información del cliente por Razon Social

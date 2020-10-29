@@ -440,23 +440,23 @@ namespace MVC_Project.WebBackend.Controllers
             }).ToList();
             model.Currency = model.ListCurrency.Where(x => x.Value == "MXN").FirstOrDefault().Value;
 
-            model.ListCustoms = _customsService.GetAll().Select(x => new SelectListItem
-            {
-                Text = "(" + x.code + ") " + x.description.ToString(),
-                Value = x.code.ToString()
-            }).ToList();
+            //model.ListCustoms = _customsService.GetAll().Select(x => new SelectListItem
+            //{
+            //    Text = "(" + x.code + ") " + x.description.ToString(),
+            //    Value = x.code.ToString()
+            //}).ToList();
 
-            model.ListCustomsPatent = _customsPatentService.GetAll().Select(x => new SelectListItem
-            {
-                Text = x.code.ToString(),
-                Value = x.code.ToString()
-            }).ToList();
+            //model.ListCustomsPatent = _customsPatentService.GetAll().Select(x => new SelectListItem
+            //{
+            //    Text = x.code.ToString(),
+            //    Value = x.code.ToString()
+            //}).ToList();
 
-            model.ListMotionNumber = _customsRequestNumberService.GetAll().Select(x => new SelectListItem
-            {
-                Text = "(" + x.code + ") " + x.patent.ToString(),
-                Value = x.code.ToString()
-            }).ToList();
+            //model.ListMotionNumber = _customsRequestNumberService.GetAll().Select(x => new SelectListItem
+            //{
+            //    Text = "(" + x.code + ") " + x.patent.ToString(),
+            //    Value = x.code.ToString()
+            //}).ToList();
 
             model.ListWithholdings = Enum.GetValues(typeof(TypeRetention)).Cast<TypeRetention>()
                    .Select(e => new SelectListItem
@@ -479,12 +479,12 @@ namespace MVC_Project.WebBackend.Controllers
                         Text = EnumUtils.GetDescription(e)
                     }).ToList();
 
-            model.ListTransferred = Enum.GetValues(typeof(TypeTransferred)).Cast<TypeTransferred>()
-                   .Select(e => new SelectListItem
-                   {
-                       Value = e.ToString(),
-                       Text = EnumUtils.GetDescription(e)
-                   }).ToList();
+            //model.ListTransferred = Enum.GetValues(typeof(TypeTransferred)).Cast<TypeTransferred>()
+            //       .Select(e => new SelectListItem
+            //       {
+            //           Value = e.ToString(),
+            //           Text = EnumUtils.GetDescription(e)
+            //       }).ToList();
 
             model.ListCountry = _countryService.GetAll().Select(x => new SelectListItem
             {
