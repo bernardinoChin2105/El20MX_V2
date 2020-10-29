@@ -40,6 +40,13 @@ namespace MVC_Project.WebBackend.Models
         [DisplayName("Pais")]
         public Int64 country { get; set; }
 
+        public string password { get; set; }
+        public HttpPostedFileBase cer { get; set; }
+        public HttpPostedFileBase key { get; set; }
+
+        public string cerUrl { get; set; }
+        public string keyUrl { get; set; }
+
         public List<SelectListItem> listColony { get; set; }
         public List<SelectListItem> listMunicipality { get; set; }
         public List<SelectListItem> listState { get; set; }

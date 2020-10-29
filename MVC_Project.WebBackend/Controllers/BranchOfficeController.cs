@@ -1,6 +1,7 @@
 ﻿using LogHubSDK.Models;
 using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
+using MVC_Project.Integrations.SAT;
 using MVC_Project.Integrations.Storage;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
@@ -9,6 +10,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -17,6 +19,8 @@ namespace MVC_Project.WebBackend.Controllers
 {
     public class BranchOfficeController : Controller
     {
+        private string _provider = ConfigurationManager.AppSettings["SATProvider"];
+
         IBranchOfficeService _branchOfficeService;
         IStateService _stateService;
         IAccountService _accountService;
@@ -97,6 +101,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
+                
                 var branchOffice = new Domain.Entities.BranchOffice
                 {
                     uuid = Guid.NewGuid(),
@@ -116,6 +121,44 @@ namespace MVC_Project.WebBackend.Controllers
                     status = SystemStatus.ACTIVE.ToString(),
                 };
                 _branchOfficeService.Create(branchOffice);
+
+                if (model.cer != null && model.key != null && !string.IsNullOrEmpty(model.password))
+                {
+                    if (Path.GetExtension(model.cer.FileName) == ".cer" && Path.GetExtension(model.key.FileName) == ".key")
+                    {
+                        var storageEFirma = ConfigurationManager.AppSettings["StorageEFirma"];
+
+                        branchOffice.password = model.password;
+                        
+                        var cer = AzureBlobService.UploadPublicFile(model.cer.InputStream, model.cer.FileName, storageEFirma, account.rfc + "/csd_sucursal_" + branchOffice.id);
+                        branchOffice.cer = cer.Item1;
+
+                        model.cer.InputStream.Position = 0;
+                        byte[] result = null;
+                        using (var streamReader = new MemoryStream())
+                        {
+                            model.cer.InputStream.CopyTo(streamReader);
+                            result = streamReader.ToArray();
+                        }
+                        string cerStr = Convert.ToBase64String(result);
+                        
+                        var key = AzureBlobService.UploadPublicFile(model.key.InputStream, model.key.FileName, storageEFirma, account.rfc + "/csd_sucursal_" + branchOffice.id);
+                        branchOffice.key = key.Item1;
+
+                        model.key.InputStream.Position = 0;
+                        result = null;
+                        using (var streamReader = new MemoryStream())
+                        {
+                            model.key.InputStream.CopyTo(streamReader);
+                            result = streamReader.ToArray();
+                        }
+                        string keyStr = Convert.ToBase64String(result);
+                        
+                        var satModel = SATService.CreateCredentialEfirma(cerStr, keyStr, model.password, _provider);
+
+                        _branchOfficeService.Update(branchOffice);
+                    }
+                }
 
                 LogUtil.AddEntry(
                    "Creacion de sucursal: " + branchOffice.account.rfc,
