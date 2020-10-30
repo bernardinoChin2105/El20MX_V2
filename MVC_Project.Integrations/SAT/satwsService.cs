@@ -215,6 +215,15 @@ namespace MVC_Project.Integrations.SAT
             return satModel;
         }
 
+        public static void DeleteCertificates(string id)
+        {
+            string url = "/certificates/" + id;
+
+            //Llamar al servicio para eliminar la credencial en el sat.ws y obtener respuesta                  
+            SATws.CallServiceSATws(url, null, "Delete");
+            
+        }
+
         //Obtener idCredencial del RFC
         public static SatAuthResponseModel GetCredentialSat(string idCredential)
         {

@@ -151,6 +151,7 @@ namespace MVC_Project.WebBackend.Controllers
                             var satModel = SATService.CreateCertificates(cerStr, keyStr, model.password, _provider);
 
                             branchOffice.password = model.password;
+                            branchOffice.certificateId = satModel.id;
 
                             model.cer.InputStream.Position = 0;
                             var cer = AzureBlobService.UploadPublicFile(model.cer.InputStream, model.cer.FileName, storageEFirma, account.rfc + "/csd_sucursal_" + branchOffice.id);
@@ -269,6 +270,9 @@ namespace MVC_Project.WebBackend.Controllers
                         {
                             var storageEFirma = ConfigurationManager.AppSettings["StorageEFirma"];
 
+                            if (!string.IsNullOrEmpty(branchOffice.certificateId))
+                                SATService.DeleteCertificates(branchOffice.certificateId, _provider);
+
                             model.cer.InputStream.Position = 0;
                             byte[] result = null;
                             using (var streamReader = new MemoryStream())
@@ -290,6 +294,7 @@ namespace MVC_Project.WebBackend.Controllers
                             var satModel = SATService.CreateCertificates(cerStr, keyStr, model.password, _provider);
 
                             branchOffice.password = model.password;
+                            branchOffice.certificateId = satModel.id;
 
                             model.cer.InputStream.Position = 0;
                             var cer = AzureBlobService.UploadPublicFile(model.cer.InputStream, model.cer.FileName, storageEFirma, branchOffice.account.rfc + "/csd_sucursal_" + branchOffice.id);
@@ -336,16 +341,19 @@ namespace MVC_Project.WebBackend.Controllers
 
         private void SetCombos(string zipCode, ref BranchOfficeViewModel model)
         {
-            var stateList = _stateService.GetAll().Select(x => new SelectListItem { Text = x.nameState, Value = x.id.ToString() }).ToList();
-            stateList.Insert(0, (new SelectListItem { Text = "Seleccione...", Value = "-1" }));
-            model.listState = stateList;
-
             if (!string.IsNullOrEmpty(zipCode))
             {
                 var listResponse = _stateService.GetLocationList(zipCode);
 
                 var countries = listResponse.Select(x => new { id = x.countryId, name = x.nameCountry }).Distinct();
                 model.listCountry = countries.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+
+                var states = listResponse.Select(x => new { id = x.stateId, name = x.nameState }).Distinct();
+                model.listState = states.Select(x => new SelectListItem
                 {
                     Text = x.name,
                     Value = x.id.ToString(),
@@ -367,6 +375,7 @@ namespace MVC_Project.WebBackend.Controllers
             else
             {
                 model.listCountry = new List<SelectListItem>();
+                model.listState = new List<SelectListItem>();
                 model.listMunicipality = new List<SelectListItem>();
                 model.listColony = new List<SelectListItem>();
             }

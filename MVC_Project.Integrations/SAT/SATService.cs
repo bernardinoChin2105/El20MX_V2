@@ -64,6 +64,18 @@ namespace MVC_Project.Integrations.SAT
             }
         }
 
+        public static void DeleteCertificates(string id, string provider)
+        {
+            if (provider == SystemProviders.SATWS.ToString())
+            {
+                SATwsService.DeleteCertificates(id);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
         public static void GenerateExtractions(string rfc, DateTime dateOnStart, DateTime dateOnEnd, string provider)
         {
             if (provider == SystemProviders.SATWS.ToString())

@@ -32,24 +32,22 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult Index()
         {
             var userAuth = Authenticator.AuthenticatedUser;
+            var model = new SATViewModel();
             try
             {
                 var account = _accountService.GetById(userAuth.Account.Id);
                 if (account == null)
                     throw new Exception("La cuenta no existe en el sistema");
 
-                var model = new SATViewModel()
-                {
-                    id = account.id,
-                    uuid = account.uuid.ToString(),
-                    rfc = account.rfc,
-                    name = account.name,
-                    cerUrl = account.cer,
-                    keyUrl = account.key,
-                    efirma = account.eFirma,
-                    ciec = account.ciec,
-                    avatar = account.avatar
-                };
+                model.id = account.id;
+                model.uuid = account.uuid.ToString();
+                model.rfc = account.rfc;
+                model.name = account.name;
+                model.cerUrl = account.cer;
+                model.keyUrl = account.key;
+                model.efirma = account.eFirma;
+                model.ciec = account.ciec;
+                model.avatar = account.avatar;
 
                 var efirmaStatus = SystemStatus.INACTIVE.ToString();
                 var ciecStatus = SystemStatus.INACTIVE.ToString();
@@ -77,10 +75,10 @@ namespace MVC_Project.WebBackend.Controllers
 
                 return View(model);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 FlashMessages.MensajeFlashHandler.RegistrarMensaje("No se pudo obtener la información de la cuenta", TiposMensaje.Error);
-                return View();
+                return View(model);
             }
         }
 

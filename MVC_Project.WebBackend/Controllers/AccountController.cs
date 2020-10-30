@@ -107,6 +107,19 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 if (!uuid.HasValue)
                 {
+                    var membership = _membership.FirstOrDefault(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
+
+                    authUser.Permissions = membership.role.rolePermissions
+                    .Where(x => x.permission.status == SystemStatus.ACTIVE.ToString() && x.permission.applyTo != SystemPermissionApply.ONLY_ACCOUNT.ToString())
+                    .Select(p => new Permission
+                    {
+                        Controller = p.permission.controller,
+                        Module = p.permission.module,
+                        Level = p.level,
+                        isCustomizable = p.permission.isCustomizable
+                    }).ToList();
+
+                    authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
                     authUser.Account = null;
                     Authenticator.RefreshAuthenticatedUser(authUser);
                 }
@@ -114,6 +127,21 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
                     authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
+
+                    var membership = _membership.FirstOrDefault(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
+
+                    authUser.Permissions = membership.role.rolePermissions
+                    .Where(x => x.permission.status == SystemStatus.ACTIVE.ToString() && x.permission.applyTo != SystemPermissionApply.ONLY_BACK_OFFICE.ToString())
+                    .Select(p => new Permission
+                    {
+                        Controller = p.permission.controller,
+                        Module = p.permission.module,
+                        Level = p.level,
+                        isCustomizable = p.permission.isCustomizable
+                    }).ToList();
+
+                    authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
+
                     Authenticator.RefreshAuthenticatedUser(authUser);
                 }
                 var inicio = authUser.Permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());

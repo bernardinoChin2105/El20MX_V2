@@ -1,6 +1,6 @@
 ﻿$(document).ready(function () {
-
-    $("#ZipCode").trigger("blur");
+    $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para ", placeholder_text_single: "Seleccione..." });
+    
     $("#CURP").keyup(function () {
         this.value = this.value.toUpperCase();
     });
@@ -72,6 +72,18 @@
             },
             BusinessName: {
                 Alphanumeric: true
+            },
+            Colony: {
+                required: true,
+            },
+            Municipality: {
+                required: true,
+            },
+            State: {
+                required: true,
+            },
+            Country: {
+                required: true,
             }
         }
     });
@@ -81,6 +93,9 @@
 
 function validarDatos() {
     if (!$('#EditForm').valid()) {
+        $('html, body').animate({
+            scrollTop: ($('.error').offset().top - 300)
+        }, 2000);
         return;
     }
     $('#EditForm').submit();
@@ -221,11 +236,9 @@ $('.listContacts').on('click', '.btn-remove', function () {
 });
 
 $("#ZipCode").blur(function () {
-    //console.log("perdio el focus");
+    ClearCombos();
     var value = $(this).val();
-
     if (!value) {
-        ClearCombos();
         return;
     }
 
@@ -245,26 +258,17 @@ $("#ZipCode").blur(function () {
             if (json.Data.success) {
                 var datos = json.Data.data;
                 if (datos.length > 0) {
-                    //console.log(datos, "que esta aquí");
-                    cmbState.val(datos[0].stateId);
+                    cmbCountry.append($('<option></option>').val(datos[0].countryId).text(datos[0].nameCountry));
 
-                    //Llenado de Países
-                    cmbCountry.html('<option value="-1">Seleccione...</option>');
-                    cmbCountry.append('<option value="' + datos[0].countryId + '">' + datos[0].nameCountry + '</option>');
-                    cmbCountry.val(datos[0].countryId);
+                    cmbState.append($('<option></option>').val(datos[0].stateId).text(datos[0].nameState));
 
-                    //Llenado de municipios
-                    //console.log(datos[0], "registro 0");
-                    cmbMunicipality.html('<option value="-1">Seleccione...</option>');
-                    cmbMunicipality.append('<option value="' + datos[0].municipalityId + '">' + datos[0].nameMunicipality + '</option>');
-                    cmbMunicipality.val(datos[0].municipalityId);
+                    cmbMunicipality.append($('<option></option>').val(datos[0].municipalityId).text(datos[0].nameMunicipality));
 
-                    //Llenado de colonias
-                    cmbColony.html('<option value="-1">Seleccione...</option>');
-                    cmbColony.append(datos.map(function (data, index) {
-                        return $('<option value="' + data.id + '">' + data.nameSettlementType + ' ' + data.nameSettlement + '</option>');
-                    }));
-                    cmbColony.val(datos[0].id);
+                    datos.forEach(function (item, index) {
+                        cmbColony.append($('<option></option>').val(item.id).text(item.nameSettlementType + ' ' + item.nameSettlement));
+                    });
+
+                    $(".chosen-select").trigger("chosen:updated");
                 } else {
                     ClearCombos();
                     toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
@@ -288,9 +292,10 @@ $("#ZipCode").blur(function () {
         var cmbState = $("#State");
         var cmbCountry = $("#Country");
 
-        cmbState.val(-1);
-        cmbCountry.html('<option value="-1">Seleccione...</option>').val(-1);
-        cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
-        cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
+        cmbColony.empty();
+        cmbMunicipality.empty();
+        cmbState.empty();
+        cmbCountry.empty();
+        $(".chosen-select").trigger("chosen:updated");
     }
 });
