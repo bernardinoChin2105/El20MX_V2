@@ -32,34 +32,34 @@
 
             @if (user.HasAccessToModule(SystemModules.CONFIGURATION.ToString()))
             {
-            <li class="@Html.IsModuleSelected(user, SystemModules.CONFIGURATION.ToString())">
-                <a href="#"><i class="fa fa-cogs"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CONFIGURATION</span> <span class="fain arrow"></span></a>
-                @if (user.HasAccessController("SAT"))
-                {
-                    <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "SAT", cssClass: "in")">
-                        <li class="@Html.IsSelected(controller: "SAT")"><a href="@Url.Action("Index", "SAT")">Mi SAT</a></li>
-                    </ul>
-                }
-                @if (user.HasAccessController("BranchOffice"))
-                {
-                    <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "BranchOffice", cssClass: "in")">
-                        <li class="@Html.IsSelected(controller: "BranchOffice")"><a href="@Url.Action("Index", "BranchOffice")">Sucursales</a></li>
-                    </ul>
-                }
-                @if (user.HasAccessController("User"))
-                {
-                    <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "User", cssClass: "in")">
-                        <li class="@Html.IsSelected(controller: "User")"><a href="@Url.Action("Index", "User")">Usuarios</a></li>
-                    </ul>
-                }
-                @if (user.HasAccessController("Role"))
-                {
-                    <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Role", cssClass: "in")">
-                        <li class="@Html.IsSelected(controller: "Role")"><a href="@Url.Action("Index", "Role")">Roles</a></li>
-                    </ul>
-                }
+                <li class="@Html.IsModuleSelected(user, SystemModules.CONFIGURATION.ToString())">
+                    <a href="#"><i class="fa fa-cogs"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CONFIGURATION</span> <span class="fain arrow"></span></a>
+                    @if (user.HasAccessController("SAT"))
+                    {
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "SAT", cssClass: "in")">
+                            <li class="@Html.IsSelected(controller: "SAT")"><a href="@Url.Action("Index", "SAT")">Mi SAT</a></li>
+                        </ul>
+                    }
+                    @if (user.HasAccessController("BranchOffice"))
+                    {
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "BranchOffice", cssClass: "in")">
+                            <li class="@Html.IsSelected(controller: "BranchOffice")"><a href="@Url.Action("Index", "BranchOffice")">Sucursales</a></li>
+                        </ul>
+                    }
+                    @if (user.HasAccessController("User"))
+                    {
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "User", cssClass: "in")">
+                            <li class="@Html.IsSelected(controller: "User")"><a href="@Url.Action("Index", "User")">Usuarios</a></li>
+                        </ul>
+                    }
+                    @if (user.HasAccessController("Role"))
+                    {
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Role", cssClass: "in")">
+                            <li class="@Html.IsSelected(controller: "Role")"><a href="@Url.Action("Index", "Role")">Roles</a></li>
+                        </ul>
+                    }
 
-            </li>
+                </li>
             }
 
             @if (user.HasAccessToModule(SystemModules.REPORTS.ToString()))
@@ -277,17 +277,31 @@
             </ul>
         </li>*@
 
+            @if (user != null && user.Account != null)
+            {
+                <li class="nav-header">
+                    <div class="profile-element text-center">
+                        <img alt="image" class="rounded-circle" style="height: 50px;" src="@user.Account.Image" />
+                        <span class="block m-t-xs font-bold" style="color:white">@user.Account.RFC</span>
+                        <span class="text-muted text-xs block">@user.Account.Name</span>
+                    </div>
+                    <div class="logo-element">
+                        IN+
+                    </div>
+                </li>
+            }
+
 
         </ul>
     </div>
 
-    <div class="sidebar-collapse text-center" style="position:fixed; bottom:0px;width:inherit">
+    @*<div class="sidebar-collapse text-center" style="position:fixed; bottom:0px;width:inherit">
         <ul class="nav metismenu">
             @if (user != null && user.Account != null)
             {
                 <li class="nav-header">
                     <div class="profile-element text-center">
-                        <img alt="image" class="rounded-circle" src="@user.Account.Image" />
+                        <img alt="image" class="rounded-circle" style="height: 50px;" src="@user.Account.Image" />
                         <span class="block m-t-xs font-bold" style="color:white">@user.Account.RFC</span>
                         <span class="text-muted text-xs block">@user.Account.Name</span>
                     </div>
@@ -298,5 +312,5 @@
             }
 
         </ul>
-    </div>
+    </div>*@
 </nav>

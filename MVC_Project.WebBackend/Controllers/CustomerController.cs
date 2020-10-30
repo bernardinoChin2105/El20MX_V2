@@ -111,24 +111,65 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
+        private void SetCombos(string zipCode, ref CustomerViewModel model)
+        {
+            model.ListRegimen = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
+                       .Select(e => new SelectListItem
+                       {
+                           Value = e.ToString(),
+                           Text = EnumUtils.GetDisplayName(e)
+                       }).ToList();
+
+
+            if (!string.IsNullOrEmpty(zipCode))
+            {
+                var listResponse = _stateService.GetLocationList(zipCode);
+
+                var countries = listResponse.Select(x => new { id = x.countryId, name = x.nameCountry }).Distinct();
+                model.ListCountry = countries.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+
+                var states = listResponse.Select(x => new { id = x.stateId, name = x.nameState }).Distinct();
+                model.ListState = states.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+
+                var municipalities = listResponse.Select(x => new { id = x.municipalityId, name = x.nameMunicipality }).Distinct();
+                model.ListMunicipality = municipalities.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+
+                model.ListColony = listResponse.Select(x => new SelectListItem
+                {
+                    Text = x.nameSettlement,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+            }
+            else
+            {
+                model.ListCountry = new List<SelectListItem>();
+                model.ListState = new List<SelectListItem>();
+                model.ListMunicipality = new List<SelectListItem>();
+                model.ListColony = new List<SelectListItem>();
+            }
+
+        }
+
+
         [AllowAnonymous]
         public ActionResult Create()
         {
             try
             {
                 var createCustomer = new CustomerViewModel();
-                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
-
-                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.ToString(),
-                        Text = EnumUtils.GetDisplayName(e)
-                    }).ToList();
-
-                createCustomer.ListRegimen = new SelectList(regimenList);
-                createCustomer.ListState = new SelectList(stateList);
+                SetCombos(string.Empty, ref createCustomer);
                 return View(createCustomer);
             }
             catch (Exception ex)
@@ -245,18 +286,7 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
-
-                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.ToString(),
-                        Text = EnumUtils.GetDisplayName(e)
-                    }).ToList();
-
-                model.ListRegimen = new SelectList(regimenList);
-                model.ListState = new SelectList(stateList);
+                SetCombos(model.ZipCode, ref model);
                 return View(model);
             }
         }
@@ -315,19 +345,7 @@ namespace MVC_Project.WebBackend.Controllers
                 if (customer.taxRegime != null)
                     model.taxRegime = ((TypeTaxRegimen)Enum.Parse(typeof(TypeTaxRegimen), customer.taxRegime)).ToString();
 
-                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
-
-                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.ToString(),
-                        Text = EnumUtils.GetDisplayName(e)
-                    }).ToList();
-
-                model.ListRegimen = new SelectList(regimenList);
-                model.ListState = new SelectList(stateList);
-
+                
                 var emails = customer.customerContacts.Where(x => x.typeContact == TypeContact.EMAIL.ToString() && x.status == SystemStatus.ACTIVE.ToString())
                             .Select(x => new CustomerContactsViewModel
                             {
@@ -352,6 +370,8 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     model.Phones = phones;
                 }
+
+                SetCombos(customer.zipCode, ref model);
 
                 return View(model);
             }
@@ -497,18 +517,7 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
-
-                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.ToString(),
-                        Text = EnumUtils.GetDisplayName(e)
-                    });
-
-                model.ListRegimen = new SelectList(regimenList);
-                model.ListState = new SelectList(stateList);
+                SetCombos(model.ZipCode, ref model);
                 return View(model);
             }
         }

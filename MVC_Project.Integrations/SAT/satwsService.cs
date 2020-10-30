@@ -200,6 +200,30 @@ namespace MVC_Project.Integrations.SAT
             return satModel;
         }
 
+        ///*Para crear el certificado*/
+        public static CertificateResponseModel CreateCertificates(CertificateModel model)
+        {
+            CertificateResponseModel satModel = new CertificateResponseModel();
+
+            string url = "/certificates";
+
+            //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
+            var responseSat = SATws.CallServiceSATws(url, model, "Post");
+
+            satModel = JsonConvert.DeserializeObject<CertificateResponseModel>(responseSat);
+
+            return satModel;
+        }
+
+        public static void DeleteCertificates(string id)
+        {
+            string url = "/certificates/" + id;
+
+            //Llamar al servicio para eliminar la credencial en el sat.ws y obtener respuesta                  
+            SATws.CallServiceSATws(url, null, "Delete");
+            
+        }
+
         //Obtener idCredencial del RFC
         public static SatAuthResponseModel GetCredentialSat(string idCredential)
         {
@@ -229,7 +253,7 @@ namespace MVC_Project.Integrations.SAT
                     {
                         var model = JsonConvert.DeserializeObject<InvoicesCFDI>(responsecfdi);
 
-                        var responseXML = SATws.CallServiceSATws(url, null, "get", SATwsEnumsAccept.textxml.GetDescription());
+                        var responseXML = SATws.CallServiceSATws(url, null, "get", SATwsEnumsAccept.textxml.GetDescriptionSAT());
                         var xml = responseXML;
                         model.Xml = xml;
                         model.id = id;
@@ -249,6 +273,26 @@ namespace MVC_Project.Integrations.SAT
             }
 
             return CFDI;
+        }
+
+        /*Crear timbrado de factura*/
+        public static InvoicesInfo PostIssueIncomeInvoices(InvoiceJson invoiceJson)
+        {            
+            InvoicesInfo invoice = new InvoicesInfo();
+
+            var responseInvoices =  SATws.CallServiceSATws("invoices", invoiceJson, "Post");
+            invoice = JsonConvert.DeserializeObject<InvoicesInfo>(responseInvoices);
+            return invoice;
+        }
+
+        /*Crear timbrado de factura complemento*/
+        public static InvoicesInfo PostIssuePaymentInvoices(InvoiceComplementJson invoiceComplementJson)
+        {
+            InvoicesInfo invoice = new InvoicesInfo();
+            
+            var responseInvoices = SATws.CallServiceSATws("invoices/payment", invoiceComplementJson, "Post");
+            invoice = JsonConvert.DeserializeObject<InvoicesInfo>(responseInvoices);
+            return invoice;
         }
     }
 }

@@ -17,4 +17,9 @@ namespace MVC_Project.Integrations.SAT
         public string rfc { get; set; }
         public string ciec { get; set; }
     }
+
+    public class CertificateResponse
+    {
+        public string id { get; set; }
+    }
 }

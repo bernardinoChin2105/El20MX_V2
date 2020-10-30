@@ -1,6 +1,7 @@
 ﻿using LogHubSDK.Models;
 using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
+using MVC_Project.Integrations.SAT;
 using MVC_Project.Integrations.Storage;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
@@ -9,6 +10,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -17,6 +19,8 @@ namespace MVC_Project.WebBackend.Controllers
 {
     public class BranchOfficeController : Controller
     {
+        private string _provider = ConfigurationManager.AppSettings["SATProvider"];
+
         IBranchOfficeService _branchOfficeService;
         IStateService _stateService;
         IAccountService _accountService;
@@ -97,6 +101,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
+                
                 var branchOffice = new Domain.Entities.BranchOffice
                 {
                     uuid = Guid.NewGuid(),
@@ -116,6 +121,54 @@ namespace MVC_Project.WebBackend.Controllers
                     status = SystemStatus.ACTIVE.ToString(),
                 };
                 _branchOfficeService.Create(branchOffice);
+
+                if (model.cer != null && model.key != null && !string.IsNullOrEmpty(model.password))
+                {
+                    if (Path.GetExtension(model.cer.FileName) == ".cer" && Path.GetExtension(model.key.FileName) == ".key")
+                    {
+                        try
+                        {
+                            var storageEFirma = ConfigurationManager.AppSettings["StorageEFirma"];
+
+                            model.cer.InputStream.Position = 0;
+                            byte[] result = null;
+                            using (var streamReader = new MemoryStream())
+                            {
+                                model.cer.InputStream.CopyTo(streamReader);
+                                result = streamReader.ToArray();
+                            }
+                            string cerStr = Convert.ToBase64String(result);
+
+                            model.key.InputStream.Position = 0;
+                            result = null;
+                            using (var streamReader = new MemoryStream())
+                            {
+                                model.key.InputStream.CopyTo(streamReader);
+                                result = streamReader.ToArray();
+                            }
+                            string keyStr = Convert.ToBase64String(result);
+
+                            var satModel = SATService.CreateCertificates(cerStr, keyStr, model.password, _provider);
+
+                            branchOffice.password = model.password;
+                            branchOffice.certificateId = satModel.id;
+
+                            model.cer.InputStream.Position = 0;
+                            var cer = AzureBlobService.UploadPublicFile(model.cer.InputStream, model.cer.FileName, storageEFirma, account.rfc + "/csd_sucursal_" + branchOffice.id);
+                            branchOffice.cer = cer.Item1;
+                            model.key.InputStream.Position = 0;
+                            var key = AzureBlobService.UploadPublicFile(model.key.InputStream, model.key.FileName, storageEFirma, account.rfc + "/csd_sucursal_" + branchOffice.id);
+                            branchOffice.key = key.Item1;
+
+                            _branchOfficeService.Update(branchOffice);
+                        }
+                        catch (Exception ex)
+                        {
+                            MensajeFlashHandler.RegistrarMensaje("No se pudo completar la carga de los archivos csd. " + ex.Message, TiposMensaje.Warning);
+                            return RedirectToAction("Edit", new { uuid = branchOffice.uuid });
+                        }
+                    }
+                }
 
                 LogUtil.AddEntry(
                    "Creacion de sucursal: " + branchOffice.account.rfc,
@@ -167,7 +220,10 @@ namespace MVC_Project.WebBackend.Controllers
                     municipality = branchOffice.municipality != null ? branchOffice.municipality.id : 0,
                     state = branchOffice.state != null ? branchOffice.state.id : 0,
                     country = branchOffice.country != null ? branchOffice.country.id : 0,
-                    logo = branchOffice.logo
+                    logo = branchOffice.logo,
+                    cerUrl = branchOffice.cer,
+                    keyUrl = branchOffice.key,
+                    password = branchOffice.password
                 };
 
                 SetCombos(branchOffice.zipCode, ref model);
@@ -206,6 +262,57 @@ namespace MVC_Project.WebBackend.Controllers
 
                 _branchOfficeService.Update(branchOffice);
 
+                if (model.cer != null && model.key != null && !string.IsNullOrEmpty(model.password))
+                {
+                    if (Path.GetExtension(model.cer.FileName) == ".cer" && Path.GetExtension(model.key.FileName) == ".key")
+                    {
+                        try
+                        {
+                            var storageEFirma = ConfigurationManager.AppSettings["StorageEFirma"];
+
+                            if (!string.IsNullOrEmpty(branchOffice.certificateId))
+                                SATService.DeleteCertificates(branchOffice.certificateId, _provider);
+
+                            model.cer.InputStream.Position = 0;
+                            byte[] result = null;
+                            using (var streamReader = new MemoryStream())
+                            {
+                                model.cer.InputStream.CopyTo(streamReader);
+                                result = streamReader.ToArray();
+                            }
+                            string cerStr = Convert.ToBase64String(result);
+
+                            model.key.InputStream.Position = 0;
+                            result = null;
+                            using (var streamReader = new MemoryStream())
+                            {
+                                model.key.InputStream.CopyTo(streamReader);
+                                result = streamReader.ToArray();
+                            }
+                            string keyStr = Convert.ToBase64String(result);
+
+                            var satModel = SATService.CreateCertificates(cerStr, keyStr, model.password, _provider);
+
+                            branchOffice.password = model.password;
+                            branchOffice.certificateId = satModel.id;
+
+                            model.cer.InputStream.Position = 0;
+                            var cer = AzureBlobService.UploadPublicFile(model.cer.InputStream, model.cer.FileName, storageEFirma, branchOffice.account.rfc + "/csd_sucursal_" + branchOffice.id);
+                            branchOffice.cer = cer.Item1;
+                            model.key.InputStream.Position = 0;
+                            var key = AzureBlobService.UploadPublicFile(model.key.InputStream, model.key.FileName, storageEFirma, branchOffice.account.rfc + "/csd_sucursal_" + branchOffice.id);
+                            branchOffice.key = key.Item1;
+
+                            _branchOfficeService.Update(branchOffice);
+                        }
+                        catch (Exception ex)
+                        {
+                            MensajeFlashHandler.RegistrarMensaje("No se pudo completar la carga de los archivos csd. " + ex.Message, TiposMensaje.Warning);
+                            return RedirectToAction("Edit", new { uuid = branchOffice.uuid });
+                        }
+                    }
+                }
+
                 LogUtil.AddEntry(
                    "Edicion de sucursal: " + branchOffice.account.rfc,
                    ENivelLog.Info, userAuth.Id, userAuth.Email, EOperacionLog.ACCESS,
@@ -234,16 +341,19 @@ namespace MVC_Project.WebBackend.Controllers
 
         private void SetCombos(string zipCode, ref BranchOfficeViewModel model)
         {
-            var stateList = _stateService.GetAll().Select(x => new SelectListItem { Text = x.nameState, Value = x.id.ToString() }).ToList();
-            stateList.Insert(0, (new SelectListItem { Text = "Seleccione...", Value = "-1" }));
-            model.listState = stateList;
-
             if (!string.IsNullOrEmpty(zipCode))
             {
                 var listResponse = _stateService.GetLocationList(zipCode);
 
                 var countries = listResponse.Select(x => new { id = x.countryId, name = x.nameCountry }).Distinct();
                 model.listCountry = countries.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+
+                var states = listResponse.Select(x => new { id = x.stateId, name = x.nameState }).Distinct();
+                model.listState = states.Select(x => new SelectListItem
                 {
                     Text = x.name,
                     Value = x.id.ToString(),
@@ -265,6 +375,7 @@ namespace MVC_Project.WebBackend.Controllers
             else
             {
                 model.listCountry = new List<SelectListItem>();
+                model.listState = new List<SelectListItem>();
                 model.listMunicipality = new List<SelectListItem>();
                 model.listColony = new List<SelectListItem>();
             }

@@ -64,18 +64,8 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 var createProvider = new ProviderViewModel();
-                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
 
-                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.ToString(),
-                        Text = EnumUtils.GetDisplayName(e)
-                    }).ToList();
-
-                createProvider.ListRegimen = new SelectList(regimenList);
-                createProvider.ListState = new SelectList(stateList);
+                SetCombos(string.Empty, ref createProvider);
 
                 LogUtil.AddEntry(
                    "Crea nuevo proveedor: " + JsonConvert.SerializeObject(createProvider),
@@ -222,18 +212,8 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
 
-                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.ToString(),
-                        Text = EnumUtils.GetDisplayName(e)
-                    }).ToList();
-
-                model.ListRegimen = new SelectList(regimenList);
-                model.ListState = new SelectList(stateList);
+                SetCombos(model.ZipCode, ref model);
 
                 LogUtil.AddEntry(
                    "Se encontro un error: " + ex.Message.ToString(),
@@ -279,20 +259,7 @@ namespace MVC_Project.WebBackend.Controllers
                 model.DeliveryAddress = provider.deliveryAddress;
                 if (provider.taxRegime != null)
                     model.taxRegime = ((TypeTaxRegimen)Enum.Parse(typeof(TypeTaxRegimen), provider.taxRegime)).ToString();
-
-                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
-
-                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.ToString(),
-                        Text = EnumUtils.GetDisplayName(e)
-                    }).ToList();
-
-                model.ListRegimen = new SelectList(regimenList);
-                model.ListState = new SelectList(stateList);
-
+                
                 var emails = provider.providerContacts.Where(x => x.typeContact == TypeContact.EMAIL.ToString() && x.status == SystemStatus.ACTIVE.ToString())
                             .Select(x => new ProviderContactsViewModel
                             {
@@ -318,27 +285,7 @@ namespace MVC_Project.WebBackend.Controllers
                     model.Phones = phones;
                 }
 
-                var listResponse = _stateService.GetLocationList(provider.zipCode);
-
-                var countries = listResponse.Select(x => new { id = x.countryId, name = x.nameCountry }).Distinct();
-                model.ListCountry = new SelectList(countries.Select(x => new SelectListItem
-                {
-                    Text = x.name,
-                    Value = x.id.ToString(),
-                }).Distinct().ToList());
-
-                var municipalities = listResponse.Select(x => new { id = x.municipalityId, name = x.nameMunicipality }).Distinct();
-                model.ListMunicipality = new SelectList(municipalities.Select(x => new SelectListItem
-                {
-                    Text = x.name,
-                    Value = x.id.ToString(),
-                }).Distinct().ToList());
-
-                model.ListColony = new SelectList(listResponse.Select(x => new SelectListItem
-                {
-                    Text = x.nameSettlement,
-                    Value = x.id.ToString(),
-                }).Distinct().ToList());
+                SetCombos(provider.zipCode, ref model);
 
                 return View(model);
             }
@@ -496,18 +443,8 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                var stateList = _stateService.GetAll().Select(x => new SelectListItem() { Text = x.nameState, Value = x.id.ToString() }).ToList();
-                stateList.Insert(0, (new SelectListItem() { Text = "Seleccione...", Value = "-1" }));
-
-                var regimenList = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.ToString(),
-                        Text = EnumUtils.GetDisplayName(e)
-                    });
-
-                model.ListRegimen = new SelectList(regimenList);
-                model.ListState = new SelectList(stateList);
+                
+                SetCombos(model.ZipCode, ref model);
 
                 LogUtil.AddEntry(
                   "Se encontro un error: " + ex.Message.ToString(),
@@ -522,6 +459,58 @@ namespace MVC_Project.WebBackend.Controllers
                 return View(model);
             }
         }
+
+        private void SetCombos(string zipCode, ref ProviderViewModel model)
+        {
+            model.ListRegimen = Enum.GetValues(typeof(TypeTaxRegimen)).Cast<TypeTaxRegimen>()
+                       .Select(e => new SelectListItem
+                       {
+                           Value = e.ToString(),
+                           Text = EnumUtils.GetDisplayName(e)
+                       }).ToList();
+
+            
+            if (!string.IsNullOrEmpty(zipCode))
+            {
+                var listResponse = _stateService.GetLocationList(zipCode);
+
+                var countries = listResponse.Select(x => new { id = x.countryId, name = x.nameCountry }).Distinct();
+                model.ListCountry = countries.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+
+                var states = listResponse.Select(x => new { id = x.stateId, name = x.nameState }).Distinct();
+                model.ListState = states.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+
+                var municipalities = listResponse.Select(x => new { id = x.municipalityId, name = x.nameMunicipality }).Distinct();
+                model.ListMunicipality = municipalities.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+
+                model.ListColony = listResponse.Select(x => new SelectListItem
+                {
+                    Text = x.nameSettlement,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+            }
+            else
+            {
+                model.ListCountry = new List<SelectListItem>();
+                model.ListState = new List<SelectListItem>();
+                model.ListMunicipality = new List<SelectListItem>();
+                model.ListColony = new List<SelectListItem>();
+            }
+
+        }
+
 
         [HttpGet, AllowAnonymous]
         public JsonResult GetProviders(JQueryDataTableParams param, string filtros, bool first)

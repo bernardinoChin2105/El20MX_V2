@@ -6,9 +6,150 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Integrations.SAT
 {
-    public class SATwsViewModel
-    {
+    #region Modelos de envio del post para la factura
+    public class InvoiceJson
+    {        
+        public Email email { get; set; }
+        public InvoiceData data { get; set; }        
     }
+
+    public class InvoiceComplementJson
+    {
+        public Email email { get; set; }
+        public InvoiceComplementData data { get; set; }
+    }
+
+    public class Email
+    {
+        public List<string> to { get; set; }
+        public string subject { get; set; }
+        public string body { get; set; }
+    }
+
+    public class InvoiceData {
+        public string Serie { get; set; }
+        public Int32 Folio { get; set; }
+        public DateTime Fecha { get; set; }
+        public string Moneda { get; set; }
+        public decimal TipoCambio { get; set; }
+        public string TipoDeComprobante { get; set; }
+        public string CondicionesDePago { get; set; }
+        public string FormaPago { get; set; }
+        public string MetodoPago { get; set; }
+        public string LugarExpedicion { get; set; }
+        public string Confirmacion { get; set; }
+        public InvoiceIssuer Emisor { get; set; }
+        public InvoiceReceiver Receptor { get; set; }
+        public List<ConceptsData> Conceptos { get; set; }
+    }
+
+    public class InvoiceComplementData
+    {
+        public string Serie { get; set; }
+        public Int32 Folio { get; set; }
+        public DateTime Fecha { get; set; }
+        public string Moneda { get; set; }
+        public decimal TipoCambio { get; set; }
+        public string TipoDeComprobante { get; set; }
+        public string LugarExpedicion { get; set; }
+        public Complemento Complemento { get; set; }
+        public InvoiceIssuer Emisor { get; set; }
+        public InvoiceReceiver Receptor { get; set; }
+        public List<ConceptsData> Conceptos { get; set; }
+    }
+
+    public class InvoiceIssuer
+    {
+        public string Rfc { get; set; }
+        public string Nombre { get; set; }
+        public string RegimenFiscal { get; set; }
+    }
+    public class InvoiceReceiver {
+        public string Rfc { get; set; }
+        public string Nombre { get; set; }
+        public string ResidenciaFiscal { get; set; }
+        public string NumRegIdTrib { get; set; }
+        public string UsoCFDI { get; set; }
+    }
+    public class ConceptsData
+    {
+        public string ClaveProdServ { get; set; }
+        public string NoIdentificacion { get; set; }
+        public Int32 Cantidad { get; set; }
+        public string ClaveUnidad { get; set; }
+        public string Unidad { get; set; }
+        public string Descripcion { get; set; }
+        public decimal ValorUnitario { get; set; }
+        public decimal Descuento { get; set; }
+        public decimal Importe { get; set; }
+
+        public List<Traslados> Traslados { get; set; }
+        public List<Retenciones> Retenciones { get; set; }
+        public List<InformacionAduanera> InformacionAduanera { get; set; }
+        public CuentaPredial CuentaPredial { get; set; }
+        public List<Parte> Parte { get; set; }        
+    }
+    public class Traslados
+    {
+        public string Base { get; set; }
+        public string Impuesto { get; set; }
+        public string TipoFactor { get; set; }
+        public string TasaOCuota { get; set; }
+        public string Importe { get; set; }
+    }
+    public class Retenciones
+    {
+        public string Base { get; set; }
+        public string Impuesto { get; set; }
+        public string TipoFactor { get; set; }
+        public string TasaOCuota { get; set; }
+        public string Importe { get; set; }
+    }
+    public class InformacionAduanera
+    {
+        public string NumeroPedimento { get; set; }
+    }
+    public class CuentaPredial
+    {
+        public string Numero { get; set; }
+    }
+    public class Parte
+    {
+        public string ClaveProdServ { get; set; }
+        public string NoIdentificacion { get; set; }
+        public string Cantidad { get; set; }
+        public string Unidad { get; set; }
+        public string Descripcion { get; set; }
+        public string ValorUnitario { get; set; }
+        public string Importe { get; set; }
+        public List<InformacionAduanera> InformacionAduanera { get; set; }        
+    }
+    public class Complemento
+    {
+        public List<Pagos> Pagos { get; set; }
+    }
+
+    public class Pagos
+    {
+        public string FechaPago { get; set; }
+        public string FormaDePagoP { get; set; }
+        public string MonedaP { get; set; }
+        public string TipoCambioP { get; set; }
+        public string Monto { get; set; }
+        public List<DoctoRelacionado> DoctoRelacionado { get; set; }
+    }
+
+    public class DoctoRelacionado
+    {
+        public string IdDocumento { get; set; }
+        public string MonedaDR { get; set; }
+        public string MetodoDePagoDR { get; set; }
+        public string NumParcialidad { get; set; }
+        public string ImpSaldoAnt { get; set; }
+        public string ImpSaldoInsoluto { get; set; }
+    }
+
+    #endregion
 
     public class LogInSATModel
     {
@@ -33,6 +174,30 @@ namespace MVC_Project.Integrations.SAT
         {
             type = "efirma";
         }
+    }
+
+    public class CertificateModel
+    {
+        public string type { get; set; }
+        public string certificate { get; set; }
+        public string privateKey { get; set; }
+        public string password { get; set; }
+
+        public CertificateModel()
+        {
+            type = "csd";
+        }
+    }
+
+    public class CertificateResponseModel
+    {
+        public string id { get; set; }
+        public string type { get; set; }
+        public string rfc { get; set; }
+        public string validFrom { get; set; }
+        public string validTo { get; set; }
+        public string createdAt { get; set; }
+        public string updatedAt { get; set; }
     }
 
     public class SatAuthResponseModel
