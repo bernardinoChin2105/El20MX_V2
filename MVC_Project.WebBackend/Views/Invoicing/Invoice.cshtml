@@ -14,13 +14,14 @@
 @section styles{
     <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
     <style>
-        table.invoices-table tr td  {
+        table.invoices-table tr td {
             padding: 0px;
         }
-        table.invoices-table tr td input.form-control {
-            font-size: 11px;
-            padding: 5px;
-        }
+
+            table.invoices-table tr td input.form-control {
+                font-size: 11px;
+                padding: 5px;
+            }
     </style>
 }
 
@@ -252,15 +253,15 @@
             </div>
             <div class="col-12 international hide">
                 @*<div class="form-group row">
-                    @Html.LabelFor(m => m.CustomsPatent, new { @class = "col-form-label col-md-2 control-label" })
-                    <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.CustomsPatent, Model.ListCustomsPatent, "Seleccione...", new { @class = "form-control chosen-select" })
-                    </div>
-                    @Html.LabelFor(m => m.Customs, new { @class = "col-form-label col-md-2 control-label" })
-                    <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.Customs, Model.ListCustoms, "Seleccione...", new { @class = "form-control chosen-select" })
-                    </div>
-                </div>*@
+                        @Html.LabelFor(m => m.CustomsPatent, new { @class = "col-form-label col-md-2 control-label" })
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(model => model.CustomsPatent, Model.ListCustomsPatent, "Seleccione...", new { @class = "form-control chosen-select" })
+                        </div>
+                        @Html.LabelFor(m => m.Customs, new { @class = "col-form-label col-md-2 control-label" })
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(model => model.Customs, Model.ListCustoms, "Seleccione...", new { @class = "form-control chosen-select" })
+                        </div>
+                    </div>*@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.MotionNumber, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
@@ -345,6 +346,7 @@
                         <th>Código SAT</th>
                         <th>Descripción Producto o Servicio</th>
                         <th>Unidad SAT</th>
+                        <th>Unidad</th>
                         <th>Precio Unitario</th>
                         <th>% Descuento</th>
                         <th>
@@ -371,6 +373,7 @@
                                 <td>@item.SATCode</td>
                                 <td>@item.ProductServiceDescription</td>
                                 <td>@item.SATUnit</td>
+                                <th>@item.Unit</th>
                                 <td>@item.UnitPrice</td>
                                 <td>@item.DiscountRateProServ</td>
                                 <td>@item.TaxesIVA</td>
@@ -429,7 +432,7 @@
                     </tr>
                 </tfoot>
             </table>
-        </div><!-- /table-responsive -->       
+        </div><!-- /table-responsive -->
 
         <div class="row">
             <div class="col-12">

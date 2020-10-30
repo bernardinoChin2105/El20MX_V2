@@ -40,6 +40,17 @@ namespace MVC_Project.Integrations.SAT
                 if (JsonString != null)
                 {
                     var data = JsonConvert.SerializeObject(JsonString);
+
+                    //var originalSerializedObject = "{myObj: { x: \"\", y: \"test str\" }, myStr: \"hello world!\"}";
+                    //var deserializedObject = JsonConvert.DeserializeObject<Rootobject>(data);
+
+                    var serializerSettings = new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore,
+                        DefaultValueHandling = DefaultValueHandling.Ignore
+                    };
+                    var newSerializedObject = JsonConvert.SerializeObject(data, serializerSettings);
+
                     request.AddParameter("application/json", data, ParameterType.RequestBody);
                 }
 

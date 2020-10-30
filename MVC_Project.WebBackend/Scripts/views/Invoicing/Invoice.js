@@ -5,10 +5,6 @@
     }
 });
 
-//$("#RFC").keyup(function () {
-//    this.value = this.value.toUpperCase();
-//});
-
 var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOfficeUrl, locationsUrl, codeSATUrl, UnitSATUrl, searchCDFIUrl, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
@@ -76,37 +72,43 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 },
                 {
                     "targets": 5, render: function (data, type, row, meta) {
-                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].UnitPrice" value="' + data + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].Unit" value="' + data + '" />';
                         return html;
                     }
                 },
                 {
                     "targets": 6, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].UnitPrice" value="' + data + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 7, visible: false, render: function (data, type, row, meta) {
                         var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].DiscountRateProServ" value="' + data + '" />';
                         return html;
                     }
                 },
                 {
-                    "targets": 7, render: function (data, type, row, meta) {
+                    "targets": 8, render: function (data, type, row, meta) {
                         //console.log(data, type, row, meta, "todos")
                         var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].TaxesIEPS" value="' + data + '" />';
                         return html;
                     }
                 },
                 {
-                    "targets": 8, render: function (data, type, row, meta) {
+                    "targets": 9, render: function (data, type, row, meta) {
                         var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].TaxesIVA" value="' + data + '" />';
                         return html;
                     }
                 },
                 {
-                    "targets": 9, render: function (data, type, row, meta) {
+                    "targets": 10, render: function (data, type, row, meta) {
                         var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].Subtotal" value="' + data + '" />';
                         return html;
                     }
                 },
                 {
-                    "targets": 10, render: function (data, type, row, meta) {
+                    "targets": 11, render: function (data, type, row, meta) {
                         var button = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<button class="btn btn-light btn-edit"  title="Editar Producto o Servicio" style="margin-left:5px;"><span class="fas fa-edit"></span></button>' +
                             '</div>';
@@ -267,6 +269,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         //$("#DiscountRate").keyup(function () {
         //    console.log($(this).val(), "funciona aquí");
         //});
+        $("#RFC").keyup(function () {
+            this.value = this.value.toUpperCase();
+        });
 
         $("#Quantity,#UnitPrice,#DiscountRateProServ").keyup(function () {
             var quantity = parseFloat(self.quantity.val() !== "" ? self.quantity.val() : 0);
@@ -324,6 +329,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         $("#SATCode").val(),
                         $("#ProductServiceDescription").val(),
                         $("#SATUnit").val(),
+                        $("#Unit").val(),
                         self.unitPrice.val(),
                         self.discountRate.val(),
                         self.taxesIEPS.val(),
@@ -344,6 +350,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         $("#SATCode").val(),
                         $("#ProductServiceDescription").val(),
                         $("#SATUnit").val(),
+                        $("#Unit").val(),
                         self.unitPrice.val(),
                         self.discountRate.val(),
                         self.taxesIEPS.val(),
@@ -680,6 +687,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             },
             updater: function (obj) {
                 var item = JSON.parse(obj);
+                $('#Unit').attr('value', item.type);
                 return item.name;
             }
         });
@@ -732,14 +740,24 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         $("#SavedInvoice").click(function () {
             if (!$('#InvoicingForm').valid()) {
+                //return;
+
+                $('html, body').animate({
+                    scrollTop: ($('.error').offset().top - 300)
+                }, 2000);
                 return;
             }
+
             $("#InvoicingForm").attr('action', 'Invoice');
             $('#InvoicingForm').submit();
         });
 
         $("#validarDatos").click(function () {
             if (!$('#InvoicingForm').valid()) {
+                //return;
+                $('html, body').animate({
+                    scrollTop: ($('.error').offset().top - 300)
+                }, 2000);
                 return;
             }
 

@@ -243,6 +243,9 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Unidad SAT")]
         public string SATUnit { get; set; }
 
+        [Display(Name = "Unidad")]
+        public string Unit { get; set; }
+
         [Display(Name = "Precio Unitario")]
         public decimal UnitPrice { get; set; }
 

@@ -279,7 +279,7 @@ namespace MVC_Project.WebBackend.Controllers
                         //NoIdentificacion = que dato es?
                         Cantidad = item.Quantity,
                         ClaveUnidad = item.SATUnit,
-                        //Unidad  = que dato es?
+                        Unidad  = item.Unit,
                         Descripcion = item.ProductServiceDescription,
                         ValorUnitario = item.UnitPrice,
                         Descuento = item.DiscountRateProServ,
@@ -342,34 +342,38 @@ namespace MVC_Project.WebBackend.Controllers
                 //}
                 //else
                 //{
-                    var invoiceData = new InvoiceData
-                    {
-                        Serie = model.Serie,
-                        Folio = Convert.ToInt32(model.Folio),
-                        Fecha = todayDate,
-                        Moneda = model.Currency,
-                        //TipoCambio = model.ExchangeRate.,
-                        TipoDeComprobante = model.TypeInvoice,
-                        CondicionesDePago = model.PaymentConditions,
-                        FormaPago = model.PaymentForm,
-                        MetodoPago = model.PaymentMethod,
-                        //Confirmacion = model.
-                        LugarExpedicion = model.ZipCode,
-                        Emisor = issuer,
-                        Receptor = receiver,
-                        Conceptos = conceptos
-                    };
-                    var invoice = new InvoiceJson
-                    {
-                        data = invoiceData
-                    };
-
-                    var result = SATService.PostIssueIncomeInvoices(invoice, provider);
-                    if (result != null)
-                    {
-                        success = true;
-                    }
                 //}
+                var invoiceData = new InvoiceData
+                {
+                    Serie = model.Serie,
+                    Folio = Convert.ToInt32(model.Folio),
+                    Fecha = todayDate.ToString("s") + "Z",
+                    Moneda = model.Currency,
+                    TipoDeComprobante = model.TypeInvoice,
+                    CondicionesDePago = model.PaymentConditions,
+                    FormaPago = model.PaymentForm,
+                    MetodoPago = model.PaymentMethod,
+                    LugarExpedicion = model.ZipCode,
+                    Emisor = issuer,
+                    Receptor = receiver,
+                    Conceptos = conceptos
+                };
+                if (Convert.ToDecimal(model.ExchangeRate) > 0)
+                {
+                    invoiceData.TipoCambio = Convert.ToDecimal(model.ExchangeRate);
+                }
+
+                var invoice = new InvoiceJson
+                {
+                    data = invoiceData
+                };
+
+                var result = SATService.PostIssueIncomeInvoices(invoice, provider);
+                if (result != null)
+                {
+                    success = true;
+                }
+                
 
                 if (!success)
                 {
@@ -528,6 +532,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
+        [HttpGet, AllowAnonymous]
         public JsonResult GetSerieFolio(Int64 sucursalId)
         {
             try
@@ -546,6 +551,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         #region busquedas de información 
         //Busca a los cliente o proveedores por rfc o razon social
+        [HttpGet, AllowAnonymous]
         public JsonResult GetSearchReceiver(string field, string value, string typeInvoice)
         {
             var authUser = Authenticator.AuthenticatedUser;
@@ -596,6 +602,7 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         //obtenet la información del cliente
+        [HttpGet, AllowAnonymous]
         public JsonResult GetReceiverInformation(Int64 id, string type)
         {
             bool success = false;
@@ -673,6 +680,7 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         //Obtener listado de productos por codigo
+        [HttpGet, AllowAnonymous]
         public JsonResult GetProdServSAT(string Concept)
         {
             bool success = false;
