@@ -76,13 +76,7 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    @Html.LabelFor(m => m.TypeRelationship, new { @class = "col-form-label col-md-4 control-label" })
-                    <div class="col-md-8">
-                        @Html.DropDownListFor(model => model.TypeRelationship, Model.ListTypeRelationship, "Seleccione...", new { @class = "form-control chosen-select required" })
-                        @*@Html.ValidationMessageFor(model => model.allyId)*@
-                    </div>
                     <div class="col-12">
-                        <br />
                         <div class="i-checks">
                             <label class="control-label">
                                 @Html.CheckBoxFor(m => m.InvoiceComplementChk, new { @class = "form-control", name = "current" })
@@ -90,11 +84,22 @@
                             </label>
                         </div>
                     </div>
-                    @Html.LabelFor(m => m.InvoiceComplement, new { @class = "col-form-label col-md-4 control-label complement hide" })
+                </div>
+                <div class="form-group row complement hide">
+                    @Html.LabelFor(m => m.TypeRelationship, new { @class = "col-form-label col-md-4 control-label" })
                     <div class="col-md-8">
-                        @Html.TextBoxFor(m => m.InvoiceComplement, new { @class = "form-control complement hide", @maxlength = "200", @autocomplete = "off" })
+                        @Html.DropDownListFor(model => model.TypeRelationship, Model.ListTypeRelationship, "Seleccione...", new { @class = "form-control chosen-select" })
+                        @*@Html.ValidationMessageFor(model => model.allyId)*@
                     </div>
-                    <div class="col-12 complement hide">
+                </div>
+                <div class="form-group row complement hide">
+                    @Html.LabelFor(m => m.InvoiceComplement, new { @class = "col-form-label col-md-4 control-label" })
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(m => m.InvoiceComplement, new { @class = "form-control", @maxlength = "200", @autocomplete = "off" })
+                    </div>
+                </div>
+                <div class="form-group row complement hide">
+                    <div class="col-12">
                         <div id="CDFIS">
                             @*InvoicesCFDI lista*@
                         </div>
@@ -166,7 +171,7 @@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.CustomerEmail, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.TextBoxFor(m => m.CustomerEmail, new { @class = "form-control required", @maxlength = "200", @autocomplete = "off" })
+                        @Html.TextBoxFor(m => m.CustomerEmail, new { @class = "form-control", @maxlength = "200", @autocomplete = "off" })
                         @*@Html.DropDownListFor(model => model.CustomerEmailId, Model.ListCustomerEmail, "Seleccione...", new { @class = "form-control chosen-select required" })*@
                     </div>
                 </div>

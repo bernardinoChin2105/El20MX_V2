@@ -288,10 +288,19 @@ namespace MVC_Project.WebBackend.Controllers
                         //dudas por el llenado de datos
 
                         //public List<Traslados> Traslados { get; set; }
-                        //public List<Retenciones> Retenciones { get; set; }
-                        //public List<InformacionAduanera> InformacionAduanera { get; set; }
+                        //public List<Retenciones> Retenciones { get; set; }                        
                         //public List<Parte> Parte { get; set; }
-                    };
+                    };                    
+
+                    if (model.InternationalChk && !string.IsNullOrEmpty(model.MotionNumber))
+                    {
+                        Integrations.SAT.InformacionAduanera infoAduanera = new Integrations.SAT.InformacionAduanera()
+                        {
+                            NumeroPedimento = model.MotionNumber
+                        };
+
+                        conceptsData.InformacionAduanera.Add(infoAduanera);
+                    }
 
                     if (!string.IsNullOrEmpty(model.PropertyAccountNumber))
                         conceptsData.CuentaPredial = new CuentaPredial { Numero = model.PropertyAccountNumber };

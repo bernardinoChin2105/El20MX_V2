@@ -481,12 +481,15 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         $("#InvoiceComplementChk").click(function () {
             //console.log("estoy dento", !this.checked);
             var complement = $(".complement");
+            var typeRelationship = $("#TypeRelationship");
 
             if (!this.checked) {
                 complement.addClass("hide");
+                typeRelationship.removeClass("required").val("");
                 $("#InvoiceComplement").val("");
             }
             else
+                typeRelationship.addClass("required");
                 complement.removeClass("hide");
         });
 
