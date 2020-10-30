@@ -37,6 +37,11 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.folio).Column("folio").Nullable();
             Map(x => x.logo).Column("logo").Nullable();
 
+            Map(x => x.cer).Column("cer").Nullable();
+            Map(x => x.key).Column("[key]").Nullable();
+            Map(x => x.password).Column("password").Nullable();
+            Map(x => x.certificateId).Column("certificateId").Nullable();
+
             References(x => x.account).Column("accountId").Nullable();
             
         }

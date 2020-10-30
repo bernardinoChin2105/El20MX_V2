@@ -31,7 +31,7 @@ var ProviderIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
     this.dataTable = {};
 
     this.init = function () {
-        var primeravez = true;
+        var primeravez = false;
 
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();

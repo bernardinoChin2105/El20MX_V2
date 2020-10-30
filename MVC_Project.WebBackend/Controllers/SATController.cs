@@ -32,48 +32,54 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult Index()
         {
             var userAuth = Authenticator.AuthenticatedUser;
-            var account = _accountService.GetById(userAuth.Account.Id);
-            if (account == null)
-                throw new Exception("La cuenta no existe en el sistema");
-
-            var model = new SATViewModel()
+            var model = new SATViewModel();
+            try
             {
-                id = account.id,
-                uuid = account.uuid.ToString(),
-                rfc = account.rfc,
-                name = account.name,
-                cerUrl = account.cer,
-                keyUrl = account.key,
-                efirma = account.eFirma,
-                ciec = account.ciec,
-                avatar = account.avatar
-            };
+                var account = _accountService.GetById(userAuth.Account.Id);
+                if (account == null)
+                    throw new Exception("La cuenta no existe en el sistema");
 
-            var efirmaStatus = SystemStatus.INACTIVE.ToString();
-            var ciecStatus = SystemStatus.INACTIVE.ToString();
+                model.id = account.id;
+                model.uuid = account.uuid.ToString();
+                model.rfc = account.rfc;
+                model.name = account.name;
+                model.cerUrl = account.cer;
+                model.keyUrl = account.key;
+                model.efirma = account.eFirma;
+                model.ciec = account.ciec;
+                model.avatar = account.avatar;
 
-            var credentials = _credentialService.FindBy(x => x.account.id == account.id && x.provider == _provider);
-            if (credentials.Any())
-            {
-                var ciec = credentials.FirstOrDefault(x => x.credentialType == SATCredentialType.CIEC.ToString());
-                if (ciec != null)
+                var efirmaStatus = SystemStatus.INACTIVE.ToString();
+                var ciecStatus = SystemStatus.INACTIVE.ToString();
+
+                var credentials = _credentialService.FindBy(x => x.account.id == account.id && x.provider == _provider);
+                if (credentials.Any())
                 {
-                    model.ciecUuid = ciec.uuid.ToString();
-                    ciec.status = model.ciecStatus = SATService.GetCredentialStatusSat(ciec.idCredentialProvider, _provider);
-                    ciec.modifiedAt = DateTime.Now;
-                    _credentialService.Update(ciec);
+                    var ciec = credentials.FirstOrDefault(x => x.credentialType == SATCredentialType.CIEC.ToString());
+                    if (ciec != null)
+                    {
+                        model.ciecUuid = ciec.uuid.ToString();
+                        ciec.status = model.ciecStatus = SATService.GetCredentialStatusSat(ciec.idCredentialProvider, _provider);
+                        ciec.modifiedAt = DateTime.Now;
+                        _credentialService.Update(ciec);
+                    }
+                    var efirma = credentials.FirstOrDefault(x => x.credentialType == SATCredentialType.EFIRMA.ToString());
+                    if (efirma != null)
+                    {
+                        model.efirmaUuid = efirma.uuid.ToString();
+                        efirma.status = model.efirmaStatus = SATService.GetCredentialStatusSat(efirma.idCredentialProvider, _provider);
+                        efirma.modifiedAt = DateTime.Now;
+                        _credentialService.Update(efirma);
+                    }
                 }
-                var efirma = credentials.FirstOrDefault(x => x.credentialType == SATCredentialType.EFIRMA.ToString());
-                if (efirma != null)
-                {
-                    model.efirmaUuid = efirma.uuid.ToString();
-                    efirma.status = model.efirmaStatus = SATService.GetCredentialStatusSat(efirma.idCredentialProvider, _provider);
-                    efirma.modifiedAt = DateTime.Now;
-                    _credentialService.Update(efirma);
-                }
+
+                return View(model);
             }
-            
-            return View(model);
+            catch (Exception ex)
+            {
+                FlashMessages.MensajeFlashHandler.RegistrarMensaje("No se pudo obtener la información de la cuenta", TiposMensaje.Error);
+                return View(model);
+            }
         }
 
         public ActionResult Edit(SATViewModel model)
@@ -184,9 +190,13 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (data.key == null && string.IsNullOrEmpty(account.key))
                     throw new Exception("Es necesario proporcionar un archivo .key");
+
                 string cerStr = string.Empty;
                 if (data.cer != null)
                 {
+                    if (Path.GetExtension(data.cer.FileName) != ".cer")
+                        throw new Exception("El archivo .cer no tiene el formato correcto");
+
                     var cer = AzureBlobService.UploadPublicFile(data.cer.InputStream, data.cer.FileName, storageEFirma, account.rfc);
                     account.cer = cer.Item1;
                     data.cer.InputStream.Position = 0;
@@ -210,6 +220,9 @@ namespace MVC_Project.WebBackend.Controllers
                 string keyStr = string.Empty;
                 if (data.key != null)
                 {
+                    if (Path.GetExtension(data.key.FileName) != ".key")
+                        throw new Exception("El archivo .key no tiene el formato correcto");
+
                     var key = AzureBlobService.UploadPublicFile(data.key.InputStream, data.key.FileName, storageEFirma, account.rfc);
                     account.key = key.Item1;
                     data.key.InputStream.Position = 0;

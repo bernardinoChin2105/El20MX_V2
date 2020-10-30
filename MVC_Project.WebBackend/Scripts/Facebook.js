@@ -8,8 +8,9 @@
 
 window.fbAsyncInit = function () {
     FB.init({
-        appId: '246375746578693', //LOCAL                     
-        //appId: '2444149519209146', //DEV
+        //appId: '246375746578693', //LOCAL                     
+        appId: '2444149519209146', //DEV - Para pruebas
+        //appId: '2758480127757187', //Dev para despliegue
         //appId: '', //QA
         //appId: '',//PROD
 

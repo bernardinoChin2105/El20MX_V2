@@ -62,7 +62,7 @@
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.taxRegime, new { @class = "col-form-label control-label" })
                                     @*@Html.TextBoxFor(m => m.taxRegime, new { @class = "form-control" })*@
-                                    @Html.DropDownListFor(m => m.taxRegime, Model.ListRegimen.Items as List<SelectListItem>, new { @class = "form-control", @disabled = "disabled" })
+                                    @Html.DropDownListFor(m => m.taxRegime, Model.ListRegimen, new { @class = "form-control", @disabled = "disabled" })
                                 </div>
                             </div>
                         </div>
@@ -99,22 +99,22 @@
                                 </div>
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.Colony, new { @class = "col-form-label control-label" })
-                                    @Html.DropDownListFor(m => m.Colony, Model.ListColony.Items as List<SelectListItem>, new { @class = "form-control form-height" })
+                                    @Html.DropDownListFor(m => m.Colony, Model.ListColony, new { @class = "chosen-select" })
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.Municipality, new { @class = "col-form-label control-label" })
-                                    @Html.DropDownListFor(m => m.Municipality, Model.ListMunicipality.Items as List<SelectListItem>, new { @class = "form-control" })
+                                    @Html.DropDownListFor(m => m.Municipality, Model.ListMunicipality, new { @class = "chosen-select" })
                                 </div>
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.State, new { @class = "col-form-label control-label" })
-                                    @Html.DropDownListFor(m => m.State, Model.ListState.Items as List<SelectListItem>, new { @class = "form-control" })
+                                    @Html.DropDownListFor(m => m.State, Model.ListState, new { @class = "chosen-select" })
                                 </div>
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.Country, new { @class = "col-form-label control-label" })
-                                    @Html.DropDownListFor(m => m.Country, Model.ListCountry.Items as List<SelectListItem>, new { @class = "form-control" })
+                                    @Html.DropDownListFor(m => m.Country, Model.ListCountry, new { @class = "chosen-select" })
                                 </div>
                             </div>
 

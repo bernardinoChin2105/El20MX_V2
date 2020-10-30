@@ -49,6 +49,33 @@ namespace MVC_Project.Integrations.SAT
             }
         }
 
+        public static CertificateResponse CreateCertificates(string cer, string key, string password, string provider)
+        {
+            if (provider == SystemProviders.SATWS.ToString())
+            {
+                var loginSat = new CertificateModel { certificate = cer, privateKey = key, password = password, type = "csd" };
+                var satModel = SATwsService.CreateCertificates(loginSat);
+
+                return new CertificateResponse { id = satModel.id };
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
+        public static void DeleteCertificates(string id, string provider)
+        {
+            if (provider == SystemProviders.SATWS.ToString())
+            {
+                SATwsService.DeleteCertificates(id);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
         public static void GenerateExtractions(string rfc, DateTime dateOnStart, DateTime dateOnEnd, string provider)
         {
             if (provider == SystemProviders.SATWS.ToString())

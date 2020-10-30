@@ -201,10 +201,28 @@ namespace MVC_Project.Integrations.SAT
         }
 
         ///*Para crear el certificado*/
-        //public static CreateCertificates(EfirmaModel model)
-        //{
-        //    https://api.sandbox.sat.ws/certificates
-        //}
+        public static CertificateResponseModel CreateCertificates(CertificateModel model)
+        {
+            CertificateResponseModel satModel = new CertificateResponseModel();
+
+            string url = "/certificates";
+
+            //Llamar al servicio para crear la credencial en el sat.ws y obtener respuesta                  
+            var responseSat = SATws.CallServiceSATws(url, model, "Post");
+
+            satModel = JsonConvert.DeserializeObject<CertificateResponseModel>(responseSat);
+
+            return satModel;
+        }
+
+        public static void DeleteCertificates(string id)
+        {
+            string url = "/certificates/" + id;
+
+            //Llamar al servicio para eliminar la credencial en el sat.ws y obtener respuesta                  
+            SATws.CallServiceSATws(url, null, "Delete");
+            
+        }
 
         //Obtener idCredencial del RFC
         public static SatAuthResponseModel GetCredentialSat(string idCredential)

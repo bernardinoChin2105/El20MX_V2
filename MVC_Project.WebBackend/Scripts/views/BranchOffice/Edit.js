@@ -3,7 +3,7 @@
     var _urlGetLocations = urlGetLocations;
 
     this.init = function () {
-        $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
+        $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para ", placeholder_text_single: "Seleccione..." });
 
         $(".view-ciec").mouseup(function () {
             $(".view-ciec-input").attr('type', 'password').data("view", false);
@@ -68,6 +68,18 @@
                 },
                 interiorNumber: {
                     Alphanumeric: true,
+                },
+                colony: {
+                    required: true,
+                },
+                municipality: {
+                    required: true,
+                },
+                state: {
+                    required: true,
+                },
+                country: {
+                    required: true,
                 }
             }
         });
@@ -171,6 +183,9 @@
 
     $("#btn-save").on("click", function () {
         if (!$('#EditForm').valid()) {
+            $('html, body').animate({
+                scrollTop: ($('.error').offset().top - 300)
+            }, 2000);
             return;
         }
         $('#EditForm').submit();
@@ -193,10 +208,9 @@
     });
 
     $("#zipCode").blur(function () {
-        //console.log("perdio el focus");
+        ClearCombos();
         var value = $(this).val();
         if (!value) {
-            ClearCombos();
             return;
         }
         var cmbColony = $("#colony");
@@ -211,30 +225,20 @@
             data: { zipCode: value },
             url: _urlGetLocations,
             success: function (json) {
-                //console.log(json, "respuesta");
                 if (json.Data.success) {
                     var datos = json.Data.data;
                     if (datos.length > 0) {
-                        //console.log(datos, "que esta aquí");
-                        cmbState.val(datos[0].stateId);
+                        cmbCountry.append($('<option></option>').val(datos[0].countryId).text(datos[0].nameCountry));
 
-                        //Llenado de Países
-                        cmbCountry.html('<option value="-1">Seleccione...</option>');
-                        cmbCountry.append('<option value="' + datos[0].countryId + '">' + datos[0].nameCountry + '</option>');
-                        cmbCountry.val(datos[0].countryId);
+                        cmbState.append($('<option></option>').val(datos[0].stateId).text(datos[0].nameState));
 
-                        //Llenado de municipios
-                        //console.log(datos[0], "registro 0");
-                        cmbMunicipality.html('<option value="-1">Seleccione...</option>');
-                        cmbMunicipality.append('<option value="' + datos[0].municipalityId + '">' + datos[0].nameMunicipality + '</option>');
-                        cmbMunicipality.val(datos[0].municipalityId);
+                        cmbMunicipality.append($('<option></option>').val(datos[0].municipalityId).text(datos[0].nameMunicipality));
 
-                        //Llenado de colonias
-                        cmbColony.html('<option value="-1">Seleccione...</option>');
-                        cmbColony.append(datos.map(function (data, index) {
-                            return $('<option value="' + data.id + '">' + data.nameSettlementType + ' ' + data.nameSettlement + '</option>');
-                        }));
-                        cmbColony.val(datos[0].id);
+                        datos.forEach(function (item, index) {
+                            cmbColony.append($('<option></option>').val(item.id).text(item.nameSettlementType + ' ' + item.nameSettlement));
+                        });
+
+                        $(".chosen-select").trigger("chosen:updated");
                     } else {
                         ClearCombos();
                         toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
@@ -258,10 +262,11 @@
             var cmbState = $("#state");
             var cmbCountry = $("#country");
 
-            cmbState.val(-1);
-            cmbCountry.html('<option value="-1">Seleccione...</option>').val(-1);
-            cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
-            cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
+            cmbColony.empty();
+            cmbMunicipality.empty();
+            cmbState.empty();
+            cmbCountry.empty();
+            $(".chosen-select").trigger("chosen:updated");
         }
     });
 }

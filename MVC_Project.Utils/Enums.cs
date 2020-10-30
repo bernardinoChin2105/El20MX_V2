@@ -60,6 +60,16 @@ namespace MVC_Project.Utils
         SYSTEM_ADMINISTRATOR
     }
 
+    public enum SystemPermissionApply
+    {
+        [Display(Name = "Only Account")]
+        ONLY_ACCOUNT,
+        [Display(Name = "Only Back Office")]
+        ONLY_BACK_OFFICE,
+        [Display(Name = "Both")]
+        BOTH
+    }
+
     public enum DocumentType
     {
         [Display(Name = "Curriculum Vitae")]
