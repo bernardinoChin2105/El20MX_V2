@@ -52,13 +52,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         [AllowAnonymous]
         public ActionResult Index()
-        {
-            //var userAuth = Authenticator.AuthenticatedUser;
-            //if (userAuth.Account == null)
-            //{            
-            //    MensajeFlashHandler.RegistrarMensaje("No tiene una cuenta asociada", TiposMensaje.Error);
-            //}
-
+        {          
             return View();
         }
 
@@ -70,8 +64,8 @@ namespace MVC_Project.WebBackend.Controllers
                 int totalDisplay = 0;
                 int total = 0;
                 var listResponse = new List<CustomerList>();
-                //if (!first)
-                //{
+                if (!first)
+                {
                     var userAuth = Authenticator.AuthenticatedUser;
                     NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
                     string rfc = filtersValues.Get("RFC").Trim();
@@ -95,7 +89,7 @@ namespace MVC_Project.WebBackend.Controllers
                         totalDisplay = listResponse[0].Total;
                         total = listResponse.Count();
                     }
-                //}
+                }
 
                 return Json(new
                 {

@@ -91,7 +91,7 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                 aoData.push({ "name": "first", "value": primeravez });
 
                 $.getJSON(sSource, aoData, function (json) {
-                    primeravez = true;
+                    primeravez = false;
                     fnCallback(json);
                     if (json.success === false) {
                         toastr['error'](json.message);
