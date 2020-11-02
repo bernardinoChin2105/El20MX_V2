@@ -276,7 +276,7 @@ namespace MVC_Project.Integrations.SAT
         }
 
         /*Crear timbrado de factura*/
-        public static InvoicesInfo PostIssueIncomeInvoices(InvoiceJson invoiceJson)
+        public static InvoicesInfo PostIssueIncomeInvoices(dynamic invoiceJson)
         {            
             InvoicesInfo invoice = new InvoicesInfo();            
 

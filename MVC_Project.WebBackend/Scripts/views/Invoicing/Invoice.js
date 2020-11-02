@@ -71,7 +71,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     }
                 },
                 {
-                    "targets": 5, render: function (data, type, row, meta) {
+                    "targets": 5, visible: false, render: function (data, type, row, meta) {
                         var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].Unit" value="' + data + '" />';
                         return html;
                     }
@@ -83,7 +83,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     }
                 },
                 {
-                    "targets": 7, visible: false, render: function (data, type, row, meta) {
+                    "targets": 7, render: function (data, type, row, meta) {
                         var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].DiscountRateProServ" value="' + data + '" />';
                         return html;
                     }
@@ -142,15 +142,15 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 //        return intVal(a) + intVal(b);
                 //    }, 0);
 
-                //total = api
-                //    .column(9)
-                //    .data()
-                //    .reduce(function (a, b) {
-                //        return intVal(a) + intVal(b);
-                //    }, 0);
+                total = api
+                    .column(8)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
 
                 trasladosIEPSIVA = api
-                    .column(8)
+                    .column(9)
                     .data()
                     .reduce(function (a, b) {
                         return intVal(a) + intVal(b);
@@ -158,7 +158,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                 // Total over this page
                 subtotal = api
-                    .column(9, { page: 'current' })
+                    .column(10, { page: 'current' })
                     .data()
                     .reduce(function (a, b) {
                         return intVal(a) + intVal(b);
@@ -173,8 +173,11 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
 
                 var discountTXT = $("#DiscountRate").val();
+                console.log(discountTXT, "valor de descuento")
                 var discountRate = parseFloat(discountTXT !== "" ? discountTXT : 0);
+                console.log(discountRate, "parse float")
                 var discount = discountRate > 0 || discountRate < 0 ? (discountRate * subtotal) / 100 : 0;
+                console.log(discount, "descuento a restar")
 
                 $("#TotalDiscount").val(discount.toFixed(2));
                 $("#lblTotalDiscount").html("$" + discount.toFixed(2));
@@ -208,7 +211,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $(".trTaxWISR").addClass("hide");
                 //}
 
-                var total = (subtotal + discount + trasladosIEPSIVA).toFixed(2);
+                var total = (subtotal - discount - trasladosIEPSIVA).toFixed(2);
+                console.log(total, "total");
                 $("#Total").val(total);
                 $("#lblTotal").html('$' + total);
 
@@ -246,29 +250,106 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
             }, "El campo debe ser alfanumérico"
         );
+        $.validator.addMethod("Numeric",
+            function (value, element) {
+                return value.match(/^[0-9]+$|^$/);
+            }, "El campo debe ser numérico"
+        );
 
         $("#InvoicingForm").validate({
             rules: {
-                Folio: {
+                InvoiceComplement: {
                     Alphanumeric: true
                 },
-                Serie: {
+                CustomerName: {
                     Alphanumeric: true
                 },
-                RFCP: {
+                RFC: {
                     Alphanumeric: true
                 },
-                NombreRazonSocial: {
+                Street: {
                     Alphanumeric: true
                 },
+                OutdoorNumber: {
+                    Alphanumeric: true
+                },
+                InteriorNumber: {
+                    Alphanumeric: true
+                },
+                ZipCode: {
+                    required: true,
+                    Numeric: true
+                },
+                MotionNumber: {
+                    Alphanumeric: true
+                },
+                PaymentConditions: {
+                    Alphanumeric: true
+                },
+                Comments: {
+                    Alphanumeric: true
+                },                
             }
+        });
+
+        $("#ConceptForm").validate({
+            rules: {
+                SATCode: {
+                    Alphanumeric: true
+                },
+                ProductServiceDescription: {
+                    Alphanumeric: true
+                },                
+            }
+        });
+
+        /*Buscador de facturas para complementos*/
+        $(".search-invoice").click(function () {
+            console.log("entre al evento", $(this).val());
+            El20Utils.mostrarCargador();
+
+            var uuid = $(this).val();
+            $.ajax({
+                type: 'Get',
+                async: true,
+                data: { uuid:  uuid},
+                url: self.searchCDFIUrl,
+                success: function (json) {
+                    console.log(json, "respuesta");
+
+                    if (json.success) {
+                        var data = json.data;
+                        //$("#CustomerName").val(data.BusinessName);
+                        //$("#RFC").val(data.RFC);
+                        //$("#Street").val(data.Street);
+                        //$("#OutdoorNumber").val(data.OutdoorNumber);
+                        //$("#InteriorNumber").val(data.InteriorNumber);
+                        //$("#Colony").val(data.Colony);
+                        //$("#ZipCode").val(data.ZipCode);
+                        //$("#Municipality").val(data.Municipality);
+                        //$("#State").val(data.State);
+                        //$("#Country").val(data.Country);
+                        //$("#CustomerEmail").val();
+                        //if (data.ZipCode !== null) {
+                        //    $("#ZipCode").trigger("blur");
+                        //}
+                        El20Utils.ocultarCargador();               
+                    }
+                    else {
+                        El20Utils.ocultarCargador(); 
+                    }
+
+                },
+                error: function (xhr) {
+                    console.log('error', xhr);
+                    El20Utils.ocultarCargador(); 
+                }
+            });
+
         });
 
         $('.money').mask("##,###,##0.00", { reverse: true });
 
-        //$("#DiscountRate").keyup(function () {
-        //    console.log($(this).val(), "funciona aquí");
-        //});
         $("#RFC").keyup(function () {
             this.value = this.value.toUpperCase();
         });
@@ -409,7 +490,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     data: { sucursalId: value },
                     url: self.branchOfficeUrl,
                     success: function (json) {
-                        console.log(json, "respuesta");
+                        //console.log(json, "respuesta");
                         SerieFolio.val(json.serie + " " + json.folio);
                         Serie.val(json.serie);
                         Folio.val(json.folio);
@@ -476,6 +557,17 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             }
             else
                 international.removeClass("hide");
+        });
+
+        $("input[name='taxes']").click(function () {
+            console.log("valor", $(this).val())
+            if ($(this).val() === "Retención") {
+                $(".retenciones").removeClass("hide");
+                $(".traslados").addClass("hide");
+            } else {
+                $(".retenciones").addClass("hide");
+                $(".traslados").removeClass("hide");
+            }
         });
 
         $("#InvoiceComplementChk").click(function () {
@@ -727,16 +819,14 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         //ListCustomerEmail lista
                         //CustomerEmailId                    
                     }
-                    //else {
-                    //}
+                    else {
+                        El20Utils.ocultarCargador(); 
+                    }
 
                 },
                 error: function (xhr) {
                     console.log('error', xhr);
-                    //cmbState.val(-1);
-                    //cmbCountry.html('<option value="-1">Seleccione...</option>').val(-1);
-                    //cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
-                    //cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
+                    El20Utils.ocultarCargador(); 
                 }
             });
         }

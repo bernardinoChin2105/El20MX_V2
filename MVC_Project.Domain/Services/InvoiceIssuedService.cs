@@ -12,7 +12,7 @@ namespace MVC_Project.Domain.Services
     public interface IInvoiceIssuedService : IService<InvoiceIssued>
     {
         List<ListInvoiceIssued> GetAllInvoicesIssued();
-        InvoiceIssued SaveInvoice(InvoiceIssued invoice, Provider provider = null, Customer customer = null);
+        InvoiceIssued SaveInvoice(InvoiceIssued invoice, Customer customer = null, BranchOffice office = null);
     }
 
     public class InvoiceIssuedService : ServiceBase<InvoiceIssued>, IInvoiceIssuedService
@@ -28,15 +28,17 @@ namespace MVC_Project.Domain.Services
             return null;
         }
 
-        public InvoiceIssued SaveInvoice(InvoiceIssued invoice, Provider provider = null, Customer customer = null)
+        public InvoiceIssued SaveInvoice(InvoiceIssued invoice, Customer customer = null, BranchOffice office = null)
         {
             using (var transaction = _repository.Session.BeginTransaction())
             {
                 try
                 {
+                    //if (provider != null && provider.id == 0)
+                    //    _repository.Session.Save(provider);
 
-                    if (provider != null && provider.id == 0)
-                        _repository.Session.Save(provider);
+                    if (office != null)
+                        _repository.Session.Save(office);
 
                     if (customer != null && customer.id == 0)
                         _repository.Session.Save(customer);

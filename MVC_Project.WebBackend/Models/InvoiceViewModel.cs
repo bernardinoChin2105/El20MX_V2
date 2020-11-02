@@ -59,6 +59,7 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Cliente")]
         public string CustomerName { get; set; }
         public Int64 CustomerId { get; set; }
+        public string TypeReceptor { get; set; }
 
         [Display(Name = "RFC Cliente")]
         public string RFC { get; set; }

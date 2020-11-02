@@ -22,6 +22,17 @@
                 font-size: 11px;
                 padding: 5px;
             }
+
+        #ServProdModal .modal-body {
+            padding: 20px 20px 0px 20px;
+        }
+
+        .tab-pane {
+            padding: 15px 10px 0 10px;
+        }
+        .search-invoice{
+            cursor: pointer;
+        }
     </style>
 }
 
@@ -94,8 +105,14 @@
                 </div>
                 <div class="form-group row complement hide">
                     @Html.LabelFor(m => m.InvoiceComplement, new { @class = "col-form-label col-md-4 control-label" })
-                    <div class="col-md-8">
-                        @Html.TextBoxFor(m => m.InvoiceComplement, new { @class = "form-control", @maxlength = "200", @autocomplete = "off" })
+                    <div class="col-md-8">                        
+                        @*mb-2 mr-sm-2*@
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="InvoiceComplement" name="InvoiceComplement" autocomplete="off" maxlength="300" />
+                            <div class="input-group-append">
+                                <div class="input-group-text search-invoice"><i class="fas fa-search"></i></div>                                
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group row complement hide">
@@ -171,7 +188,7 @@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.CustomerEmail, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.TextBoxFor(m => m.CustomerEmail, new { @class = "form-control", @maxlength = "200", @autocomplete = "off" })
+                        @Html.TextBoxFor(m => m.CustomerEmail, new { @class = "form-control", type="email", @maxlength = "300", @autocomplete = "off" })
                         @*@Html.DropDownListFor(model => model.CustomerEmailId, Model.ListCustomerEmail, "Seleccione...", new { @class = "form-control chosen-select required" })*@
                     </div>
                 </div>
@@ -242,14 +259,6 @@
                             </label>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6">
-                        <div class="i-checks">
-                            <label class="control-label">
-                                @Html.CheckBoxFor(m => m.TaxesChk, new { @class = "form-control", name = "current" })
-                                @Html.DisplayNameFor(x => x.TaxesChk)
-                            </label>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="col-12 international hide">
@@ -277,31 +286,31 @@
             </div>
         </div>
 
-        <div id="taxes" class="row hide is-hidden">
-            <div class="col-12">
-                <br />
-                <h3>Impuestos</h3>
-                <hr />
-            </div>
-            <div class="col-12">
-                <div class="form-group row">
-                    @Html.LabelFor(m => m.Withholdings, new { @class = "col-form-label col-md-2 control-label" })
-                    <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.Withholdings, Model.ListWithholdings, "Seleccione...", new { @class = "form-control chosen-select" })
+        @*<div id="taxes" class="row hide is-hidden">
+                <div class="col-12">
+                    <br />
+                    <h3>Impuestos</h3>
+                    <hr />
+                </div>
+                <div class="col-12">
+                    <div class="form-group row">
+                        @Html.LabelFor(m => m.Withholdings, new { @class = "col-form-label col-md-2 control-label" })
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(model => model.Withholdings, Model.ListWithholdings, "Seleccione...", new { @class = "form-control chosen-select" })
+                        </div>
+                        @Html.LabelFor(m => m.Transferred, new { @class = "col-form-label col-md-2 control-label" })
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(model => model.Transferred, Model.ListTransferred, "Seleccione...", new { @class = "form-control chosen-select" })
+                        </div>
                     </div>
-                    @Html.LabelFor(m => m.Transferred, new { @class = "col-form-label col-md-2 control-label" })
-                    <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.Transferred, Model.ListTransferred, "Seleccione...", new { @class = "form-control chosen-select" })
+                    <div class="form-group row">
+                        @Html.LabelFor(m => m.Valuation, new { @class = "col-form-label col-md-2 control-label" })
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(model => model.Valuation, Model.ListValuation, "Seleccione...", new { @class = "form-control chosen-select" })
+                        </div>
                     </div>
                 </div>
-                <div class="form-group row">
-                    @Html.LabelFor(m => m.Valuation, new { @class = "col-form-label col-md-2 control-label" })
-                    <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.Valuation, Model.ListValuation, "Seleccione...", new { @class = "form-control chosen-select" })
-                    </div>
-                </div>
-            </div>
-        </div>
+            </div>*@
 
         <div class="row">
             <div class="col-12">
@@ -323,7 +332,7 @@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.Comments, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-10">
-                        @Html.TextAreaFor(m => m.Comments, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off" })
+                        @Html.TextAreaFor(m => m.Comments, new { @class = "form-control ", @maxlength = "300", @autocomplete = "off" })
                         @*@Html.TextBoxFor(m => m.DiscountRate, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off" })*@
                     </div>
                 </div>
@@ -392,7 +401,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th colspan="9" style="text-align:right">
+                        <th colspan="10" style="text-align:right">
                             @Html.LabelFor(m => m.Subtotal, new { @class = " control-label" }):
                             @Html.HiddenFor(m => m.Subtotal)
                         </th>
@@ -401,35 +410,35 @@
                         </th>
                     </tr>
                     <tr class="trDiscount">
-                        <th colspan="9" style="text-align:right">
+                        <th colspan="10" style="text-align:right">
                             @Html.LabelFor(m => m.TotalDiscount, new { @class = " control-label" }):
                             @Html.HiddenFor(m => m.TotalDiscount)
                         </th>
-                        <th colspan="9" id="lblTotalDiscount">@Model.TotalDiscount.ToString("C2")</th>
+                        <th colspan="2" id="lblTotalDiscount">@Model.TotalDiscount.ToString("C2")</th>
                     </tr>
                     <tr class="trTaxT">
-                        <th colspan="9" style="text-align:right">
+                        <th colspan="10" style="text-align:right">
                             @Html.LabelFor(m => m.TaxTransferred, new { @class = " control-label" }):
                             @Html.HiddenFor(m => m.TaxTransferred)
                         </th>
                         <th colspan="2" id="lblTaxTransferred">@Model.TaxTransferred.ToString("C2")</th>
                     </tr>
                     <tr class="trTaxWIVA">
-                        <th colspan="9" style="text-align:right">
+                        <th colspan="10" style="text-align:right">
                             @Html.LabelFor(m => m.TaxWithheldIVA, new { @class = " control-label" }):
                             @Html.HiddenFor(m => m.TaxWithheldIVA)
                         </th>
                         <th colspan="2" id="lblTaxWithheldIVA">@Model.TaxWithheldIVA.ToString("C2")</th>
                     </tr>
                     <tr class="trTaxWISR">
-                        <th colspan="9" style="text-align:right">
+                        <th colspan="10" style="text-align:right">
                             @Html.LabelFor(m => m.TaxWithheldISR, new { @class = " control-label" }):
                             @Html.HiddenFor(m => m.TaxWithheldISR)
                         </th>
                         <th colspan="2" id="lblTaxWithheldISR">@Model.TaxWithheldISR.ToString("C2")</th>
                     </tr>
                     <tr>
-                        <th colspan="9" style="text-align:right">
+                        <th colspan="10" style="text-align:right">
                             @Html.LabelFor(m => m.Total, new { @class = " control-label" }):
                             @Html.HiddenFor(m => m.Total)
                         </th>
@@ -468,65 +477,174 @@
                 </div>
                 <div class="modal-body">
                     <input type="hidden" class="form-control" name="Row" id="Row">
-                    <div class="form-group row">
-                        <label class="control-label col-md-3">Cantidad</label>
-                        <div class="col-md-9">
-                            <input type="number" class="form-control required" name="Quantity" id="Quantity" autocomplete="off">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="products-tab" data-toggle="tab" href="#prodService" role="tab" aria-controls="home" aria-selected="true">Producto o Servicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="taxes-tab" data-toggle="tab" href="#taxesPS" role="tab" aria-controls="profile" aria-selected="false">Impuestos</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="prodService" role="tabpanel" aria-labelledby="home-tab">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-3">Cantidad</label>
+                                        <div class="col-md-9">
+                                            <input type="number" class="form-control required" name="Quantity" id="Quantity" autocomplete="off" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-3">Concepto</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control required" name="SATCode" id="SATCode" autocomplete="off" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-3">Descripción</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control required" name="ProductServiceDescription" id="ProductServiceDescription" autocomplete="off" maxlength="150" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-3">Unidad</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control required" name="SATUnit" id="SATUnit" autocomplete="off" />
+                                            <input type="hidden" class="form-control" name="Unit" id="Unit" autocomplete="off" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-3">Precio Unitario</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control required money" name="UnitPrice" id="UnitPrice" autocomplete="off" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-3">% Descuento</label>
+                                        <div class="col-md-9">
+                                            @*<input type="text" class="form-control money" name="DiscountRate" id="DiscountRate" autocomplete="off" />*@
+                                            <input type="text" class="form-control money" name="DiscountRateProServ" id="DiscountRateProServ" autocomplete="off" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-3">
+                                            Impuesto
+                                            <small>(IVA)</small>
+                                        </label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control money" name="TaxesIVA" id="TaxesIVA" autocomplete="off" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-3">
+                                            Impuesto
+                                            <small>(IEPS)</small>
+                                        </label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control money" name="TaxesIEPS" id="TaxesIEPS" autocomplete="off" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-3">SubTotal</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control required money" name="SubtotalM" id="SubtotalM" readonly autocomplete="off" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="control-label col-md-3">Concepto</label>
-                        <div class="col-md-9">
-                            <input type="text" class="form-control required" name="SATCode" id="SATCode" autocomplete="off" />
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="control-label col-md-3">Descripción</label>
-                        <div class="col-md-9">
-                            <input type="text" class="form-control required" name="ProductServiceDescription" id="ProductServiceDescription" autocomplete="off" maxlength="150" />
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="control-label col-md-3">Unidad</label>
-                        <div class="col-md-9">
-                            <input type="text" class="form-control required" name="SATUnit" id="SATUnit" autocomplete="off" />
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="control-label col-md-3">Precio Unitario</label>
-                        <div class="col-md-9">
-                            <input type="text" class="form-control required money" name="UnitPrice" id="UnitPrice" autocomplete="off" />
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="control-label col-md-3">% Descuento</label>
-                        <div class="col-md-9">
-                            @*<input type="text" class="form-control money" name="DiscountRate" id="DiscountRate" autocomplete="off" />*@
-                            <input type="text" class="form-control money" name="DiscountRateProServ" id="DiscountRateProServ" autocomplete="off" />
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="control-label col-md-3">
-                            Impuesto
-                            <small>(IVA)</small>
-                        </label>
-                        <div class="col-md-9">
-                            <input type="text" class="form-control money" name="TaxesIVA" id="TaxesIVA" autocomplete="off" />
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="control-label col-md-3">
-                            Impuesto
-                            <small>(IEPS)</small>
-                        </label>
-                        <div class="col-md-9">
-                            <input type="text" class="form-control money" name="TaxesIEPS" id="TaxesIEPS" autocomplete="off" />
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="control-label col-md-3">SubTotal</label>
-                        <div class="col-md-9">
-                            <input type="text" class="form-control required money" name="SubtotalM" id="SubtotalM" readonly autocomplete="off" />
+                        <div class="tab-pane fade" id="taxesPS" role="tabpanel" aria-labelledby="profile-tab">
+                            <div class="form-group row">
+                                <div class="col-12">
+                                    <div class="i-checks">
+                                        <label class="control-label">
+                                            @Html.CheckBoxFor(m => m.TaxesChk, new { @class = "form-control", name = "current" })
+                                            @Html.DisplayNameFor(x => x.TaxesChk)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="taxes" class="form-group row hide">
+                                @*<div class="col-12">
+                                        <br />
+                                        <h3>Impuestos</h3>
+                                        <hr />
+                                    </div>*@
+                                <div class="col-12">
+                                    <div class="form-group row">
+                                        <div class="col-12 col-md-6">
+                                            <div class="i-checks">
+                                                <label class="control-label">
+                                                    Retenciones
+                                                    <input type="radio" name="taxes" value="Retención" class="form-control" />
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <div class="i-checks">
+                                                <label class="control-label">
+                                                    Traslados
+                                                    <input type="radio" name="taxes" value="Traslado" class="form-control" />
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row retenciones hide">
+                                        @Html.LabelFor(m => m.Withholdings, new { @class = "col-form-label col-md-3 control-label" })
+                                        <div class="col-md-9">
+                                            @Html.DropDownListFor(model => model.Withholdings, Model.ListWithholdings, "Seleccione...", new { @class = "form-control chosen-select" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group row traslados hide">
+                                        @Html.LabelFor(m => m.Transferred, new { @class = "col-form-label col-md-3 control-label" })
+                                        <div class="col-md-9">
+                                            @Html.DropDownListFor(model => model.Transferred, Model.ListTransferred, "Seleccione...", new { @class = "form-control chosen-select" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        @Html.LabelFor(m => m.Valuation, new { @class = "col-form-label col-md-3 control-label" })
+                                        <div class="col-md-9">
+                                            @Html.DropDownListFor(model => model.Valuation, Model.ListValuation, "Seleccione...", new { @class = "form-control chosen-select" })
+                                        </div>
+                                        <div class="col-12 text-right">
+                                            <br />
+                                            <br />
+                                            <button type="button" class="btn btn-color" id="addTaxes">Agregar</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-12">
+                                            <div class="table-responsive m-t">
+                                                <table id="table" class="table invoices-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Tipo de Impuesto</th>
+                                                            <th>Impuesto</th>
+                                                            <th>% Impuesto</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>Retención</td>
+                                                            <td>ISR</td>
+                                                            <td>10%</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Traslado</td>
+                                                            <td>IVA</td>
+                                                            <td>16%</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div><!-- /table-responsive -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
