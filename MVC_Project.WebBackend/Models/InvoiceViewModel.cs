@@ -253,14 +253,30 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "% Descuento")]
         public decimal DiscountRateProServ { get; set; }
 
-        [Display(Name = "Impuesto (IEPS)")]
+        [Display(Name = "Impuesto (IVA/IEPS)")]
         public decimal TaxesIEPS { get; set; }
 
-        [Display(Name = "Impuesto (IVA)")]
+        [Display(Name = "Impuesto (IVA/ISR)")]
         public decimal TaxesIVA { get; set; }
+
+        [Display(Name = "Impuesto")]
+        public string TaxesGeneral { get; set; }
+        //public List<TaxesAll> TaxesGeneral { get; set; }
 
         [Display(Name = "Subtotal")]
         public decimal Subtotal { get; set; }
+    }
+
+    public class TaxesAll
+    {
+        [Display(Name = "Tipo Impuesto")]
+        public string Tipo { get; set; }
+
+        [Display(Name = "Impuesto")]
+        public string TaxesGeneral { get; set; }
+
+        [Display(Name = "Descuento")]
+        public decimal Discount { get; set; }
     }
 
     public class InvoiceViewModelJson //Objeto json para guardar en formato 

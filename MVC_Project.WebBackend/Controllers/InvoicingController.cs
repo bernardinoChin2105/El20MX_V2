@@ -42,6 +42,7 @@ namespace MVC_Project.WebBackend.Controllers
         private ICountryService _countryService;
         private IStateService _stateService;
         private IDriveKeyService _driveKeyService;
+        private IRateFeeService _rateFeeService;
 
         public InvoicingController(IAccountService accountService, ICustomsService customsService, ICustomsPatentService customsPatentService,
             ICustomsRequestNumberService customsRequestNumberService, ITypeInvoiceService typeInvoiceService, IUseCFDIService useCFDIService,
@@ -49,7 +50,7 @@ namespace MVC_Project.WebBackend.Controllers
             IPaymentFormService paymentFormService, IPaymentMethodService paymentMethodService, ICustomerService customerService,
             IProviderService providerService, IBranchOfficeService branchOfficeService, ITaxRegimeService taxRegimeService,
             IInvoiceIssuedService invoiceIssuedService, IInvoiceReceivedService invoiceReceivedService, IDriveKeyService driveKeyService,
-            IProductServiceKeyService productServiceKeyService, ICountryService countryService, IStateService stateService)
+            IProductServiceKeyService productServiceKeyService, ICountryService countryService, IStateService stateService, IRateFeeService rateFeeService)
 
         {
             _accountService = accountService;
@@ -73,6 +74,7 @@ namespace MVC_Project.WebBackend.Controllers
             _countryService = countryService;
             _stateService = stateService;
             _driveKeyService = driveKeyService;
+            _rateFeeService = rateFeeService;
         }
 
         // GET: Invoicing
@@ -464,24 +466,6 @@ namespace MVC_Project.WebBackend.Controllers
             }).ToList();
             model.Currency = model.ListCurrency.Where(x => x.Value == "MXN").FirstOrDefault().Value;
 
-            //model.ListCustoms = _customsService.GetAll().Select(x => new SelectListItem
-            //{
-            //    Text = "(" + x.code + ") " + x.description.ToString(),
-            //    Value = x.code.ToString()
-            //}).ToList();
-
-            //model.ListCustomsPatent = _customsPatentService.GetAll().Select(x => new SelectListItem
-            //{
-            //    Text = x.code.ToString(),
-            //    Value = x.code.ToString()
-            //}).ToList();
-
-            //model.ListMotionNumber = _customsRequestNumberService.GetAll().Select(x => new SelectListItem
-            //{
-            //    Text = "(" + x.code + ") " + x.patent.ToString(),
-            //    Value = x.code.ToString()
-            //}).ToList();
-
             model.ListWithholdings = Enum.GetValues(typeof(TypeRetention)).Cast<TypeRetention>()
                    .Select(e => new SelectListItem
                    {
@@ -502,6 +486,23 @@ namespace MVC_Project.WebBackend.Controllers
                         Value = e.ToString(),
                         Text = EnumUtils.GetDescription(e)
                     }).ToList();
+            //model.ListCustoms = _customsService.GetAll().Select(x => new SelectListItem
+            //{
+            //    Text = "(" + x.code + ") " + x.description.ToString(),
+            //    Value = x.code.ToString()
+            //}).ToList();
+
+            //model.ListCustomsPatent = _customsPatentService.GetAll().Select(x => new SelectListItem
+            //{
+            //    Text = x.code.ToString(),
+            //    Value = x.code.ToString()
+            //}).ToList();
+
+            //model.ListMotionNumber = _customsRequestNumberService.GetAll().Select(x => new SelectListItem
+            //{
+            //    Text = "(" + x.code + ") " + x.patent.ToString(),
+            //    Value = x.code.ToString()
+            //}).ToList();
 
             //model.ListTransferred = Enum.GetValues(typeof(TypeTransferred)).Cast<TypeTransferred>()
             //       .Select(e => new SelectListItem
@@ -531,6 +532,13 @@ namespace MVC_Project.WebBackend.Controllers
                     Value = x.id.ToString(),
                 }).Distinct().ToList();
 
+                var states = listResponse.Select(x => new { id = x.stateId, name = x.nameState }).Distinct();
+                model.ListState = states.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+
                 var municipalities = listResponse.Select(x => new { id = x.municipalityId, name = x.nameMunicipality }).Distinct();
                 model.ListMunicipality = municipalities.Select(x => new SelectListItem
                 {
@@ -547,6 +555,7 @@ namespace MVC_Project.WebBackend.Controllers
             else
             {
                 model.ListCountry = new List<SelectListItem>();
+                model.ListState = new List<SelectListItem>();
                 model.ListMunicipality = new List<SelectListItem>();
                 model.ListColony = new List<SelectListItem>();
             }
@@ -793,6 +802,40 @@ namespace MVC_Project.WebBackend.Controllers
             }
 
             return Json(new { success = success, message = message, data = invoice }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetRates(string value, string typeTaxes)
+        {
+            bool success = false;
+            string message = string.Empty;
+            var authUser = Authenticator.AuthenticatedUser;
+            List<RateFee> rate = new List<RateFee>();
+
+            try
+            {              
+                rate = _rateFeeService.FindBy(x => x.taxes == value)
+                    .Select(c => { c.maximumValue = (c.maximumValue*100); return c; }).OrderBy(x => x.maximumValue).ToList();
+                if (typeTaxes == "Retención")
+                {
+                    rate = rate.Where(x => x.retention == true).ToList();
+                }
+                else
+                {
+                    rate = rate.Where(x => x.transfer == true).ToList();
+                }
+
+                if (rate != null)
+                {
+                    success = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message.ToString();
+            }
+
+            return Json(new { success = success, message = message, data = rate }, JsonRequestBehavior.AllowGet);
         }
         #endregion
 

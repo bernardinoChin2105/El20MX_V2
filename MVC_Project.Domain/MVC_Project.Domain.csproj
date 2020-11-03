@@ -103,6 +103,7 @@
     <Compile Include="Entities\Profile.cs" />
     <Compile Include="Entities\Quotation.cs" />
     <Compile Include="Entities\QuotationDetail.cs" />
+    <Compile Include="Entities\RateFee.cs" />
     <Compile Include="Entities\Role.cs" />
     <Compile Include="Entities\RolePermission.cs" />
     <Compile Include="Entities\Settlement.cs" />
@@ -160,6 +161,7 @@
     <Compile Include="Services\PromotionService.cs" />
     <Compile Include="Services\QuotationDetailService.cs" />
     <Compile Include="Services\QuotationService.cs" />
+    <Compile Include="Services\RateFeeService.cs" />
     <Compile Include="Services\TaxRegimeService.cs" />
     <Compile Include="Services\TaxService.cs" />
     <Compile Include="Services\TypeInvoiceService.cs" />

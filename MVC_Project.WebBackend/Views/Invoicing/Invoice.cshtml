@@ -365,13 +365,14 @@
                         <th>% Descuento</th>
                         <th>
                             Impuesto
-                            <small>(IVA)</small>
+                            <small>(ISR/IVA)</small>
                         </th>
                         <th>
                             Impuesto
-                            <small>(IEPS)</small>
+                            <small>(IVA/IEPS)</small>
                         </th>
                         <th>SubTotal</th>
+                        <th>Impuestos</th>
                         <th>Opciones</th>
                     </tr>
                 </thead>
@@ -381,20 +382,21 @@
                         var index = 1;
                         foreach (var item in Model.ProductServices)
                         {
-                            <tr>
-                                <td>@index</td>
-                                <td>@item.Quantity</td>
-                                <td>@item.SATCode</td>
-                                <td>@item.ProductServiceDescription</td>
-                                <td>@item.SATUnit</td>
-                                <th>@item.Unit</th>
-                                <td>@item.UnitPrice</td>
-                                <td>@item.DiscountRateProServ</td>
-                                <td>@item.TaxesIVA</td>
-                                <td>@item.TaxesIEPS</td>
-                                <td>@item.Subtotal</td>
-                                <td class=""></td>
-                            </tr>
+                    <tr>
+                        <td>@index</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.SATCode</td>
+                        <td>@item.ProductServiceDescription</td>
+                        <td>@item.SATUnit</td>
+                        <th>@item.Unit</th>
+                        <td>@item.UnitPrice</td>
+                        <td>@item.DiscountRateProServ</td>
+                        <td>@item.TaxesIVA</td>
+                        <td>@item.TaxesIEPS</td>
+                        <td>@item.Subtotal</td>
+                        <td>impuesto</td>
+                        <td class=""></td>
+                    </tr>
                             @(index++);
                         }
                     }
@@ -530,19 +532,19 @@
                                     <div class="form-group row">
                                         <label class="control-label col-md-3">
                                             Impuesto
-                                            <small>(IVA)</small>
+                                            <small>(IVA/ISR)</small>
                                         </label>
                                         <div class="col-md-9">
-                                            <input type="text" class="form-control money" name="TaxesIVA" id="TaxesIVA" autocomplete="off" />
+                                            <input type="text" class="form-control money" name="TaxesIVA" id="TaxesIVA" readonly autocomplete="off" />
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="control-label col-md-3">
                                             Impuesto
-                                            <small>(IEPS)</small>
+                                            <small>(IVA/IEPS)</small>
                                         </label>
                                         <div class="col-md-9">
-                                            <input type="text" class="form-control money" name="TaxesIEPS" id="TaxesIEPS" autocomplete="off" />
+                                            <input type="text" class="form-control money" name="TaxesIEPS" id="TaxesIEPS" readonly autocomplete="off" />
                                         </div>
                                     </div>
                                     <div class="form-group row">
@@ -594,13 +596,13 @@
                                     <div class="form-group row retenciones hide">
                                         @Html.LabelFor(m => m.Withholdings, new { @class = "col-form-label col-md-3 control-label" })
                                         <div class="col-md-9">
-                                            @Html.DropDownListFor(model => model.Withholdings, Model.ListWithholdings, "Seleccione...", new { @class = "form-control chosen-select" })
+                                            @Html.DropDownListFor(model => model.Withholdings, Model.ListWithholdings, "Seleccione...", new { @class = "form-control chosen-select rateFee" })
                                         </div>
                                     </div>
                                     <div class="form-group row traslados hide">
                                         @Html.LabelFor(m => m.Transferred, new { @class = "col-form-label col-md-3 control-label" })
                                         <div class="col-md-9">
-                                            @Html.DropDownListFor(model => model.Transferred, Model.ListTransferred, "Seleccione...", new { @class = "form-control chosen-select" })
+                                            @Html.DropDownListFor(model => model.Transferred, Model.ListTransferred, "Seleccione...", new { @class = "form-control chosen-select rateFee" })
                                         </div>
                                     </div>
                                     <div class="form-group row">
@@ -618,16 +620,17 @@
                                     <div class="form-group row">
                                         <div class="col-12">
                                             <div class="table-responsive m-t">
-                                                <table id="table" class="table invoices-table">
+                                                <table id="tableImpuestos" class="table invoices-table">
                                                     <thead>
                                                         <tr>
                                                             <th>Tipo de Impuesto</th>
                                                             <th>Impuesto</th>
                                                             <th>% Impuesto</th>
+                                                            <td class=""></td>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr>
+                                                        @*<tr>
                                                             <td>Retención</td>
                                                             <td>ISR</td>
                                                             <td>10%</td>
@@ -636,7 +639,7 @@
                                                             <td>Traslado</td>
                                                             <td>IVA</td>
                                                             <td>16%</td>
-                                                        </tr>
+                                                        </tr>*@
                                                     </tbody>
                                                 </table>
                                             </div><!-- /table-responsive -->
@@ -675,7 +678,8 @@
                 '@Url.Action("GetLocations")',
                 '@Url.Action("GetProdServSAT")',
                 '@Url.Action("GetUnitSAT")',
-                '@Url.Action("GetUnitSAT")',
+                '@Url.Action("GetCFDIId")',
+                '@Url.Action("GetRates")',
                 '@hasFullAccessController' == 'True'
             );
             invoices.init();
