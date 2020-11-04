@@ -59,6 +59,7 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Cliente")]
         public string CustomerName { get; set; }
         public Int64 CustomerId { get; set; }
+        public string TypeReceptor { get; set; }
 
         [Display(Name = "RFC Cliente")]
         public string RFC { get; set; }
@@ -96,7 +97,7 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "E-mail")]
         public string CustomerEmail { get; set; }
         public Int64 CustomerEmailId { get; set; }
-        public List<SelectListItem> ListCustomerEmail { get; set; }
+        public List<string> ListCustomerEmail { get; set; }
         #endregion
 
         #region Datos Fiscales para Facturar
@@ -222,7 +223,7 @@ namespace MVC_Project.WebBackend.Models
             ListColony = new List<SelectListItem>();
             ListMunicipality = new List<SelectListItem>();
             ListState = new List<SelectListItem>();
-            ListCustomerEmail = new List<SelectListItem>();
+            //ListCustomerEmail = new List<SelectListItem>();
             ProductServices = new List<ProductServiceDescriptionView>();
 
 
@@ -243,20 +244,35 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Unidad SAT")]
         public string SATUnit { get; set; }
 
+        [Display(Name = "Unidad")]
+        public string Unit { get; set; }
+
         [Display(Name = "Precio Unitario")]
         public decimal UnitPrice { get; set; }
 
         [Display(Name = "% Descuento")]
         public decimal DiscountRateProServ { get; set; }
 
-        [Display(Name = "Impuesto (IEPS)")]
+        [Display(Name = "Impuesto (IVA/IEPS)")]
         public decimal TaxesIEPS { get; set; }
 
-        [Display(Name = "Impuesto (IVA)")]
+        [Display(Name = "Impuesto (IVA/ISR)")]
         public decimal TaxesIVA { get; set; }
+
+        [Display(Name = "Impuesto")]
+        public string TaxesGeneral { get; set; }
+        //public List<TaxesAll> TaxesGeneral { get; set; }
 
         [Display(Name = "Subtotal")]
         public decimal Subtotal { get; set; }
+    }
+
+    public class TaxesAll
+    {        
+        public string Tipo { get; set; }        
+        public string Impuesto { get; set; }        
+        public decimal Porcentaje { get; set; }        
+        public int index { get; set; }
     }
 
     public class InvoiceViewModelJson //Objeto json para guardar en formato 

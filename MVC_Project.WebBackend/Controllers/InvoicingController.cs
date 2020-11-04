@@ -16,7 +16,7 @@ using System.Configuration;
 using System.IO;
 using MVC_Project.Integrations.Storage;
 using System.Xml;
-using System.Collections.Specialized;
+using Microsoft.Ajax.Utilities;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -43,6 +43,8 @@ namespace MVC_Project.WebBackend.Controllers
         private ICountryService _countryService;
         private IStateService _stateService;
         private IDriveKeyService _driveKeyService;
+        private IRateFeeService _rateFeeService;
+        private ITaxService _taxService;
 
         public InvoicingController(IAccountService accountService, ICustomsService customsService, ICustomsPatentService customsPatentService,
             ICustomsRequestNumberService customsRequestNumberService, ITypeInvoiceService typeInvoiceService, IUseCFDIService useCFDIService,
@@ -50,7 +52,8 @@ namespace MVC_Project.WebBackend.Controllers
             IPaymentFormService paymentFormService, IPaymentMethodService paymentMethodService, ICustomerService customerService,
             IProviderService providerService, IBranchOfficeService branchOfficeService, ITaxRegimeService taxRegimeService,
             IInvoiceIssuedService invoiceIssuedService, IInvoiceReceivedService invoiceReceivedService, IDriveKeyService driveKeyService,
-            IProductServiceKeyService productServiceKeyService, ICountryService countryService, IStateService stateService)
+            IProductServiceKeyService productServiceKeyService, ICountryService countryService, IStateService stateService, IRateFeeService rateFeeService,
+            ITaxService taxService)
 
         {
             _accountService = accountService;
@@ -74,6 +77,8 @@ namespace MVC_Project.WebBackend.Controllers
             _countryService = countryService;
             _stateService = stateService;
             _driveKeyService = driveKeyService;
+            _rateFeeService = rateFeeService;
+            _taxService = taxService;
         }
 
         // GET: Invoicing
@@ -116,40 +121,8 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
-                //if (model.TypeInvoice != "E")
-                //{
                 //Validar que se exista el receptor
-                Customer customer = new Customer();
-                if ((model.CustomerId != 0 && model.TypeInvoice == "E") || model.CustomerId != 0)
-                {
-                    //Poder guardar el cliente si no existe       
-                    customer = new Customer()
-                    {
-                        uuid = Guid.NewGuid(),
-                        account = new Account { id = authUser.Account.Id },
-                        businessName = model.CustomerName,
-                        rfc = model.RFC,
-                        //taxRegime = model.taxRegime,
-                        street = model.Street,
-                        interiorNumber = model.InteriorNumber,
-                        outdoorNumber = model.OutdoorNumber,
-                        zipCode = model.ZipCode,
-                        createdAt = todayDate,
-                        modifiedAt = todayDate,
-                        status = SystemStatus.ACTIVE.ToString()
-                    };
-
-                    if (model.Colony.Value > 0)
-                        customer.colony = model.Colony.Value;
-                    if (model.Municipality.Value > 0)
-                        customer.municipality = model.Municipality.Value;
-                    if (model.State.Value > 0)
-                        customer.state = model.State.Value;
-                    if (model.Country.Value > 0)
-                        customer.country = model.Country.Value;
-                }
-                else
-                    customer = new Customer() { id = model.CustomerId };
+                Customer customer = GetObjetCustomer(model);
 
                 InvoiceIssued invoice = new InvoiceIssued()
                 {
@@ -171,67 +144,10 @@ namespace MVC_Project.WebBackend.Controllers
                 };
                 //validar que exista la el iva para guardar
                 //iva = model.TaxWithheldIVA,
+                var office = _branchOfficeService.FirstOrDefault(x => x.id.ToString() == model.BranchOffice);
+                office.folio++;
 
-                //_invoiceIssuedService.Create(invoice);
-                _invoiceIssuedService.SaveInvoice(invoice, null, customer);
-                //}
-                //else
-                //{
-                //    Provider provider = new Provider();
-                //    if (model.CustomerId == 0)
-                //    {
-                //        //Poder guardar el cliente si no existe        
-                //        provider = new Provider()
-                //        {
-                //            uuid = Guid.NewGuid(),
-                //            account = new Account { id = authUser.Account.Id },
-                //            businessName = model.BusinessName,
-                //            rfc = model.RFC,
-                //            //taxRegime = model.taxRegime,
-                //            street = model.Street,
-                //            interiorNumber = model.InteriorNumber,
-                //            outdoorNumber = model.OutdoorNumber,
-                //            zipCode = model.ZipCode,
-                //            createdAt = todayDate,
-                //            modifiedAt = todayDate,
-                //            status = SystemStatus.ACTIVE.ToString()
-                //        };
-
-                //        if (model.Colony.Value > 0)
-                //            provider.colony = model.Colony.Value;
-                //        if (model.Municipality.Value > 0)
-                //            provider.municipality = model.Municipality.Value;
-                //        if (model.State.Value > 0)
-                //            provider.state = model.State.Value;
-                //        if (model.Country.Value > 0)
-                //            provider.country = model.Country.Value;
-                //    }
-                //    else
-                //        provider = new Provider() { id = model.CustomerId };
-
-                //    InvoiceReceived invoice = new InvoiceReceived()
-                //    {
-                //        uuid = Guid.NewGuid(),
-                //        folio = model.Folio,
-                //        serie = model.Serie,
-                //        paymentMethod = model.PaymentMethod,
-                //        paymentForm = model.PaymentForm,
-                //        currency = model.Currency,
-                //        invoiceType = model.TypeInvoice,
-                //        total = model.Total,
-                //        subtotal = model.Subtotal,
-                //        account = new Account() { id = authUser.Account.Id },
-                //        provider = provider,
-                //        createdAt = todayDate,
-                //        modifiedAt = todayDate,
-                //        json = JsonConvert.SerializeObject(model),
-                //        status = IssueStatus.SAVED.ToString(), // para saber si esta guardado
-                //    };
-                //    //validar que exista la el iva para guardar
-                //    //iva = model.TaxWithheldIVA,
-
-                //    _invoiceReceivedService.SaveInvoice(invoice, provider, null);
-                //}
+                var saved = _invoiceIssuedService.SaveInvoice(invoice, customer, office);
 
                 MensajeFlashHandler.RegistrarMensaje("Factura Guardada", TiposMensaje.Success);
                 return RedirectToAction("InvoicesSaved");
@@ -242,14 +158,75 @@ namespace MVC_Project.WebBackend.Controllers
                 return View(model);
             }
         }
+
+        private Customer GetObjetCustomer(InvoiceViewModel model)
+        {
+            Customer customer = new Customer();
+            DateTime todayDate = DateUtil.GetDateTimeNow();
+            var authUser = Authenticator.AuthenticatedUser;
+
+            if (model.TypeReceptor == "provider" || model.CustomerId == 0)
+            {
+                //Poder guardar el cliente si no existe       
+                customer = new Customer()
+                {
+                    uuid = Guid.NewGuid(),
+                    account = new Account { id = authUser.Account.Id },
+                    businessName = model.CustomerName,
+                    rfc = model.RFC,
+                    //taxRegime = model.taxRegime,
+                    street = model.Street,
+                    interiorNumber = model.InteriorNumber,
+                    outdoorNumber = model.OutdoorNumber,
+                    zipCode = model.ZipCode,
+                    createdAt = todayDate,
+                    modifiedAt = todayDate,
+                    status = SystemStatus.ACTIVE.ToString()
+                };
+
+                if (model.Colony.Value > 0)
+                    customer.colony = model.Colony.Value;
+                if (model.Municipality.Value > 0)
+                    customer.municipality = model.Municipality.Value;
+                if (model.State.Value > 0)
+                    customer.state = model.State.Value;
+                if (model.Country.Value > 0)
+                    customer.country = model.Country.Value;
+
+                if (model.ListCustomerEmail.Count() > 0)
+                {
+                    for (int i = 0; i < model.ListCustomerEmail.Count(); i++)
+                    {
+                        if (model.ListCustomerEmail[i] != null && model.ListCustomerEmail[i].Trim() != "")
+                        {
+                            CustomerContact email = new CustomerContact()
+                            {
+                                emailOrPhone = model.ListCustomerEmail[i],
+                                typeContact = TypeContact.EMAIL.ToString(),
+                                customer = customer,
+                                createdAt = todayDate,
+                                modifiedAt = todayDate,
+                                status = SystemStatus.ACTIVE.ToString()
+                            };
+
+                            customer.customerContacts.Add(email);
+                        }
+                    }
+                }
+            }
+            else
+                customer = new Customer() { id = model.CustomerId };
+
+            return customer;
+        }
         #endregion
 
         #region Realizar timbrado de factura
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public ActionResult IssueIncomeInvoice(InvoiceViewModel model)
         {
-
             bool success = false;
+            var authUser = Authenticator.AuthenticatedUser;
             try
             {
                 DateTime todayDate = DateUtil.GetDateTimeNow();
@@ -271,6 +248,8 @@ namespace MVC_Project.WebBackend.Controllers
                     UsoCFDI = model.UseCFDI
                 };
 
+                var taxes = _taxService.GetAll().ToList();
+
                 var conceptos = new List<ConceptsData>();
                 foreach (var item in model.ProductServices)
                 {
@@ -280,19 +259,72 @@ namespace MVC_Project.WebBackend.Controllers
                         //NoIdentificacion = que dato es?
                         Cantidad = item.Quantity,
                         ClaveUnidad = item.SATUnit,
-                        //Unidad  = que dato es?
+                        Unidad = item.Unit,
                         Descripcion = item.ProductServiceDescription,
                         ValorUnitario = item.UnitPrice,
                         Descuento = item.DiscountRateProServ,
                         Importe = item.Subtotal,
-
                         //dudas por el llenado de datos
 
-                        //public List<Traslados> Traslados { get; set; }
-                        //public List<Retenciones> Retenciones { get; set; }
-                        //public List<InformacionAduanera> InformacionAduanera { get; set; }
                         //public List<Parte> Parte { get; set; }
                     };
+
+                    if (model.InternationalChk && !string.IsNullOrEmpty(model.MotionNumber))
+                    {
+                        Integrations.SAT.InformacionAduanera infoAduanera = new Integrations.SAT.InformacionAduanera()
+                        {
+                            NumeroPedimento = model.MotionNumber
+                        };
+
+                        conceptsData.InformacionAduanera.Add(infoAduanera);
+                    }
+
+                    if (item.TaxesGeneral != null)
+                    {
+                        var taxesG = item.TaxesGeneral.Replace("},{", "};{");
+                        taxesG = item.TaxesGeneral.Replace("'", "\"");
+                        string[] taxArray = taxesG.Split(';');
+
+                        if (taxArray.Count() > 0)
+                        {
+                            List<Integrations.SAT.Traslados> Traslados = new List<Integrations.SAT.Traslados>();
+                            List<Integrations.SAT.Retenciones> Retenciones = new List<Integrations.SAT.Retenciones>();
+                            foreach (var itemTax in taxArray)
+                            {
+                                TaxesAll imp = JsonConvert.DeserializeObject<TaxesAll>(itemTax.ToString());
+                                if (imp.Tipo == "Retención")
+                                {
+                                    Integrations.SAT.Retenciones ret = new Integrations.SAT.Retenciones()
+                                    {
+                                        Base = conceptsData.ValorUnitario.ToString(),
+                                        Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
+                                        TipoFactor = "Tasa",
+                                        TasaOCuota = (imp.Porcentaje / 100).ToString(),
+                                        Importe = ((imp.Porcentaje * conceptsData.ValorUnitario) / 100).ToString()
+                                    };
+                                    Retenciones.Add(ret);
+                                }
+                                else
+                                {
+                                    Integrations.SAT.Traslados tras = new Integrations.SAT.Traslados()
+                                    {
+                                        Base = conceptsData.ValorUnitario.ToString(),
+                                        Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
+                                        TipoFactor = "Tasa",
+                                        TasaOCuota = (imp.Porcentaje / 100).ToString(),
+                                        Importe = ((imp.Porcentaje * conceptsData.ValorUnitario) / 100).ToString()
+                                    };
+                                    Traslados.Add(tras);
+                                }
+                            }
+                            if (Traslados.Count() > 0)
+                                conceptsData.Traslados = Traslados;
+
+                            if (Retenciones.Count() > 0)
+                                conceptsData.Retenciones = Retenciones;
+                        }
+                    }
+
 
                     if (!string.IsNullOrEmpty(model.PropertyAccountNumber))
                         conceptsData.CuentaPredial = new CuentaPredial { Numero = model.PropertyAccountNumber };
@@ -343,48 +375,115 @@ namespace MVC_Project.WebBackend.Controllers
                 //}
                 //else
                 //{
-                    var invoiceData = new InvoiceData
-                    {
-                        Serie = model.Serie,
-                        Folio = Convert.ToInt32(model.Folio),
-                        Fecha = todayDate,
-                        Moneda = model.Currency,
-                        //TipoCambio = model.ExchangeRate.,
-                        TipoDeComprobante = model.TypeInvoice,
-                        CondicionesDePago = model.PaymentConditions,
-                        FormaPago = model.PaymentForm,
-                        MetodoPago = model.PaymentMethod,
-                        //Confirmacion = model.
-                        LugarExpedicion = model.ZipCode,
-                        Emisor = issuer,
-                        Receptor = receiver,
-                        Conceptos = conceptos
-                    };
-                    var invoice = new InvoiceJson
-                    {
-                        data = invoiceData
-                    };
+                //}
+                var invoiceData = new InvoiceData
+                {
+                    Serie = model.Serie,
+                    Folio = Convert.ToInt32(model.Folio),
+                    Fecha = todayDate.ToString("s"),
+                    Moneda = model.Currency,
+                    TipoDeComprobante = model.TypeInvoice,
+                    CondicionesDePago = model.PaymentConditions,
+                    FormaPago = model.PaymentForm,
+                    MetodoPago = model.PaymentMethod,
+                    LugarExpedicion = model.ZipCode,
+                    Emisor = issuer,
+                    Receptor = receiver,
+                    Conceptos = conceptos
+                };
 
-                    var result = SATService.PostIssueIncomeInvoices(invoice, provider);
-                    if (result != null)
+                if (Convert.ToDecimal(model.ExchangeRate) > 0)
+                    invoiceData.TipoCambio = Convert.ToDecimal(model.ExchangeRate);
+                else
+                    invoiceData.TipoCambio = null;
+
+
+                var invoice = new InvoiceJson
+                {
+                    data = invoiceData
+                };
+
+                var serilaizeJson = JsonConvert.SerializeObject(invoice, Newtonsoft.Json.Formatting.None,
+                new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+
+                var invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
+
+                InvoicesInfo result = SATService.PostIssueIncomeInvoices(invoiceSend, provider);
+                if (result != null)
+                {
+                    var office = _branchOfficeService.FirstOrDefault(x => x.id.ToString() == model.BranchOffice);
+                    office.folio++;
+                    _branchOfficeService.Update(office);
+
+                    Customer customer = new Customer();
+
+                    //Guardado de cliente
+                    customer = GetObjetCustomer(model);
+
+                    List<string> IdIssued = new List<string>();
+
+                    IdIssued.Add(result.uuid.ToString());
+
+                    /*Obtener los CFDI's*/
+                    var customersCFDI = SATService.GetCFDIs(IdIssued, provider);
+                    var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
+
+                    List<InvoiceIssued> invoiceIssued = new List<InvoiceIssued>();
+                    foreach (var cfdi in customersCFDI)
                     {
+                        byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(cfdi.Xml);
+                        System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
+                        var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesIssued, model.IssuingRFC);
+
+                        invoiceIssued.Add(new InvoiceIssued
+                        {
+                            uuid = Guid.Parse(cfdi.id),
+                            folio = cfdi.Folio,
+                            serie = cfdi.Serie,
+                            paymentMethod = cfdi.MetodoPago,
+                            paymentForm = cfdi.FormaPago,
+                            currency = cfdi.Moneda,
+                            iva = result.tax.Value,
+                            invoicedAt = cfdi.Fecha,
+                            xml = upload.Item1,
+                            createdAt = todayDate,
+                            modifiedAt = todayDate,
+                            status = IssueStatus.STAMPED.ToString(),
+                            account = new Account() { id = authUser.Account.Id },
+                            customer = customer,
+                            invoiceType = cfdi.TipoDeComprobante,
+                            subtotal = cfdi.SubTotal,
+                            total = cfdi.Total,
+                            homemade = true
+                        });
+                    }
+
+                    var resultSaved = _invoiceIssuedService.SaveInvoice(invoiceIssued[0], customer);
+                    if (resultSaved != null)
+                    {
+
                         success = true;
                     }
-                //}
-
-                if (!success)
-                {
-                    throw new Exception("Error al crear la factura");
+                    else
+                        throw new Exception("Se realizo la factura exitosamente, pero hubo un error al guardar los datos del cliente.");
                 }
+                else
+                    throw new Exception("Error al crear la factura");
+
 
                 MensajeFlashHandler.RegistrarMensaje("Se creo la factura", TiposMensaje.Success);
-                return RedirectToAction("InvoicesSaved");
+                return RedirectToAction("Invoice");
             }
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                SetCombos(model.ZipCode, ref model);
+                return View("Invoice", model);
+                //return RedirectToAction("Invoice");
             }
-            return View();
         }
         #endregion
 
@@ -441,24 +540,6 @@ namespace MVC_Project.WebBackend.Controllers
             }).ToList();
             model.Currency = model.ListCurrency.Where(x => x.Value == "MXN").FirstOrDefault().Value;
 
-            //model.ListCustoms = _customsService.GetAll().Select(x => new SelectListItem
-            //{
-            //    Text = "(" + x.code + ") " + x.description.ToString(),
-            //    Value = x.code.ToString()
-            //}).ToList();
-
-            //model.ListCustomsPatent = _customsPatentService.GetAll().Select(x => new SelectListItem
-            //{
-            //    Text = x.code.ToString(),
-            //    Value = x.code.ToString()
-            //}).ToList();
-
-            //model.ListMotionNumber = _customsRequestNumberService.GetAll().Select(x => new SelectListItem
-            //{
-            //    Text = "(" + x.code + ") " + x.patent.ToString(),
-            //    Value = x.code.ToString()
-            //}).ToList();
-
             model.ListWithholdings = Enum.GetValues(typeof(TypeRetention)).Cast<TypeRetention>()
                    .Select(e => new SelectListItem
                    {
@@ -479,6 +560,23 @@ namespace MVC_Project.WebBackend.Controllers
                         Value = e.ToString(),
                         Text = EnumUtils.GetDescription(e)
                     }).ToList();
+            //model.ListCustoms = _customsService.GetAll().Select(x => new SelectListItem
+            //{
+            //    Text = "(" + x.code + ") " + x.description.ToString(),
+            //    Value = x.code.ToString()
+            //}).ToList();
+
+            //model.ListCustomsPatent = _customsPatentService.GetAll().Select(x => new SelectListItem
+            //{
+            //    Text = x.code.ToString(),
+            //    Value = x.code.ToString()
+            //}).ToList();
+
+            //model.ListMotionNumber = _customsRequestNumberService.GetAll().Select(x => new SelectListItem
+            //{
+            //    Text = "(" + x.code + ") " + x.patent.ToString(),
+            //    Value = x.code.ToString()
+            //}).ToList();
 
             //model.ListTransferred = Enum.GetValues(typeof(TypeTransferred)).Cast<TypeTransferred>()
             //       .Select(e => new SelectListItem
@@ -508,6 +606,13 @@ namespace MVC_Project.WebBackend.Controllers
                     Value = x.id.ToString(),
                 }).Distinct().ToList();
 
+                var states = listResponse.Select(x => new { id = x.stateId, name = x.nameState }).Distinct();
+                model.ListState = states.Select(x => new SelectListItem
+                {
+                    Text = x.name,
+                    Value = x.id.ToString(),
+                }).Distinct().ToList();
+
                 var municipalities = listResponse.Select(x => new { id = x.municipalityId, name = x.nameMunicipality }).Distinct();
                 model.ListMunicipality = municipalities.Select(x => new SelectListItem
                 {
@@ -524,11 +629,13 @@ namespace MVC_Project.WebBackend.Controllers
             else
             {
                 model.ListCountry = new List<SelectListItem>();
+                model.ListState = new List<SelectListItem>();
                 model.ListMunicipality = new List<SelectListItem>();
                 model.ListColony = new List<SelectListItem>();
             }
         }
 
+        [HttpGet, AllowAnonymous]
         public JsonResult GetSerieFolio(Int64 sucursalId)
         {
             try
@@ -547,6 +654,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         #region busquedas de información 
         //Busca a los cliente o proveedores por rfc o razon social
+        [HttpGet, AllowAnonymous]
         public JsonResult GetSearchReceiver(string field, string value, string typeInvoice)
         {
             var authUser = Authenticator.AuthenticatedUser;
@@ -597,6 +705,7 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         //obtenet la información del cliente
+        [HttpGet, AllowAnonymous]
         public JsonResult GetReceiverInformation(Int64 id, string type)
         {
             bool success = false;
@@ -674,6 +783,7 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         //Obtener listado de productos por codigo
+        [HttpGet, AllowAnonymous]
         public JsonResult GetProdServSAT(string Concept)
         {
             bool success = false;
@@ -740,6 +850,66 @@ namespace MVC_Project.WebBackend.Controllers
                     MaxJsonLength = Int32.MaxValue
                 };
             }
+        }
+
+        //Busqueda de CFDI para complementos
+        //Obtener listado de unidad del SAT
+        public JsonResult GetCFDIId(string uuid)
+        {
+            bool success = false;
+            string message = string.Empty;
+            var authUser = Authenticator.AuthenticatedUser;
+            InvoiceIssued invoice = new InvoiceIssued();
+            //List<DriveKeyViewModel> result = new List<DriveKeyViewModel>();
+            try
+            {
+                invoice = _invoiceIssuedService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.account.id == authUser.Account.Id);
+
+                if (invoice != null)
+                {
+                    success = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message.ToString();
+            }
+
+            return Json(new { success = success, message = message, data = invoice }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetRates(string value, string typeTaxes)
+        {
+            bool success = false;
+            string message = string.Empty;
+            var authUser = Authenticator.AuthenticatedUser;
+            List<RateFee> rate = new List<RateFee>();
+
+            try
+            {
+                rate = _rateFeeService.FindBy(x => x.taxes == value)
+                    .Select(c => { c.maximumValue = (c.maximumValue * 100); return c; }).OrderBy(x => x.maximumValue).ToList();
+                if (typeTaxes == "Retención")
+                {
+                    rate = rate.Where(x => x.retention == true).ToList();
+                }
+                else
+                {
+                    rate = rate.Where(x => x.transfer == true).ToList();
+                }
+
+                if (rate != null)
+                {
+                    success = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message.ToString();
+            }
+
+            return Json(new { success = success, message = message, data = rate }, JsonRequestBehavior.AllowGet);
         }
         #endregion
 
@@ -1013,312 +1183,5 @@ namespace MVC_Project.WebBackend.Controllers
                 };
             }
         }
-
-
-
-        #region Facturas Emitidas
-        [AllowAnonymous]
-        public ActionResult InvoicesIssued()
-        {
-            ViewBag.Date = new
-            {
-                MinDate = DateTime.Now.AddDays(-10).ToString("dd-MM-yyyy"),
-                MaxDate = DateTime.Now.ToString("dd-MM-yyyy")
-            };
-            try
-            {
-                InvoicesFilter model = new InvoicesFilter();
-                var initial = new SelectListItem() { Text = "Todos...", Value = "-1" };
-
-                var currencyList = _currencyService.GetAll().Select(x => new SelectListItem() { Text = x.code, Value = x.code }).ToList();
-                var parmentFormList = _paymentFormService.GetAll().Select(x => new SelectListItem() { Text = x.code + "-" + x.Description, Value = x.code }).ToList();
-                var parmentMethodList = _paymentMethodService.GetAll().Select(x => new SelectListItem() { Text = x.code, Value = x.code }).ToList();
-
-                currencyList.Insert(0, (initial));
-                parmentFormList.Insert(0, (initial));
-                parmentMethodList.Insert(0, (initial));
-
-                model.ListCurrency = new SelectList(currencyList);
-                model.ListPaymentForm = new SelectList(parmentFormList);
-                model.ListPaymentMethod = new SelectList(parmentMethodList);
-
-                return View(model);
-            }
-            catch (Exception ex)
-            {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                return RedirectToAction("Index");
-            }
-        }
-
-        [HttpGet, AllowAnonymous]
-        public JsonResult GetInvoices(JQueryDataTableParams param, string filtros, bool first)
-        {
-            int totalDisplay = 0;
-            int total = 0;
-            string error = string.Empty;
-            bool success = true;
-            var userAuth = Authenticator.AuthenticatedUser;
-            var listResponse = new List<InvoicesIssuedList>();
-            var list = new List<InvoicesIssuedListVM>();
-
-            try
-            {
-                if (!first)
-                {
-                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
-                    string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
-                    string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
-                    string Folio = filtersValues.Get("Folio").Trim();
-                    string rfc = filtersValues.Get("RFC").Trim();
-                    string PaymentMethod = filtersValues.Get("PaymentMethod").Trim();
-                    string PaymentForm = filtersValues.Get("PaymentForm").Trim();
-                    string Currency = filtersValues.Get("Currency").Trim();
-                    string serie = filtersValues.Get("Serie").Trim();
-                    string nombreRazonSocial = filtersValues.Get("NombreRazonSocial").Trim();
-
-                    var pagination = new BasePagination();
-                    var filters = new CustomerCFDIFilter() { accountId = userAuth.Account.Id };
-                    pagination.PageSize = param.iDisplayLength;
-                    pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
-                    if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
-                    if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
-                    if (Folio != "") filters.folio = Folio;
-                    if (rfc != "") filters.rfc = rfc;
-                    if (PaymentForm != "-1") filters.paymentForm = PaymentForm;
-                    if (PaymentMethod != "-1") filters.paymentMethod = PaymentMethod;
-                    if (Currency != "-1") filters.currency = Currency;
-                    if (!string.IsNullOrEmpty(serie)) filters.serie = serie;
-                    if (!string.IsNullOrEmpty(nombreRazonSocial)) filters.nombreRazonSocial = nombreRazonSocial;
-
-                    listResponse = _customerService.CustomerCDFIList(pagination, filters);
-
-                    list = listResponse.Select(x => new InvoicesIssuedListVM
-                    {
-                        id = x.id,
-                        folio = x.folio,
-                        serie = x.serie,
-                        paymentMethod = x.paymentMethod,
-                        paymentForm = x.paymentForm,
-                        currency = x.currency,
-                        amount = x.subtotal.ToString("C2"),
-                        iva = x.iva.ToString("C2"),
-                        totalAmount = x.total.ToString("C2"),
-                        invoicedAt = x.invoicedAt.ToShortDateString(),
-                        rfc = x.rfc,
-                        businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
-                        //first_name = x.first_name,
-                        //last_name = x.last_name,
-                        paymentFormDescription = x.paymentFormDescription
-                    }).ToList();
-
-                    //Corroborar los campos iTotalRecords y iTotalDisplayRecords
-
-                    if (listResponse.Count() > 0)
-                    {
-                        totalDisplay = listResponse[0].Total;
-                        total = listResponse.Count();
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                success = false;
-                error = ex.Message.ToString();
-            }
-
-            return Json(new
-            {
-                success = success,
-                error = error,
-                sEcho = param.sEcho,
-                iTotalRecords = total,
-                iTotalDisplayRecords = totalDisplay,
-                aaData = list
-            }, JsonRequestBehavior.AllowGet);
-        }
-      
-        #endregion
-
-        #region Facturas Recibidas
-
-        /*Funciones para las facturas*/
-        [AllowAnonymous]
-        public ActionResult InvoicesReceived()
-        {
-            ViewBag.Date = new
-            {
-                MinDate = DateTime.Now.AddDays(-10).ToString("dd-MM-yyyy"),
-                MaxDate = DateTime.Now.ToString("dd-MM-yyyy")
-            };
-            try
-            {
-                InvoicesFilter model = new InvoicesFilter();
-                var initial = new SelectListItem() { Text = "Todos...", Value = "-1" };
-
-                var currencyList = _currencyService.GetAll().Select(x => new SelectListItem() { Text = x.code, Value = x.code }).ToList();
-                var parmentFormList = _paymentFormService.GetAll().Select(x => new SelectListItem() { Text = x.code + "-" + x.Description, Value = x.code }).ToList();
-                var parmentMethodList = _paymentMethodService.GetAll().Select(x => new SelectListItem() { Text = x.code, Value = x.code }).ToList();
-
-                currencyList.Insert(0, (initial));
-                parmentFormList.Insert(0, (initial));
-                parmentMethodList.Insert(0, (initial));
-
-                model.ListCurrency = new SelectList(currencyList);
-                model.ListPaymentForm = new SelectList(parmentFormList);
-                model.ListPaymentMethod = new SelectList(parmentMethodList);
-
-                return View(model);
-            }
-            catch (Exception ex)
-            {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                return RedirectToAction("Index");
-            }
-        }
-
-        [HttpGet, AllowAnonymous]
-        public JsonResult GetInvoicesProvider(JQueryDataTableParams param, string filtros, bool first)
-        {
-            int totalDisplay = 0;
-            int total = 0;
-            string error = string.Empty;
-            bool success = true;
-            var userAuth = Authenticator.AuthenticatedUser;
-            var listResponse = new List<InvoicesReceivedList>();
-            var list = new List<InvoicesReceivedListVM>();
-
-            try
-            {
-                if (!first)
-                {
-                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
-                    string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
-                    string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
-                    string Folio = filtersValues.Get("Folio").Trim();
-                    string rfc = filtersValues.Get("RFCP").Trim();
-                    string PaymentMethod = filtersValues.Get("PaymentMethod").Trim();
-                    string PaymentForm = filtersValues.Get("PaymentForm").Trim();
-                    string Currency = filtersValues.Get("Currency").Trim();
-
-                    string serie = filtersValues.Get("Serie").Trim();
-                    string nombreRazonSocial = filtersValues.Get("NombreRazonSocial").Trim();
-
-                    var pagination = new BasePagination();
-                    var filters = new CustomerCFDIFilter() { accountId = userAuth.Account.Id };
-                    pagination.PageSize = param.iDisplayLength;
-                    pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
-                    if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
-                    if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
-                    if (Folio != "") filters.folio = Folio;
-                    if (rfc != "") filters.rfc = rfc;
-                    if (PaymentForm != "-1") filters.paymentForm = PaymentForm;
-                    if (PaymentMethod != "-1") filters.paymentMethod = PaymentMethod;
-                    if (Currency != "-1") filters.currency = Currency;
-                    if (!string.IsNullOrEmpty(serie)) filters.serie = serie;
-                    if (!string.IsNullOrEmpty(nombreRazonSocial)) filters.nombreRazonSocial = nombreRazonSocial;
-
-                    listResponse = _providerService.ProviderCDFIList(pagination, filters);
-
-                    list = listResponse.Select(x => new InvoicesReceivedListVM
-                    {
-                        id = x.id,
-                        folio = x.folio,
-                        serie = x.serie,
-                        paymentMethod = x.paymentMethod,
-                        paymentForm = x.paymentForm,
-                        currency = x.currency,
-                        amount = x.subtotal.ToString("C2"),
-                        iva = x.iva.ToString("C2"),
-                        totalAmount = x.total.ToString("C2"),
-                        invoicedAt = x.invoicedAt.ToShortDateString(),
-                        rfc = x.rfc,
-                        businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
-                        //first_name = x.first_name,
-                        //last_name = x.last_name,
-                        paymentFormDescription = x.paymentFormDescription
-                    }).ToList();
-
-                    //Corroborar los campos iTotalRecords y iTotalDisplayRecords
-
-                    if (listResponse.Count() > 0)
-                    {
-                        totalDisplay = listResponse[0].Total;
-                        total = listResponse.Count();
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                success = false;
-                error = ex.Message.ToString();
-            }
-
-            return Json(new
-            {
-                success = success,
-                error = error,
-                sEcho = param.sEcho,
-                iTotalRecords = total,
-                iTotalDisplayRecords = totalDisplay,
-                aaData = list
-            }, JsonRequestBehavior.AllowGet);
-        }
-             
-        #endregion
-
-        #region Métodos Genericos para Emitidas y Recibidas
-
-        [HttpGet, AllowAnonymous]
-        public void GetDownloadXML(Int64 id)
-        {
-            var authUser = Authenticator.AuthenticatedUser;
-
-            try
-            {
-                var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
-                var invoice = _invoiceIssuedService.FirstOrDefault(x => x.id == id);
-
-                if (invoice == null)
-                    throw new Exception("No se encontro la factura emitida");
-
-                MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoicesIssued, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
-
-                Response.ContentType = "application/xml";
-                Response.AddHeader("Content-Disposition", "attachment;filename=" + invoice.uuid + ".xml");
-                Response.BinaryWrite(stream.ToArray());
-                Response.End();
-            }
-            catch (Exception ex)
-            {
-                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                Response.End();
-            }
-        }
-
-        [HttpGet, AllowAnonymous]
-        public JsonResult GetAutoComplite()
-        {
-            List<string> list = new List<string>();
-            try
-            {
-                var authUser = Authenticator.AuthenticatedUser;
-                var listRFC = _customerService.ListCustomerAutoComplete(authUser.Account.Id);
-                list = listRFC.Select(x => x.rfc).ToList();
-            }
-            catch (Exception ex)
-            {
-                string error = ex.Message.ToString();
-            }
-
-            return Json(new
-            {
-                Data = list,
-            }, JsonRequestBehavior.AllowGet);
-        }
-
-        #endregion
     }
 }

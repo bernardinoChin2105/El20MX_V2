@@ -5,13 +5,10 @@
     }
 });
 
-//$("#RFC").keyup(function () {
-//    this.value = this.value.toUpperCase();
-//});
-
-var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOfficeUrl, locationsUrl, codeSATUrl, UnitSATUrl, searchCDFIUrl, hasFullAccessController) {
+var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOfficeUrl, locationsUrl, codeSATUrl, UnitSATUrl, searchCDFIUrl, rateTaxesUrl, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
+    this.htmlTableImp = $("#tableImpuestos");
     this.searchUrl = searchUrl;
     this.addressUrl = addressUrl;
     this.branchOfficeUrl = branchOfficeUrl;
@@ -19,7 +16,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
     this.codeSATUrl = codeSATUrl;
     this.UnitSATUrl = UnitSATUrl;
     this.searchCDFIUrl = searchCDFIUrl;
+    this.rateTaxesUrl = rateTaxesUrl;
     this.dataTable = {};
+    this.dataTableImp = {};
 
     this.quantity = $("#Quantity");
     this.unitPrice = $("#UnitPrice");
@@ -75,40 +74,52 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     }
                 },
                 {
-                    "targets": 5, render: function (data, type, row, meta) {
-                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].UnitPrice" value="' + data + '" />';
+                    "targets": 5, className: 'hide', render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].Unit" value="' + data + '" />';
                         return html;
                     }
                 },
                 {
                     "targets": 6, render: function (data, type, row, meta) {
-                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].DiscountRateProServ" value="' + data + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].UnitPrice" value="' + data + '" />';
                         return html;
                     }
                 },
                 {
                     "targets": 7, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].DiscountRateProServ" value="' + data + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 8, render: function (data, type, row, meta) {
                         //console.log(data, type, row, meta, "todos")
                         var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].TaxesIEPS" value="' + data + '" />';
                         return html;
                     }
                 },
                 {
-                    "targets": 8, render: function (data, type, row, meta) {
+                    "targets": 9, render: function (data, type, row, meta) {
                         var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].TaxesIVA" value="' + data + '" />';
                         return html;
                     }
                 },
                 {
-                    "targets": 9, render: function (data, type, row, meta) {
+                    "targets": 10, className: 'hide', render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].TaxesGeneral" value="' + data + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 11, render: function (data, type, row, meta) {
                         var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].Subtotal" value="' + data + '" />';
                         return html;
                     }
                 },
                 {
-                    "targets": 10, render: function (data, type, row, meta) {
+                    "targets": 12, render: function (data, type, row, meta) {
                         var button = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<button class="btn btn-light btn-edit"  title="Editar Producto o Servicio" style="margin-left:5px;"><span class="fas fa-edit"></span></button>' +
+                            '<button type="button" class="btn btn-light btn-edit"  title="Editar Producto o Servicio" style="margin-left:5px;"><span class="fas fa-edit"></span></button>' +
                             '</div>';
                         return button;
                     }
@@ -140,23 +151,23 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 //        return intVal(a) + intVal(b);
                 //    }, 0);
 
-                //total = api
-                //    .column(9)
-                //    .data()
-                //    .reduce(function (a, b) {
-                //        return intVal(a) + intVal(b);
-                //    }, 0);
-
-                trasladosIEPSIVA = api
+                total = api
                     .column(8)
                     .data()
                     .reduce(function (a, b) {
                         return intVal(a) + intVal(b);
                     }, 0);
 
+                //trasladosIEPSIVA = api
+                //    .column(9)
+                //    .data()
+                //    .reduce(function (a, b) {
+                //        return intVal(a) + intVal(b);
+                //    }, 0);
+
                 // Total over this page
                 subtotal = api
-                    .column(9, { page: 'current' })
+                    .column(11, { page: 'current' })
                     .data()
                     .reduce(function (a, b) {
                         return intVal(a) + intVal(b);
@@ -182,31 +193,32 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     $(".trDiscount").addClass("hide");
                 }
 
-                $("#TaxTransferred").val(trasladosIEPSIVA);
-                $("#lblTaxTransferred").html('$' + trasladosIEPSIVA);
-                if (trasladosIEPSIVA > 0) {
-                    $(".trTaxT").removeClass("hide");
-                } else {
-                    $(".trTaxT").addClass("hide");
-                }
+                //$("#TaxTransferred").val(trasladosIEPSIVA);
+                //$("#lblTaxTransferred").html('$' + trasladosIEPSIVA);
+                //if (trasladosIEPSIVA > 0) {
+                //    $(".trTaxT").removeClass("hide");
+                //} else {
+                $(".trTaxT").addClass("hide");
+                //}
 
-                $("#TaxWithheldIVA").val();
-                $("#lblTaxWithheldIVA").html('$');
+                //$("#TaxWithheldIVA").val();
+                //$("#lblTaxWithheldIVA").html('$');
                 //if (trasladosIEPSIVA > 0) {
                 //    $(".trTaxWIVA").removeClass("hide");
                 //} else {
                 $(".trTaxWIVA").addClass("hide");
                 //}
 
-                $("#TaxWithheldISR").val();
-                $("#lblTaxWithheldISR").html('$');
+                //$("#TaxWithheldISR").val();
+                //$("#lblTaxWithheldISR").html('$');
                 //if (trasladosIEPSIVA > 0) {
                 //    $(".trTaxWISR").removeClass("hide");
                 //} else {
                 $(".trTaxWISR").addClass("hide");
                 //}
 
-                var total = (subtotal + discount + trasladosIEPSIVA).toFixed(2);
+                var total = (subtotal - discount).toFixed(2);
+                console.log(total, "total");
                 $("#Total").val(total);
                 $("#lblTotal").html('$' + total);
 
@@ -215,9 +227,58 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             El20Utils.ocultarCargador();
         });
 
+        self.dataTableImp = self.htmlTableImp.DataTable({
+            //language: El20Utils.lenguajeTabla({}),
+            //"bProcessing": true,
+            //"bServerSide": true,
+            //"sAjaxSource": this.baseUrl,
+            //orderMulti: false,
+            "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
+            "bLengthChange": false,
+            "bInfo": false,
+            "paging": false,
+            searching: false,
+            ordering: false,
+            columns: [
+                { data: 'Tipo' },
+                { data: 'Impuesto' },
+                { data: 'Porcentaje' },
+                { data: 'index' },
+            ],
+            "columnDefs": [
+                {
+                    "targets": 0, render: function (data, type, row, meta) {
+                        console.log(data, type, row, meta, "column")
+                        return '<input type="text" class="form-control" readonly name="indexPD" value="' + row[0].Tipo + '" />';
+                    }
+                },
+                {
+                    "targets": 1, render: function (data, type, row, meta) {
+                        //console.log(data, type, row, meta, "todos")
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].Quantity" value="' + row[0].Impuesto + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 2, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].SATCode" value="' + row[0].Porcentaje + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 3, render: function (data, type, row, meta) {
+                        var button = '<div class="btn-group" role="group" aria-label="Opciones">' +
+                            '<button type="button" class="btn btn-light btn-delete" title="Eliminar impuesto" style="margin-left:5px;"><span class="fas fa-trash"></span></button>' +
+                            '</div>';
+                        return button;
+                    }
+                }
+            ],
+        });
+
         $(this.htmlTable, "tbody").on('click',
             //'td.menu-options .btn-group .btn-edit',
-            '.btn-group .btn-edit',
+            '.btn-group .btn-delete',
             function () {
                 var tr = $(this).closest('tr');
                 var row = self.dataTable.row(tr);
@@ -239,39 +300,200 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#ServProdModal").modal("show");
             });
 
+        $(this.htmlTableImp, "tbody").on('click',
+            '.btn-group .btn-delete',
+            function () {
+                self.dataTableImp
+                    .row($(this).parents('tr'))
+                    .remove()
+                    .draw();
+                Prices();
+            });
+
         $.validator.addMethod("Alphanumeric",
             function (value, element) {
                 return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
             }, "El campo debe ser alfanumérico"
         );
+        $.validator.addMethod("Numeric",
+            function (value, element) {
+                return value.match(/^[0-9]+$|^$/);
+            }, "El campo debe ser numérico"
+        );
+
+        //Agregar a la lista de conceptos del producto
+        $("#addTaxes").click(function () {
+            //console.log("estoy aqui")
+
+            var t = $("#tableImpuestos").DataTable();
+            var ind = t.rows().count();
+            var index = parseInt(ind);
+            index++;
+            var radio = $("input[name='taxes']:checked").val();
+            var input = "";
+            if (radio === "Retención")
+                input = $("#Withholdings").val();
+            else
+                input = $("#Transferred").val();
+
+            t.row.add(
+                [
+                    {
+                        "Tipo": radio,
+                        "Impuesto": input,
+                        "Porcentaje": $("#Valuation").val(),
+                        "index": index
+                    }
+                ]
+            ).draw(false);
+
+            Prices();
+        });
 
         $("#InvoicingForm").validate({
             rules: {
-                Folio: {
+                InvoiceComplement: {
                     Alphanumeric: true
                 },
-                Serie: {
+                CustomerName: {
                     Alphanumeric: true
                 },
-                RFCP: {
+                RFC: {
                     Alphanumeric: true
                 },
-                NombreRazonSocial: {
+                Street: {
+                    Alphanumeric: true
+                },
+                OutdoorNumber: {
+                    Alphanumeric: true
+                },
+                InteriorNumber: {
+                    Alphanumeric: true
+                },
+                ZipCode: {
+                    required: true,
+                    Numeric: true
+                },
+                MotionNumber: {
+                    Alphanumeric: true
+                },
+                PaymentConditions: {
+                    Alphanumeric: true
+                },
+                Comments: {
                     Alphanumeric: true
                 },
             }
         });
 
+        $("#ConceptForm").validate({
+            rules: {
+                SATCode: {
+                    Alphanumeric: true
+                },
+                ProductServiceDescription: {
+                    Alphanumeric: true
+                },
+            }
+        });
+
+        /*Obtener los porcentajes*/
+        $(".rateFee").change(function () {
+            //console.log($(this).val());
+            var cmbTaxes = $("#Valuation");
+            cmbTaxes.empty();
+            var type = $("input[name='taxes']:checked").val();
+            var valueTax = $(this).val();
+
+            //if (type === "Retención") {
+            //    valueTax = $("#Withholdings").val();
+            //} else {
+            //    valueTax = $("#Transferred").val();
+            //}
+            //console.log(valueTax, "valor")
+
+            $.ajax({
+                type: 'Get',
+                async: true,
+                data: { value: valueTax, typeTaxes: type },
+                url: self.rateTaxesUrl,
+                success: function (json) {
+                    //console.log(json, "respuesta");
+
+                    if (json.success) {
+                        var data = json.data;
+                        data.forEach(function (item, index) {
+                            cmbTaxes.append($('<option></option>').val(item.maximumValue).text(item.maximumValue + "%"));
+                        });
+
+                        $(".chosen-select").trigger("chosen:updated");
+
+                        El20Utils.ocultarCargador();
+                    }
+                    else {
+                        El20Utils.ocultarCargador();
+                    }
+
+                },
+                error: function (xhr) {
+                    console.log('error', xhr);
+                    El20Utils.ocultarCargador();
+                }
+            });
+        });
+
+        /*Buscador de facturas para complementos*/
+        $(".search-invoice").click(function () {
+            console.log("entre al evento", $(this).val());
+            El20Utils.mostrarCargador();
+
+            var uuid = $("#InvoiceComplement").val();
+            $.ajax({
+                type: 'Get',
+                async: true,
+                data: { uuid: uuid },
+                url: self.searchCDFIUrl,
+                success: function (json) {
+                    console.log(json, "respuesta");
+
+                    if (json.success) {
+                        var data = json.data;
+                        if (data === null) {
+                            toastr['error']("No se encontro la factura con el Folio Fiscal.");
+                        }
+                        //else {
+
+                        //}
+                        El20Utils.ocultarCargador();
+                    }
+                    else {
+                        El20Utils.ocultarCargador();
+                    }
+
+                },
+                error: function (xhr) {
+                    console.log('error', xhr);
+                    El20Utils.ocultarCargador();
+                }
+            });
+
+        });
+
         $('.money').mask("##,###,##0.00", { reverse: true });
 
-        //$("#DiscountRate").keyup(function () {
-        //    console.log($(this).val(), "funciona aquí");
-        //});
+        $("#RFC").keyup(function () {
+            this.value = this.value.toUpperCase();
+        });
 
         $("#Quantity,#UnitPrice,#DiscountRateProServ").keyup(function () {
+            Prices();
+        });
+
+        function Prices() {
             var quantity = parseFloat(self.quantity.val() !== "" ? self.quantity.val() : 0);
             var unitPrice = parseFloat(self.unitPrice.val() !== "" ? (self.unitPrice.val().replace(",", "")) : 0);
             var discountRate = parseFloat(self.discountRate.val() !== "" ? self.discountRate.val() : 0);
+            var impuestos = $("#tableImpuestos").DataTable();
             //console.log(discountRate, "descuento");
 
             //dudas con el impuesto
@@ -282,16 +504,36 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //Calcular el subtotal    
             if (quantity > 0 && unitPrice > 0) {
                 var sub = quantity * unitPrice;
+                var impIVAISR = 0; //parseFloat(self.taxesIVA.val() !== "" ? self.taxesIVA.val() : 0);
+                var impIVAIESP = 0; //parseFloat(self.taxesIEPS.val() !== "" ? self.taxesIVA.val() : 0);
 
                 var discount = discountRate > 0 || discountRate < 0 ? (discountRate * sub) / 100 : 0;
                 //console.log("desceutno", discount);
-                var subtotal = sub - discount;
+                console.log("holas")
+                if (impuestos.rows().count() > 0) {
+                    console.log(impuestos, "tabla")
+                    for (var i = 0; i < impuestos.rows().count(); i++) {
+                        var datos = impuestos.row(i).data()[0];
+                        console.log(datos, "datos");
+                        var por = parseFloat(datos.Porcentaje);
+                        if (datos.Tipo === "Retención") {
+                            var imp1 = por > 0 ? (por * sub) / 100 : 0;
+                            impIVAISR = impIVAISR + imp1;
+                        } else {
+                            var imp2 = por > 0 ? (por * sub) / 100 : 0;
+                            impIVAIESP = impIVAIESP + imp2;
+                        }
+                    }
+                }
+
+                var subtotal = sub - discount + impIVAISR + impIVAIESP;
                 //console.log(subtotal, "subtotal sin el descuento")
                 //console.log(subtotal.toFixed(2), "subtotal ")
+                self.taxesIVA.val(impIVAISR.toFixed(2));
+                self.taxesIEPS.val(impIVAIESP.toFixed(2));
                 self.subtotal.val(subtotal.toFixed(2));
             }
-
-        });
+        }
 
         //Borrar valores cuando se oculte el modal
         $('#ServProdModal').on('hide.bs.modal', function (e) {
@@ -300,6 +542,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 //console.log("holas");
                 this.reset();
                 $("#Row").val("");
+                var table = $("#tableImpuestos").DataTable();
+
+                table.clear().draw();
             });
         });
 
@@ -313,6 +558,16 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
             var t = self.dataTable;
             var row = $("#Row").val();
+            var impuestos = $("#tableImpuestos").DataTable().rows().data();
+            var arrayImpuestos = new Array();
+
+            if (impuestos.count()) {
+                impuestos.each(function (item, i) {
+                    console.log(item[0], i, "array");
+                    var obj = JSON.stringify(item[0]).replace(/"/g, "'");
+                    arrayImpuestos.push(obj);
+                });
+            }
 
             if (row !== "") {
                 var indexR = parseInt(row);
@@ -324,10 +579,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         $("#SATCode").val(),
                         $("#ProductServiceDescription").val(),
                         $("#SATUnit").val(),
+                        $("#Unit").val(),
                         self.unitPrice.val(),
                         self.discountRate.val(),
                         self.taxesIEPS.val(),
                         self.taxesIVA.val(),
+                        arrayImpuestos.join(";"),
                         self.subtotal.val(),
                         indexR
                     ]
@@ -344,15 +601,21 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         $("#SATCode").val(),
                         $("#ProductServiceDescription").val(),
                         $("#SATUnit").val(),
+                        $("#Unit").val(),
                         self.unitPrice.val(),
                         self.discountRate.val(),
                         self.taxesIEPS.val(),
                         self.taxesIVA.val(),
+                        arrayImpuestos.join(";"),
                         self.subtotal.val(),
                         index
                     ]
                 ).draw(false);
             }
+
+            $("input[name='taxes']").attr("checked", false);
+            //$("input[name='taxes']").attr("checked", false);
+            $("#TaxesChk").trigger("click");
 
             $("#ServProdModal").modal("hide");
         });
@@ -373,18 +636,18 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         //Validar que sea aparezca el IEPS
         $("#Valuation").change(function () {
-            var value = $(this).val();
-            var column = self.dataTable.column(8);
+            //var value = $(this).val();
+            //var column = self.dataTable.column(9);
 
-            // Toggle the visibility
-            if (value === "IEPS") {
-                $(".trTaxT").removeClass("hide");
-                column.visible(true);
-            }
-            else {
-                $(".trTaxT").addClass("hide");
-                column.visible(false);
-            }
+            //// Toggle the visibility
+            //if (value === "IEPS") {
+            //    $(".trTaxT").removeClass("hide");
+            //    column.visible(true);
+            //}
+            //else {
+            //    $(".trTaxT").addClass("hide");
+            //    column.visible(false);
+            //}
         });
 
         //Obtener información de las sucursales
@@ -402,7 +665,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     data: { sucursalId: value },
                     url: self.branchOfficeUrl,
                     success: function (json) {
-                        console.log(json, "respuesta");
+                        //console.log(json, "respuesta");
                         SerieFolio.val(json.serie + " " + json.folio);
                         Serie.val(json.serie);
                         Folio.val(json.folio);
@@ -448,6 +711,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         $("#TaxesChk").click(function () {
             //console.log("estoy dento", !this.checked);
             var taxes = $("#taxes");
+            var cmbTaxes = $("#Valuation");
+            cmbTaxes.empty();
 
             if (!this.checked) {
                 taxes.addClass("hide");
@@ -471,16 +736,33 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 international.removeClass("hide");
         });
 
+        $("input[name='taxes']").click(function () {
+            //console.log("valor", $(this).val())
+            var cmbTaxes = $("#Valuation");
+            cmbTaxes.empty();
+            if ($(this).val() === "Retención") {
+                $(".retenciones").removeClass("hide");
+                $(".traslados").addClass("hide");
+            } else {
+                $(".retenciones").addClass("hide");
+                $(".traslados").removeClass("hide");
+            }
+        });
+
         $("#InvoiceComplementChk").click(function () {
             //console.log("estoy dento", !this.checked);
             var complement = $(".complement");
+            var typeRelationship = $("#TypeRelationship");
 
             if (!this.checked) {
                 complement.addClass("hide");
+                typeRelationship.removeClass("required").val("");
                 $("#InvoiceComplement").val("");
             }
-            else
+            else {
+                typeRelationship.addClass("required");
                 complement.removeClass("hide");
+            }
         });
 
         //Buscar información del cliente por Razon Social
@@ -552,7 +834,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             updater: function (obj) {
                 var item = JSON.parse(obj);
                 $('#CustomerId').attr('value', item.id);
-                $('#ReceiverType').attr('value', item.taxRegime);
+                $('#TypeReceptor').attr('value', item.taxRegime);
                 GetReceiver(item.id, item.taxRegime);
                 return item.name;
             }
@@ -581,32 +863,24 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     if (json.Data.success) {
                         var datos = json.Data.data;
                         if (datos.length > 0) {
-                            //console.log(datos, "que esta aquí");
-                            cmbState.val(datos[0].stateId);
+                            cmbCountry.append($('<option></option>').val(datos[0].countryId).text(datos[0].nameCountry));
 
-                            //Llenado de Países
-                            cmbCountry.html('<option value="-1">Seleccione...</option>');
-                            cmbCountry.append('<option value="' + datos[0].countryId + '">' + datos[0].nameCountry + '</option>');
-                            cmbCountry.val(datos[0].countryId);
+                            cmbState.append($('<option></option>').val(datos[0].stateId).text(datos[0].nameState));
 
-                            //Llenado de municipios
-                            //console.log(datos[0], "registro 0");
-                            cmbMunicipality.html('<option value="-1">Seleccione...</option>');
-                            cmbMunicipality.append('<option value="' + datos[0].municipalityId + '">' + datos[0].nameMunicipality + '</option>');
-                            cmbMunicipality.val(datos[0].municipalityId);
+                            cmbMunicipality.append($('<option></option>').val(datos[0].municipalityId).text(datos[0].nameMunicipality));
 
-                            //Llenado de colonias
-                            cmbColony.html('<option value="-1">Seleccione...</option>');
-                            cmbColony.append(datos.map(function (data, index) {
-                                return $('<option value="' + data.id + '">' + data.nameSettlementType + ' ' + data.nameSettlement + '</option>');
-                            }));
-                            cmbColony.val(datos[0].id);
+                            datos.forEach(function (item, index) {
+                                cmbColony.append($('<option></option>').val(item.id).text(item.nameSettlementType + ' ' + item.nameSettlement));
+                            });
+
+                            $(".chosen-select").trigger("chosen:updated");
+
                         } else {
-                            ClearCombos()
+                            ClearCombos();
                             toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
                         }
                     } else {
-                        ClearCombos()
+                        ClearCombos();
                         toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
                     }
 
@@ -623,10 +897,11 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var cmbState = $("#State");
             var cmbCountry = $("#Country");
 
-            cmbState.val(-1);
-            cmbCountry.html('<option value="-1">Seleccione...</option>').val(-1);
-            cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
-            cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
+            cmbColony.empty();
+            cmbMunicipality.empty();
+            cmbState.empty();
+            cmbCountry.empty();
+            $(".chosen-select").trigger("chosen:updated");
         }
 
         //Buscar información de la clave de producto o servicio
@@ -680,6 +955,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             },
             updater: function (obj) {
                 var item = JSON.parse(obj);
+                $('#Unit').attr('value', item.type);
                 return item.name;
             }
         });
@@ -716,30 +992,44 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         //ListCustomerEmail lista
                         //CustomerEmailId                    
                     }
-                    //else {
-                    //}
+                    else {
+                        El20Utils.ocultarCargador();
+                    }
 
                 },
                 error: function (xhr) {
                     console.log('error', xhr);
-                    //cmbState.val(-1);
-                    //cmbCountry.html('<option value="-1">Seleccione...</option>').val(-1);
-                    //cmbMunicipality.html('<option value="-1">Seleccione...</option>').val(-1);
-                    //cmbColony.html('<option value="-1">Seleccione...</option>').val(-1);
+                    El20Utils.ocultarCargador();
                 }
             });
         }
 
         $("#SavedInvoice").click(function () {
+            El20Utils.mostrarCargador();
             if (!$('#InvoicingForm').valid()) {
+                //return;
+
+                $('html, body').animate({
+                    scrollTop: ($('.error').offset().top - 300)
+                }, 2000, function () {
+                    El20Utils.ocultarCargador();
+                });
                 return;
             }
+
             $("#InvoicingForm").attr('action', 'Invoice');
             $('#InvoicingForm').submit();
         });
 
         $("#validarDatos").click(function () {
+            El20Utils.mostrarCargador();
             if (!$('#InvoicingForm').valid()) {
+                //return;
+                $('html, body').animate({
+                    scrollTop: ($('.error').offset().top - 300)
+                }, 2000, function () {
+                    El20Utils.ocultarCargador();
+                });
                 return;
             }
 
@@ -747,6 +1037,15 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             $("#InvoicingForm").attr('action', 'IssueIncomeInvoice');
             $('#InvoicingForm').submit();
         });
+
+        /*Agregar emails*/
+        var indexEmail = 1;
+        $(".btn-add-email").click(function () {
+            var item = '<br/><input class="form-control" type="email" maxlength="300" autocomplete="off" name="ListCustomerEmail[' + indexEmail + ']" />';
+            $("#ListEmails").append(item);
+            indexEmail++;
+        });
+
     };
 
 };
