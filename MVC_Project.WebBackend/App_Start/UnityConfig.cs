@@ -103,6 +103,7 @@ namespace MVC_Project.WebBackend
             container.RegisterType<ITypeVoucherService, TypeVoucherService>();
             container.RegisterType<IQuotationDetailService, QuotationDetailService>();
             container.RegisterType<IBranchOfficeService, BranchOfficeService>();
+            container.RegisterType<ICADAccountService, CADAccountService>();
         }
     }
 }

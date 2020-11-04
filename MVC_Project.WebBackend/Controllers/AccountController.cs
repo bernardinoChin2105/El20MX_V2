@@ -26,10 +26,11 @@ namespace MVC_Project.WebBackend.Controllers
         private IUserService _userService;
         private IPromotionService _promotionService;
         private IDiscountService _discountService;
+        private ICADAccountService _CADAccountService;
 
         public AccountController(IMembershipService accountUserService, IAccountService accountService,
             ICredentialService credentialService, IRoleService roleService, IUserService userService, IPromotionService promotionService,
-            IDiscountService discountService)
+            IDiscountService discountService, ICADAccountService CADAccountService)
         {
             _membership = accountUserService;
             _accountService = accountService;
@@ -38,6 +39,7 @@ namespace MVC_Project.WebBackend.Controllers
             _userService = userService;
             _promotionService = promotionService;
             _discountService = discountService;
+            _CADAccountService = CADAccountService;
         }
 
         // GET: Account
@@ -60,12 +62,30 @@ namespace MVC_Project.WebBackend.Controllers
             var provider = ConfigurationManager.AppSettings["SATProvider"];
             if (authUser.isBackOffice)
             {
-                var accounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString());
+                var accounts = new List<Account>();
+                if (authUser.Role.Code == SystemRoles.SYSTEM_ADMINISTRATOR.ToString())
+                    accounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString()).Select(x => new Account
+                    {
+                        Id = x.id,
+                        Uuid = x.uuid,
+                        Name = x.name,
+                        RFC = x.rfc
+                    }).ToList();
+                else
+                    accounts = _CADAccountService.FindBy(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString()).Select(x => new Account
+                    {
+                        Id = x.account.id,
+                        Uuid = x.account.uuid,
+                        Name = x.account.name,
+                        RFC = x.account.rfc
+                    }).ToList();
+                
+                
                 var accountViewModel = new AccountSelectViewModel { accountListItems = new List<SelectListItem>() };
                 accountViewModel.accountListItems = accounts.Select(x => new SelectListItem
                 {
-                    Text = x.name + " ( " + x.rfc + " )",
-                    Value = x.uuid.ToString()
+                    Text = x.Name + " ( " + x.RFC+ " )",
+                    Value = x.Uuid.ToString()
                 }).ToList();
                 return PartialView("_SelectAccountBackOfficeModal", accountViewModel);
             }
