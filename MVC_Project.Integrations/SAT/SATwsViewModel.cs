@@ -29,9 +29,9 @@ namespace MVC_Project.Integrations.SAT
     public class InvoiceData {
         public string Serie { get; set; }
         public Int32 Folio { get; set; }
-        public DateTime Fecha { get; set; }
+        public string Fecha { get; set; }
         public string Moneda { get; set; }
-        public decimal TipoCambio { get; set; }
+        public decimal? TipoCambio { get; set; }
         public string TipoDeComprobante { get; set; }
         public string CondicionesDePago { get; set; }
         public string FormaPago { get; set; }

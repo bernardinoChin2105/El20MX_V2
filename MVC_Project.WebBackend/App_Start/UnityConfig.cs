@@ -104,6 +104,7 @@ namespace MVC_Project.WebBackend
             container.RegisterType<IQuotationDetailService, QuotationDetailService>();
             container.RegisterType<IBranchOfficeService, BranchOfficeService>();
             container.RegisterType<ICADAccountService, CADAccountService>();
+            container.RegisterType<IRateFeeService, RateFeeService>();
         }
     }
 }

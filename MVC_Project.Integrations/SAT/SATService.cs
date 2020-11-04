@@ -124,7 +124,7 @@ namespace MVC_Project.Integrations.SAT
             }
         }
 
-        public static InvoicesInfo PostIssueIncomeInvoices(InvoiceJson invoice,string provider)
+        public static InvoicesInfo PostIssueIncomeInvoices(dynamic invoice,string provider)
         {
             if (provider == SystemProviders.SATWS.ToString())
             {
