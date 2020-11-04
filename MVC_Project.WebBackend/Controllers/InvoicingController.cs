@@ -1183,5 +1183,17 @@ namespace MVC_Project.WebBackend.Controllers
                 };
             }
         }
+
+        #region modulo para envio de correo
+        private void SendInvoice()
+        {
+            //Dictionary<string, string> customParams = new Dictionary<string, string>();
+            //string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
+            ////string link = urlAccion + "Auth/Login";
+            //customParams.Add("param1", user.profile.firstName);
+            //customParams.Add("param2", link);
+            //NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_WELCOME_NETWORK);
+        }
+        #endregion
     }
 }
