@@ -17,6 +17,7 @@ using System.IO;
 using MVC_Project.Integrations.Storage;
 using System.Xml;
 using Microsoft.Ajax.Utilities;
+using System.Collections.Specialized;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -1183,5 +1184,311 @@ namespace MVC_Project.WebBackend.Controllers
                 };
             }
         }
+
+
+        #region Facturas Emitidas
+        [AllowAnonymous]
+        public ActionResult InvoicesIssued()
+        {
+            ViewBag.Date = new
+            {
+                MinDate = DateTime.Now.AddDays(-10).ToString("dd-MM-yyyy"),
+                MaxDate = DateTime.Now.ToString("dd-MM-yyyy")
+            };
+            try
+            {
+                InvoicesFilter model = new InvoicesFilter();
+                var initial = new SelectListItem() { Text = "Todos...", Value = "-1" };
+
+                var currencyList = _currencyService.GetAll().Select(x => new SelectListItem() { Text = x.code, Value = x.code }).ToList();
+                var parmentFormList = _paymentFormService.GetAll().Select(x => new SelectListItem() { Text = x.code + "-" + x.Description, Value = x.code }).ToList();
+                var parmentMethodList = _paymentMethodService.GetAll().Select(x => new SelectListItem() { Text = x.code, Value = x.code }).ToList();
+
+                currencyList.Insert(0, (initial));
+                parmentFormList.Insert(0, (initial));
+                parmentMethodList.Insert(0, (initial));
+
+                model.ListCurrency = new SelectList(currencyList);
+                model.ListPaymentForm = new SelectList(parmentFormList);
+                model.ListPaymentMethod = new SelectList(parmentMethodList);
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetInvoices(JQueryDataTableParams param, string filtros, bool first)
+        {
+            int totalDisplay = 0;
+            int total = 0;
+            string error = string.Empty;
+            bool success = true;
+            var userAuth = Authenticator.AuthenticatedUser;
+            var listResponse = new List<InvoicesIssuedList>();
+            var list = new List<InvoicesIssuedListVM>();
+
+            try
+            {
+                if (!first)
+                {
+                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
+                    string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
+                    string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
+                    string Folio = filtersValues.Get("Folio").Trim();
+                    string rfc = filtersValues.Get("RFC").Trim();
+                    string PaymentMethod = filtersValues.Get("PaymentMethod").Trim();
+                    string PaymentForm = filtersValues.Get("PaymentForm").Trim();
+                    string Currency = filtersValues.Get("Currency").Trim();
+                    string serie = filtersValues.Get("Serie").Trim();
+                    string nombreRazonSocial = filtersValues.Get("NombreRazonSocial").Trim();
+
+                    var pagination = new BasePagination();
+                    var filters = new CustomerCFDIFilter() { accountId = userAuth.Account.Id };
+                    pagination.PageSize = param.iDisplayLength;
+                    pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
+                    if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
+                    if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
+                    if (Folio != "") filters.folio = Folio;
+                    if (rfc != "") filters.rfc = rfc;
+                    if (PaymentForm != "-1") filters.paymentForm = PaymentForm;
+                    if (PaymentMethod != "-1") filters.paymentMethod = PaymentMethod;
+                    if (Currency != "-1") filters.currency = Currency;
+                    if (!string.IsNullOrEmpty(serie)) filters.serie = serie;
+                    if (!string.IsNullOrEmpty(nombreRazonSocial)) filters.nombreRazonSocial = nombreRazonSocial;
+
+                    listResponse = _customerService.CustomerCDFIList(pagination, filters);
+
+                    list = listResponse.Select(x => new InvoicesIssuedListVM
+                    {
+                        id = x.id,
+                        folio = x.folio,
+                        serie = x.serie,
+                        paymentMethod = x.paymentMethod,
+                        paymentForm = x.paymentForm,
+                        currency = x.currency,
+                        amount = x.subtotal.ToString("C2"),
+                        iva = x.iva.ToString("C2"),
+                        totalAmount = x.total.ToString("C2"),
+                        invoicedAt = x.invoicedAt.ToShortDateString(),
+                        rfc = x.rfc,
+                        businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
+                        //first_name = x.first_name,
+                        //last_name = x.last_name,
+                        paymentFormDescription = x.paymentFormDescription
+                    }).ToList();
+
+                    //Corroborar los campos iTotalRecords y iTotalDisplayRecords
+
+                    if (listResponse.Count() > 0)
+                    {
+                        totalDisplay = listResponse[0].Total;
+                        total = listResponse.Count();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                success = false;
+                error = ex.Message.ToString();
+            }
+
+            return Json(new
+            {
+                success = success,
+                error = error,
+                sEcho = param.sEcho,
+                iTotalRecords = total,
+                iTotalDisplayRecords = totalDisplay,
+                aaData = list
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
+        #region Facturas Recibidas
+
+        /*Funciones para las facturas*/
+        [AllowAnonymous]
+        public ActionResult InvoicesReceived()
+        {
+            ViewBag.Date = new
+            {
+                MinDate = DateTime.Now.AddDays(-10).ToString("dd-MM-yyyy"),
+                MaxDate = DateTime.Now.ToString("dd-MM-yyyy")
+            };
+            try
+            {
+                InvoicesFilter model = new InvoicesFilter();
+                var initial = new SelectListItem() { Text = "Todos...", Value = "-1" };
+
+                var currencyList = _currencyService.GetAll().Select(x => new SelectListItem() { Text = x.code, Value = x.code }).ToList();
+                var parmentFormList = _paymentFormService.GetAll().Select(x => new SelectListItem() { Text = x.code + "-" + x.Description, Value = x.code }).ToList();
+                var parmentMethodList = _paymentMethodService.GetAll().Select(x => new SelectListItem() { Text = x.code, Value = x.code }).ToList();
+
+                currencyList.Insert(0, (initial));
+                parmentFormList.Insert(0, (initial));
+                parmentMethodList.Insert(0, (initial));
+
+                model.ListCurrency = new SelectList(currencyList);
+                model.ListPaymentForm = new SelectList(parmentFormList);
+                model.ListPaymentMethod = new SelectList(parmentMethodList);
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetInvoicesProvider(JQueryDataTableParams param, string filtros, bool first)
+        {
+            int totalDisplay = 0;
+            int total = 0;
+            string error = string.Empty;
+            bool success = true;
+            var userAuth = Authenticator.AuthenticatedUser;
+            var listResponse = new List<InvoicesReceivedList>();
+            var list = new List<InvoicesReceivedListVM>();
+
+            try
+            {
+                if (!first)
+                {
+                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
+                    string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
+                    string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
+                    string Folio = filtersValues.Get("Folio").Trim();
+                    string rfc = filtersValues.Get("RFCP").Trim();
+                    string PaymentMethod = filtersValues.Get("PaymentMethod").Trim();
+                    string PaymentForm = filtersValues.Get("PaymentForm").Trim();
+                    string Currency = filtersValues.Get("Currency").Trim();
+
+                    string serie = filtersValues.Get("Serie").Trim();
+                    string nombreRazonSocial = filtersValues.Get("NombreRazonSocial").Trim();
+
+                    var pagination = new BasePagination();
+                    var filters = new CustomerCFDIFilter() { accountId = userAuth.Account.Id };
+                    pagination.PageSize = param.iDisplayLength;
+                    pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
+                    if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
+                    if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
+                    if (Folio != "") filters.folio = Folio;
+                    if (rfc != "") filters.rfc = rfc;
+                    if (PaymentForm != "-1") filters.paymentForm = PaymentForm;
+                    if (PaymentMethod != "-1") filters.paymentMethod = PaymentMethod;
+                    if (Currency != "-1") filters.currency = Currency;
+                    if (!string.IsNullOrEmpty(serie)) filters.serie = serie;
+                    if (!string.IsNullOrEmpty(nombreRazonSocial)) filters.nombreRazonSocial = nombreRazonSocial;
+
+                    listResponse = _providerService.ProviderCDFIList(pagination, filters);
+
+                    list = listResponse.Select(x => new InvoicesReceivedListVM
+                    {
+                        id = x.id,
+                        folio = x.folio,
+                        serie = x.serie,
+                        paymentMethod = x.paymentMethod,
+                        paymentForm = x.paymentForm,
+                        currency = x.currency,
+                        amount = x.subtotal.ToString("C2"),
+                        iva = x.iva.ToString("C2"),
+                        totalAmount = x.total.ToString("C2"),
+                        invoicedAt = x.invoicedAt.ToShortDateString(),
+                        rfc = x.rfc,
+                        businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
+                        //first_name = x.first_name,
+                        //last_name = x.last_name,
+                        paymentFormDescription = x.paymentFormDescription
+                    }).ToList();
+
+                    //Corroborar los campos iTotalRecords y iTotalDisplayRecords
+
+                    if (listResponse.Count() > 0)
+                    {
+                        totalDisplay = listResponse[0].Total;
+                        total = listResponse.Count();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                success = false;
+                error = ex.Message.ToString();
+            }
+
+            return Json(new
+            {
+                success = success,
+                error = error,
+                sEcho = param.sEcho,
+                iTotalRecords = total,
+                iTotalDisplayRecords = totalDisplay,
+                aaData = list
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
+        #region Métodos Genericos para Emitidas y Recibidas
+
+        [HttpGet, AllowAnonymous]
+        public void GetDownloadXML(Int64 id)
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+
+            try
+            {
+                var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
+                var invoice = _invoiceIssuedService.FirstOrDefault(x => x.id == id);
+
+                if (invoice == null)
+                    throw new Exception("No se encontro la factura emitida");
+
+                MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoicesIssued, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
+
+                Response.ContentType = "application/xml";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + invoice.uuid + ".xml");
+                Response.BinaryWrite(stream.ToArray());
+                Response.End();
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                Response.End();
+            }
+        }
+
+        [HttpGet, AllowAnonymous]
+        public JsonResult GetAutoComplite()
+        {
+            List<string> list = new List<string>();
+            try
+            {
+                var authUser = Authenticator.AuthenticatedUser;
+                var listRFC = _customerService.ListCustomerAutoComplete(authUser.Account.Id);
+                list = listRFC.Select(x => x.rfc).ToList();
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message.ToString();
+            }
+
+            return Json(new
+            {
+                Data = list,
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
     }
 }
