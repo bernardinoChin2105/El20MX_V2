@@ -10,12 +10,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-signin-scope" content="profile email">
-    <!--Local-->
-    @*<meta name="google-signin-client_id" content="765148629644-ehqbkj60uuotg1tb7ofe66jjf7j8gaut.apps.googleusercontent.com">*@
-    <!--Azure Test-->
-    <meta name="google-signin-client_id" content="879827116478-m59eg6itdnoepetdg4qls2f8pliqss8h.apps.googleusercontent.com">
-    <!--Azure Dev-->
-    @*<meta name="google-signin-client_id" content="408028076296-36hn38iqa7n1rv70e62aqkcbasj8f78u.apps.googleusercontent.com">*@
+    <meta name="google-signin-client_id" content="@System.Configuration.ConfigurationManager.AppSettings["Google.ClientId"]">
 
     <link rel="icon" href="~/Images/logos/logo-192x192.png" sizes="192x192" />
 
@@ -125,6 +120,9 @@
     <script src="~/Scripts/plugins/validate/jquery.validate.min.js"></script>
     @Scripts.Render("~/plugins/toastr")
     <!--Configuración de facebook-->
+    <script>
+        var facebookId = '@System.Configuration.ConfigurationManager.AppSettings["Facebook.ClientId"]';
+    </script>
     <script src="~/Scripts/Facebook.js"></script>
     <!--Configuración de facebook-->
     <!--Configuración de Google-->
