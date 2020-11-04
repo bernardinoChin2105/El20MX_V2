@@ -187,9 +187,14 @@
                 </div>
                 <div class="form-group row">
                     @Html.LabelFor(m => m.CustomerEmail, new { @class = "col-form-label col-md-2 control-label" })
-                    <div class="col-md-4">
-                        @Html.TextBoxFor(m => m.CustomerEmail, new { @class = "form-control", type="email", @maxlength = "300", @autocomplete = "off" })
+                    <div class="col-md-4" id="ListEmails">
+                        <input class="form-control" type="email" maxlength="300" autocomplete="off" name="ListCustomerEmail[0]" />
+                        @*@Html.TextBoxFor(m => m.CustomerEmail, new { @class = "form-control", type = "email", @maxlength = "300", @autocomplete = "off" })*@
                         @*@Html.DropDownListFor(model => model.CustomerEmailId, Model.ListCustomerEmail, "Seleccione...", new { @class = "form-control chosen-select required" })*@
+                    </div>
+
+                    <div class="col-md-4">
+                       <button type="button" class="btn btn-color btn-add-email">Agregar</button>
                     </div>
                 </div>
             </div>
@@ -360,7 +365,7 @@
                         <th>Código SAT</th>
                         <th>Descripción Producto o Servicio</th>
                         <th>Unidad SAT</th>
-                        <th>Unidad</th>
+                        <th class="hide">Unidad</th>
                         <th>Precio Unitario</th>
                         <th>% Descuento</th>
                         <th>
@@ -371,8 +376,8 @@
                             Impuesto
                             <small>(IVA/IEPS)</small>
                         </th>
+                        <th class="hide">Impuestos</th>
                         <th>SubTotal</th>
-                        <th>Impuestos</th>
                         <th>Opciones</th>
                     </tr>
                 </thead>
@@ -388,13 +393,13 @@
                         <td>@item.SATCode</td>
                         <td>@item.ProductServiceDescription</td>
                         <td>@item.SATUnit</td>
-                        <th>@item.Unit</th>
+                        <th class="hide">@item.Unit</th>
                         <td>@item.UnitPrice</td>
                         <td>@item.DiscountRateProServ</td>
                         <td>@item.TaxesIVA</td>
                         <td>@item.TaxesIEPS</td>
+                        <td class="hide">impuesto</td>
                         <td>@item.Subtotal</td>
-                        <td>impuesto</td>
                         <td class=""></td>
                     </tr>
                             @(index++);

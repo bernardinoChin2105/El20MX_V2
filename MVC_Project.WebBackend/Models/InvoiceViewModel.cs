@@ -97,7 +97,7 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "E-mail")]
         public string CustomerEmail { get; set; }
         public Int64 CustomerEmailId { get; set; }
-        public List<SelectListItem> ListCustomerEmail { get; set; }
+        public List<string> ListCustomerEmail { get; set; }
         #endregion
 
         #region Datos Fiscales para Facturar
@@ -223,7 +223,7 @@ namespace MVC_Project.WebBackend.Models
             ListColony = new List<SelectListItem>();
             ListMunicipality = new List<SelectListItem>();
             ListState = new List<SelectListItem>();
-            ListCustomerEmail = new List<SelectListItem>();
+            //ListCustomerEmail = new List<SelectListItem>();
             ProductServices = new List<ProductServiceDescriptionView>();
 
 
@@ -268,15 +268,11 @@ namespace MVC_Project.WebBackend.Models
     }
 
     public class TaxesAll
-    {
-        [Display(Name = "Tipo Impuesto")]
-        public string Tipo { get; set; }
-
-        [Display(Name = "Impuesto")]
-        public string TaxesGeneral { get; set; }
-
-        [Display(Name = "Descuento")]
-        public decimal Discount { get; set; }
+    {        
+        public string Tipo { get; set; }        
+        public string Impuesto { get; set; }        
+        public decimal Porcentaje { get; set; }        
+        public int index { get; set; }
     }
 
     public class InvoiceViewModelJson //Objeto json para guardar en formato 

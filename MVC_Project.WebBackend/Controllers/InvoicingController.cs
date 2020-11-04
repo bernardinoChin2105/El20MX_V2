@@ -16,6 +16,7 @@ using System.Configuration;
 using System.IO;
 using MVC_Project.Integrations.Storage;
 using System.Xml;
+using Microsoft.Ajax.Utilities;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -43,6 +44,7 @@ namespace MVC_Project.WebBackend.Controllers
         private IStateService _stateService;
         private IDriveKeyService _driveKeyService;
         private IRateFeeService _rateFeeService;
+        private ITaxService _taxService;
 
         public InvoicingController(IAccountService accountService, ICustomsService customsService, ICustomsPatentService customsPatentService,
             ICustomsRequestNumberService customsRequestNumberService, ITypeInvoiceService typeInvoiceService, IUseCFDIService useCFDIService,
@@ -50,7 +52,8 @@ namespace MVC_Project.WebBackend.Controllers
             IPaymentFormService paymentFormService, IPaymentMethodService paymentMethodService, ICustomerService customerService,
             IProviderService providerService, IBranchOfficeService branchOfficeService, ITaxRegimeService taxRegimeService,
             IInvoiceIssuedService invoiceIssuedService, IInvoiceReceivedService invoiceReceivedService, IDriveKeyService driveKeyService,
-            IProductServiceKeyService productServiceKeyService, ICountryService countryService, IStateService stateService, IRateFeeService rateFeeService)
+            IProductServiceKeyService productServiceKeyService, ICountryService countryService, IStateService stateService, IRateFeeService rateFeeService,
+            ITaxService taxService)
 
         {
             _accountService = accountService;
@@ -75,6 +78,7 @@ namespace MVC_Project.WebBackend.Controllers
             _stateService = stateService;
             _driveKeyService = driveKeyService;
             _rateFeeService = rateFeeService;
+            _taxService = taxService;
         }
 
         // GET: Invoicing
@@ -119,7 +123,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 //Validar que se exista el receptor
                 Customer customer = GetObjetCustomer(model);
-              
+
                 InvoiceIssued invoice = new InvoiceIssued()
                 {
                     uuid = Guid.NewGuid(),
@@ -141,8 +145,8 @@ namespace MVC_Project.WebBackend.Controllers
                 //validar que exista la el iva para guardar
                 //iva = model.TaxWithheldIVA,
                 var office = _branchOfficeService.FirstOrDefault(x => x.id.ToString() == model.BranchOffice);
-                office.folio++;                
-                
+                office.folio++;
+
                 var saved = _invoiceIssuedService.SaveInvoice(invoice, customer, office);
 
                 MensajeFlashHandler.RegistrarMensaje("Factura Guardada", TiposMensaje.Success);
@@ -188,6 +192,27 @@ namespace MVC_Project.WebBackend.Controllers
                     customer.state = model.State.Value;
                 if (model.Country.Value > 0)
                     customer.country = model.Country.Value;
+
+                if (model.ListCustomerEmail.Count() > 0)
+                {
+                    for (int i = 0; i < model.ListCustomerEmail.Count(); i++)
+                    {
+                        if (model.ListCustomerEmail[i] != null && model.ListCustomerEmail[i].Trim() != "")
+                        {
+                            CustomerContact email = new CustomerContact()
+                            {
+                                emailOrPhone = model.ListCustomerEmail[i],
+                                typeContact = TypeContact.EMAIL.ToString(),
+                                customer = customer,
+                                createdAt = todayDate,
+                                modifiedAt = todayDate,
+                                status = SystemStatus.ACTIVE.ToString()
+                            };
+
+                            customer.customerContacts.Add(email);
+                        }
+                    }
+                }
             }
             else
                 customer = new Customer() { id = model.CustomerId };
@@ -223,6 +248,8 @@ namespace MVC_Project.WebBackend.Controllers
                     UsoCFDI = model.UseCFDI
                 };
 
+                var taxes = _taxService.GetAll().ToList();
+
                 var conceptos = new List<ConceptsData>();
                 foreach (var item in model.ProductServices)
                 {
@@ -238,8 +265,7 @@ namespace MVC_Project.WebBackend.Controllers
                         Descuento = item.DiscountRateProServ,
                         Importe = item.Subtotal,
                         //dudas por el llenado de datos
-                        //public List<Traslados> Traslados { get; set; }
-                        //public List<Retenciones> Retenciones { get; set; }                        
+
                         //public List<Parte> Parte { get; set; }
                     };
 
@@ -252,6 +278,53 @@ namespace MVC_Project.WebBackend.Controllers
 
                         conceptsData.InformacionAduanera.Add(infoAduanera);
                     }
+
+                    if (item.TaxesGeneral != null)
+                    {
+                        var taxesG = item.TaxesGeneral.Replace("},{", "};{");
+                        taxesG = item.TaxesGeneral.Replace("'", "\"");
+                        string[] taxArray = taxesG.Split(';');
+
+                        if (taxArray.Count() > 0)
+                        {
+                            List<Integrations.SAT.Traslados> Traslados = new List<Integrations.SAT.Traslados>();
+                            List<Integrations.SAT.Retenciones> Retenciones = new List<Integrations.SAT.Retenciones>();
+                            foreach (var itemTax in taxArray)
+                            {
+                                TaxesAll imp = JsonConvert.DeserializeObject<TaxesAll>(itemTax.ToString());
+                                if (imp.Tipo == "Retención")
+                                {
+                                    Integrations.SAT.Retenciones ret = new Integrations.SAT.Retenciones()
+                                    {
+                                        Base = conceptsData.ValorUnitario.ToString(),
+                                        Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
+                                        TipoFactor = "Tasa",
+                                        TasaOCuota = (imp.Porcentaje / 100).ToString(),
+                                        Importe = ((imp.Porcentaje * conceptsData.ValorUnitario) / 100).ToString()
+                                    };
+                                    Retenciones.Add(ret);
+                                }
+                                else
+                                {
+                                    Integrations.SAT.Traslados tras = new Integrations.SAT.Traslados()
+                                    {
+                                        Base = conceptsData.ValorUnitario.ToString(),
+                                        Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
+                                        TipoFactor = "Tasa",
+                                        TasaOCuota = (imp.Porcentaje / 100).ToString(),
+                                        Importe = ((imp.Porcentaje * conceptsData.ValorUnitario) / 100).ToString()
+                                    };
+                                    Traslados.Add(tras);
+                                }
+                            }
+                            if (Traslados.Count() > 0)
+                                conceptsData.Traslados = Traslados;
+
+                            if (Retenciones.Count() > 0)
+                                conceptsData.Retenciones = Retenciones;
+                        }
+                    }
+
 
                     if (!string.IsNullOrEmpty(model.PropertyAccountNumber))
                         conceptsData.CuentaPredial = new CuentaPredial { Numero = model.PropertyAccountNumber };
@@ -407,7 +480,8 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                return RedirectToAction("Invoice", model);
+                SetCombos(model.ZipCode, ref model);
+                return View("Invoice", model);
                 //return RedirectToAction("Invoice");
             }
         }
@@ -813,9 +887,9 @@ namespace MVC_Project.WebBackend.Controllers
             List<RateFee> rate = new List<RateFee>();
 
             try
-            {              
+            {
                 rate = _rateFeeService.FindBy(x => x.taxes == value)
-                    .Select(c => { c.maximumValue = (c.maximumValue*100); return c; }).OrderBy(x => x.maximumValue).ToList();
+                    .Select(c => { c.maximumValue = (c.maximumValue * 100); return c; }).OrderBy(x => x.maximumValue).ToList();
                 if (typeTaxes == "Retención")
                 {
                     rate = rate.Where(x => x.retention == true).ToList();
