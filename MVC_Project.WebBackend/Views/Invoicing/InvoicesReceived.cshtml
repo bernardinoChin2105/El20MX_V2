@@ -114,12 +114,12 @@
     @Scripts.Render("~/plugins/dataTables")
     @Scripts.Render("~/plugins/daterangepicker")
     @Scripts.Render("~/plugins/typehead")
-
+    
     <script>
         window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
         $(function () {
             var invoices = new ProviderInvoicesControlador('table',
-                '@Url.Action("GetInvoices")',
+                '@Url.Action("GetInvoicesProvider")',
                 '@Url.Action("GetDownloadPDF")',
                 '@Url.Action("GetDownloadXML")',
                 '@Url.Action("GetAutoComplite")',
@@ -128,7 +128,6 @@
             invoices.init();
         });
     </script>
-    <script src="~/Scripts/views/Invoicing/ProviderInvoices.js"></script>
-    
+    @Scripts.Render("~/views/providerInvoices")
 
 }

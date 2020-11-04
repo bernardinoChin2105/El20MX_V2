@@ -97,7 +97,7 @@
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Customer", cssClass: "in")">
                             <li class="@Html.IsSelected(controller: "Customer", action: "Index")"><a href="@Url.Action("Index", "Customer")">Clientes</a></li>
-                            <li class="@Html.IsSelected(controller: "Customer", action: "InvoicesIssued")"><a href="@Url.Action("InvoicesIssued", "Customer")">Facturas Emitidas</a></li>
+                            @*<li class="@Html.IsSelected(controller: "Customer", action: "InvoicesIssued")"><a href="@Url.Action("InvoicesIssued", "Customer")">Facturas Emitidas</a></li>*@
                         </ul>
                     }
                 </li>
@@ -106,12 +106,12 @@
             @if (user.HasAccessToModule(SystemModules.PROVIDERS.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.PROVIDERS.ToString())">
-                    <a href="#"><i class="fa fa-user"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_PROVIDERS</span> <span class="fain arrow"></span></a>
+                    <a href="#"><i class="fa fa-truck"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_PROVIDERS</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("Provider"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Provider", cssClass: "in")">
                             <li class="@Html.IsSelected(controller: "Provider", action: "Index")"><a href="@Url.Action("Index", "Provider")">Proveedores</a></li>
-                            <li class="@Html.IsSelected(controller: "Provider", action: "InvoicesReceived")"><a href="@Url.Action("InvoicesReceived", "Provider")">Facturas Recibidas</a></li>
+                            @*<li class="@Html.IsSelected(controller: "Provider", action: "InvoicesReceived")"><a href="@Url.Action("InvoicesReceived", "Provider")">Facturas Recibidas</a></li>*@
                         </ul>
                     }
                 </li>
@@ -139,7 +139,12 @@
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Alliance", cssClass: "in")">
                             <li class="@Html.IsSelected(controller: "Alliance", action: "AllyIndex")"><a href="@Url.Action("AllyIndex", "Alliance")">Aliados</a></li>
-                            <li class="@Html.IsSelected(controller: "Alliance", action: "Index")"><a href="@Url.Action("Index", "Alliance")">Alianzas</a></li>
+                            <li class="@Html.IsSelected(controller: "Alliance", action: "Index")"><a href="@Url.Action("Index", "Alliance")">Alianzas</a></li>                           
+                        </ul>
+                    }
+                    @if (user.HasAccessController("Promotion"))
+                    {
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Alliance", cssClass: "in")">                           
                             <li class="@Html.IsSelected(controller: "Promotion", action: "Index")"><a href="@Url.Action("Index", "Promotion")">Promociones</a></li>
                         </ul>
                     }
@@ -164,10 +169,12 @@
                     <a href="#"><i class="fas fa-balance-scale"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_INVOICING</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("Invoicing"))
                     {
-                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Invoicing", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "Invoicing", action: "Invoice")"><a href="@Url.Action("Invoice", "Invoicing")">Generar Factura</a></li>
-                            <li class="@Html.IsSelected(controller: "Invoicing", action: "InvoicesSaved")"><a href="@Url.Action("InvoicesSaved", "Invoicing")">Facturas guardadas</a></li>
-                        </ul>
+                    <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Invoicing", cssClass: "in")">
+                        <li class="@Html.IsSelected(controller: "Invoicing", action: "Invoice")"><a href="@Url.Action("Invoice", "Invoicing")">Generar Factura</a></li>
+                        @*<li class="@Html.IsSelected(controller: "Invoicing", action: "InvoicesSaved")"><a href="@Url.Action("InvoicesSaved", "Invoicing")">Facturas guardadas</a></li>*@
+                        <li class="@Html.IsSelected(controller: "Invoicing", action: "InvoicesIssued")"><a href="@Url.Action("InvoicesIssued", "Invoicing")">Facturas Emitidas</a></li>
+                        <li class="@Html.IsSelected(controller: "Invoicing", action: "InvoicesReceived")"><a href="@Url.Action("InvoicesReceived", "Invoicing")">Facturas Recibidas</a></li>
+                    </ul>
                     }
                 </li>
             }

@@ -152,8 +152,7 @@ namespace MVC_Project.WebBackend.Controllers
                     authUser.Role = new Role { Id = guestRole.id, Code = guestRole.code, Name = guestRole.name };
                     authUser.Permissions = permissionsGest;
                     Authenticator.StoreAuthenticatedUser(authUser);
-                    MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
-
+                    MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);                    
                     LogUtil.AddEntry( "Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),

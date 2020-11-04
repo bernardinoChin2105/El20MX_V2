@@ -2,7 +2,7 @@
 @using MVC_Project.WebBackend.AuthManagement
 @using MVC_Project.WebBackend.AuthManagement.Models
 @{
-    ViewBag.Title = "Facturas de mis proveedores";
+    ViewBag.Title = "Facturas de mis clientes";
 
     var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
     AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
@@ -23,7 +23,7 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="ibox float-e-margins">
-                @using (Html.BeginForm("GetInvoices", "Provider", FormMethod.Post, new { @id = "SearchForm" }))
+                @using (Html.BeginForm("GetInvoices", "Custumer", FormMethod.Post, new { @id = "SearchForm" }))
                 {
                     <div class="ibox-title">
                         <h5>Búsqueda</h5>
@@ -44,8 +44,8 @@
                             </div>
                             <div class="col-12 col-sm-3">
                                 <div class="form-group">
-                                    @Html.LabelFor(m => m.RFCP, new { @class = "" })
-                                    @Html.TextBoxFor(m => m.RFCP, new { @Class = "form-control form-control-sm txtFiltro typeahead_2", filtro = "true", filtro_order = "1", @maxlength = "13", @autocomplete = "off" })
+                                    @Html.LabelFor(m => m.RFC, new { @class = "" })
+                                    @Html.TextBoxFor(m => m.RFC, new { @Class = "form-control form-control-sm txtFiltro typeahead_2", filtro = "true", filtro_order = "1", @maxlength = "13", @autocomplete = "off" })
                                 </div>
                             </div>
                             <div class="col-12 col-sm-3">
@@ -118,7 +118,7 @@
     <script>
         window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
         $(function () {
-            var invoices = new ProviderInvoicesControlador('table',
+            var invoices = new CustomerInvoicesControlador('table',
                 '@Url.Action("GetInvoices")',
                 '@Url.Action("GetDownloadPDF")',
                 '@Url.Action("GetDownloadXML")',
@@ -128,7 +128,7 @@
             invoices.init();
         });
     </script>
-    <script src="~/Scripts/views/Invoicing/ProviderInvoices.js"></script>
-    
+    @*@Scripts.Render("~/views/customerInvoices")*@
+    <script src="~/Scripts/views/Invoicing/CustomerInvoices.js"></script>
 
 }
