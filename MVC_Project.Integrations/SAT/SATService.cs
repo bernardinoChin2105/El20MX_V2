@@ -9,6 +9,16 @@ namespace MVC_Project.Integrations.SAT
 {
     public class SATService
     {
+        public static string GetCredentialStatusSat(string credentialId, string provider)
+        {
+            var SATResponse = SATwsService.GetCredentialSat(credentialId);
+
+            if (SATResponse.status == "valid")
+                return SystemStatus.ACTIVE.ToString();
+            else
+                return SystemStatus.INACTIVE.ToString();
+        }
+
         public static CredentialsResponse CreateCredential(CredentialRequest request, string provider)
         {
             if (provider == SystemProviders.SATWS.ToString())
@@ -17,6 +27,48 @@ namespace MVC_Project.Integrations.SAT
                 var satModel = SATwsService.CreateCredentialSat(loginSat);
 
                 return new CredentialsResponse { id = satModel.id, status = satModel.status };
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
+        public static CredentialsResponse CreateCredentialEfirma(string cer, string key, string password, string provider)
+        {
+            if (provider == SystemProviders.SATWS.ToString())
+            {
+                var loginSat = new EfirmaModel { certificate = cer, privateKey=key, password = password, type = "efirma" };
+                var satModel = SATwsService.CreateCredentialEfirma(loginSat);
+
+                return new CredentialsResponse { id = satModel.id, status = satModel.status };
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
+        public static CertificateResponse CreateCertificates(string cer, string key, string password, string provider)
+        {
+            if (provider == SystemProviders.SATWS.ToString())
+            {
+                var loginSat = new CertificateModel { certificate = cer, privateKey = key, password = password, type = "csd" };
+                var satModel = SATwsService.CreateCertificates(loginSat);
+
+                return new CertificateResponse { id = satModel.id };
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
+        public static void DeleteCertificates(string id, string provider)
+        {
+            if (provider == SystemProviders.SATWS.ToString())
+            {
+                SATwsService.DeleteCertificates(id);
             }
             else
             {
@@ -65,6 +117,30 @@ namespace MVC_Project.Integrations.SAT
             if (provider == SystemProviders.SATWS.ToString())
             {
                 return SATwsService.GetTaxStatus(rfc);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
+        public static InvoicesInfo PostIssueIncomeInvoices(dynamic invoice,string provider)
+        {
+            if (provider == SystemProviders.SATWS.ToString())
+            {
+                return SATwsService.PostIssueIncomeInvoices(invoice);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
+        public static InvoicesInfo PostIssuePaymentInvoices(InvoiceComplementJson invoice, string provider)
+        {
+            if (provider == SystemProviders.SATWS.ToString())
+            {
+                return SATwsService.PostIssuePaymentInvoices(invoice);
             }
             else
             {

@@ -26,10 +26,11 @@ namespace MVC_Project.WebBackend.Controllers
         private IUserService _userService;
         private IPromotionService _promotionService;
         private IDiscountService _discountService;
+        private ICADAccountService _CADAccountService;
 
         public AccountController(IMembershipService accountUserService, IAccountService accountService,
             ICredentialService credentialService, IRoleService roleService, IUserService userService, IPromotionService promotionService,
-            IDiscountService discountService)
+            IDiscountService discountService, ICADAccountService CADAccountService)
         {
             _membership = accountUserService;
             _accountService = accountService;
@@ -38,6 +39,7 @@ namespace MVC_Project.WebBackend.Controllers
             _userService = userService;
             _promotionService = promotionService;
             _discountService = discountService;
+            _CADAccountService = CADAccountService;
         }
 
         // GET: Account
@@ -60,12 +62,30 @@ namespace MVC_Project.WebBackend.Controllers
             var provider = ConfigurationManager.AppSettings["SATProvider"];
             if (authUser.isBackOffice)
             {
-                var accounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString());
+                var accounts = new List<Account>();
+                if (authUser.Role.Code == SystemRoles.SYSTEM_ADMINISTRATOR.ToString())
+                    accounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString()).Select(x => new Account
+                    {
+                        Id = x.id,
+                        Uuid = x.uuid,
+                        Name = x.name,
+                        RFC = x.rfc
+                    }).ToList();
+                else
+                    accounts = _CADAccountService.FindBy(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString()).Select(x => new Account
+                    {
+                        Id = x.account.id,
+                        Uuid = x.account.uuid,
+                        Name = x.account.name,
+                        RFC = x.account.rfc
+                    }).ToList();
+                
+                
                 var accountViewModel = new AccountSelectViewModel { accountListItems = new List<SelectListItem>() };
                 accountViewModel.accountListItems = accounts.Select(x => new SelectListItem
                 {
-                    Text = x.name + " ( " + x.rfc + " )",
-                    Value = x.uuid.ToString()
+                    Text = x.Name + " ( " + x.RFC+ " )",
+                    Value = x.Uuid.ToString()
                 }).ToList();
                 return PartialView("_SelectAccountBackOfficeModal", accountViewModel);
             }
@@ -107,6 +127,19 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 if (!uuid.HasValue)
                 {
+                    var membership = _membership.FirstOrDefault(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
+
+                    authUser.Permissions = membership.role.rolePermissions
+                    .Where(x => x.permission.status == SystemStatus.ACTIVE.ToString() && x.permission.applyTo != SystemPermissionApply.ONLY_ACCOUNT.ToString())
+                    .Select(p => new Permission
+                    {
+                        Controller = p.permission.controller,
+                        Module = p.permission.module,
+                        Level = p.level,
+                        isCustomizable = p.permission.isCustomizable
+                    }).ToList();
+
+                    authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
                     authUser.Account = null;
                     Authenticator.RefreshAuthenticatedUser(authUser);
                 }
@@ -114,6 +147,21 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
                     authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
+
+                    var membership = _membership.FirstOrDefault(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
+
+                    authUser.Permissions = membership.role.rolePermissions
+                    .Where(x => x.permission.status == SystemStatus.ACTIVE.ToString() && x.permission.applyTo != SystemPermissionApply.ONLY_BACK_OFFICE.ToString())
+                    .Select(p => new Permission
+                    {
+                        Controller = p.permission.controller,
+                        Module = p.permission.module,
+                        Level = p.level,
+                        isCustomizable = p.permission.isCustomizable
+                    }).ToList();
+
+                    authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
+
                     Authenticator.RefreshAuthenticatedUser(authUser);
                 }
                 var inicio = authUser.Permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
@@ -178,6 +226,7 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public ActionResult CreateCredential(LoginSATViewModel model)
         {
             var authUser = Authenticator.AuthenticatedUser;
@@ -222,6 +271,7 @@ namespace MVC_Project.WebBackend.Controllers
                     var credential = new Domain.Entities.Credential()
                     {
                         account = account,
+                        uuid = Guid.NewGuid(),
                         provider = provider,
                         idCredentialProvider = satModel.id,
                         statusProvider = satModel.status,
@@ -255,6 +305,7 @@ namespace MVC_Project.WebBackend.Controllers
                         credential = new Domain.Entities.Credential()
                         {
                             account = account,
+                            uuid=Guid.NewGuid(),
                             provider = provider,
                             idCredentialProvider = satModel.id,
                             statusProvider = satModel.status,

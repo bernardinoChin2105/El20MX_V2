@@ -34,12 +34,12 @@ namespace MVC_Project.Integrations.SAT
                 {
                     if (application == "text/xml")
                         request.AddHeader("Accept", application);
-
                 }
 
                 if (JsonString != null)
                 {
-                    var data = JsonConvert.SerializeObject(JsonString);
+                    var data = JsonConvert.SerializeObject(JsonString);                  
+
                     request.AddParameter("application/json", data, ParameterType.RequestBody);
                 }
 

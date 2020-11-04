@@ -151,7 +151,7 @@
                 return;
             }
 
-            El20Utils.mostrarCargador();
+            El20Utils.mostrarCargadorForzado();
             $.post(form.attr('action'), form.serialize(), function (data) {
                 if (data.success) {
                     $("#uuid").val(data.uuid);

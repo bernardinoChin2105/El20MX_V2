@@ -10,10 +10,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-signin-scope" content="profile email">
-    <!--Local-->
-    <!--<meta name="google-signin-client_id" content="765148629644-ehqbkj60uuotg1tb7ofe66jjf7j8gaut.apps.googleusercontent.com">-->
-    <!--Azure Dev-->
-    <meta name="google-signin-client_id" content="879827116478-m59eg6itdnoepetdg4qls2f8pliqss8h.apps.googleusercontent.com">
+    <meta name="google-signin-client_id" content="@System.Configuration.ConfigurationManager.AppSettings["Google.ClientId"]">
+
+    <link rel="icon" href="~/Images/logos/logo-192x192.png" sizes="192x192" />
 
     <title> @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"] | @ViewLabels.AUTH_LOGIN_TITLE </title>
 
@@ -121,6 +120,9 @@
     <script src="~/Scripts/plugins/validate/jquery.validate.min.js"></script>
     @Scripts.Render("~/plugins/toastr")
     <!--Configuración de facebook-->
+    <script>
+        var facebookId = '@System.Configuration.ConfigurationManager.AppSettings["Facebook.ClientId"]';
+    </script>
     <script src="~/Scripts/Facebook.js"></script>
     <!--Configuración de facebook-->
     <!--Configuración de Google-->
@@ -138,7 +140,25 @@
     {
         var mensaje = @Html.ObtenerMensaje();
         <script type="text/javascript">
-                toastr['@mensaje.Tipo']('@mensaje.Mensaje');
+          
+            toastr['@mensaje.Tipo']('@mensaje.Mensaje',null,{ 'positionClass': '@mensaje.Posicion'});
+            //toastr.options = {
+            //    "closeButton": false,
+            //    "debug": false,
+            //    "newestOnTop": false,
+            //    "progressBar": false,
+            //    "positionClass": "toast-top-center",
+            //    "preventDuplicates": false,
+            //    "onclick": null,
+            //    "showDuration": "300",
+            //    "hideDuration": "1000",
+            //    "timeOut": "5000",
+            //    "extendedTimeOut": "1000",
+            //    "showEasing": "swing",
+            //    "hideEasing": "linear",
+            //    "showMethod": "fadeIn",
+            //    "hideMethod": "fadeOut"
+            //}
         </script>
     }
     <script>

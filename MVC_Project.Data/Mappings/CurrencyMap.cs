@@ -15,7 +15,8 @@ namespace MVC_Project.Data.Mappings
             Table("currencies");
             Id(x => x.id).GeneratedBy.Identity().Column("id");
             Map(x => x.code).Column("code").Not.Nullable();
-            Map(x => x.Description).Column("Description").Not.Nullable();            
+            Map(x => x.description).Column("Description").Not.Nullable();
+            Map(x => x.decimals).Column("decimals").Not.Nullable();
         }
     }
 }

@@ -10,6 +10,7 @@ namespace MVC_Project.Domain.Entities
     {
         public virtual Int64 id { get; set; }
         public virtual string code { get; set; }
-        public virtual string Description { get; set; }
+        public virtual string description { get; set; }
+        public virtual int decimals { get; set; }
     }
 }

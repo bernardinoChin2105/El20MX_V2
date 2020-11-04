@@ -3398,6 +3398,7 @@ label.error {
 }
 /* Toastr custom style */
 #toast-container > div {
+    position:center !important;
   -moz-box-shadow: 0 0 3px #999;
   -webkit-box-shadow: 0 0 3px #999;
   box-shadow: 0 0 3px #999;

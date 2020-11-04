@@ -15,7 +15,8 @@ namespace MVC_Project.Data.Mappings
             Table("paymentForms");
             Id(x => x.id).GeneratedBy.Identity().Column("id");
             Map(x => x.code).Column("code").Not.Nullable();
-            Map(x => x.Description).Column("Description").Not.Nullable();            
+            Map(x => x.Description).Column("Description").Not.Nullable();
+            Map(x => x.banked).Column("banked").Not.Nullable();
         }
     }
 }

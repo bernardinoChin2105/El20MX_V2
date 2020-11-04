@@ -48,7 +48,7 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "Tipo Régimen Fiscal")]
         public string taxRegime { get; set; }
-        public SelectList ListRegimen { get; set; }
+        public List<SelectListItem> ListRegimen { get; set; }
 
         [Display(Name = "Calle y Cruzamientos")]
         public string Street { get; set; }
@@ -61,7 +61,7 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "Colonia")]
         public Int64? Colony { get; set; }
-        public SelectList ListColony { get; set; }
+        public List<SelectListItem> ListColony { get; set; }
 
         [Required]
         [Display(Name = "C.P.")]
@@ -69,15 +69,15 @@ namespace MVC_Project.WebBackend.Models
 
         [Display(Name = "Alcaldía/Municipio")]
         public Int64? Municipality { get; set; }
-        public SelectList ListMunicipality { get; set; }
+        public List<SelectListItem> ListMunicipality { get; set; }
 
         [Display(Name = "Estado")]
         public Int64? State { get; set; }
-        public SelectList ListState { get; set; }
+        public List<SelectListItem> ListState { get; set; }
 
         [Display(Name = "País")]
         public Int64? Country { get; set; }
-        public SelectList ListCountry { get; set; }
+        public List<SelectListItem> ListCountry { get; set; }
 
         //[Display(Name = "Nombre/Razón Social")]
         public bool DeliveryAddress { get; set; }
@@ -93,10 +93,11 @@ namespace MVC_Project.WebBackend.Models
             var list = new List<SelectListItem>();
             list.Add(new SelectListItem() { Text = "Seleccione...", Value = "-1" });
 
-            ListColony = new SelectList(list);
-            ListState = new SelectList(list);
-            ListCountry = new SelectList(list);
-            ListMunicipality = new SelectList(list);
+            ListColony = new List<SelectListItem>();
+            ListState = new List<SelectListItem>();
+            ListCountry = new List<SelectListItem>();
+            ListMunicipality = new List<SelectListItem>();
+            ListRegimen = new List<SelectListItem>();
             Emails = new List<CustomerContactsViewModel>();
             Phones = new List<CustomerContactsViewModel>();
         }

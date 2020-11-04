@@ -29,13 +29,12 @@ namespace MVC_Project.Domain.Entities
         public virtual string serie { get; set; }
         public virtual Int64 folio { get; set; }
 
-        public virtual string ciec { get; set; }
-        public virtual string ciecStatus { get; set; }
+        public virtual string logo { get; set; }
 
         public virtual string cer { get; set; }
         public virtual string key { get; set; }
-        public virtual string eFirma { get; set; }
-        public virtual string eFirmaStatus { get; set; }
+        public virtual string password { get; set; }
+        public virtual string certificateId { get; set; }
 
         public virtual DateTime createdAt { get; set; }
         public virtual DateTime modifiedAt { get; set; }

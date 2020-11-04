@@ -18,7 +18,7 @@ namespace MVC_Project.FlashMessages
             }
             return false;
         }
-        public static void RegistrarMensaje(string mensaje, TiposMensaje? tipo = null)
+        public static void RegistrarMensaje(string mensaje, TiposMensaje? tipo = null, Posicion? posicion = Posicion.Arriba_centrado)
         {
             if (!tipo.HasValue)
             {
@@ -27,7 +27,8 @@ namespace MVC_Project.FlashMessages
             System.Web.HttpContext.Current.Session.Add(Configuracion.MENSAJE_FLASH_SESSION, new MensajeFlash
             {
                 Mensaje = mensaje,
-                Tipo = tipo.Value.ObtenerCodigo()
+                Tipo = tipo.Value.ObtenerCodigo(),
+                Posicion = posicion.Value.ObtenerPosicion()
             });
         }
 

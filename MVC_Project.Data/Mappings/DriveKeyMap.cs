@@ -12,11 +12,12 @@ namespace MVC_Project.Data.Mappings
     {
         public DriveKeyMap()
         {
-            Table("DriveKeys");
+            Table("driveKeys");
             Id(x => x.id).GeneratedBy.Identity().Column("id");
             Map(x => x.code).Column("code").Not.Nullable();
             Map(x => x.name).Column("name").Nullable();
-            Map(x => x.description).Column("description").Nullable();
+            //Map(x => x.description).Column("description").Nullable();
+            Map(x => x.description).Column("description").Nullable().CustomSqlType("nvarchar(max)");
         }
     }
 }

@@ -10,9 +10,9 @@
         <h3>Selecciona la cuenta que quieres usar</h3>
     </div>
     
-    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+    @*<button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
         <span aria-hidden="true">&times;</span>
-    </button>
+    </button>*@
 </div>
 
 <div class="modal-body">
@@ -42,13 +42,13 @@
                     </div>
                     <abbr title="Su rol es">@m.role</abbr>
                     <div class="text-center">
-                        @if (m.credentialStatus == SystemStatus.ACTIVE.ToString())
+                        @if (m.accountStatus == SystemStatus.ACTIVE.ToString())
                         {
-                            <button class="btn btn-primary btn-xs"><i class="fa fa-thumbs-up"></i> SAT</button>
+                            <button class="btn btn-primary btn-xs" title="RFC Validado"><i class="fa fa-thumbs-up"></i></button>
                         }
                         else
                         {
-                            <button class="btn btn-danger btn-xs"><i class="fa fa-thumbs-down"></i> SAT</button>
+                            <button class="btn btn-danger btn-xs" title="RFC No Validado"><i class="fa fa-thumbs-down"></i></button>
                         }
                     </div>
                 </div>

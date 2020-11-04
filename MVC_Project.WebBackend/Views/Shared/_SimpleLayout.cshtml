@@ -48,8 +48,8 @@
     @if (Html.TieneMensaje())
     {
         var mensaje = @Html.ObtenerMensaje();
-        <script type="text/javascript">
-                toastr['@mensaje.Tipo']('@mensaje.Mensaje');
+        <script type="text/javascript">            
+            toastr['@mensaje.Tipo']('@mensaje.Mensaje',null,{ 'positionClass': '@mensaje.Posicion'});
         </script>
     }
 
