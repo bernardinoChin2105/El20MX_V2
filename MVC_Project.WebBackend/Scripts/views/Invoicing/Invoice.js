@@ -842,9 +842,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         $("#ZipCode").blur(function () {
             //console.log("perdio el focus");            
+            ClearCombos();
             var value = $(this).val();
             if (!value) {
-                ClearCombos();
                 return;
             }
             var cmbColony = $("#Colony");

@@ -217,7 +217,7 @@ namespace MVC_Project.WebBackend.Controllers
                 Domain.Entities.Account account = null;
                 if (string.IsNullOrEmpty(model.uuid))
                 {
-                    var accountExist = _accountService.ValidateRFC(model.RFC);
+                    var accountExist = _accountService.FirstOrDefault(x => x.rfc == model.RFC); //.ValidateRFC(model.RFC);
 
                     if (accountExist != null)
                         throw new Exception("Existe una cuenta registrada con este RFC");
