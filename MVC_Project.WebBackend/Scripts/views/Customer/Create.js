@@ -261,11 +261,11 @@ $("#ZipCode").blur(function () {
                     $(".chosen-select").trigger("chosen:updated");
                 } else {
                     ClearCombos();
-                    toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
+                    toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' }); 
                 }
             } else {
                 ClearCombos();
-                toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
+                toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' }); 
             }
 
         },

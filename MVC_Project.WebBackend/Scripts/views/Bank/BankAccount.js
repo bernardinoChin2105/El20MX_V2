@@ -92,7 +92,7 @@ var BankAccountControlador = function (htmlTableId, baseUrl, bankAccountEdit, ha
 
                 $.getJSON(sSource, aoData, function (json) {
                     if (json.success === false) {
-                        toastr['error'](json.Mensaje.message);
+                        toastr['error'](json.Mensaje.message, null, { 'positionClass': 'toast-top-center' }); 
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     } else {
                         fnCallback(json);
@@ -167,9 +167,9 @@ var BankAccountControlador = function (htmlTableId, baseUrl, bankAccountEdit, ha
                 success: function (result) {
                     console.log("result", result);
                     if (!result.success) {
-                        toastr["error"](result.mensaje);
+                        toastr["error"](result.mensaje, null, { 'positionClass': 'toast-top-center' }); 
                     } else {
-                        toastr["success"](result.mensaje);
+                        toastr["success"](result.mensaje, null, { 'positionClass': 'toast-top-center' }); 
                         self.dataTable.draw();
                     }
                     El20Utils.ocultarCargador();

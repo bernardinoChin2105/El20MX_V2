@@ -64,7 +64,7 @@ var PlanIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAcces
                     fnCallback(json);
 
                     if (json.success === false) {
-                        toastr['error'](json.message);
+                        toastr['error'](json.message, null, { 'positionClass': 'toast-top-center' }); 
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     }
                 });

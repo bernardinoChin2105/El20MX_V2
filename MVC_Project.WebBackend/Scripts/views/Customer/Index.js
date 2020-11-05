@@ -94,7 +94,7 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                     primeravez = false;
                     fnCallback(json);
                     if (json.success === false) {
-                        toastr['error'](json.message);
+                        toastr['error'](json.message, null, { 'positionClass': 'toast-top-center' }); 
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     }
                 });
@@ -178,7 +178,7 @@ var loadFile = function (event, imgid, input) {
             }
 
             if (!blnValid) {
-                toastr["error"]('Favor de seleccionar un formato de Excel permitido (".xlsx", ".xls").');
+                toastr["error"]('Favor de seleccionar un formato de Excel permitido (".xlsx", ".xls").', null, { 'positionClass': 'toast-top-center' }); 
 
                 input.value = "";
                 $(".btn-save-import").attr("disabled", true);
@@ -214,9 +214,9 @@ function Guardar(e) {
         success: function (result) {
             console.log("result", result);
             if (!result.Success) {
-                toastr["error"](result.Mensaje);
+                toastr["error"](result.Mensaje, null, { 'positionClass': 'toast-top-center' }); 
             } else {
-                toastr["success"](result.Mensaje);
+                toastr["success"](result.Mensaje, null, { 'positionClass': 'toast-top-center' }); 
                 $("input[name='Excel']").val("");
                 $(".btn-save-import").attr("disabled", true);
             }

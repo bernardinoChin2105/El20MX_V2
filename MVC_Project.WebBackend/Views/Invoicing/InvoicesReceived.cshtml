@@ -1,16 +1,20 @@
 ﻿@model MVC_Project.WebBackend.Models.InvoicesFilter
 @using MVC_Project.WebBackend.AuthManagement
 @using MVC_Project.WebBackend.AuthManagement.Models
+@using MVC_Project.FlashMessages
 @{
     ViewBag.Title = "Facturas de mis proveedores";
 
     var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
     AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
     var hasFullAccessController = user.HasFullAccessController(controllerName);
-}
+    Posicion pos = Posicion.Arriba_centrado;
+    var flashMessage =  new MensajeFlash { Posicion = pos.ObtenerPosicion() };
+    var position = "'" + flashMessage.Posicion + "'";
+    }
 
-@section styles {
-    @Styles.Render("~/plugins/daterangepickerStyles")
+    @section styles {
+        @Styles.Render("~/plugins/daterangepickerStyles")
     <style>
         .hide {
             display: none;
@@ -114,20 +118,21 @@
     @Scripts.Render("~/plugins/dataTables")
     @Scripts.Render("~/plugins/daterangepicker")
     @Scripts.Render("~/plugins/typehead")
-    
+
     <script>
-        window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
+        window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';      
         $(function () {
             var invoices = new ProviderInvoicesControlador('table',
                 '@Url.Action("GetInvoicesProvider")',
                 '@Url.Action("GetDownloadPDF")',
                 '@Url.Action("GetDownloadXML")',
                 '@Url.Action("GetAutoComplite")',
-                '@hasFullAccessController' == 'True'
+                '@hasFullAccessController' == 'True',
+                @Html.Raw(position)
             );
             invoices.init();
         });
-    </script>
-    @Scripts.Render("~/views/providerInvoices")
+    </script>    
+    <script src="~/Scripts/views/Invoicing/ProviderInvoices.js"></script>
 
 }

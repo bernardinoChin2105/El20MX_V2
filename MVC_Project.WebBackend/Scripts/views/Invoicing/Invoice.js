@@ -459,7 +459,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     if (json.success) {
                         var data = json.data;
                         if (data === null) {
-                            toastr['error']("No se encontro la factura con el Folio Fiscal.");
+                            toastr['error']("No se encontro la factura con el Folio Fiscal.", null, { 'positionClass': 'toast-top-center' }); 
                         }
                         //else {
 
@@ -877,11 +877,11 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                         } else {
                             ClearCombos();
-                            toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
+                            toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' }); 
                         }
                     } else {
                         ClearCombos();
-                        toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
+                        toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' }); 
                     }
 
                 },

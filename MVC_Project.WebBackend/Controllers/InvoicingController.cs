@@ -1192,8 +1192,8 @@ namespace MVC_Project.WebBackend.Controllers
         {
             ViewBag.Date = new
             {
-                MinDate = DateTime.Now.AddDays(-10).ToString("dd-MM-yyyy"),
-                MaxDate = DateTime.Now.ToString("dd-MM-yyyy")
+                MinDate = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString(),
+                MaxDate = DateTime.Now.ToString("dd/MM/yyyy")
             };
             try
             {
@@ -1234,11 +1234,17 @@ namespace MVC_Project.WebBackend.Controllers
 
             try
             {
-                if (!first)
-                {
+               
                     NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
                     string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
                     string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
+
+                    if (first)
+                    {
+                        FilterStart = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString();
+                        FilterEnd = DateUtil.GetDateTimeNow().ToShortDateString();
+                    }
+
                     string Folio = filtersValues.Get("Folio").Trim();
                     string rfc = filtersValues.Get("RFC").Trim();
                     string PaymentMethod = filtersValues.Get("PaymentMethod").Trim();
@@ -1289,7 +1295,7 @@ namespace MVC_Project.WebBackend.Controllers
                         totalDisplay = listResponse[0].Total;
                         total = listResponse.Count();
                     }
-                }
+                
 
             }
             catch (Exception ex)
@@ -1319,8 +1325,8 @@ namespace MVC_Project.WebBackend.Controllers
         {
             ViewBag.Date = new
             {
-                MinDate = DateTime.Now.AddDays(-10).ToString("dd-MM-yyyy"),
-                MaxDate = DateTime.Now.ToString("dd-MM-yyyy")
+                MinDate = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString(), //DateTime.Now.AddDays(-10).ToString("dd/MM/yyyy"),
+                MaxDate = DateTime.Now.ToString("dd/MM/yyyy")
             };
             try
             {
@@ -1361,63 +1367,69 @@ namespace MVC_Project.WebBackend.Controllers
 
             try
             {
-                if (!first)
+
+                NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
+                string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
+                string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
+
+                if (first)
                 {
-                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
-                    string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
-                    string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
-                    string Folio = filtersValues.Get("Folio").Trim();
-                    string rfc = filtersValues.Get("RFCP").Trim();
-                    string PaymentMethod = filtersValues.Get("PaymentMethod").Trim();
-                    string PaymentForm = filtersValues.Get("PaymentForm").Trim();
-                    string Currency = filtersValues.Get("Currency").Trim();
-
-                    string serie = filtersValues.Get("Serie").Trim();
-                    string nombreRazonSocial = filtersValues.Get("NombreRazonSocial").Trim();
-
-                    var pagination = new BasePagination();
-                    var filters = new CustomerCFDIFilter() { accountId = userAuth.Account.Id };
-                    pagination.PageSize = param.iDisplayLength;
-                    pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
-                    if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
-                    if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
-                    if (Folio != "") filters.folio = Folio;
-                    if (rfc != "") filters.rfc = rfc;
-                    if (PaymentForm != "-1") filters.paymentForm = PaymentForm;
-                    if (PaymentMethod != "-1") filters.paymentMethod = PaymentMethod;
-                    if (Currency != "-1") filters.currency = Currency;
-                    if (!string.IsNullOrEmpty(serie)) filters.serie = serie;
-                    if (!string.IsNullOrEmpty(nombreRazonSocial)) filters.nombreRazonSocial = nombreRazonSocial;
-
-                    listResponse = _providerService.ProviderCDFIList(pagination, filters);
-
-                    list = listResponse.Select(x => new InvoicesReceivedListVM
-                    {
-                        id = x.id,
-                        folio = x.folio,
-                        serie = x.serie,
-                        paymentMethod = x.paymentMethod,
-                        paymentForm = x.paymentForm,
-                        currency = x.currency,
-                        amount = x.subtotal.ToString("C2"),
-                        iva = x.iva.ToString("C2"),
-                        totalAmount = x.total.ToString("C2"),
-                        invoicedAt = x.invoicedAt.ToShortDateString(),
-                        rfc = x.rfc,
-                        businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
-                        //first_name = x.first_name,
-                        //last_name = x.last_name,
-                        paymentFormDescription = x.paymentFormDescription
-                    }).ToList();
-
-                    //Corroborar los campos iTotalRecords y iTotalDisplayRecords
-
-                    if (listResponse.Count() > 0)
-                    {
-                        totalDisplay = listResponse[0].Total;
-                        total = listResponse.Count();
-                    }
+                    FilterStart = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString();
+                    FilterEnd = DateUtil.GetDateTimeNow().ToShortDateString();
                 }
+
+                string Folio = filtersValues.Get("Folio").Trim();
+                string rfc = filtersValues.Get("RFCP").Trim();
+                string PaymentMethod = filtersValues.Get("PaymentMethod").Trim();
+                string PaymentForm = filtersValues.Get("PaymentForm").Trim();
+                string Currency = filtersValues.Get("Currency").Trim();
+
+                string serie = filtersValues.Get("Serie").Trim();
+                string nombreRazonSocial = filtersValues.Get("NombreRazonSocial").Trim();
+
+                var pagination = new BasePagination();
+                var filters = new CustomerCFDIFilter() { accountId = userAuth.Account.Id };
+                pagination.PageSize = param.iDisplayLength;
+                pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
+                if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
+                if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
+                if (Folio != "") filters.folio = Folio;
+                if (rfc != "") filters.rfc = rfc;
+                if (PaymentForm != "-1") filters.paymentForm = PaymentForm;
+                if (PaymentMethod != "-1") filters.paymentMethod = PaymentMethod;
+                if (Currency != "-1") filters.currency = Currency;
+                if (!string.IsNullOrEmpty(serie)) filters.serie = serie;
+                if (!string.IsNullOrEmpty(nombreRazonSocial)) filters.nombreRazonSocial = nombreRazonSocial;
+
+                listResponse = _providerService.ProviderCDFIList(pagination, filters);
+
+                list = listResponse.Select(x => new InvoicesReceivedListVM
+                {
+                    id = x.id,
+                    folio = x.folio,
+                    serie = x.serie,
+                    paymentMethod = x.paymentMethod,
+                    paymentForm = x.paymentForm,
+                    currency = x.currency,
+                    amount = x.subtotal.ToString("C2"),
+                    iva = x.iva.ToString("C2"),
+                    totalAmount = x.total.ToString("C2"),
+                    invoicedAt = x.invoicedAt.ToShortDateString(),
+                    rfc = x.rfc,
+                    businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
+                    //first_name = x.first_name,
+                    //last_name = x.last_name,
+                    paymentFormDescription = x.paymentFormDescription
+                }).ToList();
+
+                //Corroborar los campos iTotalRecords y iTotalDisplayRecords
+
+                if (listResponse.Count() > 0)
+                {
+                    totalDisplay = listResponse[0].Total;
+                    total = listResponse.Count();
+                }
+
 
             }
             catch (Exception ex)

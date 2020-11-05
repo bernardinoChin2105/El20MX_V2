@@ -94,7 +94,8 @@ var BankTransactionControlador = function (htmlTableId, baseUrl, GetBankAccountU
                     primeravez = false;
                     fnCallback(json);                    
                     if (json.success === false) {
-                        toastr['error'](json.error);
+                        toastr['error'](json.error, null, { 'positionClass': 'toast-top-center' }); 
+                        
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     }
 
@@ -125,7 +126,7 @@ var BankTransactionControlador = function (htmlTableId, baseUrl, GetBankAccountU
                         console.log("result", result);
 
                         if (!result.success) {
-                            toastr["error"](result.message);
+                            toastr["error"](result.message, null, { 'positionClass': 'toast-top-center' }); 
                         } else {
                             cbmAccount.html("");
                             cbmAccount.append(result.data.map(function (data, index) {

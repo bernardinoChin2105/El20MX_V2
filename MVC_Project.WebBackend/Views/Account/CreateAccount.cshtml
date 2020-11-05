@@ -132,7 +132,8 @@
                     }
                     else {
                         El20Utils.ocultarCargador();
-                        toastr['error'](data.message);
+                        toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
+                        
                     }
                 }
                 else {
@@ -140,7 +141,7 @@
                 }
                 
             }).fail(function () {
-                toastr['error']('No es posible finalizar la creación de la cuenta');
+                toastr['error']('No es posible finalizar la creación de la cuenta', null, { 'positionClass': 'toast-top-center' }); 
                 El20Utils.ocultarCargador();
             });
         }
@@ -158,11 +159,11 @@
                     self.finishValidation(data.uuid)
                 }
                 else {
-                    toastr['error'](data.message);
+                    toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
                     El20Utils.ocultarCargador();
                 }
             }).fail(function () {
-                toastr['error']('No es posible validar el RFC');
+                toastr['error']('No es posible validar el RFC', null, { 'positionClass': 'toast-top-center' }); 
                 El20Utils.ocultarCargador();
             });
 

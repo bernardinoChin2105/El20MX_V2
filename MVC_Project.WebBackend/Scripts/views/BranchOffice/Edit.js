@@ -164,13 +164,13 @@
                         contentType: false,
                         success: function (data) {
                             if (data.success)
-                                toastr['success']('Actualización exitosa');
+                                toastr['success']('Actualización exitosa', null, { 'positionClass': 'toast-top-center' }); 
                             else
-                                toastr['error'](data.message);
+                                toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
                         },
                         error: function () {
                             avatar.attr("src", initialAvatarURL);
-                            toastr['error']('No fue posible realizar la actualización');
+                            toastr['error']('No fue posible realizar la actualización', null, { 'positionClass': 'toast-top-center' }); 
                         },
                         complete: function () {
                             El20Utils.ocultarCargador();
@@ -241,12 +241,12 @@
                         $(".chosen-select").trigger("chosen:updated");
                     } else {
                         ClearCombos();
-                        toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
+                        toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' }); 
                     }
 
                 } else {
                     ClearCombos();
-                    toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
+                    toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' }); 
                 }
 
             },
