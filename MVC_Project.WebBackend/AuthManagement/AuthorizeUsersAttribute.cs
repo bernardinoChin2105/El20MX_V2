@@ -66,9 +66,9 @@ namespace MVC_Project.WebBackend.AuthManagement
             //if (authenticatedUser.Role.Code.Equals(ConfigurationManager.AppSettings.Get("AdminKey")))
             //    return true;
 
-            DateTime todayDate = DateUtil.GetDateTimeNow();
-            if (authenticatedUser.PasswordExpiration.HasValue && authenticatedUser.PasswordExpiration.Value.Date < todayDate.Date)
-                return false;
+            //DateTime todayDate = DateUtil.GetDateTimeNow();
+            //if (authenticatedUser.PasswordExpiration.HasValue && authenticatedUser.PasswordExpiration.Value.Date < todayDate.Date)
+            //    return false;
 
             string controller = httpContext.Request.RequestContext.RouteData.Values["controller"].ToString();
             string action = httpContext.Request.RequestContext.RouteData.Values["action"].ToString();

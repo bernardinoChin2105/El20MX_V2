@@ -9,13 +9,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <meta name="google-signin-scope" content="profile email">
-    <!--Local-->
-    @*<meta name="google-signin-client_id" content="765148629644-ehqbkj60uuotg1tb7ofe66jjf7j8gaut.apps.googleusercontent.com">*@
-    <!--Azure Test-->
-    <meta name="google-signin-client_id" content="879827116478-m59eg6itdnoepetdg4qls2f8pliqss8h.apps.googleusercontent.com">
-    <!--Azure Dev-->
-    @*<meta name="google-signin-client_id" content="408028076296-36hn38iqa7n1rv70e62aqkcbasj8f78u.apps.googleusercontent.com">*@
-
+    
+    <meta name="google-signin-client_id" content="@System.Configuration.ConfigurationManager.AppSettings["Google.ClientId"]">
+    
     <title>@ViewBag.Title | @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</title>
 
 
@@ -109,6 +105,9 @@
     <script src="~/Scripts/plugins/pace/pace.min.js"></script>
     <!-- Script para redes sociales-->
     <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script>
+        var facebookId = '@System.Configuration.ConfigurationManager.AppSettings["Facebook.ClientId"]';
+    </script>
     <script src="~/Scripts/Facebook.js"></script>
     <script src="~/Scripts/Google.js"></script>
     <!-- fin de Script para redes sociales-->
@@ -117,7 +116,8 @@
     @if (Html.TieneMensaje())
     {
         var mensaje = @Html.ObtenerMensaje();
-        <script type="text/javascript">            
+        <script type="text/javascript">
+
             toastr['@mensaje.Tipo']('@mensaje.Mensaje',null,{ 'positionClass': '@mensaje.Posicion'});
             //toastr.options = {
             //    "closeButton": false,
