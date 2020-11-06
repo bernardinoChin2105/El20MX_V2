@@ -137,10 +137,11 @@ namespace MVC_Project.WebBackend.Controllers
                 Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
 
                 var provider = ConfigurationManager.AppSettings["SATProvider"];
-                DateTime dateFrom = DateTime.UtcNow.AddMonths(-4);
+                DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
                 DateTime dateTo = DateTime.UtcNow.AddMonths(-1);
                 dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
                 dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
+                //Se obtiene la extracción de los 3 meses completos. Sin los días del mes actual
                 SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
                 
                 var diagn = new Diagnostic()
