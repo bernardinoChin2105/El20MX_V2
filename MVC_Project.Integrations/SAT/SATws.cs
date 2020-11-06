@@ -51,7 +51,7 @@ namespace MVC_Project.Integrations.SAT
                     return jsonResponse;
                 }
 
-                throw new Exception(response.StatusDescription);
+                throw new Exception(response.StatusDescription + ": " + response.Content.ToString());
             }
             catch (Exception ex)
             {

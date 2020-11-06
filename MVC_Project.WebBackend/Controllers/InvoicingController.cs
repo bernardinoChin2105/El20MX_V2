@@ -419,57 +419,69 @@ namespace MVC_Project.WebBackend.Controllers
                     office.folio++;
                     _branchOfficeService.Update(office);
 
-                    Customer customer = new Customer();
-
-                    //Guardado de cliente
-                    customer = GetObjetCustomer(model);
-
-                    List<string> IdIssued = new List<string>();
-
-                    IdIssued.Add(result.uuid.ToString());
-
-                    /*Obtener los CFDI's*/
-                    var customersCFDI = SATService.GetCFDIs(IdIssued, provider);
-                    var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
-
-                    List<InvoiceIssued> invoiceIssued = new List<InvoiceIssued>();
-                    foreach (var cfdi in customersCFDI)
+                    //hasta aquí ya se realizo el timbrado
+                    try
                     {
-                        byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(cfdi.Xml);
-                        System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
-                        var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesIssued, model.IssuingRFC);
+                        //Se inicializa el objeto del cliente
+                        Customer customer = new Customer();
+                        customer = GetObjetCustomer(model);
+                        List<string> IdIssued = new List<string>();
 
-                        invoiceIssued.Add(new InvoiceIssued
+                        IdIssued.Add(result.uuid.ToString());
+
+                        /*Obtener los CFDI's*/
+                        var customersCFDI = SATService.GetCFDIs(IdIssued, provider);
+                        var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
+
+                        List<InvoiceIssued> invoiceIssued = new List<InvoiceIssued>();
+                        foreach (var cfdi in customersCFDI)
                         {
-                            uuid = Guid.Parse(cfdi.id),
-                            folio = cfdi.Folio,
-                            serie = cfdi.Serie,
-                            paymentMethod = cfdi.MetodoPago,
-                            paymentForm = cfdi.FormaPago,
-                            currency = cfdi.Moneda,
-                            iva = result.tax.Value,
-                            invoicedAt = cfdi.Fecha,
-                            xml = upload.Item1,
-                            createdAt = todayDate,
-                            modifiedAt = todayDate,
-                            status = IssueStatus.STAMPED.ToString(),
-                            account = new Account() { id = authUser.Account.Id },
-                            customer = customer,
-                            invoiceType = cfdi.TipoDeComprobante,
-                            subtotal = cfdi.SubTotal,
-                            total = cfdi.Total,
-                            homemade = true
-                        });
-                    }
+                            byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(cfdi.Xml);
+                            System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
+                            var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesIssued, model.IssuingRFC);
 
-                    var resultSaved = _invoiceIssuedService.SaveInvoice(invoiceIssued[0], customer);
-                    if (resultSaved != null)
+                            invoiceIssued.Add(new InvoiceIssued
+                            {
+                                uuid = Guid.Parse(cfdi.id),
+                                folio = cfdi.Folio,
+                                serie = cfdi.Serie,
+                                paymentMethod = cfdi.MetodoPago,
+                                paymentForm = cfdi.FormaPago,
+                                currency = cfdi.Moneda,
+                                iva = result.tax.Value,
+                                invoicedAt = cfdi.Fecha,
+                                xml = upload.Item1,
+                                createdAt = todayDate,
+                                modifiedAt = todayDate,
+                                status = IssueStatus.STAMPED.ToString(),
+                                account = new Account() { id = authUser.Account.Id },
+                                customer = customer,
+                                invoiceType = cfdi.TipoDeComprobante,
+                                subtotal = cfdi.SubTotal,
+                                total = cfdi.Total,
+                                homemade = true
+                            });
+                        }
+
+                        var resultSaved = _invoiceIssuedService.SaveInvoice(invoiceIssued[0], customer);
+                        if (resultSaved != null)
+                        {
+                            success = true;
+                            if (!string.IsNullOrEmpty(model.ListCustomerEmail[0]))
+                            {
+                                SendInvoice(model.ListCustomerEmail[0], model.RFC, model.CustomerName, model.Comments, "link de xml", "link de pdf");
+                            }
+                        }
+                        else
+                            throw new Exception("Se realizo la factura exitosamente, pero hubo un error al guardar los datos del cliente.");
+
+                    }
+                    catch (Exception ex)
                     {
-
-                        success = true;
-                    }
-                    else
+                        string message = "Se realizo exitosamente la factura, pero hubo un error: " + ex.Message.ToString();
                         throw new Exception("Se realizo la factura exitosamente, pero hubo un error al guardar los datos del cliente.");
+                    }
+
                 }
                 else
                     throw new Exception("Error al crear la factura");
@@ -1185,7 +1197,6 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
-
         #region Facturas Emitidas
         [AllowAnonymous]
         public ActionResult InvoicesIssued()
@@ -1451,8 +1462,6 @@ namespace MVC_Project.WebBackend.Controllers
 
         #endregion
 
-        #region Métodos Genericos para Emitidas y Recibidas
-
         [HttpGet, AllowAnonymous]
         public void GetDownloadXML(Int64 id)
         {
@@ -1501,6 +1510,21 @@ namespace MVC_Project.WebBackend.Controllers
             }, JsonRequestBehavior.AllowGet);
         }
 
+        #region modulo para envio de correo
+        private void SendInvoice(string email, string rfc, string businessName, string comments, string linkXml, string linkPdf)
+        {
+            Dictionary<string, string> customParams = new Dictionary<string, string>();
+            string urlAccion = (string)ConfigurationManager.AppSettings["_UrlServerAccess"];
+            //string link = urlAccion + "Auth/Login";
+            customParams.Add("param_rfc", rfc);
+            customParams.Add("param_razon_social", businessName);
+            customParams.Add("param_comentarios", comments);
+
+            customParams.Add("param_link_xml", linkXml);
+            customParams.Add("param_link_pdf", linkPdf);
+            //customParams.Add("param_asunto", "");
+            NotificationUtil.SendNotification(email, customParams, Constants.NOt_TEMPLATE_INVOICING);
+        }
         #endregion
     }
 }
