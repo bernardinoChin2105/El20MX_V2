@@ -108,7 +108,8 @@ namespace MVC_Project.WebBackend.Controllers
                             imagen = membership.account.avatar,
                             credentialStatus = credential != null ? credential.status : SystemStatus.INACTIVE.ToString(),
                             accountStatus = credential != null ? membership.account.status : SystemStatus.PENDING.ToString(),
-                            credentialId = credential != null ? credential.idCredentialProvider : string.Empty
+                            credentialId = credential != null ? credential.idCredentialProvider : string.Empty,
+                            //ciec=membership.account.ciec
                         });
                     }
                 }
@@ -219,9 +220,19 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult CreateAccount(string uuid, string rfc)
+        public ActionResult CreateAccount(string uuid)
         {
-            LoginSATViewModel model = new LoginSATViewModel { uuid = uuid, RFC = rfc };
+            LoginSATViewModel model = new LoginSATViewModel();
+            if (!string.IsNullOrEmpty(uuid))
+            {
+                var account = _accountService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
+                if (account != null)
+                {
+                    model.uuid = uuid;
+                    model.RFC = account.rfc;
+                    model.CIEC = account.ciec;
+                }
+            }
             return View(model);
         }
 
@@ -243,7 +254,7 @@ namespace MVC_Project.WebBackend.Controllers
                         throw new Exception("Existe una cuenta registrada con este RFC");
 
                     var satModel = SATService.CreateCredential(new CredentialRequest { rfc = model.RFC, ciec = model.CIEC }, provider);
-                    
+
                     account = new Domain.Entities.Account()
                     {
                         uuid = Guid.NewGuid(),
@@ -251,7 +262,7 @@ namespace MVC_Project.WebBackend.Controllers
                         rfc = model.RFC,
                         createdAt = todayDate,
                         modifiedAt = todayDate,
-                        avatar = "/Images/p1.jpg",
+                        avatar = ConfigurationManager.AppSettings["Avatar.Account"],
                         status = SystemStatus.PENDING.ToString(),
                         ciec = model.CIEC
                     };
@@ -366,7 +377,7 @@ namespace MVC_Project.WebBackend.Controllers
                 else if (credential.status == SystemStatus.ACTIVE.ToString())
                     return Json(new { success = true, finish = true }, JsonRequestBehavior.AllowGet);
                 else
-                    return Json(new { success = false, finish = true, message = "No fue posible validar el RFC, credential " + credential.statusProvider }, JsonRequestBehavior.AllowGet);
+                    return Json(new { success = false, finish = true, message = "No fue posible validar el rfc (credential status " + credential.statusProvider + ")" }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -427,9 +438,9 @@ namespace MVC_Project.WebBackend.Controllers
                 authUser.Permissions = permissions;
 
                 Authenticator.RefreshAuthenticatedUser(authUser);
-                MensajeFlashHandler.RegistrarMensaje("RFC " + account.rfc + " registrado correctamente", TiposMensaje.Success);
+                MensajeFlashHandler.RegistrarMensaje("Se registró correctamente el rfc "+ account.rfc, TiposMensaje.Success);
                 LogUtil.AddEntry(
-                   "RFC " + account.rfc + " registrado correctamente",
+                   "Se registró correctamente el rfc " + account.rfc,
                    ENivelLog.Info,
                    authUser.Id,
                    authUser.Email,
@@ -438,9 +449,8 @@ namespace MVC_Project.WebBackend.Controllers
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    JsonConvert.SerializeObject(account)
                 );
-
-                var inicio = authUser.Permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
-                return RedirectToAction("Index", inicio.Controller);
+                
+                return RedirectToAction("Index", "SAT");
             }
             catch (Exception ex)
             {
