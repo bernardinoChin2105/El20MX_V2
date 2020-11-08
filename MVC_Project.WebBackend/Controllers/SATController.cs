@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Web;
 using System.Web.Mvc;
 
@@ -22,6 +23,7 @@ namespace MVC_Project.WebBackend.Controllers
         private IAccountService _accountService;
         private ICredentialService _credentialService;
         private string _provider = ConfigurationManager.AppSettings["SATProvider"];
+        private string _storageEFirma = ConfigurationManager.AppSettings["StorageEFirma"];
         public SATController(IAccountService accountService, ICredentialService credentialService)
         {
             _accountService = accountService;
@@ -72,7 +74,17 @@ namespace MVC_Project.WebBackend.Controllers
                         _credentialService.Update(efirma);
                     }
                 }
+                if(!string.IsNullOrEmpty(account.cer))
+                {
+                    var cerName = Path.GetFileName(account.cer);
+                    MemoryStream stream = AzureBlobService.DownloadFile(_storageEFirma, account.rfc + "/" + cerName);
+                    stream.Position = 0;
+                    byte[] result = stream.ToArray();
+                    X509Certificate2 x509 = new X509Certificate2();
+                    x509.Import(result);
+                    model.cerExpiryDate = x509.NotAfter;
 
+                }
                 return View(model);
             }
             catch (Exception ex)
@@ -99,16 +111,14 @@ namespace MVC_Project.WebBackend.Controllers
 
                 account.ciec = model.ciec;
 
-                var storageEFirma = ConfigurationManager.AppSettings["StorageEFirma"];
-
                 if (model.cer != null)
                 {
-                    var cer = AzureBlobService.UploadPublicFile(model.cer.InputStream, model.cer.FileName, storageEFirma, account.rfc);
+                    var cer = AzureBlobService.UploadPublicFile(model.cer.InputStream, model.cer.FileName, _storageEFirma, account.rfc);
                     account.cer = cer.Item1;
                 }
                 if (model.key != null)
                 {
-                    var key = AzureBlobService.UploadPublicFile(model.key.InputStream, model.key.FileName, storageEFirma, account.rfc);
+                    var key = AzureBlobService.UploadPublicFile(model.key.InputStream, model.key.FileName, _storageEFirma, account.rfc);
                     account.key = key.Item1;
                 }
                 account.eFirma = model.efirma;
@@ -182,9 +192,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var account = _accountService.FirstOrDefault(x => x.rfc == data.rfc);
                 if (account == null)
                     throw new Exception("La cuenta no es válida");
-
-                var storageEFirma = ConfigurationManager.AppSettings["StorageEFirma"];
-
+                
                 if (data.cer == null && string.IsNullOrEmpty(account.cer))
                     throw new Exception("Es necesario proporcionar un archivo .cer");
 
@@ -197,7 +205,7 @@ namespace MVC_Project.WebBackend.Controllers
                     if (Path.GetExtension(data.cer.FileName) != ".cer")
                         throw new Exception("El archivo .cer no tiene el formato correcto");
 
-                    var cer = AzureBlobService.UploadPublicFile(data.cer.InputStream, data.cer.FileName, storageEFirma, account.rfc);
+                    var cer = AzureBlobService.UploadPublicFile(data.cer.InputStream, data.cer.FileName, _storageEFirma, account.rfc);
                     account.cer = cer.Item1;
                     data.cer.InputStream.Position = 0;
                     byte[] result = null;
@@ -211,7 +219,7 @@ namespace MVC_Project.WebBackend.Controllers
                 else
                 {
                     var cerName = Path.GetFileName(account.cer);
-                    MemoryStream stream = AzureBlobService.DownloadFile(storageEFirma, account.rfc + "/" + cerName);
+                    MemoryStream stream = AzureBlobService.DownloadFile(_storageEFirma, account.rfc + "/" + cerName);
                     stream.Position = 0;
                     byte[] result = stream.ToArray();
                     cerStr = Convert.ToBase64String(result);
@@ -223,7 +231,7 @@ namespace MVC_Project.WebBackend.Controllers
                     if (Path.GetExtension(data.key.FileName) != ".key")
                         throw new Exception("El archivo .key no tiene el formato correcto");
 
-                    var key = AzureBlobService.UploadPublicFile(data.key.InputStream, data.key.FileName, storageEFirma, account.rfc);
+                    var key = AzureBlobService.UploadPublicFile(data.key.InputStream, data.key.FileName, _storageEFirma, account.rfc);
                     account.key = key.Item1;
                     data.key.InputStream.Position = 0;
                     byte[] result = null;
@@ -237,7 +245,7 @@ namespace MVC_Project.WebBackend.Controllers
                 else
                 {
                     var keyName = Path.GetFileName(account.key);
-                    MemoryStream stream = AzureBlobService.DownloadFile(storageEFirma, account.rfc + "/" + keyName);
+                    MemoryStream stream = AzureBlobService.DownloadFile(_storageEFirma, account.rfc + "/" + keyName);
                     stream.Position = 0;
                     byte[] result = stream.ToArray();
                     keyStr = Convert.ToBase64String(result);

@@ -2,6 +2,7 @@
 using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
 using MVC_Project.Integrations.Paybook;
+using MVC_Project.Integrations.Pipedrive;
 using MVC_Project.Integrations.SAT;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
@@ -293,6 +294,22 @@ namespace MVC_Project.WebBackend.Controllers
                     };
                     
                     _credentialService.Create(credential, account);
+
+                    // ESTO VA DONDE SE VAYA A INTEGRAR EL CRM
+                    bool IsCRMEnabled = Convert.ToBoolean(ConfigurationManager.AppSettings["Pipedrive.Enabled"]);
+                    if (IsCRMEnabled)
+                    {
+                        PipedriveClient pdClient = new PipedriveClient();
+                        PipedriveResponse response = pdClient.CreatePerson(new PipedrivePerson()
+                        {
+                            Name = authUser.FirstName + " " + authUser.LastName,
+                            FirstName = authUser.FirstName,
+                            LastName = authUser.LastName,
+                            Email = user.name,
+                            RFC = account.rfc,
+                            CIEC = account.ciec
+                        });
+                    }
                 }
                 else
                 {

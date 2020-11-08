@@ -1,6 +1,6 @@
 ﻿var SATController = function () {
     this.init = function () {
-
+        $(".alert").show();
         $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
 
         $(".view-ciec").mouseup(function () {

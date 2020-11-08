@@ -98,7 +98,7 @@ namespace MVC_Project.WebBackend.Controllers
                     string date = DateUtil.GetMonthName(DateTime.Now, "es");
 
                     //Asignar datos de diagnostico
-                    List<InvoicesGroup> invoicePeriod = diagDetails.GroupBy(x => new
+                    List<InvoicesGroup> invoicePeriod = diagDetails.OrderBy(x => x.year).ThenBy(x => x.month).GroupBy(x => new
                     {
                         x.year,
                         x.month,
@@ -106,7 +106,8 @@ namespace MVC_Project.WebBackend.Controllers
                     .Select(b => new InvoicesGroup
                     {
                         year = b.Key.year,
-                        month = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(b.Key.month),
+                        month = DateUtil.GetMonthName(new DateTime(b.Key.year, b.Key.month, 1), "es"),
+                        //month = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(b.Key.month),
                         issuer = new IssuerReceiverGroup()
                         {
                             type = TypeIssuerReceiver.ISSUER.ToString(),
@@ -296,7 +297,7 @@ namespace MVC_Project.WebBackend.Controllers
                     string date = DateUtil.GetMonthName(DateTime.Now, "es");
 
                     //Asignar datos de diagnostico
-                    List<InvoicesGroup> invoicePeriod = diagDetails.GroupBy(x => new
+                    List<InvoicesGroup> invoicePeriod = diagDetails.OrderBy(x => x.year).ThenBy(x => x.month).GroupBy(x => new
                     {
                         x.year,
                         x.month,
@@ -304,7 +305,7 @@ namespace MVC_Project.WebBackend.Controllers
                     .Select(b => new InvoicesGroup
                     {
                         year = b.Key.year,
-                        month = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(b.Key.month),
+                        month = DateUtil.GetMonthName(new DateTime(b.Key.year, b.Key.month, 1), "es"),
                         issuer = new IssuerReceiverGroup()
                         {
                             type = TypeIssuerReceiver.ISSUER.ToString(),

@@ -12,7 +12,7 @@ namespace MVC_Project.Integrations.SAT
 {
     public class SATws
     {
-        public static string CallServiceSATws(string urlService, Object JsonString, string method, string application = null)
+        public static string CallServiceSATws(string urlService, Object JsonString, string method, string application = null, string accept = null)
         {
             string urlapi = ConfigurationManager.AppSettings["SATws.Url"];
             string apiKey = ConfigurationManager.AppSettings["SATws.ApiKey"];
@@ -29,6 +29,9 @@ namespace MVC_Project.Integrations.SAT
                 // This looks correct assuming you are putting your actual x-api-key here
                 request.AddHeader("x-api-key", apiKey);
                 request.AddHeader("Content-Type", application);
+
+                if (!string.IsNullOrEmpty(accept))
+                    request.AddHeader("Accept", accept);
 
                 if (application != null)
                 {

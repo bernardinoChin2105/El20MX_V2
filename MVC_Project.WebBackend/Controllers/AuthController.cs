@@ -15,6 +15,7 @@ using LogHubSDK.Models;
 using static MVC_Project.Utils.Constants;
 using Newtonsoft.Json;
 using MVC_Project.FlashMessages;
+using MVC_Project.Integrations.Pipedrive;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -40,7 +41,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
-        {
+        {           
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
