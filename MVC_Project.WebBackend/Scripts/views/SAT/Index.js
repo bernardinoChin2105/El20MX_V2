@@ -1,6 +1,6 @@
 ﻿var SATController = function () {
     this.init = function () {
-
+        $(".alert").show();
         $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
 
         $(".view-ciec").mouseup(function () {
@@ -137,6 +137,12 @@
         );
         $("#EditForm").validate({
             rules: {
+                ciec: {
+                    Alphanumeric: true,
+                },
+                efirma: {
+                    Alphanumeric: true,
+                },
             }
         });
         
@@ -178,6 +184,7 @@
         }).on('hidden.bs.modal', function () {
             cropper.destroy();
             cropper = null;
+            input.val("");
         });
 
         $("#crop").on("click", function () {
@@ -210,10 +217,13 @@
                                 toastr['success']('Actualización exitosa', null, { 'positionClass': 'toast-top-center' }); 
                             else
                                 toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
+
+                            input.val("");
                         },
                         error: function () {
                             avatar.attr("src", initialAvatarURL);
                             toastr['error']('No fue posible realizar la actualización', null, { 'positionClass': 'toast-top-center' }); 
+                            input.val("");
                         },
                         complete: function () {
                             El20Utils.ocultarCargador();

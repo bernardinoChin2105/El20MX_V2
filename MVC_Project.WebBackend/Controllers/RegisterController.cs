@@ -96,7 +96,7 @@ namespace MVC_Project.WebBackend.Controllers
                         createdAt = todayDate,
                         modifiedAt = todayDate,
                         status = SystemStatus.ACTIVE.ToString(),
-                        avatar = "/Images/default_avatar.jpg"
+                        avatar = ConfigurationManager.AppSettings["Avatar.User"]
                     }
                 };
 

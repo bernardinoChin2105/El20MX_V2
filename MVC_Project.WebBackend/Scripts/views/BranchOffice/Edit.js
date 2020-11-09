@@ -40,22 +40,34 @@
         $.validator.addMethod("Alphanumeric",
             function (value, element) {
                 return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
-            }, "El campo debe ser alfanumérico"
+            }, "El campo debe ser alfanumérico."
         );
 
         $.validator.addMethod("Numeric",
             function (value, element) {
                 return value.match(/^[0-9]+$|^$/);
-            }, "El campo debe ser numérico"
+            }, "El campo debe ser numérico."
         );
 
         $.validator.addMethod("Alphabetic",
             function (value, element) {
                 return value.match(/^[a-zA-ZÀ-ÿ\u00f1\u00d1 ]+$|^$/);
-            }, "El campo debe ser alfabético"
+            }, "El campo debe ser alfabético."
         );
         $("#EditForm").validate({
             rules: {
+                name: {
+                    required: true,
+                    Alphanumeric: true,
+                },
+                folio: {
+                    required: true,
+                    Numeric: true,
+                },
+                serie: {
+                    required: true,
+                    Alphanumeric: true,
+                },
                 zipCode: {
                     required: true,
                     Numeric: true
@@ -155,7 +167,7 @@
                     formData.append('uuid', $('#uuid').val());
                     formData.append('fileName', fileName);
                     formData.append('image', blob);
-                    
+
                     $.ajax({
                         type: 'POST',
                         url: _urlUpdateLogo,
@@ -164,13 +176,13 @@
                         contentType: false,
                         success: function (data) {
                             if (data.success)
-                                toastr['success']('Actualización exitosa', null, { 'positionClass': 'toast-top-center' }); 
+                                toastr['success']('Actualización exitosa', null, { 'positionClass': 'toast-top-center' });
                             else
-                                toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
+                                toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' });
                         },
                         error: function () {
                             avatar.attr("src", initialAvatarURL);
-                            toastr['error']('No fue posible realizar la actualización', null, { 'positionClass': 'toast-top-center' }); 
+                            toastr['error']('No fue posible realizar la actualización', null, { 'positionClass': 'toast-top-center' });
                         },
                         complete: function () {
                             El20Utils.ocultarCargador();
@@ -180,6 +192,14 @@
             }
         });
     }
+
+    $(".view-password").mouseup(function () {
+        $(".view-password-input").attr('type', 'password').data("view", false);
+    }).mousedown(function () {
+        if ($(".view-password-input").val() !== "") {
+            $(".view-password-input").attr('type', 'text').data("view", true);
+        }
+    });
 
     $("#btn-save").on("click", function () {
         if (!$('#EditForm').valid()) {
@@ -241,12 +261,12 @@
                         $(".chosen-select").trigger("chosen:updated");
                     } else {
                         ClearCombos();
-                        toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' }); 
+                        toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' });
                     }
 
                 } else {
                     ClearCombos();
-                    toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' }); 
+                    toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' });
                 }
 
             },

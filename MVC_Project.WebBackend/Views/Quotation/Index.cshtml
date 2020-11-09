@@ -77,6 +77,10 @@
         });
 
         $("#btnClearForm").click(function () {
+            if (!$('#SearchForm').valid()) {                
+                return;
+            }
+
             $("#SearchForm").each(function () {
                 this.reset();
             });
@@ -85,6 +89,20 @@
 
         $(".btn-filter-quotation").click(function () {
             $('#table').DataTable().draw();
+        });
+
+        $.validator.addMethod("Alphanumeric",
+            function (value, element) {
+                return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
+            }, "El campo debe ser alfabético."
+        );
+
+        $("#SearchForm").validate({
+            rules: {
+                account: {
+                    Alphanumeric: true
+                }
+            }
         });
     </script>
 

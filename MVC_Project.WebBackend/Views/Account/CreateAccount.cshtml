@@ -43,7 +43,7 @@
                                                 <i class="fa fa-eye"></i>
                                             </span>
                                         </div>
-                                        @Html.PasswordFor(model => model.CIEC, new { @class = "form-control viewpass-input", @autocomplete = "off", @minlength = "8", @maxlength = "20" })
+                                        @Html.TextBoxFor(model => model.CIEC, new { @class = "form-control viewpass-input", @autocomplete = "off", @minlength = "8", @maxlength = "20", @type="password" })
                                         @Html.ValidationMessageFor(model => model.CIEC)
                                         @*<input id="password" name="password" type="password" class="form-control required viewpass-input" data-view="false" aria-required="true" minlength="8" maxlength="20">*@
                                     </div>
