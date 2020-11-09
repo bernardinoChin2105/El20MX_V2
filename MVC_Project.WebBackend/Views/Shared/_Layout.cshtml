@@ -9,9 +9,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <meta name="google-signin-scope" content="profile email">
-    
+
     <meta name="google-signin-client_id" content="@System.Configuration.ConfigurationManager.AppSettings["Google.ClientId"]">
-    
+
     <title>@ViewBag.Title | @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"]</title>
 
 
@@ -118,7 +118,7 @@
         var mensaje = @Html.ObtenerMensaje();
         <script type="text/javascript">
 
-            toastr['@mensaje.Tipo']('@mensaje.Mensaje',null,{ 'positionClass': '@mensaje.Posicion'});
+            toastr['@mensaje.Tipo']('@mensaje.Mensaje', null, { 'positionClass': '@mensaje.Posicion', 'preventDuplicates': false, 'newestOnTop': true, 'showDuration': '5000'});
             //toastr.options = {
             //    "closeButton": false,
             //    "debug": false,
@@ -138,6 +138,8 @@
             //};
         </script>
     }
+
+
 
     <!-- iCheck -->
     <script src="~/Scripts/plugins/iCheck/icheck.min.js"></script>
@@ -185,6 +187,8 @@
                 checkboxClass: 'icheckbox_square-blue',
                 radioClass: 'iradio_square-blue',
             });
+
+
         });
         jQuery.extend(jQuery.validator.messages, {
             required: "Campo requerido.",
@@ -221,6 +225,35 @@
                 else error.insertAfter(element);
             },
             ignore: ":hidden:not(select)"
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            finishExtraction = function (uuid) {
+                $.get("Account/FinishExtraction", { uuid: uuid }, function (data) {
+                    if (data.status) {
+                        if (data.finish) {
+                            if (data.success) {
+                                El20Utils.ocultarCargador();
+                                toastr['success']('¡El diagnóstico fiscal fue generado!', null, { 'positionClass': 'toast-top-center' });
+                            }
+                            else {
+                                El20Utils.ocultarCargador();
+                                toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' });
+                            }
+                        }
+                        else {
+                            setTimeout(self.finishExtraction(uuid), 2000);
+                        }
+                    }
+                }).fail(function () {
+                    toastr['error']('No es posible finalizar el diagnostico', null, { 'positionClass': 'toast-top-center' });
+                    El20Utils.ocultarCargador();
+                });
+            }
+
+            finishExtraction('');
         });
     </script>
 

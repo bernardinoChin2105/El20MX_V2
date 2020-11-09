@@ -1,4 +1,5 @@
 ﻿using LogHubSDK.Models;
+using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
 using MVC_Project.Integrations.Paybook;
@@ -12,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -27,10 +29,11 @@ namespace MVC_Project.WebBackend.Controllers
         private IPromotionService _promotionService;
         private IDiscountService _discountService;
         private ICADAccountService _CADAccountService;
+        private IDiagnosticService _diagnosticService;
 
         public AccountController(IMembershipService accountUserService, IAccountService accountService,
             ICredentialService credentialService, IRoleService roleService, IUserService userService, IPromotionService promotionService,
-            IDiscountService discountService, ICADAccountService CADAccountService)
+            IDiscountService discountService, ICADAccountService CADAccountService, IDiagnosticService diagnosticService)
         {
             _membership = accountUserService;
             _accountService = accountService;
@@ -40,6 +43,7 @@ namespace MVC_Project.WebBackend.Controllers
             _promotionService = promotionService;
             _discountService = discountService;
             _CADAccountService = CADAccountService;
+            _diagnosticService = diagnosticService;
         }
 
         // GET: Account
@@ -51,7 +55,7 @@ namespace MVC_Project.WebBackend.Controllers
                 ViewBag.Error = "Sesion del usuario inválida";
                 return RedirectToAction("Index", "Auth");
             }
-            
+
             return View();
         }
 
@@ -62,9 +66,9 @@ namespace MVC_Project.WebBackend.Controllers
             var provider = ConfigurationManager.AppSettings["SATProvider"];
             if (authUser.isBackOffice)
             {
-                var accounts = new List<Account>();
+                var accounts = new List<AuthManagement.Models.Account>();
                 if (authUser.Role.Code == SystemRoles.SYSTEM_ADMINISTRATOR.ToString())
-                    accounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString()).Select(x => new Account
+                    accounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString()).Select(x => new AuthManagement.Models.Account
                     {
                         Id = x.id,
                         Uuid = x.uuid,
@@ -72,19 +76,19 @@ namespace MVC_Project.WebBackend.Controllers
                         RFC = x.rfc
                     }).ToList();
                 else
-                    accounts = _CADAccountService.FindBy(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString()).Select(x => new Account
+                    accounts = _CADAccountService.FindBy(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString()).Select(x => new AuthManagement.Models.Account
                     {
                         Id = x.account.id,
                         Uuid = x.account.uuid,
                         Name = x.account.name,
                         RFC = x.account.rfc
                     }).ToList();
-                
-                
+
+
                 var accountViewModel = new AccountSelectViewModel { accountListItems = new List<SelectListItem>() };
                 accountViewModel.accountListItems = accounts.Select(x => new SelectListItem
                 {
-                    Text = x.Name + " ( " + x.RFC+ " )",
+                    Text = x.Name + " ( " + x.RFC + " )",
                     Value = x.Uuid.ToString()
                 }).ToList();
                 return PartialView("_SelectAccountBackOfficeModal", accountViewModel);
@@ -131,7 +135,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                     authUser.Permissions = membership.role.rolePermissions
                     .Where(x => x.permission.status == SystemStatus.ACTIVE.ToString() && x.permission.applyTo != SystemPermissionApply.ONLY_ACCOUNT.ToString())
-                    .Select(p => new Permission
+                    .Select(p => new AuthManagement.Models.Permission
                     {
                         Controller = p.permission.controller,
                         Module = p.permission.module,
@@ -139,20 +143,20 @@ namespace MVC_Project.WebBackend.Controllers
                         isCustomizable = p.permission.isCustomizable
                     }).ToList();
 
-                    authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
+                    authUser.Role = new AuthManagement.Models.Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
                     authUser.Account = null;
                     Authenticator.RefreshAuthenticatedUser(authUser);
                 }
                 else
                 {
                     var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
-                    authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
+                    authUser.Account = new AuthManagement.Models.Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
 
                     var membership = _membership.FirstOrDefault(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
 
                     authUser.Permissions = membership.role.rolePermissions
                     .Where(x => x.permission.status == SystemStatus.ACTIVE.ToString() && x.permission.applyTo != SystemPermissionApply.ONLY_BACK_OFFICE.ToString())
-                    .Select(p => new Permission
+                    .Select(p => new AuthManagement.Models.Permission
                     {
                         Controller = p.permission.controller,
                         Module = p.permission.module,
@@ -160,7 +164,7 @@ namespace MVC_Project.WebBackend.Controllers
                         isCustomizable = p.permission.isCustomizable
                     }).ToList();
 
-                    authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
+                    authUser.Role = new AuthManagement.Models.Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
 
                     Authenticator.RefreshAuthenticatedUser(authUser);
                 }
@@ -177,7 +181,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                     if (membership != null)
                     {
-                        var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
+                        var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new AuthManagement.Models.Permission
                         {
                             Controller = p.permission.controller,
                             Module = p.permission.module,
@@ -185,8 +189,8 @@ namespace MVC_Project.WebBackend.Controllers
                             isCustomizable = p.permission.isCustomizable
                         }).ToList();
 
-                        authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
-                        authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
+                        authUser.Role = new AuthManagement.Models.Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
+                        authUser.Account = new AuthManagement.Models.Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
                         authUser.Permissions = permissions;
 
                         Authenticator.RefreshAuthenticatedUser(authUser);
@@ -237,13 +241,13 @@ namespace MVC_Project.WebBackend.Controllers
                 Domain.Entities.Account account = null;
                 if (string.IsNullOrEmpty(model.uuid))
                 {
-                    var accountExist = _accountService.ValidateRFC(model.RFC);
+                    var accountExist = _accountService.FirstOrDefault(x => x.rfc == model.RFC); ;// _accountService.ValidateRFC(model.RFC);
 
                     if (accountExist != null)
                         throw new Exception("Existe una cuenta registrada con este RFC");
 
                     var satModel = SATService.CreateCredential(new CredentialRequest { rfc = model.RFC, ciec = model.CIEC }, provider);
-                    
+
                     account = new Domain.Entities.Account()
                     {
                         uuid = Guid.NewGuid(),
@@ -280,12 +284,12 @@ namespace MVC_Project.WebBackend.Controllers
                         status = SystemStatus.PROCESSING.ToString(),
                         credentialType = SATCredentialType.CIEC.ToString()
                     };
-                    
+
                     _credentialService.Create(credential, account);
                 }
                 else
                 {
-                    account = _accountService.FirstOrDefault(x=>x.uuid == Guid.Parse(model.uuid));
+                    account = _accountService.FirstOrDefault(x => x.uuid == Guid.Parse(model.uuid));
                     if (account == null)
                         throw new Exception("El id de la cuenta es invalida");
 
@@ -296,7 +300,7 @@ namespace MVC_Project.WebBackend.Controllers
                     account.ciec = model.CIEC;
                     account.modifiedAt = todayDate;
                     _accountService.Update(account);
-                    
+
                     var satModel = SATService.CreateCredential(new CredentialRequest { rfc = model.RFC, ciec = model.CIEC }, provider);
 
                     var credential = _credentialService.FirstOrDefault(x => x.account.id == account.id && x.provider == provider && x.credentialType == SATCredentialType.CIEC.ToString());
@@ -305,7 +309,7 @@ namespace MVC_Project.WebBackend.Controllers
                         credential = new Domain.Entities.Credential()
                         {
                             account = account,
-                            uuid=Guid.NewGuid(),
+                            uuid = Guid.NewGuid(),
                             provider = provider,
                             idCredentialProvider = satModel.id,
                             statusProvider = satModel.status,
@@ -326,7 +330,7 @@ namespace MVC_Project.WebBackend.Controllers
                         _credentialService.Update(credential);
                     }
                 }
-                
+
                 LogUtil.AddEntry(
                    "RFC " + account.rfc + " por validar", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
@@ -381,14 +385,14 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 DateTime todayDate = DateUtil.GetDateTimeNow();
-                
+
                 var account = _accountService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
                 if (account == null)
                     throw new Exception("No fue posible obtener la cuenta");
 
                 account.status = SystemStatus.ACTIVE.ToString();
                 _accountService.Update(account);
-                
+
                 var promotion = _promotionService.GetValidityPromotion(TypePromotions.INITIAL_DISCOUNT.ToString());
 
                 if (promotion != null)
@@ -414,7 +418,7 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 var membership = _membership.FirstOrDefault(x => x.account.id == account.id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString());
-                var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
+                var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new AuthManagement.Models.Permission
                 {
                     Controller = p.permission.controller,
                     Module = p.permission.module,
@@ -422,12 +426,12 @@ namespace MVC_Project.WebBackend.Controllers
                     isCustomizable = p.permission.isCustomizable
                 }).ToList();
 
-                authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
-                authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
+                authUser.Role = new AuthManagement.Models.Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
+                authUser.Account = new AuthManagement.Models.Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
                 authUser.Permissions = permissions;
 
                 Authenticator.RefreshAuthenticatedUser(authUser);
-                MensajeFlashHandler.RegistrarMensaje("RFC " + account.rfc + " registrado correctamente", TiposMensaje.Success);
+                MensajeFlashHandler.RegistrarMensaje("RFC " + account.rfc + " registrado correctamente. Tu diagnóstico fiscal esta siendo procesado.", TiposMensaje.Success);
                 LogUtil.AddEntry(
                    "RFC " + account.rfc + " registrado correctamente",
                    ENivelLog.Info,
@@ -439,6 +443,8 @@ namespace MVC_Project.WebBackend.Controllers
                    JsonConvert.SerializeObject(account)
                 );
 
+                string dianostic = GenerateDx0();
+                ViewBag.InitialDiagnostic = dianostic;
                 var inicio = authUser.Permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
                 return RedirectToAction("Index", inicio.Controller);
             }
@@ -566,8 +572,99 @@ namespace MVC_Project.WebBackend.Controllers
 
                     }
                 }
-                    
-                }
+
+            }
         }
+
+
+        #region DiagnosticoInicial
+
+        [HttpGet]
+        public string GenerateDx0()
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+            try
+            {
+                Domain.Entities.Account account = _accountService.FindBy(z => z.id == authUser.Account.Id).FirstOrDefault();
+
+                var provider = ConfigurationManager.AppSettings["SATProvider"];
+                DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
+                DateTime dateTo = DateTime.UtcNow.AddMonths(-1);
+                dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
+                dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
+                SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
+
+                var diagn = new Diagnostic()
+                {
+                    uuid = Guid.NewGuid(),
+                    account = account,
+                    businessName = account.name,
+                    commercialCAD = "",
+                    plans = "",
+                    createdAt = DateUtil.GetDateTimeNow(),
+                    status = SystemStatus.PENDING.ToString()
+                };
+
+                _diagnosticService.Create(diagn);
+                Session["InitialDiagnostic"] = diagn.uuid;
+                return diagn.uuid.ToString();
+            }
+            catch (Exception ex)
+            {
+                //string error = ex.Message.ToString();
+                //MensajeFlashHandler.RegistrarMensaje("¡Ocurrio un error en al realizar el diagnóstico!", TiposMensaje.Error);
+                //MensajeFlashHandler.RegistrarMensaje(error, TiposMensaje.Error);
+                //return RedirectToAction("Index");
+                return null;
+            }
+        }
+
+        [HttpGet]
+        public ActionResult FinishExtraction(string uuid)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(uuid))
+                {
+                    if (Session["InitialDiagnostic"]!= null)
+                    {
+                        uuid = Session["InitialDiagnostic"].ToString();
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(uuid))
+                {
+                    var diagnostic = _diagnosticService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
+                    if (diagnostic == null)
+                        throw new Exception("No fue posible obtener el diagnostico");
+
+                    if (diagnostic.status == SystemStatus.PENDING.ToString() || diagnostic.status == SystemStatus.PROCESSING.ToString())
+                    {                        
+                        return Json(new { success = true, finish = false, status = true }, JsonRequestBehavior.AllowGet);
+                    }
+                    else if (diagnostic.status == SystemStatus.ACTIVE.ToString())
+                    {                        
+                        Session["InitialDiagnostic"] = null;
+                        return Json(new { success = true, finish = true, status = true }, JsonRequestBehavior.AllowGet);
+                    }
+                    else if (diagnostic.status == SystemStatus.FAILED.ToString())
+                        return Json(new { success = false, finish = true, status = true, message = "Se generó un fallo durante la extracción" }, JsonRequestBehavior.AllowGet);
+                    else
+                        return Json(new { success = false, finish = true, status = true, message = "No fue posible generar el diagnostico, comuniquese al área de soporte" }, JsonRequestBehavior.AllowGet);
+
+                }
+                else
+                {
+                    return Json(new { success = false, finish = false, status=false, message = "Sin diagnostico pendiente" }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { message = ex.Message, success = false, finish = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        #endregion
+
     }
 }

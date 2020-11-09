@@ -116,6 +116,7 @@
             $.get('@Url.Action("AccountValidation")', { uuid: uuid }, function (data) {
                 if (data.finish) {
                     if (data.success) {
+                      
                         El20Utils.ocultarCargador();
                         let form = document.createElement("form");
                         form.setAttribute("method", "POST");
@@ -129,6 +130,7 @@
 
                         document.body.appendChild(form);
                         form.submit();
+                      
                     }
                     else {
                         El20Utils.ocultarCargador();
@@ -145,6 +147,8 @@
                 El20Utils.ocultarCargador();
             });
         }
+
+     
 
         function validarDatos() {
             var form = $('#RegisterRFCForm');
