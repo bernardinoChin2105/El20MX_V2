@@ -474,7 +474,7 @@ namespace MVC_Project.WebBackend.Controllers
                                 System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArrayPdf);
                                 var uploadPDF = AzureBlobService.UploadPublicFile(stream, invoiceIssued[0].id + ".pdf", StorageInvoicesIssued, model.IssuingRFC);
 
-                                SendInvoice(model.ListCustomerEmail[0], model.RFC, model.CustomerName, model.Comments, invoiceIssued[0].xml, uploadPDF);
+                                SendInvoice(model.ListCustomerEmail[0], model.RFC, model.CustomerName, model.Comments, invoiceIssued[0].xml, uploadPDF.Item1);
                             }
                         }
                         else
