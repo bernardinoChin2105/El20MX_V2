@@ -37,7 +37,7 @@ namespace MVC_Project.WebBackend.Models
         public Int64 municipality { get; set; }
         [DisplayName("Estado")]
         public Int64 state { get; set; }
-        [DisplayName("Pais")]
+        [DisplayName("País")]
         public Int64 country { get; set; }
 
         public string password { get; set; }
