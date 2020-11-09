@@ -38,5 +38,6 @@ namespace MVC_Project.WebBackend.Models
 
         [DisplayName("Avatar")]
         public string avatar { get; set; }
+        public DateTime cerExpiryDate { get; set; }
     }
 }

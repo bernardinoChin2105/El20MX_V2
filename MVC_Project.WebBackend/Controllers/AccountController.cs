@@ -2,6 +2,7 @@
 using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
 using MVC_Project.Integrations.Paybook;
+using MVC_Project.Integrations.Pipedrive;
 using MVC_Project.Integrations.SAT;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
@@ -27,10 +28,11 @@ namespace MVC_Project.WebBackend.Controllers
         private IPromotionService _promotionService;
         private IDiscountService _discountService;
         private ICADAccountService _CADAccountService;
+        private IDiagnosticService _diagnosticService;
 
         public AccountController(IMembershipService accountUserService, IAccountService accountService,
             ICredentialService credentialService, IRoleService roleService, IUserService userService, IPromotionService promotionService,
-            IDiscountService discountService, ICADAccountService CADAccountService)
+            IDiscountService discountService, ICADAccountService CADAccountService, IDiagnosticService diagnosticService)
         {
             _membership = accountUserService;
             _accountService = accountService;
@@ -40,6 +42,7 @@ namespace MVC_Project.WebBackend.Controllers
             _promotionService = promotionService;
             _discountService = discountService;
             _CADAccountService = CADAccountService;
+            _diagnosticService = diagnosticService;
         }
 
         // GET: Account
@@ -108,7 +111,8 @@ namespace MVC_Project.WebBackend.Controllers
                             imagen = membership.account.avatar,
                             credentialStatus = credential != null ? credential.status : SystemStatus.INACTIVE.ToString(),
                             accountStatus = credential != null ? membership.account.status : SystemStatus.PENDING.ToString(),
-                            credentialId = credential != null ? credential.idCredentialProvider : string.Empty
+                            credentialId = credential != null ? credential.idCredentialProvider : string.Empty,
+                            //ciec=membership.account.ciec
                         });
                     }
                 }
@@ -219,9 +223,19 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult CreateAccount(string uuid, string rfc)
+        public ActionResult CreateAccount(string uuid)
         {
-            LoginSATViewModel model = new LoginSATViewModel { uuid = uuid, RFC = rfc };
+            LoginSATViewModel model = new LoginSATViewModel();
+            if (!string.IsNullOrEmpty(uuid))
+            {
+                var account = _accountService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
+                if (account != null)
+                {
+                    model.uuid = uuid;
+                    model.RFC = account.rfc;
+                    model.CIEC = account.ciec;
+                }
+            }
             return View(model);
         }
 
@@ -237,13 +251,13 @@ namespace MVC_Project.WebBackend.Controllers
                 Domain.Entities.Account account = null;
                 if (string.IsNullOrEmpty(model.uuid))
                 {
-                    var accountExist = _accountService.ValidateRFC(model.RFC);
+                    var accountExist = _accountService.FirstOrDefault(x => x.rfc == model.RFC); //.ValidateRFC(model.RFC);
 
                     if (accountExist != null)
                         throw new Exception("Existe una cuenta registrada con este RFC");
 
                     var satModel = SATService.CreateCredential(new CredentialRequest { rfc = model.RFC, ciec = model.CIEC }, provider);
-                    
+
                     account = new Domain.Entities.Account()
                     {
                         uuid = Guid.NewGuid(),
@@ -251,7 +265,7 @@ namespace MVC_Project.WebBackend.Controllers
                         rfc = model.RFC,
                         createdAt = todayDate,
                         modifiedAt = todayDate,
-                        avatar = "/Images/p1.jpg",
+                        avatar = ConfigurationManager.AppSettings["Avatar.Account"],
                         status = SystemStatus.PENDING.ToString(),
                         ciec = model.CIEC
                     };
@@ -282,6 +296,22 @@ namespace MVC_Project.WebBackend.Controllers
                     };
                     
                     _credentialService.Create(credential, account);
+
+                    // ESTO VA DONDE SE VAYA A INTEGRAR EL CRM
+                    bool IsCRMEnabled = Convert.ToBoolean(ConfigurationManager.AppSettings["Pipedrive.Enabled"]);
+                    if (IsCRMEnabled)
+                    {
+                        PipedriveClient pdClient = new PipedriveClient();
+                        PipedriveResponse response = pdClient.CreatePerson(new PipedrivePerson()
+                        {
+                            Name = authUser.FirstName + " " + authUser.LastName,
+                            FirstName = authUser.FirstName,
+                            LastName = authUser.LastName,
+                            Email = user.name,
+                            RFC = account.rfc,
+                            CIEC = account.ciec
+                        });
+                    }
                 }
                 else
                 {
@@ -366,7 +396,7 @@ namespace MVC_Project.WebBackend.Controllers
                 else if (credential.status == SystemStatus.ACTIVE.ToString())
                     return Json(new { success = true, finish = true }, JsonRequestBehavior.AllowGet);
                 else
-                    return Json(new { success = false, finish = true, message = "No fue posible validar el RFC, credential " + credential.statusProvider }, JsonRequestBehavior.AllowGet);
+                    return Json(new { success = false, finish = true, message = "No fue posible validar el rfc (credential status " + credential.statusProvider + ")" }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -427,9 +457,9 @@ namespace MVC_Project.WebBackend.Controllers
                 authUser.Permissions = permissions;
 
                 Authenticator.RefreshAuthenticatedUser(authUser);
-                MensajeFlashHandler.RegistrarMensaje("RFC " + account.rfc + " registrado correctamente", TiposMensaje.Success);
+                MensajeFlashHandler.RegistrarMensaje("Se registró correctamente el rfc "+ account.rfc + ". Tu diagnóstico fiscal esta siendo procesado.", TiposMensaje.Success);
                 LogUtil.AddEntry(
-                   "RFC " + account.rfc + " registrado correctamente",
+                   "Se registró correctamente el rfc " + account.rfc,
                    ENivelLog.Info,
                    authUser.Id,
                    authUser.Email,
@@ -439,8 +469,11 @@ namespace MVC_Project.WebBackend.Controllers
                    JsonConvert.SerializeObject(account)
                 );
 
-                var inicio = authUser.Permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
-                return RedirectToAction("Index", inicio.Controller);
+                #region Generar diagnóstico Inicial
+                string dianostic = GenerateDx0();
+                #endregion
+
+                return RedirectToAction("Index", "SAT");
             }
             catch (Exception ex)
             {
@@ -569,5 +602,94 @@ namespace MVC_Project.WebBackend.Controllers
                     
                 }
         }
+
+        #region DiagnosticoInicial
+
+        [HttpGet]
+        public string GenerateDx0()
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+            try
+            {
+                Domain.Entities.Account account = _accountService.FindBy(z => z.id == authUser.Account.Id).FirstOrDefault();
+
+                var provider = ConfigurationManager.AppSettings["SATProvider"];
+                DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
+                DateTime dateTo = DateTime.UtcNow.AddMonths(-1);
+                dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
+                dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
+                SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
+
+                var diagn = new Domain.Entities.Diagnostic()
+                {
+                    uuid = Guid.NewGuid(),
+                    account = account,
+                    businessName = account.name,
+                    commercialCAD = "",
+                    plans = "",
+                    createdAt = DateUtil.GetDateTimeNow(),
+                    status = SystemStatus.PENDING.ToString()
+                };
+
+                _diagnosticService.Create(diagn);
+                Session["InitialDiagnostic"] = diagn.uuid;
+                return diagn.uuid.ToString();
+            }
+            catch (Exception ex)
+            {
+                //string error = ex.Message.ToString();
+                //MensajeFlashHandler.RegistrarMensaje("¡Ocurrio un error en al realizar el diagnóstico!", TiposMensaje.Error);
+                //MensajeFlashHandler.RegistrarMensaje(error, TiposMensaje.Error);
+                //return RedirectToAction("Index");
+                return null;
+            }
+        }
+
+        [HttpGet]
+        public ActionResult FinishExtraction(string uuid)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(uuid))
+                {
+                    if (Session["InitialDiagnostic"] != null)
+                    {
+                        uuid = Session["InitialDiagnostic"].ToString();
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(uuid))
+                {
+                    var diagnostic = _diagnosticService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
+                    if (diagnostic == null)
+                        throw new Exception("No fue posible obtener el diagnostico");
+
+                    if (diagnostic.status == SystemStatus.PENDING.ToString() || diagnostic.status == SystemStatus.PROCESSING.ToString())
+                    {
+                        return Json(new { success = true, finish = false, status = true }, JsonRequestBehavior.AllowGet);
+                    }
+                    else if (diagnostic.status == SystemStatus.ACTIVE.ToString())
+                    {
+                        Session["InitialDiagnostic"] = null;
+                        return Json(new { success = true, finish = true, status = true }, JsonRequestBehavior.AllowGet);
+                    }
+                    else if (diagnostic.status == SystemStatus.FAILED.ToString())
+                        return Json(new { success = false, finish = true, status = true, message = "Se generó un fallo durante la extracción" }, JsonRequestBehavior.AllowGet);
+                    else
+                        return Json(new { success = false, finish = true, status = true, message = "No fue posible generar el diagnostico, comuniquese al área de soporte" }, JsonRequestBehavior.AllowGet);
+
+                }
+                else
+                {
+                    return Json(new { success = false, finish = false, status = false, message = "Sin diagnostico pendiente" }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { message = ex.Message, success = false, finish = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        #endregion
     }
 }

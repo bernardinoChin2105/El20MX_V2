@@ -2,7 +2,7 @@
 @using MVC_Project.Utils
 
 @{
-    ViewBag.Title = "Sucursales";
+    ViewBag.Title = "Mi SAT";
 }
 
 @section Styles {
@@ -28,6 +28,13 @@
 
         .img-container img {
             max-width: 100%;
+        }
+        .view-e-firma,
+        .view-ciec{        
+            cursor: pointer;
+        }
+        .custom-file {
+            overflow: hidden;
         }
     </style>
     <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
@@ -121,6 +128,17 @@
                                     <h5> EFIRMA </h5>
                                 </div>
                                 <div class="ibox-content">
+                                    @if (!string.IsNullOrEmpty(Model.cerUrl))
+                                    {
+                                        <div class="form-group row">
+                                            <div class="col-12 col-md-12">
+                                                <div class="alert alert-info alert-dismissable" style="display:normal">
+                                                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                                    Fecha de vencimiento de su cerficado @Model.cerExpiryDate.ToString("dd/MM/yyyy"). Ingrese a <a class="alert-link" href="https://www.sat.gob.mx/" target="_blank">www.sat.gob.mx</a> para renovarlo.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
                                     <div class="form-group row">
                                         <div class="col-12 col-md-4">
                                             @if (Model.efirmaStatus == SystemStatus.ACTIVE.ToString())
@@ -131,8 +149,9 @@
                                             {
                                                 <i class="fa fa-thumbs-down btn btn-danger btn-circle btn-lg" title="Estatus de conexión"></i>
                                             }
-                                        <label class="col-form-label control-label"> Estatus efirma </label>
+                                            <label class="col-form-label control-label"> Estatus efirma </label>
                                         </div>
+
                                     </div>
                                     <div class="form-group row">
                                         <div class="col-12 col-md-4">

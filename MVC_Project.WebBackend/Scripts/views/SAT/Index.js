@@ -1,6 +1,6 @@
 ﻿var SATController = function () {
     this.init = function () {
-
+        $(".alert").show();
         $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
 
         $(".view-ciec").mouseup(function () {
@@ -38,7 +38,7 @@
                     }
                     else {
                         El20Utils.ocultarCargador();
-                        toastr['error'](data.message);
+                        toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
                     }
                 }
                 else {
@@ -46,7 +46,8 @@
                 }
 
             }).fail(function () {
-                toastr['error']('No es posible finalizar la creación de la cuenta');
+                //toastr['error']('No es posible finalizar la creación de la cuenta');
+                toastr['error']('No es posible finalizar la creación de la cuenta', null, { 'positionClass': 'toast-top-center' }); 
                 El20Utils.ocultarCargador();
             });
         }
@@ -63,11 +64,11 @@
                     self.finishValidation(data.uuid)
                 }
                 else {
-                    toastr['error'](data.message);
+                    toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
                     El20Utils.ocultarCargador();
                 }
             }).fail(function () {
-                toastr['error']('No es posible validar el RFC');
+                toastr['error']('No es posible validar el RFC', null, { 'positionClass': 'toast-top-center' }); 
                 El20Utils.ocultarCargador();
             });
         });
@@ -106,12 +107,12 @@
                         self.finishValidation(data.uuid)
                     }
                     else {
-                        toastr['error'](data.message);
+                        toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
                         El20Utils.ocultarCargador();
                     }
                 },
                 error: function (error) {
-                    toastr['error']('No es posible validar el RFC');
+                    toastr['error']('No es posible validar el RFC', null, { 'positionClass': 'toast-top-center' }); 
                     El20Utils.ocultarCargador();
                 }
             });
@@ -136,6 +137,12 @@
         );
         $("#EditForm").validate({
             rules: {
+                ciec: {
+                    Alphanumeric: true,
+                },
+                efirma: {
+                    Alphanumeric: true,
+                },
             }
         });
         
@@ -177,6 +184,7 @@
         }).on('hidden.bs.modal', function () {
             cropper.destroy();
             cropper = null;
+            input.val("");
         });
 
         $("#crop").on("click", function () {
@@ -206,13 +214,16 @@
                         contentType: false,
                         success: function (data) {
                             if (data.success)
-                                toastr['success']('Actualización exitosa');
+                                toastr['success']('Actualización exitosa', null, { 'positionClass': 'toast-top-center' }); 
                             else
-                                toastr['error'](data.message);
+                                toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
+
+                            input.val("");
                         },
                         error: function () {
                             avatar.attr("src", initialAvatarURL);
-                            toastr['error']('No fue posible realizar la actualización');
+                            toastr['error']('No fue posible realizar la actualización', null, { 'positionClass': 'toast-top-center' }); 
+                            input.val("");
                         },
                         complete: function () {
                             El20Utils.ocultarCargador();

@@ -40,7 +40,7 @@
                         fnCallback(json);
                     }
                     else {
-                        toastr['error'](json.message);
+                        toastr['error'](json.message, null, { 'positionClass': 'toast-top-center' }); 
                     }
                 });
             }

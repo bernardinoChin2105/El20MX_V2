@@ -75,7 +75,7 @@
                             <div class="form-group row pull-right">
                                 <div class="offset-md-2 col-md-8 text-right">
                                     <a href='@Url.Action("Index", "Role")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
-                                    <button type="submit" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                                    <button type="button" value="Guardar"  class="btn btn-color" onclick="validarDatos();"> <i class="fa fa-save"></i> Guardar </button>
                                 </div>
                             </div>
                         </div>
@@ -92,5 +92,11 @@
         $(document).ready(function () {
             $('.chosen-select').chosen({ width: '100%', "disable_search": true });
         });
+        function validarDatos() {
+            if (!$('#EditForm').valid()) {
+                return;
+            }
+            $('#EditForm').submit();
+        }
     </script>
 }

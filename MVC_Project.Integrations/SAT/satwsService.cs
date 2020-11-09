@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,11 +34,28 @@ namespace MVC_Project.Integrations.SAT
             List<InvoicesInfo> modelInvoices = new List<InvoicesInfo>();
             TaxpayerInfo taxpayer = new TaxpayerInfo();
 
+            int page = 1;
+            int itemsPerPage = int.Parse(ConfigurationManager.AppSettings["Invoices.ItemsPerPage"]);
             //Se realiza la búsqueda de los cfdis
-            string url = "/taxpayers/" + rfc + "/invoices?issuedAt[after]=" + from + "&issuedAt[before]=" + to;
-            var responseInvoices = SATws.CallServiceSATws(url, null, "Get");
-            modelInvoices = JsonConvert.DeserializeObject<List<InvoicesInfo>>(responseInvoices);
+            string url = "/taxpayers/" + rfc + "/invoices?issuedAt[after]=" + from + "&issuedAt[before]=" + to + "&page=" + page + "&itemsPerPage=" + itemsPerPage;
+            var responseInvoices = SATws.CallServiceSATws(url, null, "Get", accept: "*");
+            JObject obj = JsonConvert.DeserializeObject<JObject>(responseInvoices);
 
+            modelInvoices = JsonConvert.DeserializeObject<List<InvoicesInfo>>(obj["hydra:member"].ToString()); 
+            int totalItems = 0;
+            int.TryParse(obj["hydra:totalItems"].ToString(), out totalItems);
+
+            if(totalItems > itemsPerPage)
+            {
+                var numberPages = (int)Math.Ceiling((double)totalItems / (double)itemsPerPage);
+                for (int i = page + 1; i <= numberPages; i++)
+                {
+                    url = "/taxpayers/" + rfc + "/invoices?issuedAt[after]=" + from + "&issuedAt[before]=" + to + "&page=" + i + "&itemsPerPage=" + itemsPerPage;
+                    responseInvoices = SATws.CallServiceSATws(url, null, "Get", accept: "*");
+                    obj = JsonConvert.DeserializeObject<JObject>(responseInvoices);
+                    modelInvoices.AddRange(JsonConvert.DeserializeObject<List<InvoicesInfo>>(obj["hydra:member"].ToString()));
+                }
+            }
 
             //Estamos buscando mis clientes
             customers = modelInvoices.Where(x => x.issuer.rfc == rfc)

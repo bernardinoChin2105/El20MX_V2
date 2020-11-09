@@ -152,7 +152,7 @@
                     </div>
                     @Html.LabelFor(m => m.OutdoorNumber, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.TextBoxFor(m => m.OutdoorNumber, new { @class = "form-control required", @maxlength = "200", @autocomplete = "off" })
+                        @Html.TextBoxFor(m => m.OutdoorNumber, new { @class = "form-control", @maxlength = "200", @autocomplete = "off" })
                     </div>
                 </div>
                 <div class="form-group row">
@@ -162,27 +162,27 @@
                     </div>
                     @Html.LabelFor(m => m.Colony, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.Colony, Model.ListColony, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.Colony, Model.ListColony, new { @class = "form-control chosen-select" })
                     </div>
                 </div>
                 <div class="form-group row">
                     @Html.LabelFor(m => m.ZipCode, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control required", @maxlength = "200", @autocomplete = "off" })
+                        @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control", @maxlength = "200", @autocomplete = "off" })
                     </div>
                     @Html.LabelFor(m => m.Municipality, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.Municipality, Model.ListMunicipality, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.Municipality, Model.ListMunicipality, new { @class = "form-control chosen-select " })
                     </div>
                 </div>
                 <div class="form-group row">
                     @Html.LabelFor(m => m.State, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.State, Model.ListState, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.State, Model.ListState, new { @class = "form-control chosen-select " })
                     </div>
                     @Html.LabelFor(m => m.Country, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.Country, Model.ListCountry, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.Country, Model.ListCountry, new { @class = "form-control chosen-select" })
                     </div>
                 </div>
                 <div class="form-group row">
@@ -685,6 +685,7 @@
                 '@Url.Action("GetUnitSAT")',
                 '@Url.Action("GetCFDIId")',
                 '@Url.Action("GetRates")',
+                '@Url.Action("Index", "BranchOffice")',
                 '@hasFullAccessController' == 'True'
             );
             invoices.init();

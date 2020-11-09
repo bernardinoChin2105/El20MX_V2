@@ -43,7 +43,7 @@
                                                 <i class="fa fa-eye"></i>
                                             </span>
                                         </div>
-                                        @Html.PasswordFor(model => model.CIEC, new { @class = "form-control viewpass-input", @autocomplete = "off", @minlength = "8", @maxlength = "20" })
+                                        @Html.TextBoxFor(model => model.CIEC, new { @class = "form-control viewpass-input", @autocomplete = "off", @minlength = "8", @maxlength = "20", @type="password" })
                                         @Html.ValidationMessageFor(model => model.CIEC)
                                         @*<input id="password" name="password" type="password" class="form-control required viewpass-input" data-view="false" aria-required="true" minlength="8" maxlength="20">*@
                                     </div>
@@ -116,6 +116,7 @@
             $.get('@Url.Action("AccountValidation")', { uuid: uuid }, function (data) {
                 if (data.finish) {
                     if (data.success) {
+                      
                         El20Utils.ocultarCargador();
                         let form = document.createElement("form");
                         form.setAttribute("method", "POST");
@@ -129,10 +130,12 @@
 
                         document.body.appendChild(form);
                         form.submit();
+                      
                     }
                     else {
                         El20Utils.ocultarCargador();
-                        toastr['error'](data.message);
+                        toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
+                        
                     }
                 }
                 else {
@@ -140,10 +143,12 @@
                 }
                 
             }).fail(function () {
-                toastr['error']('No es posible finalizar la creación de la cuenta');
+                toastr['error']('No es posible finalizar la creación de la cuenta', null, { 'positionClass': 'toast-top-center' }); 
                 El20Utils.ocultarCargador();
             });
         }
+
+     
 
         function validarDatos() {
             var form = $('#RegisterRFCForm');
@@ -158,11 +163,11 @@
                     self.finishValidation(data.uuid)
                 }
                 else {
-                    toastr['error'](data.message);
+                    toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
                     El20Utils.ocultarCargador();
                 }
             }).fail(function () {
-                toastr['error']('No es posible validar el RFC');
+                toastr['error']('No es posible validar el RFC', null, { 'positionClass': 'toast-top-center' }); 
                 El20Utils.ocultarCargador();
             });
 

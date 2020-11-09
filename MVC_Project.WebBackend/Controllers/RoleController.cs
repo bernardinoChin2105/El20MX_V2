@@ -118,17 +118,6 @@ namespace MVC_Project.WebBackend.Controllers
             var userAuth = Authenticator.AuthenticatedUser;
             try
             {
-                LogUtil.AddEntry(
-                   "Nuevo Rol",
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
                 var roleCreateViewModel = new RoleCreateViewModel { Modules = PopulateModules() };
                 return View(roleCreateViewModel);
             }
@@ -210,9 +199,16 @@ namespace MVC_Project.WebBackend.Controllers
         private List<ModuleViewModel> PopulateModules()
         {
             var userAuth = Authenticator.AuthenticatedUser;
-            var permissions = _permissionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString() && x.isCustomizable).ToList();
+            List<Permission> pp = new List<Permission>();
+            if (userAuth.isBackOffice && userAuth.Account == null)
+                pp = _permissionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString() 
+                && x.isCustomizable && x.applyTo != SystemPermissionApply.ONLY_ACCOUNT.ToString()).ToList();
+            else
+                pp = _permissionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString() 
+                && x.isCustomizable && x.applyTo != SystemPermissionApply.ONLY_BACK_OFFICE.ToString()).ToList();
+            
             var permissionsVM = new List<ModuleViewModel>();
-            permissionsVM = permissions.GroupBy(x => x.module).Select(g => new ModuleViewModel
+            permissionsVM = pp.GroupBy(x => x.module).Select(g => new ModuleViewModel
             {
                 Id = (int)Enum.Parse(typeof(SystemModules), g.Key),
                 Name = ((SystemModules)Enum.Parse(typeof(SystemModules), g.Key)).GetDisplayName(),

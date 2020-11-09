@@ -27,7 +27,7 @@ namespace MVC_Project.FlashMessages
         Abajo_completo
     }
 
-    static class TiposMensajeExtension
+   public static class TiposMensajeExtension
     {
         public static string ObtenerCodigo(this TiposMensaje tipoMensaje)
         {
@@ -65,7 +65,7 @@ namespace MVC_Project.FlashMessages
                     mensajePosicion = "toast-bottom-full-width";
                     break;
                 default:
-                    mensajePosicion = "";
+                    mensajePosicion = "toast-bottom-full-width";
                     break;
             }
 

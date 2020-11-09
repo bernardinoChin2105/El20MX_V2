@@ -24,6 +24,7 @@ $("#RFCP").keyup(function () {
 });
 
 var DateInit = JSON.parse(window.StartDate);
+
 $('#RegisterAt').daterangepicker({
         format: 'DD/MM/YYYY',
         todayBtn: "linked",
@@ -38,7 +39,7 @@ $('#RegisterAt').daterangepicker({
             fromLabel: "De",
             toLabel: "a"
         },
-        //minDate: DateInit.MinDate,
+        startDate: DateInit.MinDate,
         maxDate: DateInit.MaxDate,
         opens: 'left'
     }).on('apply.daterangepicker', function (e, picker) {
@@ -48,18 +49,23 @@ $('#RegisterAt').daterangepicker({
         $('#FilterEndDate').val(picker.endDate.format('DD/MM/YYYY'));
     });
 
-var ProviderInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl, downloadXmlUrl, autocompleteURL, hasFullAccessController) {
+var ProviderInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl, downloadXmlUrl, autocompleteURL, hasFullAccessController, positions) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
     this.downloadPdfUrl = downloadPdfUrl;
     this.downloadXmlUrl = downloadXmlUrl;
-    this.autocompleteURL = autocompleteURL;    
+    this.autocompleteURL = autocompleteURL;   
+    this.poss = "";
     this.dataTable = {};
 
     this.init = function () {
         var primeravez = true;
-
+        if (primeravez) {
+            $('#FilterInitialDate').val(DateInit.MinDate.format('DD/MM/YYYY'));
+            $('#FilterEndDate').val(DateInit.MaxDate.format('DD/MM/YYYY'));
+            $('#RegisterAt').val(DateInit.MinDate.format('DD/MM/YYYY') + ' - ' + DateInit.MaxDate.format('DD/MM/YYYY'));
+        }
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();
         }).DataTable({
@@ -108,7 +114,8 @@ var ProviderInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl
                     fnCallback(json);
 
                     if (json.success === false) {
-                        toastr['error'](json.error);
+                        //toastr['error'](json.error, null, { 'positionClass': positions });
+                        toastr['error'](json.error, null, { 'positionClass': 'toast-top-center' }); 
                         //console.log(json.Mensaje + " Error al obtener los elementos");
                     }
                 });

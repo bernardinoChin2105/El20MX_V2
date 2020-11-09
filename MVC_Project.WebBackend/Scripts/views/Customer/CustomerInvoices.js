@@ -106,7 +106,7 @@ var CustomerInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl
                     fnCallback(json);
 
                     if (json.success === false) {
-                        toastr['error'](json.error);
+                        toastr['error'](json.error, null, { 'positionClass': 'toast-top-center' }); 
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     }
                 });

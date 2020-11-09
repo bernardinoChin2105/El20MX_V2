@@ -216,18 +216,7 @@ namespace MVC_Project.WebBackend.Controllers
                     return RedirectToAction("Index");
                 }
                 var userCreateViewModel = new UserCreateViewModel { Roles = roles, isBackOffice = userAuth.isBackOfficeConfiguration() };
-
-                LogUtil.AddEntry(
-                   "Crear usuario: " + JsonConvert.SerializeObject(userCreateViewModel),
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
+                
                 return View(userCreateViewModel);
             }
             catch (Exception ex)
@@ -279,17 +268,6 @@ namespace MVC_Project.WebBackend.Controllers
                 });
             }
 
-            LogUtil.AddEntry(
-               "Caracteristicas: " + JsonConvert.SerializeObject(featuresViewModel),
-               ENivelLog.Info,
-               userAuth.Id,
-               userAuth.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-            );
-
             return featuresViewModel;
         }
 
@@ -306,17 +284,6 @@ namespace MVC_Project.WebBackend.Controllers
                 Value = role.id.ToString(),
                 Text = role.name
             }).ToList();
-
-            LogUtil.AddEntry(
-               "Roles populares: " + JsonConvert.SerializeObject(rolesList),
-               ENivelLog.Info,
-               userAuth.Id,
-               userAuth.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-            );
 
             return rolesList.ToList();
         }
@@ -369,7 +336,7 @@ namespace MVC_Project.WebBackend.Controllers
                             createdAt = todayDate,
                             modifiedAt = todayDate,
                             status = SystemStatus.ACTIVE.ToString(),
-                            avatar = "/Images/default_avatar.jpg"
+                            avatar = ConfigurationManager.AppSettings["Avatar.User"]
                         }
                     };
                 }

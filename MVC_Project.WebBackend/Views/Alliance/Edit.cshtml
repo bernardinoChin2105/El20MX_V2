@@ -196,7 +196,7 @@
                     url: "/Alliance/GetPromotionCode",
                     success: function (data) {
                         if (!data.success) {
-                            toastr['error'](data.error);
+                            toastr['error'](data.error, null, { 'positionClass': 'toast-top-center' }); 
                             //swal({
                             //    type: 'error',
                             //    title: "Error al realizar la operación.",

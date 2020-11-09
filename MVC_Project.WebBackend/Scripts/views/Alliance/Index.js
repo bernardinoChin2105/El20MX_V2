@@ -70,7 +70,7 @@ var AllianceIndexControlador = function (htmlTableId, baseUrl, editUrl, ActiveIn
                     fnCallback(json);
                     console.log(json);
                     if (json.success === false) {
-                        toastr['error'](json.Mensaje.message);
+                        toastr['error'](json.Mensaje.message, null, { 'positionClass': 'toast-top-center' }); 
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     }
                 });
