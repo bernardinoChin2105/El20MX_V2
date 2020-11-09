@@ -23,6 +23,8 @@ namespace MVC_Project.WebBackend.Models
         public string TipoDeComprobante { get; set; }
         public string MetodoPago { get; set; }
         public string LugarExpedicion { get; set; }
+        public string ClaveCatastral { get; set; }
+
         public Emisor Emisor { get; set; }
         public Receptor Receptor { get; set; }
 
@@ -31,9 +33,11 @@ namespace MVC_Project.WebBackend.Models
         public Conceptos Conceptos { get; set; }
         //public TimbreFiscalDigital TimbreFiscalDigital { get; set; } //Esta dentro de complemento        
         public string QR { get; set; }
+        //public BranchOfficeViewModel Sucursal  { get; set; }
+        public string Logo { get; set; }
 
         public InvoicesVM()
-        {
+        {            
             Emisor = new Emisor();
             Receptor = new Receptor();
             Complemento = new Complemento();
