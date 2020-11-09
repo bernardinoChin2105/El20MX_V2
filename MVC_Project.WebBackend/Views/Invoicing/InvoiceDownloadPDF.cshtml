@@ -49,7 +49,10 @@
         <table style="width:100%;">
             <tr>
                 <td width="20%" rowspan=7>
-                    @*<img style="float:left;" class="logo" src="@Model.Logo" />*@
+                    @if (!string.IsNullOrEmpty(Model.Logo))
+                    {
+                        <img style="float:left;" class="logo" src="@Model.Logo" />
+                    }
                 </td>
                 <td width="20%"><strong>RFC emisor:</strong></td>
                 <td width="20%">@Model.Emisor.Rfc</td>
@@ -82,7 +85,7 @@
                 <td>@Model.Emisor.RegimenFiscal</td>
             </tr>
             <tr>
-                @*@if (!String.IsNullOrEmpty(Model.ClaveCatastral))
+                @if (!String.IsNullOrEmpty(Model.ClaveCatastral))
                     {
                         <td><strong>Clave Catastral:</strong></td>
                         <td>@Model.ClaveCatastral</td>
@@ -91,7 +94,7 @@
                     {
                         <td></td>
                         <td></td>
-                    }*@
+                    }
                 <td><strong>Folio Interno:</strong></td>
                 <td>@Model.Folio</td>
             </tr>
