@@ -5,7 +5,8 @@
     }
 });
 
-var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOfficeUrl, locationsUrl, codeSATUrl, UnitSATUrl, searchCDFIUrl, rateTaxesUrl, hasFullAccessController) {
+var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOfficeUrl, locationsUrl, codeSATUrl, UnitSATUrl, searchCDFIUrl,
+    rateTaxesUrl, officeSellos, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.htmlTableImp = $("#tableImpuestos");
@@ -17,6 +18,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
     this.UnitSATUrl = UnitSATUrl;
     this.searchCDFIUrl = searchCDFIUrl;
     this.rateTaxesUrl = rateTaxesUrl;
+    this.officeSellos = officeSellos;
     this.dataTable = {};
     this.dataTableImp = {};
 
@@ -673,6 +675,23 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                             $("#logo").attr("src", json.logo);
                         else
                             $("#logo").attr("src", "#");
+
+                        if (!json.sello) {
+                            swal({
+                                title: "Sucursal sin Sellos",
+                                text: "Esta sucursar no cuenta con sellos guardados",
+                                type: "warning",
+                                showCancelButton: true,
+                                confirmButtonClass: "btn-danger",
+                                confirmButtonText: "Ir a guardar sellos.",
+                                cancelButtonText: "Cambiar sucursal.",
+                                closeOnConfirm: false
+                            },
+                                function () {
+                                    window.location = self.officeSellos;
+                                    // swal("Deleted!", "Your imaginary file has been deleted.", "success");
+                                });
+                        }
                     },
                     error: function (xhr) {
                         //console.log('error');

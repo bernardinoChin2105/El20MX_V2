@@ -656,7 +656,14 @@ namespace MVC_Project.WebBackend.Controllers
                 if (branchOffice == null)
                     throw new Exception("Sucursal no encontrada en el sistema");
 
-                return Json(new { success = true, serie = branchOffice.serie, folio = branchOffice.folio, logo = branchOffice.logo }, JsonRequestBehavior.AllowGet);
+                //Validar si la oficina tiene sellos cargados.
+                bool sello = false;
+                if (!string.IsNullOrEmpty(branchOffice.certificateId))
+                {
+                    sello = true;
+                }
+
+                return Json(new { success = true, serie = branchOffice.serie, folio = branchOffice.folio, logo = branchOffice.logo, sello = sello }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
