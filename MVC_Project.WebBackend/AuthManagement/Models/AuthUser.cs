@@ -40,7 +40,9 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
         {
             if (this.Permissions != null && this.Permissions.Count > 0)
             {
-                var per = from ap in this.Permissions where ap.Controller == controller select ap;
+                var per = from ap in this.Permissions
+                          where ap.Controller == controller && ap.Level != SystemLevelPermission.NO_ACCESS.ToString() && ap.isCustomizable
+                          select ap;
                 return per.Count<Permission>() > 0;
             }
             return false;
