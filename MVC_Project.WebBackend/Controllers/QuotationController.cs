@@ -93,6 +93,10 @@ namespace MVC_Project.WebBackend.Controllers
                 model.accounts = PopulateAccounts();
                 model.partialitiesNumber = 1;
                 model.statusQuotation = PopulateStatus();
+                ViewBag.Date = new
+                {
+                    MinDate = DateUtil.GetDateTimeNow()
+                };
                 return View(model);
             }
             catch (Exception ex)
@@ -222,7 +226,11 @@ namespace MVC_Project.WebBackend.Controllers
                 var quotation = _quotationService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
                 if (quotation == null)
                     throw new Exception("La regularización no se encontró en la base de datos");
-                
+
+                ViewBag.Date = new
+                {
+                    MinDate = DateUtil.GetDateTimeNow()
+                };
                 var model = new QuotationCreate()
                 {
                     id = quotation.id,
