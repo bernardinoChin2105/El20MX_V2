@@ -29,7 +29,7 @@ namespace MVC_Project.WebBackend.Models
     public class QuotationCreate
     {
         public Int64 id { get; set; }
-        [DisplayName("Fecha inicio")]
+        [DisplayName("Fecha en que se inicia regularización")]
         public DateTime startedAt { get; set; }
         [DisplayName("Monto total")]
         public decimal total { get; set; }
