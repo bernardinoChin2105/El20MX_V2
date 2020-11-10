@@ -891,6 +891,8 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (invoice != null)
                 {
+                    invoice.account = null;
+                    invoice.customer = null;
                     success = true;
                 }
             }
