@@ -1,8 +1,12 @@
 ﻿@model MVC_Project.WebBackend.Models.SATViewModel
 @using MVC_Project.Utils
-
+@using MVC_Project.WebBackend.AuthManagement
+@using MVC_Project.WebBackend.AuthManagement.Models
 @{
     ViewBag.Title = "Mi SAT";
+    var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
+    AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
+    var hasFullAccessController = user.HasFullAccessController(controllerName);
 }
 
 @section Styles {
@@ -29,10 +33,12 @@
         .img-container img {
             max-width: 100%;
         }
+
         .view-e-firma,
-        .view-ciec{        
+        .view-ciec {
             cursor: pointer;
         }
+
         .custom-file {
             overflow: hidden;
         }
@@ -114,7 +120,7 @@
                                                 @Html.ValidationMessageFor(model => model.ciec)
                                             </div>
                                         </div>
-                                        @if (Model.ciecStatus != SystemStatus.ACTIVE.ToString())
+                                        @if (Model.ciecStatus != SystemStatus.ACTIVE.ToString() && hasFullAccessController)
                                         {
                                             <div class="col-12 col-md-4">
                                                 <button class="btn btn-color" type="button" id="btn-ciec" style="margin-top:35px"><i class="fas fa-sign-in-alt"></i> Validar ciec </button>
@@ -195,7 +201,7 @@
                                                 <a href="@Model.keyUrl">.key actual</a>
                                             }
                                         </div>
-                                        @if (Model.efirmaStatus != SystemStatus.ACTIVE.ToString())
+                                        @if (Model.efirmaStatus != SystemStatus.ACTIVE.ToString() && hasFullAccessController)
                                         {
                                             <div class="col-12 col-md-4 text-right">
                                                 <button class="btn btn-color" type="button" id="btn-efirma" style="margin-top:35px"><i class="fas fa-sign-in-alt"></i> Validar efirma</button>
