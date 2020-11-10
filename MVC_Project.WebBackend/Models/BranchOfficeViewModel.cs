@@ -40,6 +40,7 @@ namespace MVC_Project.WebBackend.Models
         [DisplayName("País")]
         public Int64 country { get; set; }
 
+        [DisplayName("Contraseña")]
         public string password { get; set; }
         public HttpPostedFileBase cer { get; set; }
         public HttpPostedFileBase key { get; set; }

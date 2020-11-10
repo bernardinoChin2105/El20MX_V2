@@ -202,7 +202,7 @@ namespace MVC_Project.WebBackend.Controllers
             List<Permission> pp = new List<Permission>();
             if (userAuth.isBackOffice && userAuth.Account == null)
                 pp = _permissionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString() 
-                && x.isCustomizable && x.applyTo != SystemPermissionApply.ONLY_ACCOUNT.ToString()).ToList();
+                && x.isCustomizable).ToList();
             else
                 pp = _permissionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString() 
                 && x.isCustomizable && x.applyTo != SystemPermissionApply.ONLY_BACK_OFFICE.ToString()).ToList();
