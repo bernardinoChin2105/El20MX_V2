@@ -33,9 +33,9 @@ namespace MVC_Project.Utils
         // Uuids de templates sendgrid
         public static string NOT_TEMPLATE_WELCOME = "51d34567-1960-4501-8e89-e349c18275e6";
         public static string NOT_TEMPLATE_ACTIVATION = "534f930b-d06f-4aad-a30a-ff42346e7c56";
-        public static string NOT_TEMPLATE_PASSWORDRESET = "d12f6fbe-cab5-485f-95ec-6875d196d49c";
+        //public static string NOT_TEMPLATE_PASSWORDRESET = "d12f6fbe-cab5-485f-95ec-6875d196d49c";
         public static string NOT_TEMPLATE_PASSWORDRECOVER = "aa61890e-5e39-43c4-92ff-fae95e03a711";
-        public static string NOT_TEMPLATE_CHARGESUCCESS = "3e58558e-0a7c-4f2b-b003-ac27b5677d91";
+        //public static string NOT_TEMPLATE_CHARGESUCCESS = "3e58558e-0a7c-4f2b-b003-ac27b5677d91";
         public static string NOT_TEMPLATE_WELCOME_NETWORK = "87ca5218-685e-4361-aa2b-ce2b14f430f5";
         public static string NOT_TEMPLATE_NEW_USER = "11e635ba-3102-4f42-8a86-ad0af5c55eb2";
         public static string NOT_TEMPLATE_NEW_BACKOFFICE_USER = "d00e4ada-ec64-4bb5-b0db-eee6b618beeb";
