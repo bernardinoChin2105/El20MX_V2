@@ -152,6 +152,8 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
+                     window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
+            var DateInit = JSON.parse(window.StartDate);
              var mem = $('#data_1 .input-group.date').datepicker({
                 //dateFormat: "yy-mm-dd"
                 keyboardNavigation: false,
@@ -160,7 +162,8 @@
                 calendarWeeks: true,
                 autoclose: true,
                 format: "dd/mm/yyyy",
-                language: "es"
+                 language: "es",
+                 startDate: DateInit.MinDate
             });
 
             $.validator.addMethod("Alphanumeric",

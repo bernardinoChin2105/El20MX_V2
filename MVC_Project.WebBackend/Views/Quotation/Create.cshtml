@@ -153,6 +153,8 @@
     <script src="~/Scripts/plugins/touchspin/jquery.bootstrap-touchspin.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+            window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
+            var DateInit = JSON.parse(window.StartDate);
             $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
             //$('.porcert').mask("###,##0.00", { reverse: true });
              var mem = $('#data_1 .input-group.date').datepicker({
@@ -163,8 +165,10 @@
                 calendarWeeks: true,
                 autoclose: true,
                 format: "dd/mm/yyyy",
-                language: "es"
-            });
+                 language: "es",
+                 startDate: DateInit.MinDate
+             });
+
 
             $.validator.addMethod("Alphanumeric",
                 function (value, element) {
