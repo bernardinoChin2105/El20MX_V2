@@ -5,6 +5,11 @@
     this.init = function () {
         $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para ", placeholder_text_single: "Seleccione..." });
 
+        $.validator.setDefaults({ ignore: ":hidden:not(.chosen-select)" }) //for all select having            
+        $('.chosen-select').on('change', function () {
+            $(this).valid();
+        });
+
         $(".view-ciec").mouseup(function () {
             $(".view-ciec-input").attr('type', 'password').data("view", false);
         }).mousedown(function () {
@@ -258,7 +263,7 @@
                             cmbColony.append($('<option></option>').val(item.id).text(item.nameSettlementType + ' ' + item.nameSettlement));
                         });
 
-                        $(".chosen-select").trigger("chosen:updated");
+                        $(".chosen-select").trigger("chosen:updated").trigger("change");;
                     } else {
                         ClearCombos();
                         toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' });
