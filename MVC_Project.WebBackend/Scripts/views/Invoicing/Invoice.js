@@ -323,6 +323,18 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             }, "El campo debe ser numérico"
         );
 
+        $.validator.addMethod("RFCTrue",
+            function (value, element) {
+                const re = /^([A-ZÑ&]{3,4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])) ?(?:- ?)?([A-Z\d]{2})([A\d])$/;
+                var valid = value.match(re);
+
+                if (valid === null)
+                    return false;
+
+                return true;
+            }, "Debe ser un RFC válido"
+        );
+
         //Agregar a la lista de conceptos del producto
         $("#addTaxes").click(function () {
             //console.log("estoy aqui")
@@ -361,6 +373,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     Alphanumeric: true
                 },
                 RFC: {
+                    required: true,
+                    RFCTrue: true,
                     Alphanumeric: true
                 },
                 Street: {
