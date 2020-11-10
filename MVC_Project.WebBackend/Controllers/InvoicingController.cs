@@ -877,6 +877,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         //Busqueda de CFDI para complementos
         //Obtener listado de unidad del SAT
+        [HttpGet, AllowAnonymous]
         public JsonResult GetCFDIId(string uuid)
         {
             bool success = false;

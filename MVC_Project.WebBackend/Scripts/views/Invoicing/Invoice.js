@@ -450,6 +450,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             El20Utils.mostrarCargador();
 
             var uuid = $("#InvoiceComplement").val();
+            console.log("valor del uuid", uuid);
             $.ajax({
                 type: 'Get',
                 async: true,
