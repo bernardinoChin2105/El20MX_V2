@@ -212,3 +212,13 @@
 .custom-file-label::after {
     content: "Buscar";
 }
+
+
+
+#CargadorPantalla.modal-backdrop {
+    z-index: 3040 !important;
+}
+
+.modal {
+    z-index: 2050 !important;
+}
