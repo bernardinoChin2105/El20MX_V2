@@ -248,8 +248,7 @@ namespace MVC_Project.WebBackend.Controllers
                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                        string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow())
                     );
-
-                    //MensajeFlashHandler.RegistrarMensaje("¡Tu cuenta ha sido activada!", TiposMensaje.Success);
+                    
                     return View();
                 }
    
