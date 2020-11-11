@@ -57,7 +57,9 @@ namespace MVC_Project.Utils
         [Display(Name = "Lead")]
         LEAD,
         [Display(Name = "System Administrator")]
-        SYSTEM_ADMINISTRATOR
+        SYSTEM_ADMINISTRATOR,
+        [Display(Name = "CAD")]
+        CAD
     }
 
     public enum SystemPermissionApply
