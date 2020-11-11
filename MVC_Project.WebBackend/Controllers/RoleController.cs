@@ -64,17 +64,6 @@ namespace MVC_Project.WebBackend.Controllers
                     roleResponse.Add(roleData);
                 }
                 
-                LogUtil.AddEntry(
-                   "Lista de clientes totalDisplay: " + totalDisplay + ", total: " + roleResponse.Count(),
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
                 return Json(new
                 {
                     success = true,
@@ -167,18 +156,7 @@ namespace MVC_Project.WebBackend.Controllers
                     }).ToList()
                 });
             }
-
-            LogUtil.AddEntry(
-               "Roles populares: " + JsonConvert.SerializeObject(featuresViewModel),
-               ENivelLog.Info,
-               userAuth.Id,
-               userAuth.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-            );
-
+            
             return featuresViewModel;
         }
 
@@ -464,16 +442,16 @@ namespace MVC_Project.WebBackend.Controllers
                 _rolePermissionService.UpdateRolePermissions(newRolePermissions, updateRolePermissions, oldRolePermissions);
 
                 LogUtil.AddEntry(
-                   "Edicion de rol, nuevos permisos: " + JsonConvert.SerializeObject(newRolePermissions) 
-                   + ", actualizacion de permisos: "+ JsonConvert.SerializeObject(updateRolePermissions)
-                   + ", antiguos permisos: "+ JsonConvert.SerializeObject(oldRolePermissions),
+                   "Edicion de rol " + role.name,
                    ENivelLog.Info,
                    userAuth.Id,
                    userAuth.Email,
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                   "Nuevos permisos: " + JsonConvert.SerializeObject(newRolePermissions)
+                   + ", actualizacion de permisos: " + JsonConvert.SerializeObject(updateRolePermissions)
+                   + ", antiguos permisos: " + JsonConvert.SerializeObject(oldRolePermissions)
                 );
 
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
