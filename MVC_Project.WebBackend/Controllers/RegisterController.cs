@@ -145,14 +145,14 @@ namespace MVC_Project.WebBackend.Controllers
                     Session["modelNW"] = LoginModel;
 
                     LogUtil.AddEntry(
-                       "Nuevo usuario registrado por red social: " + JsonConvert.SerializeObject(model),
+                       "Nuevo usuario registrado por red social: " + model.Email,
                        ENivelLog.Info,
                        user.id,
                        user.name,
                        EOperacionLog.ACCESS,
                        string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                       string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow())
+                       JsonConvert.SerializeObject(model)
                     );
 
                     return RedirectToAction("LoginAuth", "Auth");
@@ -174,14 +174,14 @@ namespace MVC_Project.WebBackend.Controllers
                     MensajeFlashHandler.RegistrarMensaje("Se ha enviado un email de confirmación", TiposMensaje.Success);
 
                     LogUtil.AddEntry(
-                       "Nuevo usuario registrado: " + JsonConvert.SerializeObject(model),
+                       "Nuevo usuario registrado: " + user.name,
                        ENivelLog.Info,
                        user.id,
                        user.name,
                        EOperacionLog.ACCESS,
                        string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                       string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow())
+                       JsonConvert.SerializeObject(model)
                     );
                     return RedirectToAction("Login", "Auth");
                 }
@@ -229,22 +229,29 @@ namespace MVC_Project.WebBackend.Controllers
                 if (user == null)
                     throw new Exception("Usuario no encontrado en el sistema");
 
-                user.status = SystemStatus.ACTIVE.ToString();
-                _userService.Update(user);
+                if (user.status == SystemStatus.ACTIVE.ToString())
+                {
+                    return RedirectToAction("Login", "Auth");
+                }
+                else
+                {
+                    user.status = SystemStatus.ACTIVE.ToString();
+                    _userService.Update(user);
 
-                LogUtil.AddEntry(
-                   "Verificar Usuario con el token " + token,
-                   ENivelLog.Info,
-                   user.id,
-                   user.name,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow())
-                );
+                    LogUtil.AddEntry(
+                       "Usuario verificado: " + user.name,
+                       ENivelLog.Info,
+                       user.id,
+                       user.name,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       "token " + token
+                    );
 
-                MensajeFlashHandler.RegistrarMensaje("¡Tu cuenta ha sido activada!", TiposMensaje.Success);
-                return RedirectToAction("Login", "Auth");
+                    return View();
+                }
+   
             }
             catch (Exception ex)
             {
@@ -326,17 +333,6 @@ namespace MVC_Project.WebBackend.Controllers
                     userViewModel.AcccountUuid = account.uuid;
                 }
 
-                LogUtil.AddEntry(
-                   "Verificar nuevo usuario " + token,
-                   ENivelLog.Info,
-                   user.id,
-                   user.name,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow())
-                );
-
                 return View(userViewModel);
             }
             catch (Exception ex)
@@ -403,14 +399,14 @@ namespace MVC_Project.WebBackend.Controllers
                 _userService.Update(user);
 
                 LogUtil.AddEntry(
-                   "Verificar nuevo usuario " + JsonConvert.SerializeObject(model),
+                   "Nuevo usuario verificado: " + user.name,
                    ENivelLog.Info,
                    user.id,
                    user.name,
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow())
+                   JsonConvert.SerializeObject(model)
                 );
 
                 MensajeFlashHandler.RegistrarMensaje("Usuario activado", TiposMensaje.Success);

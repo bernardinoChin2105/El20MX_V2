@@ -116,7 +116,6 @@ namespace MVC_Project.WebBackend.Controllers
 
                 Provider provider = new Provider()
                 {
-
                     uuid = Guid.NewGuid(),
                     account = new Account { id = authUser.Account.Id },
                     firstName = model.FistName,
@@ -134,6 +133,9 @@ namespace MVC_Project.WebBackend.Controllers
                     modifiedAt = todayDate,
                     status = SystemStatus.ACTIVE.ToString(),
                 };
+
+                if (model.taxRegime == TypeTaxRegimen.PERSONA_FISICA.ToString())
+                    provider.businessName = model.BusinessName;
 
                 if (model.Colony.Value > 0)
                     provider.colony = model.Colony.Value;
@@ -323,6 +325,9 @@ namespace MVC_Project.WebBackend.Controllers
                 providerData.deliveryAddress = model.DeliveryAddress;
                 providerData.modifiedAt = todayDate;
                 providerData.status = SystemStatus.ACTIVE.ToString();
+
+                if (model.taxRegime == TypeTaxRegimen.PERSONA_FISICA.ToString())
+                    providerData.businessName = model.BusinessName;
 
                 if (model.Colony.Value > 0)
                     providerData.colony = model.Colony.Value;
