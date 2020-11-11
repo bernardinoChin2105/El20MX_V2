@@ -476,7 +476,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     if (json.success) {
                         var data = json.data;
                         if (data === null) {
-                            toastr['error']("No se encontro la factura con el Folio Fiscal.", null, { 'positionClass': 'toast-top-center' }); 
+                            toastr['error']("No se encontro la factura con el Folio Fiscal.", null, { 'positionClass': 'toast-top-center' });
                         }
                         //else {
 
@@ -803,7 +803,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         //Buscar información del cliente por Razon Social
         $('#CustomerName').typeahead({
             source: function (query, process) {
-                //console.log(query, process, "esto trae");
+                //console.log(query, process, "esto trae");                
                 var type = $("#TypeInvoice").val();
                 return $.get(self.searchUrl + "?value=" + query + "&typeInvoice=" + type, function (result) {
                     console.log(result, "respuesta");
@@ -912,11 +912,11 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                         } else {
                             ClearCombos();
-                            toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' }); 
+                            toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' });
                         }
                     } else {
                         ClearCombos();
-                        toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' }); 
+                        toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' });
                     }
 
                 },
@@ -942,13 +942,16 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         //Buscar información de la clave de producto o servicio
         $('#SATCode').typeahead({
             source: function (query, process) {
+                El20Utils.mostrarCargador();
                 //console.log(query, process, "esto trae");
                 return $.get(self.codeSATUrl + "?Concept=" + query, function (result) {
-                    //console.log(result, "respuesta");
+                    console.log(result, "respuesta");
                     var resultList = result.data.map(function (item) {
                         var aItem = { id: item.id, name: item.code, type: item.description };
                         return JSON.stringify(aItem);
                     });
+                    El20Utils.ocultarCargador();
+                    $('#SATCode').focus();
                     return process(resultList);
                 });
             },
@@ -965,6 +968,47 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 return item.name;
             }
         });
+
+
+        ////initialization of chosen select
+        //$(".chosen-select").chosen({
+        //    search_contains: true // an option to search between words
+        //});
+        //$(".chosen-select-deselect").chosen({
+        //    allow_single_deselect: true
+        //});
+
+        ////ajax function to search a new value to the dropdown list
+        //function _ajaxSearch(param) {
+        //    return $.ajax({
+        //        url: self.codeSATUrl,
+        //        type: "GET",
+        //        dataType: "json",
+        //        data: { Concept: param }
+        //    });
+        //}
+        ////key event to call our ajax call
+        //$(".chosen-choices input").on('keyup', function () {
+        //    var param = $('.chosen-choices input').val();// get the pressed key
+        //    _ajaxSearch(param)
+        //        .done(function (response) {
+        //            console.log(response, "respuesta");
+        //            var exists; // variable that returns a true if the value already exists in our dropdown list
+        //            $.each(response, function (index, el) { //loop to check if the value exists inside the list
+        //                $('#SATCode option').each(function () {
+        //                    if (this.value === el.key) {
+        //                        exists = true;
+        //                    }
+        //                });
+        //                if (!exists) {// if the value does not exists, added it to the list
+        //                    $("#SATCode").append("<option value=" + el.key + ">" + el.value + "</option>");
+        //                    var ChosenInputValue = $('.chosen-choices input').val();//get the current value of the search
+        //                    $("#SATCode").trigger("chosen:updated");//update the list
+        //                    $('.chosen-choices input').val(ChosenInputValue);//since the update method reset the input fill the input with the value already typed
+        //                }
+        //            });
+        //        })
+        //})
 
         //Buscar información de la clave de unidad
         $('#SATUnit').typeahead({
