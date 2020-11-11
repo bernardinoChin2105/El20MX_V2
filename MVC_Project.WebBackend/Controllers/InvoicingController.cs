@@ -412,12 +412,14 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
 
-                InvoicesInfo result = SATService.PostIssueIncomeInvoices(invoiceSend, provider);
+                //InvoicesInfo result = SATService.PostIssueIncomeInvoices(invoiceSend, provider);
+                InvoicesInfo result = new InvoicesInfo() { pdf = true, xml = true};
                 if (result != null)
                 {
+                    /*comentado temporal
                     var office = _branchOfficeService.FirstOrDefault(x => x.id.ToString() == model.BranchOffice);
                     office.folio++;
-                    _branchOfficeService.Update(office);
+                    _branchOfficeService.Update(office);*/
 
                     //hasta aquí ya se realizo el timbrado
                     try
@@ -430,11 +432,13 @@ namespace MVC_Project.WebBackend.Controllers
                         IdIssued.Add(result.uuid.ToString());
 
                         /*Obtener los CFDI's*/
-                        var customersCFDI = SATService.GetCFDIs(IdIssued, provider);
+                        /*Comentado temporal
+                         * var customersCFDI = SATService.GetCFDIs(IdIssued, provider);*/
                         var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
 
                         List<InvoiceIssued> invoiceIssued = new List<InvoiceIssued>();
-                        foreach (var cfdi in customersCFDI)
+                        /*Comentado temporal
+                         * foreach (var cfdi in customersCFDI)
                         {
                             byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(cfdi.Xml);
                             System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
@@ -461,16 +465,17 @@ namespace MVC_Project.WebBackend.Controllers
                                 total = cfdi.Total,
                                 homemade = true
                             });
-                        }
+                        }*/
 
-                        var resultSaved = _invoiceIssuedService.SaveInvoice(invoiceIssued[0], customer);
+                        /*Comentado temporal
+                         * var resultSaved = _invoiceIssuedService.SaveInvoice(invoiceIssued[0], customer);*/
+                        var resultSaved = "result";
                         if (resultSaved != null)
                         {
                             success = true;
                             if (!string.IsNullOrEmpty(model.ListCustomerEmail[0]))
                             {
-
-                                var byteArrayPdf = GetDownloadPDF(invoiceIssued[0].id, model.BranchOffice);
+                                var byteArrayPdf = GetInvoicingPDF(invoiceIssued[0].id, model.BranchOffice);
                                 System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArrayPdf);
                                 var uploadPDF = AzureBlobService.UploadPublicFile(stream, invoiceIssued[0].id + ".pdf", StorageInvoicesIssued, model.IssuingRFC);
 
@@ -930,7 +935,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         #region Generar PDF
         //[HttpGet, AllowAnonymous]
-        public byte[] GetDownloadPDF(Int64 id, string idOffice)
+        public byte[] GetInvoicingPDF(Int64 id, string idOffice)
         {
             var authUser = Authenticator.AuthenticatedUser;
 
