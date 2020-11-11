@@ -196,11 +196,10 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception("Ya existe un Cliente con el RFC proporcionado");
 
                 //Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
-                DateTime todayDate = DateUtil.GetDateTimeNow();
+                DateTime todayDate = DateUtil.GetDateTimeNow();                
 
                 Customer customer = new Customer()
                 {
-
                     uuid = Guid.NewGuid(),
                     account = new Account { id = authUser.Account.Id },
                     firstName = model.FistName,
@@ -218,6 +217,9 @@ namespace MVC_Project.WebBackend.Controllers
                     modifiedAt = todayDate,
                     status = SystemStatus.ACTIVE.ToString(),
                 };
+
+                if (model.taxRegime == TypeTaxRegimen.PERSONA_FISICA.ToString())
+                    customer.businessName = model.BusinessName;
 
                 if (model.Colony.Value > 0)
                     customer.colony = model.Colony.Value;
@@ -409,6 +411,9 @@ namespace MVC_Project.WebBackend.Controllers
                 customerData.deliveryAddress = model.DeliveryAddress;
                 customerData.modifiedAt = todayDate;
                 customerData.status = SystemStatus.ACTIVE.ToString();
+
+                if (model.taxRegime == TypeTaxRegimen.PERSONA_FISICA.ToString())
+                    customerData.businessName = model.BusinessName;
 
                 if (model.Colony.Value > 0)
                     customerData.colony = model.Colony.Value;

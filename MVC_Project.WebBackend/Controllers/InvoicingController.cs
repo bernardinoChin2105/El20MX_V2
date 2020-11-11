@@ -679,7 +679,7 @@ namespace MVC_Project.WebBackend.Controllers
         #region busquedas de información 
         //Busca a los cliente o proveedores por rfc o razon social
         [HttpGet, AllowAnonymous]
-        public JsonResult GetSearchReceiver(string field, string value, string typeInvoice)
+        public JsonResult GetSearchReceiver(string value, string typeInvoice)
         {
             var authUser = Authenticator.AuthenticatedUser;
             bool success = false;
@@ -693,28 +693,17 @@ namespace MVC_Project.WebBackend.Controllers
                 };
 
                 if (typeInvoice != "-1") filters.typeInvoice = typeInvoice;
-
-                if (value != "")
-                {
-                    if (field == "RFC")
-                    {
-                        filters.rfc = value;
-                    }
-                    else if (field == "Name")
-                    {
-                        filters.businessName = value;
-                    }
-                }
+                filters.businessName = value;             
 
                 result = _customerService.ReceiverSearchList(filters);
                 if (result != null)
                 {
                     //Validar que los datos no sean vacios por los nombres
-                    result = result.Select(c =>
-                    {
-                        c.businessName = (c.first_name != null || c.last_name != null ? c.first_name + " " + c.last_name : c.businessName);
-                        return c;
-                    }).ToList();
+                    //result = result.Select(c =>
+                    //{
+                    //    c.businessName = (c.first_name != null || c.last_name != null ? c.first_name + " " + c.last_name : c.businessName);
+                    //    return c;
+                    //}).ToList();
 
                     success = true;
                 }
@@ -734,13 +723,15 @@ namespace MVC_Project.WebBackend.Controllers
         {
             bool success = false;
             string message = string.Empty;
+            var authUser = Authenticator.AuthenticatedUser;
             CustomerViewModel receiver = new CustomerViewModel();
             //Object receiver = new object();
             try
             {
+                var accountId = authUser.Account.Id;
                 if (type == "customer")
                 {
-                    var customer = _customerService.FirstOrDefault(x => x.id == id);
+                    var customer = _customerService.FirstOrDefault(x => x.id == id && x.account.id == accountId);
 
                     if (customer != null)
                     {
@@ -768,7 +759,7 @@ namespace MVC_Project.WebBackend.Controllers
                 }
                 else
                 {
-                    var provider = _providerService.FirstOrDefault(x => x.id == id);
+                    var provider = _providerService.FirstOrDefault(x => x.id == id && x.account.id == accountId);
 
                     if (provider != null)
                     {
