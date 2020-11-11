@@ -461,12 +461,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                     if (json.success) {
                         var data = json.data;
-                        if (data === null) {
+                        if (data === null)
                             toastr['error']("No se encontro la factura con el Folio Fiscal.");
+                        else {
+                            $("#CDFIS").append('<input type="text" readonly name="cfdi[]" class="form-control" value="' + data.uuid + '">');
+                            $("#InvoiceComplement").val("");
                         }
-                        //else {
-
-                        //}
                         El20Utils.ocultarCargador();
                     }
                     else {
