@@ -412,14 +412,12 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
 
-                //InvoicesInfo result = SATService.PostIssueIncomeInvoices(invoiceSend, provider);
-                InvoicesInfo result = new InvoicesInfo() { pdf = true, xml = true};
+                InvoicesInfo result = SATService.PostIssueIncomeInvoices(invoiceSend, provider);
                 if (result != null)
                 {
-                    /*comentado temporal
                     var office = _branchOfficeService.FirstOrDefault(x => x.id.ToString() == model.BranchOffice);
                     office.folio++;
-                    _branchOfficeService.Update(office);*/
+                    _branchOfficeService.Update(office);
 
                     //hasta aquí ya se realizo el timbrado
                     try
@@ -432,13 +430,14 @@ namespace MVC_Project.WebBackend.Controllers
                         IdIssued.Add(result.uuid.ToString());
 
                         /*Obtener los CFDI's*/
-                        /*Comentado temporal
-                         * var customersCFDI = SATService.GetCFDIs(IdIssued, provider);*/
+                        var customersCFDI = SATService.GetCFDIs(IdIssued, provider);
                         var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
 
                         List<InvoiceIssued> invoiceIssued = new List<InvoiceIssued>();
-                        /*Comentado temporal
-                         * foreach (var cfdi in customersCFDI)
+
+                        //List<InvoiceIssued> invoiceIssued = _invoiceIssuedService.FindBy(x => x.account.id == authUser.Account.Id).ToList();
+
+                        foreach (var cfdi in customersCFDI)
                         {
                             byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(cfdi.Xml);
                             System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
@@ -465,11 +464,9 @@ namespace MVC_Project.WebBackend.Controllers
                                 total = cfdi.Total,
                                 homemade = true
                             });
-                        }*/
+                        }
 
-                        /*Comentado temporal
-                         * var resultSaved = _invoiceIssuedService.SaveInvoice(invoiceIssued[0], customer);*/
-                        var resultSaved = "result";
+                        var resultSaved = _invoiceIssuedService.SaveInvoice(invoiceIssued[0], customer);
                         if (resultSaved != null)
                         {
                             success = true;
@@ -477,7 +474,7 @@ namespace MVC_Project.WebBackend.Controllers
                             {
                                 var byteArrayPdf = GetInvoicingPDF(invoiceIssued[0].id, model.BranchOffice);
                                 System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArrayPdf);
-                                var uploadPDF = AzureBlobService.UploadPublicFile(stream, invoiceIssued[0].id + ".pdf", StorageInvoicesIssued, model.IssuingRFC);
+                                var uploadPDF = AzureBlobService.UploadPublicFile(stream, invoiceIssued[0].uuid + ".pdf", StorageInvoicesIssued, model.IssuingRFC);
 
                                 SendInvoice(model.ListCustomerEmail[0], model.RFC, model.CustomerName, model.Comments, invoiceIssued[0].xml, uploadPDF.Item1);
                             }
@@ -496,14 +493,15 @@ namespace MVC_Project.WebBackend.Controllers
                 else
                     throw new Exception("Error al crear la factura");
 
-                MensajeFlashHandler.RegistrarMensaje("Se creo la factura", TiposMensaje.Success);
+                MensajeFlashHandler.RegistrarMensaje("Factura enviada exitosamente.", TiposMensaje.Success);
                 return RedirectToAction("Invoice");
             }
             catch (Exception ex)
             {
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                SetCombos(model.ZipCode, ref model);
-                return View("Invoice", model);
+                //SetCombos(model.ZipCode, ref model);
+                //return View("Invoice", model);
+                return View("Invoice");
                 //return RedirectToAction("Invoice");
             }
         }
@@ -698,7 +696,7 @@ namespace MVC_Project.WebBackend.Controllers
                 };
 
                 if (typeInvoice != "-1") filters.typeInvoice = typeInvoice;
-                filters.businessName = value;             
+                filters.businessName = value;
 
                 result = _customerService.ReceiverSearchList(filters);
                 if (result != null)
@@ -999,7 +997,7 @@ namespace MVC_Project.WebBackend.Controllers
                 Fecha = fecha,
                 //Moneda = varMoneda,
                 Moneda = formatoTexto.Convertir(varTotal.ToString(), true),
-                Descuento = varDescuento1,   
+                Descuento = varDescuento1,
                 Logo = office.logo
             };
 
@@ -1263,68 +1261,68 @@ namespace MVC_Project.WebBackend.Controllers
 
             try
             {
-               
-                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
-                    string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
-                    string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
 
-                    if (first)
-                    {
-                        FilterStart = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString();
-                        FilterEnd = DateUtil.GetDateTimeNow().ToShortDateString();
-                    }
+                NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
+                string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
+                string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
 
-                    string Folio = filtersValues.Get("Folio").Trim();
-                    string rfc = filtersValues.Get("RFC").Trim();
-                    string PaymentMethod = filtersValues.Get("PaymentMethod").Trim();
-                    string PaymentForm = filtersValues.Get("PaymentForm").Trim();
-                    string Currency = filtersValues.Get("Currency").Trim();
-                    string serie = filtersValues.Get("Serie").Trim();
-                    string nombreRazonSocial = filtersValues.Get("NombreRazonSocial").Trim();
+                if (first)
+                {
+                    FilterStart = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString();
+                    FilterEnd = DateUtil.GetDateTimeNow().ToShortDateString();
+                }
 
-                    var pagination = new BasePagination();
-                    var filters = new CustomerCFDIFilter() { accountId = userAuth.Account.Id };
-                    pagination.PageSize = param.iDisplayLength;
-                    pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
-                    if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
-                    if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
-                    if (Folio != "") filters.folio = Folio;
-                    if (rfc != "") filters.rfc = rfc;
-                    if (PaymentForm != "-1") filters.paymentForm = PaymentForm;
-                    if (PaymentMethod != "-1") filters.paymentMethod = PaymentMethod;
-                    if (Currency != "-1") filters.currency = Currency;
-                    if (!string.IsNullOrEmpty(serie)) filters.serie = serie;
-                    if (!string.IsNullOrEmpty(nombreRazonSocial)) filters.nombreRazonSocial = nombreRazonSocial;
+                string Folio = filtersValues.Get("Folio").Trim();
+                string rfc = filtersValues.Get("RFC").Trim();
+                string PaymentMethod = filtersValues.Get("PaymentMethod").Trim();
+                string PaymentForm = filtersValues.Get("PaymentForm").Trim();
+                string Currency = filtersValues.Get("Currency").Trim();
+                string serie = filtersValues.Get("Serie").Trim();
+                string nombreRazonSocial = filtersValues.Get("NombreRazonSocial").Trim();
 
-                    listResponse = _customerService.CustomerCDFIList(pagination, filters);
+                var pagination = new BasePagination();
+                var filters = new CustomerCFDIFilter() { accountId = userAuth.Account.Id };
+                pagination.PageSize = param.iDisplayLength;
+                pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
+                if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
+                if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
+                if (Folio != "") filters.folio = Folio;
+                if (rfc != "") filters.rfc = rfc;
+                if (PaymentForm != "-1") filters.paymentForm = PaymentForm;
+                if (PaymentMethod != "-1") filters.paymentMethod = PaymentMethod;
+                if (Currency != "-1") filters.currency = Currency;
+                if (!string.IsNullOrEmpty(serie)) filters.serie = serie;
+                if (!string.IsNullOrEmpty(nombreRazonSocial)) filters.nombreRazonSocial = nombreRazonSocial;
 
-                    list = listResponse.Select(x => new InvoicesIssuedListVM
-                    {
-                        id = x.id,
-                        folio = x.folio,
-                        serie = x.serie,
-                        paymentMethod = x.paymentMethod,
-                        paymentForm = x.paymentForm,
-                        currency = x.currency,
-                        amount = x.subtotal.ToString("C2"),
-                        iva = x.iva.ToString("C2"),
-                        totalAmount = x.total.ToString("C2"),
-                        invoicedAt = x.invoicedAt.ToShortDateString(),
-                        rfc = x.rfc,
-                        businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
-                        //first_name = x.first_name,
-                        //last_name = x.last_name,
-                        paymentFormDescription = x.paymentFormDescription
-                    }).ToList();
+                listResponse = _customerService.CustomerCDFIList(pagination, filters);
 
-                    //Corroborar los campos iTotalRecords y iTotalDisplayRecords
+                list = listResponse.Select(x => new InvoicesIssuedListVM
+                {
+                    id = x.id,
+                    folio = x.folio,
+                    serie = x.serie,
+                    paymentMethod = x.paymentMethod,
+                    paymentForm = x.paymentForm,
+                    currency = x.currency,
+                    amount = x.subtotal.ToString("C2"),
+                    iva = x.iva.ToString("C2"),
+                    totalAmount = x.total.ToString("C2"),
+                    invoicedAt = x.invoicedAt.ToShortDateString(),
+                    rfc = x.rfc,
+                    businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
+                    //first_name = x.first_name,
+                    //last_name = x.last_name,
+                    paymentFormDescription = x.paymentFormDescription
+                }).ToList();
 
-                    if (listResponse.Count() > 0)
-                    {
-                        totalDisplay = listResponse[0].Total;
-                        total = listResponse.Count();
-                    }
-                
+                //Corroborar los campos iTotalRecords y iTotalDisplayRecords
+
+                if (listResponse.Count() > 0)
+                {
+                    totalDisplay = listResponse[0].Total;
+                    total = listResponse.Count();
+                }
+
 
             }
             catch (Exception ex)

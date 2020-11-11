@@ -221,7 +221,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 //}
 
                 var total = (subtotal - discount).toFixed(2);
-                console.log(total, "total");
+                //console.log(total, "total");
                 $("#Total").val(total);
                 $("#lblTotal").html('$' + total);
 
@@ -251,7 +251,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             "columnDefs": [
                 {
                     "targets": 0, render: function (data, type, row, meta) {
-                        console.log(data, type, row, meta, "column")
+                        //console.log(data, type, row, meta, "column")
                         return '<input type="text" class="form-control" readonly name="indexPD" value="' + row[0].Tipo + '" />';
                     }
                 },
@@ -280,7 +280,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
         $(this.htmlTable, "tbody").on('click',
-            'td.menu-options .btn-group .btn-edit',
+            '.btn-group .btn-edit',
             //'.btn-group .btn-delete',
             function () {
                 var tr = $(this).closest('tr');
@@ -294,11 +294,28 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#SATCode").val(data[2]);
                 $("#ProductServiceDescription").val(data[3]);
                 $("#SATUnit").val(data[4]);
-                self.unitPrice.val(data[5]);
-                self.discountRate.val(data[6]);
-                self.taxesIEPS.val(data[7]);
-                self.taxesIVA.val(data[8]);
-                self.subtotal.val(data[9]);
+                $("#Unit").val(data[5]);
+                self.unitPrice.val(data[6]);
+                self.discountRate.val(data[7]);
+                self.taxesIEPS.val(data[8]);
+                self.taxesIVA.val(data[9]);
+                self.subtotal.val(data[11]);
+                //console.log(data[10], "impuestos");
+
+                var array = data[10].split(";");
+                //console.log(array);
+
+                if (array.length > 0) {
+                    var t = $("#tableImpuestos").DataTable();
+                    
+                    array.forEach(function (item, i) {
+                        //console.log(item, i, "onjeto");
+                        var obj = JSON.stringify(item).replace(/'/g, "\"").replace("\"{", "{").replace("}\"", "}");
+                        //console.log(obj,"objeto")
+                        var imp = JSON.parse(obj);
+                        t.row.add([imp]).draw(false);                        
+                    });
+                }
 
                 $("#ServProdModal").modal("show");
             });
@@ -352,14 +369,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 input = $("#Transferred").val();
 
             t.row.add(
-                [
-                    {
-                        "Tipo": radio,
-                        "Impuesto": input,
-                        "Porcentaje": $("#Valuation").val(),
-                        "index": index
-                    }
-                ]
+                [{
+                    "Tipo": radio,
+                    "Impuesto": input,
+                    "Porcentaje": $("#Valuation").val(),
+                    "index": index
+                }]
             ).draw(false);
 
             Prices();
@@ -461,7 +476,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         /*Buscador de facturas para complementos*/
         $(".search-invoice").click(function () {
-            console.log("entre al evento", $(this).val());
+            //console.log("entre al evento", $(this).val());
             El20Utils.mostrarCargador();
 
             var uuid = $("#InvoiceComplement").val();
@@ -471,7 +486,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 data: { uuid: uuid },
                 url: self.searchCDFIUrl,
                 success: function (json) {
-                    console.log(json, "respuesta");
+                    //console.log(json, "respuesta");
 
                     if (json.success) {
                         var data = json.data;
@@ -527,12 +542,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                 var discount = discountRate > 0 || discountRate < 0 ? (discountRate * sub) / 100 : 0;
                 //console.log("desceutno", discount);
-                console.log("holas")
+                //console.log("holas")
                 if (impuestos.rows().count() > 0) {
-                    console.log(impuestos, "tabla")
+                    //console.log(impuestos, "tabla")
                     for (var i = 0; i < impuestos.rows().count(); i++) {
                         var datos = impuestos.row(i).data()[0];
-                        console.log(datos, "datos");
+                       // console.log(datos, "datos");
                         var por = parseFloat(datos.Porcentaje);
                         if (datos.Tipo === "Retención") {
                             var imp1 = por > 0 ? (por * sub) / 100 : 0;
@@ -581,7 +596,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
             if (impuestos.count()) {
                 impuestos.each(function (item, i) {
-                    console.log(item[0], i, "array");
+                   // console.log(item[0], i, "array");
                     var obj = JSON.stringify(item[0]).replace(/"/g, "'");
                     arrayImpuestos.push(obj);
                 });
@@ -806,7 +821,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 //console.log(query, process, "esto trae");                
                 var type = $("#TypeInvoice").val();
                 return $.get(self.searchUrl + "?value=" + query + "&typeInvoice=" + type, function (result) {
-                    console.log(result, "respuesta");
+                   // console.log(result, "respuesta");
                     var resultList = result.data.map(function (item) {
                         var aItem = { id: item.id, name: item.businessName, type: item.taxRegime };
                         return JSON.stringify(aItem);
@@ -945,7 +960,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 El20Utils.mostrarCargador();
                 //console.log(query, process, "esto trae");
                 return $.get(self.codeSATUrl + "?Concept=" + query, function (result) {
-                    console.log(result, "respuesta");
+                    //console.log(result, "respuesta");
                     var resultList = result.data.map(function (item) {
                         var aItem = { id: item.id, name: item.code, type: item.description };
                         return JSON.stringify(aItem);
@@ -968,47 +983,6 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 return item.name;
             }
         });
-
-
-        ////initialization of chosen select
-        //$(".chosen-select").chosen({
-        //    search_contains: true // an option to search between words
-        //});
-        //$(".chosen-select-deselect").chosen({
-        //    allow_single_deselect: true
-        //});
-
-        ////ajax function to search a new value to the dropdown list
-        //function _ajaxSearch(param) {
-        //    return $.ajax({
-        //        url: self.codeSATUrl,
-        //        type: "GET",
-        //        dataType: "json",
-        //        data: { Concept: param }
-        //    });
-        //}
-        ////key event to call our ajax call
-        //$(".chosen-choices input").on('keyup', function () {
-        //    var param = $('.chosen-choices input').val();// get the pressed key
-        //    _ajaxSearch(param)
-        //        .done(function (response) {
-        //            console.log(response, "respuesta");
-        //            var exists; // variable that returns a true if the value already exists in our dropdown list
-        //            $.each(response, function (index, el) { //loop to check if the value exists inside the list
-        //                $('#SATCode option').each(function () {
-        //                    if (this.value === el.key) {
-        //                        exists = true;
-        //                    }
-        //                });
-        //                if (!exists) {// if the value does not exists, added it to the list
-        //                    $("#SATCode").append("<option value=" + el.key + ">" + el.value + "</option>");
-        //                    var ChosenInputValue = $('.chosen-choices input').val();//get the current value of the search
-        //                    $("#SATCode").trigger("chosen:updated");//update the list
-        //                    $('.chosen-choices input').val(ChosenInputValue);//since the update method reset the input fill the input with the value already typed
-        //                }
-        //            });
-        //        })
-        //})
 
         //Buscar información de la clave de unidad
         $('#SATUnit').typeahead({
@@ -1048,7 +1022,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 data: { id: id, type: type },
                 url: self.addressUrl,
                 success: function (json) {
-                    console.log(json, "respuesta");
+                    //console.log(json, "respuesta");
                     if (json.success) {
                         var data = json.data;
                         $("#CustomerName").val(data.BusinessName);
