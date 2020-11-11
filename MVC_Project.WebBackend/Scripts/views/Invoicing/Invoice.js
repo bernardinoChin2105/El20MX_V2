@@ -153,12 +153,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 //        return intVal(a) + intVal(b);
                 //    }, 0);
 
-                total = api
-                    .column(8)
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
+                //total = api
+                //    .column(8)
+                //    .data()
+                //    .reduce(function (a, b) {
+                //        return intVal(a) + intVal(b);
+                //    }, 0);
 
                 //trasladosIEPSIVA = api
                 //    .column(9)
@@ -181,6 +181,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                 $("#Subtotal").val(subtotal.toFixed(2));
                 $("#lblSubtotal").html('$' + subtotal.toFixed(2));
+                $(".trSubtotal > th").removeClass("hide");
 
 
                 var discountTXT = $("#DiscountRate").val();
@@ -275,12 +276,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         return button;
                     }
                 }
-            ],
+            ]
         });
 
         $(this.htmlTable, "tbody").on('click',
-            //'td.menu-options .btn-group .btn-edit',
-            '.btn-group .btn-delete',
+            'td.menu-options .btn-group .btn-edit',
+            //'.btn-group .btn-delete',
             function () {
                 var tr = $(this).closest('tr');
                 var row = self.dataTable.row(tr);
@@ -496,6 +497,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
         $('.money').mask("##,###,##0.00", { reverse: true });
+        $('.rateMoney').mask("##0.00", { reverse: false });
 
         $("#RFC").keyup(function () {
             this.value = this.value.toUpperCase();
@@ -803,8 +805,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             source: function (query, process) {
                 //console.log(query, process, "esto trae");
                 var type = $("#TypeInvoice").val();
-                return $.get(self.searchUrl + "?field=Name&value=" + query + "&typeInvoice=" + type, function (result) {
-                    //console.log(result, "respuesta");
+                return $.get(self.searchUrl + "?value=" + query + "&typeInvoice=" + type, function (result) {
+                    console.log(result, "respuesta");
                     var resultList = result.data.map(function (item) {
                         var aItem = { id: item.id, name: item.businessName, type: item.taxRegime };
                         return JSON.stringify(aItem);
@@ -822,56 +824,56 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             updater: function (obj) {
                 var item = JSON.parse(obj);
                 $('#CustomerId').attr('value', item.id);
-                $('#ReceiverType').attr('value', item.type);
+                $('#TypeReceptor').attr('value', item.type);
                 GetReceiver(item.id, item.type);
                 return item.name;
             }
         });
 
-        //Buscar información del cliente por RFC
-        $('#RFC').typeahead({
-            source: function (query, process) {
-                //console.log(query, process, "esto trae");
-                var type = $("#TypeInvoice").val();
-                return $.get(self.searchUrl + "?field=RFC&value=" + query + "&typeInvoice=" + type, function (result) {
-                    //console.log(result.data, "respuesta");
-                    var resultList = result.data.map(function (item) {
-                        var aItem = { id: item.id, name: item.rfc, type: item.taxRegime };
-                        return JSON.stringify(aItem);
-                    });
-                    return process(resultList);
-                });
-            },
-            //matcher: function (obj) {
-            //    var item = JSON.parse(obj);
-            //    return ~item.name.toLowerCase().indexOf(this.query.toLowerCase());
-            //},
-            //sorter: function (items) {
-            //    var beginswith = [], caseSensitive = [], caseInsensitive = [], item;
-            //    while (aItem = items.shift()) {
-            //        var item2 = JSON.parse(aItem);
-            //        if (!item.name.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(JSON.stringify(item));
-            //        else if (~item.name.indexOf(this.query)) caseSensitive.push(JSON.stringify(item));
-            //        else caseInsensitive.push(JSON.stringify(item));
-            //    }
+        ////Buscar información del cliente por RFC
+        //$('#RFC').typeahead({
+        //    source: function (query, process) {
+        //        //console.log(query, process, "esto trae");
+        //        var type = $("#TypeInvoice").val();
+        //        return $.get(self.searchUrl + "?field=RFC&value=" + query + "&typeInvoice=" + type, function (result) {
+        //            //console.log(result.data, "respuesta");
+        //            var resultList = result.data.map(function (item) {
+        //                var aItem = { id: item.id, name: item.rfc, type: item.taxRegime };
+        //                return JSON.stringify(aItem);
+        //            });
+        //            return process(resultList);
+        //        });
+        //    },
+        //    //matcher: function (obj) {
+        //    //    var item = JSON.parse(obj);
+        //    //    return ~item.name.toLowerCase().indexOf(this.query.toLowerCase());
+        //    //},
+        //    //sorter: function (items) {
+        //    //    var beginswith = [], caseSensitive = [], caseInsensitive = [], item;
+        //    //    while (aItem = items.shift()) {
+        //    //        var item2 = JSON.parse(aItem);
+        //    //        if (!item.name.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(JSON.stringify(item));
+        //    //        else if (~item.name.indexOf(this.query)) caseSensitive.push(JSON.stringify(item));
+        //    //        else caseInsensitive.push(JSON.stringify(item));
+        //    //    }
 
-            //    return beginswith.concat(caseSensitive, caseInsensitive);
-            //},
-            highlighter: function (obj) {
-                var item = JSON.parse(obj);
-                var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
-                return item.name.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
-                    return '<strong>' + match + '</strong>';
-                });
-            },
-            updater: function (obj) {
-                var item = JSON.parse(obj);
-                $('#CustomerId').attr('value', item.id);
-                $('#TypeReceptor').attr('value', item.taxRegime);
-                GetReceiver(item.id, item.taxRegime);
-                return item.name;
-            }
-        });
+        //    //    return beginswith.concat(caseSensitive, caseInsensitive);
+        //    //},
+        //    highlighter: function (obj) {
+        //        var item = JSON.parse(obj);
+        //        var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+        //        return item.name.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+        //            return '<strong>' + match + '</strong>';
+        //        });
+        //    },
+        //    updater: function (obj) {
+        //        var item = JSON.parse(obj);
+        //        $('#CustomerId').attr('value', item.id);
+        //        $('#TypeReceptor').attr('value', item.taxRegime);
+        //        GetReceiver(item.id, item.taxRegime);
+        //        return item.name;
+        //    }
+        //});
 
         $("#ZipCode").blur(function () {
             //console.log("perdio el focus");            
