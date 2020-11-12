@@ -359,7 +359,6 @@ namespace MVC_Project.WebBackend.Controllers
                     }
                     else
                     {
-
                         credential.idCredentialProvider = satModel.id;
                         credential.statusProvider = satModel.status;
                         credential.status = SystemStatus.PROCESSING.ToString();
@@ -369,13 +368,18 @@ namespace MVC_Project.WebBackend.Controllers
                     
                     if (IsCRMEnabled && account.pipedriveId > 0)
                     {
+                        var membership = _membership.FirstOrDefault(x => x.account.id == account.id && x.role.code == SystemRoles.ACCOUNT_OWNER.ToString() && x.status == SystemStatus.ACTIVE.ToString());
                         PipedriveClient pdClient = new PipedriveClient();
                         PipedriveResponse response = pdClient.UpdatePerson(new PipedrivePerson()
                         {
-                            Name = authUser.FirstName + " " + authUser.LastName,
-                            FirstName = authUser.FirstName,
-                            LastName = authUser.LastName,
-                            Email = authUser.Email,
+                            Name = membership != null ? membership.user.profile.firstName + " " + membership.user.profile.lastName 
+                            : authUser.FirstName + " " + authUser.LastName,
+                            FirstName = membership != null ? membership.user.profile.firstName
+                            : authUser.FirstName,
+                            LastName = membership != null ? membership.user.profile.lastName
+                            : authUser.LastName,
+                            Email = membership != null ? membership.user.name
+                            : authUser.Email,
                             RFC = account.rfc,
                             CIEC = account.ciec
                         }, account.pipedriveId);
