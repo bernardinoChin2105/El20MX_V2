@@ -165,6 +165,28 @@ namespace MVC_Project.WebBackend.Controllers
                 else if(memberships.Count() == 1)
                 {
                     var uniqueMembership = memberships.First();
+                    if (uniqueMembership.account.status == SystemStatus.INACTIVE.ToString())
+                    {
+                        List<Permission> permissionsUser = new List<Permission>();
+                        permissionsUser.Add(new Permission
+                        {
+                            Action = "Index",
+                            Controller = "Account",
+                            Module = "Account",
+                            Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                            isCustomizable = false
+                        });
+                        authUser.Permissions = permissionsUser;
+                        Authenticator.StoreAuthenticatedUser(authUser);
+
+                        LogUtil.AddEntry("Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                        );
+
+                        return RedirectToAction("Index", "Account");
+                    }
                     List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                     {
                         Controller = p.permission.controller,

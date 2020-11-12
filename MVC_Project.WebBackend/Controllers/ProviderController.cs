@@ -67,17 +67,6 @@ namespace MVC_Project.WebBackend.Controllers
 
                 SetCombos(string.Empty, ref createProvider);
 
-                LogUtil.AddEntry(
-                   "Crea nuevo proveedor: " + JsonConvert.SerializeObject(createProvider),
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
                 return View(createProvider);
             }
             catch (Exception ex)
@@ -199,14 +188,14 @@ namespace MVC_Project.WebBackend.Controllers
 
                 _providerService.Create(provider);
                 LogUtil.AddEntry(
-                    "Crea nuevo proveedor: " + JsonConvert.SerializeObject(provider),
+                    "Nuevo proveedor creado: " + provider.businessName,
                     ENivelLog.Info,
                     authUser.Id,
                     authUser.Email,
                     EOperacionLog.ACCESS,
                     string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                     ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    JsonConvert.SerializeObject(provider)
                 );
                 MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
                 return RedirectToAction("Index");
@@ -432,14 +421,14 @@ namespace MVC_Project.WebBackend.Controllers
                 _providerService.Update(providerData);
 
                 LogUtil.AddEntry(
-                   "Editar cliente: " + JsonConvert.SerializeObject(providerData),
+                   "Preveedor editado: " + providerData.businessName,
                    ENivelLog.Info,
                    userAuth.Id,
                    userAuth.Email,
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                   JsonConvert.SerializeObject(providerData)
                 );
 
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
@@ -550,17 +539,6 @@ namespace MVC_Project.WebBackend.Controllers
                         total = listResponse.Count();
                     }
                 }
-
-                LogUtil.AddEntry(
-                   "Lista de clientes totaldisplay: " + totalDisplay + ", total: " + total,
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
 
                 return Json(new
                 {
@@ -789,17 +767,6 @@ namespace MVC_Project.WebBackend.Controllers
                         campo.Cells["T" + rowIndexString].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                         rowIndex++;
                     }
-
-                    LogUtil.AddEntry(
-                      "Descarga de proveedores filtros: " + filtros,
-                      ENivelLog.Info,
-                      userAuth.Id,
-                      userAuth.Email,
-                      EOperacionLog.ACCESS,
-                      string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                      ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                      string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                   );
 
                     campo.Cells[campo.Dimension.Address].AutoFitColumns();
                     byte[] bin = pck.GetAsByteArray();
@@ -1081,30 +1048,9 @@ namespace MVC_Project.WebBackend.Controllers
                             //SinGuardar = clientesNoRegistrados,
                         }, JsonRequestBehavior.AllowGet);
                     }
-
-                    LogUtil.AddEntry(
-                       "¡Intentelo nuevamente!",
-                       ENivelLog.Error,
-                       authUser.Id,
-                       authUser.Email,
-                       EOperacionLog.ACCESS,
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                    );
                     return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente!", Tipo = 0 }, JsonRequestBehavior.AllowGet);
                 }
-
-                LogUtil.AddEntry(
-                   "¡Intentelo nuevamente! Archivo no válido",
-                   ENivelLog.Error,
-                   authUser.Id,
-                   authUser.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                );
+                
                 return Json(new { Success = false, Mensaje = "¡Intentelo nuevamente! Archivo no válido", Tipo = 0 }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception Error)

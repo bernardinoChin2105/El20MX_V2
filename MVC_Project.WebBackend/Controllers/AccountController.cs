@@ -244,6 +244,7 @@ namespace MVC_Project.WebBackend.Controllers
         {
             var authUser = Authenticator.AuthenticatedUser;
             DateTime todayDate = DateUtil.GetDateTimeNow();
+            bool IsCRMEnabled = Convert.ToBoolean(ConfigurationManager.AppSettings["Pipedrive.Enabled"]);
             try
             {
                 var provider = ConfigurationManager.AppSettings["SATProvider"];
@@ -297,7 +298,6 @@ namespace MVC_Project.WebBackend.Controllers
                     _credentialService.Create(credential, account);
 
                     // ESTO VA DONDE SE VAYA A INTEGRAR EL CRM
-                    bool IsCRMEnabled = Convert.ToBoolean(ConfigurationManager.AppSettings["Pipedrive.Enabled"]);
                     if (IsCRMEnabled)
                     {
                         PipedriveClient pdClient = new PipedriveClient();
@@ -306,10 +306,22 @@ namespace MVC_Project.WebBackend.Controllers
                             Name = authUser.FirstName + " " + authUser.LastName,
                             FirstName = authUser.FirstName,
                             LastName = authUser.LastName,
-                            Email = user.name,
+                            Email = authUser.Email,
                             RFC = account.rfc,
                             CIEC = account.ciec
                         });
+                        if (response.Success)
+                        {
+                            account.pipedriveId = response.Data.Id;
+                            _accountService.Update(account);
+                        }
+
+                        LogUtil.AddEntry(
+                           "Registro en Pipedrive del usuario" + account.rfc, ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                           JsonConvert.SerializeObject(response)
+                        );
                     }
                 }
                 else
@@ -353,6 +365,27 @@ namespace MVC_Project.WebBackend.Controllers
                         credential.status = SystemStatus.PROCESSING.ToString();
                         credential.modifiedAt = todayDate;
                         _credentialService.Update(credential);
+                    }
+                    
+                    if (IsCRMEnabled && account.pipedriveId > 0)
+                    {
+                        PipedriveClient pdClient = new PipedriveClient();
+                        PipedriveResponse response = pdClient.UpdatePerson(new PipedrivePerson()
+                        {
+                            Name = authUser.FirstName + " " + authUser.LastName,
+                            FirstName = authUser.FirstName,
+                            LastName = authUser.LastName,
+                            Email = authUser.Email,
+                            RFC = account.rfc,
+                            CIEC = account.ciec
+                        }, account.pipedriveId);
+
+                        LogUtil.AddEntry(
+                           "Actualización en Pipedrive del usuario" + account.rfc, ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                           JsonConvert.SerializeObject(response)
+                        );
                     }
                 }
                 
