@@ -987,12 +987,12 @@ namespace MVC_Project.WebBackend.Controllers
                 Serie = varSerie,
                 SubTotal = varSubTotal,
                 Total = varTotal,
-                TipoDeComprobante = ((TipoComprobante)Enum.Parse(typeof(TipoComprobante), varTipoComprobante, true)).GetDescription(),
+                TipoDeComprobante = _typeVoucherService.FirstOrDefault(x => x.code == varTipoComprobante).Description,// ((TipoComprobante)Enum.Parse(typeof(TipoComprobante), varTipoComprobante, true)).GetDescription(),
                 Certificado = varCertificado,
                 NoCertificado = varNoCertificado,
                 Sello = varSello,
                 FormaPago = varFormaPago,
-                MetodoPago = ((MetodoPago)Enum.Parse(typeof(MetodoPago), varMetodoPago, true)).GetDescription(),
+                MetodoPago = _paymentMethodService.FirstOrDefault(x => x.code == varMetodoPago).Description, //((MetodoPago)Enum.Parse(typeof(MetodoPago),
                 LugarExpedicion = varLugarExpedicion,
                 Fecha = fecha,
                 //Moneda = varMoneda,
@@ -1012,7 +1012,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 try
                 {
-                    varRegimenFiscalText = ((RegimenFiscal)Enum.Parse(typeof(RegimenFiscal), "RegimenFiscal" + varRegimenFiscal, true)).GetDescription();
+                    varRegimenFiscalText = _taxRegimeService.FirstOrDefault(x => x.code == varRegimenFiscal).description; //((RegimenFiscal)Enum.Parse(typeof(RegimenFiscal), "RegimenFiscal" + varRegimenFiscal, true)).GetDescription();
                 }
                 catch (Exception ex)
                 {
@@ -1038,7 +1038,7 @@ namespace MVC_Project.WebBackend.Controllers
                 string varUsoCFDIText = string.Empty;
                 try
                 {
-                    varUsoCFDIText = ((UsoCFDI)Enum.Parse(typeof(UsoCFDI), varUsoCFDI, true)).GetDescription();
+                    varUsoCFDIText = _useCFDIService.FirstOrDefault(x => x.code == varUsoCFDI).description; //((UsoCFDI)Enum.Parse(typeof(UsoCFDI), varUsoCFDI, true)).GetDescription();
                 }
                 catch (Exception ex)
                 {
@@ -1067,14 +1067,15 @@ namespace MVC_Project.WebBackend.Controllers
                 XmlNode nodeConcepto = nodeConceptos.SelectSingleNode("cfdi:Concepto", nsm);
                 if (nodeConcepto != null)
                 {
-                    string varNoIdentificacion = nodeConcepto.Attributes["NoIdentificacion"].Value;
-                    string varClaveProdServ = nodeConcepto.Attributes["ClaveProdServ"].Value;
-                    string varCantidad = nodeConcepto.Attributes["Cantidad"].Value;
-                    string varClaveUnidad = nodeConcepto.Attributes["ClaveUnidad"].Value;
-                    string varDescripcion = nodeConcepto.Attributes["Descripcion"].Value;
-                    string varDescuento = nodeConcepto.Attributes["Descuento"] != null ? nodeConcepto.Attributes["Descuento"].Value : string.Empty;
-                    string varImporte = nodeConcepto.Attributes["Importe"].Value;
-                    string varValorUnitario = nodeConcepto.Attributes["ValorUnitario"].Value;
+                    string varNoIdentificacion = nodeConcepto.Attributes["NoIdentificacion"] != null ? nodeConcepto.Attributes["NoIdentificacion"].Value : string.Empty;
+                    string varClaveProdServ = nodeConcepto.Attributes["ClaveProdServ"] != null ? nodeConcepto.Attributes["ClaveProdServ"].Value : string.Empty;                    
+                    string varCantidad = nodeConcepto.Attributes["Cantidad"] != null ? nodeConcepto.Attributes["Cantidad"].Value : string.Empty;                    
+                    string varClaveUnidad = nodeConcepto.Attributes["ClaveUnidad"] != null ? nodeConcepto.Attributes["ClaveUnidad"].Value : string.Empty;                    
+                    string varDescripcion = nodeConcepto.Attributes["Descripcion"] != null ? nodeConcepto.Attributes["Descripcion"].Value : string.Empty;
+                    string varDescuento = nodeConcepto.Attributes["Descuento"] != null ? nodeConcepto.Attributes["Descuento"].Value : string.Empty;                    
+                    string varImporte = nodeConcepto.Attributes["Importe"] != null ? nodeConcepto.Attributes["Importe"].Value : string.Empty;                    
+                    string varValorUnitario = nodeConcepto.Attributes["ValorUnitario"] != null ? nodeConcepto.Attributes["ValorUnitario"].Value : string.Empty;  
+                    string varUnidad = nodeConcepto.Attributes["Unidad"] != null ? nodeConcepto.Attributes["Unidad"].Value : string.Empty;
 
                     Concepto concepto = new Concepto()
                     {
@@ -1085,8 +1086,8 @@ namespace MVC_Project.WebBackend.Controllers
                         Descripcion = varDescripcion,
                         Descuento = varDescuento,
                         Importe = varImporte,
-                        ValorUnitario = varValorUnitario
-                        //Unidad 
+                        ValorUnitario = varValorUnitario,
+                        Unidad = varUnidad
                     };
                     cfdipdf.Conceptos.Concepto = concepto;
                 }
