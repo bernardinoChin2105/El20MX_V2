@@ -24,6 +24,7 @@ namespace MVC_Project.Domain.Entities
         public virtual string key { get; set; }
         public virtual string eFirma { get; set; }
         public virtual string eFirmaStatus { get; set; }
+        public virtual int pipedriveId { get; set; }
 
         public virtual IList<Membership> memberships { get; set; }
         public virtual IList<BankCredential> bankCredentials { get; set; }

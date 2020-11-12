@@ -23,12 +23,18 @@ namespace MVC_Project.Integrations.Pipedrive
         public string RFC { set; get; }
         [JsonProperty("358097456870be3412a055133f29d4083503fe6d")]
         public string CIEC { set; get; }
+        //[JsonProperty("visible_to")]
+        //public string VisibleTo { get; set; }
     }
 
     public class PipedriveResponse
     {
         [JsonProperty("success")]
         public bool Success { set; get; }
+        [JsonProperty("error")]
+        public string Error { set; get; }
+        [JsonProperty("errorCode")]
+        public int ErrorCode { get; set; }
         [JsonProperty("data")]
         public PipedriveData Data { set; get; }
     }
@@ -37,5 +43,8 @@ namespace MVC_Project.Integrations.Pipedrive
     {
         [JsonProperty("id")]
         public int Id { set; get; }
+        [JsonProperty("company_id")]
+        public int CompanyId { set; get; }
+        
     }
 }

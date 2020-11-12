@@ -282,6 +282,17 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 _customerService.Create(customer);
+                LogUtil.AddEntry(
+                    "Nuevo cliente creado: " + customer.businessName,
+                    ENivelLog.Info,
+                    authUser.Id,
+                    authUser.Email,
+                    EOperacionLog.ACCESS,
+                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                    JsonConvert.SerializeObject(customer)
+                );
+
                 MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
@@ -516,6 +527,18 @@ namespace MVC_Project.WebBackend.Controllers
                 #endregion
 
                 _customerService.Update(customerData);
+
+                LogUtil.AddEntry(
+                    "Cliente editado: " + customerData.businessName,
+                    ENivelLog.Info,
+                    userAuth.Id,
+                    userAuth.Email,
+                    EOperacionLog.ACCESS,
+                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                    JsonConvert.SerializeObject(customerData)
+                );
+
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }

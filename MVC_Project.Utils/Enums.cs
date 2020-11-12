@@ -411,4 +411,12 @@ namespace MVC_Project.Utils
         [Display(Name = "failed")]
         FAILED
     }
+
+    public enum TypeInvoicing
+    {
+        [Display(Name = "issued")]
+        ISSUED,
+        [Display(Name = "received")]
+        RECEIVED
+    }
 }

@@ -270,19 +270,18 @@ namespace MVC_Project.WebBackend.Controllers
                         //Preguntarle por el guardado
                         _bankCredentialService.CreateWithTransaction(newBankCred);
                     }
+                    LogUtil.AddEntry(
+                       "Credencial bancaria para el rfc: " + authUser.Account.RFC,
+                       ENivelLog.Info,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
                 }
-
-                LogUtil.AddEntry(
-                   "Obtener token del cliente",
-                   ENivelLog.Info,
-                   authUser.Id,
-                   authUser.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                );
-
+                
                 return new JsonResult
                 {
                     Data = new { success = true, data = "La conexión con el banco se realizó de manera exitosa." },
@@ -399,14 +398,14 @@ namespace MVC_Project.WebBackend.Controllers
                 _bankAccountService.Update(updateBankAccount);
 
                 LogUtil.AddEntry(
-                   "Se actualizo la clave de la cuenta del banco: " + updateBankAccount.id + ", Clabe:" + updateBankAccount.clabe,
+                   "Se actualizo la clave de la cuenta del banco: " + updateBankAccount.name ,
                    ENivelLog.Info,
                    authUser.Id,
                    authUser.Email,
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                   "Clabe actualizada: " + updateBankAccount.clabe
                 );
                 success = true;
                 message = "Clabe actualizada";
@@ -498,17 +497,7 @@ namespace MVC_Project.WebBackend.Controllers
                     totalDisplay = listResponse[0].Total;
                     total = listResponse.Count();
                 }
-
-                LogUtil.AddEntry(
-                   "Lista de Bancos total: " + totalDisplay + ", totalDisplay: " + total,
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
+                
             }
             catch (Exception ex)
             {
@@ -678,18 +667,6 @@ namespace MVC_Project.WebBackend.Controllers
                     }
                 }
 
-
-
-                LogUtil.AddEntry(
-                   "Lista de Bancos total: " + totalDisplay + ", totalDisplay: " + total,
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
             }
             catch (Exception ex)
             {

@@ -29,5 +29,15 @@ namespace MVC_Project.Integrations.Pipedrive
             return JsonConvert.DeserializeObject<PipedriveResponse>(response.Content);
         }
 
+        public PipedriveResponse UpdatePerson(PipedrivePerson person, int pipedriveId)
+        {
+            string uri = "/person/" + pipedriveId;
+            RestRequest request = new RestRequest(uri, Method.PUT);
+            request.AddQueryParameter("api_token", api_token);
+            request.AddJsonBody(JsonConvert.SerializeObject(person));
+            IRestResponse response = client.Execute(request);
+            return JsonConvert.DeserializeObject<PipedriveResponse>(response.Content);
+        }
+
     }
 }

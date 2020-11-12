@@ -77,17 +77,7 @@ namespace MVC_Project.WebBackend.Controllers
                     total = listResponse.Count();
                 }
                 //}
-
-                LogUtil.AddEntry(
-                   "Lista de clientes totalDisplay: " + totalDisplay + ", total: " + total,
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
+                
             }
             catch (Exception ex)
             {
@@ -256,14 +246,14 @@ namespace MVC_Project.WebBackend.Controllers
                 var planR = _planService.SavePlan(plan, charges, features, assignments);
 
                 LogUtil.AddEntry(
-                    "Crea nuevo plan: " + JsonConvert.SerializeObject(planR),
+                    "Nuevo plan creado: " + planR.name,
                     ENivelLog.Info,
                     authUser.Id,
                     authUser.Email,
                     EOperacionLog.ACCESS,
                     string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                     ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    JsonConvert.SerializeObject(planR)
                 );
                 MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
                 return RedirectToAction("Index");
@@ -529,14 +519,14 @@ namespace MVC_Project.WebBackend.Controllers
                 _planService.UpdatePlan(dataPlan, newCharges, newFeatures, newAssignments, updateCharges, updateFeatures, updateAssignments);
                 
                 LogUtil.AddEntry(
-                   "Editar cliente: " + JsonConvert.SerializeObject(dataPlan),
+                   "Plan editado: " + dataPlan.name,
                    ENivelLog.Info,
                    userAuth.Id,
                    userAuth.Email,
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                   JsonConvert.SerializeObject(dataPlan)
                 );
 
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);

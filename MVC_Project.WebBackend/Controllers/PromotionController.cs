@@ -232,6 +232,16 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 _promotionService.Save(promotion, promotionsXaccounts, discounts);
+                LogUtil.AddEntry(
+                       "Promocion creada: " + promotion.name,
+                       ENivelLog.Info,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       JsonConvert.SerializeObject(promotion)
+                    );
                 MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
@@ -477,6 +487,16 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 _promotionService.Update(promotion, prmAccountsAdd, prmAccountsDel, discountsAdd, discountsUpd, discountsDel);
+                LogUtil.AddEntry(
+                       "Promocion actualizada: " + promotion.name,
+                       ENivelLog.Info,
+                       userAuth.Id,
+                       userAuth.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       JsonConvert.SerializeObject(promotion)
+                    );
                 MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
@@ -529,14 +549,14 @@ namespace MVC_Project.WebBackend.Controllers
                 _promotionService.Update(promotion);
 
                 LogUtil.AddEntry(
-                   "Actualización del status: " + JsonConvert.SerializeObject(uuid),
+                   "Actualización del status: " + promotion.name,
                    ENivelLog.Info,
                    userAuth.Id,
                    userAuth.Email,
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                   "Estatus: " + promotion.status
                 );
 
                 //return Json(true, JsonRequestBehavior.AllowGet);
