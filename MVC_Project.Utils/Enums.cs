@@ -58,6 +58,10 @@ namespace MVC_Project.Utils
         LEAD,
         [Display(Name = "System Administrator")]
         SYSTEM_ADMINISTRATOR,
+        [Display(Name = "Dirección")]
+        DIRECCION,
+        [Display(Name = "Supervisor")]
+        SUPERVISOR,
         [Display(Name = "CAD")]
         CAD
     }
