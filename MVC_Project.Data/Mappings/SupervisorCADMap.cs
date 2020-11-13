@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Data.Mappings
 {
-    public class CADAccountMap : ClassMap<CADAccount>
+    public class SupervisorCADMap : ClassMap<SupervisorCAD>
     {
-        public CADAccountMap()
+        public SupervisorCADMap()
         {
-            Table("cadAccounts");
+            Table("supervisorCads");
             Id(x => x.id).GeneratedBy.Identity().Column("id");
+            References(x => x.supervisor).Column("supervisorId");
             References(x => x.cad).Column("cadId");
-            References(x => x.account).Column("accountId");
         }
     }
 }

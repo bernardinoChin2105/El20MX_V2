@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Entities
 {
-    public class CADAccount : IEntity
+    public class SupervisorCAD : IEntity
     {
         public virtual Int64 id { get; set; }
-        
-        public virtual Account account { get; set; }
+
+        public virtual User supervisor { get; set; }
         public virtual User cad { get; set; }
     }
 }

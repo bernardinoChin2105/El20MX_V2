@@ -29,10 +29,11 @@ namespace MVC_Project.WebBackend.Controllers
         private IDiscountService _discountService;
         private ICADAccountService _CADAccountService;
         private IDiagnosticService _diagnosticService;
+        private ISupervisorCADService _supervisorCADService;
 
         public AccountController(IMembershipService accountUserService, IAccountService accountService,
             ICredentialService credentialService, IRoleService roleService, IUserService userService, IPromotionService promotionService,
-            IDiscountService discountService, ICADAccountService CADAccountService, IDiagnosticService diagnosticService)
+            IDiscountService discountService, ICADAccountService CADAccountService, IDiagnosticService diagnosticService, ISupervisorCADService supervisorCADService)
         {
             _membership = accountUserService;
             _accountService = accountService;
@@ -43,6 +44,7 @@ namespace MVC_Project.WebBackend.Controllers
             _discountService = discountService;
             _CADAccountService = CADAccountService;
             _diagnosticService = diagnosticService;
+            _supervisorCADService = supervisorCADService;
         }
 
         // GET: Account
@@ -66,15 +68,8 @@ namespace MVC_Project.WebBackend.Controllers
             if (authUser.isBackOffice)
             {
                 var accounts = new List<Account>();
-                if (authUser.Role.Code == SystemRoles.CAD.ToString())
-                    accounts = _CADAccountService.FindBy(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString()).Select(x => new Account
-                    {
-                        Id = x.account.id,
-                        Uuid = x.account.uuid,
-                        Name = x.account.name,
-                        RFC = x.account.rfc
-                    }).ToList();
-                else
+                if (authUser.Role.Code == SystemRoles.SYSTEM_ADMINISTRATOR.ToString() || authUser.Role.Code.Contains(SystemRoles.DIRECCION.ToString()))
+                {
                     accounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString()).Select(x => new Account
                     {
                         Id = x.id,
@@ -82,7 +77,30 @@ namespace MVC_Project.WebBackend.Controllers
                         Name = x.name,
                         RFC = x.rfc
                     }).ToList();
-                
+                }
+                else if (authUser.Role.Code.Contains(SystemRoles.SUPERVISOR.ToString()))
+                {
+                    List<Int64> cadIds = _supervisorCADService.FindBy(x => x.supervisor.id == authUser.Id).Select(x => x.cad.id).ToList();
+                    cadIds.Add(authUser.Id);
+
+                    accounts = _CADAccountService.FindBy(x => cadIds.Contains(x.cad.id)).Select(x => new Account
+                    {
+                        Id = x.account.id,
+                        Uuid = x.account.uuid,
+                        Name = x.account.name,
+                        RFC = x.account.rfc
+                    }).ToList();
+                }
+                else
+                {
+                    accounts = _CADAccountService.FindBy(x => x.cad.id == authUser.Id).Select(x => new Account
+                    {
+                        Id = x.account.id,
+                        Uuid = x.account.uuid,
+                        Name = x.account.name,
+                        RFC = x.account.rfc
+                    }).ToList();
+                }
                 var accountViewModel = new AccountSelectViewModel { accountListItems = new List<SelectListItem>() };
                 accountViewModel.accountListItems = accounts.Select(x => new SelectListItem
                 {

@@ -115,6 +115,7 @@
     <Compile Include="Entities\State.cs" />
     <Compile Include="Entities\Store.cs" />
     <Compile Include="Entities\DiagnosticTaxStatus.cs" />
+    <Compile Include="Entities\SupervisorCAD.cs" />
     <Compile Include="Entities\Tax.cs" />
     <Compile Include="Entities\TaxRegime.cs" />
     <Compile Include="Entities\TypeInvoice.cs" />
@@ -164,6 +165,7 @@
     <Compile Include="Services\QuotationDetailService.cs" />
     <Compile Include="Services\QuotationService.cs" />
     <Compile Include="Services\RateFeeService.cs" />
+    <Compile Include="Services\SupervisorCADService.cs" />
     <Compile Include="Services\TaxRegimeService.cs" />
     <Compile Include="Services\TaxService.cs" />
     <Compile Include="Services\TypeInvoiceService.cs" />
