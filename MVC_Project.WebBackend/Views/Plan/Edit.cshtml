@@ -30,7 +30,7 @@
                 <input type="hidden" name="Id" value="@Model.Id" />
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <h5>Configuración de Plan</h5>
+                        <h5>Configuración del Plan</h5>
                     </div>
                     <div class="ibox-content">
                         <div class="form-horizontal">
@@ -68,8 +68,8 @@
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">$</div>
                                                     </div>
-                                                    <input type="text" name="Charge@(item.Id)" value="@item.Value" class="form-control money required" />
-                                                    <input type="text" name="Concept@(item.Id)" class="form-control money required" />
+                                                    <input type="text" name="Charge@(item.Id)" value="@item.Value.ToString("C")" class="form-control money required" />
+                                                    @*<input type="text" name="Concept@(item.Id)" class="form-control money required" />*@
                                                 </div>
                                             </div>
                                         </div>
@@ -172,7 +172,7 @@
                             <div class="form-group row pull-right">
                                 <div class="col-md-10 offset-2 text-right">
                                     <a href='@Url.Action("Index", "Plan")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
-                                    <button type="submit" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                                    <button type="button" onclick="validarDatos()" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
                                 </div>
                             </div>
                         </div>
@@ -194,10 +194,10 @@
     @*<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>*@
     <script>
         function validarDatos() {
-            if (!$('#CreateForm').valid()) {
+            if (!$('#EditForm').valid()) {
                 return;
             }
-            $('#CreateForm').submit();
+            $('#EditForm').submit();
         }
         $('.money').mask("##,###,##0.00", { reverse: true });
     </script>
