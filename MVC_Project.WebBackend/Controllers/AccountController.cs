@@ -168,6 +168,21 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
                     authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
+                    if (account.status == SystemStatus.INACTIVE.ToString())
+                    {
+                        List<Permission> permissionsUser = new List<Permission>();
+                        permissionsUser.Add(new Permission
+                        {
+                            Action = "Index",
+                            Controller = "Account",
+                            Module = "Account",
+                            Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                            isCustomizable = false
+                        });
+                        authUser.Permissions = permissionsUser;
+                        Authenticator.StoreAuthenticatedUser(authUser);
+                        return RedirectToAction("CreateAccount", new { uuid = account.uuid });
+                    }
 
                     var membership = _membership.FirstOrDefault(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
 
@@ -184,6 +199,7 @@ namespace MVC_Project.WebBackend.Controllers
                     authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
 
                     Authenticator.RefreshAuthenticatedUser(authUser);
+                    
                 }
                 var inicio = authUser.Permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
                 return RedirectToAction("Index", inicio.Controller);
@@ -496,8 +512,12 @@ namespace MVC_Project.WebBackend.Controllers
                     };
                     _discountService.Create(discount);
                 }
+                Domain.Entities.Membership membership = null;
+                if (authUser.isBackOffice)
+                    membership = _membership.FirstOrDefault(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString());
+                else
+                    membership = _membership.FirstOrDefault(x => x.account.id == account.id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString());
 
-                var membership = _membership.FirstOrDefault(x => x.account.id == account.id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString());
                 var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                 {
                     Controller = p.permission.controller,
