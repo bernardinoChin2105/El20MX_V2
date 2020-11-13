@@ -445,6 +445,10 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
         /*Buscador de facturas para complementos*/
+        $("#relacionados").change(function () {
+            console.log("opción de relación de facturas", $(this).val())
+        });
+
         $(".search-invoice").click(function () {
             console.log("entre al evento", $(this).val());
             El20Utils.mostrarCargador();

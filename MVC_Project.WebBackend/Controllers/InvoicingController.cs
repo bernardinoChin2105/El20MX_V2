@@ -887,7 +887,7 @@ namespace MVC_Project.WebBackend.Controllers
             //List<DriveKeyViewModel> result = new List<DriveKeyViewModel>();
             try
             {
-                invoice = _invoiceIssuedService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.account.id == authUser.Account.Id);
+                invoice = _invoiceIssuedService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.account.id == authUser.Account.Id && x.paymentMethod == MetodoPago.PPD.ToString());
 
                 if (invoice != null)
                 {
