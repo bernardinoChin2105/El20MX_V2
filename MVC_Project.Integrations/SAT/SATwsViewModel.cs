@@ -223,7 +223,7 @@ namespace MVC_Project.Integrations.SAT
     {
         public string id { get; set; }
         public string uuid { get; set; }
-        public decimal version { get; set; }
+        public decimal? version { get; set; }
         public string type { get; set; }
         public string usage { get; set; }
         public string paymentType { get; set; }

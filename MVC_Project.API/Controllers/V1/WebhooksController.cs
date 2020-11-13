@@ -327,7 +327,6 @@ namespace MVC_Project.API.Controllers
                         var invoicesIssued = _invoicesIssuedService.FindBy(x => x.account.id == account.id && x.invoicedAt >= from && x.invoicedAt <= to).ToList();
 
                         details.AddRange(invoicesIssued
-                            //.Where(x=>x.invoiceType=="I") Si es solo ingreso en las factura descomentar esta linea
                             .GroupBy(x => new
                         {
                             x.invoicedAt.Year,
@@ -348,7 +347,7 @@ namespace MVC_Project.API.Controllers
                         var invoicesReceived = _invoicesReceivedService.FindBy(x => x.account.id == account.id && x.invoicedAt >= from && x.invoicedAt <= to).ToList();
 
                         details.AddRange(invoicesReceived
-                            //.Where(x=>x.invoiceType=="I") Si es solo ingreso en las factura descomentar esta linea
+                            .Where(x=>x.invoiceType != TipoComprobante.N.ToString()) //Si es solo ingreso en las factura descomentar esta linea
                             .GroupBy(x => new
                         {
                             x.invoicedAt.Year,
