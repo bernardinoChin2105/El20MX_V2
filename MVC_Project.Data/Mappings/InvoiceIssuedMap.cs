@@ -29,7 +29,6 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.invoicedAt).Column("invoicedAt").Nullable();
             //Map(x => x.xml).Column("xml").Length(8000).Nullable();
             Map(x => x.xml).Column("xml").Nullable().CustomSqlType("nvarchar(max)");
-            Map(x => x.BranchOfficeId).Column("BranchOfficeId").Nullable();
             //Map(x => x.xml).CustomType("StringClob").CustomSqlType("nvarchar(max)");
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
@@ -38,9 +37,9 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.homemade).Column("homemade").Nullable();
             //Map(x => x.json).Column("json").Nullable();
             Map(x => x.json).Column("json").Nullable().CustomSqlType("nvarchar(max)");
-
-            References(x => x.account).Column("accountId").Not.Nullable();
-            References(x => x.customer).Column("customerId").Not.Nullable();
+            References(x => x.branchOffice).Column("branchOfficeId").Nullable();
+            References(x => x.account).Column("accountId").Nullable();
+            References(x => x.customer).Column("customerId").Nullable();
         }
     }
 }
