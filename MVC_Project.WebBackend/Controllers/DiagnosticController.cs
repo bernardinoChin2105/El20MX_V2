@@ -143,7 +143,7 @@ namespace MVC_Project.WebBackend.Controllers
                 dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
                 dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
                 //Se obtiene la extracción de los 3 meses completos. Sin los días del mes actual
-                SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
+                string extractionId = SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
                 
                 var diagn = new Diagnostic()
                 {
@@ -153,7 +153,8 @@ namespace MVC_Project.WebBackend.Controllers
                     commercialCAD = "",
                     plans = "",
                     createdAt = DateUtil.GetDateTimeNow(),
-                    status = SystemStatus.PENDING.ToString()
+                    status = SystemStatus.PENDING.ToString(),
+                    processId = extractionId
                 };
 
                 _diagnosticService.Create(diagn);

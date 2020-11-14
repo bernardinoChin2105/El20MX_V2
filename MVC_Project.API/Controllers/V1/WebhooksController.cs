@@ -388,7 +388,7 @@ namespace MVC_Project.API.Controllers
 
                         _diagnosticService.Update(diagnostic);
 
-                        LogUtil.AddEntry(descripcion: "Extraccón finalizada con exito", eLogLevel: ENivelLog.Debug,
+                        LogUtil.AddEntry(descripcion: "Extraccón finalizada con exito " + account.rfc, eLogLevel: ENivelLog.Debug,
                         usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
                     }
                     catch(Exception ex)
@@ -396,14 +396,14 @@ namespace MVC_Project.API.Controllers
                         diagnostic.status = SystemStatus.FAILED.ToString();
                         diagnostic.modifiedAt = DateTime.Now;
                         _diagnosticService.Update(diagnostic);
-                        LogUtil.AddEntry(descripcion: "Error al generar el diagnostico fiscal " + ex.Message, eLogLevel: ENivelLog.Debug,
+                        LogUtil.AddEntry(descripcion: "Error al generar el diagnostico fiscal " + account.rfc + " Error: " + ex.Message + " " + (ex.InnerException != null ? ex.InnerException.Message : ""), eLogLevel: ENivelLog.Debug,
                         usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
                     }
                 }
             }
             catch (Exception ex)
             {
-                LogUtil.AddEntry(descripcion: "Error en la extracción " + ex.Message, eLogLevel: ENivelLog.Debug,
+                LogUtil.AddEntry(descripcion: "Error en la extracción " + ex.Message + " " + (ex.InnerException != null ? ex.InnerException.Message : ""), eLogLevel: ENivelLog.Debug,
                        usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
 
             }
