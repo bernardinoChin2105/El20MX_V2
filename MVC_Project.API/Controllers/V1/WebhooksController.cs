@@ -166,7 +166,7 @@ namespace MVC_Project.API.Controllers
                     if (account == null)
                         throw new Exception("No existe rfc a procesar");
 
-                    var diagnostic = _diagnosticService.FirstOrDefault(x => x.account.id == account.id && x.status == SystemStatus.PENDING.ToString());
+                    var diagnostic = _diagnosticService.FirstOrDefault(x => x.account.id == account.id && x.status == SystemStatus.PENDING.ToString() && x.processId == data.data.@object.id);
 
                     if (diagnostic == null)
                         throw new Exception("No existe diagnostico");
