@@ -5,7 +5,7 @@
 }
 
 @section Styles {
-    <link href="~/Content/template/plugins/cropper/cropper.min.css" rel="stylesheet" />
+    @*<link href="~/Content/template/plugins/cropper/cropper.min.css" rel="stylesheet" />*@
     <style>
         /* Limit image width to avoid overflow the container */
         img {
@@ -61,14 +61,12 @@
                                 <div class="ibox-content">
                                     <div class="form-group row">
                                         <div class="col-12 col-md-4">
-
                                         </div>
                                         <div class="col-12 col-md-4">
-
                                         </div>
                                         <div class="col-12 col-md-4 text-right">
                                             <label class="label" data-toggle="tooltip" title="Cambiar logo para facturación" data-original-title="Cambiar logo para facturación">
-                                                <img id="avatar" src="@Model.logo" width="160" height="160" style="background-color:#e9ecef">
+                                                <img id="avatar" src="@Model.logo">
                                                 <input type="file" class="sr-only" id="input" name="image" accept="image/*">
                                             </label>
                                         </div>
@@ -232,7 +230,7 @@
     <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.js"></script>
     <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.es.js"></script>
     <script src="~/Scripts/plugins/touchspin/jquery.bootstrap-touchspin.min.js"></script>
-    <script src="~/Scripts/plugins/cropper/cropper1.js"></script>
+    @*<script src="~/Scripts/plugins/cropper/cropper1.js"></script>*@
     <script src="~/Scripts/views/BranchOffice/Edit.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {

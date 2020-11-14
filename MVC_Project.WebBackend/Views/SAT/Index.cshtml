@@ -80,12 +80,13 @@
                                             @Html.TextBoxFor(model => model.name, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
                                             @Html.ValidationMessageFor(model => model.name)
                                         </div>
-                                        <div class="col-12 col-md-4 text-center">
-                                            <label class="label" data-toggle="tooltip" title="Cambiar imagen de la cuenta" data-original-title="Cambiar imagen de la cuenta">
-                                                <img id="avatar" class="rounded-circle" src="@Model.avatar" width="120" height="120" style="background-color:#e9ecef">
+                                        @*<div class="col-12 col-md-4 text-center">
+                                            <label class="label" data-toggle="tooltip" title="Cambiar imagen de la cuenta" data-original-title="Cambiar imagen de la cuenta"
+                                                   style="background-color:white">
+                                                <img id="avatar" src="@Model.avatar">
                                                 <input type="file" class="sr-only" id="input" name="image" accept="image/*">
                                             </label>
-                                        </div>
+                                        </div>*@
                                     </div>
                                 </div>
                             </div>

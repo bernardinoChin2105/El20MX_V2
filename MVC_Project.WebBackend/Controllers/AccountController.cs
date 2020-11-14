@@ -4,6 +4,7 @@ using MVC_Project.FlashMessages;
 using MVC_Project.Integrations.Paybook;
 using MVC_Project.Integrations.Pipedrive;
 using MVC_Project.Integrations.SAT;
+using MVC_Project.Integrations.Storage;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
 using MVC_Project.WebBackend.AuthManagement.Models;
@@ -544,7 +545,10 @@ namespace MVC_Project.WebBackend.Controllers
                 );
 
                 #region Generar diagnóstico Inicial
-                string dianostic = GenerateDx0();
+                if (bool.Parse(ConfigurationManager.AppSettings["InitialDiagnostic.Enable"]))
+                    GenerateDx0();
+                
+                
                 #endregion
 
                 return RedirectToAction("Index", "SAT");
@@ -679,8 +683,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         #region DiagnosticoInicial
 
-        [HttpGet]
-        public string GenerateDx0()
+        public void GenerateDx0()
         {
             var authUser = Authenticator.AuthenticatedUser;
             try
@@ -692,7 +695,7 @@ namespace MVC_Project.WebBackend.Controllers
                 DateTime dateTo = DateTime.UtcNow.AddMonths(-1);
                 dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
                 dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
-                SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
+                string extractionId = SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
 
                 var diagn = new Domain.Entities.Diagnostic()
                 {
@@ -702,20 +705,21 @@ namespace MVC_Project.WebBackend.Controllers
                     commercialCAD = "",
                     plans = "",
                     createdAt = DateUtil.GetDateTimeNow(),
-                    status = SystemStatus.PENDING.ToString()
+                    status = SystemStatus.PENDING.ToString(),
+                    processId = extractionId
                 };
 
                 _diagnosticService.Create(diagn);
                 Session["InitialDiagnostic"] = diagn.uuid;
-                return diagn.uuid.ToString();
             }
             catch (Exception ex)
             {
-                //string error = ex.Message.ToString();
-                //MensajeFlashHandler.RegistrarMensaje("¡Ocurrio un error en al realizar el diagnóstico!", TiposMensaje.Error);
-                //MensajeFlashHandler.RegistrarMensaje(error, TiposMensaje.Error);
-                //return RedirectToAction("Index");
-                return null;
+                LogUtil.AddEntry(
+                   "Error en diagnostico inicial: " + authUser.Account.RFC, ENivelLog.Error, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   ex.Message + "" + (ex.InnerException != null ? ex.InnerException.Message : "")
+                );
             }
         }
 
@@ -765,5 +769,38 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         #endregion
+
+        [HttpPost]
+        [AllowAnonymous]
+        public ActionResult UpdateImage(string fileNameAccount, HttpPostedFileBase imageAccount)
+        {
+            try
+            {
+                var userAuth = Authenticator.AuthenticatedUser;
+                var account = _accountService.GetById(userAuth.Account.Id);
+                if (account == null)
+                    throw new Exception("La cuenta no es válida");
+
+                var StorageImages = ConfigurationManager.AppSettings["StorageImages"];
+
+                if (imageAccount == null)
+                    throw new Exception("No se proporcionó una imagen");
+
+                var image = AzureBlobService.UploadPublicFile(imageAccount.InputStream, fileNameAccount, StorageImages, account.rfc);
+                account.avatar = image.Item1;
+                account.modifiedAt = DateTime.Now;
+                _accountService.Update(account);
+
+                userAuth.Account.Image = image.Item1;
+                Authenticator.RefreshAuthenticatedUser(userAuth);
+
+                return Json(new { account.uuid, success = true }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { message = ex.Message, success = false }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
     }
 }
