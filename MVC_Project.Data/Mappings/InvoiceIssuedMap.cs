@@ -29,7 +29,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.invoicedAt).Column("invoicedAt").Nullable();
             //Map(x => x.xml).Column("xml").Length(8000).Nullable();
             Map(x => x.xml).Column("xml").Nullable().CustomSqlType("nvarchar(max)");
-            Map(x => x.BranchOfficeId).Column("BranchOfficeId").Nullable();
+            Map(x => x.BranchOfficeId).Column("branchOfficeId").Nullable();
             //Map(x => x.xml).CustomType("StringClob").CustomSqlType("nvarchar(max)");
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();

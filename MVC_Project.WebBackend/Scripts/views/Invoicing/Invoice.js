@@ -576,8 +576,10 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                             var imp1 = por > 0 ? (por * sub) / 100 : 0;
                             impIVAISR = impIVAISR + imp1;
                         } else {
-                            var imp2 = por > 0 ? (por * sub) / 100 : 0;
-                            impIVAIESP = impIVAIESP + imp2;
+                            if (por / 100 === -1) {
+                                var imp2 = por > 0 ? (por * sub) / 100 : 0;
+                                impIVAIESP = impIVAIESP + imp2;
+                            }
                         }
                     }
                 }
@@ -790,7 +792,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         $("#TaxesChk").click(function () {
             //console.log("estoy dento", !this.checked);
             var taxes = $("#taxes");
-            var cmbTaxes = $("#Valuation");                        
+            var cmbTaxes = $("#Valuation");
             cmbTaxes.empty();
 
             if (!this.checked) {
