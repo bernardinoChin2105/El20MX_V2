@@ -732,17 +732,23 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                         if (!json.sello) {
                             swal({
-                                title: "Sucursal sin Sellos",
-                                text: "Esta sucursar no cuenta con sellos guardados",
+                                title: "Sucursal sin CSD",
+                                text: "Esta sucursar no cuenta con un Certificado de Sello Digital registrado",
                                 type: "warning",
                                 showCancelButton: true,
                                 confirmButtonClass: "btn-danger",
-                                confirmButtonText: "Ir a guardar sellos.",
-                                cancelButtonText: "Cambiar sucursal.",
+                                confirmButtonText: "Ir a registrar CSD",
+                                cancelButtonText: "Cambiar sucursal",
                                 closeOnConfirm: false
                             },
-                                function () {
-                                    window.location = self.officeSellos;
+                                function (inputValue) {
+                                    if (inputValue === true)
+                                        window.location = self.officeSellos;
+                                    else {
+                                        $("#BranchOffice").val("");
+                                        $('#BranchOffice').trigger('chosen:updated');
+                                        $("#logo").attr("src", "");
+                                    }
                                     // swal("Deleted!", "Your imaginary file has been deleted.", "success");
                                 });
                         }

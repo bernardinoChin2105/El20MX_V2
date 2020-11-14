@@ -147,7 +147,7 @@
 
         $modal.on('shown.bs.modal', function () {
             cropper = new Cropper(image, {
-                aspectRatio: 16 / 9
+                aspectRatio: 1 / 1
             });
         }).on('hidden.bs.modal', function () {
             cropper.destroy();
@@ -162,8 +162,8 @@
             El20Utils.mostrarCargador();
             if (cropper) {
                 canvas = cropper.getCroppedCanvas({
-                    width: 160,
-                    height: 160,
+                    width: 180,
+                    height: 180,
                 });
                 initialAvatarURL = avatar.attr('src');
                 avatar.attr("src", canvas.toDataURL());

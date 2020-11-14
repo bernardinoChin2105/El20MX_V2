@@ -380,7 +380,7 @@ namespace MVC_Project.WebBackend.Controllers
                 List<Int64> idsDisc = discountsData.Select(c => c.account.id).Distinct().ToList();
 
 
-                if (model.AccountId.Count() > 0)
+                if (model.AccountId != null && model.AccountId.Count() > 0)
                 {
                     if (promotionAccountData != null)
                     {

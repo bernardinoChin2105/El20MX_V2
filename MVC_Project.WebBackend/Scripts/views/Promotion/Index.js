@@ -32,7 +32,6 @@ var PromotionIndexControlador = function (htmlTableId, baseUrl, editUrl, ActiveI
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": this.baseUrl,
-            deferLoading: 0,
             orderMulti: false,
             searching: false,
             ordering: false,
@@ -111,7 +110,7 @@ var PromotionIndexControlador = function (htmlTableId, baseUrl, editUrl, ActiveI
                                             text: data.error
                                         });
                                     } else {
-                                        swal("Estatus cambiado!");
+                                        swal("Estatus actualizado");
                                         self.dataTable.draw();
                                     }
                                 },
@@ -130,7 +129,6 @@ var PromotionIndexControlador = function (htmlTableId, baseUrl, editUrl, ActiveI
             function () {
                 var tr = $(this).closest('tr');
                 var row = self.dataTable.row(tr);
-                console.log(row.data().uuid, "josad");
                 var id = row.data().uuid;
 
                 swal({
@@ -158,7 +156,7 @@ var PromotionIndexControlador = function (htmlTableId, baseUrl, editUrl, ActiveI
                                             text: data.error
                                         });
                                     } else {
-                                        swal("Estatus cambiado!");
+                                        swal("Estatus actualizado");
                                         self.dataTable.draw();
                                     }
                                 },
