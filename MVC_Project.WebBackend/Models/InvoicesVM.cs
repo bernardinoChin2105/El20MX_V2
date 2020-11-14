@@ -20,17 +20,19 @@ namespace MVC_Project.WebBackend.Models
         public string Descuento { get; set; }
         public string Moneda { get; set; }
         public string Total { get; set; }
+        public string TotalTexto { get; set; }
         public string TipoDeComprobante { get; set; }
         public string MetodoPago { get; set; }
         public string LugarExpedicion { get; set; }
         public string ClaveCatastral { get; set; }
+        public string TipoCambio { get; set; }        
 
         public Emisor Emisor { get; set; }
         public Receptor Receptor { get; set; }
 
         public Impuestos Impuestos { get; set; }
         public Complemento Complemento { get; set; }
-        public List<Conceptos> Conceptos { get; set; }
+        public List<Concepto> Conceptos { get; set; }
         //public TimbreFiscalDigital TimbreFiscalDigital { get; set; } //Esta dentro de complemento        
         public string QR { get; set; }        
         public string Logo { get; set; }
@@ -40,7 +42,7 @@ namespace MVC_Project.WebBackend.Models
             Emisor = new Emisor();
             Receptor = new Receptor();
             Complemento = new Complemento();
-            Conceptos = new List<Conceptos>();
+            Conceptos = new List<Concepto>();
             Impuestos = new Impuestos();
         }
     }
