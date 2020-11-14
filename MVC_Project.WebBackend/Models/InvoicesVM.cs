@@ -30,10 +30,9 @@ namespace MVC_Project.WebBackend.Models
 
         public Impuestos Impuestos { get; set; }
         public Complemento Complemento { get; set; }
-        public Conceptos Conceptos { get; set; }
+        public List<Conceptos> Conceptos { get; set; }
         //public TimbreFiscalDigital TimbreFiscalDigital { get; set; } //Esta dentro de complemento        
-        public string QR { get; set; }
-        //public BranchOfficeViewModel Sucursal  { get; set; }
+        public string QR { get; set; }        
         public string Logo { get; set; }
 
         public InvoicesVM()
@@ -41,7 +40,7 @@ namespace MVC_Project.WebBackend.Models
             Emisor = new Emisor();
             Receptor = new Receptor();
             Complemento = new Complemento();
-            Conceptos = new Conceptos();
+            Conceptos = new List<Conceptos>();
             Impuestos = new Impuestos();
         }
     }
