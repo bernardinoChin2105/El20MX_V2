@@ -324,7 +324,7 @@ namespace MVC_Project.WebBackend.Controllers
                                         Id = x.id,
                                         Label = x.name,
                                         ChargeId = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id) != null? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).id : 0 : 0,
-                                        Value = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id) != null? Convert.ToDecimal(planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).charge.ToString("0.##")) : 0 : 0
+                                        Value = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id) != null? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).charge : 0 : 0
                                     }).ToList();
 
                 model.LabelFeatures = _planFeatureService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())

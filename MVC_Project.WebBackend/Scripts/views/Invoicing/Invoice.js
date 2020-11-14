@@ -417,7 +417,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 },
             }
         });
-
+    
         $("#ConceptForm").validate({
             rules: {
                 SATCode: {
@@ -564,7 +564,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 //console.log(subtotal.toFixed(2), "subtotal ")
                 self.taxesIVA.val(impIVAISR.toFixed(2));
                 self.taxesIEPS.val(impIVAIESP.toFixed(2));
-                self.subtotal.val(subtotal.toFixed(2));
+                self.subtotal.val(subtotal.toFixed(2)).trigger("click");
             }
         }
 
@@ -786,10 +786,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
             if (!this.checked) {
                 international.addClass("hide");
-                $("#MotionNumber").val("");
+                $("#MotionNumber").val("").removeClass("required");
             }
-            else
+            else {
                 international.removeClass("hide");
+                $("#MotionNumber").addClass("required");
+            }
         });
 
         $("input[name='taxes']").click(function () {

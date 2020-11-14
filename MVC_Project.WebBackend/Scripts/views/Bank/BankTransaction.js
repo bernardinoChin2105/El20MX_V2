@@ -147,6 +147,7 @@ var BankTransactionControlador = function (htmlTableId, baseUrl, GetBankAccountU
             else {
                 cbmAccount.html("");
                 cbmAccount.html('<option value="-1">Todos</option>');
+                El20Utils.ocultarCargador();
             }
         });
     };
