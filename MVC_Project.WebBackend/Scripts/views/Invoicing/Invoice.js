@@ -576,7 +576,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                             var imp1 = por > 0 ? (por * sub) / 100 : 0;
                             impIVAISR = impIVAISR + imp1;
                         } else {
-                            if (por / 100 === -1) {
+                            if (por / 100 !== -1) {
                                 var imp2 = por > 0 ? (por * sub) / 100 : 0;
                                 impIVAIESP = impIVAIESP + imp2;
                             }

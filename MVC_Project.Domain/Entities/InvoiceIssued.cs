@@ -24,7 +24,7 @@ namespace MVC_Project.Domain.Entities
         public virtual decimal total { get; set; }
         public virtual decimal subtotal { get; set; }
         public virtual string xml { get; set; }
-        public virtual Int64 BranchOfficeId { get; set; }
+        public virtual BranchOffice branchOffice { get; set; }
         
         public virtual DateTime createdAt { get; set; }
         public virtual DateTime modifiedAt { get; set; }

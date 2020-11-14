@@ -464,7 +464,7 @@ namespace MVC_Project.WebBackend.Controllers
                                 subtotal = cfdi.SubTotal,
                                 total = cfdi.Total,
                                 homemade = true,
-                                BranchOfficeId = office.id
+                                branchOffice = office
                             });
                         }
 
@@ -969,8 +969,8 @@ namespace MVC_Project.WebBackend.Controllers
             var invoice = _invoiceIssuedService.FirstOrDefault(x => x.id == id);
 
             string typeInvoicing = TypeInvoicing.ISSUED.GetDisplayName();
-
-            InvoicesVM cfdipdf = GetGenerateFilePDF(typeInvoicing, invoice, invoice.BranchOfficeId);
+            Int64? officeId = invoice.branchOffice != null ? invoice.branchOffice.id : (Int64?)null;
+            InvoicesVM cfdipdf = GetGenerateFilePDF(typeInvoicing, invoice, officeId);
 
             //MensajeFlashHandler.RegistrarMensaje("Descargando...", TiposMensaje.Success);
             //string rfc = authUser.Account.RFC;
