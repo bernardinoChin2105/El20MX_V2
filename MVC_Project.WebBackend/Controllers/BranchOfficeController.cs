@@ -101,7 +101,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
-                
+
                 var branchOffice = new Domain.Entities.BranchOffice
                 {
                     uuid = Guid.NewGuid(),
@@ -119,6 +119,7 @@ namespace MVC_Project.WebBackend.Controllers
                     country = new Domain.Entities.Country { id = model.country },
                     createdAt = DateTime.Now,
                     status = SystemStatus.ACTIVE.ToString(),
+                    logo = ConfigurationManager.AppSettings["Logo.BranchOffice"].ToString()
                 };
                 _branchOfficeService.Create(branchOffice);
 
