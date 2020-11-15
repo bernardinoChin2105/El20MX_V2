@@ -301,22 +301,36 @@ namespace MVC_Project.WebBackend.Controllers
                                         Base = conceptsData.ValorUnitario.ToString(),
                                         Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                         TipoFactor = "Tasa",
-                                        TasaOCuota = (imp.Porcentaje / 100).ToString(),
-                                        Importe = ((imp.Porcentaje / 100) * conceptsData.ValorUnitario).ToString()
+                                        TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
+                                        Importe = ((Convert.ToDecimal(imp.Porcentaje) / 100) * conceptsData.ValorUnitario).ToString()
                                     };
                                     Retenciones.Add(ret);
                                 }
                                 else
                                 {
-                                    Integrations.SAT.Traslados tras = new Integrations.SAT.Traslados()
+                                    if (imp.Porcentaje != "Exento")
                                     {
-                                        Base = conceptsData.ValorUnitario.ToString(),
-                                        Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
-                                        TipoFactor = "Tasa",
-                                        TasaOCuota = (imp.Porcentaje / 100).ToString(),
-                                        Importe = ((imp.Porcentaje / 100) * conceptsData.ValorUnitario).ToString()
-                                    };
-                                    Traslados.Add(tras);
+                                        Integrations.SAT.Traslados tras = new Integrations.SAT.Traslados()
+                                        {
+                                            Base = conceptsData.ValorUnitario.ToString(),
+                                            Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
+                                            TipoFactor = "Tasa",
+                                            TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
+                                            //TasaOCuota = "0.160000",
+                                            Importe = ((Convert.ToDecimal(imp.Porcentaje) / 100) * conceptsData.ValorUnitario).ToString()
+                                        };
+                                        Traslados.Add(tras);
+                                    }
+                                    else
+                                    {
+                                        Integrations.SAT.Traslados tras = new Integrations.SAT.Traslados()
+                                        {
+                                            Base = conceptsData.ValorUnitario.ToString(),
+                                            TipoFactor = imp.Porcentaje,
+                                            Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,     
+                                        };
+                                        Traslados.Add(tras);
+                                    }
                                 }
                             }
                             if (Traslados.Count() > 0)
@@ -517,7 +531,7 @@ namespace MVC_Project.WebBackend.Controllers
                    authUser.Email,
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),                   
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    "" //JsonConvert.SerializeObject()
                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
@@ -969,8 +983,8 @@ namespace MVC_Project.WebBackend.Controllers
             var invoice = _invoiceIssuedService.FirstOrDefault(x => x.id == id);
 
             string typeInvoicing = TypeInvoicing.ISSUED.GetDisplayName();
-            Int64? officeId = invoice.branchOffice != null ? invoice.branchOffice.id : (Int64?)null;
-            InvoicesVM cfdipdf = GetGenerateFilePDF(typeInvoicing, invoice, officeId);
+            string logo = invoice.branchOffice != null ? invoice.branchOffice.logo : string.Empty;
+            InvoicesVM cfdipdf = GetGenerateFilePDF(typeInvoicing, invoice, logo);
 
             //MensajeFlashHandler.RegistrarMensaje("Descargando...", TiposMensaje.Success);
             //string rfc = authUser.Account.RFC;
@@ -1377,20 +1391,22 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 var invoice = (dynamic)null;
+                string logo = string.Empty;
 
                 if (typeInvoicing == TypeInvoicing.ISSUED.GetDisplayName())
                 {
                     invoice = _invoiceIssuedService.FirstOrDefault(x => x.id == id);
+                    logo = invoice.branchOffice != null ? invoice.branchOffice.logo : string.Empty;
                 }
                 else
                 {
 
                     invoice = _invoiceReceivedService.FirstOrDefault(x => x.id == id);
+                    logo = invoice.branchOffice != null ? invoice.branchOffice.logo : string.Empty;
                 }
 
-                var OfficeId = invoice.GetType().GetProperty("BranchOfficeId").GetValue(invoice, null);
-
-                InvoicesVM cfdipdf = GetGenerateFilePDF(typeInvoicing, invoice, OfficeId);
+                // var OfficeId = invoice.GetType().GetProperty("BranchOfficeId").GetValue(invoice, null);
+                InvoicesVM cfdipdf = GetGenerateFilePDF(typeInvoicing, invoice, logo);
 
 
                 //MensajeFlashHandler.RegistrarMensaje("Descargando...", TiposMensaje.Success);
@@ -1447,7 +1463,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
-        private InvoicesVM GetGenerateFilePDF(string typeInvoicing, dynamic invoice, Int64? OfficeId = null)
+        private InvoicesVM GetGenerateFilePDF(string typeInvoicing, dynamic invoice, string logo)
         {
             var authUser = Authenticator.AuthenticatedUser;
 
@@ -1508,14 +1524,9 @@ namespace MVC_Project.WebBackend.Controllers
                 Moneda = varMoneda,
                 TipoCambio = varTipoCambio,
                 TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true),
-                Descuento = varDescuento1
+                Descuento = varDescuento1,
+                Logo = logo
             };
-
-            //if (OfficeId != null)
-            //{
-            //    var office = _branchOfficeService.FirstOrDefault(x => x.id.ToString() == OfficeId.ToString());
-            //    cfdipdf.Logo = office.logo;
-            //}
 
             XmlNode nodeEmisor = nodeComprobante.SelectSingleNode("cfdi:Emisor", nsm);
             if (nodeEmisor != null)

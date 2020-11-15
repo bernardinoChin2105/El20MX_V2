@@ -160,12 +160,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 //        return intVal(a) + intVal(b);
                 //    }, 0);
 
-                //trasladosIEPSIVA = api
-                //    .column(9)
-                //    .data()
-                //    .reduce(function (a, b) {
-                //        return intVal(a) + intVal(b);
-                //    }, 0);
+                trasladosIEPSIVA = api
+                    .column(9)
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
 
                 // Total over this page
                 subtotal = api
@@ -460,7 +460,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                 var value = item.maximumValue.toString().split(".");
                                 cmbTaxes.append($('<option></option>').val(value[0]).text(value[0] + "%"));
                             } else if (item.maximumValue === -100)
-                                cmbTaxes.append($('<option></option>').val(item.maximumValue).text("Exento"));
+                                cmbTaxes.append($('<option></option>').val("Exento").text("Exento"));
                             else
                                 cmbTaxes.append($('<option></option>').val(item.maximumValue).text(item.maximumValue + "%"));
                         });
@@ -571,12 +571,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     for (var i = 0; i < impuestos.rows().count(); i++) {
                         var datos = impuestos.row(i).data()[0];
                         // console.log(datos, "datos");
-                        var por = parseFloat(datos.Porcentaje);
-                        if (datos.Tipo === "Retención") {
-                            var imp1 = por > 0 ? (por * sub) / 100 : 0;
-                            impIVAISR = impIVAISR + imp1;
-                        } else {
-                            if (por / 100 !== -1) {
+                        if (datos.Porcentaje !== "Exento") {
+                            var por = parseFloat(datos.Porcentaje);
+                            if (datos.Tipo === "Retención") {
+                                var imp1 = por > 0 ? (por * sub) / 100 : 0;
+                                impIVAISR = impIVAISR + imp1;
+                            } else {
                                 var imp2 = por > 0 ? (por * sub) / 100 : 0;
                                 impIVAIESP = impIVAIESP + imp2;
                             }
