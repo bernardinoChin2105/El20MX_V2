@@ -1346,7 +1346,7 @@ namespace MVC_Project.WebBackend.Controllers
                             ValorUnitario = varValorUnitario
                             //Unidad 
                         };
-                        cfdipdf.Conceptos.Concepto = concepto;
+                        //cfdipdf.Conceptos.Concepto = concepto;
                     }
                 }
 

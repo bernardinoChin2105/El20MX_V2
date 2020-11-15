@@ -37,9 +37,9 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.homemade).Column("homemade").Nullable();
             //Map(x => x.json).Column("json").Nullable();
             Map(x => x.json).Column("json").Nullable().CustomSqlType("nvarchar(max)");
-
-            References(x => x.account).Column("accountId").Not.Nullable();
-            References(x => x.customer).Column("customerId").Not.Nullable();
+            References(x => x.branchOffice).Column("branchOfficeId").Nullable();
+            References(x => x.account).Column("accountId").Nullable();
+            References(x => x.customer).Column("customerId").Nullable();
         }
     }
 }
