@@ -25,7 +25,7 @@ namespace MVC_Project.WebBackend.Models
         public string MetodoPago { get; set; }
         public string LugarExpedicion { get; set; }
         public string ClaveCatastral { get; set; }
-        public string TipoCambio { get; set; }        
+        public string TipoCambio { get; set; }
 
         public Emisor Emisor { get; set; }
         public Receptor Receptor { get; set; }
@@ -34,11 +34,11 @@ namespace MVC_Project.WebBackend.Models
         public Complemento Complemento { get; set; }
         public List<Concepto> Conceptos { get; set; }
         //public TimbreFiscalDigital TimbreFiscalDigital { get; set; } //Esta dentro de complemento        
-        public string QR { get; set; }        
+        public string QR { get; set; }
         public string Logo { get; set; }
 
         public InvoicesVM()
-        {            
+        {
             Emisor = new Emisor();
             Receptor = new Receptor();
             Complemento = new Complemento();
@@ -82,20 +82,40 @@ namespace MVC_Project.WebBackend.Models
     }
     public class Impuestos
     {
-        public Traslados Traslados { get; set; }
+        public List<Traslado> Traslados { get; set; }
+        public List<Retenido> Retenidos { get; set; }
         public string TotalImpuestosTrasladados { get; set; }
+        public string TotalImpuestosRetenidos { get; set; }
+
+        public string ImpuestosRetenidosIVA { get; set; }
+        public string ImpuestosRetenidosISR { get; set; }
+
+        public Impuestos()
+        {
+            Traslados = new List<Traslado>();
+            Retenidos = new List<Retenido>();
+        }
     }
-    public class Traslados
-    {
-        public Traslado Traslado { get; set; }
-    }
+    //public class Traslados
+    //{
+    //    public Traslado Traslado { get; set; }
+    //}
     public class Traslado
     {
         public string Base { get; set; }
         public string Impuesto { get; set; }
         public string TipoFactor { get; set; }
         public string TasaOCuota { get; set; }
-        public string Importe { get; set; }
+        public decimal Importe { get; set; }
+    }
+
+    public class Retenido
+    {
+        public string Base { get; set; }
+        public string Impuesto { get; set; }
+        public string TipoFactor { get; set; }
+        public string TasaOCuota { get; set; }
+        public decimal Importe { get; set; }
     }
 
     public class InformacionAduanera
@@ -125,6 +145,6 @@ namespace MVC_Project.WebBackend.Models
         public string Importe { get; set; }
         public string Descuento { get; set; }
         public Impuestos Impuestos { get; set; }
-        public InformacionAduanera InformacionAduanera { get; set; }      
+        public InformacionAduanera InformacionAduanera { get; set; }
     }
 }

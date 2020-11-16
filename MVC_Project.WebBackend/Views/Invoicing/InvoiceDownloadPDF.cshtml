@@ -65,7 +65,7 @@
                 <td width="@porcent">@Model.Emisor.Rfc</td>
                 <td width="@porcent"><strong>Folio fiscal:</strong></td>
                 <td width="@porcent">@Model.Complemento.TimbreFiscalDigital.UUID</td>
-            </tr>          
+            </tr>
             <tr>
                 <td><strong>Nombre emisor:</strong></td>
                 <td>@Model.Emisor.Nombre</td>
@@ -156,32 +156,49 @@
                         <td align="right">@Convert.ToDecimal(oConcepto.Importe).ToString("C2")</td>
                     </tr>
                 }
-                <tfoot>
-                    <tr>
-                        <td colspan="2"><strong>CANTIDAD EN LETRA:</strong></td>
-                        <td colspan="3">@Model.TotalTexto</td>
-                        <td align="right">Subtotal:</td>
-                        <td align="right">@Convert.ToDecimal(Model.SubTotal).ToString("C2")</td>
-                    </tr>
-                    @if (Convert.ToDecimal(Model.Descuento) > 0)
-                    {
+                    <tfoot>
                         <tr>
-                            <td colspan="6" align="right">Descuento:</td>
-                            <td align="right">@Convert.ToDecimal(Model.Descuento).ToString("C2")</td>
+                            <td colspan="2"><strong>CANTIDAD EN LETRA:</strong></td>
+                            <td colspan="3">@Model.TotalTexto</td>
+                            <td align="right">Subtotal:</td>
+                            <td align="right">@Convert.ToDecimal(Model.SubTotal).ToString("C2")</td>
                         </tr>
-                    }
-                    @if (Model.Impuestos != null)
-                    {
+                        @if (Convert.ToDecimal(Model.Descuento) > 0)
+                        {
+                            <tr>
+                                <td colspan="6" align="right">Descuento:</td>
+                                <td align="right">@Convert.ToDecimal(Model.Descuento).ToString("C2")</td>
+                            </tr>
+                        }
+                        @if (Model.Impuestos != null)
+                        {
+                            if (!string.IsNullOrEmpty(Model.Impuestos.TotalImpuestosTrasladados))
+                            {
+                                <tr>
+                                    <td colspan="6" align="right">Impuestos Traslados (IVA/IEPS):</td>
+                                    <td align="right">@Convert.ToDecimal(Model.Impuestos.TotalImpuestosTrasladados).ToString("C2")</td>
+                                </tr>
+                            }
+                            if (!string.IsNullOrEmpty(Model.Impuestos.ImpuestosRetenidosIVA))
+                            {
+                                <tr>
+                                    <td colspan="6" align="right">Impuestos Retenidos (IVA):</td>
+                                    <td align="right">@Convert.ToDecimal(Model.Impuestos.ImpuestosRetenidosIVA).ToString("C2")</td>
+                                </tr>
+                            }
+                            if (!string.IsNullOrEmpty(Model.Impuestos.ImpuestosRetenidosISR))
+                            {
+                                <tr>
+                                    <td colspan="6" align="right">Impuestos Retenidos (ISR):</td>
+                                    <td align="right">@Convert.ToDecimal(Model.Impuestos.ImpuestosRetenidosISR).ToString("C2")</td>
+                                </tr>
+                            }
+                        }
                         <tr>
-                            <td colspan="6" align="right">IVA:</td>
-                            <td align="right">@Convert.ToDecimal(Model.Impuestos.TotalImpuestosTrasladados).ToString("C2")</td>
+                            <td colspan="6" align="right">Total:</td>
+                            <td align="right">@Convert.ToDecimal(Model.Total).ToString("C2")</td>
                         </tr>
-                    }
-                    <tr>
-                        <td colspan="6" align="right">Total:</td>
-                        <td align="right">@Convert.ToDecimal(Model.Total).ToString("C2")</td>
-                    </tr>
-                </tfoot>
+                    </tfoot>
             </table>
         </div>
     </div>
