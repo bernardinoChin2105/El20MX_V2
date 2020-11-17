@@ -271,7 +271,7 @@ namespace MVC_Project.WebBackend.Models
     {        
         public string Tipo { get; set; }        
         public string Impuesto { get; set; }        
-        public decimal Porcentaje { get; set; }        
+        public string Porcentaje { get; set; }        
         public int index { get; set; }
     }
 

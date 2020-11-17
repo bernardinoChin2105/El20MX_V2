@@ -97,7 +97,7 @@
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Customer", cssClass: "in")">
                             <li class="@Html.IsSelected(controller: "Customer", action: "Index")"><a href="@Url.Action("Index", "Customer")">Clientes</a></li>
-                            <li class="@Html.IsSelected(controller: "Customer", action: "InvoicesIssued")"><a href="@Url.Action("InvoicesIssued", "Customer")">Facturas Emitidas</a></li>
+                            @*<li class="@Html.IsSelected(controller: "Customer", action: "InvoicesIssued")"><a href="@Url.Action("InvoicesIssued", "Customer")">Facturas Emitidas</a></li>*@
                         </ul>
                     }
                 </li>
@@ -106,12 +106,12 @@
             @if (user.HasAccessToModule(SystemModules.PROVIDERS.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.PROVIDERS.ToString())">
-                    <a href="#"><i class="fa fa-user"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_PROVIDERS</span> <span class="fain arrow"></span></a>
+                    <a href="#"><i class="fa fa-truck"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_PROVIDERS</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("Provider"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Provider", cssClass: "in")">
                             <li class="@Html.IsSelected(controller: "Provider", action: "Index")"><a href="@Url.Action("Index", "Provider")">Proveedores</a></li>
-                            <li class="@Html.IsSelected(controller: "Provider", action: "InvoicesReceived")"><a href="@Url.Action("InvoicesReceived", "Provider")">Facturas Recibidas</a></li>
+                            @*<li class="@Html.IsSelected(controller: "Provider", action: "InvoicesReceived")"><a href="@Url.Action("InvoicesReceived", "Provider")">Facturas Recibidas</a></li>*@
                         </ul>
                     }
                 </li>
@@ -140,6 +140,11 @@
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Alliance", cssClass: "in")">
                             <li class="@Html.IsSelected(controller: "Alliance", action: "AllyIndex")"><a href="@Url.Action("AllyIndex", "Alliance")">Aliados</a></li>
                             <li class="@Html.IsSelected(controller: "Alliance", action: "Index")"><a href="@Url.Action("Index", "Alliance")">Alianzas</a></li>
+                        </ul>
+                    }
+                    @if (user.HasAccessController("Promotion"))
+                    {
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Alliance", cssClass: "in")">
                             <li class="@Html.IsSelected(controller: "Promotion", action: "Index")"><a href="@Url.Action("Index", "Promotion")">Promociones</a></li>
                         </ul>
                     }
@@ -166,21 +171,23 @@
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Invoicing", cssClass: "in")">
                             <li class="@Html.IsSelected(controller: "Invoicing", action: "Invoice")"><a href="@Url.Action("Invoice", "Invoicing")">Generar Factura</a></li>
-                            <li class="@Html.IsSelected(controller: "Invoicing", action: "InvoicesSaved")"><a href="@Url.Action("InvoicesSaved", "Invoicing")">Facturas guardadas</a></li>
+                            @*<li class="@Html.IsSelected(controller: "Invoicing", action: "InvoicesSaved")"><a href="@Url.Action("InvoicesSaved", "Invoicing")">Facturas guardadas</a></li>*@
+                            <li class="@Html.IsSelected(controller: "Invoicing", action: "InvoicesIssued")"><a href="@Url.Action("InvoicesIssued", "Invoicing")">Facturas Emitidas</a></li>
+                            <li class="@Html.IsSelected(controller: "Invoicing", action: "InvoicesReceived")"><a href="@Url.Action("InvoicesReceived", "Invoicing")">Facturas Recibidas</a></li>
                         </ul>
                     }
                 </li>
             }
             @*@if (user.HasAccessToModule("catalogs"))
-        {
-            <li class="@Html.IsModuleSelected(user, "catalogs")">
-                <a href="#"><i class="fa fa-table"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CATALOGS</span> <span class="fain arrow"></span></a>
-                <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Catalogs", cssClass: "in")">
-                    <li class="@Html.IsSelected(action: "Dashboard_1")"><a href="@Url.Action("Report_1", "Dashboards")">Catálogo 1</a></li>
-                    <li class="@Html.IsSelected(action: "Dashboard_2")"><a href="@Url.Action("Report_2", "Dashboards")">Catálogo 2</a></li>
-                </ul>
-            </li>
-        }*@
+                {
+                    <li class="@Html.IsModuleSelected(user, "catalogs")">
+                        <a href="#"><i class="fa fa-table"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CATALOGS</span> <span class="fain arrow"></span></a>
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Catalogs", cssClass: "in")">
+                            <li class="@Html.IsSelected(action: "Dashboard_1")"><a href="@Url.Action("Report_1", "Dashboards")">Catálogo 1</a></li>
+                            <li class="@Html.IsSelected(action: "Dashboard_2")"><a href="@Url.Action("Report_2", "Dashboards")">Catálogo 2</a></li>
+                        </ul>
+                    </li>
+                }*@
 
 
             @if (user.HasAccessToModule("catalogs"))
@@ -264,24 +271,32 @@
 
 
             @*<li class="">
-            <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
-            <ul class="nav nav-second-level collapse in">
-                <li class="">
-                    <a href="#">Bancos <span class="fain arrow"></span></a>
-                    <ul class="nav nav-second-level collapse">
-                        <li class=""><a href="#">Conectar</a></li>
-                        <li class=""><a href="#">Cargar movimientos</a></li>
-                    </ul>
-                </li>
+                    <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
+                    <ul class="nav nav-second-level collapse in">
+                        <li class="">
+                            <a href="#">Bancos <span class="fain arrow"></span></a>
+                            <ul class="nav nav-second-level collapse">
+                                <li class=""><a href="#">Conectar</a></li>
+                                <li class=""><a href="#">Cargar movimientos</a></li>
+                            </ul>
+                        </li>
 
-            </ul>
-        </li>*@
+                    </ul>
+                </li>*@
 
             @if (user != null && user.Account != null)
             {
                 <li class="nav-header">
                     <div class="profile-element text-center">
-                        <img alt="image" class="rounded-circle" style="height: 50px;" src="@user.Account.Image" />
+
+                        <label class="label" data-toggle="tooltip" title="Cambiar imagen de la cuenta" data-original-title="Cambiar imagen de la cuenta"
+                               style="background-color:transparent">
+                            <img id="avatar-account" class="rounded-circle" src="@user.Account.Image">
+                            <input type="file" class="sr-only" id="input-account" name="image" accept="image/*">
+                        </label>
+
+
+                        @*<img alt="image" class="rounded-circle" src="@user.Account.Image" />*@
                         <span class="block m-t-xs font-bold" style="color:white">@user.Account.RFC</span>
                         <span class="text-muted text-xs block">@user.Account.Name</span>
                     </div>
@@ -295,22 +310,24 @@
         </ul>
     </div>
 
-    @*<div class="sidebar-collapse text-center" style="position:fixed; bottom:0px;width:inherit">
-        <ul class="nav metismenu">
-            @if (user != null && user.Account != null)
-            {
-                <li class="nav-header">
-                    <div class="profile-element text-center">
-                        <img alt="image" class="rounded-circle" style="height: 50px;" src="@user.Account.Image" />
-                        <span class="block m-t-xs font-bold" style="color:white">@user.Account.RFC</span>
-                        <span class="text-muted text-xs block">@user.Account.Name</span>
-                    </div>
-                    <div class="logo-element">
-                        IN+
-                    </div>
-                </li>
-            }
 
-        </ul>
-    </div>*@
+
+    @*<div class="sidebar-collapse text-center" style="position:fixed; bottom:0px;width:inherit">
+            <ul class="nav metismenu">
+                @if (user != null && user.Account != null)
+                {
+                    <li class="nav-header">
+                        <div class="profile-element text-center">
+                            <img alt="image" class="rounded-circle" style="height: 50px;" src="@user.Account.Image" />
+                            <span class="block m-t-xs font-bold" style="color:white">@user.Account.RFC</span>
+                            <span class="text-muted text-xs block">@user.Account.Name</span>
+                        </div>
+                        <div class="logo-element">
+                            IN+
+                        </div>
+                    </li>
+                }
+
+            </ul>
+        </div>*@
 </nav>

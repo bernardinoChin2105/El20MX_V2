@@ -114,7 +114,7 @@
     @Scripts.Render("~/plugins/dataTables")
     @Scripts.Render("~/plugins/daterangepicker")
     @Scripts.Render("~/plugins/typehead")
-    
+
     <script>
         window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
         $(function () {
@@ -128,6 +128,7 @@
             invoices.init();
         });
     </script>
-    @Scripts.Render("~/views/providerInvoices")
+    <script src="~/Scripts/views/Invoicing/ProviderInvoices.js"></script>
+    
 
 }

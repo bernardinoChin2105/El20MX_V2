@@ -20,9 +20,9 @@
                 { data: 'uuid', title: "Uuid", visible: false },
                 { data: 'account', title: "Cliente" },
                 {
-                    data: null, orderName: "startedAt", title: "Fecha Inicio", autoWidth: false, className: "dt-center td-actions thead-dark",
+                    data: null, orderName: "startedAt", title: "Fecha en que se inicia regularización", autoWidth: false, className: "dt-center td-actions thead-dark",
                     render: function (data, type, row, meta) {
-                        if (data.startedAt != null && data.startedAt !== "") {
+                        if (data.startedAt !== null && data.startedAt !== "") {
                             return moment(data.startedAt).format('DD-MMM-YYYY');
                         }
                         return '';
@@ -64,7 +64,7 @@
                         fnCallback(json);
                     }
                     else {
-                        toastr['error'](json.message);
+                        toastr['error'](json.message, null, { 'positionClass': 'toast-top-center' }); 
                     }
                 });
             }
@@ -194,6 +194,6 @@
             }
 
             return JSON.stringify(filtros);
-        }
+        }        
     }
 }

@@ -79,7 +79,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     //console.log(json, "hola")
                     //primeravez = false;
                     if (json.success === false) {
-                        toastr['error'](json.message);
+                        toastr['error'](json.message, null, { 'positionClass': 'toast-top-center' }); 
                         //console.log(json.Mensaje + " Error al obtener los elementos");
                         El20Utils.ocultarCargador();
                     } else {
@@ -130,9 +130,9 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     //console.log("result", result);
 
                     if (!result.success) {
-                        toastr["error"](result.Mensaje.message);
+                        toastr["error"](result.Mensaje.message, null, { 'positionClass': 'toast-top-center' }); 
                     } else {
-                        toastr["success"](result.data);
+                        toastr["success"](result.data, null, { 'positionClass': 'toast-top-center' }); 
                         self.dataTable.draw();
                     }
                     El20Utils.ocultarCargador();                      
@@ -166,7 +166,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                         //console.log("result", result);
 
                         if (!result.success) {
-                            toastr["error"](result.Mensaje.message);
+                            toastr["error"](result.Mensaje.message, null, { 'positionClass': 'toast-top-center' }); 
                         } else {
                             //toastr["success"](result.Mensaje);                            
                             self.syncWidget.setToken(result.data);
@@ -207,9 +207,9 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                         console.log("result", result);
 
                         if (!result.success) {
-                            toastr["error"](result.message);
+                            toastr["error"](result.message, null, { 'positionClass': 'toast-top-center' }); 
                         } else {
-                            toastr["success"](result.message);
+                            toastr["success"](result.message, null, { 'positionClass': 'toast-top-center' }); 
                             self.dataTable.draw();
                         }
                         El20Utils.ocultarCargador();                      

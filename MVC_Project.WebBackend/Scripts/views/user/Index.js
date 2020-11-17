@@ -77,7 +77,7 @@
                     if (json.success) {
                         fnCallback(json);
                     } else {
-                        toastr['error'](json.message);
+                        toastr['error'](json.message, null, { 'positionClass': 'toast-top-center' }); 
                     }
                 });
             }
@@ -202,7 +202,7 @@
                                 form.find("span.field-validation-error").attr("class", "field-validation-valid");
                                 form.find("span.field-validation-error").empty();
                                 self.modalEditPassword.modal("hide");
-                                toastr["success"](data.Message);
+                                toastr["success"](data.Message, null, { 'positionClass': 'toast-top-center' }); 
                             }).catch(function (data) {
                                 if (data.status == 422) {
                                     dataObj = data.responseJSON;

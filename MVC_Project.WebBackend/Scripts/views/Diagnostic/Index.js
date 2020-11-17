@@ -99,7 +99,7 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
                         fnCallback(json);
                     }
                     else {
-                        toastr['error'](json.message);
+                        toastr['error'](json.message, null, { 'positionClass': 'toast-top-center' }); 
                     }
                 });
             }
@@ -128,14 +128,14 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
                 }
                 else {
                     El20Utils.ocultarCargador();  
-                    toastr['error'](data.message);
+                    toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
                 }
             }
             else {
                 setTimeout(self.finishExtraction(uuid), 2000);
             }
         }).fail(function () {
-            toastr['error']('No es posible finalizar el diagnostico');
+            toastr['error']('No es posible finalizar el diagnostico', null, { 'positionClass': 'toast-top-center' }); 
             El20Utils.ocultarCargador();
         });
     }
@@ -147,11 +147,11 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
                 self.finishExtraction(data.uuid)
             }
             else {
-                toastr['error'](data.message);
+                toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
                 El20Utils.ocultarCargador();
             }
         }).fail(function () {
-            toastr['error']('No es posible generar el diagnostico');
+            toastr['error']('No es posible generar el diagnostico', null, { 'positionClass': 'toast-top-center' }); 
             El20Utils.ocultarCargador();
         });
     });

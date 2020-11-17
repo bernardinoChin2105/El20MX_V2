@@ -92,11 +92,11 @@ function selectLastAccount() {
                 $("#selectAccountModal").modal('hide');
                 window.location = urls.urlSetAccount + "?uuid=" + json.uuid;
             } else {
-                toastr[json.Type](json.Mensaje);
+                toastr[json.Type](json.Mensaje, null, { 'positionClass': 'toast-top-center' }); 
             }
         },
         error: function (xhr) {
-            toastr['error']('Ocurrió un error, intente nuevamente');
+            toastr['error']('Ocurrió un error, intente nuevamente', null, { 'positionClass': 'toast-top-center' }); 
         }
     });
 }
@@ -154,19 +154,19 @@ function initCreate() {
             success: function (json) {
                 if (json.Success) {
                     $("#validacionSat").val(json.Success);
-                    toastr[json.Type](json.Mensaje);   
+                    toastr[json.Type](json.Mensaje, null, { 'positionClass': 'toast-top-center' }); 
                     selectLastAccount();
                 } else {
                     rfc.attr("disabled", false);
                     pass.attr("disabled", false);
                     btn.attr("disabled", false);
-                    toastr[json.Type](json.Mensaje);   
+                    toastr[json.Type](json.Mensaje, null, { 'positionClass': 'toast-top-center' }); 
                 }
             },
             error: function (xhr, status) {
                 console.log(xhr, status, "error");
                 btn.attr("disabled", false);
-                toastr['error']('Ocurrió un error, intente nuevamente');
+                toastr['error']('Ocurrió un error, intente nuevamente', null, { 'positionClass': 'toast-top-center' }); 
             }
         });
     });

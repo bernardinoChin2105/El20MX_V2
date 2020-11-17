@@ -49,13 +49,15 @@
                             <div class="form-group row">
                                 @Html.LabelFor(m => m.allyCommisionPercent, new { @class = "col-form-label col-md-2 control-label" })
                                 <div class="col-12 col-md-8">
-                                    @Html.TextBoxFor(m => m.allyCommisionPercent, new { @class = "form-control porcert required", @maxlength = "50" })
+                                    @*@Html.TextBoxFor(m => m.allyCommisionPercent, new { @class = "form-control ", @maxlength = "50" })*@
+                                    <input type="text" class="form-control porcert required" maxlength="50" id="allyCommisionPercent" name="allyCommisionPercent" value="">
                                 </div>
                             </div>
                             <div class="form-group row">
                                 @Html.LabelFor(m => m.customerDiscountPercent, new { @class = "col-form-label col-md-2 control-label" })
                                 <div class="col-12 col-md-8">
-                                    @Html.TextBoxFor(m => m.customerDiscountPercent, new { @class = "form-control porcert required", @maxlength = "50" })
+                                    @*@Html.TextBoxFor(m => m.customerDiscountPercent, new { @class = "form-control porcert required", @maxlength = "50" })*@
+                                    <input type="text" class="form-control porcert required" maxlength="50" id="customerDiscountPercent" name="customerDiscountPercent" value="">
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -149,7 +151,7 @@
 
         $(document).ready(function () {
             $('.chosen-select').chosen({ width: '100%', "disable_search": true });
-            $('.porcert').mask("##0.00", { reverse: true });
+            $('.porcert').mask("##0.00", { reverse: false });
             
             var mem = $('#data_1 .input-group.date').datepicker({
                 //dateFormat: "yy-mm-dd"
@@ -203,7 +205,7 @@
                     url: "/Alliance/GetPromotionCode",
                     success: function (data) {
                         if (!data.success) {
-                            toastr['error'](data.error);
+                            toastr['error'](data.error, null, { 'positionClass': 'toast-top-center' }); 
                             //swal({
                             //    type: 'error',
                             //    title: "Error al realizar la operación.",

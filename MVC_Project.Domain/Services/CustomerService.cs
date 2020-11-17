@@ -125,9 +125,9 @@ namespace MVC_Project.Domain.Services
         public List<ListCustomersProvider> ReceiverSearchList(ReceiverFilter filter)
         {
             var list = _repository.Session.CreateSQLQuery("exec dbo.st_receiverSearchList " +
-                "@uuid =:uuid, @rfc=:rfc, @businessName=:businessName, @typeInvoice=:typeInvoice ")                   
+                "@uuid =:uuid, @businessName=:businessName, @typeInvoice=:typeInvoice ")                   
                     .SetParameter("uuid", filter.uuid)
-                    .SetParameter("rfc", filter.rfc)
+                    //.SetParameter("rfc", filter.rfc)
                     .SetParameter("businessName", filter.businessName)
                     .SetParameter("typeInvoice", filter.typeInvoice)
                     .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(ListCustomersProvider)))

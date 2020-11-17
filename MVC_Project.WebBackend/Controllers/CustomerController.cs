@@ -196,11 +196,10 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception("Ya existe un Cliente con el RFC proporcionado");
 
                 //Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
-                DateTime todayDate = DateUtil.GetDateTimeNow();
+                DateTime todayDate = DateUtil.GetDateTimeNow();                
 
                 Customer customer = new Customer()
                 {
-
                     uuid = Guid.NewGuid(),
                     account = new Account { id = authUser.Account.Id },
                     firstName = model.FistName,
@@ -218,6 +217,9 @@ namespace MVC_Project.WebBackend.Controllers
                     modifiedAt = todayDate,
                     status = SystemStatus.ACTIVE.ToString(),
                 };
+
+                if (model.taxRegime == TypeTaxRegimen.PERSONA_FISICA.ToString())
+                    customer.businessName = model.BusinessName;
 
                 if (model.Colony.Value > 0)
                     customer.colony = model.Colony.Value;
@@ -280,6 +282,17 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 _customerService.Create(customer);
+                LogUtil.AddEntry(
+                    "Nuevo cliente creado: " + customer.businessName,
+                    ENivelLog.Info,
+                    authUser.Id,
+                    authUser.Email,
+                    EOperacionLog.ACCESS,
+                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                    JsonConvert.SerializeObject(customer)
+                );
+
                 MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
@@ -410,6 +423,9 @@ namespace MVC_Project.WebBackend.Controllers
                 customerData.modifiedAt = todayDate;
                 customerData.status = SystemStatus.ACTIVE.ToString();
 
+                if (model.taxRegime == TypeTaxRegimen.PERSONA_FISICA.ToString())
+                    customerData.businessName = model.BusinessName;
+
                 if (model.Colony.Value > 0)
                     customerData.colony = model.Colony.Value;
                 if (model.Municipality.Value > 0)
@@ -511,6 +527,18 @@ namespace MVC_Project.WebBackend.Controllers
                 #endregion
 
                 _customerService.Update(customerData);
+
+                LogUtil.AddEntry(
+                    "Cliente editado: " + customerData.businessName,
+                    ENivelLog.Info,
+                    userAuth.Id,
+                    userAuth.Email,
+                    EOperacionLog.ACCESS,
+                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                    JsonConvert.SerializeObject(customerData)
+                );
+
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
@@ -1241,7 +1269,7 @@ namespace MVC_Project.WebBackend.Controllers
                             ValorUnitario = varValorUnitario
                             //Unidad 
                         };
-                        cfdipdf.Conceptos.Concepto = concepto;
+                        //cfdipdf.Conceptos.Concepto = concepto;
                     }
                 }
 

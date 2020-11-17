@@ -77,17 +77,7 @@ namespace MVC_Project.WebBackend.Controllers
                     total = listResponse.Count();
                 }
                 //}
-
-                LogUtil.AddEntry(
-                   "Lista de clientes totalDisplay: " + totalDisplay + ", total: " + total,
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
+                
             }
             catch (Exception ex)
             {
@@ -256,14 +246,14 @@ namespace MVC_Project.WebBackend.Controllers
                 var planR = _planService.SavePlan(plan, charges, features, assignments);
 
                 LogUtil.AddEntry(
-                    "Crea nuevo plan: " + JsonConvert.SerializeObject(planR),
+                    "Nuevo plan creado: " + planR.name,
                     ENivelLog.Info,
                     authUser.Id,
                     authUser.Email,
                     EOperacionLog.ACCESS,
                     string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                     ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    JsonConvert.SerializeObject(planR)
                 );
                 MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
                 return RedirectToAction("Index");
@@ -334,7 +324,7 @@ namespace MVC_Project.WebBackend.Controllers
                                         Id = x.id,
                                         Label = x.name,
                                         ChargeId = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id) != null? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).id : 0 : 0,
-                                        Value = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id) != null? Convert.ToDecimal(planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).charge.ToString("0.##")) : 0 : 0
+                                        Value = planChargeConfig.Count() > 0 ? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id) != null? planChargeConfig.FirstOrDefault(y => y.planCharge.id == x.id).charge : 0 : 0
                                     }).ToList();
 
                 model.LabelFeatures = _planFeatureService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString())
@@ -529,14 +519,14 @@ namespace MVC_Project.WebBackend.Controllers
                 _planService.UpdatePlan(dataPlan, newCharges, newFeatures, newAssignments, updateCharges, updateFeatures, updateAssignments);
                 
                 LogUtil.AddEntry(
-                   "Editar cliente: " + JsonConvert.SerializeObject(dataPlan),
+                   "Plan editado: " + dataPlan.name,
                    ENivelLog.Info,
                    userAuth.Id,
                    userAuth.Email,
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                   JsonConvert.SerializeObject(dataPlan)
                 );
 
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);

@@ -153,6 +153,8 @@
     <script src="~/Scripts/plugins/touchspin/jquery.bootstrap-touchspin.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+            window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
+            var DateInit = JSON.parse(window.StartDate);
             $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
             //$('.porcert').mask("###,##0.00", { reverse: true });
              var mem = $('#data_1 .input-group.date').datepicker({
@@ -163,17 +165,27 @@
                 calendarWeeks: true,
                 autoclose: true,
                 format: "dd/mm/yyyy",
-                language: "es"
-            });
+                 language: "es",
+                 startDate: DateInit.MinDate
+             });
+
 
             $.validator.addMethod("Alphanumeric",
                 function (value, element) {
                     return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
-                }, "El campo debe ser alfanumérico"
+                }, "El campo debe ser alfanumérico."
             );
+            $.validator.addMethod("ValidateNegative",
+                function (value, element) {
+                    return value > 0 ? true : false;
+                }, "El campo debe ser un valor positivo."
+            );    
+
             $("#CreateForm").validate({
                 rules: {
-
+                    monthlyCharge: {
+                        ValidateNegative: true
+                    }
                 }
             });
 
@@ -227,7 +239,7 @@
                 return;
             }
             $('#CreateForm').submit();
-        });
+        });        
 
         $("#total").on("change", function () {
             var partialitiesNumber = $("#partialitiesNumber").val();
@@ -254,8 +266,13 @@
             
         });
 
-        function saveMonthlyCharge(total, partialitiesNumber, advancePayment) {
+        function saveMonthlyCharge(total, partialitiesNumber, advancePayment) {            
             if (partialitiesNumber && total && advancePayment) {
+                //if (advancePayment > total) {
+
+                //    return false;
+                //}
+
                 var monthlyCharge = (parseFloat(total) - parseFloat(advancePayment)) / parseInt(partialitiesNumber);
                 monthlyCharge = Math.round(monthlyCharge * 100) / 100;
                 $("#monthlyCharge").val(monthlyCharge);
@@ -264,16 +281,16 @@
 
         $("#hasDeferredPayment").on("ifChanged", function () {
             if (this.checked) {
-                $("#partialitiesNumber").prop('readonly', false);
-                $("#advancePayment").prop('readonly', false);
+                $("#partialitiesNumber").prop({ 'readonly': false, "required": true});
+                $("#advancePayment").prop({ 'readonly': false, "required": true });
                 $(".btn-opt").prop("disabled", false);
             }
             else {
                 $("#partialitiesNumber").val(1);
                 $("#advancePayment").val(0);
                 $("#monthlyCharge").val($("#total").val());
-                $("#partialitiesNumber").prop('readonly', true);
-                $("#advancePayment").prop('readonly', true);
+                $("#partialitiesNumber").prop({ 'readonly': true, "required": false});
+                $("#advancePayment").prop({ 'readonly': true, "required": false });
                 $(".btn-opt").prop("disabled", true);
             }
         })

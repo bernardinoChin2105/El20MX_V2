@@ -15,6 +15,7 @@ using LogHubSDK.Models;
 using static MVC_Project.Utils.Constants;
 using Newtonsoft.Json;
 using MVC_Project.FlashMessages;
+using MVC_Project.Integrations.Pipedrive;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -40,7 +41,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
-        {
+        {           
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
@@ -128,7 +129,7 @@ namespace MVC_Project.WebBackend.Controllers
                     authUser.Permissions = permissionsUniqueMembership;
                     
                     Authenticator.StoreAuthenticatedUser(authUser);
-                    MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
+                    //MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
 
                     LogUtil.AddEntry("Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
@@ -152,8 +153,7 @@ namespace MVC_Project.WebBackend.Controllers
                     authUser.Role = new Role { Id = guestRole.id, Code = guestRole.code, Name = guestRole.name };
                     authUser.Permissions = permissionsGest;
                     Authenticator.StoreAuthenticatedUser(authUser);
-                    MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
-
+                    
                     LogUtil.AddEntry( "Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
@@ -162,9 +162,31 @@ namespace MVC_Project.WebBackend.Controllers
 
                     return RedirectToAction("Index", "Account");
                 }
-                else
+                else if(memberships.Count() == 1)
                 {
                     var uniqueMembership = memberships.First();
+                    if (uniqueMembership.account.status == SystemStatus.INACTIVE.ToString())
+                    {
+                        List<Permission> permissionsUser = new List<Permission>();
+                        permissionsUser.Add(new Permission
+                        {
+                            Action = "Index",
+                            Controller = "Account",
+                            Module = "Account",
+                            Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                            isCustomizable = false
+                        });
+                        authUser.Permissions = permissionsUser;
+                        Authenticator.StoreAuthenticatedUser(authUser);
+
+                        LogUtil.AddEntry("Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                        );
+
+                        return RedirectToAction("Index", "Account");
+                    }
                     List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                     {
                         Controller = p.permission.controller,
@@ -177,51 +199,37 @@ namespace MVC_Project.WebBackend.Controllers
                     authUser.Permissions = permissionsUniqueMembership;
                     authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar };
                     Authenticator.StoreAuthenticatedUser(authUser);
-                    MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
 
                     LogUtil.AddEntry("Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                     );
-                    
-                    if (memberships.Count() == 1)
-                    {
-                        var inicio = permissionsUniqueMembership.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
-                        return RedirectToAction("Index", inicio.Controller);
-                    }
-                    else
-                    {
-                        return RedirectToAction("Index", "Account");
-                    }
+                    var start = permissionsUniqueMembership.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+                    return RedirectToAction("Index", start.Controller);
                 }
-                //else
-                //{
-                //    List<Permission> permissionsUser = new List<Permission>();
-                //    permissionsUser.Add(new Permission
-                //    {
-                //        Action = "Index",
-                //        Controller = "Account",
-                //        Module = "Account",
-                //        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
-                //        isCustomizable = false
-                //    });
-                //    authUser.Permissions = permissionsUser;
-                //    Authenticator.StoreAuthenticatedUser(authUser);
-                //    MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
+                else
+                {
+                    List<Permission> permissionsUser = new List<Permission>();
+                    permissionsUser.Add(new Permission
+                    {
+                        Action = "Index",
+                        Controller = "Account",
+                        Module = "Account",
+                        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                        isCustomizable = false
+                    });
+                    authUser.Permissions = permissionsUser;
+                    Authenticator.StoreAuthenticatedUser(authUser);
 
-                //    LogUtil.AddEntry( "Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
-                //       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                //       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                //       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                //    );
+                    LogUtil.AddEntry("Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
 
-                //    return RedirectToAction("Index", "Account");
-                //}
-                //if (!string.IsNullOrEmpty(Request.Form["ReturnUrl"]))
-                //{
-                //    return Redirect(Request.Form["ReturnUrl"]);
-                //}
+                    return RedirectToAction("Index", "Account");
+                }
             }
             catch (Exception ex)
             {
@@ -497,7 +505,7 @@ namespace MVC_Project.WebBackend.Controllers
                                     Authenticator.StoreAuthenticatedUser(authUser);
                                     url = "/Account/Index";
                                 }
-                                else
+                                else if(memberships.Count()==1)
                                 {
                                     var uniqueMembership = memberships.First();
                                     List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Select(p => new Permission
@@ -512,15 +520,23 @@ namespace MVC_Project.WebBackend.Controllers
                                     authUser.Permissions = permissionsUniqueMembership;
                                     authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar, Id = uniqueMembership.account.id };
                                     Authenticator.StoreAuthenticatedUser(authUser);
-                                    if (memberships.Count() == 1)
+                                    var start = permissionsUniqueMembership.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+                                    url = "/" + start.Controller + "/Index";
+                                }
+                                else
+                                {
+                                    List<Permission> permissionsUser = new List<Permission>();
+                                    permissionsUser.Add(new Permission
                                     {
-                                        var inicio = permissionsUniqueMembership.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
-                                        url = "/" + inicio.Controller + "/Index";
-                                    }
-                                    else
-                                    {
-                                        url = "/Account/Index";
-                                    }
+                                        Action = "Index",
+                                        Controller = "Account",
+                                        Module = "Account",
+                                        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                                        isCustomizable = false
+                                    });
+                                    authUser.Permissions = permissionsUser;
+                                    Authenticator.StoreAuthenticatedUser(authUser);
+                                    url = "/Account/Index";
                                 }
                             }
                             else

@@ -25,7 +25,7 @@ namespace MVC_Project.WebBackend.Models
 
         [DisplayName("ciec")]
         public string ciec { get; set; }
-        [DisplayName("efirma")]
+        [DisplayName("Contraseña clave privada")]
         public string efirma { get; set; }
 
         [DisplayName("Conexión CIEC")]
@@ -38,5 +38,6 @@ namespace MVC_Project.WebBackend.Models
 
         [DisplayName("Avatar")]
         public string avatar { get; set; }
+        public DateTime cerExpiryDate { get; set; }
     }
 }

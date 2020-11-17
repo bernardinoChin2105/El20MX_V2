@@ -13,7 +13,26 @@ $("#btnClearForm").click(function () {
 });
 
 $(".btn-filter-rol").click(function () {
+    if (!$('#SearchForm').valid()) {
+        return;
+    }
     $('#table').DataTable().draw();
+});
+
+$.validator.addMethod("Alphanumeric",
+    function (value, element) {
+        return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
+    }, "El campo debe ser alfanumérico"
+);
+$("#SearchForm").validate({
+    rules: {
+        Name: {
+            Alphanumeric: true
+        },
+        AllyName: {
+            Alphanumeric: true
+        }
+    }
 });
 
 var AllianceIndexControlador = function (htmlTableId, baseUrl, editUrl, ActiveInactiveUrl, hasFullAccessController) {
@@ -70,7 +89,7 @@ var AllianceIndexControlador = function (htmlTableId, baseUrl, editUrl, ActiveIn
                     fnCallback(json);
                     console.log(json);
                     if (json.success === false) {
-                        toastr['error'](json.Mensaje.message);
+                        toastr['error'](json.Mensaje.message, null, { 'positionClass': 'toast-top-center' }); 
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     }
                 });
@@ -78,7 +97,6 @@ var AllianceIndexControlador = function (htmlTableId, baseUrl, editUrl, ActiveIn
         }).on('xhr.dt', function (e, settings, data) {
             El20Utils.ocultarCargador();
             });
-
 
         $(this.htmlTable, "tbody").on('click',
             'td.menu-options .btn-group .btn-active',
@@ -173,5 +191,6 @@ var AllianceIndexControlador = function (htmlTableId, baseUrl, editUrl, ActiveIn
                         }
                     });
             });
+
     };
 };

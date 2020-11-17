@@ -308,6 +308,13 @@ namespace MVC_Project.WebBackend.Controllers
                         catch (Exception ex)
                         {
                             MensajeFlashHandler.RegistrarMensaje("No se pudo completar la carga de los archivos csd. " + ex.Message, TiposMensaje.Warning);
+                            LogUtil.AddEntry(
+                               "Error al cargar archivos csd: " + branchOffice.account.rfc,
+                               ENivelLog.Info, userAuth.Id, userAuth.Email, EOperacionLog.ACCESS,
+                               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                               ex.Message + " " + ex.InnerException != null ? ex.InnerException.Message : ""
+                            );
                             return RedirectToAction("Edit", new { uuid = branchOffice.uuid });
                         }
                     }

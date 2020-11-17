@@ -142,7 +142,7 @@
 
         $(document).ready(function () {
             $('.chosen-select').chosen({ width: '100%', "disable_search": true });
-            $('.porcert').mask("##0.00", { reverse: true });
+            $('.porcert').mask("##0.00", { reverse: false });
 
             var mem = $('#data_1 .input-group.date').datepicker({
                 //dateFormat: "yy-mm-dd"
@@ -196,7 +196,7 @@
                     url: "/Alliance/GetPromotionCode",
                     success: function (data) {
                         if (!data.success) {
-                            toastr['error'](data.error);
+                            toastr['error'](data.error, null, { 'positionClass': 'toast-top-center' }); 
                             //swal({
                             //    type: 'error',
                             //    title: "Error al realizar la operación.",

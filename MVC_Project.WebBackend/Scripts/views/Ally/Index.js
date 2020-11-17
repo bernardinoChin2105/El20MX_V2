@@ -13,7 +13,23 @@ $("#btnClearForm").click(function () {
 });
 
 $(".btn-filter-rol").click(function () {
+    if (!$('#SearchForm').valid()) {
+        return;
+    }
     $('#table').DataTable().draw();
+});
+
+$.validator.addMethod("Alphanumeric",
+    function (value, element) {
+        return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
+    }, "El campo debe ser alfanumérico"
+);
+$("#SearchForm").validate({
+    rules: {
+        Name: {
+            Alphanumeric: true
+        }
+    }
 });
 
 var AllyIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAccessController) {
@@ -61,7 +77,7 @@ var AllyIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAcces
                 $.getJSON(sSource, aoData, function (json) {
                     fnCallback(json);
                     if (json.success === false) {
-                        toastr['error'](json.Mensaje.message);
+                        toastr['error'](json.Mensaje.message, null, { 'positionClass': 'toast-top-center' }); 
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     }
                 });

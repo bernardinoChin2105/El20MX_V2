@@ -48,18 +48,7 @@ namespace MVC_Project.WebBackend.Controllers
                 Status = FilterStatusEnum.ALL.Id,
                 Statuses = FilterStatusEnum.GetSelectListItems()
             };
-
-            LogUtil.AddEntry(
-               "Usuario: " + JsonConvert.SerializeObject(model),
-               ENivelLog.Info,
-               userAuth.Id,
-               userAuth.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-            );
-
+            
             return View(model);
         }
         [Authorize]
@@ -162,17 +151,6 @@ namespace MVC_Project.WebBackend.Controllers
                     dataResponse.Add(userData);
                 }
                
-                LogUtil.AddEntry(
-                   "Lista de clientes totalDisplay: " + totalDisplay + ", total: " + dataResponse.Count(),
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
                 return Json(new
                 {
                     success = true,
@@ -216,18 +194,7 @@ namespace MVC_Project.WebBackend.Controllers
                     return RedirectToAction("Index");
                 }
                 var userCreateViewModel = new UserCreateViewModel { Roles = roles, isBackOffice = userAuth.isBackOfficeConfiguration() };
-
-                LogUtil.AddEntry(
-                   "Crear usuario: " + JsonConvert.SerializeObject(userCreateViewModel),
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
+                
                 return View(userCreateViewModel);
             }
             catch (Exception ex)
@@ -279,17 +246,6 @@ namespace MVC_Project.WebBackend.Controllers
                 });
             }
 
-            LogUtil.AddEntry(
-               "Caracteristicas: " + JsonConvert.SerializeObject(featuresViewModel),
-               ENivelLog.Info,
-               userAuth.Id,
-               userAuth.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-            );
-
             return featuresViewModel;
         }
 
@@ -306,17 +262,6 @@ namespace MVC_Project.WebBackend.Controllers
                 Value = role.id.ToString(),
                 Text = role.name
             }).ToList();
-
-            LogUtil.AddEntry(
-               "Roles populares: " + JsonConvert.SerializeObject(rolesList),
-               ENivelLog.Info,
-               userAuth.Id,
-               userAuth.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-            );
 
             return rolesList.ToList();
         }
@@ -369,7 +314,7 @@ namespace MVC_Project.WebBackend.Controllers
                             createdAt = todayDate,
                             modifiedAt = todayDate,
                             status = SystemStatus.ACTIVE.ToString(),
-                            avatar = "/Images/default_avatar.jpg"
+                            avatar = ConfigurationManager.AppSettings["Avatar.User"]
                         }
                     };
                 }
@@ -496,17 +441,7 @@ namespace MVC_Project.WebBackend.Controllers
                 model.Role = membership.role.id;
                 model.Status = user.status;
                 model.RoleCode = membership.role.code;
-                LogUtil.AddEntry(
-                   "Editar Cliente: " + JsonConvert.SerializeObject(model),
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
+                
                 return View(model);
             }
             catch (Exception ex)
@@ -565,14 +500,14 @@ namespace MVC_Project.WebBackend.Controllers
                 _userService.Update(user);
 
                 LogUtil.AddEntry(
-                   "Editar Usuario: " + JsonConvert.SerializeObject(user),
+                   "Usuario editado: " + user.name,
                    ENivelLog.Info,
                    userAuth.Id,
                    userAuth.Email,
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                   JsonConvert.SerializeObject(user)
                 );
 
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);

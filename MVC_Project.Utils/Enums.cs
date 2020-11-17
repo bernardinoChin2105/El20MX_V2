@@ -57,7 +57,13 @@ namespace MVC_Project.Utils
         [Display(Name = "Lead")]
         LEAD,
         [Display(Name = "System Administrator")]
-        SYSTEM_ADMINISTRATOR
+        SYSTEM_ADMINISTRATOR,
+        [Display(Name = "Dirección")]
+        DIRECCION,
+        [Display(Name = "Supervisor")]
+        SUPERVISOR,
+        [Display(Name = "CAD")]
+        CAD
     }
 
     public enum SystemPermissionApply
@@ -408,5 +414,13 @@ namespace MVC_Project.Utils
         FINISHED,
         [Display(Name = "failed")]
         FAILED
+    }
+
+    public enum TypeInvoicing
+    {
+        [Display(Name = "issued")]
+        ISSUED,
+        [Display(Name = "received")]
+        RECEIVED
     }
 }

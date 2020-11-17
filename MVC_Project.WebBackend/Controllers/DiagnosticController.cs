@@ -98,7 +98,7 @@ namespace MVC_Project.WebBackend.Controllers
                     string date = DateUtil.GetMonthName(DateTime.Now, "es");
 
                     //Asignar datos de diagnostico
-                    List<InvoicesGroup> invoicePeriod = diagDetails.GroupBy(x => new
+                    List<InvoicesGroup> invoicePeriod = diagDetails.OrderBy(x => x.year).ThenBy(x => x.month).GroupBy(x => new
                     {
                         x.year,
                         x.month,
@@ -106,7 +106,8 @@ namespace MVC_Project.WebBackend.Controllers
                     .Select(b => new InvoicesGroup
                     {
                         year = b.Key.year,
-                        month = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(b.Key.month),
+                        month = DateUtil.GetMonthName(new DateTime(b.Key.year, b.Key.month, 1), "es"),
+                        //month = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(b.Key.month),
                         issuer = new IssuerReceiverGroup()
                         {
                             type = TypeIssuerReceiver.ISSUER.ToString(),
@@ -137,11 +138,12 @@ namespace MVC_Project.WebBackend.Controllers
                 Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
 
                 var provider = ConfigurationManager.AppSettings["SATProvider"];
-                DateTime dateFrom = DateTime.UtcNow.AddMonths(-4);
+                DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
                 DateTime dateTo = DateTime.UtcNow.AddMonths(-1);
                 dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
                 dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
-                SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
+                //Se obtiene la extracción de los 3 meses completos. Sin los días del mes actual
+                string extractionId = SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
                 
                 var diagn = new Diagnostic()
                 {
@@ -151,7 +153,8 @@ namespace MVC_Project.WebBackend.Controllers
                     commercialCAD = "",
                     plans = "",
                     createdAt = DateUtil.GetDateTimeNow(),
-                    status = SystemStatus.PENDING.ToString()
+                    status = SystemStatus.PENDING.ToString(),
+                    processId = extractionId
                 };
 
                 _diagnosticService.Create(diagn);
@@ -295,7 +298,7 @@ namespace MVC_Project.WebBackend.Controllers
                     string date = DateUtil.GetMonthName(DateTime.Now, "es");
 
                     //Asignar datos de diagnostico
-                    List<InvoicesGroup> invoicePeriod = diagDetails.GroupBy(x => new
+                    List<InvoicesGroup> invoicePeriod = diagDetails.OrderBy(x => x.year).ThenBy(x => x.month).GroupBy(x => new
                     {
                         x.year,
                         x.month,
@@ -303,7 +306,7 @@ namespace MVC_Project.WebBackend.Controllers
                     .Select(b => new InvoicesGroup
                     {
                         year = b.Key.year,
-                        month = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(b.Key.month),
+                        month = DateUtil.GetMonthName(new DateTime(b.Key.year, b.Key.month, 1), "es"),
                         issuer = new IssuerReceiverGroup()
                         {
                             type = TypeIssuerReceiver.ISSUER.ToString(),

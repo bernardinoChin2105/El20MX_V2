@@ -132,23 +132,23 @@
     <script src="~/Scripts/plugins/cropper/cropper.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            var $image = $('#image');
+            //var $image = $('#image');
 
-            $image.cropper({
-                aspectRatio: 16 / 9,
-                crop: function (event) {
-                    console.log(event.detail.x);
-                    console.log(event.detail.y);
-                    console.log(event.detail.width);
-                    console.log(event.detail.height);
-                    console.log(event.detail.rotate);
-                    console.log(event.detail.scaleX);
-                    console.log(event.detail.scaleY);
-                }
-            });
+            //$image.cropper({
+            //    aspectRatio: 16 / 9,
+            //    crop: function (event) {
+            //        console.log(event.detail.x);
+            //        console.log(event.detail.y);
+            //        console.log(event.detail.width);
+            //        console.log(event.detail.height);
+            //        console.log(event.detail.rotate);
+            //        console.log(event.detail.scaleX);
+            //        console.log(event.detail.scaleY);
+            //    }
+            //});
 
-            // Get the Cropper.js instance after initialized
-            var cropper = $image.data('cropper');
+            //// Get the Cropper.js instance after initialized
+            //var cropper = $image.data('cropper');
 
             var isBackOffice = '@Model.isBackOffice' == 'true';
 
@@ -156,13 +156,13 @@
 
             $('input').on('ifClicked', function (ev) { $(ev.target).click(); })
 
-            $("#AcceptUser").click(function () {
-                validarDatos();                
-            });
+            //$("#AcceptUser").click(function () {
+            //    validarDatos();                
+            //});
 
-            $("#Role").change(function () {                
-                validarDatos();
-            });
+            //$("#Role").change(function () {                
+            //    validarDatos();
+            //});
 
             $.validator.addMethod("ConfirmTermTrue",
                 function (value, element) {

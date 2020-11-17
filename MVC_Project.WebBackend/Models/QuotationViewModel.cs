@@ -29,7 +29,7 @@ namespace MVC_Project.WebBackend.Models
     public class QuotationCreate
     {
         public Int64 id { get; set; }
-        [DisplayName("Fecha inicio")]
+        [DisplayName("Fecha en que se inicia regularización")]
         public DateTime startedAt { get; set; }
         [DisplayName("Monto total")]
         public decimal total { get; set; }
@@ -45,7 +45,7 @@ namespace MVC_Project.WebBackend.Models
         public List<SelectListItem> accounts { get; set; }
         [DisplayName("Cliente")]
         public Int64 accountId { get; set; }
-        [DisplayName("Cotización")]
+        [DisplayName("Adjuntar cotización")]
         public HttpPostedFileBase[] files { get; set; }
 
         public List<SelectListItem> statusQuotation { get; set; }

@@ -34,13 +34,14 @@ $('#RegisterAt').daterangepicker(
             toLabel: "a"
         },
         //minDate: DateInit.MinDate,
-        maxDate: DateInit.MaxDate
+        maxDate: DateInit.MaxDate,
+        startDate: DateInit.MinDate,
         //opens: 'left'
     }).on('apply.daterangepicker', function (e, picker) {
         //console.log(picker.startDate.format('DD/MM/YYYY'));
         //console.log(picker.endDate.format('DD/MM/YYYY'));
         $('#FilterInitialDate').val(picker.startDate.format('DD/MM/YYYY'));
-        $('#FilterEndDate').val(picker.endDate.format('DD/MM/YYYY'));
+        $('#FilterEndDate').val(picker.endDate.format('DD/MM/YYYY'));             
     });
 
 //bankAccountsUrl, getTokenUrl, unlinkBankUrl, createBankCredentialUrl,
@@ -56,6 +57,12 @@ var BankTransactionControlador = function (htmlTableId, baseUrl, GetBankAccountU
 
     this.init = function () {
         var primeravez = true;
+        if (primeravez) {
+            $('#FilterInitialDate').val(DateInit.MinDate.format('DD/MM/YYYY'));
+            $('#FilterEndDate').val(DateInit.MaxDate.format('DD/MM/YYYY'));     
+            $('#RegisterAt').val(DateInit.MinDate.format('DD/MM/YYYY') + ' - ' + DateInit.MaxDate.format('DD/MM/YYYY'));
+        }
+
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();
         }).DataTable({
@@ -87,7 +94,8 @@ var BankTransactionControlador = function (htmlTableId, baseUrl, GetBankAccountU
                     primeravez = false;
                     fnCallback(json);                    
                     if (json.success === false) {
-                        toastr['error'](json.error);
+                        toastr['error'](json.error, null, { 'positionClass': 'toast-top-center' }); 
+                        
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     }
 
@@ -118,7 +126,7 @@ var BankTransactionControlador = function (htmlTableId, baseUrl, GetBankAccountU
                         console.log("result", result);
 
                         if (!result.success) {
-                            toastr["error"](result.message);
+                            toastr["error"](result.message, null, { 'positionClass': 'toast-top-center' }); 
                         } else {
                             cbmAccount.html("");
                             cbmAccount.append(result.data.map(function (data, index) {
@@ -139,6 +147,7 @@ var BankTransactionControlador = function (htmlTableId, baseUrl, GetBankAccountU
             else {
                 cbmAccount.html("");
                 cbmAccount.html('<option value="-1">Todos</option>');
+                El20Utils.ocultarCargador();
             }
         });
     };

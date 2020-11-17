@@ -74,17 +74,7 @@ namespace MVC_Project.WebBackend.Controllers
                         status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), x.status)).GetDisplayName()
                     }).ToList();
                 }
-
-                LogUtil.AddEntry(
-                   "Lista de Aliados total: " + totalDisplay + ", totalDisplay: " + total,
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
+                
             }
             catch (Exception ex)
             {
@@ -138,14 +128,14 @@ namespace MVC_Project.WebBackend.Controllers
                 _allianceService.Update(aliance);
 
                 LogUtil.AddEntry(
-                   "Actualización del status: " + JsonConvert.SerializeObject(uuid),
+                   "Actualización del status: " + aliance.name,
                    ENivelLog.Info,
                    userAuth.Id,
                    userAuth.Email,
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                   "Estatus: " + aliance.status
                 );
 
                 //return Json(true, JsonRequestBehavior.AllowGet);
@@ -255,14 +245,14 @@ namespace MVC_Project.WebBackend.Controllers
                 _allianceService.CreateAlliance(alliance, ally);
 
                 LogUtil.AddEntry(
-                   "Se creo la alianza con id: " + alliance.id,
+                   "Alianza creada: " + alliance.name,
                    ENivelLog.Info,
                    authUser.Id,
                    authUser.Email,
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                   JsonConvert.SerializeObject(alliance)
                 );
 
                 MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
@@ -416,14 +406,14 @@ namespace MVC_Project.WebBackend.Controllers
 
 
                 LogUtil.AddEntry(
-                   "Se actualizo la alianza con id: " + allianceData.id,
+                   "Se actualizo la alianza: " + allianceData.name,
                    ENivelLog.Info,
                    userAuth.Id,
                    userAuth.Email,
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                   JsonConvert.SerializeObject(allianceData)
                 );
 
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
@@ -497,17 +487,6 @@ namespace MVC_Project.WebBackend.Controllers
                         status = x.status
                     }).ToList();
                 }
-
-                LogUtil.AddEntry(
-                   "Lista de Aliados total: " + totalDisplay + ", totalDisplay: " + total,
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
             }
             catch (Exception ex)
             {
@@ -554,7 +533,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var authUser = Authenticator.AuthenticatedUser;
 
                 if (_allyService.FindBy(x => x.name == model.Name).Any())
-                    throw new Exception("Ya existe un Aliado con el Nombre proporcionado");
+                    throw new Exception("El nombre del aliado ingresado en el formulario ya se encuentra registrado en el sistema");
 
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
@@ -570,6 +549,16 @@ namespace MVC_Project.WebBackend.Controllers
                 };
 
                 _allyService.Create(ally);
+                LogUtil.AddEntry(
+                   "Nuevo aliado creado: " + ally.name,
+                   ENivelLog.Info,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   JsonConvert.SerializeObject(ally)
+                );
                 MensajeFlashHandler.RegistrarMensaje("Registro exitoso", TiposMensaje.Success);
                 return RedirectToAction("AllyIndex");
             }
@@ -612,6 +601,9 @@ namespace MVC_Project.WebBackend.Controllers
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
 
+                if (_allyService.FindBy(x => x.name == model.Name && x.id != model.Id).Any())
+                    throw new Exception("El nombre del aliado ingresado en el formulario ya se encuentra registrado en el sistema");
+
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
                 allyData.name = model.Name;
@@ -619,7 +611,18 @@ namespace MVC_Project.WebBackend.Controllers
                 allyData.status = SystemStatus.ACTIVE.ToString();
 
                 _allyService.Update(allyData);
-                MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
+                LogUtil.AddEntry(
+                   "Edición de aliado: " + allyData.name,
+                   ENivelLog.Info,
+                   userAuth.Id,
+                   userAuth.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   JsonConvert.SerializeObject(allyData)
+                );
+
+                MensajeFlashHandler.RegistrarMensaje("Registro actualizado exitosamente.", TiposMensaje.Success);
                 return RedirectToAction("AllyIndex");
             }
             catch (Exception ex)

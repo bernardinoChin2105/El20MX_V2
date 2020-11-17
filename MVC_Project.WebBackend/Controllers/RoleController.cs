@@ -64,17 +64,6 @@ namespace MVC_Project.WebBackend.Controllers
                     roleResponse.Add(roleData);
                 }
                 
-                LogUtil.AddEntry(
-                   "Lista de clientes totalDisplay: " + totalDisplay + ", total: " + roleResponse.Count(),
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
                 return Json(new
                 {
                     success = true,
@@ -118,17 +107,6 @@ namespace MVC_Project.WebBackend.Controllers
             var userAuth = Authenticator.AuthenticatedUser;
             try
             {
-                LogUtil.AddEntry(
-                   "Nuevo Rol",
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
-
                 var roleCreateViewModel = new RoleCreateViewModel { Modules = PopulateModules() };
                 return View(roleCreateViewModel);
             }
@@ -178,18 +156,7 @@ namespace MVC_Project.WebBackend.Controllers
                     }).ToList()
                 });
             }
-
-            LogUtil.AddEntry(
-               "Roles populares: " + JsonConvert.SerializeObject(featuresViewModel),
-               ENivelLog.Info,
-               userAuth.Id,
-               userAuth.Email,
-               EOperacionLog.ACCESS,
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-            );
-
+            
             return featuresViewModel;
         }
 
@@ -210,9 +177,16 @@ namespace MVC_Project.WebBackend.Controllers
         private List<ModuleViewModel> PopulateModules()
         {
             var userAuth = Authenticator.AuthenticatedUser;
-            var permissions = _permissionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString() && x.isCustomizable).ToList();
+            List<Permission> pp = new List<Permission>();
+            if (userAuth.isBackOffice && userAuth.Account == null)
+                pp = _permissionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString() 
+                && x.isCustomizable).ToList();
+            else
+                pp = _permissionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString() 
+                && x.isCustomizable && x.applyTo != SystemPermissionApply.ONLY_BACK_OFFICE.ToString()).ToList();
+            
             var permissionsVM = new List<ModuleViewModel>();
-            permissionsVM = permissions.GroupBy(x => x.module).Select(g => new ModuleViewModel
+            permissionsVM = pp.GroupBy(x => x.module).Select(g => new ModuleViewModel
             {
                 Id = (int)Enum.Parse(typeof(SystemModules), g.Key),
                 Name = ((SystemModules)Enum.Parse(typeof(SystemModules), g.Key)).GetDisplayName(),
@@ -468,16 +442,16 @@ namespace MVC_Project.WebBackend.Controllers
                 _rolePermissionService.UpdateRolePermissions(newRolePermissions, updateRolePermissions, oldRolePermissions);
 
                 LogUtil.AddEntry(
-                   "Edicion de rol, nuevos permisos: " + JsonConvert.SerializeObject(newRolePermissions) 
-                   + ", actualizacion de permisos: "+ JsonConvert.SerializeObject(updateRolePermissions)
-                   + ", antiguos permisos: "+ JsonConvert.SerializeObject(oldRolePermissions),
+                   "Edicion de rol " + role.name,
                    ENivelLog.Info,
                    userAuth.Id,
                    userAuth.Email,
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                   "Nuevos permisos: " + JsonConvert.SerializeObject(newRolePermissions)
+                   + ", actualizacion de permisos: " + JsonConvert.SerializeObject(updateRolePermissions)
+                   + ", antiguos permisos: " + JsonConvert.SerializeObject(oldRolePermissions)
                 );
 
                 MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);

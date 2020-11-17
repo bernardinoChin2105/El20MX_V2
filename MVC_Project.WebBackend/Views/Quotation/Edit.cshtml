@@ -152,6 +152,8 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
+                     window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
+            var DateInit = JSON.parse(window.StartDate);
              var mem = $('#data_1 .input-group.date').datepicker({
                 //dateFormat: "yy-mm-dd"
                 keyboardNavigation: false,
@@ -160,17 +162,25 @@
                 calendarWeeks: true,
                 autoclose: true,
                 format: "dd/mm/yyyy",
-                language: "es"
+                 language: "es",
+                 startDate: DateInit.MinDate
             });
 
             $.validator.addMethod("Alphanumeric",
                 function (value, element) {
                     return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
-                }, "El campo debe ser alfanumérico"
+                }, "El campo debe ser alfanumérico."
+            );
+            $.validator.addMethod("ValidateNegative",
+                function (value, element) {
+                    return value > 0 ? true : false;
+                }, "El campo debe ser un valor positivo."
             );
             $("#EditForm").validate({
                 rules: {
-
+                    monthlyCharge: {
+                        ValidateNegative: true
+                    }
                 }
             });
 
@@ -219,15 +229,15 @@
             $(".btn-opt").prop("disabled", true);
 
             if ($('#hasDeferredPayment').prop("checked")) {
-                $("#partialitiesNumber").prop('readonly', false);
-                $("#advancePayment").prop('readonly', false);
+                $("#partialitiesNumber").prop({ 'readonly': false, "required": true });
+                $("#advancePayment").prop({ 'readonly': false, "required": true });
                 $(".btn-opt").prop("disabled", false);
             } else {
                 $("#partialitiesNumber").val(1);
                 $("#advancePayment").val(0);
                 $("#monthlyCharge").val($("#total").val());
-                $("#partialitiesNumber").prop('readonly', true);
-                $("#advancePayment").prop('readonly', true);
+                $("#partialitiesNumber").prop({ 'readonly': true, "required": false });
+                $("#advancePayment").prop({ 'readonly': true, "required": false });
                 $(".btn-opt").prop("disabled", true);
             }
             
@@ -275,16 +285,16 @@
 
         $("#hasDeferredPayment").on("ifChanged", function () {
             if (this.checked) {
-                $("#partialitiesNumber").prop('readonly', false);
-                $("#advancePayment").prop('readonly', false);
+                $("#partialitiesNumber").prop({ 'readonly': false, "required": true });
+                $("#advancePayment").prop({ 'readonly': false, "required": true });
                 $(".btn-opt").prop("disabled", false);
             }
             else {
                 $("#partialitiesNumber").val(1);
                 $("#advancePayment").val(0);
                 $("#monthlyCharge").val($("#total").val());
-                $("#partialitiesNumber").prop('readonly', true);
-                $("#advancePayment").prop('readonly', true);
+                $("#partialitiesNumber").prop({ 'readonly': true, "required": false });
+                $("#advancePayment").prop({ 'readonly': true, "required": false });
                 $(".btn-opt").prop("disabled", true);
             }
         });

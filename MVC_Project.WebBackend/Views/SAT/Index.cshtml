@@ -1,8 +1,12 @@
 ﻿@model MVC_Project.WebBackend.Models.SATViewModel
 @using MVC_Project.Utils
-
+@using MVC_Project.WebBackend.AuthManagement
+@using MVC_Project.WebBackend.AuthManagement.Models
 @{
-    ViewBag.Title = "Sucursales";
+    ViewBag.Title = "Mi SAT";
+    var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
+    AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
+    var hasFullAccessController = user.HasFullAccessController(controllerName);
 }
 
 @section Styles {
@@ -28,6 +32,15 @@
 
         .img-container img {
             max-width: 100%;
+        }
+
+        .view-e-firma,
+        .view-ciec {
+            cursor: pointer;
+        }
+
+        .custom-file {
+            overflow: hidden;
         }
     </style>
     <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
@@ -67,12 +80,13 @@
                                             @Html.TextBoxFor(model => model.name, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
                                             @Html.ValidationMessageFor(model => model.name)
                                         </div>
-                                        <div class="col-12 col-md-4 text-center">
-                                            <label class="label" data-toggle="tooltip" title="Cambiar imagen de la cuenta" data-original-title="Cambiar imagen de la cuenta">
-                                                <img id="avatar" class="rounded-circle" src="@Model.avatar" width="120" height="120" style="background-color:#e9ecef">
+                                        @*<div class="col-12 col-md-4 text-center">
+                                            <label class="label" data-toggle="tooltip" title="Cambiar imagen de la cuenta" data-original-title="Cambiar imagen de la cuenta"
+                                                   style="background-color:white">
+                                                <img id="avatar" src="@Model.avatar">
                                                 <input type="file" class="sr-only" id="input" name="image" accept="image/*">
                                             </label>
-                                        </div>
+                                        </div>*@
                                     </div>
                                 </div>
                             </div>
@@ -107,7 +121,7 @@
                                                 @Html.ValidationMessageFor(model => model.ciec)
                                             </div>
                                         </div>
-                                        @if (Model.ciecStatus != SystemStatus.ACTIVE.ToString())
+                                        @if (Model.ciecStatus != SystemStatus.ACTIVE.ToString() && hasFullAccessController)
                                         {
                                             <div class="col-12 col-md-4">
                                                 <button class="btn btn-color" type="button" id="btn-ciec" style="margin-top:35px"><i class="fas fa-sign-in-alt"></i> Validar ciec </button>
@@ -121,6 +135,17 @@
                                     <h5> EFIRMA </h5>
                                 </div>
                                 <div class="ibox-content">
+                                    @if (!string.IsNullOrEmpty(Model.cerUrl))
+                                    {
+                                        <div class="form-group row">
+                                            <div class="col-12 col-md-12">
+                                                <div class="alert alert-info alert-dismissable" style="display:normal">
+                                                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                                    Fecha de vencimiento de su cerficado @Model.cerExpiryDate.ToString("dd/MM/yyyy"). Ingrese a <a class="alert-link" href="https://www.sat.gob.mx/" target="_blank">www.sat.gob.mx</a> para renovarlo.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
                                     <div class="form-group row">
                                         <div class="col-12 col-md-4">
                                             @if (Model.efirmaStatus == SystemStatus.ACTIVE.ToString())
@@ -131,8 +156,9 @@
                                             {
                                                 <i class="fa fa-thumbs-down btn btn-danger btn-circle btn-lg" title="Estatus de conexión"></i>
                                             }
-                                        <label class="col-form-label control-label"> Estatus efirma </label>
+                                            <label class="col-form-label control-label"> Estatus efirma </label>
                                         </div>
+
                                     </div>
                                     <div class="form-group row">
                                         <div class="col-12 col-md-4">
@@ -176,7 +202,7 @@
                                                 <a href="@Model.keyUrl">.key actual</a>
                                             }
                                         </div>
-                                        @if (Model.efirmaStatus != SystemStatus.ACTIVE.ToString())
+                                        @if (Model.efirmaStatus != SystemStatus.ACTIVE.ToString() && hasFullAccessController)
                                         {
                                             <div class="col-12 col-md-4 text-right">
                                                 <button class="btn btn-color" type="button" id="btn-efirma" style="margin-top:35px"><i class="fas fa-sign-in-alt"></i> Validar efirma</button>

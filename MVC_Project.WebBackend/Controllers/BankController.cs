@@ -60,7 +60,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                         credential = new Credential()
                         {
-                            uuid=Guid.NewGuid(),
+                            uuid = Guid.NewGuid(),
                             account = new Account() { id = authUser.Account.Id },
                             provider = SystemProviders.SYNCFY.GetDisplayName(), //"Paybook",
                             idCredentialProvider = credentialPaybook.id_user,
@@ -212,7 +212,7 @@ namespace MVC_Project.WebBackend.Controllers
                             status = itemBank.is_authorized != null ? (itemBank.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString(),
                             bank = bank
                         };
-                        
+
                         //Obtener las cuentas de los bancos nuevos
                         var bankAccounts = PaybookService.GetAccounts(itemBank.id_credential, token);
                         foreach (var itemAccount in bankAccounts)
@@ -270,19 +270,18 @@ namespace MVC_Project.WebBackend.Controllers
                         //Preguntarle por el guardado
                         _bankCredentialService.CreateWithTransaction(newBankCred);
                     }
+                    LogUtil.AddEntry(
+                       "Credencial bancaria para el rfc: " + authUser.Account.RFC,
+                       ENivelLog.Info,
+                       authUser.Id,
+                       authUser.Email,
+                       EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
                 }
-
-                LogUtil.AddEntry(
-                   "Obtener token del cliente",
-                   ENivelLog.Info,
-                   authUser.Id,
-                   authUser.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                );
-
+                
                 return new JsonResult
                 {
                     Data = new { success = true, data = "La conexión con el banco se realizó de manera exitosa." },
@@ -399,14 +398,14 @@ namespace MVC_Project.WebBackend.Controllers
                 _bankAccountService.Update(updateBankAccount);
 
                 LogUtil.AddEntry(
-                   "Se actualizo la clave de la cuenta del banco: " + updateBankAccount.id + ", Clabe:" + updateBankAccount.clabe,
+                   "Se actualizo la clave de la cuenta del banco: " + updateBankAccount.name ,
                    ENivelLog.Info,
                    authUser.Id,
                    authUser.Email,
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                   "Clabe actualizada: " + updateBankAccount.clabe
                 );
                 success = true;
                 message = "Clabe actualizada";
@@ -487,7 +486,7 @@ namespace MVC_Project.WebBackend.Controllers
                         balance = x.balance.ToString("C2"),
                         currency = x.currency,
                         //number = x.number,
-                        number = !string.IsNullOrEmpty(x.number)? x.number.PadLeft(10, pad): string.Empty,
+                        number = !string.IsNullOrEmpty(x.number) ? x.number.PadLeft(10, pad) : string.Empty,
                         isDisable = x.isDisable,
                         refreshAt = x.refreshAt,
                         clabe = x.clabe,
@@ -498,17 +497,7 @@ namespace MVC_Project.WebBackend.Controllers
                     totalDisplay = listResponse[0].Total;
                     total = listResponse.Count();
                 }
-
-                LogUtil.AddEntry(
-                   "Lista de Bancos total: " + totalDisplay + ", totalDisplay: " + total,
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
+                
             }
             catch (Exception ex)
             {
@@ -550,8 +539,8 @@ namespace MVC_Project.WebBackend.Controllers
             BankViewModel model = new BankViewModel();
             ViewBag.Date = new
             {
-                MinDate = DateTime.Now.AddDays(-10).ToString("dd-MM-yyyy"),
-                MaxDate = DateTime.Now.ToString("dd-MM-yyyy")
+                MinDate = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString(), //DateTime.Now.AddDays(-10).ToString("dd/MM/yyyy"),
+                MaxDate = DateTime.Now.ToString("dd/MM/yyyy")
             };
             try
             {
@@ -593,96 +582,91 @@ namespace MVC_Project.WebBackend.Controllers
 
             try
             {
-                if (!first)
+
+                NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
+
+                string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
+                string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
+
+                if (first)
                 {
-                    NameValueCollection filtersValues = HttpUtility.ParseQueryString(filtros);
-                    string FilterStart = filtersValues.Get("FilterInitialDate").Trim();
-                    string FilterEnd = filtersValues.Get("FilterEndDate").Trim();
-                    string bank = filtersValues.Get("BankName");
-                    string bankAccount = filtersValues.Get("NumberBankAccount");
-                    string Movements = filtersValues.Get("Movements");
-
-                    var pagination = new BasePagination();
-                    var filters = new BankTransactionFilter() { accountId = userAuth.Account.Id };
-                    pagination.PageSize = param.iDisplayLength;
-                    pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
-                    if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
-                    if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
-                    if (bank != "-1") filters.bankId = Convert.ToInt64(bank);
-                    if (bankAccount != "-1") filters.bankAccountId = Convert.ToInt64(bankAccount);
-                    if (Movements != "-1") filters.movements = Convert.ToInt64(Movements);
-
-                    listResponse = _bankCredentialService.GetBankTransactionList(pagination, filters);
-
-                    //Corroborar los campos iTotalRecords y iTotalDisplayRecords
-                    if (listResponse.Count() > 0)
-                    {
-                        totalDisplay = listResponse[0].Total;
-                        total = listResponse.Count();
-                        char pad = '*';
-                        double balanceA = 0;
-                        //bool firstA = true;
-                        Int64 bankAccountId = 0;
-                        double amountB = 0;
-                        foreach (var item in listResponse)
-                        {
-                            if (bankAccountId != item.bankAccountId)
-                            {
-                                bankAccountId = item.bankAccountId;
-                                balanceA = item.balance;
-                                amountB = (double)item.amount;
-                            }
-                            else
-                            {
-                                balanceA = balanceA - amountB;
-                                amountB = (double)item.amount;
-                            }
-
-
-                            BankTransactionMV nuevo = new BankTransactionMV
-                            {
-                                id = item.id,
-                                transactionId = item.transactionId,
-                                description = item.description,
-                                amountD = item.amount > 0 ? item.amount.ToString("C2") : "",
-                                amountR = item.amount < 0 ? item.amount.ToString("C2") : "",
-                                currency = item.currency,
-                                transactionAt = item.transactionAt.ToShortDateString(),
-                                balance = balanceA.ToString("C2"),
-                                bankAccountName = item.bankAccountName + " " + (!string.IsNullOrEmpty(item.number) ? item.number.PadLeft(10, pad) : string.Empty),
-                                number = (!string.IsNullOrEmpty(item.number) ? item.number.PadLeft(10, pad) : string.Empty),
-                                bankName = item.bankName,
-                                refreshAt = item.refreshAt.ToString()
-                            };
-
-                            list.Add(nuevo);
-                        }
-
-                        if (bankAccount != "-1" && bank != "-1")
-                        {
-                            totales = new BankTransactionTotalVM
-                            {
-                                currency = listResponse.FirstOrDefault().currency,
-                                TotalAmount = listResponse.FirstOrDefault().balance.ToString("C2"),
-                                TotalRetirement = listResponse.Where(x => x.amount < 0).Sum(x => x.amount).ToString("C2"),
-                                TotalDeposits = listResponse.Where(x => x.amount > 0).Sum(x => x.amount).ToString("C2"),
-                                TotalFinal = listResponse.FirstOrDefault().balance.ToString("C2")
-                            };
-                        }
-                    }
-
+                    FilterStart = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString();
+                    FilterEnd = DateUtil.GetDateTimeNow().ToShortDateString();
                 }
 
-                LogUtil.AddEntry(
-                   "Lista de Bancos total: " + totalDisplay + ", totalDisplay: " + total,
-                   ENivelLog.Info,
-                   userAuth.Id,
-                   userAuth.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
-                );
+                string bank = filtersValues.Get("BankName");
+                string bankAccount = filtersValues.Get("NumberBankAccount");
+                string Movements = filtersValues.Get("Movements");
+
+                var pagination = new BasePagination();
+                var filters = new BankTransactionFilter() { accountId = userAuth.Account.Id };
+                pagination.PageSize = param.iDisplayLength;
+                pagination.PageNum = param.iDisplayLength == 1 ? (param.iDisplayStart + 1) : (int)(Math.Floor((decimal)((param.iDisplayStart + 1) / param.iDisplayLength)) + 1);
+                if (FilterStart != "") pagination.CreatedOnStart = Convert.ToDateTime(FilterStart);
+                if (FilterEnd != "") pagination.CreatedOnEnd = Convert.ToDateTime(FilterEnd);
+                if (bank != "-1") filters.bankId = Convert.ToInt64(bank);
+                if (bankAccount != "-1") filters.bankAccountId = Convert.ToInt64(bankAccount);
+                if (Movements != "-1") filters.movements = Convert.ToInt64(Movements);
+
+                listResponse = _bankCredentialService.GetBankTransactionList(pagination, filters);
+
+                //Corroborar los campos iTotalRecords y iTotalDisplayRecords
+                if (listResponse.Count() > 0)
+                {
+                    totalDisplay = listResponse[0].Total;
+                    total = listResponse.Count();
+                    char pad = '*';
+                    double balanceA = 0;
+                    //bool firstA = true;
+                    Int64 bankAccountId = 0;
+                    double amountB = 0;
+                    foreach (var item in listResponse)
+                    {
+                        if (bankAccountId != item.bankAccountId)
+                        {
+                            bankAccountId = item.bankAccountId;
+                            balanceA = item.balance;
+                            amountB = (double)item.amount;
+                        }
+                        else
+                        {
+                            balanceA = balanceA - amountB;
+                            amountB = (double)item.amount;
+                        }
+
+
+                        BankTransactionMV nuevo = new BankTransactionMV
+                        {
+                            id = item.id,
+                            transactionId = item.transactionId,
+                            description = item.description,
+                            amountD = item.amount > 0 ? item.amount.ToString("C2") : "",
+                            amountR = item.amount < 0 ? item.amount.ToString("C2") : "",
+                            currency = item.currency,
+                            transactionAt = item.transactionAt.ToShortDateString(),
+                            balance = balanceA.ToString("C2"),
+                            bankAccountName = item.bankAccountName + " " + (!string.IsNullOrEmpty(item.number) ? item.number.PadLeft(10, pad) : string.Empty),
+                            number = (!string.IsNullOrEmpty(item.number) ? item.number.PadLeft(10, pad) : string.Empty),
+                            bankName = item.bankName,
+                            refreshAt = item.refreshAt.ToString()
+                        };
+
+                        list.Add(nuevo);
+                    }
+
+                    if (bankAccount != "-1" && bank != "-1")
+                    {
+                        totales = new BankTransactionTotalVM
+                        {
+                            currency = listResponse.FirstOrDefault().currency,
+                            TotalAmount = listResponse.FirstOrDefault().balance.ToString("C2"),
+                            TotalRetirement = listResponse.Where(x => x.amount < 0).Sum(x => x.amount).ToString("C2"),
+                            TotalDeposits = listResponse.Where(x => x.amount > 0).Sum(x => x.amount).ToString("C2"),
+                            TotalFinal = listResponse.FirstOrDefault().balance.ToString("C2")
+                        };
+                    }
+                }
+
             }
             catch (Exception ex)
             {
@@ -723,7 +707,7 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 list = _bankAccountService.FindBy(x => x.bankCredential.id == credentialId)
-                    .Select(x => new SelectListItem() { Text = x.name + " " + (!String.IsNullOrEmpty(x.number)? x.number.PadLeft(10, pad) : string.Empty ), Value = x.id.ToString() }).ToList();
+                    .Select(x => new SelectListItem() { Text = x.name + " " + (!String.IsNullOrEmpty(x.number) ? x.number.PadLeft(10, pad) : string.Empty), Value = x.id.ToString() }).ToList();
                 list.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
             }
             catch (Exception ex)

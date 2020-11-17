@@ -35,13 +35,13 @@
                         }
                         else
                         {
-                            <a href='@Url.Action("CreateAccount", new { uuid = m.uuid, rfc=m.rfc })'>
+                            <a href='@Url.Action("CreateAccount", new { uuid = m.uuid })'>
                                 <img alt="image" class="rounded-circle" src="@m.imagen" style="width:30%" />
                             </a>
                         }
                     </div>
                     <abbr title="Su rol es">@m.role</abbr>
-                    <div class="text-center">
+                    @*<div class="text-center">
                         @if (m.accountStatus == SystemStatus.ACTIVE.ToString())
                         {
                             <button class="btn btn-primary btn-xs" title="RFC Validado"><i class="fa fa-thumbs-up"></i></button>
@@ -50,7 +50,7 @@
                         {
                             <button class="btn btn-danger btn-xs" title="RFC No Validado"><i class="fa fa-thumbs-down"></i></button>
                         }
-                    </div>
+                    </div>*@
                 </div>
             </div>
         }

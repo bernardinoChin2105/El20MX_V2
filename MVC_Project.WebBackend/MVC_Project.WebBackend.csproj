@@ -1824,8 +1824,10 @@
     <Content Include="Scripts\views\BranchOffice\Create.js" />
     <Content Include="Scripts\views\BranchOffice\Edit.js" />
     <Content Include="Scripts\views\BranchOffice\Index.js" />
+    <Content Include="Scripts\views\Invoicing\CustomerInvoices.js" />
     <Content Include="Scripts\views\Invoicing\Invoice.js" />
     <Content Include="Scripts\views\Invoicing\InvoicesSaved.js" />
+    <Content Include="Scripts\views\Invoicing\ProviderInvoices.js" />
     <Content Include="Scripts\views\Promotion\Index.js" />
     <Content Include="Scripts\views\Alliance\Index.js" />
     <Content Include="Scripts\views\Ally\Index.js" />
@@ -1992,6 +1994,8 @@
     <Content Include="Views\SAT\Index.cshtml" />
     <Content Include="Views\BranchOffice\Create.cshtml" />
     <Content Include="Views\Invoicing\InvoiceDownloadPDF.cshtml" />
+    <Content Include="Views\Invoicing\InvoicesIssued.cshtml" />
+    <Content Include="Views\Invoicing\InvoicesReceived.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

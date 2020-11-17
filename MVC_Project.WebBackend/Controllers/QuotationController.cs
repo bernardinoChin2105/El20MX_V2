@@ -54,7 +54,7 @@ namespace MVC_Project.WebBackend.Controllers
                     QuotationData data = new QuotationData();
                     data.uuid = quotation.uuid.ToString();
                     data.id = quotation.id;
-                    data.account = quotation.account.name + "( " + quotation.account.rfc + " )";
+                    data.account = quotation.account.name + " ( " + quotation.account.rfc + " )";
                     data.total = quotation.total;
                     data.partialitiesNumber = quotation.partialitiesNumber;
                     data.status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), quotation.status)).GetDisplayName();
@@ -93,6 +93,10 @@ namespace MVC_Project.WebBackend.Controllers
                 model.accounts = PopulateAccounts();
                 model.partialitiesNumber = 1;
                 model.statusQuotation = PopulateStatus();
+                ViewBag.Date = new
+                {
+                    MinDate = DateUtil.GetDateTimeNow()
+                };
                 return View(model);
             }
             catch (Exception ex)
@@ -133,7 +137,7 @@ namespace MVC_Project.WebBackend.Controllers
             accountList = _accountService.GetAll().Select(g => new SelectListItem
             {
                Value = g.id.ToString(),
-               Text = g.name + "( " + g.rfc + " )"
+               Text = g.name + " ( " + g.rfc + " )"
             }).ToList();
             return accountList;
         }
@@ -222,7 +226,11 @@ namespace MVC_Project.WebBackend.Controllers
                 var quotation = _quotationService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
                 if (quotation == null)
                     throw new Exception("La regularización no se encontró en la base de datos");
-                
+
+                ViewBag.Date = new
+                {
+                    MinDate = DateUtil.GetDateTimeNow()
+                };
                 var model = new QuotationCreate()
                 {
                     id = quotation.id,

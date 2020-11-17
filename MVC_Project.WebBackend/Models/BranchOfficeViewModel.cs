@@ -11,7 +11,7 @@ namespace MVC_Project.WebBackend.Models
     {
         public string uuid { get; set; }
         public Int64 id { get; set; }
-        [DisplayName("Nombre")]
+        [DisplayName("Nombre de sucursal")]
         public string name { get; set; }
 
         [DisplayName("Serie")]
@@ -37,9 +37,10 @@ namespace MVC_Project.WebBackend.Models
         public Int64 municipality { get; set; }
         [DisplayName("Estado")]
         public Int64 state { get; set; }
-        [DisplayName("Pais")]
+        [DisplayName("País")]
         public Int64 country { get; set; }
 
+        [DisplayName("Contraseña")]
         public string password { get; set; }
         public HttpPostedFileBase cer { get; set; }
         public HttpPostedFileBase key { get; set; }

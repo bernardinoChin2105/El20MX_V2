@@ -6,16 +6,22 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- Google Tag Manager -->
+    <script>
+        (function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-PLHM5PD');</script>
+    <!-- End Google Tag Manager -->
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-signin-scope" content="profile email">
-    <!--Local-->
-    @*<meta name="google-signin-client_id" content="765148629644-ehqbkj60uuotg1tb7ofe66jjf7j8gaut.apps.googleusercontent.com">*@
-    <!--Azure Test-->
-    <meta name="google-signin-client_id" content="879827116478-m59eg6itdnoepetdg4qls2f8pliqss8h.apps.googleusercontent.com">
-    <!--Azure Dev-->
-    @*<meta name="google-signin-client_id" content="408028076296-36hn38iqa7n1rv70e62aqkcbasj8f78u.apps.googleusercontent.com">*@
+    <meta name="google-signin-client_id" content="@System.Configuration.ConfigurationManager.AppSettings["Google.ClientId"]">
 
     <link rel="icon" href="~/Images/logos/logo-192x192.png" sizes="192x192" />
 
@@ -38,6 +44,13 @@
 </head>
 
 <body class="gray-bg">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PLHM5PD"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
     @*<div style="padding:5px">
             @Html.ActionLink("Español", "ChangeLanguage", "Auth", new { lang = "es-MX" }, null) | @Html.ActionLink("Inglés", "ChangeLanguage", "Auth", new { lang = "en" }, null)
         </div>*@
@@ -75,10 +88,10 @@
                     @*<span class="input-group-addon"><i class="fa fa-lock"></i></span>*@
                     @Html.PasswordFor(m => m.Password, new { @class = "form-control", type = "password", placeholder = @ViewLabels.PASSWORD })
                     @*<span class="input-group-append">
-                        <button id="view-password" class="btn btn-default" type="button">
-                            <i class="fa fa-eye"></i>
-                        </button>
-                    </span>*@
+                            <button id="view-password" class="btn btn-default" type="button">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                        </span>*@
                 </div>
                 <span class="help-block"></span>
                 <button type="submit" class="btn btn-color block full-width m-b"><span><i class="fa fa-sign-in-alt"></i> &nbsp;@ViewLabels.AUTH_LOGIN_SUBMIT </span></button>
@@ -125,6 +138,9 @@
     <script src="~/Scripts/plugins/validate/jquery.validate.min.js"></script>
     @Scripts.Render("~/plugins/toastr")
     <!--Configuración de facebook-->
+    <script>
+        var facebookId = '@System.Configuration.ConfigurationManager.AppSettings["Facebook.ClientId"]';
+    </script>
     <script src="~/Scripts/Facebook.js"></script>
     <!--Configuración de facebook-->
     <!--Configuración de Google-->
@@ -142,7 +158,25 @@
     {
         var mensaje = @Html.ObtenerMensaje();
         <script type="text/javascript">
-                toastr['@mensaje.Tipo']('@mensaje.Mensaje');
+
+            toastr['@mensaje.Tipo']('@mensaje.Mensaje',null,{ 'positionClass': '@mensaje.Posicion'});
+            //toastr.options = {
+            //    "closeButton": false,
+            //    "debug": false,
+            //    "newestOnTop": false,
+            //    "progressBar": false,
+            //    "positionClass": "toast-top-center",
+            //    "preventDuplicates": false,
+            //    "onclick": null,
+            //    "showDuration": "300",
+            //    "hideDuration": "1000",
+            //    "timeOut": "5000",
+            //    "extendedTimeOut": "1000",
+            //    "showEasing": "swing",
+            //    "hideEasing": "linear",
+            //    "showMethod": "fadeIn",
+            //    "hideMethod": "fadeOut"
+            //}
         </script>
     }
     <script>

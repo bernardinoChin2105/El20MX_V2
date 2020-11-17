@@ -5,6 +5,11 @@
     this.init = function () {
         $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para ", placeholder_text_single: "Seleccione..." });
 
+        $.validator.setDefaults({ ignore: ":hidden:not(.chosen-select)" }) //for all select having            
+        $('.chosen-select').on('change', function () {
+            $(this).valid();
+        });
+
         $(".view-ciec").mouseup(function () {
             $(".view-ciec-input").attr('type', 'password').data("view", false);
         }).mousedown(function () {
@@ -40,19 +45,19 @@
         $.validator.addMethod("Alphanumeric",
             function (value, element) {
                 return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
-            }, "El campo debe ser alfanumérico"
+            }, "El campo debe ser alfanumérico."
         );
 
         $.validator.addMethod("Numeric",
             function (value, element) {
                 return value.match(/^[0-9]+$|^$/);
-            }, "El campo debe ser numérico"
+            }, "El campo debe ser numérico."
         );
 
         $.validator.addMethod("Alphabetic",
             function (value, element) {
                 return value.match(/^[a-zA-ZÀ-ÿ\u00f1\u00d1 ]+$|^$/);
-            }, "El campo debe ser alfabético"
+            }, "El campo debe ser alfabético."
         );
         $("#CreateForm").validate({
             rules: {
@@ -97,6 +102,14 @@
         });
     }
 
+    $(".view-password").mouseup(function () {
+        $(".view-password-input").attr('type', 'password').data("view", false);
+    }).mousedown(function () {
+        if ($(".view-password-input").val() !== "") {
+            $(".view-password-input").attr('type', 'text').data("view", true);
+        }
+    });
+
     $("#btn-save").on("click", function () {
         if (!$('#CreateForm').valid()) {
             $('html, body').animate({
@@ -137,16 +150,16 @@
                             cmbColony.append($('<option></option>').val(item.id).text(item.nameSettlementType + ' ' + item.nameSettlement));
                         });
 
-                        $(".chosen-select").trigger("chosen:updated");
+                        $(".chosen-select").trigger("chosen:updated").trigger("change");
 
                     } else {
                         ClearCombos();
-                        toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
+                        toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' }); 
                     }
 
                 } else {
                     ClearCombos();
-                    toastr["error"]("El registro de Código Postal no se encontró en la base de datos");
+                    toastr["error"]("El registro de Código Postal no se encontró en la base de datos", null, { 'positionClass': 'toast-top-center' }); 
                 }
 
             },

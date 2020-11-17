@@ -12,6 +12,7 @@
 }
 
 @section styles{
+    <link href="~/Content/template/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
     <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
     <style>
         table.invoices-table tr td {
@@ -30,8 +31,13 @@
         .tab-pane {
             padding: 15px 10px 0 10px;
         }
-        .search-invoice{
+
+        .search-invoice {
             cursor: pointer;
+        }
+
+        .dataTables_wrapper {
+            padding-bottom: 0;
         }
     </style>
 }
@@ -105,21 +111,20 @@
                 </div>
                 <div class="form-group row complement hide">
                     @Html.LabelFor(m => m.InvoiceComplement, new { @class = "col-form-label col-md-4 control-label" })
-                    <div class="col-md-8">                        
+                    <div class="col-md-8">
                         @*mb-2 mr-sm-2*@
                         <div class="input-group">
                             <input type="text" class="form-control" id="InvoiceComplement" name="InvoiceComplement" autocomplete="off" maxlength="300" />
                             <div class="input-group-append">
-                                <div class="input-group-text search-invoice"><i class="fas fa-search"></i></div>                                
+                                <div class="input-group-text search-invoice"><i class="fas fa-search"></i></div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="form-group row complement hide">
                     <div class="col-12">
-                        <div id="CDFIS">                            
+                        <div id="CDFIS">
                             @*InvoicesCFDI lista*@
-
                         </div>
                     </div>
                 </div>
@@ -137,7 +142,7 @@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.CustomerName, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control", @maxlength = "200", @autocomplete = "off" })
+                        @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control required", @maxlength = "200", @autocomplete = "off" })
                         <input type="hidden" name="CustomerId" id="CustomerId" />
                         <input type="hidden" name="TypeReceptor" id="TypeReceptor" />
                     </div>
@@ -195,7 +200,7 @@
                     </div>
 
                     <div class="col-md-4">
-                       <button type="button" class="btn btn-color btn-add-email">Agregar</button>
+                        <button type="button" class="btn btn-color btn-add-email">Agregar</button>
                     </div>
                 </div>
             </div>
@@ -204,7 +209,7 @@
         <div class="row">
             <div class="col-12">
                 <br />
-                <h3>Datos Fiscales para Facturar:</h3>
+                <h3>Datos Fiscales para Facturar</h3>
                 <hr />
             </div>
 
@@ -332,7 +337,7 @@
                     </div>
                     @Html.LabelFor(m => m.DiscountRate, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.TextBoxFor(m => m.DiscountRate, new { @class = "form-control money", @maxlength = "200", @autocomplete = "off" })
+                        @Html.TextBoxFor(m => m.DiscountRate, new { @class = "form-control rateMoney", @maxlength = "200", @autocomplete = "off" })
                     </div>
                 </div>
                 <div class="form-group row">
@@ -348,7 +353,7 @@
         <div class="row">
             <div class="col-12">
                 <br />
-                <h3>Productos y/o Servicios a facturar:</h3>
+                <h3>Productos y/o Servicios a Facturar</h3>
                 <hr />
             </div>
             <div class="col-md-4 offset-8 text-right">
@@ -388,28 +393,28 @@
                         var index = 1;
                         foreach (var item in Model.ProductServices)
                         {
-                    <tr>
-                        <td>@index</td>
-                        <td>@item.Quantity</td>
-                        <td>@item.SATCode</td>
-                        <td>@item.ProductServiceDescription</td>
-                        <td>@item.SATUnit</td>
-                        <th class="hide">@item.Unit</th>
-                        <td>@item.UnitPrice</td>
-                        <td>@item.DiscountRateProServ</td>
-                        <td>@item.TaxesIVA</td>
-                        <td>@item.TaxesIEPS</td>
-                        <td class="hide">impuesto</td>
-                        <td>@item.Subtotal</td>
-                        <td class=""></td>
-                    </tr>
+                            <tr>
+                                <td>@index</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.SATCode</td>
+                                <td>@item.ProductServiceDescription</td>
+                                <td>@item.SATUnit</td>
+                                <th class="hide">@item.Unit</th>
+                                <td>@item.UnitPrice</td>
+                                <td>@item.DiscountRateProServ</td>
+                                <td>@item.TaxesIVA</td>
+                                <td>@item.TaxesIEPS</td>
+                                <td class="hide">impuesto</td>
+                                <td>@item.Subtotal</td>
+                                <td></td>
+                            </tr>
                             @(index++);
                         }
                     }
                 </tbody>
                 <tfoot>
-                    <tr>
-                        <th colspan="10" style="text-align:right">
+                    <tr class="trSubtotal">
+                        <th colspan="9" style="text-align:right">
                             @Html.LabelFor(m => m.Subtotal, new { @class = " control-label" }):
                             @Html.HiddenFor(m => m.Subtotal)
                         </th>
@@ -418,35 +423,35 @@
                         </th>
                     </tr>
                     <tr class="trDiscount">
-                        <th colspan="10" style="text-align:right">
+                        <th colspan="9" style="text-align:right">
                             @Html.LabelFor(m => m.TotalDiscount, new { @class = " control-label" }):
                             @Html.HiddenFor(m => m.TotalDiscount)
                         </th>
                         <th colspan="2" id="lblTotalDiscount">@Model.TotalDiscount.ToString("C2")</th>
                     </tr>
                     <tr class="trTaxT">
-                        <th colspan="10" style="text-align:right">
+                        <th colspan="9" style="text-align:right">
                             @Html.LabelFor(m => m.TaxTransferred, new { @class = " control-label" }):
                             @Html.HiddenFor(m => m.TaxTransferred)
                         </th>
                         <th colspan="2" id="lblTaxTransferred">@Model.TaxTransferred.ToString("C2")</th>
                     </tr>
                     <tr class="trTaxWIVA">
-                        <th colspan="10" style="text-align:right">
+                        <th colspan="9" style="text-align:right">
                             @Html.LabelFor(m => m.TaxWithheldIVA, new { @class = " control-label" }):
                             @Html.HiddenFor(m => m.TaxWithheldIVA)
                         </th>
                         <th colspan="2" id="lblTaxWithheldIVA">@Model.TaxWithheldIVA.ToString("C2")</th>
                     </tr>
                     <tr class="trTaxWISR">
-                        <th colspan="10" style="text-align:right">
+                        <th colspan="9" style="text-align:right">
                             @Html.LabelFor(m => m.TaxWithheldISR, new { @class = " control-label" }):
                             @Html.HiddenFor(m => m.TaxWithheldISR)
                         </th>
                         <th colspan="2" id="lblTaxWithheldISR">@Model.TaxWithheldISR.ToString("C2")</th>
                     </tr>
                     <tr>
-                        <th colspan="10" style="text-align:right">
+                        <th colspan="9" style="text-align:right">
                             @Html.LabelFor(m => m.Total, new { @class = " control-label" }):
                             @Html.HiddenFor(m => m.Total)
                         </th>
@@ -461,8 +466,7 @@
                 <div class="form-group row pull-right">
                     <div class="col-md-10 offset-2 text-right">
                         <a href="#" class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
-                        @*<a href='@Url.Action("Index", "Plan")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>*@
-                        <button type="button" id="SavedInvoice" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                        @*<button type="button" id="SavedInvoice" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>*@
                         <button type="button" id="validarDatos" class="btn btn-color"> <i class="fa fa-save"></i> Timbrar Factura </button>
                     </div>
                 </div>
@@ -506,7 +510,8 @@
                                     <div class="form-group row">
                                         <label class="control-label col-md-3">Concepto</label>
                                         <div class="col-md-9">
-                                            <input type="text" class="form-control required" name="SATCode" id="SATCode" autocomplete="off" />
+                                            @*<select name="SATCode" id="SATCode" class="form-control chosen-choices required"></select>*@
+                                            <input type="text" name="SATCode" id="SATCode" class="form-control chosen-choices required" autocomplete="off" />
                                         </div>
                                     </div>
                                     <div class="form-group row">
@@ -532,7 +537,7 @@
                                         <label class="control-label col-md-3">% Descuento</label>
                                         <div class="col-md-9">
                                             @*<input type="text" class="form-control money" name="DiscountRate" id="DiscountRate" autocomplete="off" />*@
-                                            <input type="text" class="form-control money" name="DiscountRateProServ" id="DiscountRateProServ" autocomplete="off" />
+                                            <input type="text" class="form-control rateMoney" name="DiscountRateProServ" id="DiscountRateProServ" autocomplete="off" />
                                         </div>
                                     </div>
                                     <div class="form-group row">
@@ -556,7 +561,7 @@
                                     <div class="form-group row">
                                         <label class="control-label col-md-3">SubTotal</label>
                                         <div class="col-md-9">
-                                            <input type="text" class="form-control required money" name="SubtotalM" id="SubtotalM" readonly autocomplete="off" />
+                                            <input type="text" class="form-control money" name="SubtotalM" id="SubtotalM" readonly autocomplete="off" />
                                         </div>
                                     </div>
                                 </div>
@@ -617,7 +622,7 @@
                                             @Html.DropDownListFor(model => model.Valuation, Model.ListValuation, "Seleccione...", new { @class = "form-control chosen-select" })
                                         </div>
                                         <div class="col-12 text-right">
-                                            <br />
+                                            @*<br />*@
                                             <br />
                                             <button type="button" class="btn btn-color" id="addTaxes">Agregar</button>
                                         </div>
@@ -625,7 +630,7 @@
 
                                     <div class="form-group row">
                                         <div class="col-12">
-                                            <div class="table-responsive m-t">
+                                            <div class="">
                                                 <table id="tableImpuestos" class="table invoices-table">
                                                     <thead>
                                                         <tr>
@@ -637,15 +642,15 @@
                                                     </thead>
                                                     <tbody>
                                                         @*<tr>
-                                                            <td>Retención</td>
-                                                            <td>ISR</td>
-                                                            <td>10%</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Traslado</td>
-                                                            <td>IVA</td>
-                                                            <td>16%</td>
-                                                        </tr>*@
+                                                                <td>Retención</td>
+                                                                <td>ISR</td>
+                                                                <td>10%</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Traslado</td>
+                                                                <td>IVA</td>
+                                                                <td>16%</td>
+                                                            </tr>*@
                                                     </tbody>
                                                 </table>
                                             </div><!-- /table-responsive -->
@@ -668,10 +673,12 @@
 
 
 @section scripts{
-    @Scripts.Render("~/custom/Utils")
+    @*@Scripts.Render("~/custom/Utils")*@
     @*@Scripts.Render("~/plugins/dataTables")
         @Scripts.Render("~/plugins/daterangepicker")*@
     @Scripts.Render("~/plugins/typehead")
+    @*@Scripts.Render("~/plugins/validate")*@
+    @*<script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>*@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
     <script src="~/Scripts/views/Invoicing/Invoice.js"></script>
     <script>
