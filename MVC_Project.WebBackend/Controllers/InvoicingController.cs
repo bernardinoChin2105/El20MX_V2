@@ -327,7 +327,7 @@ namespace MVC_Project.WebBackend.Controllers
                                         {
                                             Base = conceptsData.ValorUnitario.ToString(),
                                             TipoFactor = imp.Porcentaje,
-                                            Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,     
+                                            Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                         };
                                         Traslados.Add(tras);
                                     }
@@ -488,21 +488,28 @@ namespace MVC_Project.WebBackend.Controllers
                             success = true;
                             if (!string.IsNullOrEmpty(model.ListCustomerEmail[0]))
                             {
-                                var byteArrayPdf = GetInvoicingPDF(invoiceIssued[0].id);
-                                System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArrayPdf);
-                                var uploadPDF = AzureBlobService.UploadPublicFile(stream, invoiceIssued[0].uuid + ".pdf", StorageInvoicesIssued, model.IssuingRFC);
+                                try
+                                {
+                                    var byteArrayPdf = GetInvoicingPDF(invoiceIssued[0].id);
+                                    System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArrayPdf);
+                                    var uploadPDF = AzureBlobService.UploadPublicFile(stream, invoiceIssued[0].uuid + ".pdf", StorageInvoicesIssued, model.IssuingRFC);
 
-                                SendInvoice(model.ListCustomerEmail[0], model.RFC, model.CustomerName, model.Comments, invoiceIssued[0].xml, uploadPDF.Item1);
+                                    SendInvoice(model.ListCustomerEmail[0], model.RFC, model.CustomerName, model.Comments, invoiceIssued[0].xml, uploadPDF.Item1);
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw new Exception("Factura timbrada con éxito, pero hubo un error al generar la factura en formato pdf.");
+                                }
                             }
                         }
                         else
-                            throw new Exception("Se realizo la factura exitosamente, pero hubo un error al guardar los datos del cliente.");
+                            throw new Exception("Factura timbrada con éxito, pero hubo un error al guardar los datos del cliente.");
 
                     }
                     catch (Exception ex)
                     {
-                        string message = "Se realizo exitosamente la factura, pero hubo un error: " + ex.Message.ToString();
-                        throw new Exception("Se realizo la factura exitosamente, pero hubo un error al guardar los datos del cliente.");
+                        string message = "Factura timbrada con éxito, pero hubo un error: " + ex.Message.ToString();
+                        throw new Exception("Factura timbrada con éxito, pero hubo un error al guardar los datos del cliente.");
                     }
 
                 }
@@ -510,7 +517,7 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception("Error al crear la factura");
 
                 LogUtil.AddEntry(
-                   "Factura realizada exitosamente",
+                   "Factura timbrada con éxito.",
                    ENivelLog.Info,
                    authUser.Id,
                    authUser.Email,
@@ -519,7 +526,7 @@ namespace MVC_Project.WebBackend.Controllers
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    JsonConvert.SerializeObject(invoice)
                );
-                MensajeFlashHandler.RegistrarMensaje("Factura enviada exitosamente.", TiposMensaje.Success);
+                MensajeFlashHandler.RegistrarMensaje("Factura timbrada con éxito.", TiposMensaje.Success);
                 return RedirectToAction("Invoice");
             }
             catch (Exception ex)
@@ -1664,35 +1671,71 @@ namespace MVC_Project.WebBackend.Controllers
             if (nodeImpuestosTT != null)
             {
                 string varTotalImpuestosTrasladados = nodeImpuestosTT.Attributes["TotalImpuestosTrasladados"] != null ? nodeImpuestosTT.Attributes["TotalImpuestosTrasladados"].Value : string.Empty;
+                string varTotalImpuestosRetenidos = nodeImpuestosTT.Attributes["TotalImpuestosRetenidos"] != null ? nodeImpuestosTT.Attributes["TotalImpuestosRetenidos"].Value : string.Empty;
+
                 cfdipdf.Impuestos.TotalImpuestosTrasladados = varTotalImpuestosTrasladados;
+                cfdipdf.Impuestos.TotalImpuestosRetenidos = varTotalImpuestosRetenidos;
 
                 XmlNode nodeTraslados = nodeImpuestosTT.SelectSingleNode("cfdi:Traslados", nsm);
                 if (nodeTraslados != null)
                 {
-                    XmlNode nodeTraslado = nodeTraslados.SelectSingleNode("cfdi:Traslado", nsm);
-                    if (nodeTraslado != null)
+                    foreach (XmlNode node in nodeTraslados.ChildNodes)
                     {
-                        string varImporteT = nodeTraslado.Attributes["Importe"] != null ? nodeTraslado.Attributes["Importe"].Value : string.Empty;
-                        string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
-                        string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
-                        string varImpuestoM = nodeTraslado.Attributes["Impuesto"] != null ? nodeTraslado.Attributes["Impuesto"].Value : string.Empty;
+                        //XmlNode nodeTraslado = node.SelectSingleNode("cfdi:Traslado", nsm);
+                        //if (nodeTraslado != null)
+                        //{
+                            decimal varImporteT = 0;                            
+                            string varImpuestoM = node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : string.Empty;
+                            if (node.Attributes["Importe"] != null)
+                            {
+                                varImporteT = Convert.ToDecimal(node.Attributes["Importe"].Value);
+                            }
+                            //string varImporteT = nodeTraslado.Attributes["Importe"] != null ? nodeTraslado.Attributes["Importe"].Value : string.Empty;
+                            //string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
+                            //string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
 
-                        //Agregar modelo
-                    }
+                            //Agregar modelo
+                            Traslado tras = new Traslado() {
+                                Importe = varImporteT,
+                                Impuesto = varImpuestoM
+                            };
+
+                            cfdipdf.Impuestos.Traslados.Add(tras);
+                        //}
+                    }                    
                 }
 
                 XmlNode nodeRetenciones = nodeImpuestosTT.SelectSingleNode("cfdi:Retenciones", nsm);
                 if (nodeRetenciones != null)
                 {
-                    XmlNode nodeRetencion = nodeRetenciones.SelectSingleNode("cfdi:Retencion", nsm);
-                    if (nodeRetencion != null)
+                    foreach (XmlNode node in nodeRetenciones.ChildNodes)
                     {
-                        string varImporteR = nodeRetencion.Attributes["Importe"] != null ? nodeRetencion.Attributes["Importe"].Value : string.Empty;
-                        string varImpuestoR = nodeRetencion.Attributes["Impuesto"] != null ? nodeRetencion.Attributes["Impuesto"].Value : string.Empty;
-                        //string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
-                        //string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
+                        //XmlNode nodeRetencion = node.SelectSingleNode("cfdi:Retencion", nsm);
+                        //if (nodeRetencion != null)
+                        //{
+                            decimal varImporteR = 0;
+                            string varImpuestoR = node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : string.Empty;
+                            if (node.Attributes["Importe"] != null) {
+                                varImporteR = Convert.ToDecimal(node.Attributes["Importe"].Value);
+                            }
+                            //string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
+                            //string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
 
-                        //Agregar modelo
+                            //Agregar modelo
+                            Retenido ret = new Retenido()
+                            {
+                                Importe = varImporteR,
+                                Impuesto = varImpuestoR
+                            };
+
+                            cfdipdf.Impuestos.Retenidos.Add(ret);
+                        //}
+                    }
+
+                    if (cfdipdf.Impuestos.Retenidos.Count() > 0)
+                    {
+                        cfdipdf.Impuestos.ImpuestosRetenidosISR = cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "001").Sum(x => x.Importe) > 0 ? cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "001").Sum(x => x.Importe).ToString() : string.Empty;
+                        cfdipdf.Impuestos.ImpuestosRetenidosIVA = cfdipdf.Impuestos.Traslados.Where(x => x.Impuesto == "002").Sum(x => x.Importe) > 0 ? cfdipdf.Impuestos.Traslados.Where(x => x.Impuesto == "002").Sum(x => x.Importe).ToString() : string.Empty;
                     }
                 }
             }

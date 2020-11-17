@@ -35,6 +35,9 @@
         .search-invoice {
             cursor: pointer;
         }
+        .dataTables_wrapper{
+            padding-bottom: 0;
+        }
     </style>
 }
 
@@ -616,7 +619,7 @@
                                             @Html.DropDownListFor(model => model.Valuation, Model.ListValuation, "Seleccione...", new { @class = "form-control chosen-select" })
                                         </div>
                                         <div class="col-12 text-right">
-                                            <br />
+                                            @*<br />*@
                                             <br />
                                             <button type="button" class="btn btn-color" id="addTaxes">Agregar</button>
                                         </div>
@@ -624,7 +627,7 @@
 
                                     <div class="form-group row">
                                         <div class="col-12">
-                                            <div class="table-responsive m-t">
+                                            <div class="">
                                                 <table id="tableImpuestos" class="table invoices-table">
                                                     <thead>
                                                         <tr>
