@@ -217,7 +217,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 } else {
                     $(".trTaxT").addClass("hide");
                 }
-                console.log(subtotal, "traslados");
+                //console.log(subtotal, "traslados");
 
                 if (self.retencionIVA > 0) {
                     $(".trTaxWIVA").removeClass("hide");
@@ -227,7 +227,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 } else {
                     $(".trTaxWIVA").addClass("hide");
                 }
-                console.log(subtotal, "iva rete");
+                //console.log(subtotal, "iva rete");
 
                 if (self.retencionISR > 0) {
                     $(".trTaxWISR").removeClass("hide");
@@ -237,7 +237,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 } else {
                     $(".trTaxWISR").addClass("hide");
                 }
-                console.log(subtotal, "isr rete");
+                //console.log(subtotal, "isr rete");
 
                 var total = (subtotal - discount).toFixed(2);
                 //console.log(total, "total");
@@ -486,7 +486,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //} else {
             //    valueTax = $("#Transferred").val();
             //}
-            console.log(valueTax, type, "valor")
+            //console.log(valueTax, type, "valor")
 
             $.ajax({
                 type: 'Get',
@@ -617,7 +617,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     //console.log(impuestos, "tabla")
                     for (var i = 0; i < impuestos.rows().count(); i++) {
                         var datos = impuestos.row(i).data()[0];
-                        console.log(datos, "datos");
+                        //console.log(datos, "datos");
                         if (datos.Porcentaje !== "Exento") {
                             var por = parseFloat(datos.Porcentaje);
                             var imp1 = por > 0 ? (por * sub) / 100 : 0;
@@ -628,7 +628,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                     self.retencionIVATemp = self.retencionIVATemp + imp1;
                                 }
                                 impIVAISR = impIVAISR + imp1;
-                                console.log(impIVAISR, imp1, "iva isr");
+                                //console.log(impIVAISR, imp1, "iva isr");
                             } else {
                                 var imp2 = por > 0 ? (por * sub) / 100 : 0;
                                 self.trasladosTemp = self.trasladosTemp + imp2;
@@ -637,7 +637,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         }
                     }
                 }
-                console.log("holas", self.trasladosTemp, self.retencionIVATemp, self.retencionISRTemp);
+                //console.log("holas", self.trasladosTemp, self.retencionIVATemp, self.retencionISRTemp);
 
                 var subtotal = sub - discount; // - impIVAISR + impIVAIESP;
                 //console.log(subtotal, "subtotal sin el descuento")
@@ -711,8 +711,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 var index = parseInt(ind);
                 self.retencionISR = self.retencionISR + self.retencionISRTemp;
                 self.retencionIVA = self.retencionIVA + self.retencionIVATemp;
-                self.traslados = self.trasladosTemp;
-                console.log("se agregar", self.retencionISR, self.retencionIVA, self.traslados);
+                self.traslados = self.traslados + self.trasladosTemp;
+                //console.log("se agregar", self.retencionISR, self.retencionIVA, self.traslados);
                 index++;
 
                 t.row.add(
