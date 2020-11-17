@@ -356,6 +356,15 @@ namespace MVC_Project.Integrations.SAT
         public DateTime statusUpdatedAt { get; set; }
         public DateTime createdAt { get; set; }
         public DateTime updatedAt { get; set; }
+        public List<Obligation> obligations { get; set; }
+    }
+
+    public class Obligation
+    {
+        public string dueDate { get; set; }
+        public string endDate { get; set; }
+        public string startDate { get; set; }
+        public string description { get; set; }
     }
 
     public class Company

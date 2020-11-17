@@ -378,7 +378,8 @@ namespace MVC_Project.API.Controllers
                                 businessName = x.person != null ? x.person.fullName : x.company.tradeName,
                                 taxMailboxEmail = x.email,
                                 taxRegime = x.taxRegimes.Count > 0 ? String.Join(",", x.taxRegimes.Select(y => y.name).ToArray()) : null,
-                                economicActivities = x.economicActivities.Count > 0 ? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null
+                                economicActivities = x.economicActivities != null && x.economicActivities.Any() ? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null,
+                                fiscalObligations = x.obligations != null && x.obligations.Any() ? String.Join(",", x.obligations.Select(y => y.description).ToArray()) : null,
                             }).ToList();
                         _diagnosticTaxStatusService.Create(taxStatus);
 
