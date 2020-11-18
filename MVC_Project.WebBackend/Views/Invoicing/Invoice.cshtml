@@ -8,12 +8,16 @@
     AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
     var hasFullAccessController = user.HasFullAccessController(controllerName);
 
-    //var exchange = Model.Currency == "MXN" ? "hide" : "";
+    //var exchange = Model.Currency == "MXN" ? "hide" : "";    
 }
 
 @section styles{
+    @Styles.Render("~/plugins/dataTablesStyles")
     <link href="~/Content/template/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
     <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css"/>
+    <link href="https://cdn.datatables.net/buttons/1.6.4/css/buttons.dataTables.min.css" />
+    
     <style>
         table.invoices-table tr td {
             padding: 0px;
@@ -38,6 +42,15 @@
 
         .dataTables_wrapper {
             padding-bottom: 0;
+        }
+
+        td.details-control {
+            background: url('../resources/details_open.png') no-repeat center center;
+            cursor: pointer;
+        }
+
+        tr.shown td.details-control {
+            background: url('../resources/details_close.png') no-repeat center center;
         }
     </style>
 }
@@ -131,6 +144,37 @@
             </div>
         </div>
 
+        <!--Aquí comienza pagos relacionados-->
+        <div class="row">
+            <div class="col-12">
+                <br />
+                <h3></h3>
+                <br />                
+                <table id="tableComplent" class="table display table-invoice">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Id Documento</th>
+                            <th>Moneda</th>
+                            <th>Tipo de Cambio</th>
+                            <th>Imp. Saldo ant.</th>
+                            <th>Imp. Pagado</th>
+                            <th>Imp. Saldo insoluto</th>
+                            <th>Método</th>
+                            <th>Número de parcialidad</th>
+                            <th>Folio</th>
+                            <th>Serie</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @*<tr></tr>*@
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!--Aqu+i termina-->
+
         <div class="row">
             <div class="col-12">
                 <br />
@@ -206,13 +250,13 @@
             </div>
         </div>
 
-        <div class="row">
+
+        <div id="DatosFiscales" class="row">
             <div class="col-12">
                 <br />
                 <h3>Datos Fiscales para Facturar</h3>
                 <hr />
             </div>
-
             <div class="col-12">
                 <div class="form-group row">
                     @*@Html.LabelFor(m => m.TypeVoucherId, new { @class = "col-form-label col-md-2 control-label" })
@@ -272,6 +316,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="col-12 international hide">
                 <hr />
                 <h4>Comercio Internacional: </h4>
@@ -323,7 +368,7 @@
                 </div>
             </div>*@
 
-        <div class="row">
+        <div id="Condiciones" class="row">
             <div class="col-12">
                 <br />
                 <h3>Condiciones y Comentarios a Facturar</h3>
@@ -356,7 +401,7 @@
                 <h3>Productos y/o Servicios a Facturar</h3>
                 <hr />
             </div>
-            <div class="col-md-4 offset-8 text-right">
+            <div id="btnProdServ" class="col-md-4 offset-8 text-right">
                 <!-- Button trigger modal -->
                 <button type="button" class="btn btn-color" data-toggle="modal" data-target="#ServProdModal">Agregar nuevo Servicio o Producto</button>
             </div>
@@ -640,18 +685,7 @@
                                                             <td class=""></td>
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
-                                                        @*<tr>
-                                                                <td>Retención</td>
-                                                                <td>ISR</td>
-                                                                <td>10%</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Traslado</td>
-                                                                <td>IVA</td>
-                                                                <td>16%</td>
-                                                            </tr>*@
-                                                    </tbody>
+                                                    <tbody></tbody>
                                                 </table>
                                             </div><!-- /table-responsive -->
                                         </div>
@@ -682,7 +716,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
     <script src="~/Scripts/views/Invoicing/Invoice.js"></script>
     <script>
-
+        window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
+        var DateInit = JSON.parse(window.StartDate);
         $(function () {
             var invoices = new InvoiceControlador('table',
                 '@Url.Action("GetSearchReceiver")',
@@ -699,10 +734,6 @@
             invoices.init();
         });
 
-        //$.get(self.autocompleteURL, function (data) {
-        //    $(".typeahead_2").typeahead({ source: data.Data });
-        //}, 'json');
     </script>
-    @*@Scripts.Render("~/views/providerInvoices")*@
 
 }

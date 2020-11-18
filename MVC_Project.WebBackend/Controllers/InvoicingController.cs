@@ -95,6 +95,10 @@ namespace MVC_Project.WebBackend.Controllers
             var authUser = Authenticator.AuthenticatedUser;
             try
             {
+                ViewBag.Date = new
+                {
+                    MinDate = DateUtil.GetDateTimeNow()
+                };
                 //obtener información de mi emisor                
                 var account = authUser.Account;
                 model.IssuingRFC = account.RFC;
@@ -104,6 +108,7 @@ namespace MVC_Project.WebBackend.Controllers
                 //model.IssuingTaxRegimeId = "";//Faltan estos datos del cliente
 
                 //Obtener listas de los combos
+
                 SetCombos(null, ref model);
             }
             catch (Exception ex)
@@ -922,13 +927,71 @@ namespace MVC_Project.WebBackend.Controllers
             string message = string.Empty;
             var authUser = Authenticator.AuthenticatedUser;
             InvoiceIssued invoice = new InvoiceIssued();
+            InvoicesVM CFDI = new InvoicesVM();
             //List<DriveKeyViewModel> result = new List<DriveKeyViewModel>();
             try
             {
-                invoice = _invoiceIssuedService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.account.id == authUser.Account.Id && x.paymentMethod == MetodoPago.PPD.ToString());
-
+                //invoice = _invoiceIssuedService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.account.id == authUser.Account.Id && x.paymentMethod == MetodoPago.PPD.ToString());
+                invoice = _invoiceIssuedService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.paymentMethod == MetodoPago.PPD.ToString());
                 if (invoice != null)
                 {
+                    var StorageInvoices = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
+                    //MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
+                    MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, "CAYW880502FK4/" + invoice.uuid + ".xml");
+                    
+                    stream.Position = 0;
+
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load(stream);
+
+                    //agregamos un Namespace, que usaremos para buscar que el nodo no exista:
+                    XmlNamespaceManager nsm = new XmlNamespaceManager(doc.NameTable);
+                    nsm.AddNamespace("cfdi", "http://www.sat.gob.mx/cfd/3"); ;
+
+                    //Accedemos a nodo "Comprobante"
+                    XmlNode nodeComprobante = doc.SelectSingleNode("//cfdi:Comprobante", nsm);
+
+
+                    string varFolio = nodeComprobante.Attributes["Folio"] != null ? nodeComprobante.Attributes["Folio"].Value : string.Empty;
+                    string varSerie = nodeComprobante.Attributes["Serie"] != null ? nodeComprobante.Attributes["Serie"].Value : string.Empty;
+                    string varSubTotal = nodeComprobante.Attributes["SubTotal"].Value;
+                    string varTotal = nodeComprobante.Attributes["Total"].Value;
+                    string varTipoComprobante = nodeComprobante.Attributes["TipoDeComprobante"].Value;
+                    string varCertificado = nodeComprobante.Attributes["Certificado"].Value;
+                    string varNoCertificado = nodeComprobante.Attributes["NoCertificado"].Value;
+                    string varSello = nodeComprobante.Attributes["Sello"].Value;
+                    string varFormaPago = nodeComprobante.Attributes["FormaPago"].Value;
+                    string varMetodoPago = nodeComprobante.Attributes["MetodoPago"].Value;
+                    string varLugarExpedicion = nodeComprobante.Attributes["LugarExpedicion"].Value;
+                    string varFecha = nodeComprobante.Attributes["Fecha"].Value;
+                    string varMoneda = nodeComprobante.Attributes["Moneda"] != null ? nodeComprobante.Attributes["Moneda"].Value : string.Empty;
+                    string varDescuento1 = nodeComprobante.Attributes["Descuento"] != null ? nodeComprobante.Attributes["Descuento"].Value : string.Empty;
+                    string varTipoCambio = nodeComprobante.Attributes["TipoCambio"] != null ? nodeComprobante.Attributes["TipoCambio"].Value : "1";
+
+                    MonedaUtils formatoTexto = new MonedaUtils();
+                    var fecha = varFecha != null || varFecha != "" ? Convert.ToDateTime(varFecha).ToString("yyyy-MM-dd HH:mm:ss") : varFecha;
+
+                    CFDI = new InvoicesVM()
+                    {
+                        Folio = varFolio,
+                        Serie = varSerie,
+                        SubTotal = varSubTotal,
+                        Total = varTotal,
+                        TipoDeComprobante = _typeVoucherService.FirstOrDefault(x => x.code == varTipoComprobante).Description,
+                        Certificado = varCertificado,
+                        NoCertificado = varNoCertificado,
+                        Sello = varSello,
+                        FormaPago = varFormaPago,
+                        MetodoPago = varMetodoPago, 
+                        LugarExpedicion = varLugarExpedicion,
+                        Fecha = fecha,
+                        Moneda = varMoneda,
+                        TipoCambio = varTipoCambio,
+                        TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true),
+                        Descuento = varDescuento1,
+                    };
+
+
                     invoice.account = null;
                     invoice.customer = null;
                     success = true;
@@ -939,7 +1002,7 @@ namespace MVC_Project.WebBackend.Controllers
                 message = ex.Message.ToString();
             }
 
-            return Json(new { success = success, message = message, data = invoice }, JsonRequestBehavior.AllowGet);
+            return Json(new { success = success, message = message, data = new { factura = invoice, xml = CFDI} }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, AllowAnonymous]
@@ -1687,25 +1750,26 @@ namespace MVC_Project.WebBackend.Controllers
                         //XmlNode nodeTraslado = node.SelectSingleNode("cfdi:Traslado", nsm);
                         //if (nodeTraslado != null)
                         //{
-                            decimal varImporteT = 0;                            
-                            string varImpuestoM = node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : string.Empty;
-                            if (node.Attributes["Importe"] != null)
-                            {
-                                varImporteT = Convert.ToDecimal(node.Attributes["Importe"].Value);
-                            }
-                            //string varImporteT = nodeTraslado.Attributes["Importe"] != null ? nodeTraslado.Attributes["Importe"].Value : string.Empty;
-                            //string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
-                            //string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
+                        decimal varImporteT = 0;
+                        string varImpuestoM = node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : string.Empty;
+                        if (node.Attributes["Importe"] != null)
+                        {
+                            varImporteT = Convert.ToDecimal(node.Attributes["Importe"].Value);
+                        }
+                        //string varImporteT = nodeTraslado.Attributes["Importe"] != null ? nodeTraslado.Attributes["Importe"].Value : string.Empty;
+                        //string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
+                        //string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
 
-                            //Agregar modelo
-                            Traslado tras = new Traslado() {
-                                Importe = varImporteT,
-                                Impuesto = varImpuestoM
-                            };
+                        //Agregar modelo
+                        Traslado tras = new Traslado()
+                        {
+                            Importe = varImporteT,
+                            Impuesto = varImpuestoM
+                        };
 
-                            cfdipdf.Impuestos.Traslados.Add(tras);
+                        cfdipdf.Impuestos.Traslados.Add(tras);
                         //}
-                    }                    
+                    }
                 }
 
                 XmlNode nodeRetenciones = nodeImpuestosTT.SelectSingleNode("cfdi:Retenciones", nsm);
@@ -1716,22 +1780,23 @@ namespace MVC_Project.WebBackend.Controllers
                         //XmlNode nodeRetencion = node.SelectSingleNode("cfdi:Retencion", nsm);
                         //if (nodeRetencion != null)
                         //{
-                            decimal varImporteR = 0;
-                            string varImpuestoR = node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : string.Empty;
-                            if (node.Attributes["Importe"] != null) {
-                                varImporteR = Convert.ToDecimal(node.Attributes["Importe"].Value);
-                            }
-                            //string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
-                            //string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
+                        decimal varImporteR = 0;
+                        string varImpuestoR = node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : string.Empty;
+                        if (node.Attributes["Importe"] != null)
+                        {
+                            varImporteR = Convert.ToDecimal(node.Attributes["Importe"].Value);
+                        }
+                        //string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
+                        //string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
 
-                            //Agregar modelo
-                            Retenido ret = new Retenido()
-                            {
-                                Importe = varImporteR,
-                                Impuesto = varImpuestoR
-                            };
+                        //Agregar modelo
+                        Retenido ret = new Retenido()
+                        {
+                            Importe = varImporteR,
+                            Impuesto = varImpuestoR
+                        };
 
-                            cfdipdf.Impuestos.Retenidos.Add(ret);
+                        cfdipdf.Impuestos.Retenidos.Add(ret);
                         //}
                     }
 

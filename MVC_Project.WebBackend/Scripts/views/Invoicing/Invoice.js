@@ -4,12 +4,12 @@
         return false;
     }
 });
-
 var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOfficeUrl, locationsUrl, codeSATUrl, UnitSATUrl, searchCDFIUrl,
     rateTaxesUrl, officeSellos, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.htmlTableImp = $("#tableImpuestos");
+    this.htmlTableCFDI = $("#tableComplent");
     this.searchUrl = searchUrl;
     this.addressUrl = addressUrl;
     this.branchOfficeUrl = branchOfficeUrl;
@@ -21,6 +21,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
     this.officeSellos = officeSellos;
     this.dataTable = {};
     this.dataTableImp = {};
+    this.dataTableCFDI = {};
 
     this.quantity = $("#Quantity");
     this.unitPrice = $("#UnitPrice");
@@ -250,11 +251,6 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
         self.dataTableImp = self.htmlTableImp.DataTable({
-            //language: El20Utils.lenguajeTabla({}),
-            //"bProcessing": true,
-            //"bServerSide": true,
-            //"sAjaxSource": this.baseUrl,
-            //orderMulti: false,
             "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
             "bLengthChange": false,
             "bInfo": false,
@@ -298,9 +294,110 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             ]
         });
 
+        self.dataTableCFDI = self.htmlTableCFDI.DataTable({
+            "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
+            "bLengthChange": false,
+            "bInfo": false,
+            "paging": false,
+            searching: false,
+            ordering: false,
+            columns: [
+                {
+                    "className": 'details-control',
+                    "orderable": false,
+                    "data": null,
+                    "defaultContent": ''
+                },
+                { data: 'uuid' },
+                { data: 'currency' },
+                { data: 'exchangeRate' },
+                { data: 'previousBalance' },
+                { data: 'paid' },
+                { data: 'outstanding' },
+                { data: 'method' },
+                { data: 'numberPartialities' },
+                { data: 'folio' },
+                { data: 'serie' },
+                {
+                    data: null,
+                    //title: 'opciones',
+                    //className: ""
+                    render: function (data) {
+                        var button = '<div class="btn-group" role="group" aria-label="Opciones">' +
+                            '<button type="button" class="btn btn-light btn-delete" title="Eliminar factura relacionada" style="margin-left:5px;"><span class="fas fa-trash"></span></button>' +
+                            '</div>';
+                        return button;
+                    }
+                }
+            ],
+            "columnDefs": [
+                {
+                    "targets": 1, render: function (data, type, row, meta) {
+                        console.log(data, type, row, meta, "todos")
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].uuid" value="' + row.uuid + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 2, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].currency" value="' + row.currency + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 3, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].exchangeRate" value="' + row.exchangeRate + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 4, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].previousBalance" value="' + row.previousBalance + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 5, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].paid" value="' + row.paid + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 6, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].outstanding" value="' + row.outstanding + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 7, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].method" value="' + row.method + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 8, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" name="payment[' + (meta.row) + '].numberPartialities" value="' + row.numberPartialities + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 9, render: function (data, type, row, meta) {
+                        //console.log(data, type, row, meta, "todos")
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].folio" value="' + row.folio + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 10, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].serie" value="' + row.serie + '" />';
+                        return html;
+                    }
+                },
+            ],
+        });
+
         $(this.htmlTable, "tbody").on('click',
             '.btn-group .btn-edit',
-            //'.btn-group .btn-delete',
             function () {
                 var tr = $(this).closest('tr');
                 var row = self.dataTable.row(tr);
@@ -345,7 +442,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                     self.retencionISRTempDesc = self.retencionISRTempDesc + imp1;
                                 } else {
                                     self.retencionIVATempDesc = self.retencionIVATempDesc + imp1;
-                                }                                
+                                }
                             } else {
                                 var imp2 = por > 0 ? (por * sub) / 100 : 0;
                                 self.trasladosTempDesc = self.trasladosTempDesc + imp2;
@@ -363,16 +460,95 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         $(this.htmlTableImp, "tbody").on('click',
             '.btn-group .btn-delete',
             function () {
-                //var tr = $(this).closest('tr');
-                //var row = self.dataTableImp.row(tr);
-                //var data = row.data();
-
                 self.dataTableImp
                     .row($(this).parents('tr'))
                     .remove()
                     .draw();
                 Prices();
             });
+
+        //Opción de eliminar para los datos relacionados
+        $(this.htmlTableCFDI, "tbody").on('click',
+            '.btn-group .btn-delete',
+            function () {
+                self.dataTableCFDI
+                    .row($(this).parents('tr'))
+                    .remove()
+                    .draw();
+            });
+        //Opción de mostrar detalles para la tabla de relacionados
+        $(this.htmlTableCFDI, 'tbody').on('click', 'td.details-control', function () {
+            var tr = $(this).closest('tr');
+            var row = self.dataTableCFDI.row(tr);
+
+            if (row.child.isShown()) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else {
+                // Open this row
+                row.child(format(row.data())).show();
+                copySelects();
+                tr.addClass('shown');
+            }
+        });
+
+        //funcion para obtener el detalle
+        function format(d) {
+            console.log(d, "detalles");
+            // `d` is the original data object for the row
+            return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:0px;">' +
+                '<tr>' +
+                '<td><label class="col-form-label control-label">Número de operación</label></td>' +
+                '<td><input type="text" name="NumOperationCFDI" id="" class="form-control" autocomplete="off" maxlength="50" /></td>' +
+                '<td><label class="col-form-label control-label">Monto</label></td>' +
+                '<td><input type="text" name="AmountCFDI" id="" class="form-control money" autocomplete="off" maxlength="50" /></td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td><label class="col-form-label control-label">Moneda</label></td>' +
+                '<td><select name="CurrencyCFDI" id="" class="form-control"  class="form-control chosen-select"></select></td>' +
+                '<td><label class="col-form-label control-label">Tipo de Cambio</label></td>' +
+                '<td><input type="text" name="ExchangeRateCFDI" id="" class="form-control money" autocomplete="off" maxlength="50" /></td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td><label class="col-form-label control-label">Forma de Pago</label></td>' +
+                '<td><select name="PaymentFormCFDI" id="" class="form-control chosen-select"></select></td>' +
+                '<td><label class="col-form-label control-label">Fecha</label></td>' +
+                '<td>' +
+                //< input type = "text" name = "DateCFDI" id = "" class="form-control" autocomplete = "off" maxlength = "50" />
+                '<div id="data_1">' +
+                '<div class="input-group date">' +
+                '<span class="input-group-addon"><i class="fa fa-calendar"></i></span>' +
+                '<input type="text" name="startedAt" id="startedAt" class="form-control required" readonly>' +
+                '</div>' +
+                '</div>' +
+                '</td >' +
+                '</tr>' +
+                '</table>';
+        }
+        function copySelects() {
+            var $optionsPF = $("#PaymentForm > option").clone();
+            $("select[name='PaymentFormCFDI']").append($optionsPF);
+
+            var $optionsC = $("#CurrencyForm > option").clone();
+            $("select[name='CurrencyCFDI']").append($optionsC);
+
+            $('.money').mask("##,###,##0.00", { reverse: true });
+
+            $('#data_1 .input-group.date').datepicker({
+                //dateFormat: "yy-mm-dd"
+                keyboardNavigation: false,
+                todayBtn: "linked",
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true,
+                format: "dd/mm/yyyy",
+                language: "es",
+                startDate: DateInit.MinDate
+            });
+        }
+
 
         $.validator.addMethod("Alphanumeric",
             function (value, element) {
@@ -396,6 +572,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 return true;
             }, "Debe ser un RFC válido"
         );
+
+        $('.money').mask("##,###,##0.00", { reverse: true });
+        $('.rateMoney').mask("##0.00", { reverse: false });
 
         //Agregar a la lista de conceptos del producto
         $("#addTaxes").click(function () {
@@ -542,8 +721,19 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         //countDecimals(val);
 
         /*Buscador de facturas para complementos*/
-        $("#relacionados").change(function () {
-            console.log("opción de relación de facturas", $(this).val())
+        $("#TypeInvoice").change(function () {
+            console.log("opción de relación de facturas", $(this).val());
+            var typeInvoice = $(this).val();
+
+            if (typeInvoice === "P" || typeInvoice === "E") {
+                $("#relacionados").removeClass("hide");
+                $("#Condiciones").addClass("hide");
+                $("#btnProdServ").addClass("hide");
+            } else {
+                $("#relacionados").addClass("hide");
+                $("#Condiciones").removeClass("hide");
+                $("#btnProdServ").addClass("hide");
+            }
         });
 
         $(".search-invoice").click(function () {
@@ -558,33 +748,56 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 data: { uuid: uuid },
                 url: self.searchCDFIUrl,
                 success: function (json) {
-                    //console.log(json, "respuesta");
+                    console.log(json, "respuesta");
 
                     if (json.success) {
                         var data = json.data;
                         if (data === null)
                             toastr['error']("No se encontro la factura con el Folio Fiscal.", null, { 'positionClass': 'toast-top-center' });
                         else {
-                            $("#CDFIS").append('<input type="text" readonly name="cfdi[]" class="form-control" value="' + data.uuid + '">');
+                            console.log("xml", json.data.xml);
+                            xml = json.data.xml;
+                            //$("#CDFIS").append('<input type="text" readonly name="cfdi[]" class="form-control" value="' + data.uuid + '">');                            
+                            var t = self.dataTableCFDI;
+                            var ind = t.rows().count();
+                            var index = parseInt(ind);
+                            index++;
+
+                            t.row.add(
+                                {
+                                    "uuid": data.factura.uuid,
+                                    "currency": xml.Moneda,
+                                    "exchangeRate": xml.TipoCambio,
+                                    "previousBalance": xml.Total,
+                                    "paid": 0,
+                                    "outstanding": 0,
+                                    "method": xml.MetodoPago,
+                                    "numberPartialities": 0,
+                                    "folio": xml.Folio,
+                                    "serie": xml.Serie,
+                                    "index": index
+                                }
+                            ).draw(false);
+
                             $("#InvoiceComplement").val("");
                         }
+
                         El20Utils.ocultarCargador();
                     }
                     else {
+                        toastr['error']("No se encontro la factura con el Folio Fiscal.", null, { 'positionClass': 'toast-top-center' });
                         El20Utils.ocultarCargador();
                     }
 
                 },
                 error: function (xhr) {
                     console.log('error', xhr);
+                    toastr['error']("Se encontro un error al buscar la factura con el Folio Fiscal.", null, { 'positionClass': 'toast-top-center' });
                     El20Utils.ocultarCargador();
                 }
             });
 
         });
-
-        $('.money').mask("##,###,##0.00", { reverse: true });
-        $('.rateMoney').mask("##0.00", { reverse: false });
 
         $("#RFC").keyup(function () {
             this.value = this.value.toUpperCase();
@@ -736,9 +949,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         self.subtotal.val(),
                         index
                     ]
-                ).draw(false);               
+                ).draw(false);
             }
-
 
             $("input[name='taxes']").attr("checked", false);
             //$("input[name='taxes']").attr("checked", false);
@@ -948,51 +1160,6 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 return item.name;
             }
         });
-
-        ////Buscar información del cliente por RFC
-        //$('#RFC').typeahead({
-        //    source: function (query, process) {
-        //        //console.log(query, process, "esto trae");
-        //        var type = $("#TypeInvoice").val();
-        //        return $.get(self.searchUrl + "?field=RFC&value=" + query + "&typeInvoice=" + type, function (result) {
-        //            //console.log(result.data, "respuesta");
-        //            var resultList = result.data.map(function (item) {
-        //                var aItem = { id: item.id, name: item.rfc, type: item.taxRegime };
-        //                return JSON.stringify(aItem);
-        //            });
-        //            return process(resultList);
-        //        });
-        //    },
-        //    //matcher: function (obj) {
-        //    //    var item = JSON.parse(obj);
-        //    //    return ~item.name.toLowerCase().indexOf(this.query.toLowerCase());
-        //    //},
-        //    //sorter: function (items) {
-        //    //    var beginswith = [], caseSensitive = [], caseInsensitive = [], item;
-        //    //    while (aItem = items.shift()) {
-        //    //        var item2 = JSON.parse(aItem);
-        //    //        if (!item.name.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(JSON.stringify(item));
-        //    //        else if (~item.name.indexOf(this.query)) caseSensitive.push(JSON.stringify(item));
-        //    //        else caseInsensitive.push(JSON.stringify(item));
-        //    //    }
-
-        //    //    return beginswith.concat(caseSensitive, caseInsensitive);
-        //    //},
-        //    highlighter: function (obj) {
-        //        var item = JSON.parse(obj);
-        //        var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
-        //        return item.name.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
-        //            return '<strong>' + match + '</strong>';
-        //        });
-        //    },
-        //    updater: function (obj) {
-        //        var item = JSON.parse(obj);
-        //        $('#CustomerId').attr('value', item.id);
-        //        $('#TypeReceptor').attr('value', item.taxRegime);
-        //        GetReceiver(item.id, item.taxRegime);
-        //        return item.name;
-        //    }
-        //});
 
         $("#ZipCode").blur(function () {
             //console.log("perdio el focus");            
