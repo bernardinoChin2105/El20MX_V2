@@ -23,6 +23,7 @@ namespace MVC_Project.WebBackend.Models
         public string quoteLink { get; set; }
         public string quoteName { get; set; }
         public DateTime startedAt { get; set; }
+        public DateTime? hiringDate { get; set; }
         public List<QuotationDetails> details { get; set; }
     }
 
@@ -31,6 +32,9 @@ namespace MVC_Project.WebBackend.Models
         public Int64 id { get; set; }
         [DisplayName("Fecha en que se inicia regularización")]
         public DateTime startedAt { get; set; }
+        [DisplayName("Fecha de contratación")]
+        public DateTime? hiringDate { get; set; } 
+        public string hiringDateEdit { get; set; }
         [DisplayName("Monto total")]
         public decimal total { get; set; }
         [DisplayName("Pagos diferidos")]

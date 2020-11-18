@@ -62,6 +62,7 @@ namespace MVC_Project.WebBackend.Controllers
                     //data.quoteName = quotation.quoteName;
                     data.details = quotation.quotationDetails.Select(x => new QuotationDetails { link = x.link, name = x.name }).ToList();
                     data.startedAt = quotation.startedAt;
+                    data.hiringDate = quotation.hiringDate;
                     response.Add(data);
                 }
 
@@ -165,6 +166,7 @@ namespace MVC_Project.WebBackend.Controllers
                     monthlyCharge = model.monthlyCharge,
                     status = model.quoteStatus,
                     createdAt = DateTime.Now,
+                    hiringDate = model.hiringDate
                 };
 
                 foreach (var file in model.files)
@@ -237,6 +239,8 @@ namespace MVC_Project.WebBackend.Controllers
                     accountId = quotation.account.id,
                     accounts = PopulateAccounts(),
                     startedAt = quotation.startedAt,
+                    hiringDate = quotation.hiringDate,
+                    hiringDateEdit = quotation.hiringDate.HasValue? quotation.hiringDate.Value.ToShortDateString() : string.Empty,
                     total = Math.Round(quotation.total),
                     hasDeferredPayment = quotation.hasDeferredPayment,
                     advancePayment = Math.Round(quotation.advancePayment, 2),
@@ -278,7 +282,7 @@ namespace MVC_Project.WebBackend.Controllers
                 quotation.advancePayment = model.advancePayment;
                 quotation.monthlyCharge = model.monthlyCharge;
                 quotation.status = model.quoteStatus;
-
+                quotation.hiringDate = model.hiringDate;
                 foreach (var file in model.files)
                 {
                     if (file != null)
