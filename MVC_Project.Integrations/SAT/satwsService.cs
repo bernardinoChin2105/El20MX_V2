@@ -11,7 +11,7 @@ namespace MVC_Project.Integrations.SAT
 {
     public class SATwsService
     {
-        public static void GenerateExtractions(string RFC, DateTime DateOnStart, DateTime DateOnEnd)
+        public static ExtractionResponse GenerateExtractions(string RFC, DateTime DateOnStart, DateTime DateOnEnd)
         {
             TaxpayerInfo taxpayer = new TaxpayerInfo();
 
@@ -24,7 +24,8 @@ namespace MVC_Project.Integrations.SAT
                 periodTo = DateOnEnd.ToString("s") + "Z"
             };
 
-            SATws.CallServiceSATws("extractions", filter, "Post");
+            var response = SATws.CallServiceSATws("extractions", filter, "Post");
+            return JsonConvert.DeserializeObject<ExtractionResponse>(response);
         }
 
         public static InvoicesModel GetInvoicesByExtractions(string rfc, string from, string to)

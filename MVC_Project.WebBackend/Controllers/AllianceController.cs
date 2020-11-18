@@ -533,7 +533,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var authUser = Authenticator.AuthenticatedUser;
 
                 if (_allyService.FindBy(x => x.name == model.Name).Any())
-                    throw new Exception("Ya existe un Aliado con el Nombre proporcionado");
+                    throw new Exception("El nombre del aliado ingresado en el formulario ya se encuentra registrado en el sistema");
 
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
@@ -601,6 +601,9 @@ namespace MVC_Project.WebBackend.Controllers
                 if (!ModelState.IsValid)
                     throw new Exception("El modelo de entrada no es válido");
 
+                if (_allyService.FindBy(x => x.name == model.Name && x.id != model.Id).Any())
+                    throw new Exception("El nombre del aliado ingresado en el formulario ya se encuentra registrado en el sistema");
+
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
                 allyData.name = model.Name;
@@ -619,7 +622,7 @@ namespace MVC_Project.WebBackend.Controllers
                    JsonConvert.SerializeObject(allyData)
                 );
 
-                MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
+                MensajeFlashHandler.RegistrarMensaje("Registro actualizado exitosamente.", TiposMensaje.Success);
                 return RedirectToAction("AllyIndex");
             }
             catch (Exception ex)

@@ -11,7 +11,7 @@ namespace MVC_Project.WebBackend.Models
     {
         public string uuid { get; set; }
         public Int64 id { get; set; }
-        [DisplayName("Nombre")]
+        [DisplayName("Nombre de sucursal")]
         public string name { get; set; }
 
         [DisplayName("Serie")]

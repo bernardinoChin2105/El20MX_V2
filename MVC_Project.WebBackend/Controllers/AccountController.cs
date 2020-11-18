@@ -4,6 +4,7 @@ using MVC_Project.FlashMessages;
 using MVC_Project.Integrations.Paybook;
 using MVC_Project.Integrations.Pipedrive;
 using MVC_Project.Integrations.SAT;
+using MVC_Project.Integrations.Storage;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
 using MVC_Project.WebBackend.AuthManagement.Models;
@@ -29,10 +30,11 @@ namespace MVC_Project.WebBackend.Controllers
         private IDiscountService _discountService;
         private ICADAccountService _CADAccountService;
         private IDiagnosticService _diagnosticService;
+        private ISupervisorCADService _supervisorCADService;
 
         public AccountController(IMembershipService accountUserService, IAccountService accountService,
             ICredentialService credentialService, IRoleService roleService, IUserService userService, IPromotionService promotionService,
-            IDiscountService discountService, ICADAccountService CADAccountService, IDiagnosticService diagnosticService)
+            IDiscountService discountService, ICADAccountService CADAccountService, IDiagnosticService diagnosticService, ISupervisorCADService supervisorCADService)
         {
             _membership = accountUserService;
             _accountService = accountService;
@@ -43,6 +45,7 @@ namespace MVC_Project.WebBackend.Controllers
             _discountService = discountService;
             _CADAccountService = CADAccountService;
             _diagnosticService = diagnosticService;
+            _supervisorCADService = supervisorCADService;
         }
 
         // GET: Account
@@ -66,15 +69,8 @@ namespace MVC_Project.WebBackend.Controllers
             if (authUser.isBackOffice)
             {
                 var accounts = new List<Account>();
-                if (authUser.Role.Code == SystemRoles.CAD.ToString())
-                    accounts = _CADAccountService.FindBy(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString()).Select(x => new Account
-                    {
-                        Id = x.account.id,
-                        Uuid = x.account.uuid,
-                        Name = x.account.name,
-                        RFC = x.account.rfc
-                    }).ToList();
-                else
+                if (authUser.Role.Code == SystemRoles.SYSTEM_ADMINISTRATOR.ToString() || authUser.Role.Code.Contains(SystemRoles.DIRECCION.ToString()))
+                {
                     accounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString()).Select(x => new Account
                     {
                         Id = x.id,
@@ -82,7 +78,30 @@ namespace MVC_Project.WebBackend.Controllers
                         Name = x.name,
                         RFC = x.rfc
                     }).ToList();
-                
+                }
+                else if (authUser.Role.Code.Contains(SystemRoles.SUPERVISOR.ToString()))
+                {
+                    List<Int64> cadIds = _supervisorCADService.FindBy(x => x.supervisor.id == authUser.Id).Select(x => x.cad.id).ToList();
+                    cadIds.Add(authUser.Id);
+
+                    accounts = _CADAccountService.FindBy(x => cadIds.Contains(x.cad.id)).Select(x => new Account
+                    {
+                        Id = x.account.id,
+                        Uuid = x.account.uuid,
+                        Name = x.account.name,
+                        RFC = x.account.rfc
+                    }).ToList();
+                }
+                else
+                {
+                    accounts = _CADAccountService.FindBy(x => x.cad.id == authUser.Id).Select(x => new Account
+                    {
+                        Id = x.account.id,
+                        Uuid = x.account.uuid,
+                        Name = x.account.name,
+                        RFC = x.account.rfc
+                    }).ToList();
+                }
                 var accountViewModel = new AccountSelectViewModel { accountListItems = new List<SelectListItem>() };
                 accountViewModel.accountListItems = accounts.Select(x => new SelectListItem
                 {
@@ -502,7 +521,10 @@ namespace MVC_Project.WebBackend.Controllers
                 );
 
                 #region Generar diagnóstico Inicial
-                string dianostic = GenerateDx0();
+                if (bool.Parse(ConfigurationManager.AppSettings["InitialDiagnostic.Enable"]))
+                    GenerateDx0();
+                
+                
                 #endregion
 
                 return RedirectToAction("Index", "SAT");
@@ -637,8 +659,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         #region DiagnosticoInicial
 
-        [HttpGet]
-        public string GenerateDx0()
+        public void GenerateDx0()
         {
             var authUser = Authenticator.AuthenticatedUser;
             try
@@ -650,7 +671,7 @@ namespace MVC_Project.WebBackend.Controllers
                 DateTime dateTo = DateTime.UtcNow.AddMonths(-1);
                 dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
                 dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
-                SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
+                string extractionId = SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
 
                 var diagn = new Domain.Entities.Diagnostic()
                 {
@@ -660,20 +681,21 @@ namespace MVC_Project.WebBackend.Controllers
                     commercialCAD = "",
                     plans = "",
                     createdAt = DateUtil.GetDateTimeNow(),
-                    status = SystemStatus.PENDING.ToString()
+                    status = SystemStatus.PENDING.ToString(),
+                    processId = extractionId
                 };
 
                 _diagnosticService.Create(diagn);
                 Session["InitialDiagnostic"] = diagn.uuid;
-                return diagn.uuid.ToString();
             }
             catch (Exception ex)
             {
-                //string error = ex.Message.ToString();
-                //MensajeFlashHandler.RegistrarMensaje("¡Ocurrio un error en al realizar el diagnóstico!", TiposMensaje.Error);
-                //MensajeFlashHandler.RegistrarMensaje(error, TiposMensaje.Error);
-                //return RedirectToAction("Index");
-                return null;
+                LogUtil.AddEntry(
+                   "Error en diagnostico inicial: " + authUser.Account.RFC, ENivelLog.Error, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   ex.Message + "" + (ex.InnerException != null ? ex.InnerException.Message : "")
+                );
             }
         }
 
@@ -723,5 +745,38 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         #endregion
+
+        [HttpPost]
+        [AllowAnonymous]
+        public ActionResult UpdateImage(string fileNameAccount, HttpPostedFileBase imageAccount)
+        {
+            try
+            {
+                var userAuth = Authenticator.AuthenticatedUser;
+                var account = _accountService.GetById(userAuth.Account.Id);
+                if (account == null)
+                    throw new Exception("La cuenta no es válida");
+
+                var StorageImages = ConfigurationManager.AppSettings["StorageImages"];
+
+                if (imageAccount == null)
+                    throw new Exception("No se proporcionó una imagen");
+
+                var image = AzureBlobService.UploadPublicFile(imageAccount.InputStream, fileNameAccount, StorageImages, account.rfc);
+                account.avatar = image.Item1;
+                account.modifiedAt = DateTime.Now;
+                _accountService.Update(account);
+
+                userAuth.Account.Image = image.Item1;
+                Authenticator.RefreshAuthenticatedUser(userAuth);
+
+                return Json(new { account.uuid, success = true }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { message = ex.Message, success = false }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
     }
 }

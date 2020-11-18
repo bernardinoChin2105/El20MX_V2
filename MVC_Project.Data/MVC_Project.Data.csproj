@@ -112,6 +112,7 @@
     <Compile Include="Mappings\PromotionMap.cs" />
     <Compile Include="Mappings\QuotationDetailMap.cs" />
     <Compile Include="Mappings\QuotationMap.cs" />
+    <Compile Include="Mappings\SupervisorCADMap.cs" />
     <Compile Include="Mappings\TaxMap.cs" />
     <Compile Include="Mappings\TaxRegimeMap.cs" />
     <Compile Include="Mappings\TypeInvoiceMap.cs" />

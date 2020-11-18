@@ -76,11 +76,12 @@ namespace MVC_Project.Integrations.SAT
             }
         }
 
-        public static void GenerateExtractions(string rfc, DateTime dateOnStart, DateTime dateOnEnd, string provider)
+        public static string GenerateExtractions(string rfc, DateTime dateOnStart, DateTime dateOnEnd, string provider)
         {
             if (provider == SystemProviders.SATWS.ToString())
             {
-                SATwsService.GenerateExtractions(rfc, dateOnStart, dateOnEnd);
+                var response = SATwsService.GenerateExtractions(rfc, dateOnStart, dateOnEnd);
+                return response.id;
             }
             else
             {

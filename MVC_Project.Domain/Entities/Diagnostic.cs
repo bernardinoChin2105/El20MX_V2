@@ -17,6 +17,7 @@ namespace MVC_Project.Domain.Entities
         public virtual DateTime createdAt { get; set; }
         public virtual DateTime modifiedAt { get; set; }
         public virtual string status { get; set; }
+        public virtual string processId { get; set; }
 
         public virtual IList<DiagnosticDetail> details { get; set; }
         public virtual IList<DiagnosticTaxStatus> taxStatus { get; set; }

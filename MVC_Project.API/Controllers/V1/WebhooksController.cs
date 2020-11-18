@@ -327,7 +327,6 @@ namespace MVC_Project.API.Controllers
                         var invoicesIssued = _invoicesIssuedService.FindBy(x => x.account.id == account.id && x.invoicedAt >= from && x.invoicedAt <= to).ToList();
 
                         details.AddRange(invoicesIssued
-                            //.Where(x=>x.invoiceType=="I") Si es solo ingreso en las factura descomentar esta linea
                             .GroupBy(x => new
                         {
                             x.invoicedAt.Year,
@@ -348,7 +347,7 @@ namespace MVC_Project.API.Controllers
                         var invoicesReceived = _invoicesReceivedService.FindBy(x => x.account.id == account.id && x.invoicedAt >= from && x.invoicedAt <= to).ToList();
 
                         details.AddRange(invoicesReceived
-                            //.Where(x=>x.invoiceType=="I") Si es solo ingreso en las factura descomentar esta linea
+                            .Where(x=>x.invoiceType != TipoComprobante.N.ToString()) //Si es solo ingreso en las factura descomentar esta linea
                             .GroupBy(x => new
                         {
                             x.invoicedAt.Year,
@@ -379,7 +378,8 @@ namespace MVC_Project.API.Controllers
                                 businessName = x.person != null ? x.person.fullName : x.company.tradeName,
                                 taxMailboxEmail = x.email,
                                 taxRegime = x.taxRegimes.Count > 0 ? String.Join(",", x.taxRegimes.Select(y => y.name).ToArray()) : null,
-                                economicActivities = x.economicActivities.Count > 0 ? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null
+                                economicActivities = x.economicActivities != null && x.economicActivities.Any() ? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null,
+                                fiscalObligations = x.obligations != null && x.obligations.Any() ? String.Join(",", x.obligations.Select(y => y.description).ToArray()) : null,
                             }).ToList();
                         _diagnosticTaxStatusService.Create(taxStatus);
 
@@ -389,7 +389,7 @@ namespace MVC_Project.API.Controllers
 
                         _diagnosticService.Update(diagnostic);
 
-                        LogUtil.AddEntry(descripcion: "Extraccón finalizada con exito", eLogLevel: ENivelLog.Debug,
+                        LogUtil.AddEntry(descripcion: "Extraccón finalizada con exito " + account.rfc, eLogLevel: ENivelLog.Debug,
                         usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
                     }
                     catch(Exception ex)
@@ -397,14 +397,14 @@ namespace MVC_Project.API.Controllers
                         diagnostic.status = SystemStatus.FAILED.ToString();
                         diagnostic.modifiedAt = DateTime.Now;
                         _diagnosticService.Update(diagnostic);
-                        LogUtil.AddEntry(descripcion: "Error al generar el diagnostico fiscal " + ex.Message, eLogLevel: ENivelLog.Debug,
+                        LogUtil.AddEntry(descripcion: "Error al generar el diagnostico fiscal " + account.rfc + " Error: " + ex.Message + " " + (ex.InnerException != null ? ex.InnerException.Message : ""), eLogLevel: ENivelLog.Debug,
                         usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
                     }
                 }
             }
             catch (Exception ex)
             {
-                LogUtil.AddEntry(descripcion: "Error en la extracción " + ex.Message, eLogLevel: ENivelLog.Debug,
+                LogUtil.AddEntry(descripcion: "Error en la extracción " + ex.Message + " " + (ex.InnerException != null ? ex.InnerException.Message : ""), eLogLevel: ENivelLog.Debug,
                        usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
 
             }
