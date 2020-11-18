@@ -539,13 +539,13 @@ namespace MVC_Project.WebBackend.Controllers
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   "" //JsonConvert.SerializeObject()
+                   JsonConvert.SerializeObject(model)
                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 //SetCombos(model.ZipCode, ref model);
                 //return View("Invoice", model);
-                return View("Invoice");
-                //return RedirectToAction("Invoice");
+                //return View("Invoice");
+                return RedirectToAction("Invoice");
             }
         }
         #endregion
