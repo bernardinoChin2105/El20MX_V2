@@ -424,7 +424,8 @@ namespace MVC_Project.WebBackend.Controllers
                         LastName = user.profile.lastName,
                         Email = user.name,
                         RFC = account.rfc,
-                        CIEC = account.ciec
+                        CIEC = account.ciec,
+                        Phone = user.profile.phoneNumber
                     }, user.pipedriveId);
                 }
                 else
@@ -436,7 +437,8 @@ namespace MVC_Project.WebBackend.Controllers
                         LastName = user.profile.lastName,
                         Email = user.name,
                         RFC = account.rfc,
-                        CIEC = account.ciec
+                        CIEC = account.ciec,
+                        Phone = user.profile.phoneNumber
                     });
                     if (response.Success)
                     {

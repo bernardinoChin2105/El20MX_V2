@@ -207,6 +207,7 @@ namespace MVC_Project.WebBackend.Controllers
                 return View("Index", model);
             }
         }
+
         private void CreatePipeDrivePerson(User user)
         {
             try
@@ -218,6 +219,7 @@ namespace MVC_Project.WebBackend.Controllers
                     FirstName = user.profile.firstName,
                     LastName = user.profile.lastName,
                     Email = user.name,
+                    Phone = user.profile.phoneNumber
                 });
                 if (response.Success)
                     user.pipedriveId = response.Data.Id;
