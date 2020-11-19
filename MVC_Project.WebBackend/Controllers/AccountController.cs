@@ -329,39 +329,17 @@ namespace MVC_Project.WebBackend.Controllers
                         status = SystemStatus.PROCESSING.ToString(),
                         credentialType = SATCredentialType.CIEC.ToString()
                     };
-                    
+
                     _credentialService.Create(credential, account);
 
                     // ESTO VA DONDE SE VAYA A INTEGRAR EL CRM
                     if (IsCRMEnabled)
-                    {
-                        PipedriveClient pdClient = new PipedriveClient();
-                        PipedriveResponse response = pdClient.CreatePerson(new PipedrivePerson()
-                        {
-                            Name = authUser.FirstName + " " + authUser.LastName,
-                            FirstName = authUser.FirstName,
-                            LastName = authUser.LastName,
-                            Email = authUser.Email,
-                            RFC = account.rfc,
-                            CIEC = account.ciec
-                        });
-                        if (response.Success)
-                        {
-                            account.pipedriveId = response.Data.Id;
-                            _accountService.Update(account);
-                        }
+                        CreatePripedrivePerson(user, account);
 
-                        LogUtil.AddEntry(
-                           "Registro en Pipedrive del usuario" + account.rfc, ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
-                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                           JsonConvert.SerializeObject(response)
-                        );
-                    }
                 }
                 else
                 {
-                    account = _accountService.FirstOrDefault(x=>x.uuid == Guid.Parse(model.uuid));
+                    account = _accountService.FirstOrDefault(x => x.uuid == Guid.Parse(model.uuid));
                     if (account == null)
                         throw new Exception("El id de la cuenta es invalida");
 
@@ -372,7 +350,7 @@ namespace MVC_Project.WebBackend.Controllers
                     account.ciec = model.CIEC;
                     account.modifiedAt = todayDate;
                     _accountService.Update(account);
-                    
+
                     var satModel = SATService.CreateCredential(new CredentialRequest { rfc = model.RFC, ciec = model.CIEC }, provider);
 
                     var credential = _credentialService.FirstOrDefault(x => x.account.id == account.id && x.provider == provider && x.credentialType == SATCredentialType.CIEC.ToString());
@@ -381,7 +359,7 @@ namespace MVC_Project.WebBackend.Controllers
                         credential = new Domain.Entities.Credential()
                         {
                             account = account,
-                            uuid=Guid.NewGuid(),
+                            uuid = Guid.NewGuid(),
                             provider = provider,
                             idCredentialProvider = satModel.id,
                             statusProvider = satModel.status,
@@ -400,31 +378,12 @@ namespace MVC_Project.WebBackend.Controllers
                         credential.modifiedAt = todayDate;
                         _credentialService.Update(credential);
                     }
-                    
-                    if (IsCRMEnabled && account.pipedriveId > 0)
+
+                    if (IsCRMEnabled)
                     {
                         var membership = _membership.FirstOrDefault(x => x.account.id == account.id && x.role.code == SystemRoles.ACCOUNT_OWNER.ToString() && x.status == SystemStatus.ACTIVE.ToString());
-                        PipedriveClient pdClient = new PipedriveClient();
-                        PipedriveResponse response = pdClient.UpdatePerson(new PipedrivePerson()
-                        {
-                            Name = membership != null ? membership.user.profile.firstName + " " + membership.user.profile.lastName 
-                            : authUser.FirstName + " " + authUser.LastName,
-                            FirstName = membership != null ? membership.user.profile.firstName
-                            : authUser.FirstName,
-                            LastName = membership != null ? membership.user.profile.lastName
-                            : authUser.LastName,
-                            Email = membership != null ? membership.user.name
-                            : authUser.Email,
-                            RFC = account.rfc,
-                            CIEC = account.ciec
-                        }, account.pipedriveId);
-
-                        LogUtil.AddEntry(
-                           "Actualización en Pipedrive del usuario" + account.rfc, ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
-                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                           JsonConvert.SerializeObject(response)
-                        );
+                        if (membership != null && membership.user != null)
+                            CreatePripedrivePerson(membership.user, account);
                     }
                 }
                 
@@ -448,6 +407,60 @@ namespace MVC_Project.WebBackend.Controllers
                 return Json(new { message = ex.Message, success = false }, JsonRequestBehavior.AllowGet);
             }
 
+        }
+
+        private void CreatePripedrivePerson(Domain.Entities.User user, Domain.Entities.Account account)
+        {
+            try
+            {
+                PipedriveResponse response = new PipedriveResponse();
+                PipedriveClient pdClient = new PipedriveClient();
+                if (user.pipedriveId > 0)
+                {
+                    response = pdClient.UpdatePerson(new PipedrivePerson()
+                    {
+                        Name = user.profile.firstName + " " + user.profile.lastName,
+                        FirstName = user.profile.firstName,
+                        LastName = user.profile.lastName,
+                        Email = user.name,
+                        RFC = account.rfc,
+                        CIEC = account.ciec
+                    }, user.pipedriveId);
+                }
+                else
+                {
+                    response = pdClient.CreatePerson(new PipedrivePerson()
+                    {
+                        Name = user.profile.firstName + " " + user.profile.lastName,
+                        FirstName = user.profile.firstName,
+                        LastName = user.profile.lastName,
+                        Email = user.name,
+                        RFC = account.rfc,
+                        CIEC = account.ciec
+                    });
+                    if (response.Success)
+                    {
+                        user.pipedriveId = response.Data.Id;
+                        _userService.Update(user);
+                    }
+                }
+
+                LogUtil.AddEntry(
+                   "Registro en Pipedrive del usuario" + account.rfc, ENivelLog.Info, user.id, user.name, EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   JsonConvert.SerializeObject(response)
+                );
+            }
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(
+                   "Error al registrar en Pipedrive al usuario" + user.name, ENivelLog.Info, user.id, user.name, EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   ex.Message
+                );
+            }
         }
 
         [HttpGet]

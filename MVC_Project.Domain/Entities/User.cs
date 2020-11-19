@@ -22,6 +22,8 @@ namespace MVC_Project.Domain.Entities
 
         public virtual bool isBackOffice { get; set; }
 
+        public virtual int pipedriveId { get; set; }
+
         //public virtual IList<Permission> permissions { get; set; }
         //public virtual IList<Account> accounts { get; set; }
         public virtual IList<Membership> memberships { get; set; }
