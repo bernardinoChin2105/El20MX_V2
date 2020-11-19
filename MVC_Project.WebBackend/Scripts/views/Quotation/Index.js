@@ -20,6 +20,15 @@
                 { data: 'uuid', title: "Uuid", visible: false },
                 { data: 'account', title: "Cliente" },
                 {
+                    data: null, orderName: "hiringDate", title: "Fecha de contratación", autoWidth: false, className: "dt-center td-actions thead-dark",
+                    render: function (data, type, row, meta) {
+                        if (data.hiringDate !== null && data.hiringDate !== "") {
+                            return moment(data.hiringDate).format('DD-MMM-YYYY');
+                        }
+                        return '';
+                    }
+                },
+                {
                     data: null, orderName: "startedAt", title: "Fecha en que se inicia regularización", autoWidth: false, className: "dt-center td-actions thead-dark",
                     render: function (data, type, row, meta) {
                         if (data.startedAt !== null && data.startedAt !== "") {
@@ -48,10 +57,11 @@
                     data: null,
                     className: 'personal-options',
                     render: function (data) {
+
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<button class="btn btn-light btn-edit"><span class="fas fa-edit"></span></button>' +
                             '</div>';
-                        return hasFullAccessController ? buttons : "";
+                        return hasFullAccessController ? data.hiringDate==null? buttons : "" : "";
                     }
                 }
             ],
