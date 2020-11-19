@@ -306,7 +306,10 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "className": 'details-control',
                     "orderable": false,
                     "data": null,
-                    "defaultContent": ''
+                    "defaultContent": '',
+                    render: function () {
+                        return '<span class="open"></span>';
+                    }
                 },
                 { data: 'uuid' },
                 { data: 'currency' },
@@ -531,10 +534,11 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var $optionsPF = $("#PaymentForm > option").clone();
             $("select[name='PaymentFormCFDI']").append($optionsPF);
 
-            var $optionsC = $("#CurrencyForm > option").clone();
+            var $optionsC = $("#Currency > option").clone();
             $("select[name='CurrencyCFDI']").append($optionsC);
 
-            $('.money').mask("##,###,##0.00", { reverse: true });
+            //$('.money').mask("##,###,##0.00", { reverse: true });
+            $('.money').mask("#######0.00", { reverse: true });
 
             $('#data_1 .input-group.date').datepicker({
                 //dateFormat: "yy-mm-dd"
@@ -545,7 +549,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 autoclose: true,
                 format: "dd/mm/yyyy",
                 language: "es",
-                startDate: DateInit.MinDate
+                //startDate: DateInit.MinDate
             });
         }
 
@@ -739,64 +743,70 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         $(".search-invoice").click(function () {
             //console.log("entre al evento", $(this).val());
             El20Utils.mostrarCargador();
+            var t = self.dataTableCFDI;
+            var ind = t.rows().count();
+            var index = parseInt(ind);
+            console.log("index", index);
 
-            var uuid = $("#InvoiceComplement").val();
-            console.log("valor del uuid", uuid);
-            $.ajax({
-                type: 'Get',
-                async: true,
-                data: { uuid: uuid },
-                url: self.searchCDFIUrl,
-                success: function (json) {
-                    console.log(json, "respuesta");
+            if (index < 10) {
+                var uuid = $("#InvoiceComplement").val();
+                console.log("valor del uuid", uuid);
+                $.ajax({
+                    type: 'Get',
+                    async: true,
+                    data: { uuid: uuid },
+                    url: self.searchCDFIUrl,
+                    success: function (json) {
+                        console.log(json, "respuesta");
 
-                    if (json.success) {
-                        var data = json.data;
-                        if (data === null)
-                            toastr['error']("No se encontro la factura con el Folio Fiscal.", null, { 'positionClass': 'toast-top-center' });
+                        if (json.success) {
+                            var data = json.data;
+                            if (data === null)
+                                toastr['error']("No se encontro la factura con el Folio Fiscal.", null, { 'positionClass': 'toast-top-center' });
+                            else {
+                                console.log("xml", json.data.xml);
+                                xml = json.data.xml;
+                                //$("#CDFIS").append('<input type="text" readonly name="cfdi[]" class="form-control" value="' + data.uuid + '">');                            
+
+                                index++;
+
+                                t.row.add(
+                                    {
+                                        "uuid": data.factura.uuid,
+                                        "currency": xml.Moneda,
+                                        "exchangeRate": xml.TipoCambio,
+                                        "previousBalance": xml.Total,
+                                        "paid": 0,
+                                        "outstanding": 0,
+                                        "method": xml.MetodoPago,
+                                        "numberPartialities": 0,
+                                        "folio": xml.Folio,
+                                        "serie": xml.Serie,
+                                        "index": index
+                                    }
+                                ).draw(false);
+
+                                $("#InvoiceComplement").val("");
+                            }
+
+                            El20Utils.ocultarCargador();
+                        }
                         else {
-                            console.log("xml", json.data.xml);
-                            xml = json.data.xml;
-                            //$("#CDFIS").append('<input type="text" readonly name="cfdi[]" class="form-control" value="' + data.uuid + '">');                            
-                            var t = self.dataTableCFDI;
-                            var ind = t.rows().count();
-                            var index = parseInt(ind);
-                            index++;
-
-                            t.row.add(
-                                {
-                                    "uuid": data.factura.uuid,
-                                    "currency": xml.Moneda,
-                                    "exchangeRate": xml.TipoCambio,
-                                    "previousBalance": xml.Total,
-                                    "paid": 0,
-                                    "outstanding": 0,
-                                    "method": xml.MetodoPago,
-                                    "numberPartialities": 0,
-                                    "folio": xml.Folio,
-                                    "serie": xml.Serie,
-                                    "index": index
-                                }
-                            ).draw(false);
-
-                            $("#InvoiceComplement").val("");
+                            toastr['error']("No se encontro la factura con el Folio Fiscal.", null, { 'positionClass': 'toast-top-center' });
+                            El20Utils.ocultarCargador();
                         }
 
+                    },
+                    error: function (xhr) {
+                        console.log('error', xhr);
+                        toastr['error']("Se encontro un error al buscar la factura con el Folio Fiscal.", null, { 'positionClass': 'toast-top-center' });
                         El20Utils.ocultarCargador();
                     }
-                    else {
-                        toastr['error']("No se encontro la factura con el Folio Fiscal.", null, { 'positionClass': 'toast-top-center' });
-                        El20Utils.ocultarCargador();
-                    }
-
-                },
-                error: function (xhr) {
-                    console.log('error', xhr);
-                    toastr['error']("Se encontro un error al buscar la factura con el Folio Fiscal.", null, { 'positionClass': 'toast-top-center' });
-                    El20Utils.ocultarCargador();
-                }
-            });
-
+                });
+            } else {
+                toastr['warning']("Solo se permiten 10 facturas relacionadas.", null, { 'positionClass': 'toast-top-center' });
+                El20Utils.ocultarCargador();
+            }
         });
 
         $("#RFC").keyup(function () {

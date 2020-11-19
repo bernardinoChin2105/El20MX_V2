@@ -179,6 +179,8 @@ namespace MVC_Project.WebBackend.Models
         #region Productos y/o Servicios a facturar        
         public List<ProductServiceDescriptionView> ProductServices { get; set; }
 
+        public List<ComplementsView> ComplementsCFDI { get; set; }
+
         [Display(Name = "Subtotal")]
         public decimal Subtotal { get; set; }
 
@@ -225,12 +227,48 @@ namespace MVC_Project.WebBackend.Models
             ListState = new List<SelectListItem>();
             //ListCustomerEmail = new List<SelectListItem>();
             ProductServices = new List<ProductServiceDescriptionView>();
-
-
+            ComplementsCFDI = new List<ComplementsView>();
         }
     }
 
     public class ProductServiceDescriptionView
+    {
+        [Display(Name = "Cantidad")]
+        public int Quantity { get; set; }
+
+        [Display(Name = "Código SAT")]
+        public string SATCode { get; set; }
+
+        [Display(Name = "Descripción Producto o Servicio")]
+        public string ProductServiceDescription { get; set; }
+
+        [Display(Name = "Unidad SAT")]
+        public string SATUnit { get; set; }
+
+        [Display(Name = "Unidad")]
+        public string Unit { get; set; }
+
+        [Display(Name = "Precio Unitario")]
+        public decimal UnitPrice { get; set; }
+
+        [Display(Name = "% Descuento")]
+        public decimal DiscountRateProServ { get; set; }
+
+        [Display(Name = "Impuesto (IVA/IEPS)")]
+        public decimal TaxesIEPS { get; set; }
+
+        [Display(Name = "Impuesto (IVA/ISR)")]
+        public decimal TaxesIVA { get; set; }
+
+        [Display(Name = "Impuesto")]
+        public string TaxesGeneral { get; set; }
+        //public List<TaxesAll> TaxesGeneral { get; set; }
+
+        [Display(Name = "Subtotal")]
+        public decimal Subtotal { get; set; }
+    }
+
+    public class ComplementsView
     {
         [Display(Name = "Cantidad")]
         public int Quantity { get; set; }

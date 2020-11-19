@@ -8,16 +8,17 @@
     AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
     var hasFullAccessController = user.HasFullAccessController(controllerName);
 
-    //var exchange = Model.Currency == "MXN" ? "hide" : "";    
+    //var exchange = Model.Currency == "MXN" ? "hide" : "";
 }
 
 @section styles{
     @Styles.Render("~/plugins/dataTablesStyles")
     <link href="~/Content/template/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
     <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
-    <link href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css"/>
+    <link href="~/Content/template/plugins/datapicker/datepicker3.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
     <link href="https://cdn.datatables.net/buttons/1.6.4/css/buttons.dataTables.min.css" />
-    
+
     <style>
         table.invoices-table tr td {
             padding: 0px;
@@ -44,13 +45,31 @@
             padding-bottom: 0;
         }
 
-        td.details-control {
-            background: url('../resources/details_open.png') no-repeat center center;
+        td.details-control .open {            
             cursor: pointer;
+            top: 73%;
+            left: 17px;
+            height: 1em;
+            width: 1em;
+            margin-top: -9px;
+            display: block;
+            position: absolute;
+            color: white;
+            border: 0.15em solid white;
+            border-radius: 1em;
+            box-shadow: 0 0 0.2em #444;
+            box-sizing: content-box;
+            text-align: center;
+            text-indent: 0 !important;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1em;
+            content: '+';
+            background-color: #0275d8;
         }
 
-        tr.shown td.details-control {
-            background: url('../resources/details_close.png') no-repeat center center;
+        tr.shown td.details-control .open {
+            content: '-';
+            background-color: #d33333;            
         }
     </style>
 }
@@ -149,7 +168,7 @@
             <div class="col-12">
                 <br />
                 <h3></h3>
-                <br />                
+                <br />
                 <table id="tableComplent" class="table display table-invoice">
                     <thead>
                         <tr>
@@ -713,6 +732,8 @@
     @Scripts.Render("~/plugins/typehead")
     @*@Scripts.Render("~/plugins/validate")*@
     @*<script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>*@
+    <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.js"></script>
+    <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.es.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
     <script src="~/Scripts/views/Invoicing/Invoice.js"></script>
     <script>
