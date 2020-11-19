@@ -35,7 +35,8 @@
         .search-invoice {
             cursor: pointer;
         }
-        .dataTables_wrapper{
+
+        .dataTables_wrapper {
             padding-bottom: 0;
         }
     </style>
@@ -67,7 +68,7 @@
                     <div class="col-md-8">
                         @Html.DropDownListFor(model => model.IssuingTaxRegimeId, Model.ListTaxRegime, "Seleccione...", new { @class = "form-control chosen-select required" })
                         @*@Html.ValidationMessageFor(model => model.allyId)*@
-                    </div>                    
+                    </div>
                 </div>
                 <div class="form-group row hide is-hidden" id="PropertyAccNum">
                     @Html.LabelFor(m => m.PropertyAccountNumber, new { @class = "col-form-label col-md-4 control-label" })
@@ -674,8 +675,10 @@
     @*@Scripts.Render("~/plugins/dataTables")
         @Scripts.Render("~/plugins/daterangepicker")*@
     @Scripts.Render("~/plugins/typehead")
-    @*@Scripts.Render("~/plugins/validate")*@
-    @*<script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>*@
+    @*<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.0/dist/jquery.validate.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.0/dist/jquery.validate.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.0/dist/additional-methods.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.0/dist/additional-methods.min.js"></script>*@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
     <script src="~/Scripts/views/Invoicing/Invoice.js"></script>
     <script>
