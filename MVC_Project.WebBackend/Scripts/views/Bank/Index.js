@@ -53,7 +53,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     className: 'menu-options',
                     render: function (data) {
                         //Menu para más opciones de cliente
-                        //console.log(data)
+                        console.log(data)
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<a class="link" href="' + self.bankAccountsUrl + '?idBankCredential=' + data.uuid + '">Ver más</a>' +
                             '</div>';

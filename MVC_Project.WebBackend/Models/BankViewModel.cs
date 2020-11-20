@@ -89,6 +89,7 @@ namespace MVC_Project.WebBackend.Models
         public bool isTwofa { get; set; }
         public string dateTimeAuthorized { get; set; }
         public string dateTimeRefresh { get; set; }
+        public int code { get; set; }
     }
 
     public class BankTransactionMV

@@ -73,7 +73,7 @@ namespace MVC_Project.Integrations.Paybook
         }
 
         //Obtener token del usuario en paybook si este ya fue creado anteriormente
-        public static bool GetVarifyToken(string token)
+        public static bool GetVerifyToken(string token)
         {
             string url = "/sessions/" + token + "/verify";
 

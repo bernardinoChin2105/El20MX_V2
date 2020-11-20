@@ -14,6 +14,7 @@ using MVC_Project.Domain.Model;
 using Newtonsoft.Json;
 using System.Collections.Specialized;
 using MVC_Project.FlashMessages;
+using System.Configuration;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -45,7 +46,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 string token = (string)Session["token"];
 
-                if (!string.IsNullOrEmpty(token) && PaybookService.GetVarifyToken(token))
+                if (!string.IsNullOrEmpty(token) && PaybookService.GetVerifyToken(token))
                 {
                     ViewBag.paybookT = token;
                 }
@@ -102,6 +103,7 @@ namespace MVC_Project.WebBackend.Controllers
         public JsonResult GetBanks(JQueryDataTableParams param)
         {
             var userAuth = Authenticator.AuthenticatedUser;
+            var provider = ConfigurationManager.AppSettings["BankProvider"];
             int totalDisplay = 0;
             int total = 0;
             var listResponse = new List<BankCredentialsList>();
@@ -120,11 +122,10 @@ namespace MVC_Project.WebBackend.Controllers
                         var bankMv = new BankCredentialsMV();
                         string token = Token();
                         //Obtener el listado de las cuentas de bancos
-                        List<CredentialsPaybook> newBanks = PaybookService.GetCredentials(bank.credentialProviderId, token);
+                        List<CredentialsPaybook> resultBank = PayBookServices.GetCredentials(bank.credentialProviderId, token, provider);
 
                         bankMv.id = bank.id;
                         bankMv.uuid = bank.uuid;
-
                         bankMv.credentialProviderId = bank.credentialProviderId;
                         bankMv.createdAt = bank.createdAt;
                         bankMv.modifiedAt = bank.modifiedAt;
@@ -135,6 +136,7 @@ namespace MVC_Project.WebBackend.Controllers
                         bankMv.isTwofa = bank.isTwofa;
                         bankMv.dateTimeAuthorized = bank.dateTimeAuthorized != null ? bank.dateTimeAuthorized.Value.ToShortDateString() : string.Empty;
                         bankMv.dateTimeRefresh = bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty;
+                        bankMv.code = resultBank[0].code;
 
                         list.Add(bankMv);
                     }
@@ -165,7 +167,7 @@ namespace MVC_Project.WebBackend.Controllers
             var authUser = Authenticator.AuthenticatedUser;
             string token = (string)Session["token"];
 
-            if (string.IsNullOrEmpty(token) || !PaybookService.GetVarifyToken(token))
+            if (string.IsNullOrEmpty(token) || !PaybookService.GetVerifyToken(token))
             {
                 var credential = _credentialService.FirstOrDefault(x => x.account.id == authUser.Account.Id && x.provider == SystemProviders.SYNCFY.GetDisplayName());
                 token = PaybookService.CreateToken(credential.idCredentialProvider);
@@ -204,11 +206,12 @@ namespace MVC_Project.WebBackend.Controllers
         public JsonResult CreateCredentialBank(string idCredential)
         {
             var authUser = Authenticator.AuthenticatedUser;
+            var provider = ConfigurationManager.AppSettings["BankProvider"];
             try
             {
                 string token = Token();
                 //Obtener el listado de las cuentas de bancos
-                List<CredentialsPaybook> newBanks = PaybookService.GetCredentials(idCredential, token);
+                List<CredentialsPaybook> newBanks = PayBookServices.GetCredentials(idCredential, token, provider);
 
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
@@ -233,7 +236,7 @@ namespace MVC_Project.WebBackend.Controllers
                             status = itemBank.is_authorized != null ? (itemBank.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString(),
                             bank = bank,
                             //nuevos campos
-                            isTwofa = Convert.ToBoolean(itemBank.is_twofa),
+                            isTwofa = Convert.ToBoolean(itemBank.is_twofa),                            
                         };
 
                         if (itemBank.dt_authorized != null)                        
