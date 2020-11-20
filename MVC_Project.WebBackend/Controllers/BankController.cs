@@ -218,6 +218,11 @@ namespace MVC_Project.WebBackend.Controllers
                                 bank = bank
                             };
                         }
+                        else
+                        {
+                            bankCredential.modifiedAt = todayDate;
+                            bankCredential.status = itemBank.is_authorized != null ? (itemBank.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString();                                
+                        }
 
                         //Obtener las cuentas de los bancos nuevos
                         var bankAccounts = PaybookService.GetAccounts(itemBank.id_credential, token);
