@@ -90,13 +90,6 @@ namespace MVC_Project.Integrations.Paybook
             List<CredentialsPaybook> credentials = new List<CredentialsPaybook>();
             try
             {
-
-                //var dataCredential = new
-                //{
-                //    id_credential = idCredential
-                //    //,id_site_organization = organization
-                //};
-                //dataCredential
                 string url = "/credentials?id_credential=" + idCredential;
                 var response = Paybook.CallServicePaybook(url, null, "Get", false, token);
                 var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);

@@ -38,10 +38,10 @@ namespace MVC_Project.Integrations.Paybook
         public string username { get; set; }
         public int code { get; set; }
         //public List<string> keywords { get; set; }
-        public string dt_authorized { get; set; }
+        public long? dt_authorized { get; set; }
         public string dt_execute { get; set; }
         public string dt_ready { get; set; }
-        public string dt_refresh { get; set; }
+        public long? dt_refresh { get; set; }
     }
 
     public class AccountsPaybook

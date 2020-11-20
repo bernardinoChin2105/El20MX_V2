@@ -44,6 +44,8 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
             columns: [
                 { data: 'id', title: "Id", visible: false },
                 { data: 'Name', title: "Bancos" },
+                { data: 'dateTimeAuthorized', title: "Fecha Autorización" },
+                { data: 'dateTimeRefresh', title: "Fecha Última Sincronización" },
                 { data: 'status', title: "Estatus" },
                 {
                     data: null,
@@ -64,7 +66,8 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     className: 'work-options',
                     render: function (data) {
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<button class="btn btn-light btn-desvincular"><span class="fa fa-trash"></span></button>' +
+                            '<button class="btn btn-light btn-desvincular" title="Desvincular"><span class="fa fa-trash"></span></button>' +
+                            '<button class="btn btn-light btn-actualizar" title="Actualizar"><span class="fa fa-sync-alt"></span></button>' + 
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }

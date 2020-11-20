@@ -105,18 +105,39 @@ namespace MVC_Project.WebBackend.Controllers
             int totalDisplay = 0;
             int total = 0;
             var listResponse = new List<BankCredentialsList>();
+            var list = new List<BankCredentialsMV>();
             string error = string.Empty;
 
             try
             {
-
                 listResponse = _bankCredentialService.GetBankCredentials(userAuth.Account.Id);
-
 
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
                 if (listResponse.Count() > 0)
                 {
-                    listResponse.Select(c => { c.status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), c.status)).GetDisplayName(); return c; }).ToList();
+                    foreach (var bank in listResponse)
+                    {
+                        var bankMv = new BankCredentialsMV();
+                        string token = Token();
+                        //Obtener el listado de las cuentas de bancos
+                        List<CredentialsPaybook> newBanks = PaybookService.GetCredentials(bank.credentialProviderId, token);
+
+                        bankMv.id = bank.id;
+                        bankMv.uuid = bank.uuid;
+
+                        bankMv.credentialProviderId = bank.credentialProviderId;
+                        bankMv.createdAt = bank.createdAt;
+                        bankMv.modifiedAt = bank.modifiedAt;
+                        bankMv.status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), bank.status)).GetDisplayName();
+                        bankMv.accountId = bank.accountId;
+                        bankMv.banckId = bank.banckId;
+                        bankMv.Name = bank.Name;
+                        bankMv.isTwofa = bank.isTwofa;
+                        bankMv.dateTimeAuthorized = bank.dateTimeAuthorized != null ? bank.dateTimeAuthorized.Value.ToShortDateString() : string.Empty;
+                        bankMv.dateTimeRefresh = bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty;
+
+                        list.Add(bankMv);
+                    }
 
                     totalDisplay = listResponse[0].Total;
                     total = listResponse.Count();
@@ -135,7 +156,7 @@ namespace MVC_Project.WebBackend.Controllers
                 sEcho = param.sEcho,
                 iTotalRecords = total,
                 iTotalDisplayRecords = totalDisplay,
-                aaData = listResponse
+                aaData = list
             }, JsonRequestBehavior.AllowGet);
         }
 
@@ -200,7 +221,7 @@ namespace MVC_Project.WebBackend.Controllers
                         var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site_organization);
                         if (bank == null)
                             throw new Exception("El banco no se encuentra en el sistema, comuniquese al área de soporte");
-
+                     
                         //Guardar los listado de bancos nuevos
                         BankCredential newBankCred = new BankCredential()
                         {
@@ -210,8 +231,16 @@ namespace MVC_Project.WebBackend.Controllers
                             createdAt = todayDate,
                             modifiedAt = todayDate,
                             status = itemBank.is_authorized != null ? (itemBank.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString(),
-                            bank = bank
+                            bank = bank,
+                            //nuevos campos
+                            isTwofa = Convert.ToBoolean(itemBank.is_twofa),
                         };
+
+                        if (itemBank.dt_authorized != null)                        
+                            newBankCred.dateTimeAuthorized = DateUtil.UnixTimeToDateTime(itemBank.dt_authorized.Value);
+
+                        if (itemBank.dt_refresh != null)
+                            newBankCred.dateTimeRefresh = DateUtil.UnixTimeToDateTime(itemBank.dt_refresh.Value);
 
                         //Obtener las cuentas de los bancos nuevos
                         var bankAccounts = PaybookService.GetAccounts(itemBank.id_credential, token);
