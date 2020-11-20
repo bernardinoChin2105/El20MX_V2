@@ -188,6 +188,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 }
 
                 if (self.traslados > 0) {
+                    console.log(self.traslados)
                     $(".trTaxT").removeClass("hide");
                     $("#TaxTransferred").val(self.traslados);
                     $("#lblTaxTransferred").html('$' + self.traslados.toFixed(2));
