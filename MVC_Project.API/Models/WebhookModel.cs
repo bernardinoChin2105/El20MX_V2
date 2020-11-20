@@ -48,4 +48,25 @@ namespace MVC_Project.API.Models
         public string to { get; set; }
         public string from { get; set; }
     }
+
+    public class SyncfyWebhookModel
+    {
+        public SyncfyEndpointModel endpoints { get; set; }
+        public string @event{ get;set; }
+        public string id_credential { get; set; }
+        public string id_external { get; set; }
+        public string id_job { get; set; }
+        public string id_job_uuid { get; set; }
+        public string id_site { get; set; }
+        public string id_site_organization { get; set; }
+        public string id_site_organization_type { get; set; }
+        public string id_user { get; set; }
+    }
+    public class SyncfyEndpointModel
+    {
+        public List<string> accounts { get; set; }
+        public List<string> attachments { get; set; }
+        public List<string> credential { get; set; }
+        public List<string> transactions { get; set; }
+    }
 }

@@ -302,7 +302,7 @@ namespace MVC_Project.WebBackend.Controllers
                                         Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                         TipoFactor = "Tasa",
                                         TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
-                                        Importe = ((Convert.ToDecimal(imp.Porcentaje) / 100) * (conceptsData.ValorUnitario * conceptsData.Cantidad)).ToString()
+                                        Importe = ((Convert.ToDecimal(imp.Porcentaje) / 100) * (conceptsData.ValorUnitario * conceptsData.Cantidad)).ToString("N2")
                                     };
                                     Retenciones.Add(ret);
                                 }
@@ -317,7 +317,7 @@ namespace MVC_Project.WebBackend.Controllers
                                             TipoFactor = "Tasa",
                                             TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
                                             //TasaOCuota = "0.160000",
-                                            Importe = ((Convert.ToDecimal(imp.Porcentaje) / 100) * (conceptsData.ValorUnitario * conceptsData.Cantidad)).ToString()
+                                            Importe = ((Convert.ToDecimal(imp.Porcentaje) / 100) * (conceptsData.ValorUnitario * conceptsData.Cantidad)).ToString("N2")
                                         };
                                         Traslados.Add(tras);
                                     }
