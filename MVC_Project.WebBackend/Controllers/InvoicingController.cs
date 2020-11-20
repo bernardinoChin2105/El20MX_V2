@@ -47,6 +47,7 @@ namespace MVC_Project.WebBackend.Controllers
         private IDriveKeyService _driveKeyService;
         private IRateFeeService _rateFeeService;
         private ITaxService _taxService;
+        private IMembershipService _membershipService;
 
         public InvoicingController(IAccountService accountService, ICustomsService customsService, ICustomsPatentService customsPatentService,
             ICustomsRequestNumberService customsRequestNumberService, ITypeInvoiceService typeInvoiceService, IUseCFDIService useCFDIService,
@@ -55,7 +56,7 @@ namespace MVC_Project.WebBackend.Controllers
             IProviderService providerService, IBranchOfficeService branchOfficeService, ITaxRegimeService taxRegimeService,
             IInvoiceIssuedService invoiceIssuedService, IInvoiceReceivedService invoiceReceivedService, IDriveKeyService driveKeyService,
             IProductServiceKeyService productServiceKeyService, ICountryService countryService, IStateService stateService, IRateFeeService rateFeeService,
-            ITaxService taxService)
+            ITaxService taxService, IMembershipService membershipService)
 
         {
             _accountService = accountService;
@@ -81,6 +82,7 @@ namespace MVC_Project.WebBackend.Controllers
             _driveKeyService = driveKeyService;
             _rateFeeService = rateFeeService;
             _taxService = taxService;
+            _membershipService = membershipService;
         }
 
         // GET: Invoicing
@@ -95,11 +97,18 @@ namespace MVC_Project.WebBackend.Controllers
             var authUser = Authenticator.AuthenticatedUser;
             try
             {
-                //obtener información de mi emisor                
                 var account = authUser.Account;
+                string email = authUser.Email;
+                var membership = _membershipService.FirstOrDefault(x => x.account.id == account.Id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
+
+                if (membership != null)
+                {
+                    email = membership.user.name;
+                }
+                //obtener información de mi emisor                    
                 model.IssuingRFC = account.RFC;
                 model.BusinessName = account.Name;
-                model.IssuingTaxEmail = authUser.Email; //Preguntar si este sería o buscaar el fiscal
+                model.IssuingTaxEmail = email; 
                 //model.IssuingTaxRegime = ""; //Faltan estos datos del cliente
                 //model.IssuingTaxRegimeId = "";//Faltan estos datos del cliente
 
@@ -302,7 +311,7 @@ namespace MVC_Project.WebBackend.Controllers
                                         Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                         TipoFactor = "Tasa",
                                         TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
-                                        Importe = ((Convert.ToDecimal(imp.Porcentaje) / 100) * (conceptsData.ValorUnitario * conceptsData.Cantidad)).ToString("N2")
+                                        Importe = (Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100) * (conceptsData.ValorUnitario * conceptsData.Cantidad))).ToString()
                                     };
                                     Retenciones.Add(ret);
                                 }
@@ -317,7 +326,7 @@ namespace MVC_Project.WebBackend.Controllers
                                             TipoFactor = "Tasa",
                                             TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
                                             //TasaOCuota = "0.160000",
-                                            Importe = ((Convert.ToDecimal(imp.Porcentaje) / 100) * (conceptsData.ValorUnitario * conceptsData.Cantidad)).ToString("N2")
+                                            Importe = (Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100) * (conceptsData.ValorUnitario * conceptsData.Cantidad),2)).ToString()
                                         };
                                         Traslados.Add(tras);
                                     }
