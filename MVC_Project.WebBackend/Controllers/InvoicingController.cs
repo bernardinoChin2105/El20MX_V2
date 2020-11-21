@@ -1786,322 +1786,355 @@ namespace MVC_Project.WebBackend.Controllers
             return cfdipdf;
         }
 
-        //prueba de formato de pdf
-        public ActionResult GetGenPdfTest()
-        {
-            try
-            {
+        ////prueba de formato de pdf
+        //public ActionResult GetGenPdfTest()
+        //{
+        //    try
+        //    {
 
-                // taking full path of a file 
-                //string strPath = "C:// myfiles//ref//file1.txt";
-                string strPath = "C://Users//YelmyPech//Documents//Examples//El20mx1605321206 Tasa0 USD.xml";
+        //        // taking full path of a file 
+        //        //string strPath = "C:// myfiles//ref//file1.txt";
+        //        string strPath = "C://Users//YelmyPech//Downloads//8bd7be67-9d24-439e-b646-48d7b8db82fb.xml";
 
-                //// initialize the value of filename 
-                //string filename = null;
+        //        //// initialize the value of filename 
+        //        //string filename = null;
 
-                //// using the method 
-                //filename = Path.GetFileName(strPath);
-                ////Console.WriteLine("Filename = " + filename);
+        //        //// using the method 
+        //        //filename = Path.GetFileName(strPath);
+        //        ////Console.WriteLine("Filename = " + filename);
 
-                //Console.ReadLine();
-                XmlDocument doc = new XmlDocument();
-                doc.Load(strPath);
+        //        //Console.ReadLine();
+        //        XmlDocument doc = new XmlDocument();
+        //        doc.Load(strPath);
 
-                //agregamos un Namespace, que usaremos para buscar que el nodo no exista:
-                XmlNamespaceManager nsm = new XmlNamespaceManager(doc.NameTable);
-                nsm.AddNamespace("cfdi", "http://www.sat.gob.mx/cfd/3");
+        //        //agregamos un Namespace, que usaremos para buscar que el nodo no exista:
+        //        XmlNamespaceManager nsm = new XmlNamespaceManager(doc.NameTable);
+        //        nsm.AddNamespace("cfdi", "http://www.sat.gob.mx/cfd/3");
 
-                //Accedemos a nodo "Comprobante"
-                XmlNode nodeComprobante = doc.SelectSingleNode("//cfdi:Comprobante", nsm);
+        //        //Accedemos a nodo "Comprobante"
+        //        XmlNode nodeComprobante = doc.SelectSingleNode("//cfdi:Comprobante", nsm);
 
-                //Obtener Folio, Serie, SubTotal y Total
+        //        //Obtener Folio, Serie, SubTotal y Total
 
-                string varFolio = nodeComprobante.Attributes["Folio"] != null ? nodeComprobante.Attributes["Folio"].Value : string.Empty;
-                string varSerie = nodeComprobante.Attributes["Serie"] != null ? nodeComprobante.Attributes["Serie"].Value : string.Empty;
-                string varSubTotal = nodeComprobante.Attributes["SubTotal"].Value;
-                string varTotal = nodeComprobante.Attributes["Total"].Value;
-                string varTipoComprobante = nodeComprobante.Attributes["TipoDeComprobante"].Value;
-                string varCertificado = nodeComprobante.Attributes["Certificado"].Value;
-                string varNoCertificado = nodeComprobante.Attributes["NoCertificado"].Value;
-                string varSello = nodeComprobante.Attributes["Sello"].Value;
-                string varFormaPago = nodeComprobante.Attributes["FormaPago"].Value;
-                string varMetodoPago = nodeComprobante.Attributes["MetodoPago"].Value;
-                string varLugarExpedicion = nodeComprobante.Attributes["LugarExpedicion"].Value;
-                string varFecha = nodeComprobante.Attributes["Fecha"].Value;
-                string varMoneda = nodeComprobante.Attributes["Moneda"] != null ? nodeComprobante.Attributes["Moneda"].Value : string.Empty;
-                string varDescuento1 = nodeComprobante.Attributes["Descuento"] != null ? nodeComprobante.Attributes["Descuento"].Value : string.Empty;
-                string varTipoCambio = nodeComprobante.Attributes["TipoCambio"] != null ? nodeComprobante.Attributes["TipoCambio"].Value : "1";
+        //        string varFolio = nodeComprobante.Attributes["Folio"] != null ? nodeComprobante.Attributes["Folio"].Value : string.Empty;
+        //        string varSerie = nodeComprobante.Attributes["Serie"] != null ? nodeComprobante.Attributes["Serie"].Value : string.Empty;
+        //        string varSubTotal = nodeComprobante.Attributes["SubTotal"].Value;
+        //        string varTotal = nodeComprobante.Attributes["Total"].Value;
+        //        string varTipoComprobante = nodeComprobante.Attributes["TipoDeComprobante"].Value;
+        //        string varCertificado = nodeComprobante.Attributes["Certificado"].Value;
+        //        string varNoCertificado = nodeComprobante.Attributes["NoCertificado"].Value;
+        //        string varSello = nodeComprobante.Attributes["Sello"].Value;
+        //        string varFormaPago = nodeComprobante.Attributes["FormaPago"].Value;
+        //        string varMetodoPago = nodeComprobante.Attributes["MetodoPago"].Value;
+        //        string varLugarExpedicion = nodeComprobante.Attributes["LugarExpedicion"].Value;
+        //        string varFecha = nodeComprobante.Attributes["Fecha"].Value;
+        //        string varMoneda = nodeComprobante.Attributes["Moneda"] != null ? nodeComprobante.Attributes["Moneda"].Value : string.Empty;
+        //        string varDescuento1 = nodeComprobante.Attributes["Descuento"] != null ? nodeComprobante.Attributes["Descuento"].Value : string.Empty;
+        //        string varTipoCambio = nodeComprobante.Attributes["TipoCambio"] != null ? nodeComprobante.Attributes["TipoCambio"].Value : "1";
 
-                MonedaUtils formatoTexto = new MonedaUtils();
-                var fecha = varFecha != null || varFecha != "" ? Convert.ToDateTime(varFecha).ToString("yyyy-MM-dd HH:mm:ss") : varFecha;
+        //        MonedaUtils formatoTexto = new MonedaUtils();
+        //        var fecha = varFecha != null || varFecha != "" ? Convert.ToDateTime(varFecha).ToString("yyyy-MM-dd HH:mm:ss") : varFecha;
 
-                InvoicesVM cfdipdf = new InvoicesVM()
-                {
-                    Folio = varFolio,
-                    Serie = varSerie,
-                    SubTotal = varSubTotal,
-                    Total = varTotal,
-                    TipoDeComprobante = _typeVoucherService.FirstOrDefault(x => x.code == varTipoComprobante).Description,// ((TipoComprobante)Enum.Parse(typeof(TipoComprobante), varTipoComprobante, true)).GetDescription(),
-                    Certificado = varCertificado,
-                    NoCertificado = varNoCertificado,
-                    Sello = varSello,
-                    FormaPago = varFormaPago,
-                    MetodoPago = varMetodoPago, // _paymentMethodService.FirstOrDefault(x => x.code == varMetodoPago).Description, //((MetodoPago)Enum.Parse(typeof(MetodoPago), varMetodoPago, true)).GetDescription(),
-                    LugarExpedicion = varLugarExpedicion,
-                    Fecha = fecha,
-                    Moneda = varMoneda,
-                    TipoCambio = varTipoCambio,
-                    TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true),
-                    Descuento = varDescuento1
-                };
+        //        InvoicesVM cfdipdf = new InvoicesVM()
+        //        {
+        //            Folio = varFolio,
+        //            Serie = varSerie,
+        //            SubTotal = varSubTotal,
+        //            Total = varTotal,
+        //            TipoDeComprobante = _typeVoucherService.FirstOrDefault(x => x.code == varTipoComprobante).Description,// ((TipoComprobante)Enum.Parse(typeof(TipoComprobante), varTipoComprobante, true)).GetDescription(),
+        //            Certificado = varCertificado,
+        //            NoCertificado = varNoCertificado,
+        //            Sello = varSello,
+        //            FormaPago = varFormaPago,
+        //            MetodoPago = varMetodoPago, // _paymentMethodService.FirstOrDefault(x => x.code == varMetodoPago).Description, //((MetodoPago)Enum.Parse(typeof(MetodoPago), varMetodoPago, true)).GetDescription(),
+        //            LugarExpedicion = varLugarExpedicion,
+        //            Fecha = fecha,
+        //            Moneda = varMoneda,
+        //            TipoCambio = varTipoCambio,
+        //            TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true),
+        //            Descuento = varDescuento1,
+        //            //Logo = logo
+        //        };
 
-                //if (OfficeId != null)
-                //{
-                //    var office = _branchOfficeService.FirstOrDefault(x => x.id.ToString() == OfficeId.ToString());
-                //    cfdipdf.Logo = office.logo;
-                //}
+        //        XmlNode nodeEmisor = nodeComprobante.SelectSingleNode("cfdi:Emisor", nsm);
+        //        if (nodeEmisor != null)
+        //        {
+        //            string varNombre = nodeEmisor.Attributes["Nombre"].Value;
+        //            string varRfc = nodeEmisor.Attributes["Rfc"].Value;
+        //            string varRegimenFiscal = nodeEmisor.Attributes["RegimenFiscal"].Value;
+        //            string varRegimenFiscalText = string.Empty;
 
-                XmlNode nodeEmisor = nodeComprobante.SelectSingleNode("cfdi:Emisor", nsm);
-                if (nodeEmisor != null)
-                {
-                    string varNombre = nodeEmisor.Attributes["Nombre"].Value;
-                    string varRfc = nodeEmisor.Attributes["Rfc"].Value;
-                    string varRegimenFiscal = nodeEmisor.Attributes["RegimenFiscal"].Value;
-                    string varRegimenFiscalText = string.Empty;
+        //            try
+        //            {
+        //                varRegimenFiscalText = _taxRegimeService.FirstOrDefault(x => x.code == varRegimenFiscal).description; //((RegimenFiscal)Enum.Parse(typeof(RegimenFiscal), "RegimenFiscal" + varRegimenFiscal, true)).GetDescription();
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //            }
 
-                    try
-                    {
-                        varRegimenFiscalText = _taxRegimeService.FirstOrDefault(x => x.code == varRegimenFiscal).description; //((RegimenFiscal)Enum.Parse(typeof(RegimenFiscal), "RegimenFiscal" + varRegimenFiscal, true)).GetDescription();
-                    }
-                    catch (Exception ex)
-                    {
-                    }
+        //            Models.Emisor emisor = new Models.Emisor()
+        //            {
+        //                Nombre = varNombre,
+        //                Rfc = varRfc,
+        //                RegimenFiscal = varRegimenFiscal,
+        //                RegimenFiscalTexto = varRegimenFiscalText != null ? varRegimenFiscalText : varRegimenFiscal
+        //            };
 
-                    Models.Emisor emisor = new Models.Emisor()
-                    {
-                        Nombre = varNombre,
-                        Rfc = varRfc,
-                        RegimenFiscal = varRegimenFiscal,
-                        RegimenFiscalTexto = varRegimenFiscalText != null ? varRegimenFiscalText : varRegimenFiscal
-                    };
+        //            cfdipdf.Emisor = emisor;
+        //        }
 
-                    cfdipdf.Emisor = emisor;
-                }
+        //        XmlNode nodeReceptor = nodeComprobante.SelectSingleNode("cfdi:Receptor", nsm);
+        //        if (nodeReceptor != null)
+        //        {
+        //            string varNombre = nodeReceptor.Attributes["Nombre"].Value;
+        //            string varRfc = nodeReceptor.Attributes["Rfc"].Value;
+        //            string varUsoCFDI = nodeReceptor.Attributes["UsoCFDI"].Value;
+        //            string varUsoCFDIText = string.Empty;
+        //            try
+        //            {
+        //                varUsoCFDIText = _useCFDIService.FirstOrDefault(x => x.code == varUsoCFDI).description; //((UsoCFDI)Enum.Parse(typeof(UsoCFDI), varUsoCFDI, true)).GetDescription();
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //            }
 
-                XmlNode nodeReceptor = nodeComprobante.SelectSingleNode("cfdi:Receptor", nsm);
-                if (nodeReceptor != null)
-                {
-                    string varNombre = nodeReceptor.Attributes["Nombre"].Value;
-                    string varRfc = nodeReceptor.Attributes["Rfc"].Value;
-                    string varUsoCFDI = nodeReceptor.Attributes["UsoCFDI"].Value;
-                    string varUsoCFDIText = string.Empty;
-                    try
-                    {
-                        varUsoCFDIText = _useCFDIService.FirstOrDefault(x => x.code == varUsoCFDI).description; //((UsoCFDI)Enum.Parse(typeof(UsoCFDI), varUsoCFDI, true)).GetDescription();
-                    }
-                    catch (Exception ex)
-                    {
-                    }
+        //            Models.Receptor receptor = new Models.Receptor()
+        //            {
+        //                Nombre = varNombre,
+        //                Rfc = varRfc,
+        //                UsoCFDI = varUsoCFDI,
+        //                UsoCFDITexto = varUsoCFDIText != null ? varUsoCFDIText : varUsoCFDI
+        //            };
 
-                    Models.Receptor receptor = new Models.Receptor()
-                    {
-                        Nombre = varNombre,
-                        Rfc = varRfc,
-                        UsoCFDI = varUsoCFDI,
-                        UsoCFDITexto = varUsoCFDIText != null ? varUsoCFDIText : varUsoCFDI
-                    };
+        //            cfdipdf.Receptor = receptor;
+        //        }
 
-                    cfdipdf.Receptor = receptor;
-                }
+        //        GeneradorQR generador = new GeneradorQR();
+        //        string selloQR = cfdipdf.Sello.Substring((cfdipdf.Sello.Length - 8), 8);
+        //        string urlQR = "https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx?id=" + cfdipdf.Folio + "&re=" + cfdipdf.Emisor.Rfc + "&rr=" + cfdipdf.Receptor.Rfc + "&tt=" + cfdipdf.Total + "&fe=" + selloQR;
+        //        var byteImage = generador.CrearCodigo(urlQR);
+        //        cfdipdf.QR = "data:image/png;base64," + Convert.ToBase64String(byteImage);
 
-                GeneradorQR generador = new GeneradorQR();
-                string selloQR = cfdipdf.Sello.Substring((cfdipdf.Sello.Length - 8), 8);
-                string urlQR = "https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx?id=" + cfdipdf.Folio + "&re=" + cfdipdf.Emisor.Rfc + "&rr=" + cfdipdf.Receptor.Rfc + "&tt=" + cfdipdf.Total + "&fe=" + selloQR;
-                var byteImage = generador.CrearCodigo(urlQR);
-                cfdipdf.QR = "data:image/png;base64," + Convert.ToBase64String(byteImage);
+        //        XmlNode nodeConceptos = nodeComprobante.SelectSingleNode("cfdi:Conceptos", nsm);
+        //        if (nodeConceptos != null)
+        //        {
+        //            foreach (XmlNode node in nodeConceptos.ChildNodes)
+        //            {
 
-                XmlNode nodeConceptos = nodeComprobante.SelectSingleNode("cfdi:Conceptos", nsm);
-                if (nodeConceptos != null)
-                {
-                    foreach (XmlNode node in nodeConceptos.ChildNodes)
-                    {
+        //                string varNoIdentificacion = node.Attributes["NoIdentificacion"] != null ? node.Attributes["NoIdentificacion"].Value : string.Empty;
+        //                string varClaveProdServ = node.Attributes["ClaveProdServ"] != null ? node.Attributes["ClaveProdServ"].Value : string.Empty;
+        //                string varCantidad = node.Attributes["Cantidad"] != null ? node.Attributes["Cantidad"].Value : string.Empty;
+        //                string varClaveUnidad = node.Attributes["ClaveUnidad"] != null ? node.Attributes["ClaveUnidad"].Value : string.Empty;
+        //                string varDescripcion = node.Attributes["Descripcion"] != null ? node.Attributes["Descripcion"].Value : string.Empty;
+        //                string varDescuento = node.Attributes["Descuento"] != null ? node.Attributes["Descuento"].Value : string.Empty;
+        //                string varImporte = node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : string.Empty;
+        //                string varValorUnitario = node.Attributes["ValorUnitario"] != null ? node.Attributes["ValorUnitario"].Value : string.Empty;
+        //                string varUnidad = node.Attributes["Unidad"] != null ? node.Attributes["Unidad"].Value : string.Empty;
 
-                        string varNoIdentificacion = node.Attributes["NoIdentificacion"] != null ? node.Attributes["NoIdentificacion"].Value : string.Empty;
-                        string varClaveProdServ = node.Attributes["ClaveProdServ"] != null ? node.Attributes["ClaveProdServ"].Value : string.Empty;
-                        string varCantidad = node.Attributes["Cantidad"] != null ? node.Attributes["Cantidad"].Value : string.Empty;
-                        string varClaveUnidad = node.Attributes["ClaveUnidad"] != null ? node.Attributes["ClaveUnidad"].Value : string.Empty;
-                        string varDescripcion = node.Attributes["Descripcion"] != null ? node.Attributes["Descripcion"].Value : string.Empty;
-                        string varDescuento = node.Attributes["Descuento"] != null ? node.Attributes["Descuento"].Value : string.Empty;
-                        string varImporte = node.Attributes["Importe"] != null ? node.Attributes["Importe"].Value : string.Empty;
-                        string varValorUnitario = node.Attributes["ValorUnitario"] != null ? node.Attributes["ValorUnitario"].Value : string.Empty;
-                        string varUnidad = node.Attributes["Unidad"] != null ? node.Attributes["Unidad"].Value : string.Empty;
+        //                Concepto concepto = new Concepto()
+        //                {
+        //                    ClaveProdServ = varClaveProdServ,
+        //                    NoIdentificacion = varNoIdentificacion,
+        //                    Cantidad = varCantidad,
+        //                    ClaveUnidad = varClaveUnidad,
+        //                    Descripcion = varDescripcion,
+        //                    Descuento = varDescuento,
+        //                    Importe = varImporte,
+        //                    ValorUnitario = varValorUnitario,
+        //                    Unidad = string.IsNullOrEmpty(varUnidad) ? _driveKeyService.FirstOrDefault(x => x.code == varClaveUnidad).name : varUnidad
+        //                };
 
-                        Concepto concepto = new Concepto()
-                        {
-                            ClaveProdServ = varClaveProdServ,
-                            NoIdentificacion = varNoIdentificacion,
-                            Cantidad = varCantidad,
-                            ClaveUnidad = varClaveUnidad,
-                            Descripcion = varDescripcion,
-                            Descuento = varDescuento,
-                            Importe = varImporte,
-                            ValorUnitario = varValorUnitario,
-                            Unidad = string.IsNullOrEmpty(varUnidad) ? _driveKeyService.FirstOrDefault(x => x.code == varClaveUnidad).name : varUnidad
-                        };
+        //                cfdipdf.Conceptos.Add(concepto);
 
-                        cfdipdf.Conceptos.Add(concepto);
+        //                XmlNode nodeImpuestos = nodeConceptos.SelectSingleNode("cfdi:Impuestos", nsm);
+        //                if (nodeImpuestos != null)
+        //                {
+        //                    XmlNode nodeTraslados = nodeImpuestos.SelectSingleNode("cfdi:Traslados", nsm);
+        //                    if (nodeTraslados != null)
+        //                    {
+        //                        XmlNode nodeTraslado = nodeTraslados.SelectSingleNode("cfdi:Traslado", nsm);
+        //                        if (nodeTraslado != null)
+        //                        {
+        //                            string varImporteT = nodeTraslado.Attributes["Importe"] != null ? nodeTraslado.Attributes["Importe"].Value : string.Empty;
+        //                            string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
+        //                            string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
+        //                            string varImpuesto = nodeTraslado.Attributes["Impuesto"] != null ? nodeTraslado.Attributes["Impuesto"].Value : string.Empty;
+        //                            string varBase = nodeTraslado.Attributes["Base"] != null ? nodeTraslado.Attributes["Base"].Value : string.Empty;
 
-                        XmlNode nodeImpuestos = nodeConceptos.SelectSingleNode("cfdi:Impuestos", nsm);
-                        if (nodeImpuestos != null)
-                        {
-                            XmlNode nodeTraslados = nodeImpuestos.SelectSingleNode("cfdi:Traslados", nsm);
-                            if (nodeTraslados != null)
-                            {
-                                XmlNode nodeTraslado = nodeTraslados.SelectSingleNode("cfdi:Traslado", nsm);
-                                if (nodeTraslado != null)
-                                {
-                                    string varImporteT = nodeTraslado.Attributes["Importe"] != null ? nodeTraslado.Attributes["Importe"].Value : string.Empty;
-                                    string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
-                                    string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
-                                    string varImpuesto = nodeTraslado.Attributes["Impuesto"] != null ? nodeTraslado.Attributes["Impuesto"].Value : string.Empty;
-                                    string varBase = nodeTraslado.Attributes["Base"] != null ? nodeTraslado.Attributes["Base"].Value : string.Empty;
+        //                            //Agregar modelo
 
-                                    //Agregar modelo
+        //                        }
+        //                    }
 
-                                }
-                            }
+        //                    XmlNode nodeRetenciones = nodeImpuestos.SelectSingleNode("cfdi:Retenciones", nsm);
+        //                    if (nodeRetenciones != null)
+        //                    {
+        //                        XmlNode nodeRetencion = nodeRetenciones.SelectSingleNode("cfdi:Retencion", nsm);
+        //                        if (nodeRetencion != null)
+        //                        {
+        //                            string varImporteT = nodeRetencion.Attributes["Importe"] != null ? nodeRetencion.Attributes["Importe"].Value : string.Empty;
+        //                            string varTasaOCuota = nodeRetencion.Attributes["TasaOCuota"] != null ? nodeRetencion.Attributes["TasaOCuota"].Value : string.Empty;
+        //                            string varTipoFactor = nodeRetencion.Attributes["TipoFactor"] != null ? nodeRetencion.Attributes["TipoFactor"].Value : string.Empty;
+        //                            string varImpuesto = nodeRetencion.Attributes["Impuesto"] != null ? nodeRetencion.Attributes["Impuesto"].Value : string.Empty;
+        //                            string varBase = nodeRetencion.Attributes["Base"] != null ? nodeRetencion.Attributes["Base"].Value : string.Empty;
 
-                            XmlNode nodeRetenciones = nodeImpuestos.SelectSingleNode("cfdi:Retenciones", nsm);
-                            if (nodeRetenciones != null)
-                            {
-                                XmlNode nodeRetencion = nodeRetenciones.SelectSingleNode("cfdi:Retencion", nsm);
-                                if (nodeRetencion != null)
-                                {
-                                    string varImporteT = nodeRetencion.Attributes["Importe"] != null ? nodeRetencion.Attributes["Importe"].Value : string.Empty;
-                                    string varTasaOCuota = nodeRetencion.Attributes["TasaOCuota"] != null ? nodeRetencion.Attributes["TasaOCuota"].Value : string.Empty;
-                                    string varTipoFactor = nodeRetencion.Attributes["TipoFactor"] != null ? nodeRetencion.Attributes["TipoFactor"].Value : string.Empty;
-                                    string varImpuesto = nodeRetencion.Attributes["Impuesto"] != null ? nodeRetencion.Attributes["Impuesto"].Value : string.Empty;
-                                    string varBase = nodeRetencion.Attributes["Base"] != null ? nodeRetencion.Attributes["Base"].Value : string.Empty;
+        //                            //Agregar modelo
 
-                                    //Agregar modelo
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //            //}
 
-                                }
-                            }
-                        }
-                    }
-                    //}
+        //        }
 
-                }
+        //        XmlNode nodeImpuestosTT = nodeComprobante.SelectSingleNode("cfdi:Impuestos", nsm);
+        //        if (nodeImpuestosTT != null)
+        //        {
+        //            string varTotalImpuestosTrasladados = nodeImpuestosTT.Attributes["TotalImpuestosTrasladados"] != null ? nodeImpuestosTT.Attributes["TotalImpuestosTrasladados"].Value : string.Empty;
+        //            string varTotalImpuestosRetenidos = nodeImpuestosTT.Attributes["TotalImpuestosRetenidos"] != null ? nodeImpuestosTT.Attributes["TotalImpuestosRetenidos"].Value : string.Empty;
 
-                XmlNode nodeImpuestosTT = nodeComprobante.SelectSingleNode("cfdi:Impuestos", nsm);
-                if (nodeImpuestosTT != null)
-                {
-                    string varTotalImpuestosTrasladados = nodeImpuestosTT.Attributes["TotalImpuestosTrasladados"] != null ? nodeImpuestosTT.Attributes["TotalImpuestosTrasladados"].Value : string.Empty;
-                    cfdipdf.Impuestos.TotalImpuestosTrasladados = varTotalImpuestosTrasladados;
+        //            cfdipdf.Impuestos.TotalImpuestosTrasladados = varTotalImpuestosTrasladados;
+        //            cfdipdf.Impuestos.TotalImpuestosRetenidos = varTotalImpuestosRetenidos;
 
-                    XmlNode nodeTraslados = nodeImpuestosTT.SelectSingleNode("cfdi:Traslados", nsm);
-                    if (nodeTraslados != null)
-                    {
-                        XmlNode nodeTraslado = nodeTraslados.SelectSingleNode("cfdi:Traslado", nsm);
-                        if (nodeTraslado != null)
-                        {
-                            string varImporteT = nodeTraslado.Attributes["Importe"] != null ? nodeTraslado.Attributes["Importe"].Value : string.Empty;
-                            string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
-                            string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
-                            string varImpuestoM = nodeTraslado.Attributes["Impuesto"] != null ? nodeTraslado.Attributes["Impuesto"].Value : string.Empty;
+        //            XmlNode nodeTraslados = nodeImpuestosTT.SelectSingleNode("cfdi:Traslados", nsm);
+        //            if (nodeTraslados != null)
+        //            {
+        //                foreach (XmlNode node in nodeTraslados.ChildNodes)
+        //                {
+        //                    //XmlNode nodeTraslado = node.SelectSingleNode("cfdi:Traslado", nsm);
+        //                    //if (nodeTraslado != null)
+        //                    //{
+        //                    decimal varImporteT = 0;
+        //                    string varImpuestoM = node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : string.Empty;
+        //                    if (node.Attributes["Importe"] != null)
+        //                    {
+        //                        varImporteT = Convert.ToDecimal(node.Attributes["Importe"].Value);
+        //                    }
+        //                    //string varImporteT = nodeTraslado.Attributes["Importe"] != null ? nodeTraslado.Attributes["Importe"].Value : string.Empty;
+        //                    //string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
+        //                    //string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
 
-                            //Agregar modelo
-                        }
-                    }
+        //                    //Agregar modelo
+        //                    Traslado tras = new Traslado()
+        //                    {
+        //                        Importe = varImporteT,
+        //                        Impuesto = varImpuestoM
+        //                    };
 
-                    XmlNode nodeRetenciones = nodeImpuestosTT.SelectSingleNode("cfdi:Retenciones", nsm);
-                    if (nodeRetenciones != null)
-                    {
-                        XmlNode nodeRetencion = nodeRetenciones.SelectSingleNode("cfdi:Retencion", nsm);
-                        if (nodeRetencion != null)
-                        {
-                            string varImporteR = nodeRetencion.Attributes["Importe"] != null ? nodeRetencion.Attributes["Importe"].Value : string.Empty;
-                            string varImpuestoR = nodeRetencion.Attributes["Impuesto"] != null ? nodeRetencion.Attributes["Impuesto"].Value : string.Empty;
-                            //string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
-                            //string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
+        //                    cfdipdf.Impuestos.Traslados.Add(tras);
+        //                    //}
+        //                }
+        //            }
 
-                            //Agregar modelo
-                        }
-                    }
-                }
+        //            XmlNode nodeRetenciones = nodeImpuestosTT.SelectSingleNode("cfdi:Retenciones", nsm);
+        //            if (nodeRetenciones != null)
+        //            {
+        //                foreach (XmlNode node in nodeRetenciones.ChildNodes)
+        //                {
+        //                    //XmlNode nodeRetencion = node.SelectSingleNode("cfdi:Retencion", nsm);
+        //                    //if (nodeRetencion != null)
+        //                    //{
+        //                    decimal varImporteR = 0;
+        //                    string varImpuestoR = node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : string.Empty;
+        //                    if (node.Attributes["Importe"] != null)
+        //                    {
+        //                        varImporteR = Convert.ToDecimal(node.Attributes["Importe"].Value);
+        //                    }
+        //                    //string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
+        //                    //string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
 
-                XmlNode nodoComplemento = nodeComprobante.SelectSingleNode("cfdi:Complemento", nsm);
-                if (nodoComplemento != null)
-                {
-                    nsm.AddNamespace("tfd", "http://www.sat.gob.mx/TimbreFiscalDigital");
+        //                    //Agregar modelo
+        //                    Retenido ret = new Retenido()
+        //                    {
+        //                        Importe = varImporteR,
+        //                        Impuesto = varImpuestoR
+        //                    };
 
-                    XmlNode nodoTimbrado = nodoComplemento.SelectSingleNode("tfd:TimbreFiscalDigital", nsm);
-                    if (nodoTimbrado != null)
-                    {
-                        string varUUID = nodoTimbrado.Attributes["UUID"].Value;
-                        string varFechaTimbrado = nodoTimbrado.Attributes["FechaTimbrado"].Value;
-                        string varSelloCFD = nodoTimbrado.Attributes["SelloCFD"].Value;
-                        string varNoCertificadoSAT = nodoTimbrado.Attributes["NoCertificadoSAT"].Value;
-                        string varSelloSAT = nodoTimbrado.Attributes["SelloSAT"].Value;
-                        string varRfcProvCertif = nodoTimbrado.Attributes["RfcProvCertif"].Value;
-                        string varVersion = nodoTimbrado.Attributes["Version"].Value;
+        //                    cfdipdf.Impuestos.Retenidos.Add(ret);
+        //                    //}
+        //                }
 
-                        var fechaTimbrado = varFechaTimbrado != null || varFechaTimbrado != "" ? Convert.ToDateTime(varFechaTimbrado).ToString("yyyy-MM-dd HH:mm:ss") : varFechaTimbrado;
+        //                if (cfdipdf.Impuestos.Retenidos.Count() > 0)
+        //                {
+        //                    cfdipdf.Impuestos.ImpuestosRetenidosISR = cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "001").Sum(x => x.Importe) > 0 ? cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "001").Sum(x => x.Importe).ToString() : string.Empty;
+        //                    cfdipdf.Impuestos.ImpuestosRetenidosIVA = cfdipdf.Impuestos.Traslados.Where(x => x.Impuesto == "002").Sum(x => x.Importe) > 0 ? cfdipdf.Impuestos.Traslados.Where(x => x.Impuesto == "002").Sum(x => x.Importe).ToString() : string.Empty;
+        //                }
+        //            }
+        //        }
 
-                        TimbreFiscalDigital timbre = new TimbreFiscalDigital()
-                        {
-                            UUID = varUUID,
-                            FechaTimbrado = fechaTimbrado,
-                            NoCertificadoSAT = varNoCertificadoSAT,
-                            RfcProvCertif = varRfcProvCertif,
-                            SelloCFD = varSelloCFD,
-                            SelloSAT = varSelloSAT,
-                            Version = varVersion
-                        };
+        //        XmlNode nodoComplemento = nodeComprobante.SelectSingleNode("cfdi:Complemento", nsm);
+        //        if (nodoComplemento != null)
+        //        {
+        //            nsm.AddNamespace("tfd", "http://www.sat.gob.mx/TimbreFiscalDigital");
 
-                        cfdipdf.Complemento.TimbreFiscalDigital = timbre;
-                    }
-                }
+        //            XmlNode nodoTimbrado = nodoComplemento.SelectSingleNode("tfd:TimbreFiscalDigital", nsm);
+        //            if (nodoTimbrado != null)
+        //            {
+        //                string varUUID = nodoTimbrado.Attributes["UUID"].Value;
+        //                string varFechaTimbrado = nodoTimbrado.Attributes["FechaTimbrado"].Value;
+        //                string varSelloCFD = nodoTimbrado.Attributes["SelloCFD"].Value;
+        //                string varNoCertificadoSAT = nodoTimbrado.Attributes["NoCertificadoSAT"].Value;
+        //                string varSelloSAT = nodoTimbrado.Attributes["SelloSAT"].Value;
+        //                string varRfcProvCertif = nodoTimbrado.Attributes["RfcProvCertif"].Value;
+        //                string varVersion = nodoTimbrado.Attributes["Version"].Value;
 
-                return View("InvoiceDownloadPDF", cfdipdf);
-            }
-            catch (Exception ex)
-            {
-                string error = ex.Message.ToString();
-                return View("Invoice");
-            }
-        }
+        //                var fechaTimbrado = varFechaTimbrado != null || varFechaTimbrado != "" ? Convert.ToDateTime(varFechaTimbrado).ToString("yyyy-MM-dd HH:mm:ss") : varFechaTimbrado;
 
-        //Propuesta de reenvio de correo electronico
-        public ActionResult ForwardInvoice(string uuid)
-        {
-            try
-            {
-                var authUser = Authenticator.AuthenticatedUser;
-                var invoice = _invoiceIssuedService.FirstOrDefault(x => x.uuid.ToString() == uuid);
-                var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
+        //                TimbreFiscalDigital timbre = new TimbreFiscalDigital()
+        //                {
+        //                    UUID = varUUID,
+        //                    FechaTimbrado = fechaTimbrado,
+        //                    NoCertificadoSAT = varNoCertificadoSAT,
+        //                    RfcProvCertif = varRfcProvCertif,
+        //                    SelloCFD = varSelloCFD,
+        //                    SelloSAT = varSelloSAT,
+        //                    Version = varVersion
+        //                };
 
-                //MemoryStream streamPdf = AzureBlobService.DownloadFile(StorageInvoicesIssued, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
-                string url = string.Empty;
-                //if (streamPdf == null)
-                //{
-                    var byteArrayPdf = GetInvoicingPDF(invoice.id);
-                    System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArrayPdf);
-                    var uploadPDF = AzureBlobService.UploadPublicFile(stream, invoice.uuid + ".pdf", StorageInvoicesIssued, authUser.Account.RFC);
-                    url = uploadPDF.Item1;
-                //}
+        //                cfdipdf.Complemento.TimbreFiscalDigital = timbre;
+        //            }
+        //        }
 
-                SendInvoice("barbara@kiik.mx", authUser.Account.RFC, invoice.customer.businessName, "", invoice.xml, url);
+        //        return View("InvoiceDownloadPDF", cfdipdf);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string error = ex.Message.ToString();
+        //        return View("Invoice");
+        //    }
+        //}
 
-                MensajeFlashHandler.RegistrarMensaje("Enviado...", TiposMensaje.Success);
-            }
-            catch (Exception ex)
-            {
-                string error = ex.Message.ToString();
-                MensajeFlashHandler.RegistrarMensaje("Se realizo el reenvio del correo de factura", TiposMensaje.Error);
-            }
-            return RedirectToAction("Invoice/InvoicesIssued");
-        }
+        ////Propuesta de reenvio de correo electronico
+        //public ActionResult ForwardInvoice(string uuid)
+        //{
+        //    try
+        //    {
+        //        var authUser = Authenticator.AuthenticatedUser;
+        //        var invoice = _invoiceIssuedService.FirstOrDefault(x => x.uuid.ToString() == uuid);
+        //        var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
+
+        //        //MemoryStream streamPdf = AzureBlobService.DownloadFile(StorageInvoicesIssued, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
+        //        string url = string.Empty;
+        //        //if (streamPdf == null)
+        //        //{
+        //            var byteArrayPdf = GetInvoicingPDF(invoice.id);
+        //            System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArrayPdf);
+        //            var uploadPDF = AzureBlobService.UploadPublicFile(stream, invoice.uuid + ".pdf", StorageInvoicesIssued, authUser.Account.RFC);
+        //            url = uploadPDF.Item1;
+        //        //}
+
+        //        SendInvoice("barbara@kiik.mx", authUser.Account.RFC, invoice.customer.businessName, "", invoice.xml, url);
+
+        //        MensajeFlashHandler.RegistrarMensaje("Enviado...", TiposMensaje.Success);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string error = ex.Message.ToString();
+        //        MensajeFlashHandler.RegistrarMensaje("Se realizo el reenvio del correo de factura", TiposMensaje.Error);
+        //    }
+        //    return RedirectToAction("Invoice/InvoicesIssued");
+        //}
 
         #endregion
     }
