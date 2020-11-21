@@ -85,7 +85,7 @@ namespace MVC_Project.Domain.Services
             {
                 try
                 {
-                    _repository.Session.Save(bankCredential);
+                    _repository.Session.SaveOrUpdate(bankCredential);
                     transaction.Commit();
                     return bankCredential;
                 }
