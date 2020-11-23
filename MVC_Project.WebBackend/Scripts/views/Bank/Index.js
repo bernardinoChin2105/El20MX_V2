@@ -67,7 +67,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     render: function (data) {
                         var btnUpdate = "";
                         //if (data.isTwofa && (data.code === 401 || data.code === 411)) {                            
-                        if ((data.isTwofa && data.code === 401) || data.code === 411 || data.code === 600) { //el código 600 es cuando la fecha refresh no esta actualizada
+                        if (data.isTwofa || data.code === 401 || data.code === 411 || data.code === 600) { //el código 600 es cuando la fecha refresh no esta actualizada
                             btnUpdate = '<button class="btn btn-light btn-actualizar" title="Actualizar"><span class="fa fa-sync-alt"></span></button>';
                         }
 
@@ -203,7 +203,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
 
             var tr = $(this).closest('tr');
             var row = self.dataTable.row(tr);
-            //var uuid = row.data().uuid;
+            var code = row.data().code;
             var credential = row.data().credentialProviderId;
             self.syncWidget.setEntrypointCredential(credential);           
         });

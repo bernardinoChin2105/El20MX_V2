@@ -149,12 +149,12 @@ namespace MVC_Project.WebBackend.Controllers
                         bankMv.code = resultBank[0].code; 
                         bankMv.dateTimeAuthorized = bank.dateTimeAuthorized != null ? bank.dateTimeAuthorized.Value.ToShortDateString() : string.Empty;
                         bankMv.dateTimeRefresh = bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty;
-                        if (bank.dateTimeRefresh != null)
+                        if (bank.dateTimeRefresh != null && bankMv.code != 401)
                         {
                             if (bank.dateTimeRefresh < todayDate.AddDays(-1))
                                 bankMv.code = 600;//código para actualizarlo manualmente
                         }
-                        else
+                        else if (bankMv.code != 401 || bankMv.code != 411)
                             bankMv.code = 600; //código para actualizarlo manualmente
 
                         list.Add(bankMv);
