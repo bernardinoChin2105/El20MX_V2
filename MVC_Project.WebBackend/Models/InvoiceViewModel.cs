@@ -239,95 +239,16 @@ namespace MVC_Project.WebBackend.Models
         public decimal exchangeRate { get; set; }
         public decimal previousBalance { get; set; }
         public decimal paid { get; set; }
-
-        public decimal Total { get; set; }
-        public decimal Total { get; set; }
-        public decimal Total { get; set; }
-        public decimal Total { get; set; }
-        public decimal Total { get; set; }
-        public decimal Total { get; set; }
-        public decimal Total { get; set; }
-
-
-
-                {
-                    "targets": 6, render: function(data, type, row, meta)
-{
-    var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].outstanding" value="' + row.outstanding + '" />';
-    return html;
-}
-                },
-                {
-                    "targets": 7, render: function(data, type, row, meta)
-{
-    var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].method" value="' + row.method + '" />';
-    return html;
-}
-                },
-                {
-                    "targets": 8, render: function(data, type, row, meta)
-{
-    var html = '<input type="text" class="form-control" name="payment[' + (meta.row) + '].numberPartialities" value="' + row.numberPartialities + '" />';
-    return html;
-}
-                },
-                {
-                    "targets": 9, render: function(data, type, row, meta)
-{
-    //console.log(data, type, row, meta, "todos")
-    var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].folio" value="' + row.folio + '" />';
-    return html;
-}
-                },
-                {
-                    "targets": 10, className: 'hide', render: function(data, type, row, meta)
-{
-    var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].serie" value="' + row.serie + '" />';
-    return html;
-}
-                },
-                {
-                    "targets": 11, className: 'hide', render: function(data, type, row, meta)
-{
-    var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].NumOperationCFDI" value="' + row.serie + '" />';
-    return html;
-}
-                },
-                {
-                    "targets": 12, className: 'hide', render: function(data, type, row, meta)
-{
-    var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].AmountCFDI" value="' + row.serie + '" />';
-    return html;
-}
-                },
-                {
-                    "targets": 13, className: 'hide', render: function(data, type, row, meta)
-{
-    var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].CurrencyCFDI" value="' + row.serie + '" />';
-    return html;
-}
-                },
-                {
-                    "targets": 14, className: 'hide', render: function(data, type, row, meta)
-{
-    var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].ExchangeRateCFDI" value="' + row.serie + '" />';
-    return html;
-}
-                },
-                {
-                    "targets": 15, className: 'hide', render: function(data, type, row, meta)
-{
-    var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].PaymentFormCFDI" value="' + row.serie + '" />';
-    return html;
-}
-                },
-                {
-                    "targets": 16, className: 'hide', render: function(data, type, row, meta)
-{
-    var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].startedAt" value="' + row.serie + '" />';
-    return html;
-}
-                }
+        public string method { get; set; }
+        public Int32 numberPartialities { get; set; }
+        public string folio { get; set; }
+        public string serie { get; set; }
+        public string NumOperationCFDI { get; set; }
+        public decimal AmountCFDI { get; set; }
+        public string CurrencyCFDI { get; set; }
+        public decimal ExchangeRateCFDI { get; set; }
+        public string PaymentFormCFDI { get; set; }
+        public string startedAt { get; set; }
     }
 
 

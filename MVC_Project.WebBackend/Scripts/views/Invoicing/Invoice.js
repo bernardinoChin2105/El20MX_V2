@@ -527,18 +527,52 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var row = self.dataTableCFDI.row(tr);
             var index = self.dataTableCFDI.row(tr).index();
             console.log(tr, row, index, "filas");
-
-            if (row.child.isShown()) {
+            //console.log(row.isShown(), "haosod")
+            if ($(row.node()).hasClass("shown")) {
                 // This row is already open - close it                
-                row.child(updateData(index)).hide();
+                //row.child(updateData(index)).hide().remove();
                 tr.removeClass('shown');
+                //self.dataTableCFDI
+                //    .row(tr.nextSibling)
+                //    .remove()
+                //    .draw();
+                updateData(index);
+                $("#tableValue").html("");
             }
             else {
                 // Open this row
-                row.child(format(row.data(), index)).show();
-                copySelects();
+                console.log("hola", row.data(), index);
+                //row.child(format(row.data(), index)).show();
+                $("#tableValue").html(format(row.data(), index));
+                copySelects(0);
                 tr.addClass('shown');
+
             }
+        });
+
+        $("#tableValue").on('blur', '.amountCFDI', function () {            
+            //var tr = $(this).closest('tr');
+            var index = $(this).attr("data-index");
+            
+            var t = self.dataTableCFDI;
+            var row = t.row(index);
+            //var index = t.row(tr).index();
+            console.log(t, row, index, "filas");
+            var data = t.row(index).data();
+            console.log(data,"información");
+
+            var amount = $("input[name='fiscal[" + index + "].AmountCFDI']").val();
+            var previous = parseFloat(data.previousBalance);
+            console.log(amount, "valor");
+            var amountDecimal = parseFloat(amount !== "" ? amount : 0);            
+            console.log(amountDecimal, "decimal");
+
+
+            total = previous - amountDecimal;
+            data.paid = amountDecimal;
+            data.outstanding = total;
+
+            t.row(index).data(data).draw(false);          
         });
 
         //funcion para obtener el detalle
@@ -550,7 +584,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 '<td><label class="col-form-label control-label">Número de operación</label></td>' +
                 '<td><input type="text" name="fiscal[' + index + '].NumOperationCFDI" id="" class="form-control" autocomplete="off" maxlength="50" /></td>' +
                 '<td><label class="col-form-label control-label">Monto</label></td>' +
-                '<td><input type="text" name="fiscal[' + index + '].AmountCFDI" id="" onblur="getTotal('+index+')" class="form-control money" autocomplete="off" maxlength="50" /></td>' +
+                '<td><input type="text" name="fiscal[' + index + '].AmountCFDI" id="" class="form-control money amountCFDI" data-index="'+index+'" autocomplete="off" maxlength="50" /></td>' +
                 '</tr>' +
                 '<tr>' +
                 '<td><label class="col-form-label control-label">Moneda</label></td>' +
@@ -573,12 +607,13 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 '</tr>' +
                 '</table>';
         }
-        function copySelects() {
+        function copySelects(index) {
+            console.log("holas lklñklk");
             var $optionsPF = $("#PaymentForm > option").clone();
-            $("select[name='PaymentFormCFDI']").append($optionsPF);
+            $("select[name='fiscal["+index+"].PaymentFormCFDI']").append($optionsPF);
 
             var $optionsC = $("#Currency > option").clone();
-            $("select[name='CurrencyCFDI']").append($optionsC);
+            $("select[name='fiscal[" + index +"].CurrencyCFDI']").append($optionsC);
 
             //$('.money').mask("##,###,##0.00", { reverse: true });
             $('.money').mask("#######0.00", { reverse: true });
@@ -592,6 +627,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 autoclose: true,
                 format: "dd/mm/yyyy",
                 language: "es",
+                endDate: DateInit.MaxDate
                 //startDate: DateInit.MinDate
             });
         }
@@ -613,36 +649,18 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             t.row(index).data(data).draw(false);
         }
 
-        function getTotal(index) {
-            var amount = $("input[name='fiscal[" + index + "].AmountCFDI']").val();
+        //function getTotal(index) {
+        //    var amount = $("input[name='fiscal[" + index + "].AmountCFDI']").val();
 
-            var t = self.dataTableCFDI;
-            var data = t.row(index).data();
+        //    var t = self.dataTableCFDI;
+        //    var data = t.row(index).data();
 
-            total = data.previousBalance - amount;
-            data.paid = amount;
-            data.outstanding = total;
+        //    total = data.previousBalance - amount;
+        //    data.paid = amount;
+        //    data.outstanding = total;
 
-            t.row(index).data(data).draw(false);
-
-            //t.row(indexR - 1).data(
-            //    [
-            //        indexR,
-            //        self.quantity.val(),
-            //        $("#SATCode").val(),
-            //        $("#ProductServiceDescription").val(),
-            //        $("#SATUnit").val(),
-            //        $("#Unit").val(),
-            //        self.unitPrice.val(),
-            //        self.discountRate.val(),
-            //        self.taxesIVA.val(),
-            //        self.taxesIEPS.val(),
-            //        arrayImpuestos.join(";"),
-            //        self.subtotal.val(),
-            //        indexR
-            //    ]
-            //).draw(false);
-        }
+        //    t.row(index).data(data).draw(false);            
+        //}
 
 
         $.validator.addMethod("Alphanumeric",

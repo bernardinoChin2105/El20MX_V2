@@ -97,7 +97,8 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 ViewBag.Date = new
                 {
-                    MinDate = DateUtil.GetDateTimeNow()
+                    MinDate = DateUtil.GetDateTimeNow(),
+                    MaxDate = DateUtil.GetDateTimeNow()
                 };
                 //obtener información de mi emisor                
                 var account = authUser.Account;
@@ -936,8 +937,8 @@ namespace MVC_Project.WebBackend.Controllers
                 if (invoice != null)
                 {
                     var StorageInvoices = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
-                    //MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
-                    MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, "CAYW880502FK4/" + invoice.uuid + ".xml");
+                    MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
+                    //MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, "CAYW880502FK4/" + invoice.uuid + ".xml");
                     
                     stream.Position = 0;
 
