@@ -199,16 +199,16 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
 
         //opción para actualizar solicitar nuevamente las credenciales o el token, generar nuevamente la sincronización
         $(self.htmlTable, "tbody").on("click", ".work-options .btn-group .btn-actualizar", function () {
-            El20Utils.mostrarCargador();
+            //El20Utils.mostrarCargador();
             console.log("hoasd")
 
             var tr = $(this).closest('tr');
             var row = self.dataTable.row(tr);
             //var uuid = row.data().uuid;
             var credential = row.data().credentialProviderId;
+            self.syncWidget.setEntrypointCredential(credential);
 
             //params.credential = credential;
-            self.syncWidget.setEntrypointCredential(credential);
             //self.syncWidget.setToken(result.data);
             //self.syncWidget.open();
 
