@@ -53,7 +53,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     className: 'menu-options',
                     render: function (data) {
                         //Menu para más opciones de cliente
-                        console.log(data, "que datos trae");
+                        //console.log(data, "que datos trae");
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<a class="link" href="' + self.bankAccountsUrl + '?idBankCredential=' + data.uuid + '">Ver más</a>' +
                             '</div>';
@@ -66,8 +66,8 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     className: 'work-options',
                     render: function (data) {
                         var btnUpdate = "";
-                        if (data.isTwofa && (data.code === 401 || data.code === 411)) {
-                            //data - credential="' + data.credentialProviderId + '"
+                        //if (data.isTwofa && (data.code === 401 || data.code === 411)) {                            
+                        if ((data.isTwofa && data.code === 401) || data.code === 411 || data.code === 600) { //el código 600 es cuando la fecha refresh no esta actualizada
                             btnUpdate = '<button class="btn btn-light btn-actualizar" title="Actualizar"><span class="fa fa-sync-alt"></span></button>';
                         }
 
@@ -88,7 +88,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     //console.log(json, "hola")
                     //primeravez = false;
                     if (json.success === false) {
-                        toastr['error'](json.message, null, { 'positionClass': 'toast-top-center' }); 
+                        toastr['error'](json.message, null, { 'positionClass': 'toast-top-center' });
                         //console.log(json.Mensaje + " Error al obtener los elementos");
                         El20Utils.ocultarCargador();
                     } else {
@@ -139,12 +139,12 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     //console.log("result", result);
 
                     if (!result.success) {
-                        toastr["error"](result.Mensaje.message, null, { 'positionClass': 'toast-top-center' }); 
+                        toastr["error"](result.Mensaje.message, null, { 'positionClass': 'toast-top-center' });
                     } else {
-                        toastr["success"](result.data, null, { 'positionClass': 'toast-top-center' }); 
+                        toastr["success"](result.data, null, { 'positionClass': 'toast-top-center' });
                         self.dataTable.draw();
                     }
-                    El20Utils.ocultarCargador();                      
+                    El20Utils.ocultarCargador();
                 },
                 error: function (xhr) {
                     //console.log("error: " + xhr);
@@ -155,7 +155,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
             });
         });
 
-        self.syncWidget.$on('error', function(credential){
+        self.syncWidget.$on('error', function (credential) {
             // ... do something when there is some error in the synchronization of credentials  ...
             console.log(credential, "Error en las claves de la conexión.");
             //toastr["error"]("Erorr");
@@ -172,10 +172,10 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     //data: { token: self.token },
                     url: self.getTokenUrl,
                     success: function (result) {
-                       console.log("result", result);
+                        console.log("result", result);
 
                         if (!result.success) {
-                            toastr["error"](result.Mensaje.message, null, { 'positionClass': 'toast-top-center' }); 
+                            toastr["error"](result.Mensaje.message, null, { 'positionClass': 'toast-top-center' });
                         } else {
                             //toastr["success"](result.Mensaje);                            
                             self.syncWidget.setToken(result.data);
@@ -199,51 +199,16 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
 
         //opción para actualizar solicitar nuevamente las credenciales o el token, generar nuevamente la sincronización
         $(self.htmlTable, "tbody").on("click", ".work-options .btn-group .btn-actualizar", function () {
-            //El20Utils.mostrarCargador();
-            console.log("hoasd")
+            //El20Utils.mostrarCargador();            
 
             var tr = $(this).closest('tr');
             var row = self.dataTable.row(tr);
             //var uuid = row.data().uuid;
             var credential = row.data().credentialProviderId;
-            self.syncWidget.setEntrypointCredential(credential);
-
-            //params.credential = credential;
-            //self.syncWidget.setToken(result.data);
-            //self.syncWidget.open();
-
-            //try {
-            //    $.ajax({
-            //        type: 'GET',
-            //        contentType: 'application/json',
-            //        //async: true,
-            //        data: { uuid: uuid },
-            //        url: self.unlinkBankUrl,
-            //        success: function (result) {
-            //            console.log("result", result);
-
-            //            if (!result.success) {
-            //                toastr["error"](result.message, null, { 'positionClass': 'toast-top-center' });
-            //            } else {
-            //                toastr["success"](result.message, null, { 'positionClass': 'toast-top-center' });
-            //                self.dataTable.draw();
-            //            }
-            //            El20Utils.ocultarCargador();
-            //        },
-            //        error: function (xhr) {
-            //            //console.log("error: " + xhr);
-            //            El20Utils.ocultarCargador();
-            //            //loading.hideloading();
-            //        }
-            //    }).always(function () {
-            //    });
-
-            //} catch (e) {
-            //    throw 'BankIndexControlador -> GetToken: ' + e;
-            //}
+            self.syncWidget.setEntrypointCredential(credential);           
         });
 
-        $("#table tbody").on("click", ".work-options .btn-group .btn-desvincular",function () {            
+        $("#table tbody").on("click", ".work-options .btn-group .btn-desvincular", function () {
             El20Utils.mostrarCargador();
             //console.log("hoasd")
 
@@ -259,15 +224,15 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     data: { uuid: uuid },
                     url: self.unlinkBankUrl,
                     success: function (result) {
-                        console.log("result", result);
+                        //console.log("result", result);
 
                         if (!result.success) {
-                            toastr["error"](result.message, null, { 'positionClass': 'toast-top-center' }); 
+                            toastr["error"](result.message, null, { 'positionClass': 'toast-top-center' });
                         } else {
-                            toastr["success"](result.message, null, { 'positionClass': 'toast-top-center' }); 
+                            toastr["success"](result.message, null, { 'positionClass': 'toast-top-center' });
                             self.dataTable.draw();
                         }
-                        El20Utils.ocultarCargador();                      
+                        El20Utils.ocultarCargador();
                     },
                     error: function (xhr) {
                         //console.log("error: " + xhr);

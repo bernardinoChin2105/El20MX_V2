@@ -120,6 +120,7 @@ namespace MVC_Project.WebBackend.Controllers
             var listResponse = new List<BankCredentialsList>();
             var list = new List<BankCredentialsMV>();
             string error = string.Empty;
+            DateTime todayDate = DateUtil.GetDateTimeNow();
 
             try
             {
@@ -145,9 +146,16 @@ namespace MVC_Project.WebBackend.Controllers
                         bankMv.banckId = bank.banckId;
                         bankMv.Name = bank.Name;
                         bankMv.isTwofa = bank.isTwofa;
+                        bankMv.code = resultBank[0].code; 
                         bankMv.dateTimeAuthorized = bank.dateTimeAuthorized != null ? bank.dateTimeAuthorized.Value.ToShortDateString() : string.Empty;
                         bankMv.dateTimeRefresh = bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty;
-                        bankMv.code = bank.isTwofa ? 401 : resultBank[0].code;
+                        if (bank.dateTimeRefresh != null)
+                        {
+                            if (bank.dateTimeRefresh < todayDate.AddDays(-1))
+                                bankMv.code = 600;//código para actualizarlo manualmente
+                        }
+                        else
+                            bankMv.code = 600; //código para actualizarlo manualmente
 
                         list.Add(bankMv);
                     }
