@@ -53,7 +53,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     className: 'menu-options',
                     render: function (data) {
                         //Menu para más opciones de cliente
-                        console.log(data)
+                        console.log(data, "que datos trae");
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<a class="link" href="' + self.bankAccountsUrl + '?idBankCredential=' + data.uuid + '">Ver más</a>' +
                             '</div>';
@@ -62,12 +62,18 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                 },
                 {
                     data: null,
-                    title: "Desvincular",
+                    title: "Acciones",
                     className: 'work-options',
                     render: function (data) {
+                        var btnUpdate = "";
+                        if (data.isTwofa && (data.code === 401 || data.code === 411)) {
+                            //data - credential="' + data.credentialProviderId + '"
+                            btnUpdate = '<button class="btn btn-light btn-actualizar" title="Actualizar"><span class="fa fa-sync-alt"></span></button>';
+                        }
+
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<button class="btn btn-light btn-desvincular" title="Desvincular"><span class="fa fa-trash"></span></button>' +
-                            '<button class="btn btn-light btn-actualizar" title="Actualizar"><span class="fa fa-sync-alt"></span></button>' + 
+                            btnUpdate +
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }
@@ -96,7 +102,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
 
         var params = {
             // Set up the token you created in the Quickstart:
-            token: this.token,
+            token: self.token,
             config: {
                 // Set up the language to use:
                 locale: 'es',
@@ -166,7 +172,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     //data: { token: self.token },
                     url: self.getTokenUrl,
                     success: function (result) {
-                        //console.log("result", result);
+                       console.log("result", result);
 
                         if (!result.success) {
                             toastr["error"](result.Mensaje.message, null, { 'positionClass': 'toast-top-center' }); 
@@ -189,6 +195,52 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
             } catch (e) {
                 throw 'BankIndexControlador -> GetToken: ' + e;
             }
+        });
+
+        //opción para actualizar solicitar nuevamente las credenciales o el token, generar nuevamente la sincronización
+        $(self.htmlTable, "tbody").on("click", ".work-options .btn-group .btn-actualizar", function () {
+            El20Utils.mostrarCargador();
+            console.log("hoasd")
+
+            var tr = $(this).closest('tr');
+            var row = self.dataTable.row(tr);
+            //var uuid = row.data().uuid;
+            var credential = row.data().credentialProviderId;
+
+            //params.credential = credential;
+            self.syncWidget.setEntrypointCredential(credential);
+            //self.syncWidget.setToken(result.data);
+            //self.syncWidget.open();
+
+            //try {
+            //    $.ajax({
+            //        type: 'GET',
+            //        contentType: 'application/json',
+            //        //async: true,
+            //        data: { uuid: uuid },
+            //        url: self.unlinkBankUrl,
+            //        success: function (result) {
+            //            console.log("result", result);
+
+            //            if (!result.success) {
+            //                toastr["error"](result.message, null, { 'positionClass': 'toast-top-center' });
+            //            } else {
+            //                toastr["success"](result.message, null, { 'positionClass': 'toast-top-center' });
+            //                self.dataTable.draw();
+            //            }
+            //            El20Utils.ocultarCargador();
+            //        },
+            //        error: function (xhr) {
+            //            //console.log("error: " + xhr);
+            //            El20Utils.ocultarCargador();
+            //            //loading.hideloading();
+            //        }
+            //    }).always(function () {
+            //    });
+
+            //} catch (e) {
+            //    throw 'BankIndexControlador -> GetToken: ' + e;
+            //}
         });
 
         $("#table tbody").on("click", ".work-options .btn-group .btn-desvincular",function () {            

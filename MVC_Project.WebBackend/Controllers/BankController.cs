@@ -46,8 +46,17 @@ namespace MVC_Project.WebBackend.Controllers
 
                 string token = (string)Session["token"];
 
-                if (!string.IsNullOrEmpty(token) && PaybookService.GetVerifyToken(token))
+                if (!string.IsNullOrEmpty(token))
                 {
+                    try
+                    {
+                        PaybookService.GetVerifyToken(token);
+                    }
+                    catch(Exception ex)
+                    {
+                        string error = ex.Message.ToString();
+                        token = Token();
+                    }
                     ViewBag.paybookT = token;
                 }
                 else
@@ -136,7 +145,7 @@ namespace MVC_Project.WebBackend.Controllers
                         bankMv.isTwofa = bank.isTwofa;
                         bankMv.dateTimeAuthorized = bank.dateTimeAuthorized != null ? bank.dateTimeAuthorized.Value.ToShortDateString() : string.Empty;
                         bankMv.dateTimeRefresh = bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty;
-                        bankMv.code = resultBank[0].code;
+                        bankMv.code = bank.isTwofa? 401: resultBank[0].code;
 
                         list.Add(bankMv);
                     }
@@ -220,8 +229,8 @@ namespace MVC_Project.WebBackend.Controllers
                     foreach (var itemBank in newBanks)
                     {
                         //Buscar el banco
-                        //var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site);
-                        var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site_organization);
+                        var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site); //esto funciona para sandbox
+                        //var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site_organization); //este funciona para productivo
                         if (bank == null)
                             throw new Exception("El banco no se encuentra en el sistema, comuniquese al área de soporte");
                      
