@@ -28,6 +28,14 @@
             background-color: #ffffff;
             border-color: #e5e6e7;
         }
+
+        .input-group label.error {
+            position: absolute;
+            bottom: -65%;
+        }
+        .paddingMsg{
+            height: 52px;
+        }
     </style>
 }
 
@@ -122,8 +130,8 @@
                             </div>
                         </div>
 
-                        <div class="form-group row">
-                            @Html.LabelFor(model => model.advancePayment, new { @class = "col-form-label control-label col-md-2" })
+                        <div class="form-group row">                            
+                            @Html.LabelFor(model => model.advancePayment, new { @class = "col-form-label control-label col-md-2 paddingMsg" })                            
                             <div class="col-md-8">
                                 @Html.TextBoxFor(model => model.advancePayment, new { @class = "form-control porcert", @autocomplete = "off", @readonly = "readonly" })
                                 @Html.ValidationMessageFor(model => model.advancePayment)
