@@ -115,7 +115,7 @@ namespace MVC_Project.WebBackend.Controllers
                 //obtener información de mi emisor                    
                 model.IssuingRFC = account.RFC;
                 model.BusinessName = account.Name;
-                model.IssuingTaxEmail = email; 
+                model.IssuingTaxEmail = email;
                 //model.IssuingTaxRegime = ""; //Faltan estos datos del cliente
                 //model.IssuingTaxRegimeId = "";//Faltan estos datos del cliente
 
@@ -250,6 +250,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 DateTime todayDate = DateUtil.GetDateTimeNow();
                 var provider = ConfigurationManager.AppSettings["SATProvider"];
+                dynamic invoiceModel = (dynamic)null;
 
                 var issuer = new InvoiceIssuer
                 {
@@ -334,7 +335,7 @@ namespace MVC_Project.WebBackend.Controllers
                                             TipoFactor = "Tasa",
                                             TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
                                             //TasaOCuota = "0.160000",
-                                            Importe = (Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100) * (conceptsData.ValorUnitario * conceptsData.Cantidad),2)).ToString()
+                                            Importe = (Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100) * (conceptsData.ValorUnitario * conceptsData.Cantidad), 2)).ToString()
                                         };
                                         Traslados.Add(tras);
                                     }
@@ -364,97 +365,146 @@ namespace MVC_Project.WebBackend.Controllers
                     conceptos.Add(conceptsData);
                 }
 
-                if (model.TypeInvoice == TipoComprobante.E.ToString() || model.TypeInvoice = TipoComprobante.P.ToString())
+                //Obtengo la entidad de la oficina
+                var office = _branchOfficeService.FirstOrDefault(x => x.id.ToString() == model.BranchOffice);
+                InvoicesInfo result = new InvoicesInfo();
+
+                if (model.TypeInvoice == TipoComprobante.P.ToString())
                 {
-                    //tengo dudas de los complementos
-                    List<Pagos> pagos = new List<Pagos>();
-                    //foreach (var item in model.varios)
-                    //{
-                    //    var pago = new Pagos
+                    //invoiceModel = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(invoice));
+                    //    //tengo dudas de los complementos
+                    //    List<Pagos> pagos = new List<Pagos>();
+                    //    //foreach (var item in model.varios)
+                    //    //{
+                    //    //    var pago = new Pagos
+                    //    //    {
+                    //    //        //FechaPago //dudas de que dato se agrega
+                    //    //        FormaDePagoP = model.PaymentForm,
+                    //    //        MonedaP = model.Currency,
+                    //    //        //TipoCambioP { get; set; }
+                    //    //        Monto = model.Total.ToString(),
+                    //    //        //List<DoctoRelacionado> DoctoRelacionado { get; set; }
+                    //    //    };
+                    //    //}
+                    //    var invoiceComplementData = new InvoiceComplementData
                     //    {
-                    //        //FechaPago //dudas de que dato se agrega
-                    //        FormaDePagoP = model.PaymentForm,
-                    //        MonedaP = model.Currency,
-                    //        //TipoCambioP { get; set; }
-                    //        Monto = model.Total.ToString(),
-                    //        //List<DoctoRelacionado> DoctoRelacionado { get; set; }
+                    //        Serie = model.Serie,
+                    //        Folio = Convert.ToInt32(model.Folio),
+                    //        Fecha = todayDate,
+                    //        Moneda = model.Currency,
+                    //        //TipoCambio = model.ExchangeRate.,
+                    //        TipoDeComprobante = model.TypeInvoice,
+                    //        LugarExpedicion = model.ZipCode,
+                    //        //Complemento = new Complemento() { pagos = pagos },
+                    //        Emisor = issuer,
+                    //        Receptor = receiver,
+                    //        Conceptos = conceptos
                     //    };
-                    //}
-                    var invoiceComplementData = new InvoiceComplementData
+
+                    //    var invoice = new InvoiceComplementJson
+                    //    {
+                    //        data = invoiceComplementData
+                    //    };
+
+                    //    var result = SATService.PostIssuePaymentInvoices(invoice, provider);
+                    //    if (result != null)
+                    //    {
+                    //        success = true;
+                    //    }
+                }
+                else if (model.TypeInvoice == TipoComprobante.E.ToString())
+                {
+                    InvoiceRefundData invoiceData = invoiceData = new InvoiceRefundData
                     {
                         Serie = model.Serie,
                         Folio = Convert.ToInt32(model.Folio),
-                        Fecha = todayDate,
+                        Fecha = todayDate.ToString("s"),
                         Moneda = model.Currency,
-                        //TipoCambio = model.ExchangeRate.,
                         TipoDeComprobante = model.TypeInvoice,
-                        LugarExpedicion = model.ZipCode,
-                        //Complemento = new Complemento() { pagos = pagos },
+                        CondicionesDePago = model.PaymentConditions,
+                        FormaPago = model.PaymentForm,
+                        MetodoPago = model.PaymentMethod,
+                        LugarExpedicion = office.zipCode,
                         Emisor = issuer,
                         Receptor = receiver,
                         Conceptos = conceptos
                     };
 
-                    var invoice = new InvoiceComplementJson
+                    invoiceData.CfdiRelacionados = new List<CfdiRelacionados>();
+
+                    if (Convert.ToDecimal(model.ExchangeRate) > 0)
+                        invoiceData.TipoCambio = Convert.ToDecimal(model.ExchangeRate);
+                    else
+                        invoiceData.TipoCambio = null;
+
+
+                    #region Convertir el objeto en un objeto sin valores nulos
+                    var invoice = new InvoiceRefundJson
                     {
-                        data = invoiceComplementData
+                        data = invoiceData
                     };
 
-                    var result = SATService.PostIssuePaymentInvoices(invoice, provider);
-                    if (result != null)
+                    invoiceModel = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(invoice));
+
+                    var serilaizeJson = JsonConvert.SerializeObject(invoice, Newtonsoft.Json.Formatting.None,
+                    new JsonSerializerSettings
                     {
-                        success = true;
-                    }
+                        NullValueHandling = NullValueHandling.Ignore
+                    });
+                    #endregion
+
+                    dynamic invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
+                    result = SATService.PostIssueRefundInvoices(invoiceSend, provider);
                 }
                 else
-                {
+                {                    
+                    InvoiceData invoiceData = invoiceData = new InvoiceData
+                    {
+                        Serie = model.Serie,
+                        Folio = Convert.ToInt32(model.Folio),
+                        Fecha = todayDate.ToString("s"),
+                        Moneda = model.Currency,
+                        TipoDeComprobante = model.TypeInvoice,
+                        CondicionesDePago = model.PaymentConditions,
+                        FormaPago = model.PaymentForm,
+                        MetodoPago = model.PaymentMethod,
+                        LugarExpedicion = office.zipCode,
+                        Emisor = issuer,
+                        Receptor = receiver,
+                        Conceptos = conceptos
+                    };
+
+                    if (Convert.ToDecimal(model.ExchangeRate) > 0)
+                        invoiceData.TipoCambio = Convert.ToDecimal(model.ExchangeRate);
+                    else
+                        invoiceData.TipoCambio = null;
+
+                    #region Convertir el objeto en un objeto sin valores nulos
+                    var invoice = new InvoiceJson
+                    {
+                        data = invoiceData
+                    };
+
+                    invoiceModel = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(invoice));
+
+                    var serilaizeJson = JsonConvert.SerializeObject(invoice, Newtonsoft.Json.Formatting.None,
+                    new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore
+                    });
+                    #endregion
+
+                    dynamic invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
+                    result = SATService.PostIssueIncomeInvoices(invoiceSend, provider);
                 }
 
-               
-                var office = _branchOfficeService.FirstOrDefault(x => x.id.ToString() == model.BranchOffice);
 
-                var invoiceData = new InvoiceData
-                {
-                    Serie = model.Serie,
-                    Folio = Convert.ToInt32(model.Folio),
-                    Fecha = todayDate.ToString("s"),
-                    Moneda = model.Currency,
-                    TipoDeComprobante = model.TypeInvoice,
-                    CondicionesDePago = model.PaymentConditions,
-                    FormaPago = model.PaymentForm,
-                    MetodoPago = model.PaymentMethod,
-                    LugarExpedicion = office.zipCode,
-                    Emisor = issuer,
-                    Receptor = receiver,
-                    Conceptos = conceptos
-                };
-
-                if (Convert.ToDecimal(model.ExchangeRate) > 0)
-                    invoiceData.TipoCambio = Convert.ToDecimal(model.ExchangeRate);
-                else
-                    invoiceData.TipoCambio = null;
-
-
-                var invoice = new InvoiceJson
-                {
-                    data = invoiceData
-                };
-
-                var serilaizeJson = JsonConvert.SerializeObject(invoice, Newtonsoft.Json.Formatting.None,
-                new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore
-                });
-
-                var invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
-
-                InvoicesInfo result = SATService.PostIssueIncomeInvoices(invoiceSend, provider);
                 if (result != null)
                 {
+                    //hasta aquí ya se realizo el timbrado
                     office.folio++;
                     _branchOfficeService.Update(office);
 
-                    //hasta aquí ya se realizo el timbrado
                     try
                     {
                         //Se inicializa el objeto del cliente
@@ -544,7 +594,7 @@ namespace MVC_Project.WebBackend.Controllers
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   JsonConvert.SerializeObject(invoice)
+                   JsonConvert.SerializeObject(invoiceModel)
                );
                 MensajeFlashHandler.RegistrarMensaje("Factura timbrada con éxito.", TiposMensaje.Success);
                 return RedirectToAction("Invoice");
@@ -953,7 +1003,7 @@ namespace MVC_Project.WebBackend.Controllers
                     var StorageInvoices = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
                     MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
                     //MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, "CAYW880502FK4/" + invoice.uuid + ".xml");
-                    
+
                     stream.Position = 0;
 
                     XmlDocument doc = new XmlDocument();
@@ -997,7 +1047,7 @@ namespace MVC_Project.WebBackend.Controllers
                         NoCertificado = varNoCertificado,
                         Sello = varSello,
                         FormaPago = varFormaPago,
-                        MetodoPago = varMetodoPago, 
+                        MetodoPago = varMetodoPago,
                         LugarExpedicion = varLugarExpedicion,
                         Fecha = fecha,
                         Moneda = varMoneda,
@@ -1017,7 +1067,7 @@ namespace MVC_Project.WebBackend.Controllers
                 message = ex.Message.ToString();
             }
 
-            return Json(new { success = success, message = message, data = new { factura = invoice, xml = CFDI} }, JsonRequestBehavior.AllowGet);
+            return Json(new { success = success, message = message, data = new { factura = invoice, xml = CFDI } }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, AllowAnonymous]

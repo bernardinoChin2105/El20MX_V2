@@ -148,5 +148,18 @@ namespace MVC_Project.Integrations.SAT
                 throw new Exception("No se encontró un proveedor de acceso al información fiscal");
             }
         }
+
+        //Para CFDI relacionados(devoluciones o cancelaciones)
+        public static InvoicesInfo PostIssueRefundInvoices(InvoiceRefundJson invoice, string provider)
+        {
+            if (provider == SystemProviders.SATWS.ToString())
+            {
+                return SATwsService.PostRefundInvoices(invoice);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
     }
 }

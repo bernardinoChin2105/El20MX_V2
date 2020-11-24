@@ -828,14 +828,20 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             console.log("opción de relación de facturas", $(this).val());
             var typeInvoice = $(this).val();
 
-            if (typeInvoice === "P" || typeInvoice === "E") {
+            if (typeInvoice === "P") {
                 $("#relacionados").removeClass("hide");
                 $("#Condiciones").addClass("hide");
                 //$("#btnProdServ").addClass("hide");
+            } else if (typeInvoice === "E") {
+                $("#CFDIrelacionados").removeClass("hide");
+                $("#btnProdServ").addClass("hide");
+                $("#Condiciones").removeClass("hide");
+                $("#relacionados").removeClass("hide");
             } else {
+                $("#CFDIrelacionados").addClass("hide");
                 $("#relacionados").addClass("hide");
                 $("#Condiciones").removeClass("hide");
-                //$("#btnProdServ").addClass("hide");
+                $("#btnProdServ").removeClass("hide");
             }
         });
 

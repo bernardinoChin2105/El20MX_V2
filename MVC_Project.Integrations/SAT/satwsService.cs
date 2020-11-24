@@ -313,5 +313,15 @@ namespace MVC_Project.Integrations.SAT
             invoice = JsonConvert.DeserializeObject<InvoicesInfo>(responseInvoices);
             return invoice;
         }
+
+        /*Crear timbrado de factura relacionada*/
+        public static InvoicesInfo PostRefundInvoices(InvoiceRefundJson invoiceRefundJson)
+        {
+            InvoicesInfo invoice = new InvoicesInfo();
+
+            var responseInvoices = SATws.CallServiceSATws("invoices/refund", invoiceRefundJson, "Post");
+            invoice = JsonConvert.DeserializeObject<InvoicesInfo>(responseInvoices);
+            return invoice;
+        }        
     }
 }
