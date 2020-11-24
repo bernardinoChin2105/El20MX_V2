@@ -54,7 +54,7 @@ namespace MVC_Project.WebBackend.Controllers
                     QuotationData data = new QuotationData();
                     data.uuid = quotation.uuid.ToString();
                     data.id = quotation.id;
-                    data.account = quotation.account.name + " ( " + quotation.account.rfc + " )";
+                    data.account = quotation.account.name + " (" + quotation.account.rfc + ")";
                     data.total = quotation.total;
                     data.partialitiesNumber = quotation.partialitiesNumber;
                     data.status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), quotation.status)).GetDisplayName();
@@ -138,7 +138,7 @@ namespace MVC_Project.WebBackend.Controllers
             accountList = _accountService.GetAll().Select(g => new SelectListItem
             {
                Value = g.id.ToString(),
-               Text = g.name + " ( " + g.rfc + " )"
+               Text = g.name + " (" + g.rfc + ")"
             }).ToList();
             return accountList;
         }
