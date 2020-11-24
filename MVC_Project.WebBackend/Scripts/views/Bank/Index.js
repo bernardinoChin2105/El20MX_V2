@@ -53,7 +53,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     className: 'menu-options',
                     render: function (data) {
                         //Menu para más opciones de cliente
-                        //console.log(data, "que datos trae");
+                        console.log(data, "que datos trae");
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<a class="link" href="' + self.bankAccountsUrl + '?idBankCredential=' + data.uuid + '">Ver más</a>' +
                             '</div>';
@@ -204,8 +204,35 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
             var tr = $(this).closest('tr');
             var row = self.dataTable.row(tr);
             var code = row.data().code;
-            var credential = row.data().credentialProviderId;
-            self.syncWidget.setEntrypointCredential(credential);           
+            var credentialId = row.data().credentialProviderId;
+            self.syncWidget.setEntrypointCredential(credentialId);
+
+            //    El20Utils.ocultarCargador();
+            //    $.ajax({
+            //        type: 'Get',
+            //        contentType: 'application/json',
+            //        async: true,
+            //        data: { idCredential: credentialId },
+            //        url: self.createBankCredentialUrl,
+            //        success: function (result) {
+            //            console.log("result en actualización", result);
+
+            //            if (!result.success) {
+            //                toastr["error"](result.Mensaje.message, null, { 'positionClass': 'toast-top-center' });
+            //            } else {
+            //                toastr["success"](result.data, null, { 'positionClass': 'toast-top-center' });
+            //                self.dataTable.draw();
+            //            }
+            //            El20Utils.ocultarCargador();
+            //        },
+            //        error: function (xhr) {
+            //            //console.log("error: " + xhr);
+            //            El20Utils.ocultarCargador();
+            //            //loading.hideloading();
+            //        }
+            //    }).always(function () {
+            //    });
+
         });
 
         $("#table tbody").on("click", ".work-options .btn-group .btn-desvincular", function () {

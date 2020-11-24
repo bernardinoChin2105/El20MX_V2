@@ -69,7 +69,7 @@ namespace MVC_Project.WebBackend.Controllers
                     if (credential == null)
                     {
                         var credentialPaybook = PaybookService.CreateUser(authUser.Account.RFC, authUser.Account.Uuid.ToString());
-
+                        
                         credential = new Credential()
                         {
                             uuid = Guid.NewGuid(),
@@ -151,7 +151,7 @@ namespace MVC_Project.WebBackend.Controllers
                         bankMv.dateTimeRefresh = bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty;
                         if (bank.dateTimeRefresh != null && bankMv.code != 401)
                         {
-                            if (bank.dateTimeRefresh < todayDate.AddDays(-1))
+                            if (bank.dateTimeRefresh.Value.Date < todayDate.Date)
                                 bankMv.code = 600;//código para actualizarlo manualmente
                         }
                         else if (bankMv.code != 401 || bankMv.code != 411)
@@ -221,6 +221,7 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
+        //Utilizamos para crear o actualizar las cuentas de los bancos y transacciones
         [HttpGet, AllowAnonymous]
         public JsonResult CreateCredentialBank(string idCredential)
         {
@@ -239,8 +240,8 @@ namespace MVC_Project.WebBackend.Controllers
                     foreach (var itemBank in newBanks)
                     {
                         //Buscar el banco
-                        //Bank bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site_organization); //este funciona para productivo                                                
-                        Bank bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site); //esto funciona para sandbox
+                        Bank bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site_organization); //este funciona para productivo                                                
+                        //Bank bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site); //esto funciona para sandbox
 
                         if (bank == null)
                             throw new Exception("El banco no se encuentra en el sistema, comuniquese al área de soporte");
