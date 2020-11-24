@@ -25,7 +25,7 @@ namespace MVC_Project.Integrations.Paybook
                 //IRestResponse response = client.Execute(request);
                 //Console.WriteLine(response.Content);
 
-                Method met = (Method)Enum.Parse(typeof(Method), method, true); ;
+                Method met = (Method)Enum.Parse(typeof(Method), method, true);
                 var client = new RestClient();
                 client.Timeout = -1;
                 var request = new RestRequest(met);

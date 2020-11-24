@@ -19,7 +19,7 @@ namespace MVC_Project.Integrations.SAT
 
             try
             {
-                Method met = (Method)Enum.Parse(typeof(Method), method, true); ;
+                Method met = (Method)Enum.Parse(typeof(Method), method, true);
                 var client = new RestClient();
                 client.Timeout = -1;
                 var request = new RestRequest(met);
@@ -28,13 +28,13 @@ namespace MVC_Project.Integrations.SAT
                 request.Resource = string.Format(urlService);
                 // This looks correct assuming you are putting your actual x-api-key here
                 request.AddHeader("x-api-key", apiKey);
-                request.AddHeader("Content-Type", application);
-
+                
                 if (!string.IsNullOrEmpty(accept))
                     request.AddHeader("Accept", accept);
 
                 if (application != null)
                 {
+                    request.AddHeader("Content-Type", application);
                     if (application == "text/xml")
                         request.AddHeader("Accept", application);
                 }

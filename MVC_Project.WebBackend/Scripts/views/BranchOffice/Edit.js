@@ -295,3 +295,26 @@
         }
     });
 }
+
+function fileValidationCer() {
+    var fileInput = document.getElementById('cer');
+    var filePath = fileInput.value;
+    var allowedExtensions = /(.cer)$/i;
+    if (!allowedExtensions.exec(filePath)) {
+        //alert('Please upload file having extensions .cer only.');
+        toastr["error"]("Por favor, cargar archivos que tenga extensión .cer", null, { 'positionClass': 'toast-top-center' }); 
+        fileInput.value = '';
+        return false;
+    } 
+}
+function fileValidationKey() {
+    var fileInput = document.getElementById('key');
+    var filePath = fileInput.value;
+    var allowedExtensions = /(.key)$/i;
+    if (!allowedExtensions.exec(filePath)) {
+        //alert('Please upload file having extensions .key only.');
+        toastr["error"]("Por favor, cargar archivos que tenga extensión .key", null, { 'positionClass': 'toast-top-center' }); 
+        fileInput.value = '';
+        return false;
+    } 
+}

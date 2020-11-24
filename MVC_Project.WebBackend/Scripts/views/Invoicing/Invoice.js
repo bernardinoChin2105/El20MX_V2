@@ -136,6 +136,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 12, render: function (data, type, row, meta) {
                         var button = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<button type="button" class="btn btn-light btn-edit"  title="Editar Producto o Servicio" style="margin-left:5px;"><span class="fas fa-edit"></span></button>' +
+                            '<button type="button" class="btn btn-light btn-delete" title="Eliminar Producto o Servicio" style="margin-left:5px;"><span class="fas fa-trash"></span></button>' +
                             '</div>';
                         return button;
                     }
@@ -158,29 +159,6 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         typeof i === 'number' ?
                             i : 0;
                 };
-
-                // Total over all pages
-                //total = api
-                //    .column(9)
-                //    .data()
-                //    .reduce(function (a, b) {
-                //        return intVal(a) + intVal(b);
-                //    }, 0);
-
-                //total = api
-                //    .column(8)
-                //    .data()
-                //    .reduce(function (a, b) {
-                //        return intVal(a) + intVal(b);
-                //    }, 0);
-
-                //trasladosIEPSIVA = api
-                //    .column(9)
-                //    .data()
-                //    .reduce(function (a, b) {
-                //        return intVal(a) + intVal(b);
-                //    }, 0);
-
                 // Total over this page
                 subtotal = api
                     .column(11, { page: 'current' })
@@ -211,6 +189,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 }
 
                 if (self.traslados > 0) {
+                    console.log(self.traslados)
                     $(".trTaxT").removeClass("hide");
                     $("#TaxTransferred").val(self.traslados);
                     $("#lblTaxTransferred").html('$' + self.traslados.toFixed(2));
@@ -502,6 +481,16 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#ServProdModal").modal("show");
             });
 
+        $(this.htmlTable, "tbody").on('click',
+            '.btn-group .btn-delete',
+            function () {
+                self.dataTable
+                    .row($(this).parents('tr'))
+                    .remove()
+                    .draw();
+                Prices();
+            });
+
         $(this.htmlTableImp, "tbody").on('click',
             '.btn-group .btn-delete',
             function () {
@@ -665,7 +654,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         $.validator.addMethod("Alphanumeric",
             function (value, element) {
-                return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.-]+$|^$/);
+                return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.,-@]+$|^$/);
             }, "El campo debe ser alfanumérico"
         );
         $.validator.addMethod("Numeric",
@@ -739,7 +728,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     Alphanumeric: true
                 },
                 ZipCode: {
-                    required: true,
+                    //required: true,
                     Numeric: true
                 },
                 MotionNumber: {
@@ -755,6 +744,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
         $("#ConceptForm").validate({
+            ignore: [],  // ignore NOTHING
             rules: {
                 SATCode: {
                     Alphanumeric: true
@@ -1000,11 +990,19 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         //Agregar a la lista de conceptos del producto
         $("#addConcept").click(function () {
-            //console.log("estoy aqui")
-
+            console.log("estoy aqui");
+            console.log($('#ConceptForm').valid(), "validación");
             if (!$('#ConceptForm').valid()) {
+                var ele = $("#ConceptForm :input.error:first");
+                if (ele.is(':hidden')) {
+                    console.log("elemento", ele);
+                    var tabToShow = ele.closest('.tab-pane');
+                    console.log("mostrar el tap", tabToShow);
+                    $('#ConceptForm .nav-tabs a[href="#' + tabToShow.attr('id') + '"]').tab('show');
+                }
                 return;
             }
+
 
             var t = self.dataTable;
             var row = $("#Row").val();
@@ -1030,7 +1028,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         $("#ProductServiceDescription").val(),
                         $("#SATUnit").val(),
                         $("#Unit").val(),
-                        self.unitPrice.val(),
+                        self.unitPrice.val().replace(",", ""),
                         self.discountRate.val(),
                         self.taxesIVA.val(),
                         self.taxesIEPS.val(),
@@ -1060,7 +1058,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         $("#ProductServiceDescription").val(),
                         $("#SATUnit").val(),
                         $("#Unit").val(),
-                        self.unitPrice.val(),
+                        self.unitPrice.val().replace(",", ""),
                         self.discountRate.val(),
                         self.taxesIVA.val(),
                         self.taxesIEPS.val(),

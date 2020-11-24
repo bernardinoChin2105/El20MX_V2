@@ -42,6 +42,12 @@ namespace MVC_Project.Integrations.Paybook
         public string dt_execute { get; set; }
         public string dt_ready { get; set; }
         public string dt_refresh { get; set; }
+        public Site site { get; set; }
+    }
+
+    public class Site
+    {
+        public string organization { get; set; }
     }
 
     public class AccountsPaybook

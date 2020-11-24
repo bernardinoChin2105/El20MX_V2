@@ -53,8 +53,8 @@ namespace MVC_Project.API.Controllers
         }
 
         [HttpPost]
-        [Route("WebhookPaybook")]
-        public HttpResponseMessage WebhookPaybook(Object response)
+        [Route("WebhookSyncfy")]
+        public HttpResponseMessage WebhookSyncfy(SyncfyWebhookModel response)
         {
             DateTime today = DateUtil.GetDateTimeNow();
             Webhook model = new Webhook()
@@ -74,20 +74,20 @@ namespace MVC_Project.API.Controllers
                 var endpointsWh = responseData.First(x => x.Key == "endpoints").Value;
                 var endpoints = JsonConvert.DeserializeObject<Dictionary<string, object>>(endpointsWh.ToString());
 
-                if (eventWh.ToString() == "credential_create" || eventWh.ToString() == "credential_update")
-                {
-                    var credentials = endpoints.FirstOrDefault(x => x.Key == "credential");
-                    if (credentials.Value != null)
-                    {
-                        var items = JsonConvert.DeserializeObject<List<string>>(credentials.Value.ToString());
-                        foreach (var item in items)
-                        {
-                            model.endpoint = item;
-                            _webhookService.Create(model);
-                        }
-                    }
-                }               
-                else if (eventWh.ToString() == "refresh")
+                //if (eventWh.ToString() == "credential_create" || eventWh.ToString() == "credential_update")
+                //{
+                //    var credentials = endpoints.FirstOrDefault(x => x.Key == "credential");
+                //    if (credentials.Value != null)
+                //    {
+                //        var items = JsonConvert.DeserializeObject<List<string>>(credentials.Value.ToString());
+                //        foreach (var item in items)
+                //        {
+                //            model.endpoint = item;
+                //            _webhookService.Create(model);
+                //        }
+                //    }
+                //}               
+                if (eventWh.ToString() == "refresh")
                 {                    
                     var accounts = endpoints.FirstOrDefault(x => x.Key == "accounts");
                     if (accounts.Value != null)
@@ -378,7 +378,8 @@ namespace MVC_Project.API.Controllers
                                 businessName = x.person != null ? x.person.fullName : x.company.tradeName,
                                 taxMailboxEmail = x.email,
                                 taxRegime = x.taxRegimes.Count > 0 ? String.Join(",", x.taxRegimes.Select(y => y.name).ToArray()) : null,
-                                economicActivities = x.economicActivities.Count > 0 ? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null
+                                economicActivities = x.economicActivities != null && x.economicActivities.Any() ? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null,
+                                fiscalObligations = x.obligations != null && x.obligations.Any() ? String.Join(",", x.obligations.Select(y => y.description).ToArray()) : null,
                             }).ToList();
                         _diagnosticTaxStatusService.Create(taxStatus);
 

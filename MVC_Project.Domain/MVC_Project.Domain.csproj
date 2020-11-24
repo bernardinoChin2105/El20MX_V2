@@ -143,6 +143,7 @@
     <Compile Include="Services\BankAccountService.cs" />
     <Compile Include="Services\BankCredentialService.cs" />
     <Compile Include="Services\BankService.cs" />
+    <Compile Include="Services\BankTransactionService.cs" />
     <Compile Include="Services\BranchOfficeService.cs" />
     <Compile Include="Services\CADAccountService.cs" />
     <Compile Include="Services\CountryService.cs" />
