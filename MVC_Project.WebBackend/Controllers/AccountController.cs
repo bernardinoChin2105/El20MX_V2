@@ -71,7 +71,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var accounts = new List<Account>();
                 if (authUser.Role.Code == SystemRoles.SYSTEM_ADMINISTRATOR.ToString() || authUser.Role.Code.Contains(SystemRoles.DIRECCION.ToString()))
                 {
-                    accounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString()).Select(x => new Account
+                    accounts = _accountService.GetAll().Select(x => new Account
                     {
                         Id = x.id,
                         Uuid = x.uuid,
