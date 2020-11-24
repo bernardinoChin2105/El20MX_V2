@@ -353,51 +353,51 @@ namespace MVC_Project.WebBackend.Controllers
                     conceptos.Add(conceptsData);
                 }
 
-                //if (model.TypeInvoice == "PAYMENT")
-                //{
-                //    //tengo dudas de los complementos
-                //    List<Pagos> pagos = new List<Pagos>();
-                //    //foreach (var item in model.varios)
-                //    //{
-                //    //    var pago = new Pagos
-                //    //    {
-                //    //        //FechaPago //dudas de que dato se agrega
-                //    //        FormaDePagoP = model.PaymentForm,
-                //    //        MonedaP = model.Currency,
-                //    //        //TipoCambioP { get; set; }
-                //    //        Monto = model.Total.ToString(),
-                //    //        //List<DoctoRelacionado> DoctoRelacionado { get; set; }
-                //    //    };
-                //    //}
-                //    var invoiceComplementData = new InvoiceComplementData
-                //    {
-                //        Serie = model.Serie,
-                //        Folio = Convert.ToInt32(model.Folio),
-                //        Fecha = todayDate,
-                //        Moneda = model.Currency,
-                //        //TipoCambio = model.ExchangeRate.,
-                //        TipoDeComprobante = model.TypeInvoice,
-                //        LugarExpedicion = model.ZipCode,
-                //        //Complemento = new Complemento() { pagos = pagos },
-                //        Emisor = issuer,
-                //        Receptor = receiver,
-                //        Conceptos = conceptos
-                //    };
+                if (model.TypeInvoice == TipoComprobante.E.ToString() || model.TypeInvoice = TipoComprobante.P.ToString())
+                {
+                    //tengo dudas de los complementos
+                    List<Pagos> pagos = new List<Pagos>();
+                    //foreach (var item in model.varios)
+                    //{
+                    //    var pago = new Pagos
+                    //    {
+                    //        //FechaPago //dudas de que dato se agrega
+                    //        FormaDePagoP = model.PaymentForm,
+                    //        MonedaP = model.Currency,
+                    //        //TipoCambioP { get; set; }
+                    //        Monto = model.Total.ToString(),
+                    //        //List<DoctoRelacionado> DoctoRelacionado { get; set; }
+                    //    };
+                    //}
+                    var invoiceComplementData = new InvoiceComplementData
+                    {
+                        Serie = model.Serie,
+                        Folio = Convert.ToInt32(model.Folio),
+                        Fecha = todayDate,
+                        Moneda = model.Currency,
+                        //TipoCambio = model.ExchangeRate.,
+                        TipoDeComprobante = model.TypeInvoice,
+                        LugarExpedicion = model.ZipCode,
+                        //Complemento = new Complemento() { pagos = pagos },
+                        Emisor = issuer,
+                        Receptor = receiver,
+                        Conceptos = conceptos
+                    };
 
-                //    var invoice = new InvoiceComplementJson
-                //    {
-                //        data = invoiceComplementData
-                //    };
+                    var invoice = new InvoiceComplementJson
+                    {
+                        data = invoiceComplementData
+                    };
 
-                //    var result = SATService.PostIssuePaymentInvoices(invoice, provider);
-                //    if (result != null)
-                //    {
-                //        success = true;
-                //    }
-                //}
-                //else
-                //{
-                //}
+                    var result = SATService.PostIssuePaymentInvoices(invoice, provider);
+                    if (result != null)
+                    {
+                        success = true;
+                    }
+                }
+                else
+                {
+                }
                 var invoiceData = new InvoiceData
                 {
                     Serie = model.Serie,
