@@ -75,6 +75,23 @@ namespace MVC_Project.WebBackend.Models
         public string status { get; set; }
     }
 
+    public class BankCredentialsMV
+    {
+        public Int64 id { get; set; }
+        public Guid uuid { get; set; }
+        public string credentialProviderId { get; set; }
+        public DateTime createdAt { get; set; }
+        public DateTime modifiedAt { get; set; }
+        public string status { get; set; }
+        public Int64 accountId { get; set; }
+        public Int64 banckId { get; set; }
+        public string Name { get; set; }
+        public bool isTwofa { get; set; }
+        public string dateTimeAuthorized { get; set; }
+        public string dateTimeRefresh { get; set; }
+        public int code { get; set; }
+    }
+
     public class BankTransactionMV
     {
         public Int64 id { get; set; }

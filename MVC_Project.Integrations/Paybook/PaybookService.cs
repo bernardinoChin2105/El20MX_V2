@@ -73,7 +73,7 @@ namespace MVC_Project.Integrations.Paybook
         }
 
         //Obtener token del usuario en paybook si este ya fue creado anteriormente
-        public static bool GetVarifyToken(string token)
+        public static bool GetVerifyToken(string token)
         {
             string url = "/sessions/" + token + "/verify";
 
@@ -90,13 +90,6 @@ namespace MVC_Project.Integrations.Paybook
             List<CredentialsPaybook> credentials = new List<CredentialsPaybook>();
             try
             {
-
-                //var dataCredential = new
-                //{
-                //    id_credential = idCredential
-                //    //,id_site_organization = organization
-                //};
-                //dataCredential
                 string url = "/credentials?id_credential=" + idCredential;
                 var response = Paybook.CallServicePaybook(url, null, "Get", false, token);
                 var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);

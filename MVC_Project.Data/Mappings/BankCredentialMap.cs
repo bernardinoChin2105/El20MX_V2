@@ -18,6 +18,10 @@ namespace MVC_Project.Data.Mappings
 
             Map(x => x.credentialProviderId).Column("credentialProviderId").Not.Nullable();
 
+            Map(x => x.dateTimeAuthorized).Column("dateTimeAuthorized").Nullable();
+            Map(x => x.dateTimeRefresh).Column("dateTimeRefresh").Nullable();
+            Map(x => x.isTwofa).Column("isTwofa").Nullable();
+
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
             Map(x => x.status).Column("status").Nullable();
