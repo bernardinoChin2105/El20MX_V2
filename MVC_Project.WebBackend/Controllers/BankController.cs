@@ -201,8 +201,20 @@ namespace MVC_Project.WebBackend.Controllers
                         //var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site);
                         Bank bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site_organization);
                         if (bank == null)
-                            throw new Exception("El banco no se encuentra en el sistema, comuniquese al área de soporte");
-                        
+                        {
+                            var paybookBanks = PaybookService.GetBanks(itemBank.id_site_organization, token);
+                            var paybookBank = paybookBanks.FirstOrDefault();
+                            bank = new Bank
+                            {
+                                uuid = Guid.NewGuid(),
+                                name = paybookBank.name,
+                                providerId = paybookBank.id_site_organization,
+                                createdAt = todayDate,
+                                modifiedAt = todayDate,
+                                status = SystemStatus.ACTIVE.ToString()
+                            };
+                            _bankService.Create(bank);
+                        }
                         BankCredential bankCredential = _bankCredentialService.FirstOrDefault(x => x.credentialProviderId == itemBank.id_credential && x.account.id == authUser.Account.Id && x.status==SystemStatus.ACTIVE.ToString());
                         if (bankCredential == null)
                         {
@@ -247,7 +259,7 @@ namespace MVC_Project.WebBackend.Controllers
                                     refreshAt = date_refresh,
                                     createdAt = todayDate,
                                     modifiedAt = todayDate,
-                                    status = ((int)SystemStatus.ACTIVE).ToString()
+                                    status = SystemStatus.ACTIVE.ToString()
                                 };
                             }
                             else
