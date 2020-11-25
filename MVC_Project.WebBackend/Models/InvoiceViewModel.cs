@@ -178,13 +178,14 @@ namespace MVC_Project.WebBackend.Models
 
         #region Facturas relacionadas        
         public List<InvoicesUuid> invoicesUuid { get; set; }
+
+        public List<paymentComplement> payment { get; set; }       
+        //public List<ComplementsView> ComplementsCFDI { get; set; }
         #endregion
 
-        public List<paymentComplement> payment { get; set; }
+
         #region Productos y/o Servicios a facturar        
         public List<ProductServiceDescriptionView> ProductServices { get; set; }
-
-        public List<ComplementsView> ComplementsCFDI { get; set; }
 
         [Display(Name = "Subtotal")]
         public decimal Subtotal { get; set; }
@@ -232,8 +233,9 @@ namespace MVC_Project.WebBackend.Models
             ListState = new List<SelectListItem>();
             //ListCustomerEmail = new List<SelectListItem>();
             ProductServices = new List<ProductServiceDescriptionView>();
-            ComplementsCFDI = new List<ComplementsView>();
-        }
+            payment = new List<paymentComplement>();
+            invoicesUuid = new List<InvoicesUuid>();
+    }
     }
 
     public class InvoicesUuid
@@ -249,6 +251,7 @@ namespace MVC_Project.WebBackend.Models
         public decimal exchangeRate { get; set; }
         public decimal previousBalance { get; set; }
         public decimal paid { get; set; }
+        public decimal outstanding { get; set; }
         public string method { get; set; }
         public Int32 numberPartialities { get; set; }
         public string folio { get; set; }
@@ -260,7 +263,6 @@ namespace MVC_Project.WebBackend.Models
         public string PaymentFormCFDI { get; set; }
         public string startedAt { get; set; }
     }
-
 
     public class ProductServiceDescriptionView
     {

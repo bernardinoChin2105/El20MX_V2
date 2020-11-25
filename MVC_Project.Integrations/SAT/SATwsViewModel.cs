@@ -53,7 +53,7 @@ namespace MVC_Project.Integrations.SAT
     {
         public string Serie { get; set; }
         public Int32 Folio { get; set; }
-        public DateTime Fecha { get; set; }
+        public string Fecha { get; set; }
         public string Moneda { get; set; }
         public decimal? TipoCambio { get; set; }
         public string TipoDeComprobante { get; set; }
@@ -161,7 +161,7 @@ namespace MVC_Project.Integrations.SAT
         public string MonedaP { get; set; }
         public string TipoCambioP { get; set; }
         public string Monto { get; set; }
-        public List<DoctoRelacionado> DoctoRelacionado { get; set; }
+        public DoctoRelacionado DoctoRelacionado { get; set; }
     }
 
     public class DoctoRelacionado

@@ -454,7 +454,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 },
                 {
                     "targets": 1, className: 'hide', render: function (data, type, row, meta) {
-                        var html = '<input type="text" class="form-control" readonly name="invoicesUuid[' + meta.row + '].typeRelationship" value="' + row.serie + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="invoicesUuid[' + meta.row + '].typeRelationship" value="' + row.typeRelationship + '" />';
                         return html;
                     }
                 }
@@ -584,7 +584,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 console.log("hola", row.data(), index);
                 //row.child(format(row.data(), index)).show();
                 $("#tableValue").html(format(row.data(), index));
-                copySelects(0);
+                copySelects(index);
                 tr.addClass('shown');
 
             }
@@ -602,15 +602,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             console.log(data, "información");
 
             var amount = $("input[name='fiscal[" + index + "].AmountCFDI']").val();
-            var previous = parseFloat(data.previousBalance);
-            console.log(amount, "valor");
-            var amountDecimal = parseFloat(amount !== "" ? amount : 0);
-            console.log(amountDecimal, "decimal");
-
+            var previous = parseFloat(data.previousBalance);            
+            var amountDecimal = parseFloat(amount !== "" ? amount : 0);            
 
             total = previous - amountDecimal;
             data.paid = amountDecimal;
-            data.outstanding = total;
+            data.outstanding = Math.round(total,2);
 
             t.row(index).data(data).draw(false);
         });
@@ -679,7 +676,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //data.paid = amount;
             //data.outstanding = total;
             //var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].AmountCFDI" value="' + row.serie + '" />';          
-
+            data.numberPartialities = $("input[name='payment[" + index + "].numberPartialities']").val();
             data.NumOperationCFDI = $("input[name='fiscal[" + index + "].NumOperationCFDI']").val();
             data.CurrencyCFDI = $("input[name='fiscal[" + index + "].CurrencyCFDI']").val();
             data.ExchangeRateCFDI = $("input[name='fiscal[" + index + "].ExchangeRateCFDI']").val();
@@ -876,13 +873,13 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 //$("#btnProdServ").addClass("hide");
             } else if (typeInvoice === "E") {
                 $("#CFDIrelacionados").removeClass("hide");
-                $("#btnProdServ").addClass("hide");
                 $("#Condiciones").removeClass("hide");
                 $("#relacionados").removeClass("hide");
                 $("#tablePayments").addClass("hide");
                 $("#tableRelatedEgress").removeClass("hide");
                 $("#DiscountRate").attr("readonly", true);
                 self.htmlTableCFDI.clear().draw();
+                //$("#btnProdServ").addClass("hide");
             } else {
                 //Para tipo ingreso
                 $("#CFDIrelacionados").addClass("hide");
@@ -914,7 +911,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     type: 'Get',
                     async: true,
                     data: { uuid: uuid },
-                    url: self.searchCDFIUrl,
+                    url: self.searchCDFIUrl,           
                     success: function (json) {
                         console.log(json, "respuesta");
 
@@ -926,7 +923,6 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                 console.log("xml", json.data.xml);
                                 if (typeInvoice === "E") {
                                     index++;
-
                                     t.row.add(
                                         {
                                             "uuid": data.factura.uuid,

@@ -372,45 +372,74 @@ namespace MVC_Project.WebBackend.Controllers
                 if (model.TypeInvoice == TipoComprobante.P.ToString())
                 {
                     //invoiceModel = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(invoice));
-                    //    //tengo dudas de los complementos
-                    //    List<Pagos> pagos = new List<Pagos>();
-                    //    //foreach (var item in model.varios)
-                    //    //{
-                    //    //    var pago = new Pagos
-                    //    //    {
-                    //    //        //FechaPago //dudas de que dato se agrega
-                    //    //        FormaDePagoP = model.PaymentForm,
-                    //    //        MonedaP = model.Currency,
-                    //    //        //TipoCambioP { get; set; }
-                    //    //        Monto = model.Total.ToString(),
-                    //    //        //List<DoctoRelacionado> DoctoRelacionado { get; set; }
-                    //    //    };
-                    //    //}
-                    //    var invoiceComplementData = new InvoiceComplementData
-                    //    {
-                    //        Serie = model.Serie,
-                    //        Folio = Convert.ToInt32(model.Folio),
-                    //        Fecha = todayDate,
-                    //        Moneda = model.Currency,
-                    //        //TipoCambio = model.ExchangeRate.,
-                    //        TipoDeComprobante = model.TypeInvoice,
-                    //        LugarExpedicion = model.ZipCode,
-                    //        //Complemento = new Complemento() { pagos = pagos },
-                    //        Emisor = issuer,
-                    //        Receptor = receiver,
-                    //        Conceptos = conceptos
-                    //    };
+                    //tengo dudas de los complementos
+                    List<Pagos> payments = new List<Pagos>();
+                    foreach (var item in model.payment)
+                    {
+                        var pago = new Pagos
+                        {
+                            FechaPago = item.startedAt,
+                            FormaDePagoP = item.PaymentFormCFDI,
+                            MonedaP = item.CurrencyCFDI,
+                            TipoCambioP = item.ExchangeRateCFDI.ToString(),
+                            Monto = item.AmountCFDI.ToString(),
+                            DoctoRelacionado = new DoctoRelacionado()
+                            {
+                                IdDocumento = item.uuid,
+                                MonedaDR = item.currency,
+                                MetodoDePagoDR = item.PaymentFormCFDI,
+                                NumParcialidad = item.numberPartialities.ToString(),
+                                ImpSaldoAnt = item.previousBalance.ToString(),
+                                ImpSaldoInsoluto = item.outstanding.ToString()
+                            }
+                        };
 
-                    //    var invoice = new InvoiceComplementJson
-                    //    {
-                    //        data = invoiceComplementData
-                    //    };
+                        if (item.ExchangeRateCFDI > 0)
+                            pago.TipoCambioP = item.ExchangeRateCFDI.ToString();
+                        else
+                            pago.TipoCambioP = string.Empty;
 
-                    //    var result = SATService.PostIssuePaymentInvoices(invoice, provider);
-                    //    if (result != null)
-                    //    {
-                    //        success = true;
-                    //    }
+                        payments.Add(pago);
+                    }
+
+                    InvoiceComplementData invoiceComplementData = new InvoiceComplementData
+                    {
+                        Serie = model.Serie,
+                        Folio = Convert.ToInt32(model.Folio),
+                        Fecha = todayDate.ToString("s"),
+                        Moneda = model.Currency,
+                        TipoDeComprobante = model.TypeInvoice,
+                        LugarExpedicion = model.ZipCode,
+                        Complemento = new Integrations.SAT.Complemento() { Pagos = payments },
+                        Emisor = issuer,
+                        Receptor = receiver,
+                        Conceptos = conceptos
+                    };
+
+                    if (Convert.ToDecimal(model.ExchangeRate) > 0)
+                        invoiceComplementData.TipoCambio = Convert.ToDecimal(model.ExchangeRate);
+                    else
+                        invoiceComplementData.TipoCambio = null;
+
+                    #region Convertir el objeto en un objeto sin valores nulos
+
+                    var invoice = new InvoiceComplementJson
+                    {
+                        data = invoiceComplementData
+                    };
+
+                    invoiceModel = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(invoice));
+
+                    var serilaizeJson = JsonConvert.SerializeObject(invoice, Newtonsoft.Json.Formatting.None,
+                    new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore
+                    });
+                    #endregion
+
+                    dynamic invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
+                    result = SATService.PostIssuePaymentInvoices(invoiceSend, provider);
+
                 }
                 else if (model.TypeInvoice == TipoComprobante.E.ToString())
                 {
@@ -435,7 +464,6 @@ namespace MVC_Project.WebBackend.Controllers
                     else
                         invoiceData.TipoCambio = null;
 
-                    invoiceData.CfdiRelacionados = new List<CfdiRelacionados>();
                     if (model.invoicesUuid.Count() > 0)
                     {
                         foreach (var item in model.invoicesUuid)
@@ -445,7 +473,7 @@ namespace MVC_Project.WebBackend.Controllers
                                 TipoRelacion = item.typeRelationship,
                                 CfdiRelacionado = new CfdiRelacionado()
                                 {
-                                    UUID = item.uuid,                                    
+                                    UUID = item.uuid,
                                 }
                             };
                             invoiceData.CfdiRelacionados.Add(cfdi);
@@ -601,15 +629,15 @@ namespace MVC_Project.WebBackend.Controllers
                     throw new Exception("Error al crear la factura");
 
                 LogUtil.AddEntry(
-                   "Factura timbrada con éxito.",
-                   ENivelLog.Info,
-                   authUser.Id,
-                   authUser.Email,
-                   EOperacionLog.ACCESS,
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   JsonConvert.SerializeObject(invoiceModel)
-               );
+                                                   "Factura timbrada con éxito.",
+                                                   ENivelLog.Info,
+                                                   authUser.Id,
+                                                   authUser.Email,
+                                                   EOperacionLog.ACCESS,
+                                                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                                                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                                                   JsonConvert.SerializeObject(invoiceModel)
+                                               );
                 MensajeFlashHandler.RegistrarMensaje("Factura timbrada con éxito.", TiposMensaje.Success);
                 return RedirectToAction("Invoice");
             }
