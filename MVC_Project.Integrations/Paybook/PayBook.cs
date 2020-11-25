@@ -65,8 +65,7 @@ namespace MVC_Project.Integrations.Paybook
                 string error = ex.Message.ToString();
                 throw new HttpRequestException("Request issue -> HTTP code:" + ex.Message.ToString());
                 //throw new HttpRequestException("Request issue -> HTTP code:" + response.StatusCode);
-            }
-            //return null;
+            }            
         }
     }
 }
