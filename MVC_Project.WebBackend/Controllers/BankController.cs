@@ -42,9 +42,9 @@ namespace MVC_Project.WebBackend.Controllers
         [AllowAnonymous]
         public ActionResult Index()
         {
+            var authUser = Authenticator.AuthenticatedUser;
             try
             {
-                var authUser = Authenticator.AuthenticatedUser;
 
                 string token = (string)Session["token"];
 
@@ -69,7 +69,7 @@ namespace MVC_Project.WebBackend.Controllers
                     if (credential == null)
                     {
                         var credentialPaybook = PaybookService.CreateUser(authUser.Account.RFC, authUser.Account.Uuid.ToString());
-                        
+
                         credential = new Credential()
                         {
                             uuid = Guid.NewGuid(),
@@ -105,6 +105,16 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                  "Se encontro un error: " + ex.Message.ToString(),
+                  ENivelLog.Error,
+                  authUser.Id,
+                  authUser.Email,
+                  EOperacionLog.ACCESS,
+                  string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                  ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   ex.Message.ToString()
+               );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
             }
             return View();
@@ -146,12 +156,12 @@ namespace MVC_Project.WebBackend.Controllers
                         bankMv.banckId = bank.banckId;
                         bankMv.Name = bank.Name;
                         bankMv.isTwofa = bank.isTwofa;
-                        bankMv.code = resultBank[0].code; 
+                        bankMv.code = resultBank[0].code;
                         bankMv.dateTimeAuthorized = bank.dateTimeAuthorized != null ? bank.dateTimeAuthorized.Value.ToShortDateString() : string.Empty;
                         bankMv.dateTimeRefresh = bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty;
-                        if (bank.dateTimeRefresh != null && bankMv.code != 401)
+                        if (bank.dateTimeRefresh != null && bankMv.code != 401 && bankMv.code != 411)
                         {
-                            if (bank.dateTimeRefresh.Value.Date < todayDate.Date)
+                            if (bank.dateTimeAuthorized.Value.Date < todayDate.Date)
                                 bankMv.code = 600;//código para actualizarlo manualmente
                         }
                         else if (bankMv.code != 401 || bankMv.code != 411)
@@ -385,7 +395,7 @@ namespace MVC_Project.WebBackend.Controllers
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                   "Credencial: "+ idCredential
                 );
 
                 return new JsonResult
@@ -418,7 +428,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 DateTime todayDate = DateUtil.GetDateTimeNow();
                 credential.modifiedAt = todayDate;
-                credential.status = "0";
+                credential.status = SystemStatus.CANCELLED.ToString();
 
                 _bankCredentialService.Update(credential);
 
@@ -447,7 +457,7 @@ namespace MVC_Project.WebBackend.Controllers
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                   "uuid: "+uuid
                 );
 
                 //return new JsonResult
@@ -597,7 +607,7 @@ namespace MVC_Project.WebBackend.Controllers
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                    JsonConvert.SerializeObject(param) + "; filtros:" + JsonConvert.SerializeObject(filter)
                 );
 
                 //return new JsonResult
