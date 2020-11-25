@@ -14,6 +14,7 @@ using MVC_Project.Domain.Model;
 using Newtonsoft.Json;
 using System.Collections.Specialized;
 using MVC_Project.FlashMessages;
+using System.Configuration;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -41,14 +42,23 @@ namespace MVC_Project.WebBackend.Controllers
         [AllowAnonymous]
         public ActionResult Index()
         {
+            var authUser = Authenticator.AuthenticatedUser;
             try
             {
-                var authUser = Authenticator.AuthenticatedUser;
 
                 string token = (string)Session["token"];
 
-                if (!string.IsNullOrEmpty(token) && PaybookService.GetVarifyToken(token))
+                if (!string.IsNullOrEmpty(token))
                 {
+                    try
+                    {
+                        PaybookService.GetVerifyToken(token);
+                    }
+                    catch (Exception ex)
+                    {
+                        string error = ex.Message.ToString();
+                        token = Token();
+                    }
                     ViewBag.paybookT = token;
                 }
                 else
@@ -95,6 +105,16 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                  "Se encontro un error: " + ex.Message.ToString(),
+                  ENivelLog.Error,
+                  authUser.Id,
+                  authUser.Email,
+                  EOperacionLog.ACCESS,
+                  string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                  ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   ex.Message.ToString()
+               );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
             }
             return View();
@@ -104,21 +124,51 @@ namespace MVC_Project.WebBackend.Controllers
         public JsonResult GetBanks(JQueryDataTableParams param)
         {
             var userAuth = Authenticator.AuthenticatedUser;
+            var provider = ConfigurationManager.AppSettings["BankProvider"];
             int totalDisplay = 0;
             int total = 0;
             var listResponse = new List<BankCredentialsList>();
+            var list = new List<BankCredentialsMV>();
             string error = string.Empty;
+            DateTime todayDate = DateUtil.GetDateTimeNow();
 
             try
             {
-
                 listResponse = _bankCredentialService.GetBankCredentials(userAuth.Account.Id);
-
 
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
                 if (listResponse.Count() > 0)
                 {
-                    listResponse.Select(c => { c.status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), c.status)).GetDisplayName(); return c; }).ToList();
+                    foreach (var bank in listResponse)
+                    {
+                        var bankMv = new BankCredentialsMV();
+                        string token = Token();
+                        //Obtener el listado de las cuentas de bancos
+                        List<CredentialsPaybook> resultBank = PayBookServices.GetCredentials(bank.credentialProviderId, token, provider);
+
+                        bankMv.id = bank.id;
+                        bankMv.uuid = bank.uuid;
+                        bankMv.credentialProviderId = bank.credentialProviderId;
+                        bankMv.createdAt = bank.createdAt;
+                        bankMv.modifiedAt = bank.modifiedAt;
+                        bankMv.status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), bank.status)).GetDisplayName();
+                        bankMv.accountId = bank.accountId;
+                        bankMv.banckId = bank.banckId;
+                        bankMv.Name = bank.Name;
+                        bankMv.isTwofa = bank.isTwofa;
+                        bankMv.code = resultBank[0].code;
+                        bankMv.dateTimeAuthorized = bank.dateTimeAuthorized != null ? bank.dateTimeAuthorized.Value.ToShortDateString() : string.Empty;
+                        bankMv.dateTimeRefresh = bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty;
+                        if (bank.dateTimeRefresh != null && bankMv.code != 401 && bankMv.code != 411)
+                        {
+                            if (bank.dateTimeAuthorized.Value.Date < todayDate.Date)
+                                bankMv.code = 600;//código para actualizarlo manualmente
+                        }
+                        else if (bankMv.code != 401 || bankMv.code != 411)
+                            bankMv.code = 600; //código para actualizarlo manualmente
+
+                        list.Add(bankMv);
+                    }
 
                     totalDisplay = listResponse[0].Total;
                     total = listResponse.Count();
@@ -137,7 +187,7 @@ namespace MVC_Project.WebBackend.Controllers
                 sEcho = param.sEcho,
                 iTotalRecords = total,
                 iTotalDisplayRecords = totalDisplay,
-                aaData = listResponse
+                aaData = list
             }, JsonRequestBehavior.AllowGet);
         }
 
@@ -146,7 +196,7 @@ namespace MVC_Project.WebBackend.Controllers
             var authUser = Authenticator.AuthenticatedUser;
             string token = (string)Session["token"];
 
-            if (string.IsNullOrEmpty(token) || !PaybookService.GetVarifyToken(token))
+            if (string.IsNullOrEmpty(token) || !PaybookService.GetVerifyToken(token))
             {
                 var credential = _credentialService.FirstOrDefault(x => x.account.id == authUser.Account.Id && x.provider == SystemProviders.SYNCFY.GetDisplayName());
                 token = PaybookService.CreateToken(credential.idCredentialProvider);
@@ -181,15 +231,17 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
+        //Utilizamos para crear o actualizar las cuentas de los bancos y transacciones
         [HttpGet, AllowAnonymous]
         public JsonResult CreateCredentialBank(string idCredential)
         {
             var authUser = Authenticator.AuthenticatedUser;
+            var provider = ConfigurationManager.AppSettings["BankProvider"];
             try
             {
                 string token = Token();
                 //Obtener el listado de las cuentas de bancos
-                List<CredentialsPaybook> newBanks = PaybookService.GetCredentials(idCredential, token);
+                List<CredentialsPaybook> newBanks = PayBookServices.GetCredentials(idCredential, token, provider);
 
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
@@ -198,12 +250,26 @@ namespace MVC_Project.WebBackend.Controllers
                     foreach (var itemBank in newBanks)
                     {
                         //Buscar el banco
-                        //var bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site);
-                        Bank bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site_organization);
+                        Bank bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site_organization); //este funciona para productivo                                                
+                        //Bank bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site); //esto funciona para sandbox
+
                         if (bank == null)
-                            throw new Exception("El banco no se encuentra en el sistema, comuniquese al área de soporte");
-                        
-                        BankCredential bankCredential = _bankCredentialService.FirstOrDefault(x => x.credentialProviderId == itemBank.id_credential && x.account.id == authUser.Account.Id && x.status==SystemStatus.ACTIVE.ToString());
+                        {
+                            var paybookBanks = PaybookService.GetBanks(itemBank.id_site_organization, token);
+                            var paybookBank = paybookBanks.FirstOrDefault();
+                            bank = new Bank
+                            {
+                                uuid = Guid.NewGuid(),
+                                name = paybookBank.name,
+                                providerId = paybookBank.id_site_organization,
+                                createdAt = todayDate,
+                                modifiedAt = todayDate,
+                                status = SystemStatus.ACTIVE.ToString()
+                            };
+                            _bankService.Create(bank);
+                        }
+
+                        BankCredential bankCredential = _bankCredentialService.FirstOrDefault(x => x.credentialProviderId == itemBank.id_credential && x.account.id == authUser.Account.Id && x.status == SystemStatus.ACTIVE.ToString());
                         if (bankCredential == null)
                         {
                             //Guardar los listado de bancos nuevos
@@ -215,14 +281,22 @@ namespace MVC_Project.WebBackend.Controllers
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
                                 status = itemBank.is_authorized != null ? (itemBank.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString(),
-                                bank = bank
+                                bank = bank,
+                                //nuevos campos
+                                isTwofa = Convert.ToBoolean(itemBank.is_twofa),
                             };
                         }
                         else
                         {
                             bankCredential.modifiedAt = todayDate;
-                            bankCredential.status = itemBank.is_authorized != null ? (itemBank.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString();                                
+                            bankCredential.status = itemBank.is_authorized != null ? (itemBank.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString();
                         }
+
+                        if (itemBank.dt_authorized != null)
+                            bankCredential.dateTimeAuthorized = DateUtil.UnixTimeToDateTime(itemBank.dt_authorized.Value);
+
+                        if (itemBank.dt_refresh != null)
+                            bankCredential.dateTimeRefresh = DateUtil.UnixTimeToDateTime(itemBank.dt_refresh.Value);
 
                         //Obtener las cuentas de los bancos nuevos
                         var bankAccounts = PaybookService.GetAccounts(itemBank.id_credential, token);
@@ -247,7 +321,7 @@ namespace MVC_Project.WebBackend.Controllers
                                     refreshAt = date_refresh,
                                     createdAt = todayDate,
                                     modifiedAt = todayDate,
-                                    status = ((int)SystemStatus.ACTIVE).ToString()
+                                    status = SystemStatus.ACTIVE.ToString()
                                 };
                             }
                             else
@@ -304,7 +378,7 @@ namespace MVC_Project.WebBackend.Controllers
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                     );
                 }
-                
+
                 return new JsonResult
                 {
                     Data = new { success = true, data = "La conexión con el banco se realizó de manera exitosa." },
@@ -321,7 +395,7 @@ namespace MVC_Project.WebBackend.Controllers
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                   "Credencial: "+ idCredential
                 );
 
                 return new JsonResult
@@ -354,7 +428,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 DateTime todayDate = DateUtil.GetDateTimeNow();
                 credential.modifiedAt = todayDate;
-                credential.status = "0";
+                credential.status = SystemStatus.CANCELLED.ToString();
 
                 _bankCredentialService.Update(credential);
 
@@ -383,7 +457,7 @@ namespace MVC_Project.WebBackend.Controllers
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                   "uuid: "+uuid
                 );
 
                 //return new JsonResult
@@ -421,7 +495,7 @@ namespace MVC_Project.WebBackend.Controllers
                 _bankAccountService.Update(updateBankAccount);
 
                 LogUtil.AddEntry(
-                   "Se actualizo la clave de la cuenta del banco: " + updateBankAccount.name ,
+                   "Se actualizo la clave de la cuenta del banco: " + updateBankAccount.name,
                    ENivelLog.Info,
                    authUser.Id,
                    authUser.Email,
@@ -520,7 +594,7 @@ namespace MVC_Project.WebBackend.Controllers
                     totalDisplay = listResponse[0].Total;
                     total = listResponse.Count();
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -533,7 +607,7 @@ namespace MVC_Project.WebBackend.Controllers
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                    JsonConvert.SerializeObject(param) + "; filtros:" + JsonConvert.SerializeObject(filter)
                 );
 
                 //return new JsonResult

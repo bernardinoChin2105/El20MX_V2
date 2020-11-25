@@ -71,6 +71,7 @@
   <ItemGroup>
     <Compile Include="Paybook\Paybook.cs" />
     <Compile Include="Paybook\PaybookService.cs" />
+    <Compile Include="Paybook\PayBookServices.cs" />
     <Compile Include="Pipedrive\PipedriveClient.cs" />
     <Compile Include="Pipedrive\PipedriveModels.cs" />
     <Compile Include="Properties\Settings.Designer.cs">

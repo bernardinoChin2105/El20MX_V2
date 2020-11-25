@@ -251,6 +251,8 @@ namespace MVC_Project.WebBackend.Controllers
                 if (branchOffice == null)
                     throw new Exception("No se encontró la sucursal en el sistema");
 
+                branchOffice.serie = model.serie;
+                branchOffice.folio = model.folio;
                 branchOffice.name = model.name;
                 branchOffice.street = model.street;
                 branchOffice.outdoorNumber = model.outdoorNumber;

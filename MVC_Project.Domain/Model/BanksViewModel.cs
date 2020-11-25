@@ -50,6 +50,9 @@ namespace MVC_Project.Domain.Model
         public Int64 accountId { get; set; }
         public Int64 banckId { get; set; }
         public string Name { get; set; }
+        public bool isTwofa { get; set; }
+        public DateTime? dateTimeAuthorized { get; set; }
+        public DateTime? dateTimeRefresh { get; set; }
         public Int32 Total { get; set; }
     }
 

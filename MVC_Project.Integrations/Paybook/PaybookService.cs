@@ -73,7 +73,7 @@ namespace MVC_Project.Integrations.Paybook
         }
 
         //Obtener token del usuario en paybook si este ya fue creado anteriormente
-        public static bool GetVarifyToken(string token)
+        public static bool GetVerifyToken(string token)
         {
             string url = "/sessions/" + token + "/verify";
 
@@ -90,13 +90,6 @@ namespace MVC_Project.Integrations.Paybook
             List<CredentialsPaybook> credentials = new List<CredentialsPaybook>();
             try
             {
-
-                //var dataCredential = new
-                //{
-                //    id_credential = idCredential
-                //    //,id_site_organization = organization
-                //};
-                //dataCredential
                 string url = "/credentials?id_credential=" + idCredential;
                 var response = Paybook.CallServicePaybook(url, null, "Get", false, token);
                 var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
@@ -151,6 +144,25 @@ namespace MVC_Project.Integrations.Paybook
             return accounts;
         }
 
+        public static List<AccountsPaybook> GetAccounts(string idCredential, string idAccount, string token)
+        {
+            List<AccountsPaybook> accounts = new List<AccountsPaybook>();
+            try
+            {
+                string url = "/accounts?id_credential=" + idCredential + "&id_account=" + idAccount;
+                var response = Paybook.CallServicePaybook(url, null, "Get", false, token);
+                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
+                var option = model.First(x => x.Key == "response").Value;
+                //JObject rItemValueJson = (JObject)option;
+                accounts = JsonConvert.DeserializeObject<List<AccountsPaybook>>(option.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message.ToString());
+            }
+            return accounts;
+        }
+
         //Obtener lista de transacciones de las cuentas en paybook
         public static List<TransactionsPaybook> GetTransactions(string idCredential, string idAccount, string token)
         {            
@@ -170,6 +182,41 @@ namespace MVC_Project.Integrations.Paybook
                 throw new Exception(ex.Message.ToString());
             }
             return transactions;
-        }       
+        }
+
+        public static List<TransactionsPaybook> GetTransactions(string uri, string token)
+        {
+            List<TransactionsPaybook> transactions = new List<TransactionsPaybook>();
+            try
+            {
+                var response = Paybook.CallServicePaybook(uri, null, "Get", false, token);
+                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
+                var option = model.First(x => x.Key == "response").Value;
+                transactions = JsonConvert.DeserializeObject<List<TransactionsPaybook>>(option.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message.ToString());
+            }
+            return transactions;
+        }
+
+        public static List<SitePaybook> GetBanks(string idBank, string token)
+        {
+            List<SitePaybook> banks = new List<SitePaybook>();
+            try
+            {
+                string url = "/catalogues/site_organizations?id_site_organization=" + idBank;
+                var response = Paybook.CallServicePaybook(url, null, "Get", false, token);
+                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
+                var option = model.First(x => x.Key == "response").Value;
+                banks = JsonConvert.DeserializeObject<List<SitePaybook>>(option.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message.ToString());
+            }
+            return banks;
+        }
     }
 }

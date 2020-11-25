@@ -85,6 +85,10 @@ namespace MVC_Project.API
             container.RegisterType<IPlanAssignmentConfigService, PlanAssignmentConfigService>();
             container.RegisterType<IDiagnosticDetailService, DiagnosticDetailService>();
             container.RegisterType<IDiagnosticTaxStatusService, DiagnosticTaxStatusService>();
+            container.RegisterType<IBankTransactionService, BankTransactionService>();
+            container.RegisterType<IBankAccountService, BankAccountService>();
+            container.RegisterType<IBankCredentialService, BankCredentialService>();
+            container.RegisterType<IBankService, BankService>();
         }
     }
 }

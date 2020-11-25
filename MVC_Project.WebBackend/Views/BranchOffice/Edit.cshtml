@@ -148,7 +148,7 @@
                                         <div class="col-12 col-md-4">
                                             @Html.LabelFor(model => model.cer, new { @class = "col-form-label control-label" })
                                             <div class="custom-file form-control">
-                                                @Html.TextBoxFor(model => model.cer, new { @class = "custom-file-input", @autocomplete = "off", type = "file", @accept = "application/x-x509-ca-cert" })
+                                                @Html.TextBoxFor(model => model.cer, new { @class = "custom-file-input", @autocomplete = "off", type = "file", @onchange = "fileValidationCer();", @accept = "application/x-x509-ca-cert" })
                                                 <label for="files" class="custom-file-label"></label>
                                                 @Html.ValidationMessageFor(model => model.cer)
                                             </div>
@@ -157,8 +157,8 @@
                                         <div class="col-12 col-md-4">
                                             @Html.LabelFor(model => model.key, new { @class = "col-form-label control-label" })
                                             <div class="custom-file form-control">
-                                                @Html.TextBoxFor(model => model.key, new { @class = "custom-file-input", @autocomplete = "off", type = "file" })
-                                                <label for="files" class="custom-file-label"></label>
+                                                @Html.TextBoxFor(model => model.key, new { @class = "custom-file-input", @autocomplete = "off", @onchange = "fileValidationKey();", type = "file" })
+                                                <label for="files" class="custom-file-label"></label>0
                                                 @Html.ValidationMessageFor(model => model.key)
                                             </div>
                                         </div>
