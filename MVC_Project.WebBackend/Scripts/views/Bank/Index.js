@@ -53,7 +53,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     className: 'menu-options',
                     render: function (data) {
                         //Menu para más opciones de cliente
-                        console.log(data, "que datos trae");
+                        //console.log(data, "que datos trae");
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<a class="link" href="' + self.bankAccountsUrl + '?idBankCredential=' + data.uuid + '">Ver más</a>' +
                             '</div>';
@@ -172,7 +172,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     //data: { token: self.token },
                     url: self.getTokenUrl,
                     success: function (result) {
-                        console.log("result", result);
+                        //console.log("result", result);
 
                         if (!result.success) {
                             toastr["error"](result.Mensaje.message, null, { 'positionClass': 'toast-top-center' });
