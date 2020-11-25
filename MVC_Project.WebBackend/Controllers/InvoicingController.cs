@@ -430,13 +430,27 @@ namespace MVC_Project.WebBackend.Controllers
                         Conceptos = conceptos
                     };
 
-                    invoiceData.CfdiRelacionados = new List<CfdiRelacionados>();
-
                     if (Convert.ToDecimal(model.ExchangeRate) > 0)
                         invoiceData.TipoCambio = Convert.ToDecimal(model.ExchangeRate);
                     else
                         invoiceData.TipoCambio = null;
 
+                    invoiceData.CfdiRelacionados = new List<CfdiRelacionados>();
+                    if (model.invoicesUuid.Count() > 0)
+                    {
+                        foreach (var item in model.invoicesUuid)
+                        {
+                            CfdiRelacionados cfdi = new CfdiRelacionados()
+                            {
+                                TipoRelacion = item.typeRelationship,
+                                CfdiRelacionado = new CfdiRelacionado()
+                                {
+                                    UUID = item.uuid,                                    
+                                }
+                            };
+                            invoiceData.CfdiRelacionados.Add(cfdi);
+                        }
+                    }
 
                     #region Convertir el objeto en un objeto sin valores nulos
                     var invoice = new InvoiceRefundJson
@@ -457,7 +471,7 @@ namespace MVC_Project.WebBackend.Controllers
                     result = SATService.PostIssueRefundInvoices(invoiceSend, provider);
                 }
                 else
-                {                    
+                {
                     InvoiceData invoiceData = invoiceData = new InvoiceData
                     {
                         Serie = model.Serie,

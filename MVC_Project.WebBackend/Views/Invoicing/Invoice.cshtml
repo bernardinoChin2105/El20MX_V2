@@ -23,8 +23,9 @@
         table.invoices-table tr td {
             padding: 0px;
         }
+
             table.invoices-table tr td.details-control {
-                position:relative;
+                position: relative;
             }
 
             table.invoices-table tr td input.form-control {
@@ -48,7 +49,7 @@
             padding-bottom: 0;
         }
 
-        td.details-control .open {            
+        td.details-control .open {
             cursor: pointer;
             top: 73%;
             left: 17px;
@@ -72,7 +73,7 @@
 
         tr.shown td.details-control .open {
             content: '-';
-            background-color: #d33333;            
+            background-color: #d33333;
         }
     </style>
 }
@@ -156,54 +157,28 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group row complement hide">
+                <!-- Aquí comienza la tabla de egresos -->
+                <div class="form-group row hide" id="tableRelatedEgress">
                     <div class="col-12">
-                        <div id="CDFIS">
-                            @*InvoicesCFDI lista*@
-                        </div>
+                        @*<br />*@
+                        <table id="tableComplentEgress" class="table display invoices-table"></table>
                     </div>
                 </div>
+                <!--Aquí termina-->
             </div>
         </div>
 
         <!--Aquí comienza pagos relacionados-->
-        <div class="row">
+        <div class="row hide" id="tablePayments">
             <div class="col-12">
                 <br />
                 <h3></h3>
                 <br />
-                <table id="tableComplent" class="table display invoices-table">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Id Documento</th>
-                            <th>Moneda</th>
-                            <th>Tipo de Cambio</th>
-                            <th>Imp. Saldo ant.</th>
-                            <th>Imp. Pagado</th>
-                            <th>Imp. Saldo insoluto</th>
-                            <th>Método</th>
-                            <th>Número de parcialidad</th>
-                            <th>Folio</th>
-                            <th>Serie</th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @*<tr></tr>*@
-                    </tbody>
-                </table>
+                <table id="tableComplent" class="table display invoices-table"></table>
                 <div id="tableValue"></div>
             </div>
         </div>
-        <!--Aqu+i termina-->
+        <!--Aquí termina-->
 
         <div class="row">
             <div class="col-12">
