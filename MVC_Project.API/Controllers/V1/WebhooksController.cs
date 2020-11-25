@@ -68,7 +68,7 @@ namespace MVC_Project.API.Controllers
         { 
             try
             {
-                if(response.@event == "refresh")
+                if (response.@event == "refresh")
                 {
                     var token = PaybookService.CreateToken(response.id_user);
 
@@ -168,13 +168,39 @@ namespace MVC_Project.API.Controllers
                         }
                         _bankCredentialService.CreateWithTransaction(bankCredential);
                     }
+
+                    DeleteSpecialCharacters(response);
+                    LogUtil.AddEntry(descripcion: "Actualización realizada con exito SYNCFY "+ bankCredential.account.rfc, eLogLevel: ENivelLog.Debug,
+                    usuarioId: (Int64)1, usuario: "Syncfy Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "WebhookSyncfy", detalle: JsonConvert.SerializeObject(response));
                 }
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
+                DeleteSpecialCharacters(response);
+                LogUtil.AddEntry(descripcion: "Error en la actualizacion de SYNCFY " + ex.Message + " " + (ex.InnerException != null ? ex.InnerException.Message : ""), eLogLevel: ENivelLog.Debug,
+                          usuarioId: (Int64)1, usuario: "Syncfy Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "WebhookSyncfy", detalle: JsonConvert.SerializeObject(response));
 
             }
-            return Request.CreateResponse(HttpStatusCode.OK, "");
+            return Request.CreateResponse(HttpStatusCode.OK);
+        }
+
+        private void DeleteSpecialCharacters(SyncfyWebhookModel response)
+        {
+            if (response.endpoints.transactions != null && response.endpoints.transactions.Any())
+                for (int i = 0; i < response.endpoints.transactions.Count; i++)
+                    response.endpoints.transactions[i] = response.endpoints.transactions[i].Replace("?", "").Replace("&", "");
+
+            if (response.endpoints.accounts != null && response.endpoints.accounts.Any())
+                for (int i = 0; i < response.endpoints.accounts.Count; i++)
+                    response.endpoints.accounts[i] = response.endpoints.accounts[i].Replace("?", "").Replace("&", "");
+
+            if (response.endpoints.attachments != null && response.endpoints.attachments.Any())
+                for (int i = 0; i < response.endpoints.attachments.Count; i++)
+                    response.endpoints.attachments[i] = response.endpoints.attachments[i].Replace("?", "").Replace("&", "");
+
+            if (response.endpoints.credential != null && response.endpoints.credential.Any())
+                for (int i = 0; i < response.endpoints.credential.Count; i++)
+                    response.endpoints.credential[i] = response.endpoints.credential[i].Replace("?", "").Replace("&", "");
         }
 
         [HttpPost]
@@ -426,14 +452,14 @@ namespace MVC_Project.API.Controllers
                         diagnostic.modifiedAt = DateTime.Now;
                         _diagnosticService.Update(diagnostic);
                         LogUtil.AddEntry(descripcion: "Error al generar el diagnostico fiscal " + account.rfc + " Error: " + ex.Message + " " + (ex.InnerException != null ? ex.InnerException.Message : ""), eLogLevel: ENivelLog.Debug,
-                        usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
+                        usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
                     }
                 }
             }
             catch (Exception ex)
             {
                 LogUtil.AddEntry(descripcion: "Error en la extracción " + ex.Message + " " + (ex.InnerException != null ? ex.InnerException.Message : ""), eLogLevel: ENivelLog.Debug,
-                       usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
+                       usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
 
             }
             return Request.CreateResponse(HttpStatusCode.OK);
@@ -480,13 +506,13 @@ namespace MVC_Project.API.Controllers
                     _credentialService.Update(credential);
 
                     LogUtil.AddEntry(descripcion: "Credencial actualizadá con exito", eLogLevel: ENivelLog.Debug,
-                    usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: webhookEventModel.ToString());
+                    usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: webhookEventModel.ToString());
                 }
             }
             catch (Exception ex)
             {
                 LogUtil.AddEntry(descripcion: "Error en la actualización de credenciales " + ex.Message, eLogLevel: ENivelLog.Debug,
-                       usuarioId: (Int64)1, usuario: "Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: webhookEventModel.ToString());
+                       usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: webhookEventModel.ToString());
 
             }
             return Request.CreateResponse(HttpStatusCode.OK);
