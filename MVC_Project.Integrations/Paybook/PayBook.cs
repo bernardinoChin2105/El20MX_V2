@@ -58,7 +58,7 @@ namespace MVC_Project.Integrations.Paybook
                     return jsonResponse;
                 }
 
-                throw new Exception(response.StatusDescription);
+                throw new Exception(response.StatusDescription + ": " + response.Content.ToString());
             }
             catch (Exception ex)
             {
