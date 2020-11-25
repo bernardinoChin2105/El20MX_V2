@@ -149,9 +149,9 @@ namespace MVC_Project.WebBackend.Controllers
                         bankMv.code = resultBank[0].code; 
                         bankMv.dateTimeAuthorized = bank.dateTimeAuthorized != null ? bank.dateTimeAuthorized.Value.ToShortDateString() : string.Empty;
                         bankMv.dateTimeRefresh = bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty;
-                        if (bank.dateTimeRefresh != null && bankMv.code != 401)
+                        if (bank.dateTimeRefresh != null && bankMv.code != 401 && bankMv.code != 411)
                         {
-                            if (bank.dateTimeRefresh.Value.Date < todayDate.Date)
+                            if (bank.dateTimeAuthorized.Value.Date < todayDate.Date)
                                 bankMv.code = 600;//código para actualizarlo manualmente
                         }
                         else if (bankMv.code != 401 || bankMv.code != 411)
@@ -405,7 +405,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 DateTime todayDate = DateUtil.GetDateTimeNow();
                 credential.modifiedAt = todayDate;
-                credential.status = "0";
+                credential.status = SystemStatus.CANCELLED.ToString();
 
                 _bankCredentialService.Update(credential);
 
