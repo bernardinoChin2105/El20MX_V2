@@ -304,7 +304,7 @@ namespace MVC_Project.WebBackend.Controllers
                         {
                             //long d_r = long.Parse();
                             DateTime date_refresh = DateUtil.UnixTimeToDateTime(itemAccount.dt_refresh);
-                            BankAccount newBankAcc = _bankAccountService.FirstOrDefault(x => x.bankCredential.id == bankCredential.id && x.accountProviderId == itemAccount.id_account);
+                            BankAccount newBankAcc = _bankAccountService.FirstOrDefault(x => x.bankCredential.id == bankCredential.id && x.accountProviderId == itemAccount.id_account && x.status == SystemStatus.ACTIVE.ToString());
                             if (newBankAcc == null)
                             {
                                 newBankAcc = new BankAccount()
