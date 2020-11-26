@@ -168,8 +168,6 @@ namespace MVC_Project.WebBackend.Controllers
                     createdAt = DateUtil.GetDateTimeNow(),
                     status = SystemStatus.ACTIVE.ToString(),
                 };
-
-                _diagnosticService.Create(diagnostic);
                 
                 List<DiagnosticDetail> details = new List<DiagnosticDetail>();
 
@@ -215,8 +213,6 @@ namespace MVC_Project.WebBackend.Controllers
                     totalAmount = b.Sum(y => y.total),
                     createdAt = DateUtil.GetDateTimeNow()
                 }));
-                
-                _diagnosticDetailService.Create(details);
 
                 var taxStatusModel = SATService.GetTaxStatus(account.rfc, provider);
                 if (!taxStatusModel.Success)
@@ -235,8 +231,8 @@ namespace MVC_Project.WebBackend.Controllers
                         economicActivities = x.economicActivities != null && x.economicActivities.Any() ? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null,
                         fiscalObligations = x.obligations != null && x.obligations.Any() ? String.Join(",", x.obligations.Select(y => y.description).ToArray()) : null,
                     }).ToList();
-                _diagnosticTaxStatusService.Create(taxStatus);
 
+                _diagnosticService.Create(diagnostic, details, taxStatus);
                 return Json(new { uuid = diagnostic.uuid, success = true }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

@@ -367,7 +367,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var provider = ConfigurationManager.AppSettings["SATProvider"];
                 DateTime dateFrom = new DateTime();
                 DateTime dateTo = DateTime.UtcNow;
-                var lastProcess = _webhookProcessService.FindBy(x => x.reference == account.uuid.ToString()).OrderByDescending(x => x.id).FirstOrDefault();
+                var lastProcess = _webhookProcessService.FindBy(x => x.reference == account.uuid.ToString() && x.status == SystemStatus.ACTIVE.ToString()).OrderByDescending(x => x.id).FirstOrDefault();
                 if (lastProcess != null)
                 {
                     dateFrom = lastProcess.createdAt.Date;
