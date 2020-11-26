@@ -1,4 +1,5 @@
 ﻿using LogHubSDK.Models;
+using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
 using MVC_Project.Integrations.SAT;
@@ -22,12 +23,15 @@ namespace MVC_Project.WebBackend.Controllers
     {
         private IAccountService _accountService;
         private ICredentialService _credentialService;
+        private IWebhookProcessService _webhookProcessService;
         private string _provider = ConfigurationManager.AppSettings["SATProvider"];
         private string _storageEFirma = ConfigurationManager.AppSettings["StorageEFirma"];
-        public SATController(IAccountService accountService, ICredentialService credentialService)
+
+        public SATController(IAccountService accountService, ICredentialService credentialService, IWebhookProcessService webhookProcessService)
         {
             _accountService = accountService;
             _credentialService = credentialService;
+            _webhookProcessService = webhookProcessService;
         }
 
         // GET: SAT
@@ -343,6 +347,65 @@ namespace MVC_Project.WebBackend.Controllers
                 return Json(new { message = ex.Message, success = false }, JsonRequestBehavior.AllowGet);
             }
 
+        }
+
+        [HttpGet]
+        public ActionResult Extraction()
+        {
+            try
+            {
+                var authUser = Authenticator.AuthenticatedUser;
+                Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
+
+                var provider = ConfigurationManager.AppSettings["SATProvider"];
+                DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
+                DateTime dateTo = DateTime.UtcNow;
+                dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
+                string extractionId = SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
+
+                var process = new WebhookProcess()
+                {
+                    uuid = Guid.NewGuid(),
+                    processId = extractionId,
+                    provider = SystemProviders.SATWS.ToString(),
+                    @event = SatwsEvent.EXTRACTION_UPDATED.ToString(),
+                    reference = authUser.Uuid.ToString(),
+                    createdAt = DateUtil.GetDateTimeNow(),
+                    status = SystemStatus.PENDING.ToString()
+                };
+
+                _webhookProcessService.Create(process);
+                return Json(new { process.uuid, success = true }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { message = ex.Message, success = false }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        [HttpGet]
+        public ActionResult FinishExtraction(string uuid)
+        {
+            try
+            {
+                var process = _webhookProcessService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
+                if (process == null)
+                    throw new Exception("No fue posible obtener el diagnostico");
+
+                if (process.status == SystemStatus.PENDING.ToString() || process.status == SystemStatus.PROCESSING.ToString())
+                    return Json(new { success = true, finish = false }, JsonRequestBehavior.AllowGet);
+                else if (process.status == SystemStatus.ACTIVE.ToString())
+                    return Json(new { success = true, finish = true }, JsonRequestBehavior.AllowGet);
+                else if (process.status == SystemStatus.FAILED.ToString())
+                    return Json(new { success = false, finish = true, message = "Se generó un fallo durante la extracción" }, JsonRequestBehavior.AllowGet);
+                else
+                    return Json(new { success = false, finish = true, message = "No fue posible generar el diagnostico, comuniquese al área de soporte" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { message = ex.Message, success = false, finish = true }, JsonRequestBehavior.AllowGet);
+            }
         }
     }
 }

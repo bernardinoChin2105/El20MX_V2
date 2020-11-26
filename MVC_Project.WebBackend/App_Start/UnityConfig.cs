@@ -106,9 +106,8 @@ namespace MVC_Project.WebBackend
             container.RegisterType<ICADAccountService, CADAccountService>();
             container.RegisterType<IRateFeeService, RateFeeService>();
             container.RegisterType<ISupervisorCADService, SupervisorCADService>();
-            container.RegisterType<IBankTransactionService, BankTransactionService>(); 
-
-
+            container.RegisterType<IBankTransactionService, BankTransactionService>();
+            container.RegisterType<IWebhookProcessService, WebhookProcessService>();
         }
     }
 }

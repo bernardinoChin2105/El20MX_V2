@@ -80,6 +80,9 @@
                                             @Html.TextBoxFor(model => model.name, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
                                             @Html.ValidationMessageFor(model => model.name)
                                         </div>
+                                        <div class="col-12 col-md-4 text-right">
+                                            <button class="btn btn-color" type="button" id="btn-invoices-refresh" style="margin-top:35px"><i class="fas fa-sync"></i> Sincronizar facturas </button>
+                                        </div>
                                         @*<div class="col-12 col-md-4 text-center">
                                             <label class="label" data-toggle="tooltip" title="Cambiar imagen de la cuenta" data-original-title="Cambiar imagen de la cuenta"
                                                    style="background-color:white">
