@@ -31,7 +31,7 @@ namespace MVC_Project.Integrations.Pipedrive
 
         public PipedriveResponse UpdatePerson(PipedrivePerson person, int pipedriveId)
         {
-            string uri = "/person/" + pipedriveId;
+            string uri = "/persons/" + pipedriveId;
             RestRequest request = new RestRequest(uri, Method.PUT);
             request.AddQueryParameter("api_token", api_token);
             request.AddJsonBody(JsonConvert.SerializeObject(person));

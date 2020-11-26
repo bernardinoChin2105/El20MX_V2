@@ -82,7 +82,7 @@ namespace MVC_Project.WebBackend.Controllers
                         statusSAT = x.statusSAT,
                         taxRegime = x.taxRegime != null ? x.taxRegime.Split(',').ToList() : null,
                         economicActivities = x.economicActivities != null ? x.economicActivities.Split(',').ToList() : null,
-                        fiscalObligations = x.fiscalObligations != null ? x.fiscalObligations.Split(',').ToList() : null,
+                        fiscalObligations = !string.IsNullOrEmpty(x.fiscalObligations) ? x.fiscalObligations : null,
                         taxMailboxEmail = x.taxMailboxEmail
                     });
 
@@ -281,7 +281,7 @@ namespace MVC_Project.WebBackend.Controllers
                         statusSAT = x.statusSAT,
                         taxRegime = x.taxRegime != null ? x.taxRegime.Split(',').ToList() : null,
                         economicActivities = x.economicActivities != null ? x.economicActivities.Split(',').ToList() : null,
-                        fiscalObligations = x.fiscalObligations != null ? x.fiscalObligations.Split(',').ToList() : null,
+                        fiscalObligations = x.fiscalObligations != null ? x.fiscalObligations : null,
                         taxMailboxEmail = x.taxMailboxEmail
                     });
 

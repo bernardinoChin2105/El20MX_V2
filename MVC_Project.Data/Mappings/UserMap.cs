@@ -20,7 +20,8 @@ namespace MVC_Project.Data.Mappings {
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
             Map(x => x.status).Column("status").Nullable();
             Map(x => x.agreeTerms).Column("agreeTerms").Nullable();
-            
+            Map(x => x.pipedriveId).Column("pipedriveId").Nullable();
+
             References(x => x.profile).Column("profileId");
 
             Map(x => x.isBackOffice).Column("isBackOffice").Nullable();//Indica si el usuario es colaborador de el20mx
