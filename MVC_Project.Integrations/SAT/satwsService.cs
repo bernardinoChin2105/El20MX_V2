@@ -305,7 +305,7 @@ namespace MVC_Project.Integrations.SAT
         }
 
         /*Crear timbrado de factura complemento*/
-        public static InvoicesInfo PostIssuePaymentInvoices(InvoiceComplementJson invoiceComplementJson)
+        public static InvoicesInfo PostIssuePaymentInvoices(dynamic invoiceComplementJson)
         {
             InvoicesInfo invoice = new InvoicesInfo();
             
@@ -315,7 +315,7 @@ namespace MVC_Project.Integrations.SAT
         }
 
         /*Crear timbrado de factura relacionada*/
-        public static InvoicesInfo PostRefundInvoices(InvoiceRefundJson invoiceRefundJson)
+        public static InvoicesInfo PostRefundInvoices(dynamic invoiceRefundJson)
         {
             InvoicesInfo invoice = new InvoicesInfo();
 

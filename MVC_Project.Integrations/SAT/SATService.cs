@@ -137,7 +137,7 @@ namespace MVC_Project.Integrations.SAT
             }
         }
 
-        public static InvoicesInfo PostIssuePaymentInvoices(InvoiceComplementJson invoice, string provider)
+        public static InvoicesInfo PostIssuePaymentInvoices(dynamic invoice, string provider)
         {
             if (provider == SystemProviders.SATWS.ToString())
             {
@@ -150,7 +150,7 @@ namespace MVC_Project.Integrations.SAT
         }
 
         //Para CFDI relacionados(devoluciones o cancelaciones)
-        public static InvoicesInfo PostIssueRefundInvoices(InvoiceRefundJson invoice, string provider)
+        public static InvoicesInfo PostIssueRefundInvoices(dynamic invoice, string provider)
         {
             if (provider == SystemProviders.SATWS.ToString())
             {

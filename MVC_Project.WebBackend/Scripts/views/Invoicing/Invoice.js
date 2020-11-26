@@ -868,8 +868,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#Condiciones").addClass("hide");
                 $("#tablePayments").removeClass("hide");
                 $("#tableRelatedEgress").addClass("hide");
-                self.htmlTableCFDIEgress.clear().draw();
                 $("#DiscountRate").attr("readonly", true);
+                //self.htmlTableCFDIEgress.clear().draw();
                 //$("#btnProdServ").addClass("hide");
             } else if (typeInvoice === "E") {
                 $("#CFDIrelacionados").removeClass("hide");
@@ -878,7 +878,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#tablePayments").addClass("hide");
                 $("#tableRelatedEgress").removeClass("hide");
                 $("#DiscountRate").attr("readonly", true);
-                self.htmlTableCFDI.clear().draw();
+                //self.htmlTableCFDI.clear().draw();
                 //$("#btnProdServ").addClass("hide");
             } else {
                 //Para tipo ingreso
@@ -889,9 +889,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#tablePayments").addClass("hide");
                 $("#tableRelatedEgress").addClass("hide");
                 $("#DiscountRate").attr("readonly", false);
-                self.htmlTableCFDI.clear().draw();
-                self.htmlTableCFDIEgress.clear().draw();
-
+                //self.htmlTableCFDI.clear().draw();
+                //self.htmlTableCFDIEgress.clear().draw();
             }
         });
 
@@ -910,7 +909,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $.ajax({
                     type: 'Get',
                     async: true,
-                    data: { uuid: uuid },
+                    data: { uuid: uuid, typeInvoice: $("#TypeInvoice").val() },
                     url: self.searchCDFIUrl,           
                     success: function (json) {
                         console.log(json, "respuesta");

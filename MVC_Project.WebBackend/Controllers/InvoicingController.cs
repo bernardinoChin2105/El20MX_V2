@@ -464,6 +464,7 @@ namespace MVC_Project.WebBackend.Controllers
                     else
                         invoiceData.TipoCambio = null;
 
+                    invoiceData.CfdiRelacionados = new List<CfdiRelacionados>();
                     if (model.invoicesUuid.Count() > 0)
                     {
                         foreach (var item in model.invoicesUuid)
@@ -484,7 +485,7 @@ namespace MVC_Project.WebBackend.Controllers
                     var invoice = new InvoiceRefundJson
                     {
                         data = invoiceData
-                    };
+                    };                    
 
                     invoiceModel = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(invoice));
 
@@ -1028,7 +1029,7 @@ namespace MVC_Project.WebBackend.Controllers
         //Busqueda de CFDI para complementos
         //Obtener listado de unidad del SAT
         [HttpGet, AllowAnonymous]
-        public JsonResult GetCFDIId(string uuid)
+        public JsonResult GetCFDIId(string uuid, string typeInvoice)
         {
             bool success = false;
             string message = string.Empty;
@@ -1038,8 +1039,11 @@ namespace MVC_Project.WebBackend.Controllers
             //List<DriveKeyViewModel> result = new List<DriveKeyViewModel>();
             try
             {
-                //invoice = _invoiceIssuedService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.account.id == authUser.Account.Id && x.paymentMethod == MetodoPago.PPD.ToString());
-                invoice = _invoiceIssuedService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.paymentMethod == MetodoPago.PPD.ToString());
+                if(typeInvoice == TipoComprobante.P.ToString())
+                    invoice = _invoiceIssuedService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.account.id == authUser.Account.Id && x.paymentMethod == MetodoPago.PPD.ToString());
+                else
+                    invoice = _invoiceIssuedService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.account.id == authUser.Account.Id);
+                //invoice = _invoiceIssuedService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.paymentMethod == MetodoPago.PPD.ToString());
                 if (invoice != null)
                 {
                     var StorageInvoices = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
@@ -1101,6 +1105,12 @@ namespace MVC_Project.WebBackend.Controllers
 
                     invoice.account = null;
                     invoice.customer = null;
+                    invoice.branchOffice = null;
+                    CFDI.Emisor = null;
+                    CFDI.Receptor = null;
+                    CFDI.Complemento = null;
+                    CFDI.Conceptos = null;
+                    CFDI.Impuestos = null;
                     success = true;
                 }
             }
