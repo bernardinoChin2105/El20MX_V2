@@ -31,10 +31,17 @@ namespace MVC_Project.WebBackend.Controllers
         private ICADAccountService _CADAccountService;
         private IDiagnosticService _diagnosticService;
         private ISupervisorCADService _supervisorCADService;
+        private IWebhookProcessService _webhookProcessService;
+        private IDiagnosticDetailService _diagnosticDetailService;
+        private IInvoiceIssuedService _invoicesIssuedService;
+        private IInvoiceReceivedService _invoicesReceivedService;
+        private IDiagnosticTaxStatusService _diagnosticTaxStatusService;
 
         public AccountController(IMembershipService accountUserService, IAccountService accountService,
             ICredentialService credentialService, IRoleService roleService, IUserService userService, IPromotionService promotionService,
-            IDiscountService discountService, ICADAccountService CADAccountService, IDiagnosticService diagnosticService, ISupervisorCADService supervisorCADService)
+            IDiscountService discountService, ICADAccountService CADAccountService, IDiagnosticService diagnosticService, ISupervisorCADService supervisorCADService,
+            IWebhookProcessService webhookProcessService, IDiagnosticDetailService diagnosticDetailService, IInvoiceIssuedService invoicesIssuedService,
+            IInvoiceReceivedService invoiceReceivedService, IDiagnosticTaxStatusService diagnosticTaxStatusService)
         {
             _membership = accountUserService;
             _accountService = accountService;
@@ -46,6 +53,11 @@ namespace MVC_Project.WebBackend.Controllers
             _CADAccountService = CADAccountService;
             _diagnosticService = diagnosticService;
             _supervisorCADService = supervisorCADService;
+            _webhookProcessService = webhookProcessService;
+            _diagnosticDetailService = diagnosticDetailService;
+            _invoicesIssuedService = invoicesIssuedService;
+            _invoicesReceivedService = invoiceReceivedService;
+            _diagnosticTaxStatusService = diagnosticTaxStatusService;
         }
 
         // GET: Account
@@ -561,7 +573,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 #region Generar diagnóstico Inicial
                 if (bool.Parse(ConfigurationManager.AppSettings["InitialDiagnostic.Enable"]))
-                    GenerateDx0();
+                    GenerateExtraction();
                 
                 
                 #endregion
@@ -698,43 +710,42 @@ namespace MVC_Project.WebBackend.Controllers
 
         #region DiagnosticoInicial
 
-        public void GenerateDx0()
+        public void GenerateExtraction()
         {
             var authUser = Authenticator.AuthenticatedUser;
             try
             {
-                Domain.Entities.Account account = _accountService.FindBy(z => z.id == authUser.Account.Id).FirstOrDefault();
+                Domain.Entities.Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
 
                 var provider = ConfigurationManager.AppSettings["SATProvider"];
                 DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
-                DateTime dateTo = DateTime.UtcNow.AddMonths(-1);
-                dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
+                DateTime dateTo = DateTime.UtcNow;
                 dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
                 string extractionId = SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
 
-                var diagn = new Domain.Entities.Diagnostic()
+                var process = new Domain.Entities.WebhookProcess()
                 {
                     uuid = Guid.NewGuid(),
-                    account = account,
-                    businessName = account.name,
-                    commercialCAD = "",
-                    plans = "",
+                    processId = extractionId,
+                    provider = SystemProviders.SATWS.ToString(),
+                    @event = SatwsEvent.EXTRACTION_UPDATED.ToString(),
+                    reference = authUser.Account.Uuid.ToString(),
                     createdAt = DateUtil.GetDateTimeNow(),
-                    status = SystemStatus.PENDING.ToString(),
-                    processId = extractionId
+                    status = SystemStatus.PENDING.ToString()
                 };
 
-                _diagnosticService.Create(diagn);
-                Session["InitialDiagnostic"] = diagn.uuid;
+                _webhookProcessService.Create(process);
+                Session["InitialDiagnostic"] = process.uuid;
             }
             catch (Exception ex)
             {
                 LogUtil.AddEntry(
-                   "Error en diagnostico inicial: " + authUser.Account.RFC, ENivelLog.Error, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                   "Error en la extracción inicial: " + authUser.Account.RFC, ENivelLog.Error, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    ex.Message + "" + (ex.InnerException != null ? ex.InnerException.Message : "")
                 );
+                throw new Exception("Se validó el RFC pero no fue posible generar la extracción de facturas");
             }
         }
 
@@ -753,20 +764,21 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (!string.IsNullOrEmpty(uuid))
                 {
-                    var diagnostic = _diagnosticService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
-                    if (diagnostic == null)
+                    var process = _webhookProcessService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
+                    if (process == null)
                         throw new Exception("No fue posible obtener el diagnostico");
 
-                    if (diagnostic.status == SystemStatus.PENDING.ToString() || diagnostic.status == SystemStatus.PROCESSING.ToString())
+                    if (process.status == SystemStatus.PENDING.ToString() || process.status == SystemStatus.PROCESSING.ToString())
                     {
                         return Json(new { success = true, finish = false, status = true }, JsonRequestBehavior.AllowGet);
                     }
-                    else if (diagnostic.status == SystemStatus.ACTIVE.ToString())
+                    else if (process.status == SystemStatus.ACTIVE.ToString())
                     {
                         Session["InitialDiagnostic"] = null;
+                        GenerateDx0();
                         return Json(new { success = true, finish = true, status = true }, JsonRequestBehavior.AllowGet);
                     }
-                    else if (diagnostic.status == SystemStatus.FAILED.ToString())
+                    else if (process.status == SystemStatus.FAILED.ToString())
                         return Json(new { success = false, finish = true, status = true, message = "Se generó un fallo durante la extracción" }, JsonRequestBehavior.AllowGet);
                     else
                         return Json(new { success = false, finish = true, status = true, message = "No fue posible generar el diagnostico, comuniquese al área de soporte" }, JsonRequestBehavior.AllowGet);
@@ -780,6 +792,107 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 return Json(new { message = ex.Message, success = false, finish = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public void GenerateDx0()
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+            try
+            {
+                
+                Domain.Entities.Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
+
+                var provider = ConfigurationManager.AppSettings["SATProvider"];
+
+                var diagnostic = new Domain.Entities.Diagnostic()
+                {
+                    uuid = Guid.NewGuid(),
+                    account = account,
+                    businessName = account.name,
+                    commercialCAD = "",
+                    plans = "",
+                    createdAt = DateUtil.GetDateTimeNow(),
+                    status = SystemStatus.ACTIVE.ToString(),
+                };
+
+                _diagnosticService.Create(diagnostic);
+
+                List<Domain.Entities.DiagnosticDetail> details = new List<Domain.Entities.DiagnosticDetail>();
+
+                DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
+                DateTime dateTo = DateTime.UtcNow.AddMonths(-1);
+                dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
+                dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
+                var invoicesIssued = _invoicesIssuedService.FindBy(x => x.account.id == account.id && x.invoicedAt >= dateFrom && x.invoicedAt <= dateTo).ToList();
+
+                details.AddRange(invoicesIssued
+                    .GroupBy(x => new
+                    {
+                        x.invoicedAt.Year,
+                        x.invoicedAt.Month,
+                    })
+                .Select(b => new Domain.Entities.DiagnosticDetail()
+                {
+                    diagnostic = diagnostic,
+                    year = b.Key.Year,
+                    month = b.Key.Month,
+                    typeTaxPayer = TypeIssuerReceiver.ISSUER.ToString(),
+                    numberCFDI = b.Count(),
+                    totalAmount = b.Sum(y => y.total),
+                    createdAt = DateUtil.GetDateTimeNow()
+                }));
+
+                var invoicesReceived = _invoicesReceivedService.FindBy(x => x.account.id == account.id && x.invoicedAt >= dateFrom && x.invoicedAt <= dateTo).ToList();
+
+                details.AddRange(invoicesReceived
+                    .Where(x => x.invoiceType != TipoComprobante.N.ToString()) //Si es solo ingreso en las factura descomentar esta linea
+                    .GroupBy(x => new
+                    {
+                        x.invoicedAt.Year,
+                        x.invoicedAt.Month,
+                    })
+                .Select(b => new Domain.Entities.DiagnosticDetail()
+                {
+                    diagnostic = diagnostic,
+                    year = b.Key.Year,
+                    month = b.Key.Month,
+                    typeTaxPayer = TypeIssuerReceiver.RECEIVER.ToString(),
+                    numberCFDI = b.Count(),
+                    totalAmount = b.Sum(y => y.total),
+                    createdAt = DateUtil.GetDateTimeNow()
+                }));
+
+                _diagnosticDetailService.Create(details);
+
+                var taxStatusModel = SATService.GetTaxStatus(account.rfc, provider);
+                if (!taxStatusModel.Success)
+                    throw new Exception(taxStatusModel.Message);
+
+                var taxStatus = taxStatusModel.TaxStatus
+                    .Select(x => new Domain.Entities.DiagnosticTaxStatus
+                    {
+                        diagnostic = diagnostic,
+                        createdAt = DateUtil.GetDateTimeNow(),
+                        statusSAT = x.status,
+                        businessName = x.person != null ? x.person.fullName : x.company.tradeName,
+                        taxMailboxEmail = x.email,
+                        taxRegime = x.taxRegimes.Count > 0 ? String.Join(",", x.taxRegimes.Select(y => y.name).ToArray()) : null,
+                        economicActivities = x.economicActivities != null && x.economicActivities.Any() ? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null,
+                        fiscalObligations = x.obligations != null && x.obligations.Any() ? String.Join(",", x.obligations.Select(y => y.description).ToArray()) : null,
+                    }).ToList();
+                _diagnosticTaxStatusService.Create(taxStatus);
+                
+            }
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(
+                      "Error en diagnostico inicial: " + authUser.Account.RFC, ENivelLog.Error, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                      string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                      ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                      ex.Message + "" + (ex.InnerException != null ? ex.InnerException.Message : "")
+                   );
+                throw new Exception("Se descargaron las facturas, pero no fue posible generar el diagnostico fiscal. ");
             }
         }
 

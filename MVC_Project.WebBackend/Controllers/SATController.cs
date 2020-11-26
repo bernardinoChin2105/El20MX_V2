@@ -44,7 +44,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var account = _accountService.GetById(userAuth.Account.Id);
                 if (account == null)
                     throw new Exception("La cuenta no existe en el sistema");
-
+                
                 model.id = account.id;
                 model.uuid = account.uuid.ToString();
                 model.rfc = account.rfc;
@@ -54,6 +54,13 @@ namespace MVC_Project.WebBackend.Controllers
                 model.efirma = account.eFirma;
                 model.ciec = account.ciec;
                 model.avatar = account.avatar;
+
+                var process = _webhookProcessService.FindBy(x => x.reference == account.uuid.ToString()).OrderByDescending(x => x.id).FirstOrDefault();
+                if (process != null)
+                {
+                    model.HasInvoiceSync = true;
+                    model.InvoiceSyncDate = process.createdAt;
+                }
 
                 var efirmaStatus = SystemStatus.INACTIVE.ToString();
                 var ciecStatus = SystemStatus.INACTIVE.ToString();
@@ -358,9 +365,18 @@ namespace MVC_Project.WebBackend.Controllers
                 Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
 
                 var provider = ConfigurationManager.AppSettings["SATProvider"];
-                DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
+                DateTime dateFrom = new DateTime();
                 DateTime dateTo = DateTime.UtcNow;
-                dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
+                var lastProcess = _webhookProcessService.FindBy(x => x.reference == account.uuid.ToString()).OrderByDescending(x => x.id).FirstOrDefault();
+                if (lastProcess != null)
+                {
+                    dateFrom = lastProcess.createdAt.Date;
+                }
+                else
+                {
+                    dateFrom = DateTime.UtcNow.AddMonths(-3);
+                    dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
+                }
                 string extractionId = SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
 
                 var process = new WebhookProcess()
@@ -369,7 +385,7 @@ namespace MVC_Project.WebBackend.Controllers
                     processId = extractionId,
                     provider = SystemProviders.SATWS.ToString(),
                     @event = SatwsEvent.EXTRACTION_UPDATED.ToString(),
-                    reference = authUser.Uuid.ToString(),
+                    reference = authUser.Account.Uuid.ToString(),
                     createdAt = DateUtil.GetDateTimeNow(),
                     status = SystemStatus.PENDING.ToString()
                 };

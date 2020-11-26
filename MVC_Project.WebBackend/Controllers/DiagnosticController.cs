@@ -29,10 +29,15 @@ namespace MVC_Project.WebBackend.Controllers
         private IProviderService _providerService;
         private IInvoiceIssuedService _invoicesIssuedService;
         private IInvoiceReceivedService _invoicesReceivedService;
+        private IDiagnosticDetailService _diagnosticDetailService;
+        private IDiagnosticTaxStatusService _diagnosticTaxStatusService;
+        private IWebhookProcessService _webhookProcessService;
 
         public DiagnosticController(IAccountService accountService, ICredentialService credentialService,
             IDiagnosticService diagnosticService, ICustomerService customerService, IProviderService providerService,
-            IInvoiceIssuedService invoicesIssuedService, IInvoiceReceivedService invoicesReceivedService)
+            IInvoiceIssuedService invoicesIssuedService, IInvoiceReceivedService invoicesReceivedService, 
+            IDiagnosticDetailService diagnosticDetailService, IDiagnosticTaxStatusService diagnosticTaxStatusService,
+            IWebhookProcessService webhookProcessService)
         {
             _accountService = accountService;
             _credentialService = credentialService;
@@ -41,6 +46,9 @@ namespace MVC_Project.WebBackend.Controllers
             _providerService = providerService;
             _invoicesIssuedService = invoicesIssuedService;
             _invoicesReceivedService = invoicesReceivedService;
+            _diagnosticDetailService = diagnosticDetailService;
+            _diagnosticTaxStatusService = diagnosticTaxStatusService;
+            _webhookProcessService = webhookProcessService;
         }
 
         // GET: Diagnostic
@@ -52,6 +60,17 @@ namespace MVC_Project.WebBackend.Controllers
                 MinDate = DateTime.Now.AddDays(-10).ToString("dd-MM-yyyy"),
                 MaxDate = DateTime.Now.ToString("dd-MM-yyyy")
             };
+            var authUser = Authenticator.AuthenticatedUser;
+            var process = _webhookProcessService.FindBy(x => x.reference == authUser.Account.Uuid.ToString()).OrderByDescending(x => x.id).FirstOrDefault();
+            if (process != null)
+            {
+                ViewBag.HasInvoiceSync = true;
+                ViewBag.InvoiceSyncDate = process.createdAt;
+            }
+            else
+            {
+                ViewBag.HasInvoiceSync = false;
+            }
             return View();
         }
 
@@ -138,14 +157,8 @@ namespace MVC_Project.WebBackend.Controllers
                 Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
 
                 var provider = ConfigurationManager.AppSettings["SATProvider"];
-                DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
-                DateTime dateTo = DateTime.UtcNow.AddMonths(-1);
-                dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
-                dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
-                //Se obtiene la extracción de los 3 meses completos. Sin los días del mes actual
-                string extractionId = SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
 
-                var diagn = new Diagnostic()
+                var diagnostic = new Diagnostic()
                 {
                     uuid = Guid.NewGuid(),
                     account = account,
@@ -153,21 +166,80 @@ namespace MVC_Project.WebBackend.Controllers
                     commercialCAD = "",
                     plans = "",
                     createdAt = DateUtil.GetDateTimeNow(),
-                    status = SystemStatus.PENDING.ToString(),
-                    processId = extractionId
+                    status = SystemStatus.ACTIVE.ToString(),
                 };
 
-                _diagnosticService.Create(diagn);
-                //MensajeFlashHandler.RegistrarMensaje("¡Diagnóstico realizado!", TiposMensaje.Success);
-                //return RedirectToAction("DiagnosticDetail", new { id = diagn.uuid.ToString() });
-                return Json(new { diagn.uuid, success = true }, JsonRequestBehavior.AllowGet);
+                _diagnosticService.Create(diagnostic);
+                
+                List<DiagnosticDetail> details = new List<DiagnosticDetail>();
+
+                DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
+                DateTime dateTo = DateTime.UtcNow.AddMonths(-1);
+                dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
+                dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
+                var invoicesIssued = _invoicesIssuedService.FindBy(x => x.account.id == account.id && x.invoicedAt >= dateFrom && x.invoicedAt <= dateTo).ToList();
+
+                details.AddRange(invoicesIssued
+                    .GroupBy(x => new
+                    {
+                        x.invoicedAt.Year,
+                        x.invoicedAt.Month,
+                    })
+                .Select(b => new DiagnosticDetail()
+                {
+                    diagnostic = diagnostic,
+                    year = b.Key.Year,
+                    month = b.Key.Month,
+                    typeTaxPayer = TypeIssuerReceiver.ISSUER.ToString(),
+                    numberCFDI = b.Count(),
+                    totalAmount = b.Sum(y => y.total),
+                    createdAt = DateUtil.GetDateTimeNow()
+                }));
+
+                var invoicesReceived = _invoicesReceivedService.FindBy(x => x.account.id == account.id && x.invoicedAt >= dateFrom && x.invoicedAt <= dateTo).ToList();
+
+                details.AddRange(invoicesReceived
+                    .Where(x => x.invoiceType != TipoComprobante.N.ToString()) //Si es solo ingreso en las factura descomentar esta linea
+                    .GroupBy(x => new
+                    {
+                        x.invoicedAt.Year,
+                        x.invoicedAt.Month,
+                    })
+                .Select(b => new DiagnosticDetail()
+                {
+                    diagnostic = diagnostic,
+                    year = b.Key.Year,
+                    month = b.Key.Month,
+                    typeTaxPayer = TypeIssuerReceiver.RECEIVER.ToString(),
+                    numberCFDI = b.Count(),
+                    totalAmount = b.Sum(y => y.total),
+                    createdAt = DateUtil.GetDateTimeNow()
+                }));
+                
+                _diagnosticDetailService.Create(details);
+
+                var taxStatusModel = SATService.GetTaxStatus(account.rfc, provider);
+                if (!taxStatusModel.Success)
+                    throw new Exception(taxStatusModel.Message);
+
+                var taxStatus = taxStatusModel.TaxStatus
+                    .Select(x => new DiagnosticTaxStatus
+                    {
+                        diagnostic = diagnostic,
+                        createdAt = DateUtil.GetDateTimeNow(),
+                        statusSAT = x.status,
+                        businessName = x.person != null ? x.person.fullName : x.company.tradeName,
+                        taxMailboxEmail = x.email,
+                        taxRegime = x.taxRegimes.Count > 0 ? String.Join(",", x.taxRegimes.Select(y => y.name).ToArray()) : null,
+                        economicActivities = x.economicActivities != null && x.economicActivities.Any() ? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null,
+                        fiscalObligations = x.obligations != null && x.obligations.Any() ? String.Join(",", x.obligations.Select(y => y.description).ToArray()) : null,
+                    }).ToList();
+                _diagnosticTaxStatusService.Create(taxStatus);
+
+                return Json(new { uuid = diagnostic.uuid, success = true }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                //string error = ex.Message.ToString();
-                //MensajeFlashHandler.RegistrarMensaje("¡Ocurrio un error en al realizar el diagnóstico!", TiposMensaje.Error);
-                //MensajeFlashHandler.RegistrarMensaje(error, TiposMensaje.Error);
-                //return RedirectToAction("Index");
                 return Json(new { message = ex.Message, success = false }, JsonRequestBehavior.AllowGet);
             }
         }
@@ -326,7 +398,7 @@ namespace MVC_Project.WebBackend.Controllers
 
 
                 LogUtil.AddEntry(
-                       "Se descarga el Dx0 del cliente",
+                       "Se descarga el diagnóstico del cliente " + authUser.Account.RFC,
                        ENivelLog.Info,
                        authUser.Id,
                        authUser.Email,
