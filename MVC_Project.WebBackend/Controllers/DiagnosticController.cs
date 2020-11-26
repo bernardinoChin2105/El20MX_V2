@@ -100,7 +100,7 @@ namespace MVC_Project.WebBackend.Controllers
                         businessName = x.businessName,
                         statusSAT = x.statusSAT,
                         taxRegime = x.taxRegime != null ? x.taxRegime.Split(',').ToList() : null,
-                        economicActivities = x.economicActivities != null ? x.economicActivities.Split(',').ToList() : null,
+                        economicActivities = x.economicActivities != null ? x.economicActivities.Split(',').ToList() : new List<string>(),
                         fiscalObligations = !string.IsNullOrEmpty(x.fiscalObligations) ? x.fiscalObligations : null,
                         taxMailboxEmail = x.taxMailboxEmail
                     });
@@ -228,7 +228,8 @@ namespace MVC_Project.WebBackend.Controllers
                         diagnostic = diagnostic,
                         createdAt = DateUtil.GetDateTimeNow(),
                         statusSAT = x.status,
-                        businessName = x.person != null ? x.person.fullName : x.company.tradeName,
+                        businessName = x.person != null ? x.person.fullName :
+                            (x.company != null ? (!string.IsNullOrEmpty(x.company.tradeName) ? x.company.tradeName : x.company.legalName) : string.Empty),
                         taxMailboxEmail = x.email,
                         taxRegime = x.taxRegimes.Count > 0 ? String.Join(",", x.taxRegimes.Select(y => y.name).ToArray()) : null,
                         economicActivities = x.economicActivities != null && x.economicActivities.Any() ? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null,

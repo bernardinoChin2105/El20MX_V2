@@ -236,9 +236,11 @@ namespace MVC_Project.API.Controllers
                     }
                     try
                     {
-                        account.name = data.data.@object.taxpayer.name;
-                        _accountService.Update(account);
-                        
+                        if (data.data.@object.taxpayer != null && !string.IsNullOrEmpty(data.data.@object.taxpayer.name))
+                        {
+                            account.name = data.data.@object.taxpayer.name;
+                            _accountService.Update(account);
+                        }
                         process.status = SystemStatus.PROCESSING.ToString();
                         process.modifiedAt = DateTime.Now;
                         _webhookProcessService.Update(process);
