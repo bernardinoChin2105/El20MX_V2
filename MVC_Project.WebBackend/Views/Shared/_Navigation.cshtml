@@ -178,16 +178,29 @@
                     }
                 </li>
             }
-            @*@if (user.HasAccessToModule("catalogs"))
-                {
-                    <li class="@Html.IsModuleSelected(user, "catalogs")">
-                        <a href="#"><i class="fa fa-table"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CATALOGS</span> <span class="fain arrow"></span></a>
-                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Catalogs", cssClass: "in")">
-                            <li class="@Html.IsSelected(action: "Dashboard_1")"><a href="@Url.Action("Report_1", "Dashboards")">Catálogo 1</a></li>
-                            <li class="@Html.IsSelected(action: "Dashboard_2")"><a href="@Url.Action("Report_2", "Dashboards")">Catálogo 2</a></li>
+
+            @if (user.HasAccessToModule(SystemModules.MY_ACCOUNT.ToString()))
+            {
+                <li class="@Html.IsModuleSelected(user, SystemModules.MY_ACCOUNT.ToString())">
+                    <a href="#"><i class="fas fa-balance-scale"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_MY_ACCOUNT</span> <span class="fain arrow"></span></a>
+                    @if (user.HasAccessController("MyAccount"))
+                    {
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "MyAccount", cssClass: "in")">
+                            <li class="@Html.IsSelected(controller: "MyAccount", action: "Index")"><a href="@Url.Action("Index", "MyAccount")">Facturación de la Cuenta</a></li>                            
                         </ul>
-                    </li>
-                }*@
+                    }
+                </li>
+            }
+            @*@if (user.HasAccessToModule("catalogs"))
+        {
+            <li class="@Html.IsModuleSelected(user, "catalogs")">
+                <a href="#"><i class="fa fa-table"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CATALOGS</span> <span class="fain arrow"></span></a>
+                <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Catalogs", cssClass: "in")">
+                    <li class="@Html.IsSelected(action: "Dashboard_1")"><a href="@Url.Action("Report_1", "Dashboards")">Catálogo 1</a></li>
+                    <li class="@Html.IsSelected(action: "Dashboard_2")"><a href="@Url.Action("Report_2", "Dashboards")">Catálogo 2</a></li>
+                </ul>
+            </li>
+        }*@
 
 
             @if (user.HasAccessToModule("catalogs"))
@@ -271,18 +284,18 @@
 
 
             @*<li class="">
-                    <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
-                    <ul class="nav nav-second-level collapse in">
-                        <li class="">
-                            <a href="#">Bancos <span class="fain arrow"></span></a>
-                            <ul class="nav nav-second-level collapse">
-                                <li class=""><a href="#">Conectar</a></li>
-                                <li class=""><a href="#">Cargar movimientos</a></li>
-                            </ul>
-                        </li>
-
+            <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
+            <ul class="nav nav-second-level collapse in">
+                <li class="">
+                    <a href="#">Bancos <span class="fain arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li class=""><a href="#">Conectar</a></li>
+                        <li class=""><a href="#">Cargar movimientos</a></li>
                     </ul>
-                </li>*@
+                </li>
+
+            </ul>
+        </li>*@
 
             @if (user != null && user.Account != null)
             {

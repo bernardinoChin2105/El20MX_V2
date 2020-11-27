@@ -210,4 +210,7 @@
   <data name="MODULE_INVOICING" xml:space="preserve">
     <value>Invoicing</value>
   </data>
+  <data name="MODULE_MY_ACCOUNT" xml:space="preserve">
+    <value>My Account with El20.mx</value>
+  </data>
 </root>
