@@ -218,5 +218,23 @@ namespace MVC_Project.Integrations.Paybook
             }
             return banks;
         }
+
+        public static List<AllBankSites> GetBanksSites(string idBank, string token)
+        {
+            List<AllBankSites> banks = new List<AllBankSites>();
+            try
+            {
+                string url = "/catalogues/organizations/sites?id_site_organization=" + idBank;
+                var response = Paybook.CallServicePaybook(url, null, "Get", false, token);
+                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
+                var option = model.First(x => x.Key == "response").Value;
+                banks = JsonConvert.DeserializeObject<List<AllBankSites>>(option.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message.ToString());
+            }
+            return banks;
+        }
     }
 }
