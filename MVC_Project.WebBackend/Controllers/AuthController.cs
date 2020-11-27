@@ -117,19 +117,19 @@ namespace MVC_Project.WebBackend.Controllers
                 if (user.isBackOffice)
                 {
                     var uniqueMembership = memberships.First();
-                    List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
-                    {
-                        Controller = p.permission.controller,
-                        Module = p.permission.module,
-                        Level = p.level,
-                        isCustomizable = p.permission.isCustomizable
-                    }).ToList();
-
-                    authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
-                    authUser.Permissions = permissionsUniqueMembership;
                     
+                    List<Permission> permissionsUser = new List<Permission>();
+                    permissionsUser.Add(new Permission
+                    {
+                        Action = "Index",
+                        Controller = "Account",
+                        Module = "Account",
+                        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                        isCustomizable = false
+                    });
+                    authUser.Permissions = permissionsUser;
+                    authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
                     Authenticator.StoreAuthenticatedUser(authUser);
-                    //MensajeFlashHandler.RegistrarMensaje("Sesión iniciada", TiposMensaje.Success);
 
                     LogUtil.AddEntry("Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
@@ -177,6 +177,7 @@ namespace MVC_Project.WebBackend.Controllers
                             isCustomizable = false
                         });
                         authUser.Permissions = permissionsUser;
+                        authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar };
                         Authenticator.StoreAuthenticatedUser(authUser);
 
                         LogUtil.AddEntry("Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,

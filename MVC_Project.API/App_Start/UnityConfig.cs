@@ -89,6 +89,7 @@ namespace MVC_Project.API
             container.RegisterType<IBankAccountService, BankAccountService>();
             container.RegisterType<IBankCredentialService, BankCredentialService>();
             container.RegisterType<IBankService, BankService>();
+            container.RegisterType<IWebhookProcessService, WebhookProcessService>(); 
         }
     }
 }

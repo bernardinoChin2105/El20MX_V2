@@ -31,10 +31,17 @@ namespace MVC_Project.WebBackend.Controllers
         private ICADAccountService _CADAccountService;
         private IDiagnosticService _diagnosticService;
         private ISupervisorCADService _supervisorCADService;
+        private IWebhookProcessService _webhookProcessService;
+        private IDiagnosticDetailService _diagnosticDetailService;
+        private IInvoiceIssuedService _invoicesIssuedService;
+        private IInvoiceReceivedService _invoicesReceivedService;
+        private IDiagnosticTaxStatusService _diagnosticTaxStatusService;
 
         public AccountController(IMembershipService accountUserService, IAccountService accountService,
             ICredentialService credentialService, IRoleService roleService, IUserService userService, IPromotionService promotionService,
-            IDiscountService discountService, ICADAccountService CADAccountService, IDiagnosticService diagnosticService, ISupervisorCADService supervisorCADService)
+            IDiscountService discountService, ICADAccountService CADAccountService, IDiagnosticService diagnosticService, ISupervisorCADService supervisorCADService,
+            IWebhookProcessService webhookProcessService, IDiagnosticDetailService diagnosticDetailService, IInvoiceIssuedService invoicesIssuedService,
+            IInvoiceReceivedService invoiceReceivedService, IDiagnosticTaxStatusService diagnosticTaxStatusService)
         {
             _membership = accountUserService;
             _accountService = accountService;
@@ -46,6 +53,11 @@ namespace MVC_Project.WebBackend.Controllers
             _CADAccountService = CADAccountService;
             _diagnosticService = diagnosticService;
             _supervisorCADService = supervisorCADService;
+            _webhookProcessService = webhookProcessService;
+            _diagnosticDetailService = diagnosticDetailService;
+            _invoicesIssuedService = invoicesIssuedService;
+            _invoicesReceivedService = invoiceReceivedService;
+            _diagnosticTaxStatusService = diagnosticTaxStatusService;
         }
 
         // GET: Account
@@ -71,7 +83,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var accounts = new List<Account>();
                 if (authUser.Role.Code == SystemRoles.SYSTEM_ADMINISTRATOR.ToString() || authUser.Role.Code.Contains(SystemRoles.DIRECCION.ToString()))
                 {
-                    accounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString()).Select(x => new Account
+                    accounts = _accountService.GetAll().Select(x => new Account
                     {
                         Id = x.id,
                         Uuid = x.uuid,
@@ -169,6 +181,21 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
                     authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
+                    if (account.status == SystemStatus.INACTIVE.ToString())
+                    {
+                        List<Permission> permissionsUser = new List<Permission>();
+                        permissionsUser.Add(new Permission
+                        {
+                            Action = "Index",
+                            Controller = "Account",
+                            Module = "Account",
+                            Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                            isCustomizable = false
+                        });
+                        authUser.Permissions = permissionsUser;
+                        Authenticator.StoreAuthenticatedUser(authUser);
+                        return RedirectToAction("CreateAccount", new { uuid = account.uuid });
+                    }
 
                     var membership = _membership.FirstOrDefault(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
 
@@ -185,6 +212,7 @@ namespace MVC_Project.WebBackend.Controllers
                     authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
 
                     Authenticator.RefreshAuthenticatedUser(authUser);
+                    
                 }
                 var inicio = authUser.Permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
                 return RedirectToAction("Index", inicio.Controller);
@@ -313,39 +341,17 @@ namespace MVC_Project.WebBackend.Controllers
                         status = SystemStatus.PROCESSING.ToString(),
                         credentialType = SATCredentialType.CIEC.ToString()
                     };
-                    
+
                     _credentialService.Create(credential, account);
 
                     // ESTO VA DONDE SE VAYA A INTEGRAR EL CRM
                     if (IsCRMEnabled)
-                    {
-                        PipedriveClient pdClient = new PipedriveClient();
-                        PipedriveResponse response = pdClient.CreatePerson(new PipedrivePerson()
-                        {
-                            Name = authUser.FirstName + " " + authUser.LastName,
-                            FirstName = authUser.FirstName,
-                            LastName = authUser.LastName,
-                            Email = authUser.Email,
-                            RFC = account.rfc,
-                            CIEC = account.ciec
-                        });
-                        if (response.Success)
-                        {
-                            account.pipedriveId = response.Data.Id;
-                            _accountService.Update(account);
-                        }
+                        CreatePripedrivePerson(user, account);
 
-                        LogUtil.AddEntry(
-                           "Registro en Pipedrive del usuario" + account.rfc, ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
-                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                           JsonConvert.SerializeObject(response)
-                        );
-                    }
                 }
                 else
                 {
-                    account = _accountService.FirstOrDefault(x=>x.uuid == Guid.Parse(model.uuid));
+                    account = _accountService.FirstOrDefault(x => x.uuid == Guid.Parse(model.uuid));
                     if (account == null)
                         throw new Exception("El id de la cuenta es invalida");
 
@@ -356,7 +362,7 @@ namespace MVC_Project.WebBackend.Controllers
                     account.ciec = model.CIEC;
                     account.modifiedAt = todayDate;
                     _accountService.Update(account);
-                    
+
                     var satModel = SATService.CreateCredential(new CredentialRequest { rfc = model.RFC, ciec = model.CIEC }, provider);
 
                     var credential = _credentialService.FirstOrDefault(x => x.account.id == account.id && x.provider == provider && x.credentialType == SATCredentialType.CIEC.ToString());
@@ -365,7 +371,7 @@ namespace MVC_Project.WebBackend.Controllers
                         credential = new Domain.Entities.Credential()
                         {
                             account = account,
-                            uuid=Guid.NewGuid(),
+                            uuid = Guid.NewGuid(),
                             provider = provider,
                             idCredentialProvider = satModel.id,
                             statusProvider = satModel.status,
@@ -378,33 +384,18 @@ namespace MVC_Project.WebBackend.Controllers
                     }
                     else
                     {
-
                         credential.idCredentialProvider = satModel.id;
                         credential.statusProvider = satModel.status;
                         credential.status = SystemStatus.PROCESSING.ToString();
                         credential.modifiedAt = todayDate;
                         _credentialService.Update(credential);
                     }
-                    
-                    if (IsCRMEnabled && account.pipedriveId > 0)
-                    {
-                        PipedriveClient pdClient = new PipedriveClient();
-                        PipedriveResponse response = pdClient.UpdatePerson(new PipedrivePerson()
-                        {
-                            Name = authUser.FirstName + " " + authUser.LastName,
-                            FirstName = authUser.FirstName,
-                            LastName = authUser.LastName,
-                            Email = authUser.Email,
-                            RFC = account.rfc,
-                            CIEC = account.ciec
-                        }, account.pipedriveId);
 
-                        LogUtil.AddEntry(
-                           "Actualización en Pipedrive del usuario" + account.rfc, ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
-                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                           JsonConvert.SerializeObject(response)
-                        );
+                    if (IsCRMEnabled)
+                    {
+                        var membership = _membership.FirstOrDefault(x => x.account.id == account.id && x.role.code == SystemRoles.ACCOUNT_OWNER.ToString() && x.status == SystemStatus.ACTIVE.ToString());
+                        if (membership != null && membership.user != null)
+                            CreatePripedrivePerson(membership.user, account);
                     }
                 }
                 
@@ -428,6 +419,62 @@ namespace MVC_Project.WebBackend.Controllers
                 return Json(new { message = ex.Message, success = false }, JsonRequestBehavior.AllowGet);
             }
 
+        }
+
+        private void CreatePripedrivePerson(Domain.Entities.User user, Domain.Entities.Account account)
+        {
+            try
+            {
+                PipedriveResponse response = new PipedriveResponse();
+                PipedriveClient pdClient = new PipedriveClient();
+                if (user.pipedriveId > 0)
+                {
+                    response = pdClient.UpdatePerson(new PipedrivePerson()
+                    {
+                        Name = user.profile.firstName + " " + user.profile.lastName,
+                        FirstName = user.profile.firstName,
+                        LastName = user.profile.lastName,
+                        Email = user.name,
+                        RFC = account.rfc,
+                        CIEC = account.ciec,
+                        Phone = user.profile.phoneNumber
+                    }, user.pipedriveId);
+                }
+                else
+                {
+                    response = pdClient.CreatePerson(new PipedrivePerson()
+                    {
+                        Name = user.profile.firstName + " " + user.profile.lastName,
+                        FirstName = user.profile.firstName,
+                        LastName = user.profile.lastName,
+                        Email = user.name,
+                        RFC = account.rfc,
+                        CIEC = account.ciec,
+                        Phone = user.profile.phoneNumber
+                    });
+                    if (response.Success)
+                    {
+                        user.pipedriveId = response.Data.Id;
+                        _userService.Update(user);
+                    }
+                }
+
+                LogUtil.AddEntry(
+                   "Registro en Pipedrive del usuario" + account.rfc, ENivelLog.Info, user.id, user.name, EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   JsonConvert.SerializeObject(response)
+                );
+            }
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(
+                   "Error al registrar en Pipedrive al usuario" + user.name, ENivelLog.Info, user.id, user.name, EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   ex.Message
+                );
+            }
         }
 
         [HttpGet]
@@ -493,8 +540,12 @@ namespace MVC_Project.WebBackend.Controllers
                     };
                     _discountService.Create(discount);
                 }
+                Domain.Entities.Membership membership = null;
+                if (authUser.isBackOffice)
+                    membership = _membership.FirstOrDefault(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString());
+                else
+                    membership = _membership.FirstOrDefault(x => x.account.id == account.id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString());
 
-                var membership = _membership.FirstOrDefault(x => x.account.id == account.id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString());
                 var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                 {
                     Controller = p.permission.controller,
@@ -522,7 +573,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 #region Generar diagnóstico Inicial
                 if (bool.Parse(ConfigurationManager.AppSettings["InitialDiagnostic.Enable"]))
-                    GenerateDx0();
+                    GenerateExtraction();
                 
                 
                 #endregion
@@ -659,43 +710,42 @@ namespace MVC_Project.WebBackend.Controllers
 
         #region DiagnosticoInicial
 
-        public void GenerateDx0()
+        public void GenerateExtraction()
         {
             var authUser = Authenticator.AuthenticatedUser;
             try
             {
-                Domain.Entities.Account account = _accountService.FindBy(z => z.id == authUser.Account.Id).FirstOrDefault();
+                Domain.Entities.Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
 
                 var provider = ConfigurationManager.AppSettings["SATProvider"];
                 DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
-                DateTime dateTo = DateTime.UtcNow.AddMonths(-1);
-                dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
+                DateTime dateTo = DateTime.UtcNow;
                 dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
                 string extractionId = SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
 
-                var diagn = new Domain.Entities.Diagnostic()
+                var process = new Domain.Entities.WebhookProcess()
                 {
                     uuid = Guid.NewGuid(),
-                    account = account,
-                    businessName = account.name,
-                    commercialCAD = "",
-                    plans = "",
+                    processId = extractionId,
+                    provider = SystemProviders.SATWS.ToString(),
+                    @event = SatwsEvent.EXTRACTION_UPDATED.ToString(),
+                    reference = authUser.Account.Uuid.ToString(),
                     createdAt = DateUtil.GetDateTimeNow(),
-                    status = SystemStatus.PENDING.ToString(),
-                    processId = extractionId
+                    status = SystemStatus.PENDING.ToString()
                 };
 
-                _diagnosticService.Create(diagn);
-                Session["InitialDiagnostic"] = diagn.uuid;
+                _webhookProcessService.Create(process);
+                Session["InitialDiagnostic"] = process.uuid;
             }
             catch (Exception ex)
             {
                 LogUtil.AddEntry(
-                   "Error en diagnostico inicial: " + authUser.Account.RFC, ENivelLog.Error, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                   "Error en la extracción inicial: " + authUser.Account.RFC, ENivelLog.Error, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    ex.Message + "" + (ex.InnerException != null ? ex.InnerException.Message : "")
                 );
+                throw new Exception("Se validó el RFC pero no fue posible generar la extracción de facturas");
             }
         }
 
@@ -714,20 +764,21 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (!string.IsNullOrEmpty(uuid))
                 {
-                    var diagnostic = _diagnosticService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
-                    if (diagnostic == null)
+                    var process = _webhookProcessService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
+                    if (process == null)
                         throw new Exception("No fue posible obtener el diagnostico");
 
-                    if (diagnostic.status == SystemStatus.PENDING.ToString() || diagnostic.status == SystemStatus.PROCESSING.ToString())
+                    if (process.status == SystemStatus.PENDING.ToString() || process.status == SystemStatus.PROCESSING.ToString())
                     {
                         return Json(new { success = true, finish = false, status = true }, JsonRequestBehavior.AllowGet);
                     }
-                    else if (diagnostic.status == SystemStatus.ACTIVE.ToString())
+                    else if (process.status == SystemStatus.ACTIVE.ToString())
                     {
                         Session["InitialDiagnostic"] = null;
+                        GenerateDx0();
                         return Json(new { success = true, finish = true, status = true }, JsonRequestBehavior.AllowGet);
                     }
-                    else if (diagnostic.status == SystemStatus.FAILED.ToString())
+                    else if (process.status == SystemStatus.FAILED.ToString())
                         return Json(new { success = false, finish = true, status = true, message = "Se generó un fallo durante la extracción" }, JsonRequestBehavior.AllowGet);
                     else
                         return Json(new { success = false, finish = true, status = true, message = "No fue posible generar el diagnostico, comuniquese al área de soporte" }, JsonRequestBehavior.AllowGet);
@@ -741,6 +792,107 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 return Json(new { message = ex.Message, success = false, finish = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public void GenerateDx0()
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+            try
+            {
+                
+                Domain.Entities.Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
+
+                var provider = ConfigurationManager.AppSettings["SATProvider"];
+
+                var diagnostic = new Domain.Entities.Diagnostic()
+                {
+                    uuid = Guid.NewGuid(),
+                    account = account,
+                    businessName = account.name,
+                    commercialCAD = "",
+                    plans = "",
+                    createdAt = DateUtil.GetDateTimeNow(),
+                    status = SystemStatus.ACTIVE.ToString(),
+                };
+
+                _diagnosticService.Create(diagnostic);
+
+                List<Domain.Entities.DiagnosticDetail> details = new List<Domain.Entities.DiagnosticDetail>();
+
+                DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
+                DateTime dateTo = DateTime.UtcNow.AddMonths(-1);
+                dateTo = new DateTime(dateTo.Year, dateTo.Month, DateTime.DaysInMonth(dateTo.Year, dateTo.Month)).AddDays(1).AddMilliseconds(-1);
+                dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
+                var invoicesIssued = _invoicesIssuedService.FindBy(x => x.account.id == account.id && x.invoicedAt >= dateFrom && x.invoicedAt <= dateTo).ToList();
+
+                details.AddRange(invoicesIssued
+                    .GroupBy(x => new
+                    {
+                        x.invoicedAt.Year,
+                        x.invoicedAt.Month,
+                    })
+                .Select(b => new Domain.Entities.DiagnosticDetail()
+                {
+                    diagnostic = diagnostic,
+                    year = b.Key.Year,
+                    month = b.Key.Month,
+                    typeTaxPayer = TypeIssuerReceiver.ISSUER.ToString(),
+                    numberCFDI = b.Count(),
+                    totalAmount = b.Sum(y => y.total),
+                    createdAt = DateUtil.GetDateTimeNow()
+                }));
+
+                var invoicesReceived = _invoicesReceivedService.FindBy(x => x.account.id == account.id && x.invoicedAt >= dateFrom && x.invoicedAt <= dateTo).ToList();
+
+                details.AddRange(invoicesReceived
+                    .Where(x => x.invoiceType != TipoComprobante.N.ToString()) //Si es solo ingreso en las factura descomentar esta linea
+                    .GroupBy(x => new
+                    {
+                        x.invoicedAt.Year,
+                        x.invoicedAt.Month,
+                    })
+                .Select(b => new Domain.Entities.DiagnosticDetail()
+                {
+                    diagnostic = diagnostic,
+                    year = b.Key.Year,
+                    month = b.Key.Month,
+                    typeTaxPayer = TypeIssuerReceiver.RECEIVER.ToString(),
+                    numberCFDI = b.Count(),
+                    totalAmount = b.Sum(y => y.total),
+                    createdAt = DateUtil.GetDateTimeNow()
+                }));
+
+                _diagnosticDetailService.Create(details);
+
+                var taxStatusModel = SATService.GetTaxStatus(account.rfc, provider);
+                if (!taxStatusModel.Success)
+                    throw new Exception(taxStatusModel.Message);
+
+                var taxStatus = taxStatusModel.TaxStatus
+                    .Select(x => new Domain.Entities.DiagnosticTaxStatus
+                    {
+                        diagnostic = diagnostic,
+                        createdAt = DateUtil.GetDateTimeNow(),
+                        statusSAT = x.status,
+                        businessName = x.person != null ? x.person.fullName : x.company.tradeName,
+                        taxMailboxEmail = x.email,
+                        taxRegime = x.taxRegimes.Count > 0 ? String.Join(",", x.taxRegimes.Select(y => y.name).ToArray()) : null,
+                        economicActivities = x.economicActivities != null && x.economicActivities.Any() ? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null,
+                        fiscalObligations = x.obligations != null && x.obligations.Any() ? String.Join(",", x.obligations.Select(y => y.description).ToArray()) : null,
+                    }).ToList();
+                _diagnosticTaxStatusService.Create(taxStatus);
+                
+            }
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(
+                      "Error en diagnostico inicial: " + authUser.Account.RFC, ENivelLog.Error, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                      string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                      ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                      ex.Message + "" + (ex.InnerException != null ? ex.InnerException.Message : "")
+                   );
+                throw new Exception("Se descargaron las facturas, pero no fue posible generar el diagnostico fiscal. ");
             }
         }
 

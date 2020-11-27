@@ -99,7 +99,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 var account = authUser.Account;
                 string email = authUser.Email;
-                var membership = _membershipService.FirstOrDefault(x => x.account.id == account.Id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
+                var membership = _membershipService.FirstOrDefault(x => x.account.id == account.Id && x.role.code == SystemRoles.ACCOUNT_OWNER.ToString() && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
 
                 if (membership != null)
                 {

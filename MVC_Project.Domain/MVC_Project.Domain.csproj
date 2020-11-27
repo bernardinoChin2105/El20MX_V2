@@ -124,6 +124,7 @@
     <Compile Include="Entities\UseCFDI.cs" />
     <Compile Include="Entities\User.cs" />
     <Compile Include="Entities\Webhook.cs" />
+    <Compile Include="Entities\WebhookProcess.cs" />
     <Compile Include="Helpers\IUnitOfWork.cs" />
     <Compile Include="Model\AllianceList.cs" />
     <Compile Include="Model\BanksViewModel.cs" />
@@ -203,6 +204,7 @@
     <Compile Include="Services\StateService.cs" />
     <Compile Include="Services\UseCFDIService.cs" />
     <Compile Include="Services\UserService.cs" />
+    <Compile Include="Services\WebhookProcessService.cs" />
     <Compile Include="Services\WebhookService.cs" />
   </ItemGroup>
   <ItemGroup>
