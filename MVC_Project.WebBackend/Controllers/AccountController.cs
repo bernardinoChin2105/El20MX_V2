@@ -81,7 +81,8 @@ namespace MVC_Project.WebBackend.Controllers
             if (authUser.isBackOffice)
             {
                 var accounts = new List<Account>();
-                if (authUser.Role.Code == SystemRoles.SYSTEM_ADMINISTRATOR.ToString() || authUser.Role.Code.Contains(SystemRoles.DIRECCION.ToString()))
+                if (authUser.Role.Code == SystemRoles.SYSTEM_ADMINISTRATOR.ToString() || authUser.Role.Code.Contains(SystemRoles.DIRECCION.ToString())
+                    || authUser.Role.Code.Contains(SystemRoles.GERENTE.ToString()) || authUser.Role.Code.Contains(SystemRoles.EJECUTIVO.ToString()))
                 {
                     accounts = _accountService.GetAll().Select(x => new Account
                     {
