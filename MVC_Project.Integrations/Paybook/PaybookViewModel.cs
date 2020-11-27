@@ -86,6 +86,22 @@ namespace MVC_Project.Integrations.Paybook
         public string time_zone { get; set; }
     }
 
+    public class BankSite
+    {
+        public string id_site { get; set; }
+        public string id_site_type { get; set; }
+        public string name { get; set; }
+    }
+
+    public class AllBankSites
+    {
+        public string id_site_organization { get; set; }
+        public string id_site_organization_type { get; set; }
+        public string id_country { get; set; }
+        public string name { get; set; }
+        public List<BankSite> sites { get; set; }
+    }
+
     public class ExtraAccountPaybook
     {
         public string owner { get; set; }
