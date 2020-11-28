@@ -81,22 +81,29 @@ namespace MVC_Project.API.Controllers
 
                         var paybookCredentials = PaybookService.GetCredentials(response.id_credential, token);
                         var paybookCredential = paybookCredentials.FirstOrDefault();
-                        var bank = _bankService.FirstOrDefault(x => x.providerId == response.id_site_organization);
+                        var bank = _bankService.FirstOrDefault(x => x.providerSiteId == response.id_site);
 
                         if (bank == null)
                         {
-                            var paybookBanks = PaybookService.GetBanks(response.id_site_organization, token);
-                            var paybookBank = paybookBanks.FirstOrDefault();
-                            bank = new Bank
+                            var paybookBanks = PaybookService.GetBanksSites(response.id_site_organization, token);
+                            foreach (var pBank in paybookBanks)
                             {
-                                uuid = Guid.NewGuid(),
-                                name = paybookBank.name,
-                                providerId = paybookBank.id_site_organization,
-                                createdAt = DateUtil.GetDateTimeNow(),
-                                modifiedAt = DateUtil.GetDateTimeNow(),
-                                status = SystemStatus.ACTIVE.ToString()
-                            };
-                            _bankService.Create(bank);
+                                foreach (var site in pBank.sites)
+                                {
+                                    bank = new Bank
+                                    {
+                                        uuid = Guid.NewGuid(),
+                                        name = pBank.name,
+                                        providerId = pBank.id_site_organization,
+                                        nameSite = site.name,
+                                        providerSiteId = site.id_site,
+                                        createdAt = DateUtil.GetDateTimeNow(),
+                                        modifiedAt = DateUtil.GetDateTimeNow(),
+                                        status = SystemStatus.ACTIVE.ToString(),
+                                    };
+                                    _bankService.Create(bank);
+                                }
+                            }
                         }
 
                         bankCredential = new BankCredential()
