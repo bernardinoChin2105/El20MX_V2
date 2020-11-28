@@ -65,9 +65,8 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     title: "Acciones",
                     className: 'work-options',
                     render: function (data) {
-                        var btnUpdate = "";
-                        //if (data.isTwofa && (data.code === 401 || data.code === 411)) {                            
-                        if (data.isTwofa || data.code === 401 || data.code === 411 || data.code === 600) { //el código 600 es cuando la fecha refresh no esta actualizada
+                        var btnUpdate = "";                                                
+                        if (data.code === 401 || data.code === 411 || data.code === 600) { //el código 600 es cuando la fecha refresh no esta actualizada
                             btnUpdate = '<button class="btn btn-light btn-actualizar" title="Actualizar"><span class="fa fa-sync-alt"></span></button>';
                         }
 
@@ -161,6 +160,12 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
             //toastr["error"]("Erorr");
         });
 
+        self.syncWidget.$on('401', () => {
+            // ... do something when user session is unauthorized.
+            // i.e. refresh user session.
+            console.log("holas estoy aquí")
+        });
+
 
         $(".btn-token").click(function () {
             El20Utils.mostrarCargador();
@@ -207,7 +212,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
             var isTwofa = row.data().isTwofa;
             var credentialId = row.data().credentialProviderId;            
 
-            if (isTwofa === 0 && code !== 401 && code !== 411) {
+            if (isTwofa === false && code !== 401) {
                 self.syncWidget.setEntrypointCredential(credentialId);
             } else {
                 var siteId = row.data().siteId;
