@@ -1416,9 +1416,8 @@ namespace MVC_Project.WebBackend.Controllers
                 }
                 else
                 {
-
                     invoice = _invoiceReceivedService.FirstOrDefault(x => x.id == id);
-                    logo = invoice.branchOffice != null ? invoice.branchOffice.logo : string.Empty;
+                    //logo = invoice.branchOffice != null ? invoice.branchOffice.logo : string.Empty;
                 }
 
                 // var OfficeId = invoice.GetType().GetProperty("BranchOfficeId").GetValue(invoice, null);

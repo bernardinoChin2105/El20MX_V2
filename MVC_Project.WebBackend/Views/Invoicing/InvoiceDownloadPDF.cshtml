@@ -81,46 +81,37 @@
             <tr>
                 <td><strong>Nombre receptor:</strong></td>
                 <td>@Model.Receptor.Nombre</td>
-                @*<td><strong>Efecto de comprobante:</strong></td>
-                    <td>@Model.TipoDeComprobante</td>*@
+                <td><strong>Regimen fiscal:</strong></td>
+                <td>@Model.Emisor.RegimenFiscalTexto</td>
             </tr>
 
             <tr>
                 <td><strong>Uso CFDI:</strong></td>
                 <td>@Model.Receptor.UsoCFDI</td>
-                <td><strong>Regimen fiscal:</strong></td>
-                <td>@Model.Emisor.RegimenFiscalTexto</td>
-            </tr>
-            <tr>
-                <td><strong>Forma de pago:</strong></td>
-                <td>@Model.FormaPago</td>
                 <td><strong>Tipo de Comprobante:</strong></td>
                 <td>@Model.TipoDeComprobante</td>
             </tr>
             <tr>
-                <td><strong>Metodo de pago:</strong></td>
-                <td>@Model.MetodoPago</td>
-                <td><strong>Total:</strong></td>
-                <td>@Model.Total</td>
-            </tr>
-            <tr>
+                <td><strong>Forma de pago:</strong></td>
+                <td>@Model.FormaPago</td>
                 <td><strong>Moneda:</strong></td>
                 <td>@Model.Moneda</td>
+            </tr>
+            <tr>
+                <td><strong>Metodo de pago:</strong></td>
+                <td>@Model.MetodoPago</td>
                 <td><strong>Tipo de Cambio:</strong></td>
                 <td>@Model.TipoCambio</td>
             </tr>
-            <tr>
-                @if (!String.IsNullOrEmpty(Model.ClaveCatastral))
-                {
+            @if (!String.IsNullOrEmpty(Model.ClaveCatastral))
+            {
+                <tr>
                     <td><strong>Clave Catastral:</strong></td>
                     <td>@Model.ClaveCatastral</td>
-                }
-                else
-                {
                     <td></td>
                     <td></td>
-                }
-            </tr>
+                </tr>
+            }
             <tr></tr>
         </table>
 
@@ -138,7 +129,7 @@
                     <th align="center">Cantidad</th>
                     <th align="center">clave Unidad</th>
                     <th align="center">Descripción</th>
-                    <th align="center">Valor Unitario</th>                    
+                    <th align="center">Valor Unitario</th>
                     <th align="center">Descuento</th>
                     <th align="center">Total</th>
                 </tr>
@@ -167,7 +158,6 @@
                     {
                         if (Convert.ToDecimal(Model.Descuento) > 0)
                         {
-
                             <tr>
                                 <td colspan="6" align="right">Descuento:</td>
                                 <td align="right">@Convert.ToDecimal(Model.Descuento).ToString("C2")</td>
@@ -206,6 +196,8 @@
             </table>
         </div>
     </div>
+    <br />
+    <div class="text-center"><p><small>Este documento es la representación impresa de un CFDI</small></p></div>
     <br />
     <div class="textoContiguo" style="font-size:11px;">
         <strong>Sello CFDI </strong>

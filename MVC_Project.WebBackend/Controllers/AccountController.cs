@@ -81,7 +81,8 @@ namespace MVC_Project.WebBackend.Controllers
             if (authUser.isBackOffice)
             {
                 var accounts = new List<Account>();
-                if (authUser.Role.Code == SystemRoles.SYSTEM_ADMINISTRATOR.ToString() || authUser.Role.Code.Contains(SystemRoles.DIRECCION.ToString()))
+                if (authUser.Role.Code == SystemRoles.SYSTEM_ADMINISTRATOR.ToString() || authUser.Role.Code.Contains(SystemRoles.DIRECCION.ToString())
+                    || authUser.Role.Code.Contains(SystemRoles.GERENTE.ToString()) || authUser.Role.Code.Contains(SystemRoles.EJECUTIVO.ToString()))
                 {
                     accounts = _accountService.GetAll().Select(x => new Account
                     {
@@ -815,9 +816,7 @@ namespace MVC_Project.WebBackend.Controllers
                     createdAt = DateUtil.GetDateTimeNow(),
                     status = SystemStatus.ACTIVE.ToString(),
                 };
-
-                _diagnosticService.Create(diagnostic);
-
+                
                 List<Domain.Entities.DiagnosticDetail> details = new List<Domain.Entities.DiagnosticDetail>();
 
                 DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
@@ -863,8 +862,6 @@ namespace MVC_Project.WebBackend.Controllers
                     createdAt = DateUtil.GetDateTimeNow()
                 }));
 
-                _diagnosticDetailService.Create(details);
-
                 var taxStatusModel = SATService.GetTaxStatus(account.rfc, provider);
                 if (!taxStatusModel.Success)
                     throw new Exception(taxStatusModel.Message);
@@ -875,14 +872,16 @@ namespace MVC_Project.WebBackend.Controllers
                         diagnostic = diagnostic,
                         createdAt = DateUtil.GetDateTimeNow(),
                         statusSAT = x.status,
-                        businessName = x.person != null ? x.person.fullName : x.company.tradeName,
+                        businessName = x.person != null ? x.person.fullName :
+                            (x.company != null ? (!string.IsNullOrEmpty(x.company.tradeName) ? x.company.tradeName : x.company.legalName) : string.Empty),
                         taxMailboxEmail = x.email,
                         taxRegime = x.taxRegimes.Count > 0 ? String.Join(",", x.taxRegimes.Select(y => y.name).ToArray()) : null,
                         economicActivities = x.economicActivities != null && x.economicActivities.Any() ? String.Join(",", x.economicActivities.Select(y => y.name).ToArray()) : null,
                         fiscalObligations = x.obligations != null && x.obligations.Any() ? String.Join(",", x.obligations.Select(y => y.description).ToArray()) : null,
                     }).ToList();
-                _diagnosticTaxStatusService.Create(taxStatus);
-                
+
+                _diagnosticService.Create(diagnostic, details, taxStatus);
+
             }
             catch (Exception ex)
             {

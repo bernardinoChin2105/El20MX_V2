@@ -204,35 +204,27 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
             var tr = $(this).closest('tr');
             var row = self.dataTable.row(tr);
             var code = row.data().code;
-            var credentialId = row.data().credentialProviderId;
-            self.syncWidget.setEntrypointCredential(credentialId);
+            var isTwofa = row.data().isTwofa;
+            var credentialId = row.data().credentialProviderId;            
 
-            //    El20Utils.ocultarCargador();
-            //    $.ajax({
-            //        type: 'Get',
-            //        contentType: 'application/json',
-            //        async: true,
-            //        data: { idCredential: credentialId },
-            //        url: self.createBankCredentialUrl,
-            //        success: function (result) {
-            //            console.log("result en actualización", result);
-
-            //            if (!result.success) {
-            //                toastr["error"](result.Mensaje.message, null, { 'positionClass': 'toast-top-center' });
-            //            } else {
-            //                toastr["success"](result.data, null, { 'positionClass': 'toast-top-center' });
-            //                self.dataTable.draw();
-            //            }
-            //            El20Utils.ocultarCargador();
-            //        },
-            //        error: function (xhr) {
-            //            //console.log("error: " + xhr);
-            //            El20Utils.ocultarCargador();
-            //            //loading.hideloading();
-            //        }
-            //    }).always(function () {
-            //    });
-
+            if (isTwofa === 0 && code !== 401 && code !== 411) {
+                self.syncWidget.setEntrypointCredential(credentialId);
+            } else {
+                var siteId = row.data().siteId;
+                //self.syncWidget.setEntrypointSite(siteId);
+                params.locale = 'es';
+                params.navigation = {
+                    displayStatusInToast: true,
+                    "hideSiteOrganizationTypes": ["Blockchain", "Digital Wallet", "Government", "Utility"]
+                };
+                params.entrypoint = {
+                    // Set up the country to start:
+                    country: 'MX',                    
+                    site: siteId
+                };
+                self.syncWidget.setConfig(params);
+                self.syncWidget.open();
+            }            
         });
 
         $("#table tbody").on("click", ".work-options .btn-group .btn-desvincular", function () {
