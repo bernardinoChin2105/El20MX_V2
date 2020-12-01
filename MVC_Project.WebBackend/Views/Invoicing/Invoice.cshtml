@@ -49,7 +49,7 @@
             padding-bottom: 0;
         }
 
-        td.details-control .open {
+        td.details-control .open::before {
             cursor: pointer;
             top: 50%;
             left: 0;
@@ -71,9 +71,16 @@
             background-color: #0275d8;
         }
 
-        tr.shown td.details-control .open {
+        tr.shown td.details-control .open::before {
             content: '-';
             background-color: #d33333;
+        }
+
+        #tableValue tr td:nth-child(2n+1){
+            width:15%;
+        }
+        #tableValue tr td:nth-child(2n) {
+            width: 35%;
         }
     </style>
 }
@@ -280,37 +287,37 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    @Html.LabelFor(m => m.PaymentForm, new { @class = "col-form-label col-md-2 control-label" })
+                    @Html.LabelFor(m => m.PaymentForm, new { @class = "col-form-label col-md-2 control-label labelsFiscal" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.PaymentForm, Model.ListPaymentForm, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.PaymentForm, Model.ListPaymentForm, "Seleccione...", new { @class = "form-control chosen-select inputsFiscal required" })
                     </div>
-                    @Html.LabelFor(m => m.PaymentMethod, new { @class = "col-form-label col-md-2 control-label" })
+                    @Html.LabelFor(m => m.PaymentMethod, new { @class = "col-form-label col-md-2 control-label labelsFiscal" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.PaymentMethod, Model.ListPaymentMethod, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.PaymentMethod, Model.ListPaymentMethod, "Seleccione...", new { @class = "form-control chosen-select inputsFiscal required" })
                     </div>
                 </div>
                 <div class="form-group row">
-                    @Html.LabelFor(m => m.Currency, new { @class = "col-form-label col-md-2 control-label" })
+                    @Html.LabelFor(m => m.Currency, new { @class = "col-form-label col-md-2 control-label labelsFiscal" })
                     <div class="col-md-4">
-                        @Html.DropDownListFor(model => model.Currency, Model.ListCurrency, "Seleccione...", new { @class = "form-control chosen-select required" })
+                        @Html.DropDownListFor(model => model.Currency, Model.ListCurrency, "Seleccione...", new { @class = "form-control chosen-select inputsFiscal required" })
                     </div>
 
                     @if (Model.Currency == "MXN")
                     {
-                        @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label exchange hide" })
+                        @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label exchange hide labelsFiscal" })
                         <div class="col-md-4">
-                            @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control exchange hide", @maxlength = "200", @autocomplete = "off" })
+                            @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control exchange inputsFiscal hide", @maxlength = "200", @autocomplete = "off" })
                         </div>
                     }
                     else
                     {
-                        @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label exchange required" })
+                        @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label exchange labelsFiscal" })
                         <div class="col-md-4">
-                            @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control exchange required", @maxlength = "200", @autocomplete = "off" })
+                            @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control exchange inputsFiscal required", @maxlength = "200", @autocomplete = "off" })
                         </div>
                     }
                 </div>
-                <div class="form-group row">
+                <div class="form-group row labelsFiscal">
                     <div class="col-12 col-md-6">
                         <div class="i-checks">
                             <label class="control-label">

@@ -366,7 +366,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 },
                 {
                     "targets": 8, render: function (data, type, row, meta) {
-                        var html = '<input type="text" class="form-control" name="payment[' + (meta.row) + '].numberPartialities" value="' + row.numberPartialities + '" />';
+                        var html = '<input type="text" class="form-control numberPayment" name="payment[' + (meta.row) + '].numberPartialities" value="' + row.numberPartialities + '" />';
                         return html;
                     }
                 },
@@ -378,44 +378,44 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     }
                 },
                 {
-                    "targets": 10, className: 'hide', render: function (data, type, row, meta) {
+                    "targets": 10, render: function (data, type, row, meta) {
                         var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].serie" value="' + row.serie + '" />';
                         return html;
                     }
                 },
                 {
                     "targets": 11, className: 'hide', render: function (data, type, row, meta) {
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].NumOperationCFDI" value="' + row.serie + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].NumOperationCFDI" value="' + row.NumOperationCFDI + '" />';
                         return html;
                     }
                 },
                 {
                     "targets": 12, className: 'hide', render: function (data, type, row, meta) {
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].AmountCFDI" value="' + row.serie + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].AmountCFDI" value="' + row.AmountCFDI + '" />';
                         return html;
                     }
                 },
                 {
                     "targets": 13, className: 'hide', render: function (data, type, row, meta) {
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].CurrencyCFDI" value="' + row.serie + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].CurrencyCFDI" value="' + row.CurrencyCFDI + '" />';
                         return html;
                     }
                 },
                 {
                     "targets": 14, className: 'hide', render: function (data, type, row, meta) {
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].ExchangeRateCFDI" value="' + row.serie + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].ExchangeRateCFDI" value="' + row.ExchangeRateCFDI + '" />';
                         return html;
                     }
                 },
                 {
                     "targets": 15, className: 'hide', render: function (data, type, row, meta) {
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].PaymentFormCFDI" value="' + row.serie + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].PaymentFormCFDI" value="' + row.PaymentFormCFDI + '" />';
                         return html;
                     }
                 },
                 {
                     "targets": 16, className: 'hide', render: function (data, type, row, meta) {
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].startedAt" value="' + row.serie + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].startedAt" value="' + row.startedAt + '" />';
                         return html;
                     }
                 }
@@ -550,6 +550,11 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     .row($(this).parents('tr'))
                     .remove()
                     .draw();
+
+                if (self.dataTableCFDIEgress.rows().count() === 0) {
+                    self.dataTable.clear().draw();
+                }
+
             });
 
         //Opción de eliminar para los datos relacionados
@@ -560,6 +565,10 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     .row($(this).parents('tr'))
                     .remove()
                     .draw();
+
+                if (self.dataTableCFDI.rows().count() === 0) {
+                    self.dataTable.clear().draw();
+                }
             });
         //Opción de mostrar detalles para la tabla de relacionados
         $(this.htmlTableCFDI, 'tbody').on('click', 'td.details-control', function () {
@@ -572,11 +581,6 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 // This row is already open - close it                
                 //row.child(updateData(index)).hide().remove();
                 tr.removeClass('shown');
-                //self.dataTableCFDI
-                //    .row(tr.nextSibling)
-                //    .remove()
-                //    .draw();
-                updateData(index);
                 $("#tableValue").html("");
             }
             else {
@@ -584,32 +588,55 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 console.log("hola", row.data(), index);
                 //row.child(format(row.data(), index)).show();
                 $("#tableValue").html(format(row.data(), index));
-                copySelects(index);
+                copySelects(row.data(), index);
                 tr.addClass('shown');
-
             }
         });
 
-        $("#tableValue").on('blur', '.amountCFDI', function () {
-            //var tr = $(this).closest('tr');
-            var index = $(this).attr("data-index");
+        //$("#tableValue").on('blur', '.amountCFDI', function () {
+        //    //var tr = $(this).closest('tr');
+        //    var index = $(this).attr("data-index");
 
+        //    var t = self.dataTableCFDI;
+        //    var row = t.row(index);
+        //    //var index = t.row(tr).index();
+        //    console.log(t, row, index, "filas");
+        //    var data = t.row(index).data();
+        //    console.log(data, "información");
+
+        //    var amount = $("input[name='fiscal[" + index + "].AmountCFDI']").val();
+        //    var previous = parseFloat(data.previousBalance);
+        //    var amountDecimal = parseFloat(amount !== "" ? amount : 0);
+
+        //    total = previous - amountDecimal;
+        //    data.paid = amountDecimal;
+        //    data.outstanding = Math.round(total, 2).toString();
+
+        //    t.row(index).data(data).draw(false);
+        //});
+
+        $(self.htmlTableCFDI, 'tbody').on('change', '.numberPayment', function () {
+            var tr = $(this).closest('tr');
+            // var row = self.dataTableCFDI.row(tr);
             var t = self.dataTableCFDI;
+            var index = t.row(tr).index();
+            console.log(tr, row, index, "filas");
             var row = t.row(index);
             //var index = t.row(tr).index();
             console.log(t, row, index, "filas");
             var data = t.row(index).data();
             console.log(data, "información");
 
-            var amount = $("input[name='fiscal[" + index + "].AmountCFDI']").val();
-            var previous = parseFloat(data.previousBalance);            
-            var amountDecimal = parseFloat(amount !== "" ? amount : 0);            
-
-            total = previous - amountDecimal;
-            data.paid = amountDecimal;
-            data.outstanding = Math.round(total,2);
+            data.numberPartialities = $("input[name='payment[" + index + "].numberPartialities']").val();
 
             t.row(index).data(data).draw(false);
+        });
+
+        $("#tableValue").on("click", ".btn-add-pay", function () {
+            //var index = self.dataTableCFDI.row(tr).index();
+            var index = $(this).val();
+            console.log(index, "index para editar la fila de la tabla");
+            updateData(index);
         });
 
         //funcion para obtener el detalle
@@ -619,15 +646,15 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:0px;">' +
                 '<tr>' +
                 '<td><label class="col-form-label control-label">Número de operación</label></td>' +
-                '<td><input type="text" name="fiscal[' + index + '].NumOperationCFDI" id="" class="form-control" autocomplete="off" maxlength="50" /></td>' +
+                '<td><input type="text" name="fiscal[' + index + '].NumOperationCFDI" id="" value="' + d.NumOperationCFDI + '" class="form-control" autocomplete="off" maxlength="50" /></td>' +
                 '<td><label class="col-form-label control-label">Monto</label></td>' +
-                '<td><input type="text" name="fiscal[' + index + '].AmountCFDI" id="" class="form-control money amountCFDI" data-index="' + index + '" autocomplete="off" maxlength="50" /></td>' +
+                '<td><input type="text" name="fiscal[' + index + '].AmountCFDI" id="" value="' + d.AmountCFDI + '" class="form-control money amountCFDI" data-index="' + index + '" autocomplete="off" maxlength="50" /></td>' +
                 '</tr>' +
                 '<tr>' +
                 '<td><label class="col-form-label control-label">Moneda</label></td>' +
                 '<td><select name="fiscal[' + index + '].CurrencyCFDI" id="" class="form-control" class="form-control chosen-select"></select></td>' +
                 '<td><label class="col-form-label control-label">Tipo de Cambio</label></td>' +
-                '<td><input type="text" name="fiscal[' + index + '].ExchangeRateCFDI" id="" class="form-control money" autocomplete="off" maxlength="50" /></td>' +
+                '<td><input type="text" name="fiscal[' + index + '].ExchangeRateCFDI" id="" value="' + d.exchangeRate + '"  class="form-control money" autocomplete="off" maxlength="50" /></td>' +
                 '</tr>' +
                 '<tr>' +
                 '<td><label class="col-form-label control-label">Forma de Pago</label></td>' +
@@ -637,26 +664,33 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 '<div id="data_1">' +
                 '<div class="input-group date">' +
                 '<span class="input-group-addon"><i class="fa fa-calendar"></i></span>' +
-                '<input type="text" name="fiscal[' + index + '].startedAt" id="startedAt" class="form-control required" readonly>' +
+                '<input type="text" name="fiscal[' + index + '].startedAt" id="startedAt" class="form-control required" value="' + d.startedAt + '" readonly>' +
                 '</div>' +
                 '</div>' +
                 '</td >' +
                 '</tr>' +
+                '<tr>' +
+                '<td colspan="2"><button type="button" value="' + index + '" class="btn btn-color btn-add-pay">Editar pago</button></td>' +
+                '</tr>' +
                 '</table>';
         }
-        function copySelects(index) {
-            console.log("holas lklñklk");
+        function copySelects(d, index) {
+            //console.log("holas lklñklk");
             var $optionsPF = $("#PaymentForm > option").clone();
             $("select[name='fiscal[" + index + "].PaymentFormCFDI']").append($optionsPF);
+            if (d.PaymentFormCFDI !== "")
+                $("select[name='fiscal[" + index + "].PaymentFormCFDI']").val(d.PaymentFormCFDI);
 
             var $optionsC = $("#Currency > option").clone();
             $("select[name='fiscal[" + index + "].CurrencyCFDI']").append($optionsC);
+            if (d.CurrencyCFDI !== "")
+                $("select[name='fiscal[" + index + "].CurrencyCFDI']").val(d.CurrencyCFDI);
 
             //$('.money').mask("##,###,##0.00", { reverse: true });
             $('.money').mask("#######0.00", { reverse: true });
 
             $('#data_1 .input-group.date').datepicker({
-                //dateFormat: "yy-mm-dd"
+                dateFormat: "yyyy-mm-dd",
                 keyboardNavigation: false,
                 todayBtn: "linked",
                 forceParse: false,
@@ -670,20 +704,48 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         }
         function updateData(index) {
             var t = self.dataTableCFDI;
+            var row = t.row(index);
+            //console.log(t, row, index, "filas");
             var data = t.row(index).data();
+            //console.log(data, "información");
 
-            //total = data.previousBalance - amount;
-            //data.paid = amount;
-            //data.outstanding = total;
-            //var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].AmountCFDI" value="' + row.serie + '" />';          
+            var amount = $("input[name='fiscal[" + index + "].AmountCFDI']").val();
+            var previous = parseFloat(data.previousBalance);
+            var amountDecimal = parseFloat(amount !== "" ? amount : 0);
+            total = previous - amountDecimal;
+            data.outstanding = (Math.round(total, 2)).toString();
+
+            data.paid = $("input[name='fiscal[" + index + "].AmountCFDI']").val();
+            data.AmountCFDI = $("input[name='fiscal[" + index + "].AmountCFDI']").val();
             data.numberPartialities = $("input[name='payment[" + index + "].numberPartialities']").val();
             data.NumOperationCFDI = $("input[name='fiscal[" + index + "].NumOperationCFDI']").val();
-            data.CurrencyCFDI = $("input[name='fiscal[" + index + "].CurrencyCFDI']").val();
+            data.CurrencyCFDI = $("select[name='fiscal[" + index + "].CurrencyCFDI']").val();
             data.ExchangeRateCFDI = $("input[name='fiscal[" + index + "].ExchangeRateCFDI']").val();
-            data.PaymentFormCFDI = $("input[name='fiscal[" + index + "].PaymentFormCFDI']").val();
+            data.PaymentFormCFDI = $("select[name='fiscal[" + index + "].PaymentFormCFDI']").val();
             data.startedAt = $("input[name='fiscal[" + index + "].startedAt']").val();
 
-            t.row(index).data(data).draw(false);
+            t.row(index).data(data).draw();
+        }
+        function addConcept() {
+            var t = self.dataTable;
+
+            t.row.add(
+                [
+                    1,
+                    1,
+                    "84111506",
+                    "Pago",
+                    "ACT",
+                    "Actividad",
+                    "0",
+                    "0",
+                    "0",
+                    "0",
+                    "",
+                    "0",
+                    1
+                ]
+            ).draw(false);
         }
 
         $.validator.addMethod("Alphanumeric",
@@ -855,12 +917,11 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             }
             return 0;
         }
-        //countDecimals(val);
 
         /*Buscador de facturas para complementos*/
         $("#TypeInvoice").change(function () {
             console.log("opción de relación de facturas", $(this).val());
-            var typeInvoice = $(this).val();
+            var typeInvoice = $(this).val();            
 
             if (typeInvoice === "P") {
                 $("#CFDIrelacionados").removeClass("hide");
@@ -869,8 +930,11 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#tablePayments").removeClass("hide");
                 $("#tableRelatedEgress").addClass("hide");
                 $("#DiscountRate").attr("readonly", true);
-                //self.htmlTableCFDIEgress.clear().draw();
-                //$("#btnProdServ").addClass("hide");
+                self.dataTableCFDIEgress.clear().draw();
+                $("#btnProdServ").addClass("hide");
+
+                $(".labelsFiscal").addClass("hide").removeClass("required");
+                $(".inputsFiscal").addClass("hide").removeClass("required");
             } else if (typeInvoice === "E") {
                 $("#CFDIrelacionados").removeClass("hide");
                 $("#Condiciones").removeClass("hide");
@@ -878,19 +942,25 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#tablePayments").addClass("hide");
                 $("#tableRelatedEgress").removeClass("hide");
                 $("#DiscountRate").attr("readonly", true);
-                //self.htmlTableCFDI.clear().draw();
-                //$("#btnProdServ").addClass("hide");
+                self.dataTableCFDI.clear().draw();
+                $("#btnProdServ").removeClass("hide");
+
+                $(".labelsFiscal").removeClass("hide").addClass("required");
+                $(".inputsFiscal").removeClass("hide").addClass("required");
             } else {
                 //Para tipo ingreso
                 $("#CFDIrelacionados").addClass("hide");
                 $("#relacionados").addClass("hide");
                 $("#Condiciones").removeClass("hide");
-                //$("#btnProdServ").removeClass("hide");
+                $("#btnProdServ").removeClass("hide");
                 $("#tablePayments").addClass("hide");
                 $("#tableRelatedEgress").addClass("hide");
                 $("#DiscountRate").attr("readonly", false);
-                //self.htmlTableCFDI.clear().draw();
-                //self.htmlTableCFDIEgress.clear().draw();
+                self.dataTableCFDI.clear().draw();
+                self.dataTableCFDIEgress.clear().draw();
+
+                $(".labelsFiscal").removeClass("hide").addClass("required");
+                $(".inputsFiscal").removeClass("hide").addClass("required");
             }
         });
 
@@ -910,7 +980,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     type: 'Get',
                     async: true,
                     data: { uuid: uuid, typeInvoice: $("#TypeInvoice").val() },
-                    url: self.searchCDFIUrl,           
+                    url: self.searchCDFIUrl,
                     success: function (json) {
                         console.log(json, "respuesta");
 
@@ -945,11 +1015,20 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                             "numberPartialities": 0,
                                             "folio": xml.Folio,
                                             "serie": xml.Serie,
-                                            "index": index
+                                            "index": index,
+                                            "NumOperationCFDI": "",
+                                            "AmountCFDI": 0,
+                                            "CurrencyCFDI": "",
+                                            "ExchangeRateCFDI": 0,
+                                            "PaymentFormCFDI": "",
+                                            "startedAt": ""
                                         }
                                     ).draw(false);
                                 }
                                 $("#InvoiceComplement").val("");
+                                if (index === 1) {
+                                    addConcept();
+                                }
                             }
 
                             El20Utils.ocultarCargador();

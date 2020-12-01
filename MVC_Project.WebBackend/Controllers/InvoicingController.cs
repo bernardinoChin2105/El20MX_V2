@@ -368,6 +368,7 @@ namespace MVC_Project.WebBackend.Controllers
                 //Obtengo la entidad de la oficina
                 var office = _branchOfficeService.FirstOrDefault(x => x.id.ToString() == model.BranchOffice);
                 InvoicesInfo result = new InvoicesInfo();
+                string serilaizeJson = string.Empty;
 
                 if (model.TypeInvoice == TipoComprobante.P.ToString())
                 {
@@ -376,9 +377,11 @@ namespace MVC_Project.WebBackend.Controllers
                     List<Pagos> payments = new List<Pagos>();
                     foreach (var item in model.payment)
                     {
+                        DateTime dateP = Convert.ToDateTime(item.startedAt);
+
                         var pago = new Pagos
                         {
-                            FechaPago = item.startedAt,
+                            FechaPago = dateP.ToString("s"), //item.startedAt,
                             FormaDePagoP = item.PaymentFormCFDI,
                             MonedaP = item.CurrencyCFDI,
                             TipoCambioP = item.ExchangeRateCFDI.ToString(),
@@ -387,7 +390,7 @@ namespace MVC_Project.WebBackend.Controllers
                             {
                                 IdDocumento = item.uuid,
                                 MonedaDR = item.currency,
-                                MetodoDePagoDR = item.PaymentFormCFDI,
+                                MetodoDePagoDR = item.method,
                                 NumParcialidad = item.numberPartialities.ToString(),
                                 ImpSaldoAnt = item.previousBalance.ToString(),
                                 ImpSaldoInsoluto = item.outstanding.ToString()
@@ -430,15 +433,15 @@ namespace MVC_Project.WebBackend.Controllers
 
                     invoiceModel = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(invoice));
 
-                    var serilaizeJson = JsonConvert.SerializeObject(invoice, Newtonsoft.Json.Formatting.None,
+                    serilaizeJson = JsonConvert.SerializeObject(invoice, Newtonsoft.Json.Formatting.None,
                     new JsonSerializerSettings
                     {
                         NullValueHandling = NullValueHandling.Ignore
                     });
                     #endregion
 
-                    dynamic invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
-                    result = SATService.PostIssuePaymentInvoices(invoiceSend, provider);
+                    //dynamic invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
+                    ////result = SATService.PostIssuePaymentInvoices(invoiceSend, provider);                    
 
                 }
                 else if (model.TypeInvoice == TipoComprobante.E.ToString())
@@ -464,15 +467,15 @@ namespace MVC_Project.WebBackend.Controllers
                     else
                         invoiceData.TipoCambio = null;
 
-                    invoiceData.CfdiRelacionados = new List<CfdiRelacionados>();
+                    invoiceData.CfdiRelacionados = new List<Integrations.SAT.CfdiRelacionados>();
                     if (model.invoicesUuid.Count() > 0)
                     {
                         foreach (var item in model.invoicesUuid)
                         {
-                            CfdiRelacionados cfdi = new CfdiRelacionados()
+                            Integrations.SAT.CfdiRelacionados cfdi = new Integrations.SAT.CfdiRelacionados()
                             {
                                 TipoRelacion = item.typeRelationship,
-                                CfdiRelacionado = new CfdiRelacionado()
+                                CfdiRelacionado = new Integrations.SAT.CfdiRelacionado()
                                 {
                                     UUID = item.uuid,
                                 }
@@ -489,15 +492,15 @@ namespace MVC_Project.WebBackend.Controllers
 
                     invoiceModel = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(invoice));
 
-                    var serilaizeJson = JsonConvert.SerializeObject(invoice, Newtonsoft.Json.Formatting.None,
+                    serilaizeJson = JsonConvert.SerializeObject(invoice, Newtonsoft.Json.Formatting.None,
                     new JsonSerializerSettings
                     {
                         NullValueHandling = NullValueHandling.Ignore
                     });
                     #endregion
 
-                    dynamic invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
-                    result = SATService.PostIssueRefundInvoices(invoiceSend, provider);
+                    //dynamic invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
+                    ////result = SATService.PostIssueRefundInvoices(invoiceSend, provider);                    
                 }
                 else
                 {
@@ -530,17 +533,20 @@ namespace MVC_Project.WebBackend.Controllers
 
                     invoiceModel = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(invoice));
 
-                    var serilaizeJson = JsonConvert.SerializeObject(invoice, Newtonsoft.Json.Formatting.None,
+                    serilaizeJson = JsonConvert.SerializeObject(invoice, Newtonsoft.Json.Formatting.None,
                     new JsonSerializerSettings
                     {
                         NullValueHandling = NullValueHandling.Ignore
                     });
                     #endregion
 
-                    dynamic invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
-                    result = SATService.PostIssueIncomeInvoices(invoiceSend, provider);
+                    //dynamic invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
+                    //result = SATService.PostIssueIncomeInvoices(invoiceSend, provider);
                 }
-
+                
+                //Envio de la factura al satws para timbrado
+                dynamic invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
+                result = SATService.PostIssueIncomeInvoices(invoiceSend, provider);
 
                 if (result != null)
                 {
@@ -1847,7 +1853,6 @@ namespace MVC_Project.WebBackend.Controllers
                     }
                 }
                 //}
-
             }
 
             XmlNode nodeImpuestosTT = nodeComprobante.SelectSingleNode("cfdi:Impuestos", nsm);
@@ -1925,7 +1930,35 @@ namespace MVC_Project.WebBackend.Controllers
                 }
             }
 
-            XmlNode nodoComplemento = nodeComprobante.SelectSingleNode("cfdi:Complemento", nsm);
+            XmlNode nodeCfdiRelacionados = nodeComprobante.SelectSingleNode("cfdi:CfdiRelacionados", nsm);
+            if (nodeCfdiRelacionados != null)
+            {
+                string varTipoRelacion = nodeCfdiRelacionados.Attributes["TipoRelacion"] != null ? nodeCfdiRelacionados.Attributes["TipoRelacion"].Value : string.Empty;                
+                cfdipdf.CfdiRelacionados.TipoRelación = varTipoRelacion;                
+
+                foreach (XmlNode node in nodeCfdiRelacionados.ChildNodes)
+                {
+                    string varUUDI = node.Attributes["UUID"] != null ? node.Attributes["UUID"].Value : string.Empty;
+
+                    //Agregar modelo
+                    Models.CfdiRelacionado cfdi = new Models.CfdiRelacionado()
+                    {
+                        UUID = varUUDI
+                    };
+
+                    cfdipdf.CfdiRelacionados.CfdiRelacionado.Add(cfdi);
+                    //}
+                }
+
+                if (cfdipdf.Impuestos.Retenidos.Count() > 0)
+                {
+                    cfdipdf.Impuestos.ImpuestosRetenidosISR = cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "001").Sum(x => x.Importe) > 0 ? cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "001").Sum(x => x.Importe).ToString() : string.Empty;
+                    cfdipdf.Impuestos.ImpuestosRetenidosIVA = cfdipdf.Impuestos.Traslados.Where(x => x.Impuesto == "002").Sum(x => x.Importe) > 0 ? cfdipdf.Impuestos.Traslados.Where(x => x.Impuesto == "002").Sum(x => x.Importe).ToString() : string.Empty;
+                }
+            }
+        
+
+        XmlNode nodoComplemento = nodeComprobante.SelectSingleNode("cfdi:Complemento", nsm);
             if (nodoComplemento != null)
             {
                 nsm.AddNamespace("tfd", "http://www.sat.gob.mx/TimbreFiscalDigital");

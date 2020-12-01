@@ -120,6 +120,22 @@
                     <td></td>
                     <td></td>
                 }
+
+                @if (Model.CfdiRelacionados != null)
+                {
+                    <td><strong>CFDI Relacionado:</strong></td>
+                    <td>
+                        @foreach (var cfdiR in Model.CfdiRelacionados.CfdiRelacionado)
+                        {
+                            @(cfdiR + "<br/>");
+                        }
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                    <td></td>
+                }
             </tr>
             <tr></tr>
         </table>

@@ -33,6 +33,7 @@ namespace MVC_Project.WebBackend.Models
         public Impuestos Impuestos { get; set; }
         public Complemento Complemento { get; set; }
         public List<Concepto> Conceptos { get; set; }
+        public CfdiRelacionados CfdiRelacionados { get; set; }
         //public TimbreFiscalDigital TimbreFiscalDigital { get; set; } //Esta dentro de complemento        
         public string QR { get; set; }
         public string Logo { get; set; }
@@ -44,9 +45,19 @@ namespace MVC_Project.WebBackend.Models
             Complemento = new Complemento();
             Conceptos = new List<Concepto>();
             Impuestos = new Impuestos();
+            CfdiRelacionados = new CfdiRelacionados();
         }
     }
 
+    public class CfdiRelacionados
+    {
+        public string TipoRelación { get; set; }
+        public List<CfdiRelacionado> CfdiRelacionado { get; set; }
+    }
+    public class CfdiRelacionado 
+    {
+        public string UUID { get; set; }
+    }
     public class Emisor
     {
         public string Rfc { get; set; }
