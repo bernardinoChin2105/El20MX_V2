@@ -18,17 +18,37 @@ namespace MVC_Project.Utils
             string apiKey = ConfigurationManager.AppSettings["NotificationHubApiKey"];
             NotificationHubClient.NotificationHubClient client = new NotificationHubClient.NotificationHubClient(hubURL, apiKey);
             Dictionary<string, string> authParams = new Dictionary<string, string>();
-            authParams["username"] = ConfigurationManager.AppSettings["SendGridUser"];
-            authParams["password"] = ConfigurationManager.AppSettings["SendGridPassword"];
-            NotificationHubModels.NotificationResponse response = client.SendNotification(new NotificationHubModels.NotificationMessage()
+            if (ConfigurationManager.AppSettings["email.provider"] == EmailProvider.SMTP.ToString())
             {
-                Type = "EMAIL",
-                Provider = "SENDGRID",
-                Template = template, 
-                CustomParams = customParams, 
-                Recipients = recipients,
-                ProviderAuthParams = authParams,
-            });
+                authParams["host"] = ConfigurationManager.AppSettings["smtp.host"];
+                authParams["username"] = ConfigurationManager.AppSettings["smtp.user"];
+                authParams["password"] = ConfigurationManager.AppSettings["smtp.password"];
+                authParams["port"] = ConfigurationManager.AppSettings["smtp.port"];
+                authParams["ssl"] = ConfigurationManager.AppSettings["smtp.ssl"];
+                NotificationHubModels.NotificationResponse response = client.SendNotification(new NotificationHubModels.NotificationMessage()
+                {
+                    Type = "EMAIL",
+                    Provider = "SMTP",
+                    Template = template,
+                    CustomParams = customParams,
+                    Recipients = recipients,
+                    ProviderAuthParams = authParams,
+                });
+            }
+            else if (ConfigurationManager.AppSettings["email.provider"] == EmailProvider.SENDGRID.ToString())
+            {
+                authParams["username"] = ConfigurationManager.AppSettings["SendGridUser"];
+                authParams["password"] = ConfigurationManager.AppSettings["SendGridPassword"];
+                NotificationHubModels.NotificationResponse response = client.SendNotification(new NotificationHubModels.NotificationMessage()
+                {
+                    Type = "EMAIL",
+                    Provider = "SMTP",
+                    Template = template,
+                    CustomParams = customParams,
+                    Recipients = recipients,
+                    ProviderAuthParams = authParams,
+                });
+            }
         }
 
         public static void SendNotification(string recipient, Dictionary<string, string> customParams, string template)
