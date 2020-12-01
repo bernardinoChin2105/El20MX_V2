@@ -75,6 +75,7 @@ namespace MVC_Project.WebBackend.Models
     public class Complemento
     {
         public TimbreFiscalDigital TimbreFiscalDigital { get; set; }
+        public List<Pagos> Pagos { get; set; }
 
         //Complemento()
         //{
@@ -107,10 +108,6 @@ namespace MVC_Project.WebBackend.Models
             Retenidos = new List<Retenido>();
         }
     }
-    //public class Traslados
-    //{
-    //    public Traslado Traslado { get; set; }
-    //}
     public class Traslado
     {
         public string Base { get; set; }
@@ -137,11 +134,6 @@ namespace MVC_Project.WebBackend.Models
     public class Conceptos
     {
         public Concepto Concepto { get; set; }
-
-        //Conceptos()
-        //{
-        //    Concepto = new Concepto();
-        //}
     }
 
     public class Concepto
@@ -157,5 +149,27 @@ namespace MVC_Project.WebBackend.Models
         public string Descuento { get; set; }
         public Impuestos Impuestos { get; set; }
         public InformacionAduanera InformacionAduanera { get; set; }
+    }
+    public class Pagos
+    {
+        public List<Pago> Pago { get; set; }
+    }
+    public class Pago
+    {
+        public string FechaPago { get; set; }
+        public string FormaDePagoP { get; set; }
+        public string MonedaP { get; set; }
+        public string Monto { get; set; }
+        public string NumOperacion { get; set; }
+    }
+    public class DoctoRelacionado
+    {
+        public string IdDocumento { get; set; }
+        public string MonedaDR { get; set; }
+        public string MetodoDePagoDR { get; set; }
+        public string NumParcialidad { get; set; }
+        public string ImpSaldoAnt { get; set; }
+        public string ImpPagado { get; set; }
+        public string ImpSaldoInsoluto { get; set; }
     }
 }

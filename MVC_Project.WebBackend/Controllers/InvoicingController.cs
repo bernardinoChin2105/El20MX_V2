@@ -374,19 +374,19 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     //invoiceModel = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(invoice));
                     //tengo dudas de los complementos
-                    List<Pagos> payments = new List<Pagos>();
+                    List<Integrations.SAT.Pagos> payments = new List<Integrations.SAT.Pagos>();
                     foreach (var item in model.payment)
                     {
                         DateTime dateP = Convert.ToDateTime(item.startedAt);
 
-                        var pago = new Pagos
+                        var pago = new Integrations.SAT.Pagos
                         {
                             FechaPago = dateP.ToString("s"), //item.startedAt,
                             FormaDePagoP = item.PaymentFormCFDI,
                             MonedaP = item.CurrencyCFDI,
                             TipoCambioP = item.ExchangeRateCFDI.ToString(),
                             Monto = item.AmountCFDI.ToString(),
-                            DoctoRelacionado = new DoctoRelacionado()
+                            DoctoRelacionado = new Integrations.SAT.DoctoRelacionado()
                             {
                                 IdDocumento = item.uuid,
                                 MonedaDR = item.currency,
@@ -488,7 +488,7 @@ namespace MVC_Project.WebBackend.Controllers
                     var invoice = new InvoiceRefundJson
                     {
                         data = invoiceData
-                    };                    
+                    };
 
                     invoiceModel = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(invoice));
 
@@ -543,7 +543,7 @@ namespace MVC_Project.WebBackend.Controllers
                     //dynamic invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
                     //result = SATService.PostIssueIncomeInvoices(invoiceSend, provider);
                 }
-                
+
                 //Envio de la factura al satws para timbrado
                 dynamic invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
                 result = SATService.PostIssueIncomeInvoices(invoiceSend, provider);
@@ -1045,7 +1045,7 @@ namespace MVC_Project.WebBackend.Controllers
             //List<DriveKeyViewModel> result = new List<DriveKeyViewModel>();
             try
             {
-                if(typeInvoice == TipoComprobante.P.ToString())
+                if (typeInvoice == TipoComprobante.P.ToString())
                     invoice = _invoiceIssuedService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.account.id == authUser.Account.Id && x.paymentMethod == MetodoPago.PPD.ToString());
                 else
                     invoice = _invoiceIssuedService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.account.id == authUser.Account.Id);
@@ -1683,20 +1683,19 @@ namespace MVC_Project.WebBackend.Controllers
             //Accedemos a nodo "Comprobante"
             XmlNode nodeComprobante = doc.SelectSingleNode("//cfdi:Comprobante", nsm);
 
-
             string varFolio = nodeComprobante.Attributes["Folio"] != null ? nodeComprobante.Attributes["Folio"].Value : string.Empty;
             string varSerie = nodeComprobante.Attributes["Serie"] != null ? nodeComprobante.Attributes["Serie"].Value : string.Empty;
+            string varFecha = nodeComprobante.Attributes["Fecha"].Value;
+            string varMoneda = nodeComprobante.Attributes["Moneda"] != null ? nodeComprobante.Attributes["Moneda"].Value : string.Empty;
             string varSubTotal = nodeComprobante.Attributes["SubTotal"].Value;
             string varTotal = nodeComprobante.Attributes["Total"].Value;
             string varTipoComprobante = nodeComprobante.Attributes["TipoDeComprobante"].Value;
-            string varCertificado = nodeComprobante.Attributes["Certificado"].Value;
-            string varNoCertificado = nodeComprobante.Attributes["NoCertificado"].Value;
-            string varSello = nodeComprobante.Attributes["Sello"].Value;
-            string varFormaPago = nodeComprobante.Attributes["FormaPago"].Value;
-            string varMetodoPago = nodeComprobante.Attributes["MetodoPago"].Value;
             string varLugarExpedicion = nodeComprobante.Attributes["LugarExpedicion"].Value;
-            string varFecha = nodeComprobante.Attributes["Fecha"].Value;
-            string varMoneda = nodeComprobante.Attributes["Moneda"] != null ? nodeComprobante.Attributes["Moneda"].Value : string.Empty;
+            string varNoCertificado = nodeComprobante.Attributes["NoCertificado"].Value;
+            string varCertificado = nodeComprobante.Attributes["Certificado"].Value;
+            string varSello = nodeComprobante.Attributes["Sello"].Value;
+            string varFormaPago = nodeComprobante.Attributes["FormaPago"] != null ? nodeComprobante.Attributes["FormaPago"].Value : string.Empty;
+            string varMetodoPago = nodeComprobante.Attributes["MetodoPago"].Value;
             string varDescuento1 = nodeComprobante.Attributes["Descuento"] != null ? nodeComprobante.Attributes["Descuento"].Value : string.Empty;
             string varTipoCambio = nodeComprobante.Attributes["TipoCambio"] != null ? nodeComprobante.Attributes["TipoCambio"].Value : "1";
 
@@ -1933,8 +1932,8 @@ namespace MVC_Project.WebBackend.Controllers
             XmlNode nodeCfdiRelacionados = nodeComprobante.SelectSingleNode("cfdi:CfdiRelacionados", nsm);
             if (nodeCfdiRelacionados != null)
             {
-                string varTipoRelacion = nodeCfdiRelacionados.Attributes["TipoRelacion"] != null ? nodeCfdiRelacionados.Attributes["TipoRelacion"].Value : string.Empty;                
-                cfdipdf.CfdiRelacionados.TipoRelación = varTipoRelacion;                
+                string varTipoRelacion = nodeCfdiRelacionados.Attributes["TipoRelacion"] != null ? nodeCfdiRelacionados.Attributes["TipoRelacion"].Value : string.Empty;
+                cfdipdf.CfdiRelacionados.TipoRelación = varTipoRelacion;
 
                 foreach (XmlNode node in nodeCfdiRelacionados.ChildNodes)
                 {
@@ -1956,9 +1955,8 @@ namespace MVC_Project.WebBackend.Controllers
                     cfdipdf.Impuestos.ImpuestosRetenidosIVA = cfdipdf.Impuestos.Traslados.Where(x => x.Impuesto == "002").Sum(x => x.Importe) > 0 ? cfdipdf.Impuestos.Traslados.Where(x => x.Impuesto == "002").Sum(x => x.Importe).ToString() : string.Empty;
                 }
             }
-        
 
-        XmlNode nodoComplemento = nodeComprobante.SelectSingleNode("cfdi:Complemento", nsm);
+            XmlNode nodoComplemento = nodeComprobante.SelectSingleNode("cfdi:Complemento", nsm);
             if (nodoComplemento != null)
             {
                 nsm.AddNamespace("tfd", "http://www.sat.gob.mx/TimbreFiscalDigital");
@@ -1989,6 +1987,8 @@ namespace MVC_Project.WebBackend.Controllers
 
                     cfdipdf.Complemento.TimbreFiscalDigital = timbre;
                 }
+
+                //Pagos
             }
             return cfdipdf;
         }
