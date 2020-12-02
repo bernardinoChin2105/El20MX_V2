@@ -304,9 +304,9 @@
 
                     @if (Model.Currency == "MXN")
                     {
-                        @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label exchange hide labelsFiscal" })
+                        @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label exchange hide" })
                         <div class="col-md-4">
-                            @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control exchange inputsFiscal hide", @maxlength = "200", @autocomplete = "off" })
+                            @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control exchange hide", @maxlength = "200", @autocomplete = "off" })
                         </div>
                     }
                     else

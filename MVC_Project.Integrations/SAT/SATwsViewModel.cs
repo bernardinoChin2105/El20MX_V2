@@ -105,7 +105,7 @@ namespace MVC_Project.Integrations.SAT
         public string Unidad { get; set; }
         public string Descripcion { get; set; }
         public decimal ValorUnitario { get; set; }
-        public decimal Descuento { get; set; }
+        public decimal? Descuento { get; set; }
         public decimal Importe { get; set; }
 
         public List<Traslados> Traslados { get; set; }

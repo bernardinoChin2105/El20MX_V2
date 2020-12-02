@@ -696,7 +696,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 forceParse: false,
                 calendarWeeks: true,
                 autoclose: true,
-                format: "dd/mm/yyyy",
+                format: "dd-mm-yyyy",
+                //format: "yyyy-mm-dd",
                 language: "es",
                 endDate: DateInit.MaxDate
                 //startDate: DateInit.MinDate
@@ -961,6 +962,10 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                 $(".labelsFiscal").removeClass("hide").addClass("required");
                 $(".inputsFiscal").removeClass("hide").addClass("required");
+
+
+                //$("#InvoiceComplementChk").attr("checked", false).trigger("click");
+                //$("#InvoiceComplementChk").prop("checked", false).iCheck("update");
             }
         });
 

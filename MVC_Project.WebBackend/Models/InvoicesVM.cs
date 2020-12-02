@@ -45,7 +45,7 @@ namespace MVC_Project.WebBackend.Models
             Complemento = new Complemento();
             Conceptos = new List<Concepto>();
             Impuestos = new Impuestos();
-            CfdiRelacionados = new CfdiRelacionados();
+            //CfdiRelacionados = new CfdiRelacionados();
         }
     }
 
@@ -75,7 +75,7 @@ namespace MVC_Project.WebBackend.Models
     public class Complemento
     {
         public TimbreFiscalDigital TimbreFiscalDigital { get; set; }
-        public List<Pagos> Pagos { get; set; }
+        public List<Pago> Pagos { get; set; }
 
         //Complemento()
         //{
@@ -150,10 +150,10 @@ namespace MVC_Project.WebBackend.Models
         public Impuestos Impuestos { get; set; }
         public InformacionAduanera InformacionAduanera { get; set; }
     }
-    public class Pagos
-    {
-        public List<Pago> Pago { get; set; }
-    }
+    //public class Pagos
+    //{
+    //    public List<Pago> Pago { get; set; }
+    //}
     public class Pago
     {
         public string FechaPago { get; set; }
@@ -161,6 +161,7 @@ namespace MVC_Project.WebBackend.Models
         public string MonedaP { get; set; }
         public string Monto { get; set; }
         public string NumOperacion { get; set; }
+        public DoctoRelacionado DoctoRelacionado { get; set; }
     }
     public class DoctoRelacionado
     {
