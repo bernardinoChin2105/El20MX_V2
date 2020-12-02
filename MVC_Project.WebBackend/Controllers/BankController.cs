@@ -58,6 +58,7 @@ namespace MVC_Project.WebBackend.Controllers
                     catch (Exception ex)
                     {
                         string error = ex.Message.ToString();
+                        Session["token"] = string.Empty;
                         token = Token();
                     }
                     ViewBag.paybookT = token;
