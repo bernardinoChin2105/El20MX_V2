@@ -962,6 +962,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                 $(".labelsFiscal").removeClass("hide").addClass("required");
                 $(".inputsFiscal").removeClass("hide").addClass("required");
+                $(".complement").addClass("hide");
+                $("#TypeRelationship").removeClass("required");
 
 
                 //$("#InvoiceComplementChk").attr("checked", false).trigger("click");
