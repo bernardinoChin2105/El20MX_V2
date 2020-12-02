@@ -15,8 +15,16 @@ namespace MVC_Project.Integrations.SAT
         {
             TaxpayerInfo taxpayer = new TaxpayerInfo();
 
-            //Realiza la solicitud de extracción
             ExtractionsFilter filter = new ExtractionsFilter()
+            {
+                taxpayer = "/taxpayers/" + RFC,
+                extractor = "tax_status"
+            };
+
+            SATws.CallServiceSATws("extractions", filter, "Post");
+
+            //Realiza la solicitud de extracción
+            filter = new ExtractionsFilter()
             {
                 taxpayer = "/taxpayers/" + RFC,
                 extractor = "invoice",

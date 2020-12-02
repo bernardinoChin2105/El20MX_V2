@@ -42,7 +42,7 @@ namespace MVC_Project.Utils
                 NotificationHubModels.NotificationResponse response = client.SendNotification(new NotificationHubModels.NotificationMessage()
                 {
                     Type = "EMAIL",
-                    Provider = "SMTP",
+                    Provider = "SENDGRID",
                     Template = template,
                     CustomParams = customParams,
                     Recipients = recipients,
