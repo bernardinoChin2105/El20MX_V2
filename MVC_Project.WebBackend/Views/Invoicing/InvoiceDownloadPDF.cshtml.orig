@@ -1,0 +1,310 @@
+﻿@model MVC_Project.WebBackend.Models.InvoicesVM
+@using MVC_Project.WebBackend.Controllers
+@using MVC_Project.WebBackend.Models
+@{
+    /**/
+
+    Layout = null;
+    var porcent = !string.IsNullOrEmpty(Model.Logo) ? "20%" : "25%";
+}
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+
+    <meta charset="utf-8">
+    @*<meta name="viewport" content="width=device-width">*@
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    @Styles.Render("~/Content/templatepdf/css")
+
+    <title></title>
+    <link href="~/Content/template/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .img-responsive {
+            width: 100%;
+        }
+
+        .tabla th {
+            border-bottom: 1px solid #000;
+        }
+
+        .tabla tfoot {
+            border-top: 1px solid #000;
+        }
+
+        .logo {
+            max-width: 100%;
+            width: 80px;
+        }
+
+        .textoContiguo {
+            -ms-word-break: break-all;
+            word-break: break-all;
+            word-break: break-word;
+            /*/ Sólo WebKit -NO DOCUMENTADO / -ms-hyphens: auto;
+            / Guiones para separar en sílabas / -moz-hyphens: auto;
+            / depende de lang en <html> / -webkit-hyphens: auto;*/
+            hyphens: auto;
+        }
+    </style>
+</head>
+<body style="font-family:Arial; font-size:11px">
+    <div>
+        <table style="width:100%;">
+            <tr>
+                @if (!string.IsNullOrEmpty(Model.Logo))
+                {
+                    <td width="20%" rowspan=9>
+                        <img style="float:left;" class="logo" src="@Model.Logo" />
+                    </td>
+                }
+                <td width="@porcent"><strong>RFC emisor:</strong></td>
+                <td width="@porcent">@Model.Emisor.Rfc</td>
+                <td width="@porcent"><strong>Folio fiscal:</strong></td>
+                <td width="@porcent">@Model.Complemento.TimbreFiscalDigital.UUID</td>
+            </tr>
+            <tr>
+                <td><strong>Nombre emisor:</strong></td>
+                <td>@Model.Emisor.Nombre</td>
+                <td><strong>Numero de serie del csd:</strong></td>
+                <td>@Model.NoCertificado</td>
+            </tr>
+            <tr>
+                <td><strong>RfC receptor:</strong></td>
+                <td>@Model.Receptor.Rfc</td>
+                <td><strong>Codigo postal, fecha y hora de emision:</strong></td>
+                <td>@Model.LugarExpedicion @Model.Fecha</td>
+            </tr>
+            <tr>
+                <td><strong>Nombre receptor:</strong></td>
+                <td>@Model.Receptor.Nombre</td>
+                <td><strong>Regimen fiscal:</strong></td>
+                <td>@Model.Emisor.RegimenFiscalTexto</td>
+            </tr>
+
+            <tr>
+                <td><strong>Uso CFDI:</strong></td>
+                <td>@Model.Receptor.UsoCFDI</td>
+                <td><strong>Tipo de Comprobante:</strong></td>
+                <td>@Model.TipoDeComprobante</td>
+            </tr>
+            <tr>
+                <td><strong>Forma de pago:</strong></td>
+                <td>@Model.FormaPago</td>
+                <td><strong>Moneda:</strong></td>
+                <td>@Model.Moneda</td>
+            </tr>
+            <tr>
+                <td><strong>Metodo de pago:</strong></td>
+                <td>@Model.MetodoPago</td>
+                <td><strong>Tipo de Cambio:</strong></td>
+                <td>@Model.TipoCambio</td>
+            </tr>
+            @if (!String.IsNullOrEmpty(Model.ClaveCatastral))
+            {
+                <tr>
+                    <td><strong>Clave Catastral:</strong></td>
+                    <td>@Model.ClaveCatastral</td>
+                    <td></td>
+                    <td></td>
+<<<<<<< HEAD
+                }
+
+                @if (Model.CfdiRelacionados != null)
+                {
+                    <td><strong>CFDI Relacionado:</strong></td>
+                    <td>
+                        @foreach (var cfdiR in Model.CfdiRelacionados.CfdiRelacionado)
+                        {
+                            <p>@cfdiR.UUID</p>;
+                        }
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                    <td></td>
+                }
+            </tr>
+=======
+                </tr>
+            }
+            <tr></tr>
+>>>>>>> origin/develop
+        </table>
+
+        <div style="clear:both;"></div>
+
+    </div>
+
+    <br />
+
+    <div>
+        <div style="height:750px">
+            <table style="width:100%" class="tabla">
+                <tr>
+                    <th align="center">Prod o Serv</th>
+                    <th align="center">Cantidad</th>
+                    <th align="center">clave Unidad</th>
+                    <th align="center">Descripción</th>
+                    <th align="center">Valor Unitario</th>
+                    <th align="center">Descuento</th>
+                    <th align="center">Total</th>
+                </tr>
+                @foreach (var oConcepto in Model.Conceptos)
+                {
+                    <tr>
+                        <td>@oConcepto.ClaveProdServ</td>
+                        <td>@oConcepto.Cantidad</td>
+
+                        <td>@oConcepto.ClaveUnidad - @oConcepto.Unidad</td>
+                        <td>@oConcepto.Descripcion</td>
+                        <td>@oConcepto.ValorUnitario</td>
+
+                        <td align="right">@oConcepto.Descuento</td>
+                        <td align="right">@Convert.ToDecimal(oConcepto.Importe).ToString("C2")</td>
+                    </tr>
+                }
+                <tfoot>
+                    <tr>
+                        <td colspan="2"><strong>CANTIDAD EN LETRA:</strong></td>
+                        <td colspan="3">@Model.TotalTexto</td>
+                        <td align="right">Subtotal:</td>
+                        <td align="right">@Convert.ToDecimal(Model.SubTotal).ToString("C2")</td>
+                    </tr>
+                    @if (!string.IsNullOrEmpty(Model.Descuento))
+                    {
+                        if (Convert.ToDecimal(Model.Descuento) > 0)
+                        {
+                            <tr>
+                                <td colspan="6" align="right">Descuento:</td>
+                                <td align="right">@Convert.ToDecimal(Model.Descuento).ToString("C2")</td>
+                            </tr>
+                        }
+                    }
+                    @if (Model.Impuestos != null)
+                    {
+                        if (!string.IsNullOrEmpty(Model.Impuestos.TotalImpuestosTrasladados))
+                        {
+                            <tr>
+                                <td colspan="6" align="right">Impuestos Traslados (IVA/IEPS):</td>
+                                <td align="right">@Convert.ToDecimal(Model.Impuestos.TotalImpuestosTrasladados).ToString("C2")</td>
+                            </tr>
+                        }
+                        if (!string.IsNullOrEmpty(Model.Impuestos.ImpuestosRetenidosIVA))
+                        {
+                            <tr>
+                                <td colspan="6" align="right">Impuestos Retenidos (IVA):</td>
+                                <td align="right">@Convert.ToDecimal(Model.Impuestos.ImpuestosRetenidosIVA).ToString("C2")</td>
+                            </tr>
+                        }
+                        if (!string.IsNullOrEmpty(Model.Impuestos.ImpuestosRetenidosISR))
+                        {
+                            <tr>
+                                <td colspan="6" align="right">Impuestos Retenidos (ISR):</td>
+                                <td align="right">@Convert.ToDecimal(Model.Impuestos.ImpuestosRetenidosISR).ToString("C2")</td>
+                            </tr>
+                        }
+                    }
+                    <tr>
+                        <td colspan="6" align="right">Total:</td>
+                        <td align="right">@Convert.ToDecimal(Model.Total).ToString("C2")</td>
+                    </tr>
+                </tfoot>
+            </table>
+            <br />
+            <br />
+            <strong><p>Complemento Pago</p></strong>
+            <table style="width:100%" class="tabla">
+                <tr>
+                    <th>Fecha Pago</th>
+                    <th>Moneda P</th>
+                    <th>Monto</th>
+                    <th>Forma De Pago P</th>
+                    @*<th>Número Operación</th>*@
+                </tr>
+                @foreach (var cPago in Model.Complemento.Pagos)
+                {
+                    <tr>
+                        <td>@cPago.FechaPago</td>
+                        <td>@cPago.MonedaP</td>
+                        <td>@Convert.ToDecimal(cPago.Monto).ToString("C2")</td>
+                        <td>@cPago.FormaDePagoP</td>
+                        @*<td>@cPago.NumOperacion</td>*@
+                    </tr>
+                }
+            </table>
+            <br />
+            <br />
+            <strong><p>Documentación Relacionado</p></strong>
+            <table style="width:100%" class="tabla">
+                <tr>
+                    <th>Id Documento</th>
+                    @*<th>Folio</th>*@
+                    <th>Moneda</th>
+                    <th>Metodo De Pago</th>
+                    <th>Parcialidad</th>
+                    <th>Imp Saldo Ant</th>
+                    <th>Imp Pagado</th>
+                    <th>Imp Saldo Insoluto</th>
+                </tr>
+                @foreach (var cPago in Model.Complemento.Pagos)
+                {
+                    <tr>
+                        <td>@cPago.DoctoRelacionado.IdDocumento</td>
+                        @*<td>@cPago.DoctoRelacionado.Folio</td>*@
+                        <td>@cPago.DoctoRelacionado.MonedaDR</td>
+                        <td>@cPago.DoctoRelacionado.MetodoDePagoDR</td>
+                        <td>@cPago.DoctoRelacionado.NumParcialidad</td>
+                        <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoAnt).ToString("C2")</td>
+                        <td>@(cPago.DoctoRelacionado.ImpPagado != null? Convert.ToDecimal(cPago.DoctoRelacionado.ImpPagado).ToString("C2") : Convert.ToDecimal(cPago.Monto).ToString("C2"))</td>
+                        <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoInsoluto).ToString("C2")</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+    <br />
+    <div class="text-center"><p><small>Este documento es la representación impresa de un CFDI</small></p></div>
+    <br />
+    <div class="textoContiguo" style="font-size:11px;">
+        <strong>Sello CFDI </strong>
+        <br />
+        @Model.Sello
+    </div>
+    <br />
+    <div class="textoContiguo" style="font-size:11px;">
+        <strong>Sello SAT </strong>
+        <br />
+        @Model.Complemento.TimbreFiscalDigital.SelloSAT
+    </div>
+    <div>
+        <div style="width:25%;float:left;">
+            <img src="@Model.QR" width="150" height="150" />
+        </div>
+        <div style="width:25%;float:left;"></div>
+        <div style="width:73%;float:right;font-size:11px;">
+            <table style="width:100%;">
+
+                <tr>
+                    <td><strong>RFC del proveedor de certificación:</strong></td>
+                    <td>@Model.Complemento.TimbreFiscalDigital.RfcProvCertif</td>
+                    <td><strong>Fecha y hora de certificación:</strong></td>
+                    <td>@Model.Complemento.TimbreFiscalDigital.FechaTimbrado</td>
+                </tr>
+                <tr>
+                    <td><strong>No. de serie del certificado SAT:</strong></td>
+                    <td>@Model.Complemento.TimbreFiscalDigital.NoCertificadoSAT</td>
+                </tr>
+            </table>
+
+        </div>
+        <div style="clear:both;"></div>
+    </div>
+
+</body>
+</html>
+

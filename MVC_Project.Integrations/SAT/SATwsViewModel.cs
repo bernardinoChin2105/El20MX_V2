@@ -162,6 +162,12 @@ namespace MVC_Project.Integrations.SAT
         public string TipoCambioP { get; set; }
         public string Monto { get; set; }
         public DoctoRelacionado DoctoRelacionado { get; set; }
+        public string NumOperacion { get; set; }
+        public string RfcEmisorCtaOrd { get; set; }
+        public string NomBancoOrdExt { get; set; }
+        public string RfcEmisorCtaBen { get; set; } 
+        public string CtaBeneficiario { get; set; }
+        public string CtaOrdenante { get; set; }
     }
 
     public class DoctoRelacionado
@@ -172,6 +178,8 @@ namespace MVC_Project.Integrations.SAT
         public string NumParcialidad { get; set; }
         public string ImpSaldoAnt { get; set; }
         public string ImpSaldoInsoluto { get; set; }
+        public string Serie { get; set; }
+        public string Folio { get; set; }
     }
 
     public class CfdiRelacionados
