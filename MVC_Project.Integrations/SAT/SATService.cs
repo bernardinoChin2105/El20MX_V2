@@ -137,11 +137,24 @@ namespace MVC_Project.Integrations.SAT
             }
         }
 
-        public static InvoicesInfo PostIssuePaymentInvoices(InvoiceComplementJson invoice, string provider)
+        public static InvoicesInfo PostIssuePaymentInvoices(dynamic invoice, string provider)
         {
             if (provider == SystemProviders.SATWS.ToString())
             {
                 return SATwsService.PostIssuePaymentInvoices(invoice);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
+        //Para CFDI relacionados(devoluciones o cancelaciones)
+        public static InvoicesInfo PostIssueRefundInvoices(dynamic invoice, string provider)
+        {
+            if (provider == SystemProviders.SATWS.ToString())
+            {
+                return SATwsService.PostRefundInvoices(invoice);
             }
             else
             {

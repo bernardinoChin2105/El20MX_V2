@@ -19,6 +19,12 @@ namespace MVC_Project.Integrations.SAT
         public InvoiceComplementData data { get; set; }
     }
 
+    public class InvoiceRefundJson
+    {
+        public Email email { get; set; }
+        public InvoiceRefundData data { get; set; }
+    }
+
     public class Email
     {
         public List<string> to { get; set; }
@@ -47,12 +53,31 @@ namespace MVC_Project.Integrations.SAT
     {
         public string Serie { get; set; }
         public Int32 Folio { get; set; }
-        public DateTime Fecha { get; set; }
+        public string Fecha { get; set; }
         public string Moneda { get; set; }
-        public decimal TipoCambio { get; set; }
+        public decimal? TipoCambio { get; set; }
         public string TipoDeComprobante { get; set; }
         public string LugarExpedicion { get; set; }
         public Complemento Complemento { get; set; }
+        public InvoiceIssuer Emisor { get; set; }
+        public InvoiceReceiver Receptor { get; set; }
+        public List<ConceptsData> Conceptos { get; set; }
+    }
+
+    public class InvoiceRefundData
+    {
+        public string Serie { get; set; }
+        public Int32 Folio { get; set; }
+        public string Fecha { get; set; }
+        public string Moneda { get; set; }
+        public decimal? TipoCambio { get; set; }
+        public string TipoDeComprobante { get; set; }
+        public string CondicionesDePago { get; set; }
+        public string FormaPago { get; set; }
+        public string MetodoPago { get; set; }
+        public string LugarExpedicion { get; set; }
+        public string Confirmacion { get; set; }
+        public List<CfdiRelacionados> CfdiRelacionados { get; set; }
         public InvoiceIssuer Emisor { get; set; }
         public InvoiceReceiver Receptor { get; set; }
         public List<ConceptsData> Conceptos { get; set; }
@@ -80,7 +105,7 @@ namespace MVC_Project.Integrations.SAT
         public string Unidad { get; set; }
         public string Descripcion { get; set; }
         public decimal ValorUnitario { get; set; }
-        public decimal Descuento { get; set; }
+        public decimal? Descuento { get; set; }
         public decimal Importe { get; set; }
 
         public List<Traslados> Traslados { get; set; }
@@ -136,7 +161,7 @@ namespace MVC_Project.Integrations.SAT
         public string MonedaP { get; set; }
         public string TipoCambioP { get; set; }
         public string Monto { get; set; }
-        public List<DoctoRelacionado> DoctoRelacionado { get; set; }
+        public DoctoRelacionado DoctoRelacionado { get; set; }
     }
 
     public class DoctoRelacionado
@@ -147,6 +172,17 @@ namespace MVC_Project.Integrations.SAT
         public string NumParcialidad { get; set; }
         public string ImpSaldoAnt { get; set; }
         public string ImpSaldoInsoluto { get; set; }
+    }
+
+    public class CfdiRelacionados
+    {
+        public string TipoRelacion { get; set; }
+        public CfdiRelacionado CfdiRelacionado { get; set; }
+    }
+
+    public class CfdiRelacionado
+    {
+        public string UUID { get; set; }
     }
 
     #endregion

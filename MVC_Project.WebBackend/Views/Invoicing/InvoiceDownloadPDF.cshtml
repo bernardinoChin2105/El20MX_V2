@@ -57,7 +57,7 @@
             <tr>
                 @if (!string.IsNullOrEmpty(Model.Logo))
                 {
-                    <td width="20%" rowspan=8>
+                    <td width="20%" rowspan=9>
                         <img style="float:left;" class="logo" src="@Model.Logo" />
                     </td>
                 }
@@ -108,11 +108,30 @@
                 <tr>
                     <td><strong>Clave Catastral:</strong></td>
                     <td>@Model.ClaveCatastral</td>
+                }
+                else
+                {
                     <td></td>
                     <td></td>
+                }
+
+                @if (Model.CfdiRelacionados != null)
+                {
+                    <td><strong>CFDI Relacionado:</strong></td>
+                    <td>
+                        @foreach (var cfdiR in Model.CfdiRelacionados.CfdiRelacionado)
+                        {
+                            <p>@cfdiR.UUID</p>;
+                        }
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                    <td></td>
+                }
                 </tr>
             }
-            <tr></tr>
         </table>
 
         <div style="clear:both;"></div>
@@ -194,6 +213,56 @@
                     </tr>
                 </tfoot>
             </table>
+            <br />
+            <br />
+            <strong><p>Complemento Pago</p></strong>
+            <table style="width:100%" class="tabla">
+                <tr>
+                    <th>Fecha Pago</th>
+                    <th>Moneda P</th>
+                    <th>Monto</th>
+                    <th>Forma De Pago P</th>
+                    @*<th>Número Operación</th>*@
+                </tr>
+                @foreach (var cPago in Model.Complemento.Pagos)
+                {
+                    <tr>
+                        <td>@cPago.FechaPago</td>
+                        <td>@cPago.MonedaP</td>
+                        <td>@Convert.ToDecimal(cPago.Monto).ToString("C2")</td>
+                        <td>@cPago.FormaDePagoP</td>
+                        @*<td>@cPago.NumOperacion</td>*@
+                    </tr>
+                }
+            </table>
+            <br />
+            <br />
+            <strong><p>Documentación Relacionado</p></strong>
+            <table style="width:100%" class="tabla">
+                <tr>
+                    <th>Id Documento</th>
+                    @*<th>Folio</th>*@
+                    <th>Moneda</th>
+                    <th>Metodo De Pago</th>
+                    <th>Parcialidad</th>
+                    <th>Imp Saldo Ant</th>
+                    <th>Imp Pagado</th>
+                    <th>Imp Saldo Insoluto</th>
+                </tr>
+                @foreach (var cPago in Model.Complemento.Pagos)
+                {
+                    <tr>
+                        <td>@cPago.DoctoRelacionado.IdDocumento</td>
+                        @*<td>@cPago.DoctoRelacionado.Folio</td>*@
+                        <td>@cPago.DoctoRelacionado.MonedaDR</td>
+                        <td>@cPago.DoctoRelacionado.MetodoDePagoDR</td>
+                        <td>@cPago.DoctoRelacionado.NumParcialidad</td>
+                        <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoAnt).ToString("C2")</td>
+                        <td>@(cPago.DoctoRelacionado.ImpPagado != null? Convert.ToDecimal(cPago.DoctoRelacionado.ImpPagado).ToString("C2") : Convert.ToDecimal(cPago.Monto).ToString("C2"))</td>
+                        <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoInsoluto).ToString("C2")</td>
+                    </tr>
+                }
+            </table>
         </div>
     </div>
     <br />
@@ -213,7 +282,6 @@
     <div>
         <div style="width:25%;float:left;">
             <img src="@Model.QR" width="150" height="150" />
-
         </div>
         <div style="width:25%;float:left;"></div>
         <div style="width:73%;float:right;font-size:11px;">
