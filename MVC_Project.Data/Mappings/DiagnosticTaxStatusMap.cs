@@ -19,7 +19,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.statusSAT).Column("statusSAT").Nullable();
             Map(x => x.taxRegime).Column("taxRegime").Nullable();
             Map(x => x.economicActivities).Column("economicActivities").Nullable();
-            Map(x => x.fiscalObligations).Column("fiscalObligations").Nullable();
+            Map(x => x.fiscalObligations).Column("fiscalObligations").Nullable().CustomSqlType("nvarchar(max)");
             Map(x => x.taxMailboxEmail).Column("taxMailboxEmail").Nullable();
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             //Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();

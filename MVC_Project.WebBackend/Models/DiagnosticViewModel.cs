@@ -55,7 +55,7 @@ namespace MVC_Project.WebBackend.Models
         public string statusSAT { get; set; }        
         public List<string> taxRegime { get; set; }        
         public List<string> economicActivities { get; set; }        
-        public List<string> fiscalObligations { get; set; }        
+        public string fiscalObligations { get; set; }        
         public string taxMailboxEmail { get; set; }
     }
 

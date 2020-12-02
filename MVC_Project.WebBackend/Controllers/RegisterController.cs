@@ -3,6 +3,7 @@ using MVC_Project.BackendWeb.Models;
 using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
+using MVC_Project.Integrations.Pipedrive;
 //using MVC_Project.FlashMessages;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.Models;
@@ -122,7 +123,10 @@ namespace MVC_Project.WebBackend.Controllers
                     };
 
                     _socialNetworkLoginService.Create(socialNW);
-
+                    bool IsCRMEnabled = Convert.ToBoolean(ConfigurationManager.AppSettings["Pipedrive.Enabled"]);
+                    if (IsCRMEnabled)
+                        CreatePipeDrivePerson(user);
+                    
                     user.status = SystemStatus.ACTIVE.ToString();
                     _userService.Update(user);
 
@@ -204,6 +208,40 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
+        private void CreatePipeDrivePerson(User user)
+        {
+            try
+            {
+                PipedriveClient pdClient = new PipedriveClient();
+                PipedriveResponse response = pdClient.CreatePerson(new PipedrivePerson()
+                {
+                    Name = user.profile.firstName + " " + user.profile.lastName,
+                    FirstName = user.profile.firstName,
+                    LastName = user.profile.lastName,
+                    Email = user.name,
+                    Phone = user.profile.phoneNumber
+                });
+                if (response.Success)
+                    user.pipedriveId = response.Data.Id;
+
+                LogUtil.AddEntry(
+                   "Registro en Pipedrive del usuario" + user.name, ENivelLog.Info, user.id, user.name, EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   JsonConvert.SerializeObject(response)
+                );
+            }
+            catch(Exception ex)
+            {
+                LogUtil.AddEntry(
+                   "Error al registrar en Pipedrive al usuario" + user.name, ENivelLog.Info, user.id, user.name, EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", user.name, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   ex.Message
+                );
+            }
+        }
+
         [HttpGet]
         [AllowAnonymous]
         public ActionResult VerifyUser(string token)
@@ -235,6 +273,11 @@ namespace MVC_Project.WebBackend.Controllers
                 }
                 else
                 {
+                    
+                    bool IsCRMEnabled = Convert.ToBoolean(ConfigurationManager.AppSettings["Pipedrive.Enabled"]);
+                    if (IsCRMEnabled)
+                        CreatePipeDrivePerson(user);
+                    
                     user.status = SystemStatus.ACTIVE.ToString();
                     _userService.Update(user);
 

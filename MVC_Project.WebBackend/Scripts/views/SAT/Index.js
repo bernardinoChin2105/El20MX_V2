@@ -1,4 +1,5 @@
 ﻿var SATController = function () {
+
     this.init = function () {
         $(".alert").show();
         $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
@@ -254,6 +255,42 @@
                 $("#advancePayment").prop('readonly', true);
                 $(".btn-opt").prop("disabled", true);
             }
+        });
+
+        this.finishExtraction = function (uuid) {
+            $.get("SAT/FinishExtraction", { uuid: uuid }, function (data) {
+                if (data.finish) {
+                    if (data.success) {
+                        toastr['success']('Las facturas se sincronizarion correctamente', null, { 'positionClass': 'toast-top-center' });
+                    }
+                    else {
+                        toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' });
+                    }
+                    El20Utils.ocultarCargador();
+                }
+                else {
+                    setTimeout(self.finishExtraction(uuid), 2000);
+                }
+            }).fail(function () {
+                toastr['error']('No es posible finalizar el diagnostico', null, { 'positionClass': 'toast-top-center' });
+                El20Utils.ocultarCargador();
+            });
+        }
+
+        $('#btn-invoices-refresh').on("click", function () {
+            El20Utils.mostrarCargador();
+            $.get("SAT/Extraction", function (data) {
+                if (data.success) {
+                    self.finishExtraction(data.uuid)
+                }
+                else {
+                    toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' });
+                    El20Utils.ocultarCargador();
+                }
+            }).fail(function () {
+                toastr['error']('No es posible generar el diagnostico', null, { 'positionClass': 'toast-top-center' });
+                El20Utils.ocultarCargador();
+            });
         });
     }
 }

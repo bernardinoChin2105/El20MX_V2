@@ -38,10 +38,10 @@ namespace MVC_Project.Integrations.Paybook
         public string username { get; set; }
         public int code { get; set; }
         //public List<string> keywords { get; set; }
-        public string dt_authorized { get; set; }
+        public long? dt_authorized { get; set; }
         public string dt_execute { get; set; }
         public string dt_ready { get; set; }
-        public string dt_refresh { get; set; }
+        public long? dt_refresh { get; set; }
         public Site site { get; set; }
     }
 
@@ -84,6 +84,22 @@ namespace MVC_Project.Integrations.Paybook
         public string cover { get; set; }
         public string small_cover { get; set; }
         public string time_zone { get; set; }
+    }
+
+    public class BankSite
+    {
+        public string id_site { get; set; }
+        public string id_site_type { get; set; }
+        public string name { get; set; }
+    }
+
+    public class AllBankSites
+    {
+        public string id_site_organization { get; set; }
+        public string id_site_organization_type { get; set; }
+        public string id_country { get; set; }
+        public string name { get; set; }
+        public List<BankSite> sites { get; set; }
     }
 
     public class ExtraAccountPaybook

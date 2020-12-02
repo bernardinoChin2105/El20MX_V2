@@ -14,6 +14,9 @@ namespace MVC_Project.Domain.Entities
         public virtual string name { get; set; }
         public virtual string providerId { get; set; }
 
+        public virtual string nameSite { get; set; }
+        public virtual string providerSiteId { get; set; }
+
         public virtual DateTime createdAt { get; set; }
         public virtual DateTime modifiedAt { get; set; }
         public virtual string status { get; set; }

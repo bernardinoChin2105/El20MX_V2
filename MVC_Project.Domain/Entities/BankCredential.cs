@@ -13,6 +13,10 @@ namespace MVC_Project.Domain.Entities
 
         public virtual string credentialProviderId { get; set; }
 
+        public virtual bool isTwofa { get; set; }
+        public virtual DateTime dateTimeAuthorized { get; set; }
+        public virtual DateTime dateTimeRefresh { get; set; }
+
         public virtual DateTime createdAt { get; set; }
         public virtual DateTime modifiedAt { get; set; }
         public virtual string status { get; set; }

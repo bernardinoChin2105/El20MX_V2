@@ -144,7 +144,19 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
         El20Utils.mostrarCargador();
         $.get("Diagnostic/GenerateDx0", function (data) {
             if (data.success) {
-                self.finishExtraction(data.uuid)
+                El20Utils.ocultarCargador();
+                let form = document.createElement("form");
+                form.setAttribute("method", "GET");
+                form.setAttribute("action", "/Diagnostic/DiagnosticDetail");
+
+                let hiddenClave = document.createElement("input");
+                hiddenClave.setAttribute("type", "hidden");
+                hiddenClave.setAttribute("name", "id");
+                hiddenClave.setAttribute("value", data.uuid);
+                form.appendChild(hiddenClave);
+
+                document.body.appendChild(form);
+                form.submit();
             }
             else {
                 toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
