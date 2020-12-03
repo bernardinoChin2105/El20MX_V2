@@ -43,7 +43,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
             ordering: false,
             columns: [
                 { data: 'id', title: "Id", visible: false },
-                { data: 'Name', title: "Bancos" },
+                { data: 'nameSite', title: "Bancos" },
                 { data: 'dateTimeAuthorized', title: "Fecha Autorización" },
                 { data: 'dateTimeRefresh', title: "Fecha Última Obt. Información" },
                 { data: 'status', title: "Estatus" },

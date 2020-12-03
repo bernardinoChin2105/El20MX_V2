@@ -663,7 +663,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 //listados del banco de la cuenta registrada
                 var listResponse = _bankCredentialService.GetBankCredentials(userAuth.Account.Id)
-                    .Select(x => new SelectListItem() { Text = x.Name, Value = x.id.ToString() }).ToList();
+                    .Select(x => new SelectListItem() { Text = x.nameSite, Value = x.id.ToString() }).ToList();
                 listResponse.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
 
                 var listTypes = Enum.GetValues(typeof(TypeMovements)).Cast<TypeMovements>()
