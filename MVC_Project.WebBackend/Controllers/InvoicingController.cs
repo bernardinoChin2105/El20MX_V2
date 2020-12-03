@@ -284,7 +284,8 @@ namespace MVC_Project.WebBackend.Controllers
                         Importe = item.Subtotal,
                         //public List<Parte> Parte { get; set; }
                     };
-                    if (model.TypeInvoice != TipoComprobante.P.ToString())
+
+                    if (model.TypeInvoice != TipoComprobante.P.ToString() && item.Unit.Count() <= 20)
                         conceptsData.Unidad = item.Unit;
 
                     if (item.DiscountRateProServ > 0)
