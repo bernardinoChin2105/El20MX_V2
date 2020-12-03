@@ -1393,9 +1393,10 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         $("#InvoiceComplementChk").click(function () {
             //console.log("estoy dento", !this.checked);
-            console.log(this.checked, "valor logico")
+            //console.log(this.checked, "valor logico")
             inputsReference(this.checked);
         });
+
         function inputsReference(input) {
             var complement = $(".complement");
             var typeRelationship = $("#TypeRelationship");
