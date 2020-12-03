@@ -427,4 +427,12 @@ namespace MVC_Project.Utils
         [Display(Name = "received")]
         RECEIVED
     }
+
+    public enum EmailProvider
+    {
+        [Display(Name = "SENDGRID")]
+        SENDGRID,
+        [Display(Name = "SMTP")]
+        SMTP
+    }
 }

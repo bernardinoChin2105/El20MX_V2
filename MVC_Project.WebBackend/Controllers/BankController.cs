@@ -58,6 +58,7 @@ namespace MVC_Project.WebBackend.Controllers
                     catch (Exception ex)
                     {
                         string error = ex.Message.ToString();
+                        Session["token"] = string.Empty;
                         token = Token();
                     }
                     ViewBag.paybookT = token;
@@ -162,12 +163,12 @@ namespace MVC_Project.WebBackend.Controllers
                         bankMv.code = resultBank[0].code;
                         bankMv.dateTimeAuthorized = bank.dateTimeAuthorized != null ? bank.dateTimeAuthorized.Value.ToShortDateString() : string.Empty;
                         bankMv.dateTimeRefresh = bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty;
-                        if (bank.dateTimeRefresh != null && bankMv.code != 401 && bankMv.code != 411)
+                        if (bank.dateTimeRefresh != null && bankMv.code != 401)
                         {
                             if (bank.dateTimeAuthorized.Value.Date < todayDate.Date)
                                 bankMv.code = 600;//código para actualizarlo manualmente
                         }
-                        else if (bankMv.code != 401 || bankMv.code != 411)
+                        else if (bankMv.code != 401)
                             bankMv.code = 600; //código para actualizarlo manualmente
 
                         list.Add(bankMv);
@@ -662,7 +663,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 //listados del banco de la cuenta registrada
                 var listResponse = _bankCredentialService.GetBankCredentials(userAuth.Account.Id)
-                    .Select(x => new SelectListItem() { Text = x.Name, Value = x.id.ToString() }).ToList();
+                    .Select(x => new SelectListItem() { Text = x.nameSite, Value = x.id.ToString() }).ToList();
                 listResponse.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
 
                 var listTypes = Enum.GetValues(typeof(TypeMovements)).Cast<TypeMovements>()

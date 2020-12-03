@@ -74,9 +74,9 @@
             </tr>
             <tr>
                 <td><strong>RfC receptor:</strong></td>
-                <td>@Model.Receptor.Rfc</td>    
+                <td>@Model.Receptor.Rfc</td>
                 <td><strong>Serie y Folio</strong></td>
-                <td>@Model.Serie @Model.Folio</td>                
+                <td>@Model.Serie @Model.Folio</td>
             </tr>
             <tr>
                 <td><strong>Nombre receptor:</strong></td>
@@ -88,7 +88,7 @@
                 <td><strong>Tipo de Comprobante:</strong></td>
                 <td>@Model.TipoDeComprobante</td>
                 <td><strong>Fecha y hora de emision:</strong></td>
-                <td>@Model.Fecha</td>                
+                <td>@Model.Fecha</td>
             </tr>
             <tr>
                 <td><strong>Uso CFDI:</strong></td>
@@ -108,9 +108,9 @@
                 <td><strong>Tipo de Cambio:</strong></td>
                 <td>@Model.TipoCambio</td>
             </tr>
-            @if (!String.IsNullOrEmpty(Model.ClaveCatastral))
-            {
-                <tr>
+            <tr>
+                @if (!String.IsNullOrEmpty(Model.ClaveCatastral))
+                {
                     <td><strong>Clave Catastral:</strong></td>
                     <td>@Model.ClaveCatastral</td>
                 }
@@ -135,8 +135,7 @@
                     <td></td>
                     <td></td>
                 }
-                </tr>
-            }
+            </tr>
         </table>
 
         <div style="clear:both;"></div>
@@ -218,60 +217,64 @@
                     </tr>
                 </tfoot>
             </table>
-            <br />
-            <br />
-            <strong><p>Complemento Pago</p></strong>
-            <table style="width:100%" class="tabla">
-                <tr>
-                    <th>Fecha Pago</th>
-                    <th>Moneda P</th>
-                    <th>Tipo Cambio P</th>
-                    <th>Monto</th>
-                    <th>Forma De Pago P</th>
-                    <th>Número Operación</th>
-                </tr>
-                @foreach (var cPago in Model.Complemento.Pagos)
-                {
+            @if (Model.Complemento.Pagos != null)
+            {
+                <br />
+                <br />
+                <strong><p>Complemento Pago</p></strong>
+                <table style="width:100%" class="tabla">
                     <tr>
-                        <td>@cPago.FechaPago</td>
-                        <td>@cPago.MonedaP</td>
-                        <td>@cPago.TipoCambioP</td>
-                        <td>@Convert.ToDecimal(cPago.Monto).ToString("C2")</td>
-                        <td>@cPago.FormaDePagoP</td>
-                        <td>@cPago.NumOperacion</td>
+                        <th>Fecha Pago</th>
+                        <th>Moneda P</th>
+                        <th>Tipo Cambio P</th>
+                        <th>Monto</th>
+                        <th>Forma De Pago P</th>
+                        <th>Número Operación</th>
                     </tr>
-                }
-            </table>
-            <br />
-            <br />
-            <strong><p>Documentación Relacionado</p></strong>
-            <table style="width:100%" class="tabla">
-                <tr>
-                    <th>Id Documento</th>
-                    <th>Folio</th>
-                    <th>Serie</th>
-                    <th>Moneda</th>
-                    <th>Metodo De Pago</th>
-                    <th>Parcialidad</th>
-                    <th>Imp Saldo Ant</th>
-                    <th>Imp Pagado</th>
-                    <th>Imp Saldo Insoluto</th>
-                </tr>
-                @foreach (var cPago in Model.Complemento.Pagos)
-                {
-                <tr>
-                    <td>@cPago.DoctoRelacionado.IdDocumento</td>
-                    <td>@cPago.DoctoRelacionado.Folio</td>
-                    <td>@cPago.DoctoRelacionado.Serie</td>
-                    <td>@cPago.DoctoRelacionado.MonedaDR</td>
-                    <td>@cPago.DoctoRelacionado.MetodoDePagoDR</td>
-                    <td>@cPago.DoctoRelacionado.NumParcialidad</td>
-                    <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoAnt).ToString("C2")</td>
-                    <td>@(cPago.DoctoRelacionado.ImpPagado != null ? Convert.ToDecimal(cPago.DoctoRelacionado.ImpPagado).ToString("C2") : Convert.ToDecimal(cPago.Monto).ToString("C2"))</td>
-                    <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoInsoluto).ToString("C2")</td>
-                </tr>
-                }
-            </table>
+                    @foreach (var cPago in Model.Complemento.Pagos)
+                    {
+                        <tr>
+                            <td>@cPago.FechaPago</td>
+                            <td>@cPago.MonedaP</td>
+                            <td>@cPago.TipoCambioP</td>
+                            <td>@Convert.ToDecimal(cPago.Monto).ToString("C2")</td>
+                            <td>@cPago.FormaDePagoP</td>
+                            <td>@cPago.NumOperacion</td>
+                        </tr>
+                    }
+                </table>
+                <br />
+                <br />
+                <strong><p>Documentación Relacionado</p></strong>
+                <table style="width:100%" class="tabla">
+                    <tr>
+                        <th>Id Documento</th>
+                        <th>Folio</th>
+                        <th>Serie</th>
+                        <th>Moneda</th>
+                        <th>Metodo De Pago</th>
+                        <th>Parcialidad</th>
+                        <th>Imp Saldo Ant</th>
+                        <th>Imp Pagado</th>
+                        <th>Imp Saldo Insoluto</th>
+                    </tr>
+                    @foreach (var cPago in Model.Complemento.Pagos)
+                    {
+                        <tr>
+                            <td>@cPago.DoctoRelacionado.IdDocumento</td>
+                            <td>@cPago.DoctoRelacionado.Folio</td>
+                            <td>@cPago.DoctoRelacionado.Serie</td>
+                            <td>@cPago.DoctoRelacionado.MonedaDR</td>
+                            <td>@cPago.DoctoRelacionado.MetodoDePagoDR</td>
+                            <td>@cPago.DoctoRelacionado.NumParcialidad</td>
+                            <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoAnt).ToString("C2")</td>
+                            <td>@(cPago.DoctoRelacionado.ImpPagado != null ? Convert.ToDecimal(cPago.DoctoRelacionado.ImpPagado).ToString("C2") : Convert.ToDecimal(cPago.Monto).ToString("C2"))</td>
+                            <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoInsoluto).ToString("C2")</td>
+                        </tr>
+                    }
+                </table>
+            }
+
         </div>
     </div>
     <br />
