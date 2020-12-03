@@ -387,6 +387,7 @@ namespace MVC_Project.WebBackend.Controllers
                             MonedaP = item.CurrencyCFDI,
                             //TipoCambioP = item.ExchangeRateCFDI.ToString(),
                             Monto = item.AmountCFDI.ToString(),
+                            NumOperacion = item.NumOperationCFDI,
                             DoctoRelacionado = new Integrations.SAT.DoctoRelacionado()
                             {
                                 IdDocumento = item.uuid,
@@ -394,14 +395,14 @@ namespace MVC_Project.WebBackend.Controllers
                                 MetodoDePagoDR = item.method,
                                 NumParcialidad = item.numberPartialities.ToString(),
                                 ImpSaldoAnt = item.previousBalance.ToString(),
-                                ImpSaldoInsoluto = item.outstanding.ToString()
+                                ImpSaldoInsoluto = item.outstanding.ToString(),
+                                Serie = item.serie,
+                                Folio = item.folio
                             }
                         };
 
-                        if (item.ExchangeRateCFDI > 1)
-                            pago.TipoCambioP = item.ExchangeRateCFDI.ToString();
-                        /*else
-                            pago.TipoCambioP = string.Empty;*/
+                        if (item.CurrencyCFDI != "MXN")
+                            pago.TipoCambioP = item.ExchangeRateCFDI.ToString();                        
 
                         payments.Add(pago);
                     }
@@ -2000,6 +2001,7 @@ namespace MVC_Project.WebBackend.Controllers
                         string varFormaDePagoP = node.Attributes["FormaDePagoP"] != null ? node.Attributes["FormaDePagoP"].Value : string.Empty;
                         string varFechaPago = node.Attributes["FechaPago"] != null ? node.Attributes["FechaPago"].Value : string.Empty;
                         string varNumOperacion = node.Attributes["NumOperacion"] != null ? node.Attributes["NumOperacion"].Value : string.Empty;
+                        string varTipoCambioP = node.Attributes["TipoCambioP"] != null ? node.Attributes["TipoCambioP"].Value : string.Empty;                        
 
                         Models.Pago pago = new Models.Pago()
                         {
@@ -2007,7 +2009,8 @@ namespace MVC_Project.WebBackend.Controllers
                             FormaDePagoP = varFormaDePagoP,
                             MonedaP = varMonedaP,
                             Monto = varMonto,
-                            NumOperacion = varNumOperacion
+                            NumOperacion = varNumOperacion,
+                            TipoCambioP = varTipoCambioP
                         };
 
                         XmlNode nodeDocto = node.SelectSingleNode("pago10:DoctoRelacionado", nsm);
@@ -2019,6 +2022,23 @@ namespace MVC_Project.WebBackend.Controllers
                             string varMetodoDePagoDR = nodeDocto.Attributes["MetodoDePagoDR"] != null ? nodeDocto.Attributes["MetodoDePagoDR"].Value : string.Empty;
                             string varMonedaDR = nodeDocto.Attributes["MonedaDR"] != null ? nodeDocto.Attributes["MonedaDR"].Value : string.Empty;
                             string varIdDocumento = nodeDocto.Attributes["IdDocumento"] != null ? nodeDocto.Attributes["IdDocumento"].Value : string.Empty;
+                            string varFolioCFDI = nodeDocto.Attributes["Folio"] != null ? nodeDocto.Attributes["Folio"].Value : string.Empty;
+                            string varSerieCFDI = nodeDocto.Attributes["Serie"] != null ? nodeDocto.Attributes["Serie"].Value : string.Empty;
+
+                            /*
+                         
+                            {
+                                IdDocumento = item.uuid,
+                                MonedaDR = item.currency,
+                                MetodoDePagoDR = item.method,
+                                NumParcialidad = item.numberPartialities.ToString(),
+                                ImpSaldoAnt = item.previousBalance.ToString(),
+                                ImpSaldoInsoluto = item.outstanding.ToString(),
+                                Serie = item.serie,
+                                Folio = item.folio
+                            }
+                         */
+
 
                             Models.DoctoRelacionado docto = new Models.DoctoRelacionado()
                             {
@@ -2027,7 +2047,9 @@ namespace MVC_Project.WebBackend.Controllers
                                 MetodoDePagoDR = varMetodoDePagoDR,
                                 NumParcialidad = varNumParcialidad,
                                 ImpSaldoAnt = varImpSAldoAnt,
-                                ImpSaldoInsoluto = varImpSaldoInsoluto
+                                ImpSaldoInsoluto = varImpSaldoInsoluto,
+                                Folio = varFolioCFDI,
+                                Serie = varSerieCFDI
                                 //ImpPagado =
                             };
 
