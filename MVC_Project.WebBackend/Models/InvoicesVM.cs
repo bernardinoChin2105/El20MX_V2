@@ -161,6 +161,7 @@ namespace MVC_Project.WebBackend.Models
         public string MonedaP { get; set; }
         public string Monto { get; set; }
         public string NumOperacion { get; set; }
+        public string TipoCambioP { get; set; }        
         public DoctoRelacionado DoctoRelacionado { get; set; }
     }
     public class DoctoRelacionado
@@ -172,5 +173,7 @@ namespace MVC_Project.WebBackend.Models
         public string ImpSaldoAnt { get; set; }
         public string ImpPagado { get; set; }
         public string ImpSaldoInsoluto { get; set; }
+        public string Folio { get; set; }
+        public string Serie { get; set; }                
     }
 }

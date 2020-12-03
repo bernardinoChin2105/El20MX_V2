@@ -191,7 +191,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 }
 
                 if (self.traslados > 0) {
-                    console.log(self.traslados)
+                    //console.log(self.traslados);
                     $(".trTaxT").removeClass("hide");
                     $("#TaxTransferred").val(self.traslados);
                     $("#lblTaxTransferred").html('$' + self.traslados.toFixed(2));
@@ -323,7 +323,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             "columnDefs": [
                 {
                     "targets": 1, render: function (data, type, row, meta) {
-                        console.log(data, type, row, meta, "todos")
+                        //console.log(data, type, row, meta, "todos")
                         var html = '<input type="text" class="form-control" readonly name="payment[' + (meta.row) + '].uuid" value="' + row.uuid + '" />';
                         return html;
                     }
@@ -447,7 +447,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             "columnDefs": [
                 {
                     "targets": 0, render: function (data, type, row, meta) {
-                        console.log(data, type, row, meta, "todos relacionados");
+                        //console.log(data, type, row, meta, "todos relacionados");
                         var html = '<input type="text" class="form-control" readonly name="invoicesUuid[' + meta.row + '].uuid" value="' + row.uuid + '" />';
                         return html;
                     }
@@ -575,7 +575,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var tr = $(this).closest('tr');
             var row = self.dataTableCFDI.row(tr);
             var index = self.dataTableCFDI.row(tr).index();
-            console.log(tr, row, index, "filas");
+            //console.log(tr, row, index, "filas");
             //console.log(row.isShown(), "haosod")
             if ($(row.node()).hasClass("shown")) {
                 // This row is already open - close it                
@@ -585,7 +585,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             }
             else {
                 // Open this row
-                console.log("hola", row.data(), index);
+                //console.log("hola", row.data(), index);
                 //row.child(format(row.data(), index)).show();
                 $("#tableValue").html(format(row.data(), index));
                 copySelects(row.data(), index);
@@ -617,15 +617,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         $(self.htmlTableCFDI, 'tbody').on('change', '.numberPayment', function () {
             var tr = $(this).closest('tr');
-            // var row = self.dataTableCFDI.row(tr);
             var t = self.dataTableCFDI;
             var index = t.row(tr).index();
-            console.log(tr, row, index, "filas");
             var row = t.row(index);
-            //var index = t.row(tr).index();
-            console.log(t, row, index, "filas");
             var data = t.row(index).data();
-            console.log(data, "información");
+            // var row = self.dataTableCFDI.row(tr);
+            //var index = t.row(tr).index();
 
             data.numberPartialities = $("input[name='payment[" + index + "].numberPartialities']").val();
 
@@ -635,13 +632,25 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         $("#tableValue").on("click", ".btn-add-pay", function () {
             //var index = self.dataTableCFDI.row(tr).index();
             var index = $(this).val();
-            console.log(index, "index para editar la fila de la tabla");
+            //console.log(index, "index para editar la fila de la tabla");
             updateData(index);
+        });
+
+
+        //Validar que sea obligatorio el tipo de cambio cuando sea distinto a MXN
+        $("#tableValue").on("change", "#CurrencyCFDI", function () {
+            console.log("pruebas currency")
+            var currency = $(this).val();
+            if (currency !== "MXN") 
+                $(".exchangeCFDI ").removeClass("hide").addClass("required");            
+            else 
+                $(".exchangeCFDI ").addClass("hide").removeClass("required");   
+            
         });
 
         //funcion para obtener el detalle
         function format(d, index) {
-            console.log(d, "detalles");
+            //console.log(d, "detalles");
             // `d` is the original data object for the row
             return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:0px;">' +
                 '<tr>' +
@@ -649,13 +658,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 '<td><input type="text" name="fiscal[' + index + '].NumOperationCFDI" id="" value="' + d.NumOperationCFDI + '" class="form-control" autocomplete="off" maxlength="50" /></td>' +
                 '<td><label class="col-form-label control-label">Monto</label></td>' +
                 '<td><input type="text" name="fiscal[' + index + '].AmountCFDI" id="" value="' + d.AmountCFDI + '" class="form-control money amountCFDI" data-index="' + index + '" autocomplete="off" maxlength="50" /></td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td><label class="col-form-label control-label">Moneda</label></td>' +
-                '<td><select name="fiscal[' + index + '].CurrencyCFDI" id="" class="form-control" class="form-control chosen-select"></select></td>' +
-                '<td><label class="col-form-label control-label">Tipo de Cambio</label></td>' +
-                '<td><input type="text" name="fiscal[' + index + '].ExchangeRateCFDI" id="" value="' + d.exchangeRate + '"  class="form-control money" autocomplete="off" maxlength="50" /></td>' +
-                '</tr>' +
+                '</tr>' +                
                 '<tr>' +
                 '<td><label class="col-form-label control-label">Forma de Pago</label></td>' +
                 '<td><select name="fiscal[' + index + '].PaymentFormCFDI" id="" class="form-control chosen-select"></select></td>' +
@@ -668,6 +671,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 '</div>' +
                 '</div>' +
                 '</td >' +
+                '</tr>' +
+                '<tr>' +
+                '<td><label class="col-form-label control-label">Moneda</label></td>' +
+                '<td><select name="fiscal[' + index + '].CurrencyCFDI" id="CurrencyCFDI" class="form-control" class="form-control chosen-select"></select></td>' +
+                '<td><label class="col-form-label control-label exchangeCFDI hide">Tipo de Cambio</label></td>' +
+                '<td><input type="text" name="fiscal[' + index + '].ExchangeRateCFDI" id="" value="' + d.ExchangeRateCFDI + '"  class="form-control money exchangeCFDI hide" autocomplete="off" maxlength="50" /></td>' +
                 '</tr>' +
                 '<tr>' +
                 '<td colspan="2"><button type="button" value="' + index + '" class="btn btn-color btn-add-pay">Editar pago</button></td>' +
@@ -683,8 +692,11 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
             var $optionsC = $("#Currency > option").clone();
             $("select[name='fiscal[" + index + "].CurrencyCFDI']").append($optionsC);
-            if (d.CurrencyCFDI !== "")
+            if (d.CurrencyCFDI !== "") {
                 $("select[name='fiscal[" + index + "].CurrencyCFDI']").val(d.CurrencyCFDI);
+                if (d.CurrencyCFDI !== "MXN")
+                    $(".exchangeCFDI").removeClass("hide riquerid");
+            }
 
             //$('.money').mask("##,###,##0.00", { reverse: true });
             $('.money').mask("#######0.00", { reverse: true });
@@ -921,8 +933,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         /*Buscador de facturas para complementos*/
         $("#TypeInvoice").change(function () {
-            console.log("opción de relación de facturas", $(this).val());
-            var typeInvoice = $(this).val();            
+            //console.log("opción de relación de facturas", $(this).val());
+            var typeInvoice = $(this).val();                       
 
             if (typeInvoice === "P") {
                 $("#CFDIrelacionados").removeClass("hide");
@@ -959,13 +971,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#DiscountRate").attr("readonly", false);
                 self.dataTableCFDI.clear().draw();
                 self.dataTableCFDIEgress.clear().draw();
+                self.dataTable.clear().draw();
 
                 $(".labelsFiscal").removeClass("hide").addClass("required");
-                $(".inputsFiscal").removeClass("hide").addClass("required");
-
-
-                //$("#InvoiceComplementChk").attr("checked", false).trigger("click");
-                //$("#InvoiceComplementChk").prop("checked", false).iCheck("update");
+                $(".inputsFiscal").removeClass("hide").addClass("required");                
+                $("#InvoiceComplementChk").prop({ "checked": false }).iCheck('update');
+                inputsReference(false);
             }
         });
 
@@ -976,25 +987,25 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var t = typeInvoice === "P" ? self.dataTableCFDI : self.dataTableCFDIEgress;
             var ind = t.rows().count();
             var index = parseInt(ind);
-            console.log("index", index);
+            //console.log("index", index);
 
             if (index < 10) {
                 var uuid = $("#InvoiceComplement").val();
-                console.log("valor del uuid", uuid);
+                //console.log("valor del uuid", uuid);
                 $.ajax({
                     type: 'Get',
                     async: true,
                     data: { uuid: uuid, typeInvoice: $("#TypeInvoice").val() },
                     url: self.searchCDFIUrl,
                     success: function (json) {
-                        console.log(json, "respuesta");
+                        //console.log(json, "respuesta");
 
                         if (json.success) {
                             var data = json.data;
                             if (data === null)
                                 toastr['error']("No se encontro la factura con el Folio Fiscal.", null, { 'positionClass': 'toast-top-center' });
                             else {
-                                console.log("xml", json.data.xml);
+                                //console.log("xml", json.data.xml);
                                 if (typeInvoice === "E") {
                                     index++;
                                     t.row.add(
@@ -1031,7 +1042,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                     ).draw(false);
                                 }
                                 $("#InvoiceComplement").val("");
-                                if (index === 1) {
+                                if (index === 1 && $("#TypeInvoice").val() === "P") {
                                     addConcept();
                                 }
                             }
@@ -1382,10 +1393,14 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         $("#InvoiceComplementChk").click(function () {
             //console.log("estoy dento", !this.checked);
+            console.log(this.checked, "valor logico")
+            inputsReference(this.checked);
+        });
+        function inputsReference(input) {
             var complement = $(".complement");
             var typeRelationship = $("#TypeRelationship");
 
-            if (!this.checked) {
+            if (!input) {
                 complement.addClass("hide");
                 typeRelationship.removeClass("required").val("");
                 $("#InvoiceComplement").val("");
@@ -1394,7 +1409,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 typeRelationship.addClass("required");
                 complement.removeClass("hide");
             }
-        });
+        }
 
         //Buscar información del cliente por Razon Social
         $('#CustomerName').typeahead({
