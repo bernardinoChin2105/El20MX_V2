@@ -16,13 +16,14 @@ $(".btn-filter-rol").click(function () {
     $('#table').DataTable().draw();
 });
 
-var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUrl, uploadUrl, exportTemplateUrl, hasFullAccessController) {
+var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUrl, uploadUrl, exportTemplateUrl, redirectInvoice, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
     this.editUrl = editUrl;
     this.exportUrl = exportUrl;
     this.uploadUrl = uploadUrl;
+    this.redirectInvoice = redirectInvoice;
     this.exportTemplateUrl = exportTemplateUrl;
     this.dataTable = {};
 
@@ -71,13 +72,13 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                     className: 'work-options',
                     render: function (data) {
                         //menu para el cliente work
-                        //console.log(data)
+                        console.log(data, "cliente");
                         //style="margin-left:5px;"
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<div class="dropdown">' +
                             '<button class="btn btn-light btn-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-ellipsis-h"></span></button>' +
                             '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
-                            '<a class="dropdown-item" href="#">Hacer CFDI</a>' +
+                            '<a class="dropdown-item" href="' + self.redirectInvoice + '?customer='+data.uuid+'">Hacer CFDI</a>' +
                             '</div>' +
                             '</div>' +
                             '</div>';

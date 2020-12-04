@@ -91,7 +91,7 @@ namespace MVC_Project.WebBackend.Controllers
             return View();
         }
 
-        public ActionResult Invoice()
+        public ActionResult Invoice(string customer)
         {
             InvoiceViewModel model = new InvoiceViewModel();
             var authUser = Authenticator.AuthenticatedUser;
@@ -102,8 +102,8 @@ namespace MVC_Project.WebBackend.Controllers
                     MinDate = DateUtil.GetDateTimeNow(),
                     MaxDate = DateUtil.GetDateTimeNow()
                 };
-                //obtener información de mi emisor                
 
+                //obtener información de mi emisor                
                 var account = authUser.Account;
                 string email = authUser.Email;
                 var membership = _membershipService.FirstOrDefault(x => x.account.id == account.Id && x.role.code == SystemRoles.ACCOUNT_OWNER.ToString() && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
@@ -117,11 +117,31 @@ namespace MVC_Project.WebBackend.Controllers
                 model.BusinessName = account.Name;
                 model.IssuingTaxEmail = email;
                 //model.IssuingTaxRegime = ""; //Faltan estos datos del cliente
-                //model.IssuingTaxRegimeId = "";//Faltan estos datos del cliente
+                //model.IssuingTaxRegimeId = "";//Faltan estos datos del cliente  
+                string zipCode = string.Empty;
+
+                if (!string.IsNullOrEmpty(customer))
+                {
+                    CustomerViewModel customerModel = GetCustomerReceiver(customer, account.Id);
+                    model.CustomerId = customerModel.Id;
+                    model.CustomerName = customerModel.BusinessName;
+                    model.RFC = customerModel.RFC;
+                    model.Street = customerModel.Street;
+                    model.OutdoorNumber = customerModel.OutdoorNumber;
+                    model.InteriorNumber = customerModel.InteriorNumber;
+                    model.Colony = customerModel.Colony;
+                    model.ZipCode = customerModel.ZipCode;
+                    model.Municipality = customerModel.Municipality;
+                    model.State = customerModel.State;
+                    model.Country = customerModel.Country;
+                    model.TypeReceptor = customerModel.taxRegime;
+                    model.ReceiverType = "";
+                    model.CustomerEmail = customerModel.Emails.Count() > 0? customerModel.Emails[0].EmailOrPhone : string.Empty;
+                    zipCode = customerModel.ZipCode;
+                }
 
                 //Obtener listas de los combos
-
-                SetCombos(null, ref model);
+                SetCombos(zipCode, ref model);
             }
             catch (Exception ex)
             {
@@ -129,6 +149,44 @@ namespace MVC_Project.WebBackend.Controllers
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
             }
             return View(model);
+        }
+
+        private CustomerViewModel GetCustomerReceiver(string uuid, Int64 accountId)
+        {
+            CustomerViewModel receiver = new CustomerViewModel();
+            try
+            {
+                var customer = _customerService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.account.id == accountId);
+
+                if (customer != null)
+                {
+                    receiver = new CustomerViewModel()
+                    {
+                        Id = customer.id,
+                        BusinessName = customer.businessName != null ? customer.businessName : customer.firstName + " " + customer.lastName,
+                        RFC = customer.rfc,
+                        Street = customer.street,
+                        OutdoorNumber = customer.outdoorNumber,
+                        InteriorNumber = customer.interiorNumber,
+                        Colony = customer.colony,
+                        ZipCode = customer.zipCode,
+                        Municipality = customer.municipality,
+                        State = customer.state,
+                        Country = customer.country,
+                        Emails = customer.customerContacts.Where(x => x.typeContact == TypeContact.EMAIL.ToString() && x.status == SystemStatus.ACTIVE.ToString())
+                        .Select(x => new CustomerContactsViewModel
+                        {
+                            Id = x.id,
+                            EmailOrPhone = x.emailOrPhone
+                        }).ToList()
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return receiver;
         }
 
         #region Guardar información para timbrar 
@@ -403,7 +461,7 @@ namespace MVC_Project.WebBackend.Controllers
                         };
 
                         if (item.CurrencyCFDI != "MXN")
-                            pago.TipoCambioP = item.ExchangeRateCFDI.ToString();                        
+                            pago.TipoCambioP = item.ExchangeRateCFDI.ToString();
 
                         payments.Add(pago);
                     }
@@ -2002,7 +2060,7 @@ namespace MVC_Project.WebBackend.Controllers
                         string varFormaDePagoP = node.Attributes["FormaDePagoP"] != null ? node.Attributes["FormaDePagoP"].Value : string.Empty;
                         string varFechaPago = node.Attributes["FechaPago"] != null ? node.Attributes["FechaPago"].Value : string.Empty;
                         string varNumOperacion = node.Attributes["NumOperacion"] != null ? node.Attributes["NumOperacion"].Value : string.Empty;
-                        string varTipoCambioP = node.Attributes["TipoCambioP"] != null ? node.Attributes["TipoCambioP"].Value : string.Empty;                        
+                        string varTipoCambioP = node.Attributes["TipoCambioP"] != null ? node.Attributes["TipoCambioP"].Value : string.Empty;
 
                         Models.Pago pago = new Models.Pago()
                         {
