@@ -345,5 +345,16 @@ namespace MVC_Project.Resources {
                 return ResourceManager.GetString("MODULE_INVOICING", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Busca una cadena traducida similar a MI CUENTA.
+        /// </summary>
+        public static string MODULE_MY_ACCOUNT
+        {
+            get
+            {
+                return ResourceManager.GetString("MODULE_MY_ACCOUNT", resourceCulture);
+            }
+        }        
     }
 }

@@ -264,6 +264,7 @@
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InvoicingController.cs" />
+    <Compile Include="Controllers\MyAccountController.cs" />
     <Compile Include="Controllers\PaymentsController.cs" />
     <Compile Include="Controllers\PlanController.cs" />
     <Compile Include="Controllers\PromotionController.cs" />
@@ -290,6 +291,7 @@
     <Compile Include="Models\CalendarViewModel.cs" />
     <Compile Include="Models\CredentialViewModel.cs" />
     <Compile Include="Models\InvoiceViewModel.cs" />
+    <Compile Include="Models\MyAccountVM.cs" />
     <Compile Include="Models\PlanViewModel.cs" />
     <Compile Include="Models\InvoicesVM.cs" />
     <Compile Include="Models\ProductVM.cs" />
@@ -1824,6 +1826,7 @@
     <Content Include="Scripts\views\BranchOffice\Create.js" />
     <Content Include="Scripts\views\BranchOffice\Edit.js" />
     <Content Include="Scripts\views\BranchOffice\Index.js" />
+    <Content Include="Scripts\views\MyAccount\Index.js" />
     <Content Include="Scripts\views\Invoicing\CustomerInvoices.js" />
     <Content Include="Scripts\views\Invoicing\Invoice.js" />
     <Content Include="Scripts\views\Invoicing\InvoicesSaved.js" />
@@ -1996,6 +1999,7 @@
     <Content Include="Views\Invoicing\InvoiceDownloadPDF.cshtml" />
     <Content Include="Views\Invoicing\InvoicesIssued.cshtml" />
     <Content Include="Views\Invoicing\InvoicesReceived.cshtml" />
+    <Content Include="Views\MyAccount\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

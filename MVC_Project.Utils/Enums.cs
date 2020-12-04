@@ -154,6 +154,8 @@ namespace MVC_Project.Utils
         BANKS,
         [Display(Name = "Facturación")]
         INVOICING,
+        [Display(Name = "Mi Cuenta con El20.mx")]
+        MY_ACCOUNT,
         #region Modulos del BackOffice
         [Display(Name = "Planes")]
         PLANS,
@@ -162,6 +164,16 @@ namespace MVC_Project.Utils
         [Display(Name = "Regularizaciones")]
         QUOTATION
         #endregion
+    }
+
+    public enum StatusPayment
+    {
+        [Display(Name = "Vigente")]
+        VALID,
+        [Display(Name = "Pagada")]
+        PAID,
+        [Display(Name = "Vencida")]
+        EXPIRED
     }
 
     public enum TermsAndConditions
