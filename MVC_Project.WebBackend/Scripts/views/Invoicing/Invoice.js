@@ -151,7 +151,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //    //   var index = 0;                      
             //},
             "footerCallback": function (row, data, start, end, display) {
-                //console.log(row, data, start, end, display, "lo que trae")
+                //console.log(row, data, start, end, display, "CUANTAS VECES ENTRO")
                 var api = this.api();
 
                 // Remove the formatting to get integer data for summation
@@ -492,6 +492,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 if (array.length > 0) {
                     var t = $("#tableImpuestos").DataTable();
                     var sub = self.quantity.val(data[1]) * self.unitPrice.val(data[6]);
+                    var discount = data[7] > 0 || data[7] < 0 ? (data[7] * sub) / 100 : 0;
+                    var subtotal = sub - discount; //aplicado el descuento.
 
                     array.forEach(function (item, i) {
                         //console.log(item, i, "onjeto");
@@ -501,7 +503,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                         if (datos.Porcentaje !== "Exento") {
                             var por = parseFloat(datos.Porcentaje);
-                            var imp1 = por > 0 ? (por * sub) / 100 : 0;
+                            var imp1 = por > 0 ? (por * subtotal) / 100 : 0;
                             if (datos.Tipo === "Retención") {
                                 if (datos.Impuesto === "ISR") {
                                     self.retencionISRTempDesc = self.retencionISRTempDesc + imp1;
@@ -509,7 +511,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                     self.retencionIVATempDesc = self.retencionIVATempDesc + imp1;
                                 }
                             } else {
-                                var imp2 = por > 0 ? (por * sub) / 100 : 0;
+                                var imp2 = por > 0 ? (por * subtotal) / 100 : 0;
                                 self.trasladosTempDesc = self.trasladosTempDesc + imp2;
                             }
                         }
@@ -518,7 +520,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         t.row.add([datos]).draw(false);
                     });
                 }
-
+                $("input[name='TaxesChk']").trigger("click");                
                 $("#ServProdModal").modal("show");
             });
 
@@ -784,7 +786,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             }, "Debe ser un RFC válido"
         );
 
-        $('.money').mask("##,###,##0.00", { reverse: true });
+        $('.money').mask("#######0.00", { reverse: true });
         $('.rateMoney').mask("##0.00", { reverse: false });
 
         //Agregar a la lista de conceptos del producto
@@ -860,7 +862,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 },
                 ProductServiceDescription: {
                     Alphanumeric: true
-                },
+                }
             }
         });
 
@@ -1085,11 +1087,6 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var impuestos = $("#tableImpuestos").DataTable();
             //console.log(discountRate, "descuento");
 
-            //dudas con el impuesto
-            //var taxesIEPS = parseFloat(self.taxesIEPS);
-            //var taxesIVA = parseFloat(self.taxesIVA);
-            //var subtotal = parseFloat(self.subtotal);
-
             //Calcular el subtotal    
             if (quantity > 0 && unitPrice > 0) {
                 var sub = quantity * unitPrice;
@@ -1097,16 +1094,16 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 var impIVAIESP = 0; //parseFloat(self.taxesIEPS.val() !== "" ? self.taxesIVA.val() : 0);
 
                 var discount = discountRate > 0 || discountRate < 0 ? (discountRate * sub) / 100 : 0;
-                //console.log("desceutno", discount);
-                //console.log("holas")
-                if (impuestos.rows().count() > 0) {
+                var subtotal = sub - discount; //aplicado el descuento.
+
                     //console.log(impuestos, "tabla")
+                if (impuestos.rows().count() > 0) {
                     for (var i = 0; i < impuestos.rows().count(); i++) {
                         var datos = impuestos.row(i).data()[0];
                         //console.log(datos, "datos");
                         if (datos.Porcentaje !== "Exento") {
                             var por = parseFloat(datos.Porcentaje);
-                            var imp1 = por > 0 ? (por * sub) / 100 : 0;
+                            var imp1 = por > 0 ? (por * subtotal) / 100 : 0;
                             if (datos.Tipo === "Retención") {
                                 if (datos.Impuesto === "ISR") {
                                     self.retencionISRTemp = self.retencionISRTemp + imp1;
@@ -1116,18 +1113,14 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                 impIVAISR = impIVAISR + imp1;
                                 //console.log(impIVAISR, imp1, "iva isr");
                             } else {
-                                var imp2 = por > 0 ? (por * sub) / 100 : 0;
+                                var imp2 = por > 0 ? (por * subtotal) / 100 : 0;
                                 self.trasladosTemp = self.trasladosTemp + imp2;
                                 impIVAIESP = impIVAIESP + imp2;
                             }
                         }
                     }
-                }
-                //console.log("holas", self.trasladosTemp, self.retencionIVATemp, self.retencionISRTemp);
-
-                var subtotal = sub - discount; // - impIVAISR + impIVAIESP;
-                //console.log(subtotal, "subtotal sin el descuento")
-                //console.log(subtotal.toFixed(2), "subtotal ")
+                }                
+              
                 self.taxesIVA.val(impIVAISR.toFixed(2));
                 self.taxesIEPS.val(impIVAIESP.toFixed(2));
                 self.subtotal.val(subtotal.toFixed(2)).trigger("click");
@@ -1144,6 +1137,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 var table = $("#tableImpuestos").DataTable();
 
                 table.clear().draw();
+                $("input[name='TaxesChk']").iCheck("update");
             });
         });
 
