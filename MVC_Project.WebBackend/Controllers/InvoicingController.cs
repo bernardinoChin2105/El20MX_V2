@@ -134,9 +134,9 @@ namespace MVC_Project.WebBackend.Controllers
                     model.Municipality = customerModel.Municipality;
                     model.State = customerModel.State;
                     model.Country = customerModel.Country;
-                    model.TypeReceptor = customerModel.taxRegime;
+                    //model.TypeReceptor = customerModel.taxRegime;
                     model.ReceiverType = "";
-                    model.CustomerEmail = customerModel.Emails.Count() > 0? customerModel.Emails[0].EmailOrPhone : string.Empty;
+                    model.CustomerEmail = customerModel.Emails.Count() > 0 ? customerModel.Emails[0].EmailOrPhone : string.Empty;
                     zipCode = customerModel.ZipCode;
                 }
 
@@ -156,30 +156,84 @@ namespace MVC_Project.WebBackend.Controllers
             CustomerViewModel receiver = new CustomerViewModel();
             try
             {
-                var customer = _customerService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.account.id == accountId);
-
-                if (customer != null)
+                var provider = _providerService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.account.id == accountId);
+                if (provider != null)
                 {
-                    receiver = new CustomerViewModel()
+                    var customerProv = _customerService.FirstOrDefault(x => x.rfc == provider.rfc && x.account.id == accountId);
+                    if (customerProv != null)
                     {
-                        Id = customer.id,
-                        BusinessName = customer.businessName != null ? customer.businessName : customer.firstName + " " + customer.lastName,
-                        RFC = customer.rfc,
-                        Street = customer.street,
-                        OutdoorNumber = customer.outdoorNumber,
-                        InteriorNumber = customer.interiorNumber,
-                        Colony = customer.colony,
-                        ZipCode = customer.zipCode,
-                        Municipality = customer.municipality,
-                        State = customer.state,
-                        Country = customer.country,
-                        Emails = customer.customerContacts.Where(x => x.typeContact == TypeContact.EMAIL.ToString() && x.status == SystemStatus.ACTIVE.ToString())
+                        receiver = new CustomerViewModel()
+                        {
+                            Id = customerProv.id,
+                            BusinessName = customerProv.businessName,
+                            RFC = customerProv.rfc,
+                            Street = customerProv.street,
+                            OutdoorNumber = customerProv.outdoorNumber,
+                            InteriorNumber = customerProv.interiorNumber,
+                            Colony = customerProv.colony,
+                            ZipCode = customerProv.zipCode,
+                            Municipality = customerProv.municipality,
+                            State = customerProv.state,
+                            Country = customerProv.country,
+                            Emails = customerProv.customerContacts.Where(x => x.typeContact == TypeContact.EMAIL.ToString() && x.status == SystemStatus.ACTIVE.ToString())
                         .Select(x => new CustomerContactsViewModel
                         {
                             Id = x.id,
                             EmailOrPhone = x.emailOrPhone
                         }).ToList()
-                    };
+                        };
+                    }
+                    else
+                    {
+                        receiver = new CustomerViewModel()
+                        {
+                            Id = 0,
+                            BusinessName = provider.businessName,
+                            RFC = provider.rfc,
+                            Street = provider.street,
+                            OutdoorNumber = provider.outdoorNumber,
+                            InteriorNumber = provider.interiorNumber,
+                            Colony = provider.colony,
+                            ZipCode = provider.zipCode,
+                            Municipality = provider.municipality,
+                            State = provider.state,
+                            Country = provider.country,
+                            Emails = provider.providerContacts.Where(x => x.typeContact == TypeContact.EMAIL.ToString() && x.status == SystemStatus.ACTIVE.ToString())
+                            .Select(x => new CustomerContactsViewModel
+                            {
+                                Id = x.id,
+                                EmailOrPhone = x.emailOrPhone
+                            }).ToList()
+                        };
+                    }
+                }
+                else
+                {
+                    var customer = _customerService.FirstOrDefault(x => x.uuid.ToString() == uuid && x.account.id == accountId);
+
+                    if (customer != null)
+                    {
+                        receiver = new CustomerViewModel()
+                        {
+                            Id = customer.id,
+                            BusinessName = customer.businessName, // != null ? customer.businessName : customer.firstName + " " + customer.lastName,
+                            RFC = customer.rfc,
+                            Street = customer.street,
+                            OutdoorNumber = customer.outdoorNumber,
+                            InteriorNumber = customer.interiorNumber,
+                            Colony = customer.colony,
+                            ZipCode = customer.zipCode,
+                            Municipality = customer.municipality,
+                            State = customer.state,
+                            Country = customer.country,
+                            Emails = customer.customerContacts.Where(x => x.typeContact == TypeContact.EMAIL.ToString() && x.status == SystemStatus.ACTIVE.ToString())
+                            .Select(x => new CustomerContactsViewModel
+                            {
+                                Id = x.id,
+                                EmailOrPhone = x.emailOrPhone
+                            }).ToList()
+                        };
+                    }
                 }
             }
             catch (Exception ex)
@@ -251,7 +305,7 @@ namespace MVC_Project.WebBackend.Controllers
                     account = new Account { id = authUser.Account.Id },
                     businessName = model.CustomerName,
                     rfc = model.RFC,
-                    //taxRegime = model.taxRegime,
+                    taxRegime = model.RFC.Count() > 12 ? TypeTaxRegimen.PERSONA_MORAL.ToString() : TypeTaxRegimen.PERSONA_FISICA.ToString(),
                     street = model.Street,
                     interiorNumber = model.InteriorNumber,
                     outdoorNumber = model.OutdoorNumber,
@@ -1985,7 +2039,7 @@ namespace MVC_Project.WebBackend.Controllers
                     if (cfdipdf.Impuestos.Retenidos.Count() > 0)
                     {
                         cfdipdf.Impuestos.ImpuestosRetenidosISR = cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "001").Sum(x => x.Importe) > 0 ? cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "001").Sum(x => x.Importe).ToString() : string.Empty;
-                        cfdipdf.Impuestos.ImpuestosRetenidosIVA = cfdipdf.Impuestos.Traslados.Where(x => x.Impuesto == "002").Sum(x => x.Importe) > 0 ? cfdipdf.Impuestos.Traslados.Where(x => x.Impuesto == "002").Sum(x => x.Importe).ToString() : string.Empty;
+                        cfdipdf.Impuestos.ImpuestosRetenidosIVA = cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "002").Sum(x => x.Importe) > 0 ? cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "002").Sum(x => x.Importe).ToString() : string.Empty;
                     }
                 }
             }

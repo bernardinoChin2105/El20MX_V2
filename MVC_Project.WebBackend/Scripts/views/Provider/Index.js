@@ -20,7 +20,7 @@ $("#RFC").keyup(function () {
     this.value = this.value.toUpperCase();
 });
 
-var ProviderIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUrl, uploadUrl, exportTemplateUrl, hasFullAccessController) {
+var ProviderIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUrl, uploadUrl, exportTemplateUrl, redirectInvoice, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
@@ -28,6 +28,7 @@ var ProviderIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
     this.exportUrl = exportUrl;
     this.uploadUrl = uploadUrl;
     this.exportTemplateUrl = exportTemplateUrl;
+    this.redirectInvoice = redirectInvoice;
     this.dataTable = {};
 
     this.init = function () {
@@ -81,7 +82,7 @@ var ProviderIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                             '<div class="dropdown">' +
                             '<button class="btn btn-light btn-menu" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-ellipsis-h"></span></button>' +
                             '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
-                            '<a class="dropdown-item" href="#">Hacer CFDI</a>' +
+                            '<a class="dropdown-item" href="' + self.redirectInvoice + '?customer=' + data.uuid +'">Hacer Complemento de Pago</a>' +
                             '</div>' +
                             '</div>' +
                             '</div>';

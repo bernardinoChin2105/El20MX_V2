@@ -72,7 +72,7 @@ var CustomerIndexControlador = function (htmlTableId, baseUrl, editUrl, exportUr
                     className: 'work-options',
                     render: function (data) {
                         //menu para el cliente work
-                        console.log(data, "cliente");
+                        //console.log(data, "cliente");
                         //style="margin-left:5px;"
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<div class="dropdown">' +
