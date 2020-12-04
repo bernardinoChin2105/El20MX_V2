@@ -4,6 +4,8 @@
         return false;
     }
 });
+$('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para ", placeholder_text_single: "Seleccione..." });
+
 var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOfficeUrl, locationsUrl, codeSATUrl, UnitSATUrl, searchCDFIUrl,
     rateTaxesUrl, officeSellos, hasFullAccessController) {
     var self = this;
@@ -784,7 +786,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             }, "Debe ser un RFC válido"
         );
 
-        $('.money').mask("##,###,##0.00", { reverse: true });
+        $('.money').mask("#######0.00", { reverse: true });
         $('.rateMoney').mask("##0.00", { reverse: false });
 
         //Agregar a la lista de conceptos del producto
