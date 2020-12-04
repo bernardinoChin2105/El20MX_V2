@@ -60,6 +60,10 @@ namespace MVC_Project.Utils
         SYSTEM_ADMINISTRATOR,
         [Display(Name = "Dirección")]
         DIRECCION,
+        [Display(Name = "Gerente")]
+        GERENTE,
+        [Display(Name = "Ejecutivo")]
+        EJECUTIVO,
         [Display(Name = "Supervisor")]
         SUPERVISOR,
         [Display(Name = "CAD")]
@@ -434,5 +438,13 @@ namespace MVC_Project.Utils
         ISSUED,
         [Display(Name = "received")]
         RECEIVED
+    }
+
+    public enum EmailProvider
+    {
+        [Display(Name = "SENDGRID")]
+        SENDGRID,
+        [Display(Name = "SMTP")]
+        SMTP
     }
 }

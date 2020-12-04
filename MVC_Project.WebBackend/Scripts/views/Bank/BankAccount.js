@@ -55,7 +55,7 @@ var BankAccountControlador = function (htmlTableId, baseUrl, bankAccountEdit, ha
                         return check;//hasFullAccessController ? buttons : "";
                     }
                 },
-                { data: 'accountProviderType', title: "Nombre de la Cuenta" },
+                { data: 'name', title: "Nombre de la Cuenta" },
                 { data: 'number', title: "Número de la Cuenta" },
                 { data: 'clabe', title: "Clabe" },
                 { data: 'currency', title: "Moneda" },

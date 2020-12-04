@@ -13,7 +13,7 @@
                 <div class="dropdown profile-element">
                     <img alt="image" class="rounded-circle" src="@user.Avatar" width="20%" />
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                        <span class="block m-t-xs font-bold">@user.FirstName <b class="caret"></b> </span>
+                        <span class="block m-t-xs font-bold" style="text-overflow: ellipsis; overflow: hidden;">@user.FirstName <b class="caret"></b> </span>
                         @if (user.Role != null)
                         {
                             <span class="text-muted text-xs block">@user.Role.Name</span>

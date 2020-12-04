@@ -86,6 +86,8 @@ namespace MVC_Project.WebBackend.Models
         public Int64 accountId { get; set; }
         public Int64 banckId { get; set; }
         public string Name { get; set; }
+        public string NameSite { get; set; }
+        public string siteId { get; set; }
         public bool isTwofa { get; set; }
         public string dateTimeAuthorized { get; set; }
         public string dateTimeRefresh { get; set; }
@@ -116,4 +118,20 @@ namespace MVC_Project.WebBackend.Models
         public string TotalDeposits { get; set; }
         public string TotalFinal { get; set; }
     }
+
+    //public class BankSite
+    //{
+    //    public string id_site { get; set; }
+    //    public string id_site_type { get; set; }
+    //    public string name { get; set; }
+    //}
+
+    //public class AllBankSites
+    //{
+    //    public string id_site_organization { get; set; }
+    //    public string id_site_organization_type { get; set; }
+    //    public string id_country { get; set; }
+    //    public string name { get; set; }        
+    //    public List<BankSite> sites { get; set; }        
+    //}
 }

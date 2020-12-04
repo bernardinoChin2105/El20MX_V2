@@ -43,7 +43,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
             ordering: false,
             columns: [
                 { data: 'id', title: "Id", visible: false },
-                { data: 'Name', title: "Bancos" },
+                { data: 'nameSite', title: "Bancos" },
                 { data: 'dateTimeAuthorized', title: "Fecha Autorización" },
                 { data: 'dateTimeRefresh', title: "Fecha Última Obt. Información" },
                 { data: 'status', title: "Estatus" },
@@ -65,9 +65,8 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                     title: "Acciones",
                     className: 'work-options',
                     render: function (data) {
-                        var btnUpdate = "";
-                        //if (data.isTwofa && (data.code === 401 || data.code === 411)) {                            
-                        if (data.isTwofa || data.code === 401 || data.code === 411 || data.code === 600) { //el código 600 es cuando la fecha refresh no esta actualizada
+                        var btnUpdate = "";                                                
+                        if (data.code === 401 || data.code === 411 || data.code === 600) { //el código 600 es cuando la fecha refresh no esta actualizada
                             btnUpdate = '<button class="btn btn-light btn-actualizar" title="Actualizar"><span class="fa fa-sync-alt"></span></button>';
                         }
 
@@ -161,6 +160,12 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
             //toastr["error"]("Erorr");
         });
 
+        self.syncWidget.$on('401', () => {
+            // ... do something when user session is unauthorized.
+            // i.e. refresh user session.
+            console.log("holas estoy aquí")
+        });
+
 
         $(".btn-token").click(function () {
             El20Utils.mostrarCargador();
@@ -204,35 +209,27 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
             var tr = $(this).closest('tr');
             var row = self.dataTable.row(tr);
             var code = row.data().code;
-            var credentialId = row.data().credentialProviderId;
-            self.syncWidget.setEntrypointCredential(credentialId);
+            var isTwofa = row.data().isTwofa;
+            var credentialId = row.data().credentialProviderId;            
 
-            //    El20Utils.ocultarCargador();
-            //    $.ajax({
-            //        type: 'Get',
-            //        contentType: 'application/json',
-            //        async: true,
-            //        data: { idCredential: credentialId },
-            //        url: self.createBankCredentialUrl,
-            //        success: function (result) {
-            //            console.log("result en actualización", result);
-
-            //            if (!result.success) {
-            //                toastr["error"](result.Mensaje.message, null, { 'positionClass': 'toast-top-center' });
-            //            } else {
-            //                toastr["success"](result.data, null, { 'positionClass': 'toast-top-center' });
-            //                self.dataTable.draw();
-            //            }
-            //            El20Utils.ocultarCargador();
-            //        },
-            //        error: function (xhr) {
-            //            //console.log("error: " + xhr);
-            //            El20Utils.ocultarCargador();
-            //            //loading.hideloading();
-            //        }
-            //    }).always(function () {
-            //    });
-
+            if (isTwofa === false && code !== 401) {
+                self.syncWidget.setEntrypointCredential(credentialId);
+            } else {
+                var siteId = row.data().siteId;
+                //self.syncWidget.setEntrypointSite(siteId);
+                params.locale = 'es';
+                params.navigation = {
+                    displayStatusInToast: true,
+                    "hideSiteOrganizationTypes": ["Blockchain", "Digital Wallet", "Government", "Utility"]
+                };
+                params.entrypoint = {
+                    // Set up the country to start:
+                    country: 'MX',                    
+                    site: siteId
+                };
+                self.syncWidget.setConfig(params);
+                self.syncWidget.open();
+            }            
         });
 
         $("#table tbody").on("click", ".work-options .btn-group .btn-desvincular", function () {

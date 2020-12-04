@@ -83,7 +83,7 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
                         //console.log(data)
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<a href="' + self.detailUrl + '?id=' + data.uuid + '" class="btn btn-light btn-view" title="Ver detalles"><span class="fas fa-file"></span></a>' +
-                            '<a href="' + self.downloadUrl + '?id=' + data.uuid + '" class="btn btn-light btn-download" title="Descargar Detalle de Diagnóstico"><span class="fas fa-print"></i></span>'+
+                            //'<a href="' + self.downloadUrl + '?id=' + data.uuid + '" class="btn btn-light btn-download" title="Descargar Detalle de Diagnóstico"><span class="fas fa-print"></i></span>'+
                             //'<button class="btn btn-light btn-delete" style="margin-left:5px;"><span class="fas fa-trash"></span></button>' +
                             '</div>';
                         return hasFullAccessController ? buttons : "";
@@ -144,7 +144,19 @@ var DianosticIndexControlador = function (htmlTableId, baseUrl, detailUrl, downl
         El20Utils.mostrarCargador();
         $.get("Diagnostic/GenerateDx0", function (data) {
             if (data.success) {
-                self.finishExtraction(data.uuid)
+                El20Utils.ocultarCargador();
+                let form = document.createElement("form");
+                form.setAttribute("method", "GET");
+                form.setAttribute("action", "/Diagnostic/DiagnosticDetail");
+
+                let hiddenClave = document.createElement("input");
+                hiddenClave.setAttribute("type", "hidden");
+                hiddenClave.setAttribute("name", "id");
+                hiddenClave.setAttribute("value", data.uuid);
+                form.appendChild(hiddenClave);
+
+                document.body.appendChild(form);
+                form.submit();
             }
             else {
                 toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 

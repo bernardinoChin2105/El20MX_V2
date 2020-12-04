@@ -19,6 +19,8 @@ namespace MVC_Project.Integrations.Pipedrive
         public string LastName { set; get; }
         [JsonProperty("email")]
         public string Email { set; get; }
+        [JsonProperty("phone")]
+        public string Phone { set; get; }
         [JsonProperty("b1f08ca6ecde569f07208dc28489b28c7248eaa4")]
         public string RFC { set; get; }
         [JsonProperty("358097456870be3412a055133f29d4083503fe6d")]

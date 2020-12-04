@@ -15,8 +15,16 @@ namespace MVC_Project.Integrations.SAT
         {
             TaxpayerInfo taxpayer = new TaxpayerInfo();
 
-            //Realiza la solicitud de extracción
             ExtractionsFilter filter = new ExtractionsFilter()
+            {
+                taxpayer = "/taxpayers/" + RFC,
+                extractor = "tax_status"
+            };
+
+            SATws.CallServiceSATws("extractions", filter, "Post");
+
+            //Realiza la solicitud de extracción
+            filter = new ExtractionsFilter()
             {
                 taxpayer = "/taxpayers/" + RFC,
                 extractor = "invoice",
@@ -305,7 +313,7 @@ namespace MVC_Project.Integrations.SAT
         }
 
         /*Crear timbrado de factura complemento*/
-        public static InvoicesInfo PostIssuePaymentInvoices(InvoiceComplementJson invoiceComplementJson)
+        public static InvoicesInfo PostIssuePaymentInvoices(dynamic invoiceComplementJson)
         {
             InvoicesInfo invoice = new InvoicesInfo();
             
@@ -313,5 +321,15 @@ namespace MVC_Project.Integrations.SAT
             invoice = JsonConvert.DeserializeObject<InvoicesInfo>(responseInvoices);
             return invoice;
         }
+
+        /*Crear timbrado de factura relacionada*/
+        public static InvoicesInfo PostRefundInvoices(dynamic invoiceRefundJson)
+        {
+            InvoicesInfo invoice = new InvoicesInfo();
+
+            var responseInvoices = SATws.CallServiceSATws("invoices/refund", invoiceRefundJson, "Post");
+            invoice = JsonConvert.DeserializeObject<InvoicesInfo>(responseInvoices);
+            return invoice;
+        }        
     }
 }

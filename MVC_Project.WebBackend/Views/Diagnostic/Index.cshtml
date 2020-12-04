@@ -32,12 +32,37 @@
                         <h5>Búsqueda</h5>
                     </div>
                     <div class="ibox-content clearfix">
+                        @if (user.isBackOffice)
+                        {
+                            if(ViewBag.HasInvoiceSync)
+                            {
+                                <div class="form-group row">
+                                    <div class="col-12 col-md-12">
+                                        <div class="alert alert-info alert-dismissable" style="display:normal">
+                                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                            Para generar el diagnóstico fiscal, considere que la última fecha de sincronización de facturas fue @ViewBag.InvoiceSyncDate.ToString("dd/MM/yyyy").
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-group row">
+                                    <div class="col-12 col-md-12">
+                                        <div class="alert alert-info alert-dismissable" style="display:normal">
+                                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                            Sincronice sus facturas antes de generar el diagnóstico fiscal.
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
                         <div class="row">
                             <div class="col-sm-6 col-lg-4">
                                 <div class="form-group">
                                     @*col-form-label control-label col-md-2*@
                                     @Html.LabelFor(m => m.RegisterAt, new { @class = "" })
-                                    @Html.TextBoxFor(m => m.RegisterAt, new { @Class = "form-control form-control-sm txtFiltro", @readonly = "readonly"})
+                                    @Html.TextBoxFor(m => m.RegisterAt, new { @Class = "form-control form-control-sm txtFiltro", @readonly = "readonly" })
                                     @Html.EditorFor(x => x.FilterInitialDate, new { htmlAttributes = new { @Class = "form-control-sm form-control hide", id = "FilterInitialDate", @readonly = "readonly", filtro = "true", filtro_order = "1" } })
                                     @Html.EditorFor(x => x.FilterEndDate, new { htmlAttributes = new { @Class = "form-control-sm form-control hide", id = "FilterEndDate", @readonly = "readonly", filtro = "true", filtro_order = "2" } })
                                 </div>
@@ -58,7 +83,7 @@
                 <div class="ibox-title">
                     <h5>Resultado</h5>
                     @*@if (hasFullAccessController)*@
-                    @if (user.isBackOffice)                    
+                    @if (user.isBackOffice && ViewBag.HasInvoiceSync)                    
                     {
                         <div class="ibox-tools">
                             <button type="button" id="btn-generate-diagnostic" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Generar Diagnóstico Fiscal</button>

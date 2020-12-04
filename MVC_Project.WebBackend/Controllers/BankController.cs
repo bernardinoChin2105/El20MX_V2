@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using System.Collections.Specialized;
 using MVC_Project.FlashMessages;
 using System.Configuration;
+using System.IO;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -57,6 +58,7 @@ namespace MVC_Project.WebBackend.Controllers
                     catch (Exception ex)
                     {
                         string error = ex.Message.ToString();
+                        Session["token"] = string.Empty;
                         token = Token();
                     }
                     ViewBag.paybookT = token;
@@ -155,16 +157,18 @@ namespace MVC_Project.WebBackend.Controllers
                         bankMv.accountId = bank.accountId;
                         bankMv.banckId = bank.banckId;
                         bankMv.Name = bank.Name;
+                        bankMv.NameSite = bank.nameSite;
+                        bankMv.siteId = bank.providerSiteId;
                         bankMv.isTwofa = bank.isTwofa;
                         bankMv.code = resultBank[0].code;
                         bankMv.dateTimeAuthorized = bank.dateTimeAuthorized != null ? bank.dateTimeAuthorized.Value.ToShortDateString() : string.Empty;
                         bankMv.dateTimeRefresh = bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty;
-                        if (bank.dateTimeRefresh != null && bankMv.code != 401 && bankMv.code != 411)
+                        if (bank.dateTimeRefresh != null && bankMv.code != 401)
                         {
                             if (bank.dateTimeAuthorized.Value.Date < todayDate.Date)
                                 bankMv.code = 600;//código para actualizarlo manualmente
                         }
-                        else if (bankMv.code != 401 || bankMv.code != 411)
+                        else if (bankMv.code != 401)
                             bankMv.code = 600; //código para actualizarlo manualmente
 
                         list.Add(bankMv);
@@ -250,23 +254,39 @@ namespace MVC_Project.WebBackend.Controllers
                     foreach (var itemBank in newBanks)
                     {
                         //Buscar el banco
-                        Bank bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site_organization); //este funciona para productivo                                                
-                        //Bank bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site); //esto funciona para sandbox
+                        //Bank bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site_organization); //este funciona para productivo                                                
+                        Bank bank = _bankService.FirstOrDefault(x => x.providerSiteId == itemBank.id_site); //buscar por sitio
 
                         if (bank == null)
                         {
-                            var paybookBanks = PaybookService.GetBanks(itemBank.id_site_organization, token);
-                            var paybookBank = paybookBanks.FirstOrDefault();
-                            bank = new Bank
+                            //var paybookBanks = PaybookService.GetBanks(itemBank.id_site_organization, token);
+                            //var paybookBank = paybookBanks.FirstOrDefault();
+                            var paybookBanks = PaybookService.GetBanksSites(itemBank.id_site_organization, token);                            
+                            if (paybookBanks.Count > 0)
                             {
-                                uuid = Guid.NewGuid(),
-                                name = paybookBank.name,
-                                providerId = paybookBank.id_site_organization,
-                                createdAt = todayDate,
-                                modifiedAt = todayDate,
-                                status = SystemStatus.ACTIVE.ToString()
-                            };
-                            _bankService.Create(bank);
+                                foreach (var pBank in paybookBanks)
+                                {
+                                    foreach (var site in pBank.sites)
+                                    {
+                                        bank = new Bank
+                                        {
+                                            uuid = Guid.NewGuid(),
+                                            name = pBank.name,
+                                            providerId = pBank.id_site_organization,
+                                            nameSite = site.name,
+                                            providerSiteId = site.id_site,
+                                            createdAt = todayDate,
+                                            modifiedAt = todayDate,
+                                            status = SystemStatus.ACTIVE.ToString(),
+                                        };
+                                        _bankService.Create(bank);
+                                    }
+                                }
+                                bank = _bankService.FirstOrDefault(x => x.providerSiteId == itemBank.id_site);
+                                if (bank == null)
+                                    throw new Exception("El banco no se encuentra en el sistema, comuniquese al área de soporte");
+
+                            }
                         }
 
                         BankCredential bankCredential = _bankCredentialService.FirstOrDefault(x => x.credentialProviderId == itemBank.id_credential && x.account.id == authUser.Account.Id && x.status == SystemStatus.ACTIVE.ToString());
@@ -304,7 +324,7 @@ namespace MVC_Project.WebBackend.Controllers
                         {
                             //long d_r = long.Parse();
                             DateTime date_refresh = DateUtil.UnixTimeToDateTime(itemAccount.dt_refresh);
-                            BankAccount newBankAcc = _bankAccountService.FirstOrDefault(x => x.bankCredential.id == bankCredential.id && x.accountProviderId == itemAccount.id_account);
+                            BankAccount newBankAcc = _bankAccountService.FirstOrDefault(x => x.bankCredential.id == bankCredential.id && x.accountProviderId == itemAccount.id_account && x.status == SystemStatus.ACTIVE.ToString());
                             if (newBankAcc == null)
                             {
                                 newBankAcc = new BankAccount()
@@ -395,7 +415,7 @@ namespace MVC_Project.WebBackend.Controllers
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   "Credencial: "+ idCredential
+                   "Credencial: " + idCredential
                 );
 
                 return new JsonResult
@@ -457,7 +477,7 @@ namespace MVC_Project.WebBackend.Controllers
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   "uuid: "+uuid
+                   "uuid: " + uuid
                 );
 
                 //return new JsonResult
@@ -643,7 +663,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 //listados del banco de la cuenta registrada
                 var listResponse = _bankCredentialService.GetBankCredentials(userAuth.Account.Id)
-                    .Select(x => new SelectListItem() { Text = x.Name, Value = x.id.ToString() }).ToList();
+                    .Select(x => new SelectListItem() { Text = x.nameSite, Value = x.id.ToString() }).ToList();
                 listResponse.Insert(0, new SelectListItem() { Text = "Todos", Value = "-1" });
 
                 var listTypes = Enum.GetValues(typeof(TypeMovements)).Cast<TypeMovements>()
@@ -821,5 +841,52 @@ namespace MVC_Project.WebBackend.Controllers
                 MaxJsonLength = Int32.MaxValue
             };
         }
+
+        #region metodo para obtener los sitios de los bancos
+        [HttpGet]
+        public ActionResult UpdateSitesBank()
+        {
+            DateTime todayDate = DateUtil.GetDateTimeNow();
+            using (StreamReader r = new StreamReader("C://Users//YelmyPech//Documents//Notas//SitioBancos.json"))
+            {
+                string json = r.ReadToEnd();
+                List<AllBankSites> banks = JsonConvert.DeserializeObject<List<AllBankSites>>(json);
+
+
+                foreach (AllBankSites item in banks)
+                {
+                    var bankP = _bankService.FirstOrDefault(x => x.providerId == item.id_site_organization);
+                    if (bankP != null)
+                    {
+                        bankP.providerSiteId = item.sites[0].id_site;
+                        bankP.nameSite = item.sites[0].name;
+                        bankP.modifiedAt = todayDate;
+                        _bankService.Update(bankP);
+
+                        if (item.sites.Count() > 1)
+                        {
+                            for (int i = 1; i < item.sites.Count(); i++)
+                            {
+                                Bank newBank = new Bank()
+                                {
+                                    uuid = Guid.NewGuid(),
+                                    name = bankP.name,
+                                    providerId = bankP.providerId,
+                                    nameSite = item.sites[i].name,
+                                    providerSiteId = item.sites[i].id_site,
+                                    createdAt = todayDate,
+                                    modifiedAt = todayDate,
+                                    status = SystemStatus.ACTIVE.ToString()
+                                };
+                                _bankService.Create(newBank);
+                            }
+                        }
+                    }
+
+                }
+            }
+            return View();
+        }
+        #endregion
     }
 }

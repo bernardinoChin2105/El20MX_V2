@@ -240,6 +240,9 @@
     <None Include="Properties\PublishProfiles\el20mx-plataformav2-api-dev - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\el20mx-plataformav2-api-dev - ReadOnly - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\el20mx-plataformav2-api-dev - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\el20mx-plataformav2-api-test - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\el20mx-plataformav2-api-test - ReadOnly - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\el20mx-plataformav2-api-test - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\ensi-template-api - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\ensi-template-api - ReadOnly - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\ensi-template-api - Web Deploy.pubxml" />

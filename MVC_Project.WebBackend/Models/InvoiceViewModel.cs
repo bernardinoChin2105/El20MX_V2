@@ -176,6 +176,14 @@ namespace MVC_Project.WebBackend.Models
         public List<SelectListItem> ListValuation { get; set; }
         #endregion
 
+        #region Facturas relacionadas        
+        public List<InvoicesUuid> invoicesUuid { get; set; }
+
+        public List<paymentComplement> payment { get; set; }       
+        //public List<ComplementsView> ComplementsCFDI { get; set; }
+        #endregion
+
+
         #region Productos y/o Servicios a facturar        
         public List<ProductServiceDescriptionView> ProductServices { get; set; }
 
@@ -225,9 +233,35 @@ namespace MVC_Project.WebBackend.Models
             ListState = new List<SelectListItem>();
             //ListCustomerEmail = new List<SelectListItem>();
             ProductServices = new List<ProductServiceDescriptionView>();
+            payment = new List<paymentComplement>();
+            invoicesUuid = new List<InvoicesUuid>();
+    }
+    }
 
+    public class InvoicesUuid
+    {
+        public string uuid { get; set; }        
+        public string typeRelationship { get; set; }
+    }
 
-        }
+    public class paymentComplement
+    {
+        public string uuid { get; set; }
+        public string currency { get; set; }
+        public decimal exchangeRate { get; set; }
+        public decimal previousBalance { get; set; }
+        public decimal paid { get; set; }
+        public decimal outstanding { get; set; }
+        public string method { get; set; }
+        public Int32 numberPartialities { get; set; }
+        public string folio { get; set; }
+        public string serie { get; set; }
+        public string NumOperationCFDI { get; set; }
+        public decimal AmountCFDI { get; set; }
+        public string CurrencyCFDI { get; set; }
+        public decimal ExchangeRateCFDI { get; set; }
+        public string PaymentFormCFDI { get; set; }
+        public string startedAt { get; set; }
     }
 
     public class ProductServiceDescriptionView
@@ -267,19 +301,56 @@ namespace MVC_Project.WebBackend.Models
         public decimal Subtotal { get; set; }
     }
 
+    public class ComplementsView
+    {
+        [Display(Name = "Cantidad")]
+        public int Quantity { get; set; }
+
+        [Display(Name = "Código SAT")]
+        public string SATCode { get; set; }
+
+        [Display(Name = "Descripción Producto o Servicio")]
+        public string ProductServiceDescription { get; set; }
+
+        [Display(Name = "Unidad SAT")]
+        public string SATUnit { get; set; }
+
+        [Display(Name = "Unidad")]
+        public string Unit { get; set; }
+
+        [Display(Name = "Precio Unitario")]
+        public decimal UnitPrice { get; set; }
+
+        [Display(Name = "% Descuento")]
+        public decimal DiscountRateProServ { get; set; }
+
+        [Display(Name = "Impuesto (IVA/IEPS)")]
+        public decimal TaxesIEPS { get; set; }
+
+        [Display(Name = "Impuesto (IVA/ISR)")]
+        public decimal TaxesIVA { get; set; }
+
+        [Display(Name = "Impuesto")]
+        public string TaxesGeneral { get; set; }
+        //public List<TaxesAll> TaxesGeneral { get; set; }
+
+        [Display(Name = "Subtotal")]
+        public decimal Subtotal { get; set; }
+    }
+
     public class TaxesAll
-    {        
-        public string Tipo { get; set; }        
-        public string Impuesto { get; set; }        
-        public string Porcentaje { get; set; }        
+    {
+        public string Tipo { get; set; }
+        public string Impuesto { get; set; }
+        public string Porcentaje { get; set; }
         public int index { get; set; }
     }
 
     public class InvoiceViewModelJson //Objeto json para guardar en formato 
     {
         #region Información Emisor de Factura        
-        public string Logo { get; set; }        
-        public string BusinessName { get; set; }      
+        public string Logo { get; set; }
+        public string BusinessName { get; set; }
         public string IssuingRFC { get; set; }
         public string IssuingTaxRegime { get; set; }
         public string IssuingTaxRegimeId { get; set; }
@@ -299,7 +370,7 @@ namespace MVC_Project.WebBackend.Models
         public string Street { get; set; }
         public string OutdoorNumber { get; set; }
         public string InteriorNumber { get; set; }
-        public Int64 Colony { get; set; }        
+        public Int64 Colony { get; set; }
         public string ZipCode { get; set; }
         public Int64 Municipality { get; set; }
         public Int64? State { get; set; }
@@ -324,7 +395,7 @@ namespace MVC_Project.WebBackend.Models
 
         #region Condiciones y Comentarios a Facturar:
         public string PaymentConditions { get; set; }
-        public decimal DiscountRate { get; set; }    
+        public decimal DiscountRate { get; set; }
         public string Comments { get; set; }
         public bool TaxesChk { get; set; }
         #endregion
@@ -337,7 +408,7 @@ namespace MVC_Project.WebBackend.Models
 
         #region Productos y/o Servicios a facturar        
         public List<ProductServiceDescriptionView> ProductServices { get; set; }
-        
+
         public decimal Subtotal { get; set; }
         public decimal TotalDiscount { get; set; }
         public decimal TaxTransferred { get; set; }
