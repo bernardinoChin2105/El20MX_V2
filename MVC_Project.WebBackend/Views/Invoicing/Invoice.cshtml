@@ -250,7 +250,7 @@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.CustomerEmail, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4" id="ListEmails">
-                        <input class="form-control" type="email" maxlength="300" autocomplete="off" name="ListCustomerEmail[0]" />
+                        <input class="form-control" type="email" id="CustomerEmail" maxlength="300" value="@Model.CustomerEmail" autocomplete="off" name="ListCustomerEmail[0]" />
                         @*@Html.TextBoxFor(m => m.CustomerEmail, new { @class = "form-control", type = "email", @maxlength = "300", @autocomplete = "off" })*@
                         @*@Html.DropDownListFor(model => model.CustomerEmailId, Model.ListCustomerEmail, "Seleccione...", new { @class = "form-control chosen-select required" })*@
                     </div>
