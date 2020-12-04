@@ -355,9 +355,7 @@ namespace MVC_Project.WebBackend.Controllers
                 model.State = customer.state;
                 model.Country = customer.country;
                 model.DeliveryAddress = customer.deliveryAddress;
-                if (customer.taxRegime != null)
-                    model.taxRegime = ((TypeTaxRegimen)Enum.Parse(typeof(TypeTaxRegimen), customer.taxRegime)).ToString();
-
+                model.taxRegime = customer.taxRegime;
                 
                 var emails = customer.customerContacts.Where(x => x.typeContact == TypeContact.EMAIL.ToString() && x.status == SystemStatus.ACTIVE.ToString())
                             .Select(x => new CustomerContactsViewModel

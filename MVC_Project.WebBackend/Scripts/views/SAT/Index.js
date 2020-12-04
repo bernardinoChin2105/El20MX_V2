@@ -278,7 +278,7 @@
         }
 
         $('#btn-invoices-refresh').on("click", function () {
-            El20Utils.mostrarCargador();
+            El20Utils.mostrarCargadorForzado();
             $.get("SAT/Extraction", function (data) {
                 if (data.success) {
                     self.finishExtraction(data.uuid)

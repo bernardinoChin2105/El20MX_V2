@@ -78,6 +78,8 @@ namespace MVC_Project.API.Controllers
                     if (bankCredential == null)
                     {
                         var credential = _credentialService.FirstOrDefault(x => x.idCredentialProvider == response.id_user);
+                        if (credential == null)
+                            throw new Exception("Credencial de usuario no encontrada en el sistema: " + response.id_user);
 
                         var paybookCredentials = PaybookService.GetCredentials(response.id_credential, token);
                         var paybookCredential = paybookCredentials.FirstOrDefault();
@@ -114,9 +116,21 @@ namespace MVC_Project.API.Controllers
                             createdAt = DateUtil.GetDateTimeNow(),
                             modifiedAt = DateUtil.GetDateTimeNow(),
                             status = paybookCredential.is_authorized != null ? (paybookCredential.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString(),
-                            bank = bank
+                            bank = bank,
+                            isTwofa = Convert.ToBoolean(paybookCredential.is_twofa),
+                            dateTimeAuthorized = DateUtil.UnixTimeToDateTime(paybookCredential.dt_authorized.Value),
+                            dateTimeRefresh = DateUtil.UnixTimeToDateTime(paybookCredential.dt_refresh.Value)
                         };
                         _bankCredentialService.Create(bankCredential);
+                    }
+                    else
+                    {
+                        var paybookCredentials = PaybookService.GetCredentials(response.id_credential, token);
+                        var paybookCredential = paybookCredentials.FirstOrDefault();
+                        if(paybookCredential.dt_authorized.HasValue)
+                            bankCredential.dateTimeAuthorized = DateUtil.UnixTimeToDateTime(paybookCredential.dt_authorized.Value);
+                        if(paybookCredential.dt_refresh.HasValue)
+                            bankCredential.dateTimeRefresh = DateUtil.UnixTimeToDateTime(paybookCredential.dt_refresh.Value);
                     }
 
                     var paybookAccounts = PaybookService.GetAccounts(response.id_credential, token);
@@ -269,6 +283,7 @@ namespace MVC_Project.API.Controllers
                                 zipCode = x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault() != null ? x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault().zipCode : null,
                                 businessName = x.Key.businessName,
                                 rfc = x.Key.rfc,
+                                taxRegime = x.Key.rfc.Length == 12 ? TypeTaxRegimen.PERSONA_MORAL.ToString() : TypeTaxRegimen.PERSONA_FISICA.ToString(),
                                 createdAt = DateUtil.GetDateTimeNow(),
                                 modifiedAt = DateUtil.GetDateTimeNow(),
                                 status = SystemStatus.ACTIVE.ToString()
@@ -290,8 +305,8 @@ namespace MVC_Project.API.Controllers
                                 zipCode = x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault() != null ? x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault().zipCode : null,
                                 businessName = x.Key.businessName,
                                 rfc = x.Key.rfc,
-                            //taxRegime = 
-                            createdAt = DateUtil.GetDateTimeNow(),
+                                taxRegime = x.Key.rfc.Length == 12 ? TypeTaxRegimen.PERSONA_MORAL.ToString() : TypeTaxRegimen.PERSONA_FISICA.ToString(),
+                                createdAt = DateUtil.GetDateTimeNow(),
                                 modifiedAt = DateUtil.GetDateTimeNow(),
                                 status = SystemStatus.ACTIVE.ToString()
                             }).Distinct().ToList();

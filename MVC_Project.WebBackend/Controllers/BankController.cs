@@ -161,8 +161,10 @@ namespace MVC_Project.WebBackend.Controllers
                         bankMv.siteId = bank.providerSiteId;
                         bankMv.isTwofa = bank.isTwofa;
                         bankMv.code = resultBank[0].code;
-                        bankMv.dateTimeAuthorized = bank.dateTimeAuthorized != null ? bank.dateTimeAuthorized.Value.ToShortDateString() : string.Empty;
-                        bankMv.dateTimeRefresh = bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty;
+                        bankMv.dateTimeAuthorized = resultBank[0].dt_authorized.HasValue ? DateUtil.UnixTimeToDateTime(resultBank[0].dt_authorized.Value).ToShortDateString() :
+                            (bank.dateTimeAuthorized != null ? bank.dateTimeAuthorized.Value.ToShortDateString() : string.Empty);
+                        bankMv.dateTimeRefresh = resultBank[0].dt_refresh.HasValue ? DateUtil.UnixTimeToDateTime(resultBank[0].dt_refresh.Value).ToShortDateString() : 
+                            (bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty);
                         if (bank.dateTimeRefresh != null && bankMv.code != 401)
                         {
                             if (bank.dateTimeAuthorized.Value.Date < todayDate.Date)
