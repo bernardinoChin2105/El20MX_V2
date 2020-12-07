@@ -8,7 +8,7 @@ namespace MVC_Project.Domain.Entities
 {
     public class ProcessExecution
     {
-        public virtual Int64 Id { get; set; }
+        public virtual Int32 Id { get; set; }
 
         public virtual Process Process { get; set; }
 

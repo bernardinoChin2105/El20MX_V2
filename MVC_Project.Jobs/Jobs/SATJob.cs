@@ -4,27 +4,24 @@ using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Services;
 using MVC_Project.Utils;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Web;
 
 namespace MVC_Project.Jobs
 {
-    public class DemoJob
+    public class SATJob
     {
         static bool executing = false;
         static readonly Object thisLock = new Object();
         static IProcessService _processService;
-        static string JOB_CODE = "DemoJob";
+        static readonly string JOB_CODE = "SATJob_SyncBills";
 
-        public static void DemoMethod()
+        public static void SyncBills()
         {
 
             _processService = new ProcessService(new Repository<Process>(new UnitOfWork()));
             Process processJob = _processService.GetByCode(JOB_CODE);
-            bool CAN_EXECUTE = processJob!=null && processJob.Status && !processJob.Running; //Esta habilitado y no está corriendo (validacion BD)
+            bool CAN_EXECUTE = processJob!=null && processJob.Status && !processJob.Running; //Esta habilitado y no está corriendo (validacion por BD)
 
             ProcessExecution processExecution = new ProcessExecution
             {
@@ -45,17 +42,17 @@ namespace MVC_Project.Jobs
                     {
                         processJob.Running = true;
                         _processService.Update(processJob);
-
-                        //TODO: Implementar logica de negocio especifica
-                        System.Diagnostics.Trace.TraceInformation(string.Format("[DemoJob.DemoMethod] Executing at {0}", DateTime.Now));
+                        System.Diagnostics.Trace.TraceInformation(string.Format("[SATJob_SyncBills] Executing at {0}", DateTime.Now));
                         strResult.Append(string.Format("Executing at {0}", DateUtil.GetDateTimeNow()));
 
-                        Thread.Sleep(5000);
+                        #region Implementar logica de negocio especifica
 
-                        strResult.Append(string.Format("| End at {0}", DateUtil.GetDateTimeNow()));
+                        Thread.Sleep(5000); //Simulacion
 
-
+                        #endregion
+                        
                         //UPDATE JOB DATABASE
+                        strResult.Append(string.Format("| End at {0}", DateUtil.GetDateTimeNow()));
                         processExecution.EndAt = DateUtil.GetDateTimeNow();
                         processExecution.Status = false;
                         processExecution.Success = true;
