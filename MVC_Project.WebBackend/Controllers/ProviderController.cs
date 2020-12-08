@@ -248,8 +248,7 @@ namespace MVC_Project.WebBackend.Controllers
                 model.State = provider.state;
                 model.Country = provider.country;
                 model.DeliveryAddress = provider.deliveryAddress;
-                if (provider.taxRegime != null)
-                    model.taxRegime = ((TypeTaxRegimen)Enum.Parse(typeof(TypeTaxRegimen), provider.taxRegime)).ToString();
+                model.taxRegime = provider.taxRegime;
                 
                 var emails = provider.providerContacts.Where(x => x.typeContact == TypeContact.EMAIL.ToString() && x.status == SystemStatus.ACTIVE.ToString())
                             .Select(x => new ProviderContactsViewModel

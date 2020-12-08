@@ -1591,9 +1591,11 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         $("#Municipality").val(data.Municipality);
                         $("#State").val(data.State);
                         $("#Country").val(data.Country);
-                        $("#CustomerEmail").val();
                         if (data.ZipCode !== null) {
                             $("#ZipCode").trigger("blur");
+                        }
+                        if (data.Emails.length > 0) {                            
+                            $("#CustomerEmail").val(data.Emails[0].EmailOrPhone);
                         }
                         El20Utils.ocultarCargador();
 

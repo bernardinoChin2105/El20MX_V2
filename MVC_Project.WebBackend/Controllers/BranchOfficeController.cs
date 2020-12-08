@@ -165,6 +165,11 @@ namespace MVC_Project.WebBackend.Controllers
                         }
                         catch (Exception ex)
                         {
+                            LogUtil.AddEntry("Error al subir los CSD para el rfc " + userAuth.Account.RFC, ENivelLog.Error, userAuth.Id, 
+                                userAuth.Email, EOperacionLog.ACCESS, string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                              ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                              ex.Message
+                           );
                             MensajeFlashHandler.RegistrarMensaje("No se pudo completar la carga de los archivos csd. " + ex.Message, TiposMensaje.Warning);
                             return RedirectToAction("Edit", new { uuid = branchOffice.uuid });
                         }
