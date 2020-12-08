@@ -111,6 +111,9 @@ namespace MVC_Project.WebBackend.Models
         public string Serie { get; set; }
         public string Folio { get; set; }
 
+        [Display(Name = "Fecha y Hora de Emisión")]
+        public DateTime DateIssued { get; set; }
+
         [Display(Name = "Uso de CFDI")]
         public string UseCFDI { get; set; }
         public List<SelectListItem> ListUseCFDI { get; set; }

@@ -99,8 +99,8 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 ViewBag.Date = new
                 {
-                    MinDate = DateUtil.GetDateTimeNow(),
-                    MaxDate = DateUtil.GetDateTimeNow()
+                    MinDate = DateUtil.GetDateTimeNow().ToLongDateString(),
+                    MaxDate = DateUtil.GetDateTimeNow().ToLongDateString()
                 };
 
                 //obtener información de mi emisor                
@@ -524,6 +524,7 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         Serie = model.Serie,
                         Folio = Convert.ToInt32(model.Folio),
+                        //Fecha = model.DateIssued.ToString("s"),
                         Fecha = todayDate.ToString("s"),
                         Moneda = "XXX", //model.Currency,
                         TipoDeComprobante = model.TypeInvoice,
@@ -565,7 +566,9 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         Serie = model.Serie,
                         Folio = Convert.ToInt32(model.Folio),
-                        Fecha = todayDate.ToString("s"),
+                        Fecha = model.DateIssued.ToString("s"),
+                        //Fecha = todayDate.ToString("s"),
+                        //tipo de relación = typeRelationship
                         Moneda = model.Currency,
                         TipoDeComprobante = model.TypeInvoice,
                         CondicionesDePago = model.PaymentConditions,
@@ -623,7 +626,9 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         Serie = model.Serie,
                         Folio = Convert.ToInt32(model.Folio),
-                        Fecha = todayDate.ToString("s"),
+                        Fecha = model.DateIssued.ToString("s"),
+                        //Fecha = todayDate.ToString("s"),
+                        TipoRelacion = model.TypeRelationship,
                         Moneda = model.Currency,
                         TipoDeComprobante = model.TypeInvoice,
                         CondicionesDePago = model.PaymentConditions,
@@ -1813,6 +1818,7 @@ namespace MVC_Project.WebBackend.Controllers
             string varMetodoPago = nodeComprobante.Attributes["MetodoPago"] != null ? nodeComprobante.Attributes["MetodoPago"].Value : string.Empty;
             string varDescuento1 = nodeComprobante.Attributes["Descuento"] != null ? nodeComprobante.Attributes["Descuento"].Value : string.Empty;
             string varTipoCambio = nodeComprobante.Attributes["TipoCambio"] != null ? nodeComprobante.Attributes["TipoCambio"].Value : "1";
+            string varCondicionDePago = nodeComprobante.Attributes["CondicionDePago"] != null ? nodeComprobante.Attributes["CondicionDePago"].Value : string.Empty;
 
             MonedaUtils formatoTexto = new MonedaUtils();
             var fecha = varFecha != null || varFecha != "" ? Convert.ToDateTime(varFecha).ToString("yyyy-MM-dd HH:mm:ss") : varFecha;
@@ -1835,7 +1841,8 @@ namespace MVC_Project.WebBackend.Controllers
                 TipoCambio = varTipoCambio,
                 TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true),
                 Descuento = varDescuento1,
-                Logo = logo
+                Logo = logo,
+                CondicionesDePago = varCondicionDePago
             };
 
             XmlNode nodeEmisor = nodeComprobante.SelectSingleNode("cfdi:Emisor", nsm);

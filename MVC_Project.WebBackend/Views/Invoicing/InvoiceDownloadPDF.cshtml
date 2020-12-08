@@ -280,6 +280,10 @@
     <br />
     <div class="text-center"><p><small>Este documento es la representación impresa de un CFDI</small></p></div>
     <br />
+    @if (!string.IsNullOrEmpty(Model.CondicionesDePago))
+    {
+    <div><p><strong>Condición De Pago:</strong> @Model.CondicionesDePago</p></div>
+    }
     <div class="textoContiguo" style="font-size:11px;">
         <strong>Sello CFDI </strong>
         <br />

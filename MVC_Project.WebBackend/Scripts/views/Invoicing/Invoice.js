@@ -461,6 +461,22 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             ]
         });
 
+        $('#DateIssued').datetimepicker({
+            dateFormat: "dd/mm/yyyy",
+            //timeFormat: "hh:mm:ss",
+            keyboardNavigation: false,
+            todayBtn: "linked",
+            forceParse: false,
+            calendarWeeks: true,
+            autoclose: true,
+            format: "dd/mm/yyyy hh:mm:ss",
+            ////format: "yyyy-mm-dd",
+            language: "es",
+            fontAwesome: true,
+            maxDate: DateInit.MaxDate,
+            ////startDate: DateInit.MinDate
+        });
+
         $(this.htmlTable, "tbody").on('click',
             '.btn-group .btn-edit',
             function () {
@@ -669,7 +685,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 '<div id="data_1">' +
                 '<div class="input-group date">' +
                 '<span class="input-group-addon"><i class="fa fa-calendar"></i></span>' +
-                '<input type="text" name="fiscal[' + index + '].startedAt" id="startedAt" class="form-control required" value="' + d.startedAt + '" readonly>' +
+                '<input type="text" name="fiscal[' + index + '].startedAt" id="startedAt" class="form-control starteAt required" value="' + d.startedAt + '" readonly>' +
                 '</div>' +
                 '</div>' +
                 '</td >' +
@@ -703,7 +719,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //$('.money').mask("##,###,##0.00", { reverse: true });
             $('.money').mask("#######0.00", { reverse: true });
 
-            $('#data_1 .input-group.date').datepicker({
+            $('.starteAt').datetimepicker({
                 dateFormat: "yyyy-mm-dd",
                 keyboardNavigation: false,
                 todayBtn: "linked",
@@ -713,7 +729,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 format: "dd-mm-yyyy",
                 //format: "yyyy-mm-dd",
                 language: "es",
-                endDate: DateInit.MaxDate
+                fontAwesome: true,
+                //endDate: DateInit.MaxDate
                 //startDate: DateInit.MinDate
             });
         }
@@ -947,6 +964,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#DiscountRate").attr("readonly", true);
                 self.dataTableCFDIEgress.clear().draw();
                 $("#btnProdServ").addClass("hide");
+                $(".TypeRelationship").addClass("hide");
 
                 $(".labelsFiscal").addClass("hide").removeClass("required");
                 $(".inputsFiscal").addClass("hide").removeClass("required");
@@ -962,6 +980,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                 $(".labelsFiscal").removeClass("hide").addClass("required");
                 $(".inputsFiscal").removeClass("hide").addClass("required");
+                $(".TypeRelationship").removeClass("hide");
             } else {
                 //Para tipo ingreso
                 $("#CFDIrelacionados").addClass("hide");
@@ -978,7 +997,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $(".labelsFiscal").removeClass("hide").addClass("required");
                 $(".inputsFiscal").removeClass("hide").addClass("required");                
                 $("#InvoiceComplementChk").prop({ "checked": false }).iCheck('update');
-                inputsReference(false);
+                $(".TypeRelationship").removeClass("hide");
+                //inputsReference(false);
             }
         });
 
@@ -1385,25 +1405,25 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             }
         });
 
-        $("#InvoiceComplementChk").click(function () {
-            //console.log("estoy dento", !this.checked);
-            console.log(this.checked, "valor logico")
-            inputsReference(this.checked);
-        });
-        function inputsReference(input) {
-            var complement = $(".complement");
-            var typeRelationship = $("#TypeRelationship");
+        //$("#InvoiceComplementChk").click(function () {
+        //    //console.log("estoy dento", !this.checked);
+        //    console.log(this.checked, "valor logico")
+        //    inputsReference(this.checked);
+        //});
+        //function inputsReference(input) {
+        //    var complement = $(".complement");
+        //    var typeRelationship = $("#TypeRelationship");
 
-            if (!input) {
-                complement.addClass("hide");
-                typeRelationship.removeClass("required").val("");
-                $("#InvoiceComplement").val("");
-            }
-            else {
-                typeRelationship.addClass("required");
-                complement.removeClass("hide");
-            }
-        }
+        //    if (!input) {
+        //        complement.addClass("hide");
+        //        typeRelationship.removeClass("required").val("");
+        //        $("#InvoiceComplement").val("");
+        //    }
+        //    else {
+        //        typeRelationship.addClass("required");
+        //        complement.removeClass("hide");
+        //    }
+        //}
 
         //Buscar información del cliente por Razon Social
         $('#CustomerName').typeahead({
