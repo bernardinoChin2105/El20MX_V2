@@ -153,7 +153,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //    //   var index = 0;                      
             //},
             "footerCallback": function (row, data, start, end, display) {
-                //console.log(row, data, start, end, display, "lo que trae")
+                //console.log(row, data, start, end, display, "CUANTAS VECES ENTRO")
                 var api = this.api();
 
                 // Remove the formatting to get integer data for summation
@@ -463,6 +463,22 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             ]
         });
 
+        $('#DateIssued').datetimepicker({
+            dateFormat: "dd/mm/yyyy",
+            //timeFormat: "hh:mm:ss",
+            keyboardNavigation: false,
+            todayBtn: "linked",
+            forceParse: false,
+            calendarWeeks: true,
+            autoclose: true,
+            format: "dd/mm/yyyy hh:mm:ss",
+            ////format: "yyyy-mm-dd",
+            language: "es",
+            fontAwesome: true,
+            maxDate: DateInit.MaxDate,
+            ////startDate: DateInit.MinDate
+        });
+
         $(this.htmlTable, "tbody").on('click',
             '.btn-group .btn-edit',
             function () {
@@ -494,6 +510,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 if (array.length > 0) {
                     var t = $("#tableImpuestos").DataTable();
                     var sub = self.quantity.val(data[1]) * self.unitPrice.val(data[6]);
+                    var discount = data[7] > 0 || data[7] < 0 ? (data[7] * sub) / 100 : 0;
+                    var subtotal = sub - discount; //aplicado el descuento.
 
                     array.forEach(function (item, i) {
                         //console.log(item, i, "onjeto");
@@ -503,7 +521,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                         if (datos.Porcentaje !== "Exento") {
                             var por = parseFloat(datos.Porcentaje);
-                            var imp1 = por > 0 ? (por * sub) / 100 : 0;
+                            var imp1 = por > 0 ? (por * subtotal) / 100 : 0;
                             if (datos.Tipo === "Retención") {
                                 if (datos.Impuesto === "ISR") {
                                     self.retencionISRTempDesc = self.retencionISRTempDesc + imp1;
@@ -511,7 +529,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                     self.retencionIVATempDesc = self.retencionIVATempDesc + imp1;
                                 }
                             } else {
-                                var imp2 = por > 0 ? (por * sub) / 100 : 0;
+                                var imp2 = por > 0 ? (por * subtotal) / 100 : 0;
                                 self.trasladosTempDesc = self.trasladosTempDesc + imp2;
                             }
                         }
@@ -520,7 +538,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         t.row.add([datos]).draw(false);
                     });
                 }
-
+                $("input[name='TaxesChk']").trigger("click");                
                 $("#ServProdModal").modal("show");
             });
 
@@ -669,7 +687,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 '<div id="data_1">' +
                 '<div class="input-group date">' +
                 '<span class="input-group-addon"><i class="fa fa-calendar"></i></span>' +
-                '<input type="text" name="fiscal[' + index + '].startedAt" id="startedAt" class="form-control required" value="' + d.startedAt + '" readonly>' +
+                '<input type="text" name="fiscal[' + index + '].startedAt" id="startedAt" class="form-control starteAt required" value="' + d.startedAt + '" readonly>' +
                 '</div>' +
                 '</div>' +
                 '</td >' +
@@ -703,7 +721,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //$('.money').mask("##,###,##0.00", { reverse: true });
             $('.money').mask("#######0.00", { reverse: true });
 
-            $('#data_1 .input-group.date').datepicker({
+            $('.starteAt').datetimepicker({
                 dateFormat: "yyyy-mm-dd",
                 keyboardNavigation: false,
                 todayBtn: "linked",
@@ -713,7 +731,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 format: "dd-mm-yyyy",
                 //format: "yyyy-mm-dd",
                 language: "es",
-                endDate: DateInit.MaxDate
+                fontAwesome: true,
+                //endDate: DateInit.MaxDate
                 //startDate: DateInit.MinDate
             });
         }
@@ -862,7 +881,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 },
                 ProductServiceDescription: {
                     Alphanumeric: true
-                },
+                }
             }
         });
 
@@ -947,6 +966,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#DiscountRate").attr("readonly", true);
                 self.dataTableCFDIEgress.clear().draw();
                 $("#btnProdServ").addClass("hide");
+                $(".TypeRelationship").addClass("hide");
 
                 $(".labelsFiscal").addClass("hide").removeClass("required");
                 $(".inputsFiscal").addClass("hide").removeClass("required");
@@ -962,6 +982,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                 $(".labelsFiscal").removeClass("hide").addClass("required");
                 $(".inputsFiscal").removeClass("hide").addClass("required");
+                $(".TypeRelationship").removeClass("hide");
             } else {
                 //Para tipo ingreso
                 $("#CFDIrelacionados").addClass("hide");
@@ -978,7 +999,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $(".labelsFiscal").removeClass("hide").addClass("required");
                 $(".inputsFiscal").removeClass("hide").addClass("required");                
                 $("#InvoiceComplementChk").prop({ "checked": false }).iCheck('update');
-                inputsReference(false);
+                $(".TypeRelationship").removeClass("hide");
+                //inputsReference(false);
             }
         });
 
@@ -1087,11 +1109,6 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var impuestos = $("#tableImpuestos").DataTable();
             //console.log(discountRate, "descuento");
 
-            //dudas con el impuesto
-            //var taxesIEPS = parseFloat(self.taxesIEPS);
-            //var taxesIVA = parseFloat(self.taxesIVA);
-            //var subtotal = parseFloat(self.subtotal);
-
             //Calcular el subtotal    
             if (quantity > 0 && unitPrice > 0) {
                 var sub = quantity * unitPrice;
@@ -1099,16 +1116,16 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 var impIVAIESP = 0; //parseFloat(self.taxesIEPS.val() !== "" ? self.taxesIVA.val() : 0);
 
                 var discount = discountRate > 0 || discountRate < 0 ? (discountRate * sub) / 100 : 0;
-                //console.log("desceutno", discount);
-                //console.log("holas")
-                if (impuestos.rows().count() > 0) {
+                var subtotal = sub - discount; //aplicado el descuento.
+
                     //console.log(impuestos, "tabla")
+                if (impuestos.rows().count() > 0) {
                     for (var i = 0; i < impuestos.rows().count(); i++) {
                         var datos = impuestos.row(i).data()[0];
                         //console.log(datos, "datos");
                         if (datos.Porcentaje !== "Exento") {
                             var por = parseFloat(datos.Porcentaje);
-                            var imp1 = por > 0 ? (por * sub) / 100 : 0;
+                            var imp1 = por > 0 ? (por * subtotal) / 100 : 0;
                             if (datos.Tipo === "Retención") {
                                 if (datos.Impuesto === "ISR") {
                                     self.retencionISRTemp = self.retencionISRTemp + imp1;
@@ -1118,18 +1135,14 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                 impIVAISR = impIVAISR + imp1;
                                 //console.log(impIVAISR, imp1, "iva isr");
                             } else {
-                                var imp2 = por > 0 ? (por * sub) / 100 : 0;
+                                var imp2 = por > 0 ? (por * subtotal) / 100 : 0;
                                 self.trasladosTemp = self.trasladosTemp + imp2;
                                 impIVAIESP = impIVAIESP + imp2;
                             }
                         }
                     }
-                }
-                //console.log("holas", self.trasladosTemp, self.retencionIVATemp, self.retencionISRTemp);
-
-                var subtotal = sub - discount; // - impIVAISR + impIVAIESP;
-                //console.log(subtotal, "subtotal sin el descuento")
-                //console.log(subtotal.toFixed(2), "subtotal ")
+                }                
+              
                 self.taxesIVA.val(impIVAISR.toFixed(2));
                 self.taxesIEPS.val(impIVAIESP.toFixed(2));
                 self.subtotal.val(subtotal.toFixed(2)).trigger("click");
@@ -1146,6 +1159,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 var table = $("#tableImpuestos").DataTable();
 
                 table.clear().draw();
+                $("input[name='TaxesChk']").iCheck("update");
             });
         });
 
@@ -1393,26 +1407,25 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             }
         });
 
-        $("#InvoiceComplementChk").click(function () {
-            //console.log("estoy dento", !this.checked);
-            //console.log(this.checked, "valor logico")
-            inputsReference(this.checked);
-        });
+        //$("#InvoiceComplementChk").click(function () {
+        //    //console.log("estoy dento", !this.checked);
+        //    console.log(this.checked, "valor logico")
+        //    inputsReference(this.checked);
+        //});
+        //function inputsReference(input) {
+        //    var complement = $(".complement");
+        //    var typeRelationship = $("#TypeRelationship");
 
-        function inputsReference(input) {
-            var complement = $(".complement");
-            var typeRelationship = $("#TypeRelationship");
-
-            if (!input) {
-                complement.addClass("hide");
-                typeRelationship.removeClass("required").val("");
-                $("#InvoiceComplement").val("");
-            }
-            else {
-                typeRelationship.addClass("required");
-                complement.removeClass("hide");
-            }
-        }
+        //    if (!input) {
+        //        complement.addClass("hide");
+        //        typeRelationship.removeClass("required").val("");
+        //        $("#InvoiceComplement").val("");
+        //    }
+        //    else {
+        //        typeRelationship.addClass("required");
+        //        complement.removeClass("hide");
+        //    }
+        //}
 
         //Buscar información del cliente por Razon Social
         $('#CustomerName').typeahead({

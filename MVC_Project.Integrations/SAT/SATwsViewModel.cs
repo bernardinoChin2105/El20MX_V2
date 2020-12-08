@@ -44,6 +44,7 @@ namespace MVC_Project.Integrations.SAT
         public string MetodoPago { get; set; }
         public string LugarExpedicion { get; set; }
         public string Confirmacion { get; set; }
+        public string TipoRelacion { get; set; }        
         public InvoiceIssuer Emisor { get; set; }
         public InvoiceReceiver Receptor { get; set; }
         public List<ConceptsData> Conceptos { get; set; }
