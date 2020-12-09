@@ -281,12 +281,13 @@
             El20Utils.mostrarCargadorForzado();
             $.get("SAT/Extraction", function (data) {
                 if (data.success) {
-                    self.finishExtraction(data.uuid)
+                    //self.finishExtraction(data.uuid);
+                    toastr['success']("Se ha creado una solicitud para extraer las facturas, recibirá un mensaje de finalización", null, { 'positionClass': 'toast-top-center' });
                 }
                 else {
                     toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' });
-                    El20Utils.ocultarCargador();
                 }
+                El20Utils.ocultarCargador();
             }).fail(function () {
                 toastr['error']('No es posible generar el diagnostico', null, { 'positionClass': 'toast-top-center' });
                 El20Utils.ocultarCargador();

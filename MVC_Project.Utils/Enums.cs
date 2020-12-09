@@ -30,6 +30,15 @@ namespace MVC_Project.Utils
         [Display(Name = "Fallido")]
         FAILED
     }
+
+    public enum NotificationStatus
+    {
+        [Display(Name = "Activo")]
+        ACTIVE,
+        [Display(Name = "Confirmado")]
+        CONFIRMED,
+    }
+
     public enum IssueStatus
     {
         [Display(Name ="Guardado")]
