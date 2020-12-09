@@ -174,6 +174,14 @@ namespace MVC_Project.WebBackend.Controllers
                             return RedirectToAction("Edit", new { uuid = branchOffice.uuid });
                         }
                     }
+                    else
+                    {
+                        throw new Exception("Error de validación de archivos");
+                    }
+                }
+                else
+                {
+                    throw new Exception("Error de validación");
                 }
 
                 LogUtil.AddEntry(
@@ -190,12 +198,16 @@ namespace MVC_Project.WebBackend.Controllers
             catch (Exception ex)
             {
                 LogUtil.AddEntry(
-                   "Error al crear la sucursal para el rfc " + userAuth.Account.RFC,
-                   ENivelLog.Error, userAuth.Id, userAuth.Email, EOperacionLog.ACCESS,
+                   "Error al crear la sucursal para el rfc " + userAuth.Account.RFC+ ".  Error: "+ ex.Message.ToString(),
+                   ENivelLog.Error, 
+                   userAuth.Id,
+                   userAuth.Email, 
+                   EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   ex.Message
+                   "Error: "+ ex.Message.ToString() //JsonConvert.SerializeObject(model)
                 );
+
                 MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Error);
                 SetCombos(model.zipCode, ref model);
                 return View(model);
