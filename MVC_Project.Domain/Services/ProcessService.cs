@@ -1,5 +1,6 @@
 ﻿using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Repositories;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MVC_Project.Domain.Services
@@ -9,6 +10,8 @@ namespace MVC_Project.Domain.Services
         Process GetByCode(string code);
         ProcessExecution CreateExecution(ProcessExecution processExecution);
         ProcessExecution UpdateExecution(ProcessExecution processExecution);
+
+        IList<ProcessExecution> GetAllExecutions();
     }
 
     public class ProcessService : ServiceBase<Process>, IProcessService
@@ -36,6 +39,11 @@ namespace MVC_Project.Domain.Services
         {
             _repository.Session.Update(processExecution);
             return processExecution;
+        }
+
+        public IList<ProcessExecution> GetAllExecutions()
+        {
+            return _repository.Session.Query<ProcessExecution>().OrderByDescending(x => x.StartAt).ToList();
         }
     }
 }
