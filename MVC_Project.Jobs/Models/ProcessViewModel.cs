@@ -18,7 +18,7 @@ namespace MVC_Project.Jobs.Models
 
     public class ProcessExecutionModel
     {
-        public int ExecutionId { set; get; }
+        public Int64 ExecutionId { set; get; }
         public string ProcessName { set; get; }
         public string Status { set; get; }
 
