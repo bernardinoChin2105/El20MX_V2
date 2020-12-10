@@ -434,7 +434,7 @@ namespace MVC_Project.WebBackend.Controllers
                                         Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                         TipoFactor = "Tasa",
                                         TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
-                                        Importe = (Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100) * (conceptsData.ValorUnitario * conceptsData.Cantidad))).ToString()
+                                        Importe = (Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100) * (conceptsData.ValorUnitario * conceptsData.Cantidad), 6)).ToString()
                                     };
                                     Retenciones.Add(ret);
                                 }
@@ -781,10 +781,10 @@ namespace MVC_Project.WebBackend.Controllers
                    JsonConvert.SerializeObject(model)
                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                //SetCombos(model.ZipCode, ref model);
-                //return View("Invoice", model);
+                SetCombos(model.ZipCode, ref model);
+                return View("Invoice", model);
                 //return View("Invoice");
-                return RedirectToAction("Invoice");
+                //return RedirectToAction("Invoice");
             }
         }
         #endregion
@@ -1989,20 +1989,13 @@ namespace MVC_Project.WebBackend.Controllers
                 if (nodeTraslados != null)
                 {
                     foreach (XmlNode node in nodeTraslados.ChildNodes)
-                    {
-                        //XmlNode nodeTraslado = node.SelectSingleNode("cfdi:Traslado", nsm);
-                        //if (nodeTraslado != null)
-                        //{
+                    {                        
                         decimal varImporteT = 0;
                         string varImpuestoM = node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : string.Empty;
                         if (node.Attributes["Importe"] != null)
                         {
                             varImporteT = Convert.ToDecimal(node.Attributes["Importe"].Value);
-                        }
-                        //string varImporteT = nodeTraslado.Attributes["Importe"] != null ? nodeTraslado.Attributes["Importe"].Value : string.Empty;
-                        //string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
-                        //string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
-
+                        }                        
                         //Agregar modelo
                         Traslado tras = new Traslado()
                         {
@@ -2020,17 +2013,12 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     foreach (XmlNode node in nodeRetenciones.ChildNodes)
                     {
-                        //XmlNode nodeRetencion = node.SelectSingleNode("cfdi:Retencion", nsm);
-                        //if (nodeRetencion != null)
-                        //{
                         decimal varImporteR = 0;
                         string varImpuestoR = node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : string.Empty;
                         if (node.Attributes["Importe"] != null)
                         {
                             varImporteR = Convert.ToDecimal(node.Attributes["Importe"].Value);
-                        }
-                        //string varTasaOCuota = nodeTraslado.Attributes["TasaOCuota"] != null ? nodeTraslado.Attributes["TasaOCuota"].Value : string.Empty;
-                        //string varTipoFactor = nodeTraslado.Attributes["TipoFactor"] != null ? nodeTraslado.Attributes["TipoFactor"].Value : string.Empty;
+                        }                       
 
                         //Agregar modelo
                         Retenido ret = new Retenido()
@@ -2045,8 +2033,8 @@ namespace MVC_Project.WebBackend.Controllers
 
                     if (cfdipdf.Impuestos.Retenidos.Count() > 0)
                     {
-                        cfdipdf.Impuestos.ImpuestosRetenidosISR = cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "001").Sum(x => x.Importe) > 0 ? cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "001").Sum(x => x.Importe).ToString() : string.Empty;
-                        cfdipdf.Impuestos.ImpuestosRetenidosIVA = cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "002").Sum(x => x.Importe) > 0 ? cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "002").Sum(x => x.Importe).ToString() : string.Empty;
+                        cfdipdf.Impuestos.ImpuestosRetenidosISR = cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "001").Sum(x => x.Importe) >= 0 ? cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "001").Sum(x => x.Importe).ToString() : string.Empty;
+                        cfdipdf.Impuestos.ImpuestosRetenidosIVA = cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "002").Sum(x => x.Importe) >= 0 ? cfdipdf.Impuestos.Retenidos.Where(x => x.Impuesto == "002").Sum(x => x.Importe).ToString() : string.Empty;
                     }
                 }
             }
