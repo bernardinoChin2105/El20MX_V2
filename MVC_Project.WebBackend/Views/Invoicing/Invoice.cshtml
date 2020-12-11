@@ -49,7 +49,7 @@
             padding-bottom: 0;
         }
 
-        td.details-control .open::before {
+        /*td.details-control .open::before {
             cursor: pointer;
             top: 50%;
             left: 0;
@@ -69,18 +69,18 @@
             line-height: 1em;
             content: '+';
             background-color: #0275d8;
-        }
+        }*/
 
-        tr.shown td.details-control .open::before {
+        /*tr.shown td.details-control .open::before {
             content: '-';
             background-color: #d33333;
-        }
+        }*/
 
-        #tableValue tr td:nth-child(2n+1) {
+        .table-payment tr td:nth-child(2n+1) {
             width: 15%;
         }
 
-        #tableValue tr td:nth-child(2n) {
+        .table-payment tr td:nth-child(2n) {
             width: 35%;
         }
     </style>
@@ -135,7 +135,7 @@
                         @Html.DropDownListFor(model => model.TypeInvoice, Model.ListTypeInvoices, "Seleccione...", new { @class = "form-control chosen-select required" })
                         @*@Html.ValidationMessageFor(model => model.allyId)*@
                     </div>
-                </div>
+                </div>             
                 <div class="form-group TypeRelationship row">
                     @Html.LabelFor(m => m.TypeRelationship, new { @class = "col-form-label col-md-4 control-label" })
                     <div class="col-md-8">
@@ -183,8 +183,15 @@
                 <br />
                 <h3></h3>
                 <br />
-                <table id="tableComplent" class="table display invoices-table"></table>
-                <div id="tableValue"></div>
+                <div class="form-group row">
+                    <div class="col-12">
+                        <button type="button" class="btn btn-color btn-add-payment">Agregar Pago</button>
+                    </div>
+                </div>
+                <div id="Complements">
+                </div>
+                @*<div id="tableValue"></div>*@
+                @*<table id="tableComplent" class="table display invoices-table  table-striped"></table>*@
             </div>
         </div>
         <!--Aquí termina-->

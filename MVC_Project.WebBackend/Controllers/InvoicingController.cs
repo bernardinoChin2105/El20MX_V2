@@ -501,17 +501,17 @@ namespace MVC_Project.WebBackend.Controllers
                             //TipoCambioP = item.ExchangeRateCFDI.ToString(),
                             Monto = item.AmountCFDI.ToString(),
                             NumOperacion = item.NumOperationCFDI,
-                            DoctoRelacionado = new Integrations.SAT.DoctoRelacionado()
-                            {
-                                IdDocumento = item.uuid,
-                                MonedaDR = item.currency,
-                                MetodoDePagoDR = item.method,
-                                NumParcialidad = item.numberPartialities.ToString(),
-                                ImpSaldoAnt = item.previousBalance.ToString(),
-                                ImpSaldoInsoluto = item.outstanding.ToString(),
-                                Serie = item.serie,
-                                Folio = item.folio
-                            }
+                            //DoctoRelacionado = new Integrations.SAT.DoctoRelacionado()
+                            //{
+                            //    IdDocumento = item.uuid,
+                            //    MonedaDR = item.currency,
+                            //    MetodoDePagoDR = item.method,
+                            //    NumParcialidad = item.numberPartialities.ToString(),
+                            //    ImpSaldoAnt = item.previousBalance.ToString(),
+                            //    ImpSaldoInsoluto = item.outstanding.ToString(),
+                            //    Serie = item.serie,
+                            //    Folio = item.folio
+                            //}
                         };
 
                         if (item.CurrencyCFDI != "MXN")

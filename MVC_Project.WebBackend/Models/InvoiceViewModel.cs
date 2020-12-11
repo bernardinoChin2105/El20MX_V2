@@ -248,6 +248,17 @@ namespace MVC_Project.WebBackend.Models
     }
 
     public class paymentComplement
+    {       
+        public string NumOperationCFDI { get; set; }
+        public decimal AmountCFDI { get; set; }
+        public string CurrencyCFDI { get; set; }
+        public decimal ExchangeRateCFDI { get; set; }
+        public string PaymentFormCFDI { get; set; }
+        public string startedAt { get; set; }
+        public List<DocumentsCFDI> Documents { get; set; }
+    }
+
+    public class DocumentsCFDI
     {
         public string uuid { get; set; }
         public string currency { get; set; }
@@ -259,12 +270,6 @@ namespace MVC_Project.WebBackend.Models
         public Int32 numberPartialities { get; set; }
         public string folio { get; set; }
         public string serie { get; set; }
-        public string NumOperationCFDI { get; set; }
-        public decimal AmountCFDI { get; set; }
-        public string CurrencyCFDI { get; set; }
-        public decimal ExchangeRateCFDI { get; set; }
-        public string PaymentFormCFDI { get; set; }
-        public string startedAt { get; set; }
     }
 
     public class ProductServiceDescriptionView
