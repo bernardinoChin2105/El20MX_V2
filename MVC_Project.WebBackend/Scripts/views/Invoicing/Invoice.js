@@ -344,7 +344,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 4, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control" name="payment[' + ind +'].Documents[' + (meta.row) + '].paid" value="' + row.paid + '" />';
+                        var html = '<input type="text" class="form-control paid money" name="payment[' + ind +'].Documents[' + (meta.row) + '].paid" value="' + row.paid + '" />';
                         return html;
                     }
                 },
@@ -580,25 +580,26 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         //    }
         //});
 
-        $("body").on('change', '.amountCFDI', function () {
+        $("body").on('change', '.paid', function () {
             var value = $(this).val();
             var tr = $(this).closest('tr');
             var t = tr.parent().parent().DataTable();
             var index = t.row(tr).index();
             var data = t.row(index).data();
+            var tableName = t.context[0].sTableId;
+            
+            console.log(t.context, "tabla", tableName);
 
-            data.numberPartialities = value;
-            t.row(index).data(data).draw(false);
-
+            var amount = $(".amountCFDI" + tableName.split("-")[1]).val();
             //var amount = $("input[name='fiscal[" + index + "].AmountCFDI']").val();
-            //var previous = parseFloat(data.previousBalance);
-            //var amountDecimal = parseFloat(amount !== "" ? amount : 0);
+            var previous = parseFloat(data.previousBalance);
+            var amountDecimal = parseFloat(amount !== "" ? amount : 0);
+            
+            total = previous - amountDecimal;
+            data.paid = amountDecimal;
+            data.outstanding = Math.round(total, 6); //.toString();
 
-            //total = previous - amountDecimal;
-            //data.paid = amountDecimal;
-            //data.outstanding = Math.round(total, 2).toString();
-
-            //t.row(index).data(data).draw(false);
+            t.row(index).data(data).draw(false);
         });
 
         //$(self.htmlTableCFDI, 'tbody').on('change', '.numberPayment', function () {
@@ -609,8 +610,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var index = t.row(tr).index();
             var data = t.row(index).data();
 
-            console.log(t, "tabla")
-
+            console.log(t, "tabla");
+    
             data.numberPartialities = value;
             t.row(index).data(data).draw(false);
         });
