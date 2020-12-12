@@ -105,6 +105,8 @@
     <Compile Include="Entities\Quotation.cs" />
     <Compile Include="Entities\QuotationDetail.cs" />
     <Compile Include="Entities\RateFee.cs" />
+    <Compile Include="Entities\RecurlyInvoice.cs" />
+    <Compile Include="Entities\RecurlyPayment.cs" />
     <Compile Include="Entities\Role.cs" />
     <Compile Include="Entities\RolePermission.cs" />
     <Compile Include="Entities\Settlement.cs" />
@@ -116,6 +118,7 @@
     <Compile Include="Entities\Store.cs" />
     <Compile Include="Entities\DiagnosticTaxStatus.cs" />
     <Compile Include="Entities\SupervisorCAD.cs" />
+    <Compile Include="Entities\RecurlySubscription.cs" />
     <Compile Include="Entities\Tax.cs" />
     <Compile Include="Entities\TaxRegime.cs" />
     <Compile Include="Entities\TypeInvoice.cs" />
