@@ -365,9 +365,10 @@ namespace MVC_Project.WebBackend.Controllers
                 Account account = _accountService.FindBy(x => x.id == authUser.Account.Id).FirstOrDefault();
 
                 var provider = ConfigurationManager.AppSettings["SATProvider"];
-                DateTime dateFrom = new DateTime();
+                DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
+                dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
                 DateTime dateTo = DateTime.UtcNow;
-                var lastProcess = _webhookProcessService.FindBy(x => x.reference == account.uuid.ToString() && x.status == SystemStatus.ACTIVE.ToString()).OrderByDescending(x => x.id).FirstOrDefault();
+                /*var lastProcess = _webhookProcessService.FindBy(x => x.reference == account.uuid.ToString() && x.status == SystemStatus.ACTIVE.ToString()).OrderByDescending(x => x.id).FirstOrDefault();
                 if (lastProcess != null)
                 {
                     dateFrom = lastProcess.createdAt.Date;
@@ -376,22 +377,22 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     dateFrom = DateTime.UtcNow.AddMonths(-3);
                     dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
-                }
+                }*/
                 string extractionId = SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
 
-                var process = new WebhookProcess()
-                {
-                    uuid = Guid.NewGuid(),
-                    processId = extractionId,
-                    provider = SystemProviders.SATWS.ToString(),
-                    @event = SatwsEvent.EXTRACTION_UPDATED.ToString(),
-                    reference = authUser.Account.Uuid.ToString(),
-                    createdAt = DateUtil.GetDateTimeNow(),
-                    status = SystemStatus.PENDING.ToString()
-                };
+                //var process = new WebhookProcess()
+                //{
+                //    uuid = Guid.NewGuid(),
+                //    processId = extractionId,
+                //    provider = SystemProviders.SATWS.ToString(),
+                //    @event = SatwsEvent.EXTRACTION_UPDATED.ToString(),
+                //    reference = authUser.Account.Uuid.ToString(),
+                //    createdAt = DateUtil.GetDateTimeNow(),
+                //    status = SystemStatus.PENDING.ToString()
+                //};
 
-                _webhookProcessService.Create(process);
-                return Json(new { process.uuid, success = true }, JsonRequestBehavior.AllowGet);
+                //_webhookProcessService.Create(process);
+                return Json(new { success = true }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

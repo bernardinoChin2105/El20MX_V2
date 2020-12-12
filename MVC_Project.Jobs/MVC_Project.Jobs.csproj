@@ -198,7 +198,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Jobs\DemoJob.cs" />
+    <Compile Include="Jobs\BankJob.cs" />
+    <Compile Include="Jobs\SATJob.cs" />
+    <Compile Include="Models\ProcessViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -252,7 +254,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -267,6 +268,10 @@
     <ProjectReference Include="..\MVC_Project.Domain\MVC_Project.Domain.csproj">
       <Project>{AADE4A05-4CC5-4465-BD0F-B681FA698C97}</Project>
       <Name>MVC_Project.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MVC_Project.Integrations\MVC_Project.Integrations.csproj">
+      <Project>{e616d7fc-e5a8-4e69-91e6-ff0760920ce8}</Project>
+      <Name>MVC_Project.Integrations</Name>
     </ProjectReference>
     <ProjectReference Include="..\MVC_Project.Utils\MVC_Project.Utils.csproj">
       <Project>{23B89C18-68C5-449F-ADED-E51A86DA6B52}</Project>

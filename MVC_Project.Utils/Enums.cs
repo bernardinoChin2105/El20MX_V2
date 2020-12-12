@@ -30,6 +30,15 @@ namespace MVC_Project.Utils
         [Display(Name = "Fallido")]
         FAILED
     }
+
+    public enum NotificationStatus
+    {
+        [Display(Name = "Activo")]
+        ACTIVE,
+        [Display(Name = "Confirmado")]
+        CONFIRMED,
+    }
+
     public enum IssueStatus
     {
         [Display(Name = "Guardado")]
@@ -424,6 +433,12 @@ namespace MVC_Project.Utils
         EXTRACTION_UPDATED,
         [Display(Name = "credential.updated")]
         CREDENTIAL_UPDATE
+    }
+
+    public enum SyncfyEvent
+    {
+        [Display(Name = "refresh")]
+        REFRESH
     }
 
     public enum SatwsStatusEvent

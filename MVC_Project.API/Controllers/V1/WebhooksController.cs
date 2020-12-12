@@ -25,170 +25,63 @@ namespace MVC_Project.API.Controllers
     [EnableCors(origins:"*", headers:"*", methods:"*")]
     public class WebhooksController : ApiController
     {
-        //private IWebhookService _webhookService;
-        private ICustomerService _customerService;
-        private IProviderService _providerService;
-        private IInvoiceIssuedService _invoicesIssuedService;
-        private IInvoiceReceivedService _invoicesReceivedService;
         private IAccountService _accountService;
-        private IDiagnosticService _diagnosticService;
-        private IDiagnosticDetailService _diagnosticDetailService;
-        private IDiagnosticTaxStatusService _diagnosticTaxStatusService;
         private ICredentialService _credentialService;
-        private IBankTransactionService _bankTransactionService;
-        private IBankAccountService _bankAccountService;
-        private IBankCredentialService _bankCredentialService;
-        private IBankService _bankService;
+
         private IWebhookProcessService _webhookProcessService;
 
-        public WebhooksController(ICustomerService customerService, IProviderService providerService,
-            IInvoiceIssuedService invoicesIssuedService, IInvoiceReceivedService invoicesReceivedService, IAccountService accountService,
-            IDiagnosticService diagnosticService, IDiagnosticDetailService diagnosticDetailService, IDiagnosticTaxStatusService diagnosticTaxStatusService,
-            ICredentialService credentialService, IBankTransactionService bankTransactionService, IBankAccountService bankAccountService, 
-            IBankCredentialService bankCredentialService, BankService bankService, IWebhookProcessService webhookProcessService)
+        public WebhooksController(IAccountService accountService, ICredentialService credentialService, IWebhookProcessService webhookProcessService)
         {
-            //_webhookService = webhookService;
-            _customerService = customerService;
-            _providerService = providerService;
-            _invoicesIssuedService = invoicesIssuedService;
-            _invoicesReceivedService = invoicesReceivedService;
             _accountService = accountService;
-            _diagnosticService = diagnosticService;
-            _diagnosticDetailService = diagnosticDetailService;
-            _diagnosticTaxStatusService = diagnosticTaxStatusService;
             _credentialService = credentialService;
-            _bankTransactionService = bankTransactionService;
-            _bankAccountService = bankAccountService;
-            _bankCredentialService = bankCredentialService;
-            _bankService = bankService;
             _webhookProcessService = webhookProcessService;
         }
 
         [HttpPost]
         [Route("WebhookSyncfy")]
-        public HttpResponseMessage WebhookSyncfy(SyncfyWebhookModel response)
-        { 
+        public HttpResponseMessage WebhookSyncfy(Object syncfyWebhookModel)
+        {
             try
             {
-                if (response.@event == "refresh")
+                var response = JsonConvert.DeserializeObject<SyncfyWebhookModel>(syncfyWebhookModel.ToString());
+                try
                 {
-                    var token = PaybookService.CreateToken(response.id_user);
+                    var credential = _credentialService.FirstOrDefault(x => x.idCredentialProvider == response.id_user && x.provider == SystemProviders.SYNCFY.ToString());
+                    if (credential == null)
+                        throw new Exception("No existe la credencial a procesar, id_user: " + response.id_user);
 
-                    var bankCredential = _bankCredentialService.FirstOrDefault(x => x.credentialProviderId == response.id_credential);
-                    if (bankCredential == null)
+                    if (response.@event == "refresh")
                     {
-                        var credential = _credentialService.FirstOrDefault(x => x.idCredentialProvider == response.id_user);
-
-                        var paybookCredentials = PaybookService.GetCredentials(response.id_credential, token);
-                        var paybookCredential = paybookCredentials.FirstOrDefault();
-                        var bank = _bankService.FirstOrDefault(x => x.providerSiteId == response.id_site);
-
-                        if (bank == null)
-                        {
-                            var paybookBanks = PaybookService.GetBanksSites(response.id_site_organization, token);
-                            foreach (var pBank in paybookBanks)
-                            {
-                                foreach (var site in pBank.sites)
-                                {
-                                    bank = new Bank
-                                    {
-                                        uuid = Guid.NewGuid(),
-                                        name = pBank.name,
-                                        providerId = pBank.id_site_organization,
-                                        nameSite = site.name,
-                                        providerSiteId = site.id_site,
-                                        createdAt = DateUtil.GetDateTimeNow(),
-                                        modifiedAt = DateUtil.GetDateTimeNow(),
-                                        status = SystemStatus.ACTIVE.ToString(),
-                                    };
-                                    _bankService.Create(bank);
-                                }
-                            }
-                        }
-
-                        bankCredential = new BankCredential()
+                        var process = new WebhookProcess()
                         {
                             uuid = Guid.NewGuid(),
-                            account = credential.account,
-                            credentialProviderId = paybookCredential.id_credential,
+                            processId = response.id_job,
+                            provider = SystemProviders.SYNCFY.ToString(),
+                            @event = SyncfyEvent.REFRESH.ToString(),
+                            reference = credential.account.uuid.ToString(),
                             createdAt = DateUtil.GetDateTimeNow(),
-                            modifiedAt = DateUtil.GetDateTimeNow(),
-                            status = paybookCredential.is_authorized != null ? (paybookCredential.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString(),
-                            bank = bank
+                            status = SystemStatus.PENDING.ToString(),
+                            content = syncfyWebhookModel.ToString()
                         };
-                        _bankCredentialService.Create(bankCredential);
+
+                        _webhookProcessService.Create(process);
+
+                        DeleteSpecialCharacters(response);
+                        LogUtil.AddEntry(descripcion: "Actualización realizada con exito SYNCFY " + credential.account.rfc, eLogLevel: ENivelLog.Debug,
+                        usuarioId: (Int64)1, usuario: "Syncfy Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "WebhookSyncfy", detalle: JsonConvert.SerializeObject(response));
                     }
-
-                    var paybookAccounts = PaybookService.GetAccounts(response.id_credential, token);
-                    foreach (var paybookAccount in paybookAccounts)
-                    {
-                        var bankAccount = _bankAccountService.FirstOrDefault(x => x.accountProviderId == paybookAccount.id_account);
-                        if (bankAccount == null)
-                        {
-                            bankAccount = new BankAccount()
-                            {
-                                uuid = Guid.NewGuid(),
-                                bankCredential = bankCredential,
-                                accountProviderId = paybookAccount.id_account,
-                                accountProviderType = paybookAccount.account_type,
-                                name = paybookAccount.name,
-                                currency = paybookAccount.currency,
-                                balance = paybookAccount.balance,
-                                number = paybookAccount.number,
-                                isDisable = paybookAccount.is_disable,
-                                refreshAt = DateUtil.UnixTimeToDateTime(paybookAccount.dt_refresh),
-                                createdAt = DateUtil.GetDateTimeNow(),
-                                modifiedAt = DateUtil.GetDateTimeNow(),
-                                status = SystemStatus.ACTIVE.ToString()
-                            };
-                            _bankAccountService.Create(bankAccount);
-                        }
-                    }
-
-                    foreach (string uri in response.endpoints.transactions)
-                    {
-                        var transactions = PaybookService.GetTransactions(uri.Replace("/v1", ""), token);
-                        foreach (var transaction in transactions)
-                        {
-                            var bankAccount = _bankAccountService.FirstOrDefault(x => x.accountProviderId == transaction.id_account);
-                            BankTransaction bankTransactions = _bankTransactionService.FirstOrDefault(x => x.transactionId == transaction.id_transaction && x.bankAccount.id == bankAccount.id);
-                            if (bankTransactions == null)
-                            {
-                                //long d_rt = itemTransaction.dt_refresh;
-                                DateTime date_refresht = DateUtil.UnixTimeToDateTime(transaction.dt_refresh);
-                                DateTime date_transaction = DateUtil.UnixTimeToDateTime(transaction.dt_transaction);
-
-                                bankTransactions = new BankTransaction()
-                                {
-                                    uuid = Guid.NewGuid(),
-                                    bankAccount = bankAccount,
-                                    transactionId = transaction.id_transaction,
-                                    description = transaction.description,
-                                    amount = transaction.amount,
-                                    currency = transaction.currency,
-                                    reference = transaction.reference,
-                                    transactionAt = date_transaction,
-                                    createdAt = DateUtil.GetDateTimeNow(),
-                                    modifiedAt = DateUtil.GetDateTimeNow(),
-                                    status = SystemStatus.ACTIVE.ToString()
-                                };
-                                bankAccount.bankTransaction.Add(bankTransactions);
-                            }
-                        }
-                        _bankCredentialService.CreateWithTransaction(bankCredential);
-                    }
-
+                }
+                catch (Exception ex)
+                {
                     DeleteSpecialCharacters(response);
-                    LogUtil.AddEntry(descripcion: "Actualización realizada con exito SYNCFY "+ bankCredential.account.rfc, eLogLevel: ENivelLog.Debug,
-                    usuarioId: (Int64)1, usuario: "Syncfy Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "WebhookSyncfy", detalle: JsonConvert.SerializeObject(response));
+                    LogUtil.AddEntry(descripcion: "Error en la actualizacion de SYNCFY " + ex.Message + " " + (ex.InnerException != null ? ex.InnerException.Message : ""), eLogLevel: ENivelLog.Debug,
+                              usuarioId: (Int64)1, usuario: "Syncfy Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "WebhookSyncfy", detalle: JsonConvert.SerializeObject(response));
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                DeleteSpecialCharacters(response);
-                LogUtil.AddEntry(descripcion: "Error en la actualizacion de SYNCFY " + ex.Message + " " + (ex.InnerException != null ? ex.InnerException.Message : ""), eLogLevel: ENivelLog.Debug,
-                          usuarioId: (Int64)1, usuario: "Syncfy Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "WebhookSyncfy", detalle: JsonConvert.SerializeObject(response));
-
+                LogUtil.AddEntry(descripcion: "Error en la conversion en la respuesta de SYNCFY " + ex.Message + " " + (ex.InnerException != null ? ex.InnerException.Message : ""), eLogLevel: ENivelLog.Debug,
+                              usuarioId: (Int64)1, usuario: "Syncfy Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "WebhookSyncfy", detalle: "");
             }
             return Request.CreateResponse(HttpStatusCode.OK);
         }
@@ -229,169 +122,42 @@ namespace MVC_Project.API.Controllers
                     if (account == null)
                         throw new Exception("No existe rfc a procesar");
 
-                    var process = _webhookProcessService.FirstOrDefault(x => x.processId == data.data.@object.id && x.status == SystemStatus.PENDING.ToString());
+                    //var process = _webhookProcessService.FirstOrDefault(x => x.processId == data.data.@object.id && x.status == SystemStatus.PENDING.ToString());
 
-                    if (process == null)
-                        throw new Exception("No existe diagnostico");
+                    //if (process == null)
+                    //    throw new Exception("No existe diagnostico");
 
                     if (data.data.@object.status == SatwsStatusEvent.FAILED.GetDisplayName())
                     {
-                        process.status = SystemStatus.FAILED.ToString();
-                        process.modifiedAt = DateTime.Now;
-                        _webhookProcessService.Update(process);
+                        //process.status = SystemStatus.FAILED.ToString();
+                        //process.modifiedAt = DateTime.Now;
+                        //_webhookProcessService.Update(process);
                         throw new Exception("El servicio de satws generó un fallo en la extracción");
                     }
                     try
                     {
-                        if (data.data.@object.taxpayer != null && !string.IsNullOrEmpty(data.data.@object.taxpayer.name))
+                        var process = new WebhookProcess()
                         {
-                            account.name = data.data.@object.taxpayer.name;
-                            _accountService.Update(account);
-                        }
-                        process.status = SystemStatus.PROCESSING.ToString();
-                        process.modifiedAt = DateTime.Now;
-                        _webhookProcessService.Update(process);
-
-                        var modelInvoices = SATService.GetInvoicesByExtractions(data.data.@object.taxpayer.id, data.data.@object.options.period.from, data.data.@object.options.period.to, "SATWS");
-
-                        //Crear clientes
-
-                        List<string> customerRfcs = modelInvoices.Customers.Select(c => c.rfc).Distinct().ToList();
-                        var ExistC = _customerService.ValidateRFC(customerRfcs, account.id);
-                        List<string> NoExistC = customerRfcs.Except(ExistC).ToList();
-
-                        List<Customer> customers = modelInvoices.Customers
-                            .Where(x => NoExistC.Contains(x.rfc)).GroupBy(x => new { x.rfc, x.businessName })
-                            .Select(x => new Customer
-                            {
-                                uuid = Guid.NewGuid(),
-                                account = account,
-                                zipCode = x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault() != null ? x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault().zipCode : null,
-                                businessName = x.Key.businessName,
-                                rfc = x.Key.rfc,
-                                createdAt = DateUtil.GetDateTimeNow(),
-                                modifiedAt = DateUtil.GetDateTimeNow(),
-                                status = SystemStatus.ACTIVE.ToString()
-                            }).ToList();
-
-                        _customerService.Create(customers);
-
-                        //Crear proveedores
-                        List<string> providersRfcs = modelInvoices.Providers.Select(c => c.rfc).Distinct().ToList();
-                        var ExistP = _providerService.ValidateRFC(providersRfcs, account.id);
-                        List<string> NoExistP = providersRfcs.Except(ExistP).ToList();
-
-                        List<Provider> providers = modelInvoices.Providers
-                            .Where(x => NoExistP.Contains(x.rfc)).GroupBy(x => new { x.rfc, x.businessName })
-                            .Select(x => new Provider
-                            {
-                                uuid = Guid.NewGuid(),
-                                account = account,
-                                zipCode = x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault() != null ? x.Where(b => b.rfc == x.Key.rfc).FirstOrDefault().zipCode : null,
-                                businessName = x.Key.businessName,
-                                rfc = x.Key.rfc,
-                            //taxRegime = 
+                            uuid = Guid.NewGuid(),
+                            processId = data.data.@object.id,
+                            provider = SystemProviders.SATWS.ToString(),
+                            @event = SatwsEvent.EXTRACTION_UPDATED.ToString(),
+                            reference = account.uuid.ToString(),
                             createdAt = DateUtil.GetDateTimeNow(),
-                                modifiedAt = DateUtil.GetDateTimeNow(),
-                                status = SystemStatus.ACTIVE.ToString()
-                            }).Distinct().ToList();
+                            status = SystemStatus.PENDING.ToString(),
+                            content = webhookEventModel.ToString()
+                        };
 
-                        _providerService.Create(providers);
-
-                        var provider = ConfigurationManager.AppSettings["SATProvider"];
-
-                        List<string> IdIssued = modelInvoices.Customers.Select(x => x.idInvoice).ToList();
-                        var invoicesIssuedExist = _invoicesIssuedService.FindBy(x => x.account.id == account.id).Select(x => x.uuid.ToString()).ToList();
-
-                        IdIssued = IdIssued.Except(invoicesIssuedExist).ToList();
-
-                        /*Obtener los CFDI's*/
-                        var customersCFDI = SATService.GetCFDIs(IdIssued, provider);
-                        var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
-                        List<InvoiceIssued> invoiceIssued = new List<InvoiceIssued>();
-                        foreach (var cfdi in customersCFDI)
-                        {
-                            byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(cfdi.Xml);
-                            System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
-                            var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesIssued, account.rfc);
-
-                            invoiceIssued.Add(new InvoiceIssued
-                            {
-                                uuid = Guid.Parse(cfdi.id),
-                                folio = cfdi.Folio,
-                                serie = cfdi.Serie,
-                                paymentMethod = cfdi.MetodoPago,
-                                paymentForm = cfdi.FormaPago,
-                                currency = cfdi.Moneda,
-                                iva = modelInvoices.Customers.FirstOrDefault(y => y.idInvoice == cfdi.id).tax,
-                                invoicedAt = cfdi.Fecha,
-                                xml = upload.Item1,
-                                createdAt = DateTime.Now,
-                                modifiedAt = DateTime.Now,
-                                status = IssueStatus.STAMPED.ToString(),
-                                account = account,
-                                customer = _customerService.FirstOrDefault(y => y.rfc == cfdi.Receptor.Rfc),
-                                invoiceType = cfdi.TipoDeComprobante,
-                                subtotal = cfdi.SubTotal,
-                                total = cfdi.Total,
-                                homemade = false
-                            });
-                        }
-
-                        _invoicesIssuedService.Create(invoiceIssued);
-
-                        List<string> IdReceived = modelInvoices.Providers.Select(x => x.idInvoice).ToList();
-                        var invoicesReceivedExist = _invoicesReceivedService.FindBy(x => x.account.id == account.id).Select(x => x.uuid.ToString()).ToList();
-
-                        IdReceived = IdReceived.Except(invoicesReceivedExist).ToList();
-
-                        /*Obtener los CFDI's*/
-                        var providersCFDI = SATService.GetCFDIs(IdReceived, provider);
-                        var StorageInvoicesReceived = ConfigurationManager.AppSettings["StorageInvoicesReceived"];
-                        List<InvoiceReceived> invoiceReceiveds = new List<InvoiceReceived>();
-                        foreach (var cfdi in providersCFDI)
-                        {
-                            byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(cfdi.Xml);
-                            System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
-                            var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesReceived, account.rfc);
-
-                            invoiceReceiveds.Add(new InvoiceReceived
-                            {
-                                uuid = Guid.Parse(cfdi.id),
-                                folio = cfdi.Folio,
-                                serie = cfdi.Serie,
-                                paymentMethod = cfdi.MetodoPago,
-                                paymentForm = cfdi.FormaPago,
-                                currency = cfdi.Moneda,
-                                iva = modelInvoices.Providers.FirstOrDefault(y => y.idInvoice == cfdi.id).tax,
-                                invoicedAt = cfdi.Fecha,
-                                xml = upload.Item1,
-                                createdAt = DateTime.Now,
-                                modifiedAt = DateTime.Now,
-                                status = IssueStatus.STAMPED.ToString(),
-                                account = account,
-                                provider = _providerService.FirstOrDefault(y => y.rfc == cfdi.Emisor.Rfc),
-                                invoiceType = cfdi.TipoDeComprobante,
-                                subtotal = cfdi.SubTotal,
-                                total = cfdi.Total,
-                                homemade = false
-                            });
-                        }
-
-                        _invoicesReceivedService.Create(invoiceReceiveds);
-
-                        process.status = SystemStatus.ACTIVE.ToString();
-                        process.modifiedAt = DateTime.Now;
-                        _webhookProcessService.Update(process);
+                        _webhookProcessService.Create(process);
 
                         LogUtil.AddEntry(descripcion: "Extraccón finalizada con exito " + account.rfc, eLogLevel: ENivelLog.Debug,
                         usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
                     }
                     catch(Exception ex)
                     {
-                        process.status = SystemStatus.FAILED.ToString();
-                        process.modifiedAt = DateTime.Now;
-                        _webhookProcessService.Update(process);
+                        //process.status = SystemStatus.FAILED.ToString();
+                        //process.modifiedAt = DateTime.Now;
+                        //_webhookProcessService.Update(process);
                         LogUtil.AddEntry(descripcion: "Error al generar el diagnostico fiscal " + account.rfc + " Error: " + ex.Message + " " + (ex.InnerException != null ? ex.InnerException.Message : ""), eLogLevel: ENivelLog.Debug,
                         usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
                     }

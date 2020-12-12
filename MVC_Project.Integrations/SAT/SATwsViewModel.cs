@@ -44,6 +44,7 @@ namespace MVC_Project.Integrations.SAT
         public string MetodoPago { get; set; }
         public string LugarExpedicion { get; set; }
         public string Confirmacion { get; set; }
+        public string TipoRelacion { get; set; }        
         public InvoiceIssuer Emisor { get; set; }
         public InvoiceReceiver Receptor { get; set; }
         public List<ConceptsData> Conceptos { get; set; }
@@ -534,4 +535,48 @@ namespace MVC_Project.Integrations.SAT
             "SelloSAT": "kDsTsRRh6pR6ywGeUD4bp1VA5LxZ/qqUluaR5t07PzzZDNFnn+pb5dvs0QN7xy/pX0LIT1yhD2adOV6umTMzCxh1DhG2ofJZYsQx17kEtPoAGUC1nTrTjVQiwNIEohSQlQh7jBZ6vE9rdhsuqzS3eIBzxHyqy4sUK1RbabPNgsIKX2UuIs+9fu4AX/2kTQUZou++TyozfU8O6ekGHakvdYvqp1LvQOYe1xbYELgyppgOAaTeMRhVlfovCwdkTTJl5DwduFRxKylzY2Z3/xeJhp/fNQ2KkTMthrtaCczrrI/esqK7MXsx1koUTJMxwx/gUP/XWOxL2KmmgP3NEW2ryA=="
         }
     }*/
+
+    public class WebhookEventModel
+    {
+        public string id { get; set; }
+        public string type { get; set; }
+
+        public WebhookData data { get; set; }
+        public string createdAt { get; set; }
+        public string updatedAt { get; set; }
+    }
+
+    public class WebhookData
+    {
+        public WebhookObject @object { get; set; }
+    }
+
+    public class WebhookObject
+    {
+        public string id { get; set; }
+        public string status { get; set; }
+        public WebhookTaxpayer taxpayer { get; set; }
+        public WebhookOptions options { get; set; }
+        public string rfc { get; set; }
+        public string type { get; set; }
+    }
+
+    public class WebhookTaxpayer
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public string personType { get; set; }
+        public string registrationDate { get; set; }
+    }
+
+    public class WebhookOptions
+    {
+        public WebhookPeriod period { get; set; }
+    }
+
+    public class WebhookPeriod
+    {
+        public string to { get; set; }
+        public string from { get; set; }
+    }
 }

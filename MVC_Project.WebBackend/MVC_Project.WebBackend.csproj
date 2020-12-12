@@ -268,6 +268,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InvoicingController.cs" />
     <Compile Include="Controllers\MyAccountController.cs" />
+    <Compile Include="Controllers\NotificationController.cs" />
     <Compile Include="Controllers\PaymentsController.cs" />
     <Compile Include="Controllers\PlanController.cs" />
     <Compile Include="Controllers\PromotionController.cs" />
@@ -286,6 +287,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\HTMLHelperExtensions.cs" />
+    <Compile Include="Helpers\NotificationsHelperExtensions.cs" />
     <Compile Include="Models\AccountViewModel.cs" />
     <Compile Include="Models\AllianceViewModel.cs" />
     <Compile Include="Models\AuthViewModel.cs" />
@@ -295,6 +297,7 @@
     <Compile Include="Models\CredentialViewModel.cs" />
     <Compile Include="Models\InvoiceViewModel.cs" />
     <Compile Include="Models\MyAccountVM.cs" />
+    <Compile Include="Models\NotificationViewModel.cs" />
     <Compile Include="Models\PlanViewModel.cs" />
     <Compile Include="Models\InvoicesVM.cs" />
     <Compile Include="Models\ProductVM.cs" />
@@ -2041,6 +2044,7 @@
   <ItemGroup>
     <Folder Include="Content\img\gallery\" />
     <Folder Include="Content\img\landing\" />
+    <Folder Include="Views\Notification\" />
     <Folder Include="Views\Webhooks\" />
     <Folder Include="Views\Webhook\" />
   </ItemGroup>

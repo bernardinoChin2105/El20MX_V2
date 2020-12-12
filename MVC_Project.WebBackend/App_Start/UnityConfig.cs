@@ -110,6 +110,7 @@ namespace MVC_Project.WebBackend
             container.RegisterType<IWebhookProcessService, WebhookProcessService>();
             container.RegisterType<IDiagnosticDetailService, DiagnosticDetailService>();
             container.RegisterType<IDiagnosticTaxStatusService, DiagnosticTaxStatusService>();
+            container.RegisterType<INotificationService, NotificationService>();
         }
     }
 }

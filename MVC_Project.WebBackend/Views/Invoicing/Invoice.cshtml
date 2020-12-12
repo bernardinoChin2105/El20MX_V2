@@ -15,7 +15,7 @@
     @Styles.Render("~/plugins/dataTablesStyles")
     <link href="~/Content/template/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
     <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
-    <link href="~/Content/template/plugins/datapicker/datepicker3.css" rel="stylesheet" />
+    <link href="~/Scripts/plugins/datetimepicker/css/bootstrap-datetimepicker.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
     <link href="https://cdn.datatables.net/buttons/1.6.4/css/buttons.dataTables.min.css" />
 
@@ -76,9 +76,10 @@
             background-color: #d33333;
         }
 
-        #tableValue tr td:nth-child(2n+1){
-            width:15%;
+        #tableValue tr td:nth-child(2n+1) {
+            width: 15%;
         }
+
         #tableValue tr td:nth-child(2n) {
             width: 35%;
         }
@@ -135,6 +136,13 @@
                         @*@Html.ValidationMessageFor(model => model.allyId)*@
                     </div>
                 </div>
+                <div class="form-group TypeRelationship row">
+                    @Html.LabelFor(m => m.TypeRelationship, new { @class = "col-form-label col-md-4 control-label" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.TypeRelationship, Model.ListTypeRelationship, "Seleccione...", new { @class = "form-control chosen-select" })
+                        @*@Html.ValidationMessageFor(model => model.allyId)*@
+                    </div>
+                </div>
                 <div id="relacionados" class="form-group row hide">
                     <div class="col-12">
                         <div class="i-checks">
@@ -145,13 +153,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group row complement hide">
-                    @Html.LabelFor(m => m.TypeRelationship, new { @class = "col-form-label col-md-4 control-label" })
-                    <div class="col-md-8">
-                        @Html.DropDownListFor(model => model.TypeRelationship, Model.ListTypeRelationship, "Seleccione...", new { @class = "form-control chosen-select" })
-                        @*@Html.ValidationMessageFor(model => model.allyId)*@
-                    </div>
-                </div>
+
                 <div class="form-group row complement hide">
                     @Html.LabelFor(m => m.InvoiceComplement, new { @class = "col-form-label col-md-4 control-label" })
                     <div class="col-md-8">
@@ -250,7 +252,7 @@
                 <div class="form-group row">
                     @Html.LabelFor(m => m.CustomerEmail, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4" id="ListEmails">
-                        <input class="form-control" type="email" maxlength="300" autocomplete="off" name="ListCustomerEmail[0]" />
+                        <input class="form-control" type="email" id="CustomerEmail" maxlength="300" value="@Model.CustomerEmail" autocomplete="off" name="ListCustomerEmail[0]" />
                         @*@Html.TextBoxFor(m => m.CustomerEmail, new { @class = "form-control", type = "email", @maxlength = "300", @autocomplete = "off" })*@
                         @*@Html.DropDownListFor(model => model.CustomerEmailId, Model.ListCustomerEmail, "Seleccione...", new { @class = "form-control chosen-select required" })*@
                     </div>
@@ -281,27 +283,37 @@
                         @Html.HiddenFor(m => m.Serie)
                         @Html.HiddenFor(m => m.Folio)
                     </div>
+                    @Html.LabelFor(m => m.DateIssued, new { @class = "col-form-label col-md-2 control-label" })
+                    <div class="col-md-4">
+                        <div id="data_date">
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input type="text" name="DateIssued" id="DateIssued" class="form-control required" value="" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
                     @Html.LabelFor(m => m.UseCFDI, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
                         @Html.DropDownListFor(model => model.UseCFDI, Model.ListUseCFDI, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
-                </div>
-                <div class="form-group row">
                     @Html.LabelFor(m => m.PaymentForm, new { @class = "col-form-label col-md-2 control-label labelsFiscal" })
                     <div class="col-md-4">
                         @Html.DropDownListFor(model => model.PaymentForm, Model.ListPaymentForm, "Seleccione...", new { @class = "form-control chosen-select inputsFiscal required" })
                     </div>
+                </div>
+                <div class="form-group row">
                     @Html.LabelFor(m => m.PaymentMethod, new { @class = "col-form-label col-md-2 control-label labelsFiscal" })
                     <div class="col-md-4">
                         @Html.DropDownListFor(model => model.PaymentMethod, Model.ListPaymentMethod, "Seleccione...", new { @class = "form-control chosen-select inputsFiscal required" })
                     </div>
-                </div>
-                <div class="form-group row">
                     @Html.LabelFor(m => m.Currency, new { @class = "col-form-label col-md-2 control-label labelsFiscal" })
                     <div class="col-md-4">
                         @Html.DropDownListFor(model => model.Currency, Model.ListCurrency, "Seleccione...", new { @class = "form-control chosen-select inputsFiscal required" })
                     </div>
-
+                </div>
+                <div class="form-group row">
                     @if (Model.Currency == "MXN")
                     {
                         @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label exchange hide" })
@@ -722,8 +734,8 @@
     @*@Scripts.Render("~/plugins/dataTables")
         @Scripts.Render("~/plugins/daterangepicker")*@
     @Scripts.Render("~/plugins/typehead")
-    <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.js"></script>
-    <script src="~/Scripts/plugins/datapicker/bootstrap-datepicker.es.js"></script>
+    <script src="~/Scripts/plugins/datetimepicker/js/bootstrap-datetimepicker.js"></script>
+    <script src="~/Scripts/plugins/datetimepicker/js/locales/bootstrap-datetimepicker.es.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
     <script src="~/Scripts/views/Invoicing/Invoice.js"></script>
     <script>

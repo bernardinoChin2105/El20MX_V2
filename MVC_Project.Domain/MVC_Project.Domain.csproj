@@ -65,6 +65,7 @@
     <Compile Include="Entities\CustomsRequestNumber.cs" />
     <Compile Include="Entities\Discount.cs" />
     <Compile Include="Entities\DriveKey.cs" />
+    <Compile Include="Entities\Notification.cs" />
     <Compile Include="Entities\PaymentForm.cs" />
     <Compile Include="Entities\PaymentMethod.cs" />
     <Compile Include="Entities\Plan.cs" />
@@ -162,6 +163,7 @@
     <Compile Include="Services\InvoiceIssuedService.cs" />
     <Compile Include="Services\InvoiceReceivedService.cs" />
     <Compile Include="Services\CurrencyService.cs" />
+    <Compile Include="Services\NotificationService.cs" />
     <Compile Include="Services\PaymentFormService.cs" />
     <Compile Include="Services\PaymentMethodService.cs" />
     <Compile Include="Services\ProductServiceKeyService.cs" />

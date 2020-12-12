@@ -161,8 +161,10 @@ namespace MVC_Project.WebBackend.Controllers
                         bankMv.siteId = bank.providerSiteId;
                         bankMv.isTwofa = bank.isTwofa;
                         bankMv.code = resultBank[0].code;
-                        bankMv.dateTimeAuthorized = bank.dateTimeAuthorized != null ? bank.dateTimeAuthorized.Value.ToShortDateString() : string.Empty;
-                        bankMv.dateTimeRefresh = bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty;
+                        bankMv.dateTimeAuthorized = resultBank[0].dt_authorized.HasValue ? DateUtil.UnixTimeToDateTime(resultBank[0].dt_authorized.Value).ToShortDateString() :
+                            (bank.dateTimeAuthorized != null ? bank.dateTimeAuthorized.Value.ToShortDateString() : string.Empty);
+                        bankMv.dateTimeRefresh = resultBank[0].dt_refresh.HasValue ? DateUtil.UnixTimeToDateTime(resultBank[0].dt_refresh.Value).ToShortDateString() : 
+                            (bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty);
                         if (bank.dateTimeRefresh != null && bankMv.code != 401)
                         {
                             if (bank.dateTimeAuthorized.Value.Date < todayDate.Date)
@@ -245,159 +247,159 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 string token = Token();
                 //Obtener el listado de las cuentas de bancos
-                List<CredentialsPaybook> newBanks = PayBookServices.GetCredentials(idCredential, token, provider);
+                List<CredentialsPaybook> paybookCredentials = PayBookServices.GetCredentials(idCredential, token, provider);
+
+                if (!paybookCredentials.Any())
+                    throw new Exception("No se encontró la credencial bancaria del usuario, comuniquese al área de soporte");
 
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
-                if (newBanks.Count() > 0)
+                var paybookCredential = paybookCredentials.FirstOrDefault();
+
+                //Buscar el banco
+                Bank bank = _bankService.FirstOrDefault(x => x.providerSiteId == paybookCredential.id_site); //buscar por sitio
+
+                if (bank == null)
                 {
-                    foreach (var itemBank in newBanks)
+                    var paybookBanks = PaybookService.GetBanksSites(paybookCredential.id_site_organization, token);
+
+                    if (!paybookBanks.Any())
+                        throw new Exception("No se encontró la organización bancaria, comuniquese al área de soporte");
+
+                    var paybookBank = paybookBanks.FirstOrDefault();
+                    if (paybookBank.sites.Any())
+                        throw new Exception("La organización bancaria no cuenta con sitios, comuniquese al área de soporte");
+
+                    var site = paybookBank.sites.FirstOrDefault(x => x.id_site == paybookCredential.id_site);
+
+                    if (site != null)
+                        throw new Exception("El sitio bancario no se encuentra en la organización, comuniquese al área de soporte");
+
+                    bank = new Bank
                     {
-                        //Buscar el banco
-                        //Bank bank = _bankService.FirstOrDefault(x => x.providerId == itemBank.id_site_organization); //este funciona para productivo                                                
-                        Bank bank = _bankService.FirstOrDefault(x => x.providerSiteId == itemBank.id_site); //buscar por sitio
+                        uuid = Guid.NewGuid(),
+                        name = paybookBank.name,
+                        providerId = paybookBank.id_site_organization,
+                        nameSite = site.name,
+                        providerSiteId = site.id_site,
+                        createdAt = todayDate,
+                        modifiedAt = todayDate,
+                        status = SystemStatus.ACTIVE.ToString(),
+                    };
+                    _bankService.Create(bank);
 
-                        if (bank == null)
+                }
+
+                BankCredential bankCredential = _bankCredentialService.FirstOrDefault(x => x.credentialProviderId == paybookCredential.id_credential && x.account.id == authUser.Account.Id && x.status == SystemStatus.ACTIVE.ToString());
+                if (bankCredential == null)
+                {
+                    //Guardar los listado de bancos nuevos
+                    bankCredential = new BankCredential()
+                    {
+                        uuid = Guid.NewGuid(),
+                        account = new Account { id = authUser.Account.Id },
+                        credentialProviderId = paybookCredential.id_credential,
+                        createdAt = todayDate,
+                        modifiedAt = todayDate,
+                        status = paybookCredential.is_authorized != null ? (paybookCredential.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString(),
+                        bank = bank,
+                        //nuevos campos
+                        isTwofa = Convert.ToBoolean(paybookCredential.is_twofa),
+                    };
+                }
+                else
+                {
+                    bankCredential.modifiedAt = todayDate;
+                    bankCredential.status = paybookCredential.is_authorized != null ? (paybookCredential.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString();
+                }
+
+                if (paybookCredential.dt_authorized != null)
+                    bankCredential.dateTimeAuthorized = DateUtil.UnixTimeToDateTime(paybookCredential.dt_authorized.Value);
+
+                if (paybookCredential.dt_refresh != null)
+                    bankCredential.dateTimeRefresh = DateUtil.UnixTimeToDateTime(paybookCredential.dt_refresh.Value);
+
+                #region Cuentas y Transacciones Bancarias
+                //Obtener las cuentas de los bancos nuevos
+                /*var bankAccounts = PaybookService.GetAccounts(itemBank.id_credential, token);
+                foreach (var itemAccount in bankAccounts)
+                {
+                    //long d_r = long.Parse();
+                    DateTime date_refresh = DateUtil.UnixTimeToDateTime(itemAccount.dt_refresh);
+                    BankAccount newBankAcc = _bankAccountService.FirstOrDefault(x => x.bankCredential.id == bankCredential.id && x.accountProviderId == itemAccount.id_account && x.status == SystemStatus.ACTIVE.ToString());
+                    if (newBankAcc == null)
+                    {
+                        newBankAcc = new BankAccount()
                         {
-                            //var paybookBanks = PaybookService.GetBanks(itemBank.id_site_organization, token);
-                            //var paybookBank = paybookBanks.FirstOrDefault();
-                            var paybookBanks = PaybookService.GetBanksSites(itemBank.id_site_organization, token);                            
-                            if (paybookBanks.Count > 0)
-                            {
-                                foreach (var pBank in paybookBanks)
-                                {
-                                    foreach (var site in pBank.sites)
-                                    {
-                                        bank = new Bank
-                                        {
-                                            uuid = Guid.NewGuid(),
-                                            name = pBank.name,
-                                            providerId = pBank.id_site_organization,
-                                            nameSite = site.name,
-                                            providerSiteId = site.id_site,
-                                            createdAt = todayDate,
-                                            modifiedAt = todayDate,
-                                            status = SystemStatus.ACTIVE.ToString(),
-                                        };
-                                        _bankService.Create(bank);
-                                    }
-                                }
-                                bank = _bankService.FirstOrDefault(x => x.providerSiteId == itemBank.id_site);
-                                if (bank == null)
-                                    throw new Exception("El banco no se encuentra en el sistema, comuniquese al área de soporte");
+                            uuid = Guid.NewGuid(),
+                            bankCredential = bankCredential,
+                            accountProviderId = itemAccount.id_account,
+                            accountProviderType = itemAccount.account_type,
+                            name = itemAccount.name,
+                            currency = itemAccount.currency,
+                            balance = itemAccount.balance,
+                            number = itemAccount.number,
+                            isDisable = itemAccount.is_disable,
+                            refreshAt = date_refresh,
+                            createdAt = todayDate,
+                            modifiedAt = todayDate,
+                            status = SystemStatus.ACTIVE.ToString()
+                        };
+                    }
+                    else
+                    {
+                        newBankAcc.balance = itemAccount.balance;
+                        newBankAcc.modifiedAt = todayDate;
+                    }
 
-                            }
-                        }
+                    //buscar Transacciones
+                    //--Obtener las transacciones de las cuentas nuevas
+                    var transactions = PaybookService.GetTransactions(itemBank.id_credential, itemAccount.id_account, token);
 
-                        BankCredential bankCredential = _bankCredentialService.FirstOrDefault(x => x.credentialProviderId == itemBank.id_credential && x.account.id == authUser.Account.Id && x.status == SystemStatus.ACTIVE.ToString());
-                        if (bankCredential == null)
+                    foreach (var itemTransaction in transactions)
+                    {
+                        BankTransaction bankTransactions = _bankTransactionService.FirstOrDefault(x => x.transactionId == itemTransaction.id_transaction && x.bankAccount.id == newBankAcc.id);
+                        if (bankTransactions == null)
                         {
-                            //Guardar los listado de bancos nuevos
-                            bankCredential = new BankCredential()
+                            //long d_rt = itemTransaction.dt_refresh;
+                            DateTime date_refresht = DateUtil.UnixTimeToDateTime(itemTransaction.dt_refresh);
+                            DateTime date_transaction = DateUtil.UnixTimeToDateTime(itemTransaction.dt_transaction);
+
+                            bankTransactions = new BankTransaction()
                             {
                                 uuid = Guid.NewGuid(),
-                                account = new Account { id = authUser.Account.Id },
-                                credentialProviderId = itemBank.id_credential,
+                                bankAccount = newBankAcc,
+                                transactionId = itemTransaction.id_transaction,
+                                description = itemTransaction.description,
+                                amount = itemTransaction.amount,
+                                currency = itemTransaction.currency,
+                                reference = itemTransaction.reference,
+                                transactionAt = date_transaction,
                                 createdAt = todayDate,
                                 modifiedAt = todayDate,
-                                status = itemBank.is_authorized != null ? (itemBank.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString(),
-                                bank = bank,
-                                //nuevos campos
-                                isTwofa = Convert.ToBoolean(itemBank.is_twofa),
+                                status = SystemStatus.ACTIVE.ToString()
                             };
+                            newBankAcc.bankTransaction.Add(bankTransactions);
                         }
-                        else
-                        {
-                            bankCredential.modifiedAt = todayDate;
-                            bankCredential.status = itemBank.is_authorized != null ? (itemBank.is_authorized.Value.ToString() == "1" ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString()) : SystemStatus.INACTIVE.ToString();
-                        }
-
-                        if (itemBank.dt_authorized != null)
-                            bankCredential.dateTimeAuthorized = DateUtil.UnixTimeToDateTime(itemBank.dt_authorized.Value);
-
-                        if (itemBank.dt_refresh != null)
-                            bankCredential.dateTimeRefresh = DateUtil.UnixTimeToDateTime(itemBank.dt_refresh.Value);
-
-                        //Obtener las cuentas de los bancos nuevos
-                        var bankAccounts = PaybookService.GetAccounts(itemBank.id_credential, token);
-                        foreach (var itemAccount in bankAccounts)
-                        {
-                            //long d_r = long.Parse();
-                            DateTime date_refresh = DateUtil.UnixTimeToDateTime(itemAccount.dt_refresh);
-                            BankAccount newBankAcc = _bankAccountService.FirstOrDefault(x => x.bankCredential.id == bankCredential.id && x.accountProviderId == itemAccount.id_account && x.status == SystemStatus.ACTIVE.ToString());
-                            if (newBankAcc == null)
-                            {
-                                newBankAcc = new BankAccount()
-                                {
-                                    uuid = Guid.NewGuid(),
-                                    bankCredential = bankCredential,
-                                    accountProviderId = itemAccount.id_account,
-                                    accountProviderType = itemAccount.account_type,
-                                    name = itemAccount.name,
-                                    currency = itemAccount.currency,
-                                    balance = itemAccount.balance,
-                                    number = itemAccount.number,
-                                    isDisable = itemAccount.is_disable,
-                                    refreshAt = date_refresh,
-                                    createdAt = todayDate,
-                                    modifiedAt = todayDate,
-                                    status = SystemStatus.ACTIVE.ToString()
-                                };
-                            }
-                            else
-                            {
-                                newBankAcc.balance = itemAccount.balance;
-                                newBankAcc.modifiedAt = todayDate;
-                            }
-
-                            //buscar Transacciones
-                            //--Obtener las transacciones de las cuentas nuevas
-                            var transactions = PaybookService.GetTransactions(itemBank.id_credential, itemAccount.id_account, token);
-
-                            foreach (var itemTransaction in transactions)
-                            {
-                                BankTransaction bankTransactions = _bankTransactionService.FirstOrDefault(x => x.transactionId == itemTransaction.id_transaction && x.bankAccount.id == newBankAcc.id);
-                                if (bankTransactions == null)
-                                {
-                                    //long d_rt = itemTransaction.dt_refresh;
-                                    DateTime date_refresht = DateUtil.UnixTimeToDateTime(itemTransaction.dt_refresh);
-                                    DateTime date_transaction = DateUtil.UnixTimeToDateTime(itemTransaction.dt_transaction);
-
-                                    bankTransactions = new BankTransaction()
-                                    {
-                                        uuid = Guid.NewGuid(),
-                                        bankAccount = newBankAcc,
-                                        transactionId = itemTransaction.id_transaction,
-                                        description = itemTransaction.description,
-                                        amount = itemTransaction.amount,
-                                        currency = itemTransaction.currency,
-                                        reference = itemTransaction.reference,
-                                        transactionAt = date_transaction,
-                                        createdAt = todayDate,
-                                        modifiedAt = todayDate,
-                                        status = SystemStatus.ACTIVE.ToString()
-                                    };
-                                    newBankAcc.bankTransaction.Add(bankTransactions);
-                                }
-                            }
-
-                            bankCredential.bankAccount.Add(newBankAcc);
-                        }
-
-                        //Preguntarle por el guardado
-                        _bankCredentialService.CreateWithTransaction(bankCredential);
                     }
-                    LogUtil.AddEntry(
-                       "Credencial bancaria para el rfc: " + authUser.Account.RFC,
-                       ENivelLog.Info,
-                       authUser.Id,
-                       authUser.Email,
-                       EOperacionLog.ACCESS,
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                    );
-                }
+
+                    bankCredential.bankAccount.Add(newBankAcc);
+                }*/
+                #endregion
+
+                //Preguntarle por el guardado
+                _bankCredentialService.CreateWithTransaction(bankCredential);
+
+                LogUtil.AddEntry(
+                   "Credencial bancaria para el rfc: " + authUser.Account.RFC,
+                   ENivelLog.Info,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.ACCESS,
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                );
 
                 return new JsonResult
                 {
