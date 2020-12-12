@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Entities
 {
-    public class RecurlyPayment
+    public class RecurlyPayment : IEntity
     {
         public virtual Int64 id { get; set; }
         public virtual decimal total { get; set; }

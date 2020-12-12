@@ -20,9 +20,9 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.year).Column("year").Nullable();
             Map(x => x.totalInvoice).Column("totalInvoice").Nullable();
 
-            Map(x => x.totalInvoice).Column("totalInvoiceReceived").Nullable();
-            Map(x => x.totalInvoice).Column("totalInvoiceIssued").Nullable();
-            Map(x => x.totalInvoice).Column("extraBills").Nullable();
+            Map(x => x.totalInvoiceReceived).Column("totalInvoiceReceived").Nullable();
+            Map(x => x.totalInvoiceIssued).Column("totalInvoiceIssued").Nullable();
+            Map(x => x.extraBills).Column("extraBills").Nullable();
 
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             //Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
