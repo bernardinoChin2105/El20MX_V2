@@ -17,7 +17,7 @@
                     <i class="fa fa-bell"></i>  
                     @if (Messages.Any())
                     {
-                        <span class="label label-primary" id="message_count">@Messages.Count()</span>
+                        <span class="label label-primary" id="message_count" style="background-color:#53D5E9">@Messages.Count()</span>
                     }
                 </a>
                 <ul class="dropdown-menu dropdown-alerts" id="ul_alerts">
@@ -74,10 +74,11 @@
     </nav>
 
 </div>
-
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
 <script>
     $(document).ready(function () {
         $(".notificacion-mensaje").on("click", function () {
+            debugger;
             var context = this;
             var id = $(this).find("input").val();
             $.ajax({
@@ -90,7 +91,8 @@
                         var message_count = $("#message_count");
                         var count = parseInt(message_count.text());
                         if ((count - 1) == 0) {
-                            message_count.text("");
+                            //message_count.text("");
+                            $('span[id^="message_count"]').remove();
                             $("#ul_alerts").append('<li> <div class="text-center link-block"> <a href="#"> <i class="fa fa-comment-dots"></i> <strong>No hay mensajes</strong> </a> </div> </li>');
                         }
                         else

@@ -46,18 +46,19 @@ namespace MVC_Project.API.Controllers
                 var response = JsonConvert.DeserializeObject<SyncfyWebhookModel>(syncfyWebhookModel.ToString());
                 try
                 {
-                    var account = _accountService.FirstOrDefault(x => x.uuid.ToString() == response.id_external);
-                    if (account == null)
-                        throw new Exception("No existe rfc a procesar");
+                    var credential = _credentialService.FirstOrDefault(x => x.idCredentialProvider == response.id_user && x.provider == SystemProviders.SYNCFY.ToString());
+                    if (credential == null)
+                        throw new Exception("No existe la credencial a procesar, id_user: " + response.id_user);
+
                     if (response.@event == "refresh")
                     {
                         var process = new WebhookProcess()
                         {
                             uuid = Guid.NewGuid(),
                             processId = response.id_job,
-                            provider = SystemProviders.SATWS.ToString(),
-                            @event = SatwsEvent.EXTRACTION_UPDATED.ToString(),
-                            reference = account.uuid.ToString(),
+                            provider = SystemProviders.SYNCFY.ToString(),
+                            @event = SyncfyEvent.REFRESH.ToString(),
+                            reference = credential.account.uuid.ToString(),
                             createdAt = DateUtil.GetDateTimeNow(),
                             status = SystemStatus.PENDING.ToString(),
                             content = syncfyWebhookModel.ToString()
@@ -66,7 +67,7 @@ namespace MVC_Project.API.Controllers
                         _webhookProcessService.Create(process);
 
                         DeleteSpecialCharacters(response);
-                        LogUtil.AddEntry(descripcion: "Actualización realizada con exito SYNCFY " + account.rfc, eLogLevel: ENivelLog.Debug,
+                        LogUtil.AddEntry(descripcion: "Actualización realizada con exito SYNCFY " + credential.account.rfc, eLogLevel: ENivelLog.Debug,
                         usuarioId: (Int64)1, usuario: "Syncfy Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "WebhookSyncfy", detalle: JsonConvert.SerializeObject(response));
                     }
                 }

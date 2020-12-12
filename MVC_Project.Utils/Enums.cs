@@ -433,6 +433,12 @@ namespace MVC_Project.Utils
         CREDENTIAL_UPDATE
     }
 
+    public enum SyncfyEvent
+    {
+        [Display(Name = "refresh")]
+        REFRESH
+    }
+
     public enum SatwsStatusEvent
     {
         [Display(Name = "finished")]
