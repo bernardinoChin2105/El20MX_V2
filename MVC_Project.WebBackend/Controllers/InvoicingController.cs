@@ -498,21 +498,27 @@ namespace MVC_Project.WebBackend.Controllers
                             FechaPago = dateP.ToString("s"), //item.startedAt,
                             FormaDePagoP = item.PaymentFormCFDI,
                             MonedaP = item.CurrencyCFDI,
-                            //TipoCambioP = item.ExchangeRateCFDI.ToString(),
                             Monto = item.AmountCFDI.ToString(),
                             NumOperacion = item.NumOperationCFDI,
-                            //DoctoRelacionado = new Integrations.SAT.DoctoRelacionado()
-                            //{
-                            //    IdDocumento = item.uuid,
-                            //    MonedaDR = item.currency,
-                            //    MetodoDePagoDR = item.method,
-                            //    NumParcialidad = item.numberPartialities.ToString(),
-                            //    ImpSaldoAnt = item.previousBalance.ToString(),
-                            //    ImpSaldoInsoluto = item.outstanding.ToString(),
-                            //    Serie = item.serie,
-                            //    Folio = item.folio
-                            //}
                         };
+
+                        if (item.Documents.Count() > 0)
+                        {                            
+                            foreach (var itemDoc in item.Documents)
+                            {
+                                pago.DoctoRelacionado = new Integrations.SAT.DoctoRelacionado()
+                                {
+                                    IdDocumento = itemDoc.uuid,
+                                    MonedaDR = itemDoc.currency,
+                                    MetodoDePagoDR = itemDoc.method,
+                                    NumParcialidad = itemDoc.numberPartialities.ToString(),
+                                    ImpSaldoAnt = itemDoc.previousBalance.ToString(),
+                                    ImpSaldoInsoluto = itemDoc.outstanding.ToString(),
+                                    Serie = itemDoc.serie,
+                                    Folio = itemDoc.folio
+                                };                      
+                            }
+                        }
 
                         if (item.CurrencyCFDI != "MXN")
                             pago.TipoCambioP = item.ExchangeRateCFDI.ToString();
@@ -1989,13 +1995,13 @@ namespace MVC_Project.WebBackend.Controllers
                 if (nodeTraslados != null)
                 {
                     foreach (XmlNode node in nodeTraslados.ChildNodes)
-                    {                        
+                    {
                         decimal varImporteT = 0;
                         string varImpuestoM = node.Attributes["Impuesto"] != null ? node.Attributes["Impuesto"].Value : string.Empty;
                         if (node.Attributes["Importe"] != null)
                         {
                             varImporteT = Convert.ToDecimal(node.Attributes["Importe"].Value);
-                        }                        
+                        }
                         //Agregar modelo
                         Traslado tras = new Traslado()
                         {
@@ -2018,7 +2024,7 @@ namespace MVC_Project.WebBackend.Controllers
                         if (node.Attributes["Importe"] != null)
                         {
                             varImporteR = Convert.ToDecimal(node.Attributes["Importe"].Value);
-                        }                       
+                        }
 
                         //Agregar modelo
                         Retenido ret = new Retenido()

@@ -336,7 +336,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 3, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].previousBalance" value="' + row.previousBalance + '" />';
+                        var html = '<input type="text" class="form-control previousBalance money" name="payment[' + ind +'].Documents[' + (meta.row) + '].previousBalance" value="' + row.previousBalance + '" />';
                         return html;
                     }
                 },
@@ -352,7 +352,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 5, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].outstanding" value="' + row.outstanding + '" />';
+                        var html = '<input type="text" class="form-control money" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].outstanding" value="' + row.outstanding + '" />';
                         return html;
                     }
                 },
@@ -580,7 +580,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         //    }
         //});
 
-        $("body").on('change', '.paid', function () {
+        $("body").on('blur', '.paid', function () {
             var value = $(this).val();
             var tr = $(this).closest('tr');
             var t = tr.parent().parent().DataTable();
@@ -590,13 +590,13 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             
             console.log(t.context, "tabla", tableName);
 
-            var amount = $(".amountCFDI" + tableName.split("-")[1]).val();
-            //var amount = $("input[name='fiscal[" + index + "].AmountCFDI']").val();
+            //var amount = $(".amountCFDI" + tableName.split("-")[1]).val();            
+            //var amountDecimal = parseFloat(amount !== "" ? amount : 0);
             var previous = parseFloat(data.previousBalance);
-            var amountDecimal = parseFloat(amount !== "" ? amount : 0);
+            var paid = parseFloat(value);
             
-            total = previous - amountDecimal;
-            data.paid = amountDecimal;
+            total = previous - paid;            
+            data.paid = paid;
             data.outstanding = Math.round(total, 6); //.toString();
 
             t.row(index).data(data).draw(false);
@@ -613,6 +613,19 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             console.log(t, "tabla");
     
             data.numberPartialities = value;
+            t.row(index).data(data).draw(false);
+        });
+
+        $("body").on('blur', '.previousBalance', function () {
+            var value = $(this).val();
+            var tr = $(this).closest('tr');
+            var t = tr.parent().parent().DataTable();
+            var index = t.row(tr).index();
+            var data = t.row(index).data();
+
+            console.log(t, "tabla");
+
+            data.previousBalance = value;
             t.row(index).data(data).draw(false);
         });
 
