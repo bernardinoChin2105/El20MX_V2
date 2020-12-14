@@ -98,6 +98,13 @@ namespace MVC_Project.WebBackend.Models
         public string CustomerEmail { get; set; }
         public Int64 CustomerEmailId { get; set; }
         public List<string> ListCustomerEmail { get; set; }
+
+        [Display(Name = "Núm. Identificación Fiscal")]
+        public string NumIdntFiscal { get; set; }
+
+        [Display(Name = "País de Residencia Fiscal")]
+        public string CountryFiscal { get; set; }
+        public List<SelectListItem> ListCountryFiscal { get; set; }
         #endregion
 
         #region Datos Fiscales para Facturar
@@ -182,7 +189,7 @@ namespace MVC_Project.WebBackend.Models
         #region Facturas relacionadas        
         public List<InvoicesUuid> invoicesUuid { get; set; }
 
-        public List<paymentComplement> payment { get; set; }       
+        public List<paymentComplement> payment { get; set; }
         //public List<ComplementsView> ComplementsCFDI { get; set; }
         #endregion
 
@@ -238,23 +245,24 @@ namespace MVC_Project.WebBackend.Models
             ProductServices = new List<ProductServiceDescriptionView>();
             payment = new List<paymentComplement>();
             invoicesUuid = new List<InvoicesUuid>();
-    }
+        }
     }
 
     public class InvoicesUuid
     {
-        public string uuid { get; set; }        
+        public string uuid { get; set; }
         public string typeRelationship { get; set; }
     }
 
     public class paymentComplement
-    {       
+    {
         public string NumOperationCFDI { get; set; }
         public decimal AmountCFDI { get; set; }
         public string CurrencyCFDI { get; set; }
         public decimal ExchangeRateCFDI { get; set; }
         public string PaymentFormCFDI { get; set; }
         public string startedAt { get; set; }
+        public bool delete { get; set; }
         public List<DocumentsCFDI> Documents { get; set; }
     }
 

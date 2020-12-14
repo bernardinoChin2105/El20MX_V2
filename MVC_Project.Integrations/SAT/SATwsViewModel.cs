@@ -48,6 +48,7 @@ namespace MVC_Project.Integrations.SAT
         public InvoiceIssuer Emisor { get; set; }
         public InvoiceReceiver Receptor { get; set; }
         public List<ConceptsData> Conceptos { get; set; }
+        public List<CfdiRelacionados> CfdiRelacionados { get; set; }
     }
 
     public class InvoiceComplementData
@@ -178,6 +179,7 @@ namespace MVC_Project.Integrations.SAT
         public string MetodoDePagoDR { get; set; }
         public string NumParcialidad { get; set; }
         public string ImpSaldoAnt { get; set; }
+        public string ImpPagado { get; set; }
         public string ImpSaldoInsoluto { get; set; }
         public string Serie { get; set; }
         public string Folio { get; set; }

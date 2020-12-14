@@ -336,7 +336,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 3, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control previousBalance money" name="payment[' + ind +'].Documents[' + (meta.row) + '].previousBalance" value="' + row.previousBalance + '" />';
+                        var html = '<input type="text" class="form-control previousBalance money required" name="payment[' + ind +'].Documents[' + (meta.row) + '].previousBalance" value="' + row.previousBalance + '" />';
                         return html;
                     }
                 },
@@ -344,7 +344,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 4, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control paid money" name="payment[' + ind +'].Documents[' + (meta.row) + '].paid" value="' + row.paid + '" />';
+                        var html = '<input type="text" class="form-control paid money required" name="payment[' + ind +'].Documents[' + (meta.row) + '].paid" value="' + row.paid + '" />';
                         return html;
                     }
                 },
@@ -368,7 +368,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 7, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control numberPayment" name="payment[' + ind +'].Documents[' + (meta.row) + '].numberPartialities" value="' + row.numberPartialities + '" />';
+                        var html = '<input type="text" class="form-control numberPayment required" name="payment[' + ind +'].Documents[' + (meta.row) + '].numberPartialities" value="' + row.numberPartialities + '" />';
                         return html;
                     }
                 },
@@ -595,8 +595,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var previous = parseFloat(data.previousBalance);
             var paid = parseFloat(value);
             
-            total = previous - paid;            
-            data.paid = paid;
+            total = previous - paid;
+            data.paid = Math.round(paid, 6);
             data.outstanding = Math.round(total, 6); //.toString();
 
             t.row(index).data(data).draw(false);
@@ -629,13 +629,6 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             t.row(index).data(data).draw(false);
         });
 
-        //$("#tableValue").on("click", ".btn-add-pay", function () {
-        //    //var index = self.dataTableCFDI.row(tr).index();
-        //    var index = $(this).val();
-        //    //console.log(index, "index para editar la fila de la tabla");
-        //    updateData(index);
-        //});
-
         //Validar que sea obligatorio el tipo de cambio cuando sea distinto a MXN
         //$("#tableComplement").on("change", "#CurrencyCFDI", function () {
         //    console.log("pruebas currency");
@@ -656,10 +649,16 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 startedAt: "",
                 Documents: []
             };
-            var item = $("#Complements .table").index();
+            var item = $("#Complements .table-payment").index();
             var html = format(data, item + 1);
             $("#Complements").append(html);
             copySelects(data, item + 1);
+        });
+
+        $("boy").on("click", ".btn-remove-pay", function () {
+            var value = $(this).val();
+            $("input[name='payment[" + value + "].delete").val(true);
+            $($("#Complements .table-payment")[value]).addClass("hide");
         });
 
         //funcion para obtener el detalle
@@ -669,13 +668,16 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             return '<table class="table table-payment" cellpadding="5" cellspacing="0" border="0" style="padding-left:0px;">' +
                 '<tr>' +
                 '<td><label class="col-form-label control-label">Número de operación</label></td>' +
-                '<td><input type="text" name="payment[' + index + '].NumOperationCFDI" id="" value="' + d.NumOperationCFDI + '" class="form-control" autocomplete="off" maxlength="50" /></td>' +
+                '<td>' +
+                '<input type="text" name="payment[' + index + '].NumOperationCFDI" id="" value="' + d.NumOperationCFDI + '" class="form-control NumOperationCFDI" autocomplete="off" maxlength="50" />' +
+                '<input type="hidden" name="payment[' + index + '].delete" id="" value="false" />' +
+                '</td > ' +
                 '<td><label class="col-form-label control-label">Monto</label></td>' +
-                '<td><input type="text" name="payment[' + index + '].AmountCFDI" id="" value="' + d.AmountCFDI + '" class="form-control money amountCFDI" data-index="' + index + '" autocomplete="off" maxlength="50" /></td>' +
+                '<td><input type="text" name="payment[' + index + '].AmountCFDI" id="" value="' + d.AmountCFDI + '" class="form-control money amountCFDI required" data-index="' + index + '" autocomplete="off" maxlength="50" /></td>' +
                 '</tr>' +
                 '<tr>' +
                 '<td><label class="col-form-label control-label">Forma de Pago</label></td>' +
-                '<td><select name="payment[' + index + '].PaymentFormCFDI" id="" class="form-control chosen-select"></select></td>' +
+                '<td><select name="payment[' + index + '].PaymentFormCFDI" id="" class="form-control chosen-select required"></select></td>' +
                 '<td><label class="col-form-label control-label">Fecha</label></td>' +
                 '<td>' +
                 '<div id="data_1">' +
@@ -688,7 +690,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 '</tr>' +
                 '<tr>' +
                 '<td><label class="col-form-label control-label">Moneda</label></td>' +
-                '<td><select name="payment[' + index + '].CurrencyCFDI" id="CurrencyCFDI" class="form-control" class="form-control chosen-select"></select></td>' +
+                '<td><select name="payment[' + index + '].CurrencyCFDI" id="CurrencyCFDI" class="form-control chosen-select required"></select></td>' +
                 '<td><label class="col-form-label control-label exchangeCFDI">Tipo de Cambio</label></td>' +
                 '<td><input type="text" name="payment[' + index + '].ExchangeRateCFDI" id="" value="' + d.ExchangeRateCFDI + '"  class="form-control money exchangeCFDI" autocomplete="off" maxlength="50" /></td>' +
                 '</tr>' +
@@ -701,7 +703,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 '</div>' +
                 '</div >' +
                 '</td>' +
-                '<td colspan="2"><button type="button" value="' + index + '" class="btn btn-color btn-remove-pay">Eliminar Pago</button></td>' +
+                '<td colspan="2" class="text-right"><button type="button" value="' + index + '" class="btn btn-danger btn-remove-pay">Eliminar Pago</button></td>' +
                 '</tr>' +
                 '<tr>' +
                 '<td colspan="4">' +
@@ -728,6 +730,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //$('.money').mask("##,###,##0.00", { reverse: true });
             $('.money').mask("#######0.00", { reverse: true });
 
+            $(".NumOperationCFDI").rules("add", {
+                InvoiceComplement: {
+                    Alphanumeric: true
+                }
+            });
+
             $('.starteAt').datetimepicker({
                 dateFormat: "dd/mm/yyyy",
                 //timeFormat: "hh:mm:ss",
@@ -746,30 +754,6 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
             $("#table-" + index).DataTable(settings);
         }
-        //function updateData(index) {
-        //    var t = self.dataTableCFDI;
-        //    var row = t.row(index);
-        //    //console.log(t, row, index, "filas");
-        //    var data = t.row(index).data();
-        //    //console.log(data, "información");
-
-        //    var amount = $("input[name='fiscal[" + index + "].AmountCFDI']").val();
-        //    var previous = parseFloat(data.previousBalance);
-        //    var amountDecimal = parseFloat(amount !== "" ? amount : 0);
-        //    total = previous - amountDecimal;
-        //    data.outstanding = (Math.round(total, 2)).toString();
-
-        //    data.paid = $("input[name='fiscal[" + index + "].AmountCFDI']").val();
-        //    data.AmountCFDI = $("input[name='fiscal[" + index + "].AmountCFDI']").val();
-        //    data.numberPartialities = $("input[name='payment[" + index + "].numberPartialities']").val();
-        //    data.NumOperationCFDI = $("input[name='fiscal[" + index + "].NumOperationCFDI']").val();
-        //    data.CurrencyCFDI = $("select[name='fiscal[" + index + "].CurrencyCFDI']").val();
-        //    data.ExchangeRateCFDI = $("input[name='fiscal[" + index + "].ExchangeRateCFDI']").val();
-        //    data.PaymentFormCFDI = $("select[name='fiscal[" + index + "].PaymentFormCFDI']").val();
-        //    data.startedAt = $("input[name='fiscal[" + index + "].startedAt']").val();
-
-        //    t.row(index).data(data).draw();
-        //}
 
         function addConcept() {
             var t = self.dataTable;
@@ -1469,6 +1453,11 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 GetReceiver(item.id, item.type);
                 return item.name;
             }
+        });
+
+        //Validación para RFC del extrangero
+        $("").blur(function () {
+            "XEX010101000"
         });
 
         $("#ZipCode").blur(function () {
