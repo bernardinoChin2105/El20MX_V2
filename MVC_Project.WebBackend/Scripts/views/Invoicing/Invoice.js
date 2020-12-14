@@ -1456,9 +1456,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
         //Validación para RFC del extrangero
-        $("").blur(function () {
-            "XEX010101000"
-        });
+        //$("").blur(function () {
+        //    "XEX010101000"
+        //});
 
         $("#ZipCode").blur(function () {
             //console.log("perdio el focus");            
