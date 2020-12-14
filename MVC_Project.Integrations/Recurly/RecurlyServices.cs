@@ -10,8 +10,17 @@ namespace MVC_Project.Integrations.Recurly
 {
     public class RecurlyServices
     {
-        public static void CreateAccount(string RFC, string site_id)
+        public static AccountResponseModel CreateAccount(object model, string RFC, string site_id)
         {
+            AccountResponseModel response = new AccountResponseModel();
+
+            try
+            {
+                return response;
+            }catch(Exception ex)
+            {
+                return response;
+            }
             //try
             //{
             //    var accountReq = new AccountCreate()
@@ -41,8 +50,7 @@ namespace MVC_Project.Integrations.Recurly
             //{
             //    // Use ApiError to catch a generic error from the API
             //    Console.WriteLine($"Unexpected Recurly Error: {ex.Error.Message}");
-            //}
-
+            //}            
         }
     }
 }
