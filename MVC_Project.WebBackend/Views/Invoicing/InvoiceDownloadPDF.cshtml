@@ -167,7 +167,7 @@
                         <td>@oConcepto.ValorUnitario</td>
 
                         <td align="right">@oConcepto.Descuento</td>
-                        <td align="right">@Convert.ToDecimal(oConcepto.Importe).ToString("C2")</td>
+                        <td align="right">@Convert.ToDecimal(oConcepto.Importe).ToString("C6")</td>
                     </tr>
                 }
                 <tfoot>
@@ -175,7 +175,7 @@
                         <td colspan="2"><strong>CANTIDAD EN LETRA:</strong></td>
                         <td colspan="3">@Model.TotalTexto</td>
                         <td align="right">Subtotal:</td>
-                        <td align="right">@Convert.ToDecimal(Model.SubTotal).ToString("C2")</td>
+                        <td align="right">@Convert.ToDecimal(Model.SubTotal).ToString("C6")</td>
                     </tr>
                     @if (!string.IsNullOrEmpty(Model.Descuento))
                     {
@@ -183,7 +183,7 @@
                         {
                             <tr>
                                 <td colspan="6" align="right">Descuento:</td>
-                                <td align="right">@Convert.ToDecimal(Model.Descuento).ToString("C2")</td>
+                                <td align="right">@Convert.ToDecimal(Model.Descuento).ToString("C6")</td>
                             </tr>
                         }
                     }
@@ -193,27 +193,27 @@
                         {
                             <tr>
                                 <td colspan="6" align="right">Impuestos Traslados (IVA/IEPS):</td>
-                                <td align="right">@Convert.ToDecimal(Model.Impuestos.TotalImpuestosTrasladados).ToString("C2")</td>
+                                <td align="right">@Convert.ToDecimal(Model.Impuestos.TotalImpuestosTrasladados).ToString("C6")</td>
                             </tr>
                         }
                         if (!string.IsNullOrEmpty(Model.Impuestos.ImpuestosRetenidosIVA))
                         {
                             <tr>
                                 <td colspan="6" align="right">Impuestos Retenidos (IVA):</td>
-                                <td align="right">@Convert.ToDecimal(Model.Impuestos.ImpuestosRetenidosIVA).ToString("C2")</td>
+                                <td align="right">@Convert.ToDecimal(Model.Impuestos.ImpuestosRetenidosIVA).ToString("C6")</td>
                             </tr>
                         }
                         if (!string.IsNullOrEmpty(Model.Impuestos.ImpuestosRetenidosISR))
                         {
                             <tr>
                                 <td colspan="6" align="right">Impuestos Retenidos (ISR):</td>
-                                <td align="right">@Convert.ToDecimal(Model.Impuestos.ImpuestosRetenidosISR).ToString("C2")</td>
+                                <td align="right">@Convert.ToDecimal(Model.Impuestos.ImpuestosRetenidosISR).ToString("C6")</td>
                             </tr>
                         }
                     }
                     <tr>
                         <td colspan="6" align="right">Total:</td>
-                        <td align="right">@Convert.ToDecimal(Model.Total).ToString("C2")</td>
+                        <td align="right">@Convert.ToDecimal(Model.Total).ToString("C6")</td>
                     </tr>
                 </tfoot>
             </table>
@@ -237,7 +237,7 @@
                             <td>@cPago.FechaPago</td>
                             <td>@cPago.MonedaP</td>
                             <td>@cPago.TipoCambioP</td>
-                            <td>@Convert.ToDecimal(cPago.Monto).ToString("C2")</td>
+                            <td>@Convert.ToDecimal(cPago.Monto).ToString("C6")</td>
                             <td>@cPago.FormaDePagoP</td>
                             <td>@cPago.NumOperacion</td>
                         </tr>
@@ -267,9 +267,9 @@
                             <td>@cPago.DoctoRelacionado.MonedaDR</td>
                             <td>@cPago.DoctoRelacionado.MetodoDePagoDR</td>
                             <td>@cPago.DoctoRelacionado.NumParcialidad</td>
-                            <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoAnt).ToString("C2")</td>
-                            <td>@(cPago.DoctoRelacionado.ImpPagado != null ? Convert.ToDecimal(cPago.DoctoRelacionado.ImpPagado).ToString("C2") : Convert.ToDecimal(cPago.Monto).ToString("C2"))</td>
-                            <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoInsoluto).ToString("C2")</td>
+                            <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoAnt).ToString("C6")</td>
+                            <td>@(cPago.DoctoRelacionado.ImpPagado != null ? Convert.ToDecimal(cPago.DoctoRelacionado.ImpPagado).ToString("C6") : Convert.ToDecimal(cPago.Monto).ToString("C6"))</td>
+                            <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoInsoluto).ToString("C6")</td>
                         </tr>
                     }
                 </table>
