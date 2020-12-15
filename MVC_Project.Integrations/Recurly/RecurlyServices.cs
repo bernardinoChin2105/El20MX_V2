@@ -1,5 +1,7 @@
 ﻿//using Recurly;
 //using Recurly.Resources;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +12,19 @@ namespace MVC_Project.Integrations.Recurly
 {
     public class RecurlyServices
     {
-        public static AccountResponseModel CreateAccount(object model, string RFC, string site_id)
+        public static AccountResponseModel CreateAccount(dynamic model, string siteId)
         {
-            AccountResponseModel response = new AccountResponseModel();
+            AccountResponseModel recurlyModel = new AccountResponseModel();
 
-            try
-            {
-                return response;
-            }catch(Exception ex)
-            {
-                return response;
-            }
+            string url = "sites/" + siteId + "/accounts";
+
+            //Llamar al servicio para crear la credencial en el recurly y obtener respuesta                  
+            var responseRecurly = Recurly.CallServiceRecurly(url, model, "Post");
+
+            recurlyModel = JsonConvert.DeserializeObject<AccountResponseModel>(responseRecurly);
+
+            return recurlyModel;
+
             //try
             //{
             //    var accountReq = new AccountCreate()

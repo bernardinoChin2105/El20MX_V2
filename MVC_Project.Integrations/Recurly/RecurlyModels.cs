@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Integrations.Recurly
 {
-    class RecurlyModels
-    {
-    }
+    //class RecurlyModels
+    //{
+    //}
 
     public class CostModel
     {
