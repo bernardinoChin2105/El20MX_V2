@@ -377,10 +377,13 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     Rfc = model.RFC,
                     Nombre = model.CustomerName,
-                    ResidenciaFiscal = model.CountryFiscal, //tengo dudas de que dato va
-                    NumRegIdTrib = model.NumIdntFiscal, // que dato va
                     UsoCFDI = model.UseCFDI
                 };
+
+                if (string.IsNullOrEmpty(model.CountryFiscal))
+                    receiver.ResidenciaFiscal = model.CountryFiscal; //tengo dudas de que dato va
+                if (string.IsNullOrEmpty(model.NumIdntFiscal))
+                    receiver.NumRegIdTrib = model.NumIdntFiscal; // que dato va
 
                 var taxes = _taxService.GetAll().ToList();
 
