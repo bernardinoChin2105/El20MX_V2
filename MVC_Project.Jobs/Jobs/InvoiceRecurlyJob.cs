@@ -68,7 +68,14 @@ namespace MVC_Project.Jobs
                         System.Diagnostics.Trace.TraceInformation(string.Format("[BankJob_SyncAccounts] Executing at {0}", DateTime.Now));
                         strResult.Append(string.Format("Executing at {0}", DateUtil.GetDateTimeNow()));
 
-                        //#region Implementar logica de negocio especifica
+                        #region Implementar logica de negocio especifica
+                        //Validar el día 3 de cada mes
+                        //Obtener los planes activo en recurly
+                        //Obtener la lista de usuarios activo
+                        //Por cada usuario validar sus facturas totales y por el tipo de usuario rfc
+                        //clasificar 
+
+
                         //var webhookProcesses = _webhookProcessService.FindBy(x => x.provider == SystemProviders.SYNCFY.ToString() 
                         //&& x.@event == SyncfyEvent.REFRESH.ToString()
                         //&& x.status == SystemStatus.PENDING.ToString());
@@ -223,7 +230,7 @@ namespace MVC_Project.Jobs
                         //    }
                         //}
 
-                        //#endregion
+                       #endregion
 
                         //UPDATE JOB DATABASE
                         strResult.Append(string.Format("| End at {0}", DateUtil.GetDateTimeNow()));
