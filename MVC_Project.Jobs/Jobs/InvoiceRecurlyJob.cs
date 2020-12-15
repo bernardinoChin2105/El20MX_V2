@@ -73,10 +73,13 @@ namespace MVC_Project.Jobs
                         //Obtener los planes activo en recurly
                         //Obtener la lista de usuarios activo
                         //Por cada usuario validar sus facturas totales y por el tipo de usuario rfc
-                        //clasificar 
+                        //clasificar los usuarios por nuevo o con plan antiguo de parte de el20
+                        //Crear el modelo de la suscripción en la cual la cuenta caera 
+                        //Si la suscripción cambia realizar un cambio de suscripción
+                        //Enviar los datos de la compra.
 
 
-                        //var webhookProcesses = _webhookProcessService.FindBy(x => x.provider == SystemProviders.SYNCFY.ToString() 
+                        //var webhookProcesses = _webhookProcessService.FindBy(x => x.provider == SystemProviders.SYNCFY.ToString()
                         //&& x.@event == SyncfyEvent.REFRESH.ToString()
                         //&& x.status == SystemStatus.PENDING.ToString());
 
@@ -230,7 +233,7 @@ namespace MVC_Project.Jobs
                         //    }
                         //}
 
-                       #endregion
+                        #endregion
 
                         //UPDATE JOB DATABASE
                         strResult.Append(string.Format("| End at {0}", DateUtil.GetDateTimeNow()));
