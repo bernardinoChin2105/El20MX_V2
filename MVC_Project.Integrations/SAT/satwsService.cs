@@ -13,18 +13,8 @@ namespace MVC_Project.Integrations.SAT
     {
         public static ExtractionResponse GenerateExtractions(string RFC, DateTime DateOnStart, DateTime DateOnEnd)
         {
-            TaxpayerInfo taxpayer = new TaxpayerInfo();
-
-            ExtractionsFilter filter = new ExtractionsFilter()
-            {
-                taxpayer = "/taxpayers/" + RFC,
-                extractor = "tax_status"
-            };
-
-            SATws.CallServiceSATws("extractions", filter, "Post");
-
             //Realiza la solicitud de extracción
-            filter = new ExtractionsFilter()
+            ExtractionsFilter filter = new ExtractionsFilter()
             {
                 taxpayer = "/taxpayers/" + RFC,
                 extractor = "invoice",
@@ -34,6 +24,17 @@ namespace MVC_Project.Integrations.SAT
 
             var response = SATws.CallServiceSATws("extractions", filter, "Post");
             return JsonConvert.DeserializeObject<ExtractionResponse>(response);
+        }
+
+        public static void GenerateTaxStatus(string RFC)
+        {
+            ExtractionsFilter filter = new ExtractionsFilter()
+            {
+                taxpayer = "/taxpayers/" + RFC,
+                extractor = "tax_status"
+            };
+
+            SATws.CallServiceSATws("extractions", filter, "Post");
         }
 
         public static InvoicesModel GetInvoicesByExtractions(string rfc, string from, string to)

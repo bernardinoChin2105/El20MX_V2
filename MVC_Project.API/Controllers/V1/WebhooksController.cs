@@ -179,6 +179,8 @@ namespace MVC_Project.API.Controllers
         {
             try
             {
+                var provider = ConfigurationManager.AppSettings["SATProvider"];
+
                 var data = JsonConvert.DeserializeObject<WebhookEventModel>(webhookEventModel.ToString());
 
                 if (data != null && data.data != null && data.data.@object != null && data.type == SatwsEvent.CREDENTIAL_UPDATE.GetDisplayName())
@@ -188,13 +190,16 @@ namespace MVC_Project.API.Controllers
                         throw new Exception("No existe una credencial para el rfc " + data.data.@object.rfc);
 
                     credential.statusProvider = data.data.@object.status;
-                    
+                    bool isUpdated = true;
+                    bool isValid = false;
                     switch (data.data.@object.status)
                     {
                         case "pending":
+                            isUpdated = false;
                             break;
                         case "valid":
                             credential.status = SystemStatus.ACTIVE.ToString();
+                            isValid = true;
                             break;
                         case "invalid":
                             credential.status = SystemStatus.INACTIVE.ToString();
@@ -210,10 +215,17 @@ namespace MVC_Project.API.Controllers
                             break;
                     }
 
-                    _credentialService.Update(credential);
+                    if (isUpdated)
+                    {
+                        _credentialService.Update(credential);
 
-                    LogUtil.AddEntry(descripcion: "Credencial actualizadá con exito", eLogLevel: ENivelLog.Debug,
-                    usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: webhookEventModel.ToString());
+                        LogUtil.AddEntry(descripcion: "Credencial actualizadá con exito. New status:" + data.data.@object.status, eLogLevel: ENivelLog.Debug,
+                        usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: webhookEventModel.ToString());
+                    }
+                    if (isValid)
+                    {
+                        SATService.GenerateTaxStatus(credential.account.rfc, provider);
+                    }
                 }
             }
             catch (Exception ex)
