@@ -47,7 +47,7 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
 
-                string token = (string)Session["token"];
+                string token = Authenticator.BankToken;
 
                 if (!string.IsNullOrEmpty(token))
                 {
@@ -58,7 +58,7 @@ namespace MVC_Project.WebBackend.Controllers
                     catch (Exception ex)
                     {
                         string error = ex.Message.ToString();
-                        Session["token"] = string.Empty;
+                        Authenticator.StoreBankToken(string.Empty);
                         token = Token();
                     }
                     ViewBag.paybookT = token;
@@ -100,7 +100,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                     //Obtener token de paybook para retornar
                     token = PaybookService.CreateToken(credential.idCredentialProvider);
-                    Session["token"] = token;
+                    Authenticator.StoreBankToken(token);
                     ViewBag.paybookT = token;
                 }
 
@@ -200,13 +200,13 @@ namespace MVC_Project.WebBackend.Controllers
         private string Token()
         {
             var authUser = Authenticator.AuthenticatedUser;
-            string token = (string)Session["token"];
+            string token = Authenticator.BankToken;
 
             if (string.IsNullOrEmpty(token) || !PaybookService.GetVerifyToken(token))
             {
                 var credential = _credentialService.FirstOrDefault(x => x.account.id == authUser.Account.Id && x.provider == SystemProviders.SYNCFY.GetDisplayName());
                 token = PaybookService.CreateToken(credential.idCredentialProvider);
-                Session["token"] = token;
+                Authenticator.StoreBankToken(token);
             }
 
             return token;

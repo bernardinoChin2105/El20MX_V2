@@ -194,7 +194,7 @@ namespace MVC_Project.WebBackend.Controllers
                             isCustomizable = false
                         });
                         authUser.Permissions = permissionsUser;
-                        Authenticator.StoreAuthenticatedUser(authUser);
+                        Authenticator.RefreshAuthenticatedUser(authUser);
                         return RedirectToAction("CreateAccount", new { uuid = account.uuid });
                     }
 
@@ -560,7 +560,13 @@ namespace MVC_Project.WebBackend.Controllers
                 authUser.Permissions = permissions;
 
                 Authenticator.RefreshAuthenticatedUser(authUser);
-                MensajeFlashHandler.RegistrarMensaje("Se registró correctamente el rfc "+ account.rfc + ". Tu diagnóstico fiscal esta siendo procesado.", TiposMensaje.Success);
+
+                #region Generar diagnóstico Inicial
+                if (bool.Parse(ConfigurationManager.AppSettings["InitialDiagnostic.Enable"]))
+                    GenerateExtraction();
+                #endregion
+
+                MensajeFlashHandler.RegistrarMensaje("Se registró correctamente el rfc "+ account.rfc + ". Tus facturas estan en proceso de sincronización.", TiposMensaje.Success);
                 LogUtil.AddEntry(
                    "Se registró correctamente el rfc " + account.rfc,
                    ENivelLog.Info,
@@ -571,14 +577,7 @@ namespace MVC_Project.WebBackend.Controllers
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    JsonConvert.SerializeObject(account)
                 );
-
-                #region Generar diagnóstico Inicial
-                if (bool.Parse(ConfigurationManager.AppSettings["InitialDiagnostic.Enable"]))
-                    GenerateExtraction();
                 
-                
-                #endregion
-
                 return RedirectToAction("Index", "SAT");
             }
             catch (Exception ex)
@@ -724,19 +723,19 @@ namespace MVC_Project.WebBackend.Controllers
                 dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
                 string extractionId = SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
 
-                var process = new Domain.Entities.WebhookProcess()
-                {
-                    uuid = Guid.NewGuid(),
-                    processId = extractionId,
-                    provider = SystemProviders.SATWS.ToString(),
-                    @event = SatwsEvent.EXTRACTION_UPDATED.ToString(),
-                    reference = authUser.Account.Uuid.ToString(),
-                    createdAt = DateUtil.GetDateTimeNow(),
-                    status = SystemStatus.PENDING.ToString()
-                };
+                //var process = new Domain.Entities.WebhookProcess()
+                //{
+                //    uuid = Guid.NewGuid(),
+                //    processId = extractionId,
+                //    provider = SystemProviders.SATWS.ToString(),
+                //    @event = SatwsEvent.EXTRACTION_UPDATED.ToString(),
+                //    reference = authUser.Account.Uuid.ToString(),
+                //    createdAt = DateUtil.GetDateTimeNow(),
+                //    status = SystemStatus.PENDING.ToString()
+                //};
 
-                _webhookProcessService.Create(process);
-                Session["InitialDiagnostic"] = process.uuid;
+                //_webhookProcessService.Create(process);
+                //Session["InitialDiagnostic"] = process.uuid;
             }
             catch (Exception ex)
             {

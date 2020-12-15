@@ -54,6 +54,7 @@ namespace MVC_Project.Jobs
             _processService.CreateExecution(processExecution);
 
             Boolean.TryParse(System.Configuration.ConfigurationManager.AppSettings["Jobs.EnabledJobs"], out bool NotificationProcessEnabled);
+            int.TryParse(System.Configuration.ConfigurationManager.AppSettings["Jobs.Attempt"], out int attempt);
             StringBuilder strResult = new StringBuilder();
 
             if (Monitor.TryEnter(thisLock))
@@ -74,10 +75,11 @@ namespace MVC_Project.Jobs
 
                         foreach (var webhookProcess in webhookProcesses)
                         {
+                            Account account = null;
                             try
                             {
                                 var data = JsonConvert.DeserializeObject<WebhookEventModel>(webhookProcess.content.ToString());
-                                var account = _accountService.FirstOrDefault(x => x.rfc == data.data.@object.taxpayer.id);
+                                account = _accountService.FirstOrDefault(x => x.rfc == data.data.@object.taxpayer.id);
                                 if (data.data.@object.taxpayer != null && !string.IsNullOrEmpty(data.data.@object.taxpayer.name))
                                 {
                                     account.name = data.data.@object.taxpayer.name;
@@ -226,13 +228,36 @@ namespace MVC_Project.Jobs
                                     account = account,
                                     createdAt = DateTime.Now,
                                     status = NotificationStatus.ACTIVE.ToString(),
-                                    message = "Se han sincronizado sus facturas del periodo " + data.data.@object.options.period.from + " al " + data.data.@object.options.period.to,
+                                    message = "Se han sincronizado sus facturas " + DateUtil.GetDateTimeNow().ToShortDateString()
                                 };
                                 _notificationService.Create(notification);
                             }
-                            catch(Exception ex)
+                            catch (Exception ex)
                             {
-
+                                webhookProcess.attempt += 1;
+                                if (webhookProcess.attempt == attempt)
+                                {
+                                    webhookProcess.status = SystemStatus.FAILED.ToString();
+                                    if (account != null)
+                                    {
+                                        var notification = new Notification
+                                        {
+                                            uuid = Guid.NewGuid(),
+                                            account = account,
+                                            createdAt = DateTime.Now,
+                                            status = NotificationStatus.ACTIVE.ToString(),
+                                            message = "Ocurrio un problema con la sincronización de sus facturas del día: " + DateUtil.GetDateTimeNow().ToShortDateString()
+                                        };
+                                        _notificationService.Create(notification);
+                                    }
+                                }
+                                else
+                                {
+                                    webhookProcess.status = SystemStatus.PENDING.ToString();
+                                }
+                                webhookProcess.result = ex.Message + (ex.InnerException != null ? ex.InnerException.Message : string.Empty);
+                                webhookProcess.modifiedAt = DateUtil.GetDateTimeNow();
+                                _webhookProcessService.Update(webhookProcess);
                             }
                         }
 
