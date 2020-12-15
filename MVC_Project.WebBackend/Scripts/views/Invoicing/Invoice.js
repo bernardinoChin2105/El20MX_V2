@@ -590,7 +590,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var data = t.row(index).data();
             var tableName = t.context[0].sTableId;
             
-            console.log(t.context, "tabla", tableName);
+            //console.log(t.context, "tabla", tableName);
 
             //var amount = $(".amountCFDI" + tableName.split("-")[1]).val();            
             //var amountDecimal = parseFloat(amount !== "" ? amount : 0);
@@ -612,7 +612,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var index = t.row(tr).index();
             var data = t.row(index).data();
 
-            console.log(t, "tabla");
+            //console.log(t, "tabla");
     
             data.numberPartialities = value;
             t.row(index).data(data).draw(false);
@@ -625,7 +625,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var index = t.row(tr).index();
             var data = t.row(index).data();
 
-            console.log(t, "tabla");
+            //console.log(t, "tabla");
 
             data.previousBalance = value;
             t.row(index).data(data).draw(false);
@@ -867,6 +867,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 Comments: {
                     Alphanumeric: true
                 },
+                NumIdntFiscal: {
+                    Alphanumeric: true
+                }
             }
         });
 
@@ -1458,9 +1461,20 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
         //Validación para RFC del extrangero
-        //$("").blur(function () {
-        //    "XEX010101000"
-        //});
+        $("#RFC").blur(function () {
+            console.log($(this).val());
+            if ($(this).val() === "XEXX010101000") {
+                console.log("entre")
+                $(".foreign").removeClass("hide");
+                $("#NumIdntFiscal").addClass("required");
+                $("#CountryFiscal").addClass("required");
+            } else {
+                console.log("entre false")
+                $(".foreign").addClass("hide");
+                $("#NumIdntFiscal").removeClass("required");
+                $("#CountryFiscal").removeClass("required");
+            }          
+        });
 
         $("#ZipCode").blur(function () {
             //console.log("perdio el focus");            
