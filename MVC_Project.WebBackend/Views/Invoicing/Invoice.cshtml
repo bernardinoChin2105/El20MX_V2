@@ -322,11 +322,11 @@
                 </div>
                 <div class="form-group row">
                     @Html.LabelFor(m => m.PaymentMethod, new { @class = "col-form-label col-md-2 control-label labelsFiscal" })
-                    <div class="col-md-4">
+                    <div class="col-md-4 inputsFiscal">
                         @Html.DropDownListFor(model => model.PaymentMethod, Model.ListPaymentMethod, "Seleccione...", new { @class = "form-control chosen-select inputsFiscal required" })
                     </div>
                     @Html.LabelFor(m => m.Currency, new { @class = "col-form-label col-md-2 control-label labelsFiscal" })
-                    <div class="col-md-4">
+                    <div class="col-md-4 inputsFiscal">
                         @Html.DropDownListFor(model => model.Currency, Model.ListCurrency, "Seleccione...", new { @class = "form-control chosen-select inputsFiscal required" })
                     </div>
                 </div>
@@ -341,7 +341,7 @@
                     else
                     {
                         @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label exchange labelsFiscal" })
-                        <div class="col-md-4">
+                        <div class="col-md-4 inputsFiscal">
                             @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control exchange inputsFiscal required", @maxlength = "200", @autocomplete = "off" })
                         </div>
                     }
