@@ -94,6 +94,7 @@
     <Compile Include="Mappings\BranchOfficeMap.cs" />
     <Compile Include="Mappings\CADAccountMap.cs" />
     <Compile Include="Mappings\CredentialMap.cs" />
+    <Compile Include="Mappings\ForeignCountryMap.cs" />
     <Compile Include="Mappings\RateFeeMap.cs" />
     <Compile Include="Mappings\CustomsMap.cs" />
     <Compile Include="Mappings\CustomsPatentMap.cs" />
