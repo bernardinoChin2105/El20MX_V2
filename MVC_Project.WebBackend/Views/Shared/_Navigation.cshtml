@@ -179,7 +179,7 @@
                 </li>
             }
 
-            @if (user.HasAccessToModule(SystemModules.MY_ACCOUNT.ToString()))
+            @*@if (user.HasAccessToModule(SystemModules.MY_ACCOUNT.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.MY_ACCOUNT.ToString())">
                     <a href="#"><i class="fas fa-balance-scale"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_MY_ACCOUNT</span> <span class="fain arrow"></span></a>
@@ -190,7 +190,7 @@
                         </ul>
                     }
                 </li>
-            }
+            }*@
             @*@if (user.HasAccessToModule("catalogs"))
         {
             <li class="@Html.IsModuleSelected(user, "catalogs")">

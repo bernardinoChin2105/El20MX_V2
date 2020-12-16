@@ -163,8 +163,8 @@ namespace MVC_Project.Utils
         BANKS,
         [Display(Name = "Facturación")]
         INVOICING,
-        [Display(Name = "Mi Cuenta con El20.mx")]
-        MY_ACCOUNT,
+        //[Display(Name = "Mi Cuenta con El20.mx")]
+        //MY_ACCOUNT,
         #region Modulos del BackOffice
         [Display(Name = "Planes")]
         PLANS,
