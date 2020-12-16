@@ -27,7 +27,6 @@ namespace MVC_Project.API.Controllers
     {
         private IAccountService _accountService;
         private ICredentialService _credentialService;
-
         private IWebhookProcessService _webhookProcessService;
 
         public WebhooksController(IAccountService accountService, ICredentialService credentialService, IWebhookProcessService webhookProcessService)
@@ -50,7 +49,9 @@ namespace MVC_Project.API.Controllers
                     if (credential == null)
                         throw new Exception("No existe la credencial a procesar, id_user: " + response.id_user);
 
-                    if (response.@event == "refresh")
+                    var organizationSAT = ConfigurationManager.AppSettings["Paybook.OrganizationSite.SAT"];
+
+                    if (response.@event == "refresh" && response.id_site_organization != organizationSAT)
                     {
                         var process = new WebhookProcess()
                         {
