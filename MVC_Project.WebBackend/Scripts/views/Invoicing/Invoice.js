@@ -590,7 +590,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var data = t.row(index).data();
             var tableName = t.context[0].sTableId;
             
-            console.log(t.context, "tabla", tableName);
+            //console.log(t.context, "tabla", tableName);
 
             //var amount = $(".amountCFDI" + tableName.split("-")[1]).val();            
             //var amountDecimal = parseFloat(amount !== "" ? amount : 0);
@@ -612,7 +612,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var index = t.row(tr).index();
             var data = t.row(index).data();
 
-            console.log(t, "tabla");
+            //console.log(t, "tabla");
     
             data.numberPartialities = value;
             t.row(index).data(data).draw(false);
@@ -625,7 +625,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var index = t.row(tr).index();
             var data = t.row(index).data();
 
-            console.log(t, "tabla");
+            //console.log(t, "tabla");
 
             data.previousBalance = value;
             t.row(index).data(data).draw(false);
@@ -657,7 +657,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             copySelects(data, item + 1);
         });
 
-        $("boy").on("click", ".btn-remove-pay", function () {
+        $("body").on("click", ".btn-remove-pay", function () {
             var value = $(this).val();
             $("input[name='payment[" + value + "].delete").val(true);
             $($("#Complements .table-payment")[value]).addClass("hide");
@@ -675,24 +675,24 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 '<input type="hidden" name="payment[' + index + '].delete" id="" value="false" />' +
                 '</td > ' +
                 '<td><label class="col-form-label control-label">Monto</label></td>' +
-                '<td><input type="text" name="payment[' + index + '].AmountCFDI" id="" value="' + d.AmountCFDI + '" class="form-control money amountCFDI required" data-index="' + index + '" autocomplete="off" maxlength="50" /></td>' +
+                '<td><input type="text" name="payment[' + index + '].AmountCFDI" id="" value="' + d.AmountCFDI + '" class="form-control money amountCFDI" data-index="' + index + '" autocomplete="off" maxlength="50" /></td>' +
                 '</tr>' +
                 '<tr>' +
                 '<td><label class="col-form-label control-label">Forma de Pago</label></td>' +
-                '<td><select name="payment[' + index + '].PaymentFormCFDI" id="" class="form-control chosen-select required"></select></td>' +
+                '<td><select name="payment[' + index + '].PaymentFormCFDI" id="" class="form-control chosen-select"></select></td>' +
                 '<td><label class="col-form-label control-label">Fecha</label></td>' +
                 '<td>' +
                 '<div id="data_1">' +
                 '<div class="input-group date">' +
                 '<span class="input-group-addon"><i class="fa fa-calendar"></i></span>' +
-                '<input type="text" name="payment[' + index + '].startedAt" id="startedAt" class="form-control starteAt required" value="' + d.startedAt + '" readonly>' +
+                '<input type="text" name="payment[' + index + '].startedAt" id="startedAt" class="form-control starteAt" value="' + d.startedAt + '" readonly>' +
                 '</div>' +
                 '</div>' +
                 '</td >' +
                 '</tr>' +
                 '<tr>' +
                 '<td><label class="col-form-label control-label">Moneda</label></td>' +
-                '<td><select name="payment[' + index + '].CurrencyCFDI" id="CurrencyCFDI" class="form-control chosen-select required"></select></td>' +
+                '<td><select name="payment[' + index + '].CurrencyCFDI" id="CurrencyCFDI" class="form-control chosen-select"></select></td>' +
                 '<td><label class="col-form-label control-label exchangeCFDI">Tipo de Cambio</label></td>' +
                 '<td><input type="text" name="payment[' + index + '].ExchangeRateCFDI" id="" value="' + d.ExchangeRateCFDI + '"  class="form-control money exchangeCFDI" autocomplete="off" maxlength="50" /></td>' +
                 '</tr>' +
@@ -867,6 +867,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 Comments: {
                     Alphanumeric: true
                 },
+                NumIdntFiscal: {
+                    Alphanumeric: true
+                }
             }
         });
 
@@ -968,7 +971,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#DiscountRate").attr("readonly", true);
                 $("#btnProdServ").addClass("hide");
 
-                $(".labelsFiscal").addClass("hide").removeClass("required");
+                $(".labelsFiscal").addClass("hide");
                 $(".inputsFiscal").addClass("hide").removeClass("required");
                 //$("#CFDIrelacionados").addClass("hide");
                 //self.dataTableCFDIEgress.clear().draw();
@@ -986,8 +989,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#DiscountRate").attr("readonly", true);
                 $("#btnProdServ").removeClass("hide");
 
-                $(".labelsFiscal").removeClass("hide").addClass("required");
-                $(".inputsFiscal").removeClass("hide").addClass("required");
+                $(".labelsFiscal").removeClass("hide");
+                $(".inputsFiscal").removeClass("hide").addClass("required"); 
                 //$("#CFDIrelacionados").removeClass("hide");
                 //self.dataTableCFDI.clear().draw();
             } else if (typeInvoice === "I") {
@@ -1004,8 +1007,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#btnProdServ").removeClass("hide");
                 $("#DiscountRate").attr("readonly", false);
 
-                $(".labelsFiscal").removeClass("hide").addClass("required");
-                $(".inputsFiscal").removeClass("hide").addClass("required");
+                $(".labelsFiscal").removeClass("hide");
+                $(".inputsFiscal").removeClass("hide").addClass("required");                
                 //inputsReference(false);
                 //$("#CFDIrelacionados").removeClass("hide");
                 //self.dataTableCFDIEgress.clear().draw();
@@ -1458,9 +1461,20 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
         //Validación para RFC del extrangero
-        //$("").blur(function () {
-        //    "XEX010101000"
-        //});
+        $("#RFC").blur(function () {
+            console.log($(this).val());
+            if ($(this).val() === "XEXX010101000") {
+                console.log("entre")
+                $(".foreign").removeClass("hide");
+                $("#NumIdntFiscal").addClass("required");
+                $("#CountryFiscal").addClass("required");
+            } else {
+                console.log("entre false")
+                $(".foreign").addClass("hide");
+                $("#NumIdntFiscal").removeClass("required");
+                $("#CountryFiscal").removeClass("required");
+            }          
+        });
 
         $("#ZipCode").blur(function () {
             //console.log("perdio el focus");            
