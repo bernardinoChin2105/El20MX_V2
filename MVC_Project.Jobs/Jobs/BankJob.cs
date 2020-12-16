@@ -66,7 +66,7 @@ namespace MVC_Project.Jobs
                     {
                         processJob.Running = true;
                         _processService.Update(processJob);
-                        System.Diagnostics.Trace.TraceInformation(string.Format("[BankJob_SyncAccounts] Executing at {0}", DateTime.Now));
+                        System.Diagnostics.Trace.TraceInformation(string.Format("[BankJob_SyncAccounts] Executing at {0}", DateUtil.GetDateTimeNow()));
                         strResult.Append(string.Format("Executing at {0}", DateUtil.GetDateTimeNow()));
 
                         #region Implementar logica de negocio especifica
@@ -77,6 +77,7 @@ namespace MVC_Project.Jobs
                         foreach (var webhookProcess in webhookProcesses)
                         {
                             Account account = null;
+                            Bank bank = null;
                             try
                             {
                                 var response = JsonConvert.DeserializeObject<SyncfyWebhookModel>(webhookProcess.content.ToString());
@@ -97,7 +98,7 @@ namespace MVC_Project.Jobs
 
                                     var paybookCredential = paybookCredentials.FirstOrDefault();
 
-                                    var bank = _bankService.FirstOrDefault(x => x.providerSiteId == response.id_site);
+                                    bank = _bankService.FirstOrDefault(x => x.providerSiteId == response.id_site);
 
                                     if (bank == null)
                                     {
@@ -143,6 +144,8 @@ namespace MVC_Project.Jobs
                                 }
                                 else
                                 {
+                                    bank = bankCredential.bank;
+
                                     var paybookCredentials = PaybookService.GetCredentials(response.id_credential, token);
                                     if (!paybookCredentials.Any())
                                         throw new Exception("Credencial bancaria no encontrada en Syncfy" + response.id_credential);
@@ -234,7 +237,7 @@ namespace MVC_Project.Jobs
                                     account = account,
                                     createdAt = DateUtil.GetDateTimeNow(),
                                     status = NotificationStatus.ACTIVE.ToString(),
-                                    message = "Se han sincronizado sus cuentas bancarias " + DateUtil.GetDateTimeNow().ToShortDateString()
+                                    message = "Sincronización de cuentas bancarias completado " + (bank != null ? (bank.name + " - " + bank.nameSite) : string.Empty)
                                 };
                                 _notificationService.Create(notification);
                             }
@@ -250,9 +253,9 @@ namespace MVC_Project.Jobs
                                         {
                                             uuid = Guid.NewGuid(),
                                             account = account,
-                                            createdAt = DateTime.Now,
+                                            createdAt = DateUtil.GetDateTimeNow(),
                                             status = NotificationStatus.ACTIVE.ToString(),
-                                            message = "Ocurrio un problema con la sincronización de sus cuentas bancarias " + DateUtil.GetDateTimeNow().ToShortDateString()
+                                            message = "Ocurrio un problema al sincronizar sus cuentas bancarias " + (bank != null ? (bank.name + " - " + bank.nameSite) : string.Empty)
                                         };
                                         _notificationService.Create(notification);
                                     }

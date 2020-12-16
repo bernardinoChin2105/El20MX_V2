@@ -28,7 +28,7 @@ namespace MVC_Project.WebBackend.Controllers
                 if (notificacion != null)
                 {
                     notificacion.status = NotificationStatus.CONFIRMED.ToString();
-                    notificacion.modifiedAt = DateTime.Now;
+                    notificacion.modifiedAt = DateUtil.GetDateTimeNow();
                     _notificationService.Update(notificacion);
                 }
 

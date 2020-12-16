@@ -165,7 +165,7 @@ namespace MVC_Project.WebBackend.Controllers
                     advancePayment = model.advancePayment,
                     monthlyCharge = model.monthlyCharge,
                     status = model.quoteStatus,
-                    createdAt = DateTime.Now,
+                    createdAt = DateUtil.GetDateTimeNow(),
                     hiringDate = model.hiringDate
                 };
 
@@ -180,7 +180,7 @@ namespace MVC_Project.WebBackend.Controllers
                             name = upload.Item2,
                             link = upload.Item1,
                             status = SystemStatus.ACTIVE.ToString(),
-                            createdAt = DateTime.Now,
+                            createdAt = DateUtil.GetDateTimeNow(),
                             quotation = quotation
                         };
 
@@ -294,7 +294,7 @@ namespace MVC_Project.WebBackend.Controllers
                             name = upload.Item2,
                             link = upload.Item1,
                             status = SystemStatus.ACTIVE.ToString(),
-                            createdAt = DateTime.Now,
+                            createdAt = DateUtil.GetDateTimeNow(),
                             quotation = quotation
                         };
 

@@ -769,7 +769,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                     campo.Cells[campo.Dimension.Address].AutoFitColumns();
                     byte[] bin = pck.GetAsByteArray();
-                    return File(bin, "application/vnd.ms-excel", "ListaProveedores_(" + DateTime.Now.ToString("G") + ").xlsx");
+                    return File(bin, "application/vnd.ms-excel", "ListaProveedores_(" + DateUtil.GetDateTimeNow().ToString("G") + ").xlsx");
                 }
             }
             catch (Exception ex)
@@ -1074,8 +1074,8 @@ namespace MVC_Project.WebBackend.Controllers
         {
             ViewBag.Date = new
             {
-                MinDate = DateTime.Now.AddDays(-10).ToString("dd-MM-yyyy"),
-                MaxDate = DateTime.Now.ToString("dd-MM-yyyy")
+                MinDate = DateUtil.GetDateTimeNow().AddDays(-10).ToString("dd-MM-yyyy"),
+                MaxDate = DateUtil.GetDateTimeNow().ToString("dd-MM-yyyy")
             };
             try
             {

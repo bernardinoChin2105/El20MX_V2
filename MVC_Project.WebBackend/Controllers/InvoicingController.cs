@@ -1420,7 +1420,7 @@ namespace MVC_Project.WebBackend.Controllers
             ViewBag.Date = new
             {
                 MinDate = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString(),
-                MaxDate = DateTime.Now.ToString("dd/MM/yyyy")
+                MaxDate = DateUtil.GetDateTimeNow().ToString("dd/MM/yyyy")
             };
             try
             {
@@ -1552,8 +1552,8 @@ namespace MVC_Project.WebBackend.Controllers
         {
             ViewBag.Date = new
             {
-                MinDate = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString(), //DateTime.Now.AddDays(-10).ToString("dd/MM/yyyy"),
-                MaxDate = DateTime.Now.ToString("dd/MM/yyyy")
+                MinDate = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString(), //DateUtil.GetDateTimeNow().AddDays(-10).ToString("dd/MM/yyyy"),
+                MaxDate = DateUtil.GetDateTimeNow().ToString("dd/MM/yyyy")
             };
             try
             {

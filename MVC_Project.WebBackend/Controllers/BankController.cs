@@ -318,75 +318,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (paybookCredential.dt_refresh != null)
                     bankCredential.dateTimeRefresh = DateUtil.UnixTimeToDateTime(paybookCredential.dt_refresh.Value);
-
-                #region Cuentas y Transacciones Bancarias
-                //Obtener las cuentas de los bancos nuevos
-                /*var bankAccounts = PaybookService.GetAccounts(itemBank.id_credential, token);
-                foreach (var itemAccount in bankAccounts)
-                {
-                    //long d_r = long.Parse();
-                    DateTime date_refresh = DateUtil.UnixTimeToDateTime(itemAccount.dt_refresh);
-                    BankAccount newBankAcc = _bankAccountService.FirstOrDefault(x => x.bankCredential.id == bankCredential.id && x.accountProviderId == itemAccount.id_account && x.status == SystemStatus.ACTIVE.ToString());
-                    if (newBankAcc == null)
-                    {
-                        newBankAcc = new BankAccount()
-                        {
-                            uuid = Guid.NewGuid(),
-                            bankCredential = bankCredential,
-                            accountProviderId = itemAccount.id_account,
-                            accountProviderType = itemAccount.account_type,
-                            name = itemAccount.name,
-                            currency = itemAccount.currency,
-                            balance = itemAccount.balance,
-                            number = itemAccount.number,
-                            isDisable = itemAccount.is_disable,
-                            refreshAt = date_refresh,
-                            createdAt = todayDate,
-                            modifiedAt = todayDate,
-                            status = SystemStatus.ACTIVE.ToString()
-                        };
-                    }
-                    else
-                    {
-                        newBankAcc.balance = itemAccount.balance;
-                        newBankAcc.modifiedAt = todayDate;
-                    }
-
-                    //buscar Transacciones
-                    //--Obtener las transacciones de las cuentas nuevas
-                    var transactions = PaybookService.GetTransactions(itemBank.id_credential, itemAccount.id_account, token);
-
-                    foreach (var itemTransaction in transactions)
-                    {
-                        BankTransaction bankTransactions = _bankTransactionService.FirstOrDefault(x => x.transactionId == itemTransaction.id_transaction && x.bankAccount.id == newBankAcc.id);
-                        if (bankTransactions == null)
-                        {
-                            //long d_rt = itemTransaction.dt_refresh;
-                            DateTime date_refresht = DateUtil.UnixTimeToDateTime(itemTransaction.dt_refresh);
-                            DateTime date_transaction = DateUtil.UnixTimeToDateTime(itemTransaction.dt_transaction);
-
-                            bankTransactions = new BankTransaction()
-                            {
-                                uuid = Guid.NewGuid(),
-                                bankAccount = newBankAcc,
-                                transactionId = itemTransaction.id_transaction,
-                                description = itemTransaction.description,
-                                amount = itemTransaction.amount,
-                                currency = itemTransaction.currency,
-                                reference = itemTransaction.reference,
-                                transactionAt = date_transaction,
-                                createdAt = todayDate,
-                                modifiedAt = todayDate,
-                                status = SystemStatus.ACTIVE.ToString()
-                            };
-                            newBankAcc.bankTransaction.Add(bankTransactions);
-                        }
-                    }
-
-                    bankCredential.bankAccount.Add(newBankAcc);
-                }*/
-                #endregion
-
+                
                 //Preguntarle por el guardado
                 _bankCredentialService.CreateWithTransaction(bankCredential);
 
@@ -403,7 +335,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 return new JsonResult
                 {
-                    Data = new { success = true, data = "La conexión con el banco se realizó de manera exitosa." },
+                    Data = new { success = true, data = "Conexión exitosa, recibirá una notificación al finalizar la sincronización de sus transacciones bancarias." },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet
                 };
             }
@@ -658,8 +590,8 @@ namespace MVC_Project.WebBackend.Controllers
             BankViewModel model = new BankViewModel();
             ViewBag.Date = new
             {
-                MinDate = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString(), //DateTime.Now.AddDays(-10).ToString("dd/MM/yyyy"),
-                MaxDate = DateTime.Now.ToString("dd/MM/yyyy")
+                MinDate = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString(),
+                MaxDate = DateUtil.GetDateTimeNow().ToString("dd/MM/yyyy")
             };
             try
             {

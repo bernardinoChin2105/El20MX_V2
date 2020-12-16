@@ -166,7 +166,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         public ActionResult Create()
         {
-            ViewBag.Date = DateTime.Now.ToString("dd-MM-yyyy");
+            ViewBag.Date = DateUtil.GetDateTimeNow().ToString("dd-MM-yyyy");
 
             AllianceViewModel model = new AllianceViewModel();
             try
@@ -313,7 +313,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         public ActionResult Edit(string uuid)
         {
-            ViewBag.Date = DateTime.Now.ToString("dd-MM-yyyy");
+            ViewBag.Date = DateUtil.GetDateTimeNow().ToString("dd-MM-yyyy");
 
             try
             {

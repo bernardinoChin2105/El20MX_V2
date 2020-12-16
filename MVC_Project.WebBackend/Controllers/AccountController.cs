@@ -517,30 +517,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 account.status = SystemStatus.ACTIVE.ToString();
                 _accountService.Update(account);
-                
-                var promotion = _promotionService.GetValidityPromotion(TypePromotions.INITIAL_DISCOUNT.ToString());
 
-                if (promotion != null)
-                {
-                    var discount = new Domain.Entities.Discount
-                    {
-                        type = promotion.type,
-                        discount = promotion.discount,
-                        discountRate = promotion.discountRate,
-                        hasPeriod = promotion.hasPeriod,
-                        periodInitial = promotion.periodInitial,
-                        periodFinal = promotion.periodFinal,
-                        hasValidity = promotion.hasValidity,
-                        validityInitialAt = promotion.validityInitialAt,
-                        validityFinalAt = promotion.validityInitialAt,
-                        createdAt = DateTime.Now,
-                        modifiedAt = DateTime.Now,
-                        status = SystemStatus.ACTIVE.ToString(),
-                        account = account,
-                        promotion = promotion
-                    };
-                    _discountService.Create(discount);
-                }
                 Domain.Entities.Membership membership = null;
                 if (authUser.isBackOffice)
                     membership = _membership.FirstOrDefault(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString());
@@ -566,7 +543,7 @@ namespace MVC_Project.WebBackend.Controllers
                     GenerateExtraction();
                 #endregion
 
-                MensajeFlashHandler.RegistrarMensaje("Se registró correctamente el rfc "+ account.rfc + ". Tus facturas estan en proceso de sincronización.", TiposMensaje.Success);
+                MensajeFlashHandler.RegistrarMensaje("Se registró correctamente el rfc "+ account.rfc + ". Recibira una notificación al sincronizar las facturas.", TiposMensaje.Success);
                 LogUtil.AddEntry(
                    "Se registró correctamente el rfc " + account.rfc,
                    ENivelLog.Info,
@@ -722,20 +699,6 @@ namespace MVC_Project.WebBackend.Controllers
                 DateTime dateTo = DateTime.UtcNow;
                 dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
                 string extractionId = SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
-
-                //var process = new Domain.Entities.WebhookProcess()
-                //{
-                //    uuid = Guid.NewGuid(),
-                //    processId = extractionId,
-                //    provider = SystemProviders.SATWS.ToString(),
-                //    @event = SatwsEvent.EXTRACTION_UPDATED.ToString(),
-                //    reference = authUser.Account.Uuid.ToString(),
-                //    createdAt = DateUtil.GetDateTimeNow(),
-                //    status = SystemStatus.PENDING.ToString()
-                //};
-
-                //_webhookProcessService.Create(process);
-                //Session["InitialDiagnostic"] = process.uuid;
             }
             catch (Exception ex)
             {
@@ -914,7 +877,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var image = AzureBlobService.UploadPublicFile(imageAccount.InputStream, fileNameAccount, StorageImages, account.rfc);
                 account.avatar = image.Item1;
-                account.modifiedAt = DateTime.Now;
+                account.modifiedAt = DateUtil.GetDateTimeNow();
                 _accountService.Update(account);
 
                 userAuth.Account.Image = image.Item1;

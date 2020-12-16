@@ -65,7 +65,7 @@ namespace MVC_Project.Jobs
                     {
                         processJob.Running = true;
                         _processService.Update(processJob);
-                        System.Diagnostics.Trace.TraceInformation(string.Format("[SATJob_SyncBills] Executing at {0}", DateTime.Now));
+                        System.Diagnostics.Trace.TraceInformation(string.Format("[SATJob_SyncBills] Executing at {0}", DateUtil.GetDateTimeNow()));
                         strResult.Append(string.Format("Executing at {0}", DateUtil.GetDateTimeNow()));
 
                         #region Implementar logica de negocio especifica
@@ -86,7 +86,7 @@ namespace MVC_Project.Jobs
                                     _accountService.Update(account);
                                 }
                                 webhookProcess.status = SystemStatus.PROCESSING.ToString();
-                                webhookProcess.modifiedAt = DateTime.Now;
+                                webhookProcess.modifiedAt = DateUtil.GetDateTimeNow();
                                 _webhookProcessService.Update(webhookProcess);
 
                                 var modelInvoices = SATService.GetInvoicesByExtractions(data.data.@object.taxpayer.id, data.data.@object.options.period.from, data.data.@object.options.period.to, "SATWS");
@@ -164,8 +164,8 @@ namespace MVC_Project.Jobs
                                         iva = modelInvoices.Customers.FirstOrDefault(y => y.idInvoice == cfdi.id).tax,
                                         invoicedAt = cfdi.Fecha,
                                         xml = upload.Item1,
-                                        createdAt = DateTime.Now,
-                                        modifiedAt = DateTime.Now,
+                                        createdAt = DateUtil.GetDateTimeNow(),
+                                        modifiedAt = DateUtil.GetDateTimeNow(),
                                         status = IssueStatus.STAMPED.ToString(),
                                         account = account,
                                         customer = _customerService.FirstOrDefault(y => y.rfc == cfdi.Receptor.Rfc),
@@ -204,8 +204,8 @@ namespace MVC_Project.Jobs
                                         iva = modelInvoices.Providers.FirstOrDefault(y => y.idInvoice == cfdi.id).tax,
                                         invoicedAt = cfdi.Fecha,
                                         xml = upload.Item1,
-                                        createdAt = DateTime.Now,
-                                        modifiedAt = DateTime.Now,
+                                        createdAt = DateUtil.GetDateTimeNow(),
+                                        modifiedAt = DateUtil.GetDateTimeNow(),
                                         status = IssueStatus.STAMPED.ToString(),
                                         account = account,
                                         provider = _providerService.FirstOrDefault(y => y.rfc == cfdi.Emisor.Rfc),
@@ -219,16 +219,16 @@ namespace MVC_Project.Jobs
                                 _invoicesReceivedService.Create(invoiceReceiveds);
 
                                 webhookProcess.status = SystemStatus.ACTIVE.ToString();
-                                webhookProcess.modifiedAt = DateTime.Now;
+                                webhookProcess.modifiedAt = DateUtil.GetDateTimeNow();
                                 _webhookProcessService.Update(webhookProcess);
 
                                 var notification = new Notification
                                 {
                                     uuid = Guid.NewGuid(),
                                     account = account,
-                                    createdAt = DateTime.Now,
+                                    createdAt = DateUtil.GetDateTimeNow(),
                                     status = NotificationStatus.ACTIVE.ToString(),
-                                    message = "Se han sincronizado sus facturas " + DateUtil.GetDateTimeNow().ToShortDateString()
+                                    message = "Sincronización de facturas completado"
                                 };
                                 _notificationService.Create(notification);
                             }
@@ -244,9 +244,9 @@ namespace MVC_Project.Jobs
                                         {
                                             uuid = Guid.NewGuid(),
                                             account = account,
-                                            createdAt = DateTime.Now,
+                                            createdAt = DateUtil.GetDateTimeNow(),
                                             status = NotificationStatus.ACTIVE.ToString(),
-                                            message = "Ocurrio un problema con la sincronización de sus facturas del día: " + DateUtil.GetDateTimeNow().ToShortDateString()
+                                            message = "Ocurrio un problema al sincronizar sus facturas"
                                         };
                                         _notificationService.Create(notification);
                                     }

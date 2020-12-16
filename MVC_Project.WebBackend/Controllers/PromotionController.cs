@@ -111,7 +111,7 @@ namespace MVC_Project.WebBackend.Controllers
         [AllowAnonymous]
         public ActionResult Create()
         {
-            ViewBag.Date = DateTime.Now.ToString("dd-MM-yyyy");
+            ViewBag.Date = DateUtil.GetDateTimeNow().ToString("dd-MM-yyyy");
 
             PromotionViewModel model = new PromotionViewModel();
             try
@@ -145,7 +145,7 @@ namespace MVC_Project.WebBackend.Controllers
         [Authorize, HttpPost, ValidateAntiForgeryToken, ValidateInput(true)]
         public ActionResult Create(PromotionViewModel model)
         {
-            ViewBag.Date = DateTime.Now.ToString("dd-MM-yyyy");
+            ViewBag.Date = DateUtil.GetDateTimeNow().ToString("dd-MM-yyyy");
             try
             {
                 if (!ModelState.IsValid)

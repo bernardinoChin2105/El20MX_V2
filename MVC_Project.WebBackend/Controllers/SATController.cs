@@ -73,7 +73,7 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         model.ciecUuid = ciec.uuid.ToString();
                         ciec.status = model.ciecStatus = SATService.GetCredentialStatusSat(ciec.idCredentialProvider, _provider);
-                        ciec.modifiedAt = DateTime.Now;
+                        ciec.modifiedAt = DateUtil.GetDateTimeNow();
                         _credentialService.Update(ciec);
                     }
                     var efirma = credentials.FirstOrDefault(x => x.credentialType == SATCredentialType.EFIRMA.ToString());
@@ -81,7 +81,7 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         model.efirmaUuid = efirma.uuid.ToString();
                         efirma.status = model.efirmaStatus = SATService.GetCredentialStatusSat(efirma.idCredentialProvider, _provider);
-                        efirma.modifiedAt = DateTime.Now;
+                        efirma.modifiedAt = DateUtil.GetDateTimeNow();
                         _credentialService.Update(efirma);
                     }
                 }
@@ -173,7 +173,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var account = credential.account;
                 account.ciec = ciec;
-                account.modifiedAt = DateTime.Now;
+                account.modifiedAt = DateUtil.GetDateTimeNow();
                 _accountService.Update(account);
 
                 var satModel = SATService.CreateCredential(new CredentialRequest { rfc = rfc, ciec = ciec }, _provider);
@@ -181,7 +181,7 @@ namespace MVC_Project.WebBackend.Controllers
                 credential.idCredentialProvider = satModel.id;
                 credential.statusProvider = satModel.status;
                 credential.status = SystemStatus.PROCESSING.ToString();
-                credential.modifiedAt = DateTime.Now;
+                credential.modifiedAt = DateUtil.GetDateTimeNow();
                 _credentialService.Update(credential);
                 return Json(new { credential.uuid, success = true }, JsonRequestBehavior.AllowGet);
             }
@@ -263,7 +263,7 @@ namespace MVC_Project.WebBackend.Controllers
                 }
 
                 account.eFirma = data.efirma;
-                account.modifiedAt = DateTime.Now;
+                account.modifiedAt = DateUtil.GetDateTimeNow();
                 _accountService.Update(account);
 
                 var satModel = SATService.CreateCredentialEfirma(cerStr, keyStr, data.efirma, _provider);
@@ -278,8 +278,8 @@ namespace MVC_Project.WebBackend.Controllers
                         provider = _provider,
                         idCredentialProvider = satModel.id,
                         statusProvider = satModel.status,
-                        createdAt = DateTime.Now,
-                        modifiedAt = DateTime.Now,
+                        createdAt = DateUtil.GetDateTimeNow(),
+                        modifiedAt = DateUtil.GetDateTimeNow(),
                         status = SystemStatus.PROCESSING.ToString(),
                         credentialType = SATCredentialType.EFIRMA.ToString()
                     };
@@ -291,7 +291,7 @@ namespace MVC_Project.WebBackend.Controllers
                     credential.idCredentialProvider = satModel.id;
                     credential.statusProvider = satModel.status;
                     credential.status = SystemStatus.PROCESSING.ToString();
-                    credential.modifiedAt = DateTime.Now;
+                    credential.modifiedAt = DateUtil.GetDateTimeNow();
                     _credentialService.Update(credential);
                 }
 
@@ -344,7 +344,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var image = AzureBlobService.UploadPublicFile(data.image.InputStream, data.fileName, StorageImages, account.rfc);
                 account.avatar = image.Item1;
-                account.modifiedAt = DateTime.Now;
+                account.modifiedAt = DateUtil.GetDateTimeNow();
                 _accountService.Update(account);
                 
                 return Json(new { account.uuid, success = true }, JsonRequestBehavior.AllowGet);
@@ -368,30 +368,9 @@ namespace MVC_Project.WebBackend.Controllers
                 DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
                 dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
                 DateTime dateTo = DateTime.UtcNow;
-                /*var lastProcess = _webhookProcessService.FindBy(x => x.reference == account.uuid.ToString() && x.status == SystemStatus.ACTIVE.ToString()).OrderByDescending(x => x.id).FirstOrDefault();
-                if (lastProcess != null)
-                {
-                    dateFrom = lastProcess.createdAt.Date;
-                }
-                else
-                {
-                    dateFrom = DateTime.UtcNow.AddMonths(-3);
-                    dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
-                }*/
+
                 string extractionId = SATService.GenerateExtractions(authUser.Account.RFC, dateFrom, dateTo, provider);
 
-                //var process = new WebhookProcess()
-                //{
-                //    uuid = Guid.NewGuid(),
-                //    processId = extractionId,
-                //    provider = SystemProviders.SATWS.ToString(),
-                //    @event = SatwsEvent.EXTRACTION_UPDATED.ToString(),
-                //    reference = authUser.Account.Uuid.ToString(),
-                //    createdAt = DateUtil.GetDateTimeNow(),
-                //    status = SystemStatus.PENDING.ToString()
-                //};
-
-                //_webhookProcessService.Create(process);
                 return Json(new { success = true }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
