@@ -12,6 +12,7 @@ namespace MVC_Project.Integrations.Recurly
 {
     public class RecurlyServices
     {
+        /*con este método se crean los planes*/
         public static AccountResponseModel CreateAccount(dynamic model, string siteId)
         {
             AccountResponseModel recurlyModel = new AccountResponseModel();
@@ -23,38 +24,36 @@ namespace MVC_Project.Integrations.Recurly
 
             recurlyModel = JsonConvert.DeserializeObject<AccountResponseModel>(responseRecurly);
 
-            return recurlyModel;
+            return recurlyModel;               
+        }
 
-            //try
-            //{
-            //    var accountReq = new AccountCreate()
-            //    {
-            //        Code = "64564564564564",
-            //        FirstName = "Benjamin",
-            //        LastName = "Du Monde",
-            //        Address = new Address()
-            //        {
-            //            City = "New Orleans",
-            //            Region = "LA",
-            //            Country = "US",
-            //            PostalCode = "70115",
-            //            Street1 = "900 Camp St."
-            //        }
-            //    };
-            //    Account account = client.CreateAccount(accountReq);
-            //    Console.WriteLine($"Created account {account.Code}");
-            //}
-            //catch (Recurly.Errors.Validation ex)
-            //{
-            //    // If the request was not valid, you may want to tell your user
-            //    // why. You can find the invalid params and reasons in ex.Error.Params
-            //    Console.WriteLine($"Failed validation: {ex.Error.Message}");
-            //}
-            //catch (Recurly.Errors.ApiError ex)
-            //{
-            //    // Use ApiError to catch a generic error from the API
-            //    Console.WriteLine($"Unexpected Recurly Error: {ex.Error.Message}");
-            //}            
+        /*Crear una nueva suscripción*/
+        public static PlanModel GetPlans(string siteId)
+        {
+            PlanModel recurlyModel = new PlanModel();
+
+            string url = "sites/" + siteId + "/plans";
+
+            //Llamar al servicio para crear la credencial en el recurly y obtener respuesta                  
+            var responseRecurly = Recurly.CallServiceRecurly(url, null, "Get");
+
+            recurlyModel = JsonConvert.DeserializeObject<PlanModel>(responseRecurly);
+
+            return recurlyModel;
+        }
+
+        public static SubscripcionResponseModel CreateSubscription(dynamic subscription,string siteId)
+        {
+            SubscripcionResponseModel recurlyModel = new SubscripcionResponseModel();
+
+            string url = "sites/" + siteId + "/subscriptions";
+
+            //Llamar al servicio para crear la credencial en el recurly y obtener respuesta                  
+            var responseRecurly = Recurly.CallServiceRecurly(url, null, "Get");
+
+            recurlyModel = JsonConvert.DeserializeObject<SubscripcionResponseModel>(responseRecurly);
+
+            return recurlyModel;
         }
     }
 }

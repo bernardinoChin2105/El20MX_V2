@@ -35,5 +35,33 @@ namespace MVC_Project.Integrations.Recurly
                 throw new Exception("No se encontró un proveedor de acceso al información fiscal");
             }
         }
+
+        public static PlanModel GetPlans(string siteId, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                var recurlyModel = RecurlyServices.GetPlans(siteId);
+
+                return recurlyModel; //new AccountResponseModel { id = recurlyModel.id, state = recurlyModel.state };
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
+        public static SubscripcionResponseModel CreateSubscription(dynamic request, string siteId, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                var recurlyModel = RecurlyServices.CreateSubscription(request, siteId);
+
+                return recurlyModel; //new AccountResponseModel { id = recurlyModel.id, state = recurlyModel.state };
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
     }
 }
