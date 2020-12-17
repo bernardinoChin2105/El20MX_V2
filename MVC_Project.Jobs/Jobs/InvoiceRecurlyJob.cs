@@ -31,9 +31,9 @@ namespace MVC_Project.Jobs
         static RecurlyInvoiceService _recurlyInvoiceService;
         static RecurlyPaymentService _recurlyPaymentService;
 
-        static readonly string JOB_CODE = "BankJob_SyncAccounts";
+        static readonly string JOB_CODE = "RecurlyJob_GenerateAccountStatement";
 
-        public static void SyncAccounts()
+        public static void GenerateAccountStatement()
         {
             var _unitOfWork = new UnitOfWork();
             _processService = new ProcessService(new Repository<Process>(_unitOfWork));
@@ -78,14 +78,20 @@ namespace MVC_Project.Jobs
                         //Validar a que hora se ejecutan los cobros con recurly.
                         //Todas las suscripciones deben cobrarse el mismo día 4
                         //Obtener los planes activo en recurly
-                        var plans = RecurlyService.GetPlans(siteId, provider);
+                        //var plans = RecurlyService.GetPlans(siteId, provider);
 
                         //Obtener la lista de usuarios activo
                         var accountsRecurly = _accountService.GetAccountRecurly();
+                        var now = DateUtil.GetDateTimeNow();
+                        var pastMonth = now.AddMonths(-1);
+                        var firstDayOfMonth = new DateTime(pastMonth.Year, pastMonth.Month, 1);
+                        var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddMinutes(-1);
+
                         if (accountsRecurly != null)
                         {
                             foreach (var acc in accountsRecurly)
                             {
+
                                 //Obtener el mes anterior para facturar rando del fecha ejemplo 1 al 30 de nov
 
                                 //clasificar los usuarios nuevo o con plan antiguo de parte de el20

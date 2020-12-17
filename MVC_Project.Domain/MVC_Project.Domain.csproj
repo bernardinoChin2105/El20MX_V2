@@ -130,6 +130,7 @@
     <Compile Include="Entities\Webhook.cs" />
     <Compile Include="Entities\WebhookProcess.cs" />
     <Compile Include="Helpers\IUnitOfWork.cs" />
+    <Compile Include="Model\AccounModel.cs" />
     <Compile Include="Model\AllianceList.cs" />
     <Compile Include="Model\BanksViewModel.cs" />
     <Compile Include="Model\BasePagination.cs" />
@@ -172,6 +173,9 @@
     <Compile Include="Services\QuotationDetailService.cs" />
     <Compile Include="Services\QuotationService.cs" />
     <Compile Include="Services\RateFeeService.cs" />
+    <Compile Include="Services\RecurlyInvoiceService.cs" />
+    <Compile Include="Services\RecurlyPaymentService.cs" />
+    <Compile Include="Services\RecurlySubscriptionService.cs" />
     <Compile Include="Services\SupervisorCADService.cs" />
     <Compile Include="Services\TaxRegimeService.cs" />
     <Compile Include="Services\TaxService.cs" />

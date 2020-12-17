@@ -186,7 +186,13 @@
                     @if (user.HasAccessController("MyAccount"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "MyAccount", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "MyAccount", action: "Index")"><a href="@Url.Action("Index", "MyAccount")">Facturación de la Cuenta</a></li>                            
+                            <li class="@Html.IsSelected(controller: "MyAccount", action: "Index")"><a href="@Url.Action("Index", "MyAccount")">Facturación de la Cuenta</a></li>
+                            @if (user.HasAccessToModule(SystemModules.RECURLY_ACCOUNT.ToString()))
+                            {
+                                <li>
+                                    <a href="@(user.Permissions.Where(x => x.Module == SystemModules.RECURLY_ACCOUNT.ToString()).FirstOrDefault()?.Action)" target="_blank">Mi cuenta</a>
+                                </li>
+                            }
                         </ul>
                     }
                 </li>

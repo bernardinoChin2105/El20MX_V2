@@ -165,6 +165,8 @@ namespace MVC_Project.Utils
         INVOICING,
         [Display(Name = "Mi Cuenta con El20.mx")]
         MY_ACCOUNT,
+        [Display(Name = "Datos de la cuenta")]
+        RECURLY_ACCOUNT,
         #region Modulos del BackOffice
         [Display(Name = "Planes")]
         PLANS,

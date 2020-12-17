@@ -255,7 +255,8 @@ namespace MVC_Project.Integrations.Recurly
         public string setup_fee_accounting_code { get; set; }
         public Int32 avalara_transaction_type { get; set; }
         public Int32 avalara_service_type { get; set; }
-        public bool tax_code { get; set; }
+        public string tax_code { get; set; }
+        public bool tax_exempt { get; set; }
         public bool allow_any_item_on_subscriptions { get; set; }
         public string created_at { get; set; } //datetime
         public string updated_at { get; set; } //datetime
@@ -544,8 +545,8 @@ namespace MVC_Project.Integrations.Recurly
         public string subscription_id { get; set; }
         public PlanResponseModel plan { get; set; }
 
-        public string id { get; set; }
-        public string id { get; set; }
+        //public string id { get; set; }
+        //public string id { get; set; }
     }
 
    

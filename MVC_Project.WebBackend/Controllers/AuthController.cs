@@ -27,9 +27,11 @@ namespace MVC_Project.WebBackend.Controllers
         private IMembershipService _accountUserService;
         private IRoleService _roleService;
         private ISocialNetworkLoginService _socialNetworkLoginService;
+        private ICredentialService _credentialService;
 
         public AuthController(IAuthService authService, IUserService userService, IPermissionService permissionService,
-            IMembershipService accountUserService, IRoleService roleService, ISocialNetworkLoginService socialNetworkLoginService)
+            IMembershipService accountUserService, IRoleService roleService, ISocialNetworkLoginService socialNetworkLoginService,
+            ICredentialService credentialService)
         {
             _authService = authService;
             _userService = userService;
@@ -37,6 +39,7 @@ namespace MVC_Project.WebBackend.Controllers
             _accountUserService = accountUserService;
             _roleService = roleService;
             _socialNetworkLoginService = socialNetworkLoginService;
+            _credentialService = credentialService;
         }
 
         [AllowAnonymous]
@@ -195,6 +198,22 @@ namespace MVC_Project.WebBackend.Controllers
                         Level = p.level,
                         isCustomizable = p.permission.isCustomizable
                     }).ToList();
+
+                    var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
+                    var recurlyAccountUrlBase = ConfigurationManager.AppSettings["Recurly.AccountUrlBase"];
+
+                    var recurlyAccountCredential = _credentialService.FindBy(x => x.account.id == uniqueMembership.account.id && x.provider == recurlyProvider && x.statusProvider == "active" && x.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
+                    if (recurlyAccountCredential != null && !string.IsNullOrEmpty(recurlyAccountCredential.credentialType))
+                    {
+                        permissionsUniqueMembership.Add(new Permission
+                        {
+                            Action = recurlyAccountUrlBase + recurlyAccountCredential.credentialType,
+                            Controller = "MyAccount",
+                            Module = SystemModules.RECURLY_ACCOUNT.ToString(),
+                            Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                            isCustomizable = true
+                        });
+                    }
 
                     authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
                     authUser.Permissions = permissionsUniqueMembership;

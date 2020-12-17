@@ -221,6 +221,9 @@ namespace MVC_Project.WebBackend.Controllers
             }
             else
             {
+                var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
+                var recurlyAccountUrlBase = ConfigurationManager.AppSettings["Recurly.AccountUrlBase"];
+
                 var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
 
                 if (account != null)
@@ -236,6 +239,18 @@ namespace MVC_Project.WebBackend.Controllers
                             Level = p.level,
                             isCustomizable = p.permission.isCustomizable
                         }).ToList();
+
+                        var recurlyAccountCredential = _credentialService.FindBy(x => x.account.id == account.id && x.provider == recurlyProvider && x.statusProvider == "active" && x.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
+                        if(recurlyAccountCredential != null && !string.IsNullOrEmpty(recurlyAccountCredential.credentialType))
+                        {
+                            permissions.Add(new Permission {
+                                Action = recurlyAccountUrlBase + recurlyAccountCredential.credentialType,
+                                Controller = "MyAccount",
+                                Module = SystemModules.RECURLY_ACCOUNT.ToString(),
+                                Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                                isCustomizable = true
+                            });
+                        }
 
                         authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
                         authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
