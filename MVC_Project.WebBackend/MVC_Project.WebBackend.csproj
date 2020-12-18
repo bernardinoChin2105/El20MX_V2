@@ -1765,6 +1765,9 @@
     <Content Include="Scripts\plugins\i18next\i18next.min.js" />
     <Content Include="Scripts\plugins\iCheck\icheck.min.js" />
     <Content Include="Scripts\plugins\idle-timer\idle-timer.min.js" />
+    <Content Include="Scripts\plugins\inputmask\inputmask.decimal.js" />
+    <Content Include="Scripts\plugins\inputmask\jquery.inputmask.js" />
+    <Content Include="Scripts\plugins\inputmask\jquery.inputmask.min.js" />
     <Content Include="Scripts\plugins\ionRangeSlider\ion.rangeSlider.min.js" />
     <Content Include="Scripts\plugins\jasny\jasny-bootstrap.min.js" />
     <Content Include="Scripts\plugins\jeditable\jquery.jeditable.js" />

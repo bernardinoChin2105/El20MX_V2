@@ -539,8 +539,8 @@ namespace MVC_Project.WebBackend.Controllers
                     {
                         Serie = model.Serie,
                         Folio = Convert.ToInt32(model.Folio),
-                        //Fecha = model.DateIssued.ToString("s"),
-                        Fecha = todayDate.ToString("s"),
+                        Fecha = model.DateIssued.ToString("s"),
+                        //Fecha = todayDate.ToString("s"),
                         Moneda = "XXX", //model.Currency,
                         TipoDeComprobante = model.TypeInvoice,
                         LugarExpedicion = office.zipCode,
@@ -686,6 +686,8 @@ namespace MVC_Project.WebBackend.Controllers
                     });
                     #endregion
                 }
+
+                //throw new Exception("Vamos a probar los errores y el autollenado");
 
                 //Envio de la factura al satws para timbrado
                 dynamic invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
@@ -868,7 +870,9 @@ namespace MVC_Project.WebBackend.Controllers
                 Text = "(" + x.code + ") " + x.description.ToString(),
                 Value = x.code.ToString()
             }).ToList();
-            model.Currency = model.ListCurrency.Where(x => x.Value == "MXN").FirstOrDefault().Value;
+
+            if(string.IsNullOrEmpty(model.Currency))
+                model.Currency = model.ListCurrency.Where(x => x.Value == "MXN").FirstOrDefault().Value;
 
             model.ListWithholdings = Enum.GetValues(typeof(TypeRetention)).Cast<TypeRetention>()
                    .Select(e => new SelectListItem

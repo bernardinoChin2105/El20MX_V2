@@ -314,7 +314,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         //console.log(data, type, row, meta, "todos");
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].uuid" value="' + row.uuid + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind + '].Documents[' + (meta.row) + '].uuid" value="' + row.uuid + '" />';
                         return html;
                     }
                 },
@@ -322,7 +322,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 1, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].currency" value="' + row.currency + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind + '].Documents[' + (meta.row) + '].currency" value="' + row.currency + '" />';
                         return html;
                     }
                 },
@@ -330,7 +330,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 2, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].exchangeRate" value="' + row.exchangeRate + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind + '].Documents[' + (meta.row) + '].exchangeRate" value="' + row.exchangeRate + '" />';
                         return html;
                     }
                 },
@@ -338,7 +338,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 3, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control previousBalance money required" name="payment[' + ind +'].Documents[' + (meta.row) + '].previousBalance" value="' + row.previousBalance + '" />';
+                        var html = '<input type="text" class="form-control previousBalance money required" name="payment[' + ind + '].Documents[' + (meta.row) + '].previousBalance" value="' + row.previousBalance + '" />';
                         return html;
                     }
                 },
@@ -346,7 +346,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 4, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control paid money required" name="payment[' + ind +'].Documents[' + (meta.row) + '].paid" value="' + row.paid + '" />';
+                        var html = '<input type="text" class="form-control paid money required" name="payment[' + ind + '].Documents[' + (meta.row) + '].paid" value="' + row.paid + '" />';
                         return html;
                     }
                 },
@@ -354,7 +354,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 5, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control money" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].outstanding" value="' + row.outstanding + '" />';
+                        var html = '<input type="text" class="form-control money" readonly name="payment[' + ind + '].Documents[' + (meta.row) + '].outstanding" value="' + row.outstanding + '" />';
                         return html;
                     }
                 },
@@ -362,7 +362,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 6, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].method" value="' + row.method + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind + '].Documents[' + (meta.row) + '].method" value="' + row.method + '" />';
                         return html;
                     }
                 },
@@ -370,7 +370,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 7, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control numberPayment required" name="payment[' + ind +'].Documents[' + (meta.row) + '].numberPartialities" value="' + row.numberPartialities + '" />';
+                        var html = '<input type="text" class="form-control numberPayment required" name="payment[' + ind + '].Documents[' + (meta.row) + '].numberPartialities" value="' + row.numberPartialities + '" />';
                         return html;
                     }
                 },
@@ -378,7 +378,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 8, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].folio" value="' + row.folio + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind + '].Documents[' + (meta.row) + '].folio" value="' + row.folio + '" />';
                         return html;
                     }
                 },
@@ -386,7 +386,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 9, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].serie" value="' + row.serie + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind + '].Documents[' + (meta.row) + '].serie" value="' + row.serie + '" />';
                         return html;
                     }
                 }
@@ -431,6 +431,22 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 }
             ]
         });
+
+
+        //Opción de eliminar para los datos relacionados para egresos
+        $(this.htmlTableCFDIEgress, "tbody").on('click',
+            '.btn-group .btn-delete',
+            function () {
+                self.dataTableCFDIEgress
+                    .row($(this).parents('tr'))
+                    .remove()
+                    .draw();
+
+                if (self.dataTableCFDIEgress.rows().count() === 0) {
+                    self.dataTable.clear().draw();
+                }
+
+            });
 
         $('#DateIssued').datetimepicker({
             dateFormat: "dd/mm/yyyy",
@@ -531,21 +547,6 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 Prices();
             });
 
-        //Opción de eliminar para los datos relacionados para egresos
-        $(this.htmlTableCFDIEgress, "tbody").on('click',
-            '.btn-group .btn-delete',
-            function () {
-                self.dataTableCFDIEgress
-                    .row($(this).parents('tr'))
-                    .remove()
-                    .draw();
-
-                if (self.dataTableCFDIEgress.rows().count() === 0) {
-                    self.dataTable.clear().draw();
-                }
-
-            });
-
         ////Opción de eliminar para los datos relacionados
         //$(this.htmlTableCFDI, "tbody").on('click',
         //    '.btn-group .btn-delete',
@@ -589,14 +590,14 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var index = t.row(tr).index();
             var data = t.row(index).data();
             var tableName = t.context[0].sTableId;
-            
+
             //console.log(t.context, "tabla", tableName);
 
             //var amount = $(".amountCFDI" + tableName.split("-")[1]).val();            
             //var amountDecimal = parseFloat(amount !== "" ? amount : 0);
             var previous = parseFloat(data.previousBalance);
             var paid = parseFloat(value);
-            
+
             total = previous - paid;
             data.paid = Math.round(paid, 6);
             data.outstanding = Math.round(total, 6); //.toString();
@@ -613,7 +614,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var data = t.row(index).data();
 
             //console.log(t, "tabla");
-    
+
             data.numberPartialities = value;
             t.row(index).data(data).draw(false);
         });
@@ -651,16 +652,19 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 startedAt: "",
                 Documents: []
             };
-            var item = $("#Complements .table-payment").index();
-            var html = format(data, item + 1);
+            var item = $("#Complements .table-payment").length;
+            var html = format(data, item);
             $("#Complements").append(html);
-            copySelects(data, item + 1);
+            copySelects(data, item);
         });
 
         $("body").on("click", ".btn-remove-pay", function () {
             var value = $(this).val();
             $("input[name='payment[" + value + "].delete").val(true);
             $($("#Complements .table-payment")[value]).addClass("hide");
+
+            if($("#Complements .table-payment").find(".delete[value='false']").length === 0)
+                self.dataTable.clear().draw();
         });
 
         //funcion para obtener el detalle
@@ -672,7 +676,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 '<td><label class="col-form-label control-label">Número de operación</label></td>' +
                 '<td>' +
                 '<input type="text" name="payment[' + index + '].NumOperationCFDI" id="" value="' + d.NumOperationCFDI + '" class="form-control NumOperationCFDI" autocomplete="off" maxlength="50" />' +
-                '<input type="hidden" name="payment[' + index + '].delete" id="" value="false" />' +
+                '<input type="hidden" class="delete" name="payment[' + index + '].delete" id="" value="false" />' +
                 '</td > ' +
                 '<td><label class="col-form-label control-label">Monto</label></td>' +
                 '<td><input type="text" name="payment[' + index + '].AmountCFDI" id="" value="' + d.AmountCFDI + '" class="form-control money amountCFDI" data-index="' + index + '" autocomplete="off" maxlength="50" /></td>' +
@@ -727,9 +731,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("select[name='payment[" + index + "].CurrencyCFDI']").val(d.CurrencyCFDI);
                 if (d.CurrencyCFDI !== "MXN")
                     $(".exchangeCFDI").removeClass("hide riquerid");
-            }
+            }            
 
-            //$('.money').mask("##,###,##0.00", { reverse: true });
             $('.money').mask("#######0.00", { reverse: true });
 
             $(".NumOperationCFDI").rules("add", {
@@ -803,7 +806,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         );
 
         $('.money').mask("#######0.00", { reverse: true });
-        $('.rateMoney').mask("##0.00", { reverse: false });
+        $('.rateMoney').mask("##0.00", { reverse: false });      
+      
 
         //Agregar a la lista de conceptos del producto
         $("#addTaxes").click(function () {
@@ -957,13 +961,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //console.log("opción de relación de facturas", $(this).val());
             var typeInvoice = $(this).val();
             self.dataTableCFDIEgress.clear().draw();
+            //self.dataTable.clear().draw();
             //self.dataTableCFDI.clear().draw();
-            self.dataTable.clear().draw();
 
             if (typeInvoice === "P") {
-                $("#relacionados").addClass("hide");
-                $("#tableRelatedEgress").addClass("hide");
                 $(".TypeRelationship").addClass("hide");
+                $("#TypeRelationship").val("").trigger("change").trigger('chosen:updated');
 
                 $("#tablePayments").removeClass("hide");
 
@@ -973,16 +976,13 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                 $(".labelsFiscal").addClass("hide");
                 $(".inputsFiscal").addClass("hide").removeClass("required");
-                //$("#CFDIrelacionados").addClass("hide");
-                //self.dataTableCFDIEgress.clear().draw();
             } else if (typeInvoice === "E") {
-                $("#relacionados").removeClass("hide");
-                $("#tableRelatedEgress").removeClass("hide");
                 $(".complement").addClass("hide");
                 $("#InvoiceComplementChk").prop({ "checked": false }).iCheck('update');
                 $(".TypeRelationship").removeClass("hide");
 
                 $("#tablePayments").addClass("hide");
+                $("#tablePayments").html("");
 
                 $("#Condiciones").removeClass("hide");
                 $("#tablePayments").addClass("hide");
@@ -990,46 +990,69 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#btnProdServ").removeClass("hide");
 
                 $(".labelsFiscal").removeClass("hide");
-                $(".inputsFiscal").removeClass("hide").addClass("required"); 
-                //$("#CFDIrelacionados").removeClass("hide");
-                //self.dataTableCFDI.clear().draw();
+                $(".inputsFiscal").removeClass("hide").addClass("required");
             } else if (typeInvoice === "I") {
                 //Para tipo ingreso
-                $("#relacionados").removeClass("hide");
-                $("#tableRelatedEgress").removeClass("hide");
                 $(".complement").addClass("hide");
                 $("#InvoiceComplementChk").prop({ "checked": false }).iCheck('update');
                 $(".TypeRelationship").removeClass("hide");
 
                 $("#tablePayments").addClass("hide");
+                $("#tablePayments").html("");
 
                 $("#Condiciones").removeClass("hide");
                 $("#btnProdServ").removeClass("hide");
                 $("#DiscountRate").attr("readonly", false);
 
                 $(".labelsFiscal").removeClass("hide");
-                $(".inputsFiscal").removeClass("hide").addClass("required");                
-                //inputsReference(false);
-                //$("#CFDIrelacionados").removeClass("hide");
-                //self.dataTableCFDIEgress.clear().draw();
-                //self.dataTableCFDI.clear().draw();
-                //self.dataTable.clear().draw();
+                $(".inputsFiscal").removeClass("hide").addClass("required");
             } else {
                 //Sino selecciona nada
+                $(".TypeRelationship").removeClass("hide");
+                $("#TypeRelationship").val("").trigger("change").trigger('chosen:updated');
+
+                $(".complement").addClass("hide");
+                $("#InvoiceComplementChk").prop({ "checked": false }).iCheck('update');
+
+                $("#tablePayments").addClass("hide");
+                $("#tablePayments").html("");
+
+                $("#Condiciones").removeClass("hide");
+                $("#btnProdServ").removeClass("hide");
+                $("#DiscountRate").attr("readonly", false);
+
+                $(".labelsFiscal").removeClass("hide");
+                $(".inputsFiscal").removeClass("hide").addClass("required");
+
+            }
+        });
+
+        //Validación de tipo de relación
+        $("#TypeRelationship").change(function () {
+            var value = $(this).val();
+            //console.log(value, "valor");
+            if (value !== "") {
+                $("#relacionados").removeClass("hide");
+                $("#tableRelatedEgress").removeClass("hide");
+            } else {
+                $("#relacionados").addClass("hide");
+                $("#tableRelatedEgress").addClass("hide");
             }
         });
 
         $("body").on("click", ".search-invoice", function () {
-            console.log("entre al evento", $(this).val());
+            //console.log("entre al evento", $(this).val());
             El20Utils.mostrarCargador();
             var typeInvoice = $("#TypeInvoice").val();
             var t = null;
             var uuid = "";
             var line = 0;
+            var item = 0;
             if (typeInvoice === "P") {
                 line = $(this).attr("search");
                 uuid = $(".InvoiceComplement" + line).val();
                 t = $("#table-" + line).DataTable(); //self.dataTableCFDI;
+                item = self.dataTable.rows().count();                
             } else {
                 t = self.dataTableCFDIEgress;
                 uuid = $("#InvoiceComplement").val();
@@ -1047,7 +1070,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     data: { uuid: uuid, typeInvoice: typeInvoice },
                     url: self.searchCDFIUrl,
                     success: function (json) {
-                        console.log(json, "respuesta");
+                        //console.log(json, "respuesta");
 
                         if (json.success) {
                             var data = json.data;
@@ -1055,7 +1078,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                 toastr['error']("No se encontro la factura con el Folio Fiscal.", null, { 'positionClass': 'toast-top-center' });
                             else {
                                 //console.log("xml", json.data.xml);
-                                if (typeInvoice === "E") {
+                                if (typeInvoice === "E" || typeInvoice === "I") {
                                     index++;
                                     t.row.add(
                                         {
@@ -1086,7 +1109,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                     ).draw(false);
                                     $(".InvoiceComplement" + line).val("");
                                 }
-                                if (index === 1 && typeInvoice === "P") {
+                                
+                                if (item === 0 && typeInvoice === "P") {
                                     addConcept();
                                 }
                             }
@@ -1462,18 +1486,16 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         //Validación para RFC del extrangero
         $("#RFC").blur(function () {
-            console.log($(this).val());
-            if ($(this).val() === "XEXX010101000") {
-                console.log("entre")
+            //console.log($(this).val());
+            if ($(this).val() === "XEXX010101000") {                
                 $(".foreign").removeClass("hide");
                 $("#NumIdntFiscal").addClass("required");
                 $("#CountryFiscal").addClass("required");
-            } else {
-                console.log("entre false")
+            } else {                
                 $(".foreign").addClass("hide");
                 $("#NumIdntFiscal").removeClass("required");
-                $("#CountryFiscal").removeClass("required");
-            }          
+                $("#CountryFiscal").val("").removeClass("required").trigger("chosen:updated");;
+            }
         });
 
         $("#ZipCode").blur(function () {
@@ -1690,5 +1712,4 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
     };
-
 };
