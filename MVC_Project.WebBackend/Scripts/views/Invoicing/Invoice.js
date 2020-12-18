@@ -461,7 +461,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             language: "es",
             fontAwesome: true,
             maxDate: DateInit.MaxDate,
-            ////startDate: DateInit.MinDate
+            startDate: '-3d'
         });
 
         $(this.htmlTable, "tbody").on('click',
