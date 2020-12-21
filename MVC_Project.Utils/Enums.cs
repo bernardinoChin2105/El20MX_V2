@@ -466,4 +466,20 @@ namespace MVC_Project.Utils
         [Display(Name = "SMTP")]
         SMTP
     }
+
+    public enum SystemPlan
+    {
+        [Display(Name = "Esquema anterior contigo")]
+        OLD_SCHEMA_CONTIGO,
+        [Display(Name = "Esquema anterior startup")]
+        OLD_SCHEMA_STARTUP,
+        [Display(Name = "Esquema anterior básico")]
+        OLD_SCHEMA_BASICO,
+        [Display(Name = "Esquema anterior premiun")]
+        OLD_SCHEMA_PREMIUN,
+        [Display(Name = "Esquema anterior empresarial")]
+        OLD_SCHEMA_EMPRESARIAL,
+        [Display(Name = "Esquema nuevo")]
+        NEW_SCHEMA
+    }
 }
