@@ -199,6 +199,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Jobs\BankJob.cs" />
+    <Compile Include="Jobs\SATExtractionJob.cs" />
     <Compile Include="Jobs\SATJob.cs" />
     <Compile Include="Models\ProcessViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
