@@ -30,10 +30,12 @@ namespace MVC_Project.Jobs
                     //JobName = System.Configuration.ConfigurationManager.AppSettings["Jobs.EnviarNotificaciones.Name"].ToString();
                     //JobCron = System.Configuration.ConfigurationManager.AppSettings["Jobs.EnviarNotificaciones.Cron"].ToString();
 
-                    //Se agregan aca los N jobs que se necesiten
-                    RecurringJob.AddOrUpdate("SATJob_SyncBills", () => SATJob.SyncBills(), "* 23 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
-                    RecurringJob.AddOrUpdate("BankJob_SyncAccounts", () => BankJob.SyncAccounts(), "* 23 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
-                    //RecurringJob.AddOrUpdate("RecurlyJob_GenerateAccountStatement", () => InvoiceRecurlyJob.GenerateAccountStatement(), "*/5 * * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
+                    ////Se agregan aca los N jobs que se necesiten
+                    //RecurringJob.AddOrUpdate("SATJob_SyncBills", () => SATJob.SyncBills(), "* 23 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
+                    //RecurringJob.AddOrUpdate("BankJob_SyncAccounts", () => BankJob.SyncAccounts(), "* 23 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
+                    
+                    //RecurringJob.AddOrUpdate("RecurlyJob_GenerateAccountStatement", () => InvoiceRecurlyJob.GenerateAccountStatement(), "0 0 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
+                    RecurringJob.AddOrUpdate("RecurlyJob_CreateAccounts", () => CreateRecurlyAccountsJob.CreateAccounts(), "5 0 * 1 *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
                 }
 
                 app.UseHangfireDashboard(Dashboardurl, new DashboardOptions

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Domain.Model
 {
-    public class AccounModel
+    public class AccountCredentialModel
     {
         public Int64 id { get; set; }
         public Guid uuid { get; set; }
@@ -16,5 +16,6 @@ namespace MVC_Project.Domain.Model
         public string idCredentialProvider { get; set; }
         public string statusProvider { get; set; }
         public string hostedKey { get; set; }
+        public string planSchema { get; set; }
     }
 }

@@ -12,7 +12,7 @@ namespace MVC_Project.Domain.Services
     public interface IAccountService : IService<Account>
     {
         Account ValidateRFC(string rfc);
-        List<AccounModel> GetAccountRecurly();
+        List<AccountCredentialModel> GetAccountRecurly();
     }
 
     public class AccountService : ServiceBase<Account>, IAccountService
@@ -35,18 +35,18 @@ namespace MVC_Project.Domain.Services
             return null;
         }
 
-        public List<AccounModel> GetAccountRecurly()
+        public List<AccountCredentialModel> GetAccountRecurly()
         {
-            string sql = "select ac.[id], ac.[uuid], ac.[name], ac.[rfc], c.[provider], c.[idCredentialProvider], c.[statusProvider], c.[credentialType] hostedKey " +
-                        "from[dbo].[accounts] ac " +
-                        "inner join[dbo].[credentials] c on ac.id = [accountId]" +
-                        "inner join[dbo].[memberships] m on ac.id = m.[accountId]" +
+            string sql = "select ac.[id], ac.[uuid], ac.[name], ac.[rfc], ac.[planSchema], c.[provider], c.[idCredentialProvider], c.[statusProvider], c.[credentialType] hostedKey " +
+                        "from [dbo].[accounts] ac " +
+                        "inner join [dbo].[credentials] c on ac.id = c.[accountId]" +
+                        "inner join [dbo].[memberships] m on ac.id = m.[accountId]" +
                         "where c.provider = 'RECURLY' and c.statusProvider = 'active' and ac.[status] = 'ACTIVE' ";
 
-            var list = _repository.Session.CreateSQLQuery("exec " + sql)
+            var list = _repository.Session.CreateSQLQuery(sql)
                      //.SetParameter("credentialId", idCredential)
-                     .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(AccounModel)))
-                     .List<AccounModel>();
+                     .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(AccountCredentialModel)))
+                     .List<AccountCredentialModel>();
 
             if (list != null) return list.ToList();
             return null;

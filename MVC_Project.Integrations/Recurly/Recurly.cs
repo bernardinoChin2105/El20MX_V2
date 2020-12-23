@@ -32,9 +32,32 @@ namespace MVC_Project.Integrations.Recurly
 
                 if (JsonString != null)
                 {
-                    var data = JsonConvert.SerializeObject(JsonString);
+                    var data = JsonConvert.SerializeObject(JsonString, Newtonsoft.Json.Formatting.None,
+                        new JsonSerializerSettings
+                        {
+                            NullValueHandling = NullValueHandling.Ignore
+                        });
 
-                    request.AddParameter("application/json", data, ParameterType.RequestBody);
+                    if(met == Method.GET)
+                    {
+                        //var qs = new StringBuilder("?");
+
+                        var objType = JsonString.GetType();
+
+                        objType.GetProperties()
+                               .Where(p => p.GetValue(JsonString, null) != null).ToList()
+                               .ForEach(p =>
+                               {
+                                   request.AddQueryParameter(Uri.EscapeDataString(p.Name), Uri.EscapeDataString(p.GetValue(JsonString).ToString()));
+                               });
+
+                        //qs.ToString();
+                        //request.REs(JsonString);
+                    } else
+                    {
+                        request.AddParameter("application/json", data, ParameterType.RequestBody);
+                    }
+                    
                 }
 
                 IRestResponse response = client.Execute(request);
