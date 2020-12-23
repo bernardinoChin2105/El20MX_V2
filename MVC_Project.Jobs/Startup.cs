@@ -31,8 +31,8 @@ namespace MVC_Project.Jobs
                     //JobCron = System.Configuration.ConfigurationManager.AppSettings["Jobs.EnviarNotificaciones.Cron"].ToString();
 
                     //Se agregan aca los N jobs que se necesiten
-                    RecurringJob.AddOrUpdate("SATJob_SyncBills", () => SATJob.SyncBills(), "20 * * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
-                    RecurringJob.AddOrUpdate("BankJob_SyncAccounts", () => BankJob.SyncAccounts(), "30 * * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
+                    RecurringJob.AddOrUpdate("SATJob_SyncBills", () => SATJob.SyncBills(), "*/15 * * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
+                    RecurringJob.AddOrUpdate("BankJob_SyncAccounts", () => BankJob.SyncAccounts(), "*/10 * * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
                     //BackgroundJob.Enqueue(() => SATJob.SyncBills());
                     
                 }
