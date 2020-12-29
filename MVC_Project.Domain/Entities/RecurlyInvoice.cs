@@ -24,6 +24,8 @@ namespace MVC_Project.Domain.Entities
 
         public virtual RecurlySubscription subscription { get; set; }
 
+        public virtual string invoiceId { get; set; }
+
         /*Agregar datos por si me hacen falta*/
     }
 }

@@ -1,10 +1,12 @@
 ﻿using MVC_Project.Data.Helpers;
 using MVC_Project.Data.Repositories;
 using MVC_Project.Domain.Entities;
+using MVC_Project.Domain.Model;
 using MVC_Project.Domain.Services;
 using MVC_Project.Integrations.Paybook;
 using MVC_Project.Integrations.Recurly;
 using MVC_Project.Integrations.Recurly.Models;
+using MVC_Project.Jobs.Models;
 using MVC_Project.Utils;
 using Newtonsoft.Json;
 using System;
@@ -131,13 +133,8 @@ namespace MVC_Project.Jobs
                                                 var recurlyPlan = plans.data.FirstOrDefault(x => x.code == planCode);
                                                 if (recurlyPlan != null)
                                                 {
-                                                    var subscriptionChangeModel = new SubscriptionChangeCreate()
-                                                    {
-                                                        PlanCode = recurlyPlan.code,
-                                                        Timeframe = "bill_date"
-                                                    };
-
-                                                    var subscriptionChange = RecurlyService.CreateSubscriptionChange(subscriptionChangeModel, siteId, currentSubscription.Id, provider);
+                                                    var subscriptionChange = CreateSubscriptionChange(recurlyPlan.code, null, currentSubscription.Id, siteId, provider);
+                                                    SaveSubscriptionChangeLog(subscriptionChange, acc);
                                                 }
                                             }
                                         }
@@ -147,25 +144,25 @@ namespace MVC_Project.Jobs
                                             var recurlyPlan = plans.data.FirstOrDefault(x => x.code == planCode);
                                             if (recurlyPlan != null)
                                             {
-                                                var purchaseReq = new PurchaseCreate()
+                                                try
                                                 {
-                                                    Currency = "MXN",
-                                                    Account = new AccountPurchase()
-                                                    {
-                                                        Code = acc.uuid.ToString(),
+                                                    var invoiceCollection = CreateSubscriptionPurchase(recurlyPlan.code, acc.uuid.ToString(), nextBillDate, siteId, provider);
 
-                                                    },
-                                                    Subscriptions = new List<SubscriptionPurchase>()
+                                                    InvoicesDTO invoices = new InvoicesDTO
                                                     {
-                                                        new SubscriptionPurchase() {
-                                                            PlanCode = recurlyPlan.code,
-                                                            Quantity = 1,
-                                                            NextBillDate = nextBillDate
-                                                        }
-                                                    }
-                                                };
+                                                        extraBills = 0,
+                                                        totalInvoice = totalInvoices,
+                                                        totalInvoiceIssued = totalIssuedInvoices,
+                                                        totalInvoiceReceived = totalReceivedInvoices
+                                                    };
 
-                                                var invoiceCollection = RecurlyService.CreatePurchase(purchaseReq, siteId, provider);
+                                                    SavePurchaseLogs(invoiceCollection, recurlyPlan, acc, invoices);
+                                                }
+                                                catch (RecurlyErrorException recurlyException)
+                                                {
+                                                    //SaveErrorLog(recurlyException.Error, recurlyPlan, acc);
+                                                    //Se mueve registro de error de pago a webhook
+                                                }
                                             }
                                         }
                                     }
@@ -231,28 +228,10 @@ namespace MVC_Project.Jobs
 
                                             if (!haveSubscription)
                                             {
-                                                var purchaseReq = new PurchaseCreate()
-                                                {
-                                                    Currency = "MXN",
-                                                    Account = new AccountPurchase()
-                                                    {
-                                                        Code = acc.uuid.ToString(),
-
-                                                    },
-                                                    Subscriptions = new List<SubscriptionPurchase>()
-                                                    {
-                                                        new SubscriptionPurchase() {
-                                                            PlanCode = recurlyPlan.code,
-                                                            Quantity = 1,
-                                                            //UnitAmount = recurlyPlan.currencies[0].unit_amount,
-                                                            NextBillDate = nextBillDate
-                                                        }
-                                                    }
-                                                };
-
+                                                List<SubscriptionAddOnCreate> addonsList = null;
                                                 if (extraBillingInvoices > 0)
                                                 {
-                                                    purchaseReq.Subscriptions[0].AddOns = new List<SubscriptionAddOnCreate>() {
+                                                    addonsList = new List<SubscriptionAddOnCreate>() {
                                                         new SubscriptionAddOnCreate()
                                                         {
                                                             Code = "factura_adicional_contigo",
@@ -261,7 +240,26 @@ namespace MVC_Project.Jobs
                                                     };
                                                 }
 
-                                                var invoiceCollection = RecurlyService.CreatePurchase(purchaseReq, siteId, provider);
+                                                try
+                                                {
+                                                    var invoiceCollection = CreateSubscriptionPurchase(recurlyPlan.code, acc.uuid.ToString(), nextBillDate, siteId, provider, addonsList);
+
+                                                    InvoicesDTO invoices = new InvoicesDTO
+                                                    {
+                                                        extraBills = extraBillingInvoices,
+                                                        totalInvoice = totalInvoices,
+                                                        totalInvoiceIssued = totalIssuedInvoices,
+                                                        totalInvoiceReceived = totalReceivedInvoices
+                                                    };
+
+                                                    SavePurchaseLogs(invoiceCollection, recurlyPlan, acc, invoices);
+                                                }
+                                                catch (RecurlyErrorException recurlyException)
+                                                {
+                                                    //SaveErrorLog(recurlyException.Error, recurlyPlan, acc);
+                                                    //Se mueve registro de error de pago a webhook
+                                                }
+
                                             }
                                             else
                                             {
@@ -270,20 +268,17 @@ namespace MVC_Project.Jobs
 
                                                 if (currentSubAddonQuantity.GetValueOrDefault() != addonsQuantity)
                                                 {
-                                                    var subChangeReq = new SubscriptionChangeCreate
-                                                    {
-                                                        Timeframe = "bill_date",
-                                                        AddOns = addonsQuantity > 0 ? new List <SubscriptionAddOnUpdate>
+                                                    List<SubscriptionAddOnUpdate> addonsList = addonsQuantity > 0 ? new List<SubscriptionAddOnUpdate>
                                                         {
                                                             new SubscriptionAddOnUpdate
                                                             {
                                                                 Code = "factura_adicional_contigo",
                                                                 Quantity = addonsQuantity
                                                             }
-                                                        } : null
-                                                    };
+                                                        } : null;
 
-                                                    var subChange = RecurlyService.CreateSubscriptionChange(subChangeReq, siteId, accountSupscriptions.data[0].Id, provider);
+                                                    var subscriptionChange = CreateSubscriptionChange(null, addonsList, currentSubscription.Id, siteId, provider);
+                                                    SaveSubscriptionChangeLog(subscriptionChange, acc);
                                                 }
                                             }
                                         }
@@ -321,13 +316,8 @@ namespace MVC_Project.Jobs
                                             var recurlyPlan = plans.data.FirstOrDefault(x => x.code == planCode);
                                             if (recurlyPlan != null)
                                             {
-                                                var subscriptionChangeModel = new SubscriptionChangeCreate()
-                                                {
-                                                    PlanCode = recurlyPlan.code,
-                                                    Timeframe = "bill_date"
-                                                };
-
-                                                var subscriptionChange = RecurlyService.CreateSubscriptionChange(subscriptionChangeModel, siteId, currentSubscription.Id, provider);
+                                                var subscriptionChange = CreateSubscriptionChange(recurlyPlan.code, null, currentSubscription.Id, siteId, provider);
+                                                SaveSubscriptionChangeLog(subscriptionChange, acc);
                                             }
                                         }
                                     }
@@ -336,24 +326,25 @@ namespace MVC_Project.Jobs
                                         var recurlyPlan = plans.data.FirstOrDefault(x => x.code == planCode);
                                         if (recurlyPlan != null)
                                         {
-                                            var purchaseReq = new PurchaseCreate()
+                                            try
                                             {
-                                                Currency = "MXN",
-                                                Account = new AccountPurchase()
+                                                var invoiceCollection = CreateSubscriptionPurchase(recurlyPlan.code, acc.uuid.ToString(), nextBillDate, siteId, provider);
+
+                                                InvoicesDTO invoices = new InvoicesDTO
                                                 {
-                                                    Code = acc.uuid.ToString(),
+                                                    extraBills = 0,
+                                                    totalInvoice = 0,
+                                                    totalInvoiceIssued = 0,
+                                                    totalInvoiceReceived = 0
+                                                };
 
-                                                },
-                                                Subscriptions = new List<SubscriptionPurchase>()
-                                                    {
-                                                        new SubscriptionPurchase() {
-                                                            PlanCode = recurlyPlan.code,
-                                                            NextBillDate = nextBillDate
-                                                        }
-                                                    }
-                                            };
-
-                                            var invoiceCollection = RecurlyService.CreatePurchase(purchaseReq, siteId, provider);
+                                                SavePurchaseLogs(invoiceCollection, recurlyPlan, acc, invoices);
+                                            }
+                                            catch (RecurlyErrorException recurlyException)
+                                            {
+                                                //SaveErrorLog(recurlyException.Error, recurlyPlan, acc);
+                                                //Se mueve registro de error de pago a webhook
+                                            }
                                         }
                                     }
                                 }
@@ -415,6 +406,174 @@ namespace MVC_Project.Jobs
                     Monitor.Exit(thisLock);
                 }
             }
+        }
+
+        private static InvoiceCollection CreateSubscriptionPurchase(string planCode, string accontCode, DateTime nextBillDate, string siteId, string provider, List<SubscriptionAddOnCreate> addons = null)
+        {
+            var purchaseReq = new PurchaseCreate()
+            {
+                Currency = "MXN",
+                Account = new AccountPurchase()
+                {
+                    Code = accontCode,
+
+                },
+                Subscriptions = new List<SubscriptionPurchase>()
+                {
+                    new SubscriptionPurchase() {
+                        PlanCode = planCode,
+                        Quantity = 1,
+                        NextBillDate = nextBillDate
+                    }
+                }
+            };
+
+            if (addons != null && addons.Count > 0)
+            {
+                purchaseReq.Subscriptions[0].AddOns = addons;
+            }
+
+            var invoiceCollection = RecurlyService.CreatePurchase(purchaseReq, siteId, provider);
+
+            return invoiceCollection;
+        }
+
+        private static SubscriptionChange CreateSubscriptionChange(string planCode, List<SubscriptionAddOnUpdate> addons, string currentSubscriptionId, string siteId, string provider)
+        {
+            var subscriptionChangeModel = new SubscriptionChangeCreate()
+            {
+                Timeframe = "bill_date",
+                AddOns = addons
+            };
+
+            if (!string.IsNullOrEmpty(planCode))
+            {
+                subscriptionChangeModel.PlanCode = planCode;
+            }
+
+            var subscriptionChange = RecurlyService.CreateSubscriptionChange(subscriptionChangeModel, siteId, currentSubscriptionId, provider);
+
+            return subscriptionChange;
+        }
+
+        private static void SavePurchaseLogs(InvoiceCollection invoiceCollection, PlanDataModel recurlyPlan, AccountCredentialModel accountCredential, InvoicesDTO invoicesCount)
+        {
+            var now = DateUtil.GetDateTimeNow();
+
+            var recurlySubscription = new RecurlySubscription
+            {
+                account = new Domain.Entities.Account
+                {
+                    id = accountCredential.id
+                },
+                createdAt = now,
+                modifiedAt = now,
+                planCode = invoiceCollection.ChargeInvoice.LineItems.Data[0].PlanCode,
+                planId = invoiceCollection.ChargeInvoice.LineItems.Data[0].PlanId,
+                state = invoiceCollection.ChargeInvoice.State,
+                status = SystemStatus.ACTIVE.ToString(),
+                planName = recurlyPlan.name,
+                subscriptionId = invoiceCollection.ChargeInvoice.LineItems.Data[0].SubscriptionId,
+                uuid = Guid.NewGuid()
+            };
+            _recurlySubscriptionService.Create(recurlySubscription);
+
+            var recurlyInvoice = new RecurlyInvoice
+            {
+                createdAt = now,
+                mounth = invoiceCollection.ChargeInvoice.CreatedAt.GetValueOrDefault().Month.ToString(),
+                year = invoiceCollection.ChargeInvoice.CreatedAt.GetValueOrDefault().Year.ToString(),
+                uuid = Guid.NewGuid(),
+                subscription = recurlySubscription,
+                totalInvoice = invoicesCount.totalInvoice,
+                totalInvoiceIssued = invoicesCount.totalInvoiceIssued,
+                totalInvoiceReceived = invoicesCount.totalInvoiceReceived,
+                extraBills = invoicesCount.extraBills,
+                invoiceId = invoiceCollection.ChargeInvoice.Number
+            };
+            _recurlyInvoiceService.Create(recurlyInvoice);
+
+            var recurlyPayment = new RecurlyPayment
+            {
+                createdAt = invoiceCollection.ChargeInvoice.Transactions.First().CreatedAt.GetValueOrDefault(),
+                subscription = recurlySubscription,
+                subtotal = Convert.ToDecimal(invoiceCollection.ChargeInvoice.Subtotal.GetValueOrDefault()),
+                total = Convert.ToDecimal(invoiceCollection.ChargeInvoice.Total.GetValueOrDefault()),
+                paymentGateway = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault()?.PaymentGateway.Name,
+                customerMessage = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault()?.CustomerMessage,
+                statusCode = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault()?.Status,
+                statusMessage = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault()?.StatusMessage,
+                transactionId = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault().Uuid
+            };
+            _recurlyPaymentService.Create(recurlyPayment);
+        }
+
+        public static void SaveSubscriptionChangeLog(SubscriptionChange subscriptionChange, AccountCredentialModel accountCredential)
+        {
+            var now = DateUtil.GetDateTimeNow();
+            var storedSubscription = _recurlySubscriptionService.FirstOrDefault(x => x.subscriptionId == subscriptionChange.SubscriptionId);
+            if(storedSubscription != null)
+            {
+                storedSubscription.modifiedAt = now;
+                storedSubscription.state = SystemStatus.PROCESSING.ToString();
+                storedSubscription.planCode = subscriptionChange.Plan.Code;
+                storedSubscription.planName = subscriptionChange.Plan.Name;
+                storedSubscription.planId = subscriptionChange.Plan.Id;
+                _recurlySubscriptionService.Update(storedSubscription);
+            }
+            else
+            {
+                var recurlySubscription = new RecurlySubscription
+                {
+                    account = new Domain.Entities.Account
+                    {
+                        id = accountCredential.id
+                    },
+                    createdAt = now,
+                    modifiedAt = now,
+                    planCode = subscriptionChange.Plan.Code,
+                    planId = subscriptionChange.Plan.Id,
+                    planName = subscriptionChange.Plan.Name,
+                    state = SystemStatus.PROCESSING.ToString(),
+                    status = SystemStatus.ACTIVE.ToString(),
+                    subscriptionId = subscriptionChange.SubscriptionId,
+                    uuid = Guid.NewGuid()
+                };
+                _recurlySubscriptionService.Create(recurlySubscription);
+            }
+        }
+
+        public static void SaveErrorLog(Error error, PlanDataModel recurlyPlan, AccountCredentialModel accountCredential)
+        {
+            var now = DateUtil.GetDateTimeNow();
+            var failedStatus = SystemStatus.FAILED.ToString();
+
+            var recurlySubscription = new RecurlySubscription
+            {
+                account = new Domain.Entities.Account
+                {
+                    id = accountCredential.id
+                },
+                subscriptionId = failedStatus,
+                createdAt = now,
+                modifiedAt = now,
+                planCode = recurlyPlan.code,
+                planId = recurlyPlan.id,
+                state = failedStatus,
+                status = failedStatus,
+                planName = recurlyPlan.name,
+                uuid = Guid.NewGuid()
+            };
+            _recurlySubscriptionService.Create(recurlySubscription);
+
+            var recurlyPayment = new RecurlyPayment
+            {
+                createdAt = now,
+                subscription = recurlySubscription,
+                statusCode = error.Type,
+                statusMessage = error.Message
+            };
+            _recurlyPaymentService.Create(recurlyPayment);
         }
     }
 }

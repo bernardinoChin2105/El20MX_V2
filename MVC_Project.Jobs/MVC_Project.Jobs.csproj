@@ -202,6 +202,7 @@
     <Compile Include="Jobs\CreateRecurlyAccountsJob.cs" />
     <Compile Include="Jobs\InvoiceRecurlyJob.cs" />
     <Compile Include="Jobs\SATJob.cs" />
+    <Compile Include="Models\InvoicesDTO.cs" />
     <Compile Include="Models\ProcessViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />

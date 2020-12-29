@@ -16,6 +16,7 @@ namespace MVC_Project.Domain.Entities
         public virtual string statusMessage { get; set; }
         public virtual string customerMessage { get; set; }
         public virtual DateTime createdAt { get; set; }
+        public virtual string transactionId { get; set; }
         /*Agregar datos por si me hacen falta*/
 
         //public virtual DateTime modifiedAt { get; set; }

@@ -120,6 +120,7 @@
     <Compile Include="Recurly\Models\CustomFieldDefinition.cs" />
     <Compile Include="Recurly\Models\Error.cs" />
     <Compile Include="Recurly\Models\ErrorMayHaveTransaction.cs" />
+    <Compile Include="Recurly\Models\ErrorWrapper.cs" />
     <Compile Include="Recurly\Models\ExportDates.cs" />
     <Compile Include="Recurly\Models\ExportFile.cs" />
     <Compile Include="Recurly\Models\ExportFiles.cs" />
@@ -154,6 +155,7 @@
     <Compile Include="Recurly\Models\PlanUpdate.cs" />
     <Compile Include="Recurly\Models\Pricing.cs" />
     <Compile Include="Recurly\Models\PurchaseCreate.cs" />
+    <Compile Include="Recurly\Models\RecurlyErrorException.cs" />
     <Compile Include="Recurly\Models\Settings.cs" />
     <Compile Include="Recurly\Models\ShippingAddress.cs" />
     <Compile Include="Recurly\Models\ShippingAddressCreate.cs" />

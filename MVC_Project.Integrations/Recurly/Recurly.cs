@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MVC_Project.Integrations.Recurly.Models;
+using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -68,7 +69,16 @@ namespace MVC_Project.Integrations.Recurly
                     return jsonResponse;
                 }
 
-                throw new Exception(response.StatusDescription + ": "+response.Content.ToString());
+                var error = JsonConvert.DeserializeObject<ErrorWrapper>(response.Content.ToString());
+
+                throw new RecurlyErrorException(error.Error);
+
+                //string jsonResponse = response.Content.ToString();
+                //return jsonResponse;
+            }
+            catch (RecurlyErrorException recurlyError)
+            {
+                throw recurlyError;
             }
             catch (Exception ex)
             {

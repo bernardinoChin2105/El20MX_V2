@@ -25,6 +25,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.extraBills).Column("extraBills").Nullable();
 
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
+            Map(x => x.invoiceId).Column("invoiceId").Nullable();
             //Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
             //Map(x => x.status).Column("status").Nullable();
             References(x => x.subscription).Column("subscriptionId").Nullable();

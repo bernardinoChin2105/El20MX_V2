@@ -23,6 +23,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.customerMessage).Column("customerMessage").Nullable();
 
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
+            Map(x => x.transactionId).Column("transactionId").Nullable();
             //Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
             //Map(x => x.status).Column("status").Nullable();
 
