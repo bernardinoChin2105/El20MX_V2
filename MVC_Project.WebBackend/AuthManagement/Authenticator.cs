@@ -23,13 +23,28 @@ namespace MVC_Project.WebBackend.AuthManagement
         public static void RefreshAuthenticatedUser(AuthUser authUser)
         {
             HttpContext.Current.Session.Remove("ST_AUTH_USER");
-            HttpContext.Current.Session.Remove("token");            
+            HttpContext.Current.Session.Remove("ST_BANK_TOKEN");            
             HttpContext.Current.Session.Add("ST_AUTH_USER", authUser);
+        }
+
+        public static void StoreBankToken(string token)
+        {
+            HttpContext.Current.Session.Add("ST_BANK_TOKEN", token);
+        }
+
+        public static string BankToken
+        {
+            get
+            {
+                var token = System.Web.HttpContext.Current.Session["ST_BANK_TOKEN"];
+                return token != null ? token.ToString() : null;
+            }
         }
 
         public static void RemoveAuthenticatedUser()
         {            
-            HttpContext.Current.Session.Remove("ST_AUTH_USER");            
+            HttpContext.Current.Session.Remove("ST_AUTH_USER");
+            HttpContext.Current.Session.Remove("ST_BANK_TOKEN");
             FormsAuthentication.SignOut();            
         }
     }

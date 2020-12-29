@@ -300,7 +300,7 @@ namespace MVC_Project.WebBackend.Controllers
                 if (resultado != null)
                 {
                     ViewBag.mensajeError = string.Empty;
-                    var expirationDate = DateTime.Now.AddDays(1);
+                    var expirationDate = DateUtil.GetDateTimeNow().AddDays(1);
                     resultado.tokenExpiration = expirationDate;
                     string token = (resultado.uuid + "@" + expirationDate.ToString());
                     token = EncryptorText.DataEncrypt(token).Replace("/", "!!").Replace("+", "$");
@@ -361,7 +361,7 @@ namespace MVC_Project.WebBackend.Controllers
                 if (user == null)
                     throw new Exception("Usuario no encontrado en el sistema");
 
-                if (DateTime.Now > user.tokenExpiration)
+                if (DateUtil.GetDateTimeNow() > user.tokenExpiration)
                     throw new Exception("El token ha expirado");
 
                 ResetPassword model = new ResetPassword();
@@ -612,7 +612,7 @@ namespace MVC_Project.WebBackend.Controllers
         {
             AuthUser authUser = null;
 
-            user.lastLoginAt = DateTime.Now;
+            user.lastLoginAt = DateUtil.GetDateTimeNow();
             _userService.Update(user);
 
             authUser = new AuthUser

@@ -122,42 +122,34 @@ namespace MVC_Project.API.Controllers
                     if (account == null)
                         throw new Exception("No existe rfc a procesar");
 
-                    //var process = _webhookProcessService.FirstOrDefault(x => x.processId == data.data.@object.id && x.status == SystemStatus.PENDING.ToString());
-
-                    //if (process == null)
-                    //    throw new Exception("No existe diagnostico");
-
                     if (data.data.@object.status == SatwsStatusEvent.FAILED.GetDisplayName())
-                    {
-                        //process.status = SystemStatus.FAILED.ToString();
-                        //process.modifiedAt = DateTime.Now;
-                        //_webhookProcessService.Update(process);
                         throw new Exception("El servicio de satws generó un fallo en la extracción");
-                    }
+
                     try
                     {
-                        var process = new WebhookProcess()
+                        var process = _webhookProcessService.FirstOrDefault(x => x.processId == data.data.@object.id);
+                        if (process == null)
                         {
-                            uuid = Guid.NewGuid(),
-                            processId = data.data.@object.id,
-                            provider = SystemProviders.SATWS.ToString(),
-                            @event = SatwsEvent.EXTRACTION_UPDATED.ToString(),
-                            reference = account.uuid.ToString(),
-                            createdAt = DateUtil.GetDateTimeNow(),
-                            status = SystemStatus.PENDING.ToString(),
-                            content = webhookEventModel.ToString()
-                        };
+                            process = new WebhookProcess()
+                            {
+                                uuid = Guid.NewGuid(),
+                                processId = data.data.@object.id,
+                                provider = SystemProviders.SATWS.ToString(),
+                                @event = SatwsEvent.EXTRACTION_UPDATED.ToString(),
+                                reference = account.uuid.ToString(),
+                                createdAt = DateUtil.GetDateTimeNow(),
+                                status = SystemStatus.PENDING.ToString(),
+                                content = webhookEventModel.ToString()
+                            };
 
-                        _webhookProcessService.Create(process);
+                            _webhookProcessService.Create(process);
 
-                        LogUtil.AddEntry(descripcion: "Extraccón finalizada con exito " + account.rfc, eLogLevel: ENivelLog.Debug,
-                        usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
+                            LogUtil.AddEntry(descripcion: "Extraccón finalizada con exito " + account.rfc, eLogLevel: ENivelLog.Debug,
+                            usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
+                        }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-                        //process.status = SystemStatus.FAILED.ToString();
-                        //process.modifiedAt = DateTime.Now;
-                        //_webhookProcessService.Update(process);
                         LogUtil.AddEntry(descripcion: "Error al generar el diagnostico fiscal " + account.rfc + " Error: " + ex.Message + " " + (ex.InnerException != null ? ex.InnerException.Message : ""), eLogLevel: ENivelLog.Debug,
                         usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsExtractionHandler", detalle: webhookEventModel.ToString());
                     }
@@ -179,6 +171,8 @@ namespace MVC_Project.API.Controllers
         {
             try
             {
+                var provider = ConfigurationManager.AppSettings["SATProvider"];
+
                 var data = JsonConvert.DeserializeObject<WebhookEventModel>(webhookEventModel.ToString());
 
                 if (data != null && data.data != null && data.data.@object != null && data.type == SatwsEvent.CREDENTIAL_UPDATE.GetDisplayName())
@@ -188,13 +182,16 @@ namespace MVC_Project.API.Controllers
                         throw new Exception("No existe una credencial para el rfc " + data.data.@object.rfc);
 
                     credential.statusProvider = data.data.@object.status;
-                    
+                    bool isUpdated = true;
+                    bool isValid = false;
                     switch (data.data.@object.status)
                     {
                         case "pending":
+                            isUpdated = false;
                             break;
                         case "valid":
                             credential.status = SystemStatus.ACTIVE.ToString();
+                            isValid = true;
                             break;
                         case "invalid":
                             credential.status = SystemStatus.INACTIVE.ToString();
@@ -210,16 +207,42 @@ namespace MVC_Project.API.Controllers
                             break;
                     }
 
-                    _credentialService.Update(credential);
+                    if (isUpdated)
+                    {
+                        _credentialService.Update(credential);
 
-                    LogUtil.AddEntry(descripcion: "Credencial actualizadá con exito", eLogLevel: ENivelLog.Debug,
-                    usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: webhookEventModel.ToString());
+                        LogUtil.AddEntry(descripcion: "Credencial actualizadá con exito. New status:" + data.data.@object.status, eLogLevel: ENivelLog.Debug,
+                        usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: webhookEventModel.ToString());
+                    }
+                    if (isValid)
+                    {
+                        SATService.GenerateTaxStatus(credential.account.rfc, provider);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 LogUtil.AddEntry(descripcion: "Error en la actualización de credenciales " + ex.Message, eLogLevel: ENivelLog.Debug,
                        usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: webhookEventModel.ToString());
+
+            }
+            return Request.CreateResponse(HttpStatusCode.OK);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("SatwsTaxStatusHandler")]
+        public HttpResponseMessage SatwsTaxStatusHandler(Object taxStatusEventModel)
+        {
+            try
+            {
+                LogUtil.AddEntry(descripcion: "TaxStatus", eLogLevel: ENivelLog.Debug,
+                usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: taxStatusEventModel.ToString());
+            }
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(descripcion: "Error en la actualización de credenciales " + ex.Message, eLogLevel: ENivelLog.Debug,
+                       usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: taxStatusEventModel.ToString());
 
             }
             return Request.CreateResponse(HttpStatusCode.OK);

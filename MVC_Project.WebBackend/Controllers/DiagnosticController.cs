@@ -57,8 +57,8 @@ namespace MVC_Project.WebBackend.Controllers
         {
             ViewBag.Date = new
             {
-                MinDate = DateTime.Now.AddDays(-10).ToString("dd-MM-yyyy"),
-                MaxDate = DateTime.Now.ToString("dd-MM-yyyy")
+                MinDate = DateUtil.GetDateTimeNow().AddDays(-10).ToString("dd-MM-yyyy"),
+                MaxDate = DateUtil.GetDateTimeNow().ToString("dd-MM-yyyy")
             };
             var authUser = Authenticator.AuthenticatedUser;
             var process = _webhookProcessService.FindBy(x => x.reference == authUser.Account.Uuid.ToString()).OrderByDescending(x => x.id).FirstOrDefault();
@@ -114,7 +114,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     model.diagnosticDetails = new List<InvoicesGroup>();
 
-                    string date = DateUtil.GetMonthName(DateTime.Now, "es");
+                    string date = DateUtil.GetMonthName(DateUtil.GetDateTimeNow(), "es");
 
                     //Asignar datos de diagnostico
                     List<InvoicesGroup> invoicePeriod = diagDetails.OrderBy(x => x.year).ThenBy(x => x.month).GroupBy(x => new
@@ -364,7 +364,7 @@ namespace MVC_Project.WebBackend.Controllers
                     //List<DiagnosticDetailsViewModel> details = new List<DiagnosticDetailsViewModel>();
                     model.diagnosticDetails = new List<InvoicesGroup>();
 
-                    string date = DateUtil.GetMonthName(DateTime.Now, "es");
+                    string date = DateUtil.GetMonthName(DateUtil.GetDateTimeNow(), "es");
 
                     //Asignar datos de diagnostico
                     List<InvoicesGroup> invoicePeriod = diagDetails.OrderBy(x => x.year).ThenBy(x => x.month).GroupBy(x => new
@@ -503,8 +503,8 @@ namespace MVC_Project.WebBackend.Controllers
                         iva = modelInvoices.Customers.FirstOrDefault(y => y.idInvoice == cfdi.id).tax,
                         invoicedAt = cfdi.Fecha,
                         xml = upload.Item1,
-                        createdAt = DateTime.Now,
-                        modifiedAt = DateTime.Now,
+                        createdAt = DateUtil.GetDateTimeNow(),
+                        modifiedAt = DateUtil.GetDateTimeNow(),
                         status = IssueStatus.STAMPED.ToString(),
                         account = account,
                         customer = _customerService.FirstOrDefault(y => y.rfc == cfdi.Receptor.Rfc),
@@ -543,8 +543,8 @@ namespace MVC_Project.WebBackend.Controllers
                         iva = modelInvoices.Providers.FirstOrDefault(y => y.idInvoice == cfdi.id).tax,
                         invoicedAt = cfdi.Fecha,
                         xml = upload.Item1,
-                        createdAt = DateTime.Now,
-                        modifiedAt = DateTime.Now,
+                        createdAt = DateUtil.GetDateTimeNow(),
+                        modifiedAt = DateUtil.GetDateTimeNow(),
                         status = IssueStatus.STAMPED.ToString(),
                         account = account,
                         provider = _providerService.FirstOrDefault(y => y.rfc == cfdi.Emisor.Rfc),

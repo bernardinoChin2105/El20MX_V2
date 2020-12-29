@@ -48,6 +48,7 @@ namespace MVC_Project.WebBackend.Controllers
         private IRateFeeService _rateFeeService;
         private ITaxService _taxService;
         private IMembershipService _membershipService;
+        private IForeignCountryService _foreignCountryService;
 
         public InvoicingController(IAccountService accountService, ICustomsService customsService, ICustomsPatentService customsPatentService,
             ICustomsRequestNumberService customsRequestNumberService, ITypeInvoiceService typeInvoiceService, IUseCFDIService useCFDIService,
@@ -56,7 +57,7 @@ namespace MVC_Project.WebBackend.Controllers
             IProviderService providerService, IBranchOfficeService branchOfficeService, ITaxRegimeService taxRegimeService,
             IInvoiceIssuedService invoiceIssuedService, IInvoiceReceivedService invoiceReceivedService, IDriveKeyService driveKeyService,
             IProductServiceKeyService productServiceKeyService, ICountryService countryService, IStateService stateService, IRateFeeService rateFeeService,
-            ITaxService taxService, IMembershipService membershipService)
+            ITaxService taxService, IMembershipService membershipService, IForeignCountryService foreignCountryService)
 
         {
             _accountService = accountService;
@@ -83,6 +84,7 @@ namespace MVC_Project.WebBackend.Controllers
             _rateFeeService = rateFeeService;
             _taxService = taxService;
             _membershipService = membershipService;
+            _foreignCountryService = foreignCountryService;
         }
 
         // GET: Invoicing
@@ -375,10 +377,13 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     Rfc = model.RFC,
                     Nombre = model.CustomerName,
-                    //ResidenciaFiscal = model.Street, //tengo dudas de que dato va
-                    //NumRegIdTrib = model, // que dato va
                     UsoCFDI = model.UseCFDI
                 };
+
+                if (string.IsNullOrEmpty(model.CountryFiscal))
+                    receiver.ResidenciaFiscal = model.CountryFiscal; //tengo dudas de que dato va
+                if (string.IsNullOrEmpty(model.NumIdntFiscal))
+                    receiver.NumRegIdTrib = model.NumIdntFiscal; // que dato va
 
                 var taxes = _taxService.GetAll().ToList();
 
@@ -885,30 +890,12 @@ namespace MVC_Project.WebBackend.Controllers
                         Value = e.ToString(),
                         Text = EnumUtils.GetDescription(e)
                     }).ToList();
-            //model.ListCustoms = _customsService.GetAll().Select(x => new SelectListItem
-            //{
-            //    Text = "(" + x.code + ") " + x.description.ToString(),
-            //    Value = x.code.ToString()
-            //}).ToList();
 
-            //model.ListCustomsPatent = _customsPatentService.GetAll().Select(x => new SelectListItem
-            //{
-            //    Text = x.code.ToString(),
-            //    Value = x.code.ToString()
-            //}).ToList();
-
-            //model.ListMotionNumber = _customsRequestNumberService.GetAll().Select(x => new SelectListItem
-            //{
-            //    Text = "(" + x.code + ") " + x.patent.ToString(),
-            //    Value = x.code.ToString()
-            //}).ToList();
-
-            //model.ListTransferred = Enum.GetValues(typeof(TypeTransferred)).Cast<TypeTransferred>()
-            //       .Select(e => new SelectListItem
-            //       {
-            //           Value = e.ToString(),
-            //           Text = EnumUtils.GetDescription(e)
-            //       }).ToList();
+            model.ListCountryFiscal = _foreignCountryService.GetAll().Select(x => new SelectListItem
+            {
+                Text = "(" + x.code + ") " + x.description.ToString(),
+                Value = x.code.ToString()
+            }).ToList();
 
             model.ListCountry = _countryService.GetAll().Select(x => new SelectListItem
             {
@@ -1420,7 +1407,7 @@ namespace MVC_Project.WebBackend.Controllers
             ViewBag.Date = new
             {
                 MinDate = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString(),
-                MaxDate = DateTime.Now.ToString("dd/MM/yyyy")
+                MaxDate = DateUtil.GetDateTimeNow().ToString("dd/MM/yyyy")
             };
             try
             {
@@ -1552,8 +1539,8 @@ namespace MVC_Project.WebBackend.Controllers
         {
             ViewBag.Date = new
             {
-                MinDate = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString(), //DateTime.Now.AddDays(-10).ToString("dd/MM/yyyy"),
-                MaxDate = DateTime.Now.ToString("dd/MM/yyyy")
+                MinDate = DateUtil.GetFirstDateTimeOfMonth(DateUtil.GetDateTimeNow()).ToShortDateString(), //DateUtil.GetDateTimeNow().AddDays(-10).ToString("dd/MM/yyyy"),
+                MaxDate = DateUtil.GetDateTimeNow().ToString("dd/MM/yyyy")
             };
             try
             {

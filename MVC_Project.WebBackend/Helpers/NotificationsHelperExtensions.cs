@@ -32,9 +32,9 @@ namespace MVC_Project.WebBackend.Helpers
                     {
                         Id = x.id,
                         Message = x.message,
-                        Moment = "Hace " + ((DateTime.Now - x.modifiedAt).Days > 0 ? (DateTime.Now - x.modifiedAt).Days + " dias" :
-                        (DateTime.Now - x.modifiedAt).Hours > 0 ? (DateTime.Now - x.modifiedAt).Hours + " horas" :
-                        (DateTime.Now - x.modifiedAt).Minutes > 0 ? (DateTime.Now - x.modifiedAt).Minutes + " minutos" :
+                        Moment = "Hace " + ((DateUtil.GetDateTimeNow() - x.createdAt).Days > 0 ? (DateUtil.GetDateTimeNow() - x.createdAt).Days + " dias" :
+                        (DateUtil.GetDateTimeNow() - x.createdAt).Hours > 0 ? (DateUtil.GetDateTimeNow() - x.createdAt).Hours + " horas" :
+                        (DateUtil.GetDateTimeNow() - x.createdAt).Minutes > 0 ? (DateUtil.GetDateTimeNow() - x.createdAt).Minutes + " minutos" :
                         " un momento")
                     }).ToList();
                 }

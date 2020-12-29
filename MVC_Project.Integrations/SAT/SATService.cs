@@ -89,6 +89,18 @@ namespace MVC_Project.Integrations.SAT
             }
         }
 
+        public static void GenerateTaxStatus(string rfc, string provider)
+        {
+            if (provider == SystemProviders.SATWS.ToString())
+            {
+                SATwsService.GenerateTaxStatus(rfc);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
         public static InvoicesModel GetInvoicesByExtractions(string rfc, string from, string to, string provider)
         {
             if (provider == SystemProviders.SATWS.ToString())

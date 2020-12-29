@@ -15,7 +15,8 @@ namespace MVC_Project.Domain.Entities
         public virtual string @event { get; set; }
         public virtual string reference { get; set; }
         public virtual string content { get; set; }
-        
+        public virtual string result { get; set; }
+        public virtual int attempt { get; set; }
         public virtual string status { get; set; }
         public virtual DateTime createdAt { get; set; }
         public virtual DateTime modifiedAt { get; set; }

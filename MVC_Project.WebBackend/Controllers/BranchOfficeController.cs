@@ -117,7 +117,7 @@ namespace MVC_Project.WebBackend.Controllers
                     municipality = new Domain.Entities.Municipality { id = model.municipality },
                     state = new Domain.Entities.State { id = model.state },
                     country = new Domain.Entities.Country { id = model.country },
-                    createdAt = DateTime.Now,
+                    createdAt = DateUtil.GetDateTimeNow(),
                     status = SystemStatus.ACTIVE.ToString(),
                     logo = ConfigurationManager.AppSettings["Logo.BranchOffice"].ToString()
                 };
@@ -449,7 +449,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var image = AzureBlobService.UploadPublicFile(data.image.InputStream, data.fileName, StorageImages, branchOffice.account.rfc + "/sucursal_" + branchOffice.id);
                 branchOffice.logo = image.Item1;
-                branchOffice.modifiedAt = DateTime.Now;
+                branchOffice.modifiedAt = DateUtil.GetDateTimeNow();
                 _branchOfficeService.Update(branchOffice);
 
                 return Json(new { branchOffice.uuid, success = true }, JsonRequestBehavior.AllowGet);

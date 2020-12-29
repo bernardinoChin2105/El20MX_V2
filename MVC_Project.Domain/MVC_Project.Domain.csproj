@@ -110,6 +110,7 @@
     <Compile Include="Entities\RecurlyPayment.cs" />
     <Compile Include="Entities\Role.cs" />
     <Compile Include="Entities\RolePermission.cs" />
+    <Compile Include="Entities\ForeignCountry.cs" />
     <Compile Include="Entities\Settlement.cs" />
     <Compile Include="Entities\SettlementType.cs" />
     <Compile Include="Entities\SocialNetworkLogin.cs" />
@@ -156,6 +157,7 @@
     <Compile Include="Services\CountryService.cs" />
     <Compile Include="Services\CredentialService.cs" />
     <Compile Include="Services\AllianceService.cs" />
+    <Compile Include="Services\ForeignCountryService.cs" />
     <Compile Include="Services\CustomerContactService.cs" />
     <Compile Include="Services\CustomsPatentService.cs" />
     <Compile Include="Services\CustomsRequestNumberService.cs" />

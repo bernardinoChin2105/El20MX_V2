@@ -55,6 +55,7 @@ namespace MVC_Project.Jobs
             _processService.CreateExecution(processExecution);
 
             Boolean.TryParse(System.Configuration.ConfigurationManager.AppSettings["Jobs.EnabledJobs"], out bool NotificationProcessEnabled);
+            int.TryParse(System.Configuration.ConfigurationManager.AppSettings["Jobs.Attempt"], out int attempt);
             StringBuilder strResult = new StringBuilder();
 
             if (Monitor.TryEnter(thisLock))
@@ -65,7 +66,7 @@ namespace MVC_Project.Jobs
                     {
                         processJob.Running = true;
                         _processService.Update(processJob);
-                        System.Diagnostics.Trace.TraceInformation(string.Format("[BankJob_SyncAccounts] Executing at {0}", DateTime.Now));
+                        System.Diagnostics.Trace.TraceInformation(string.Format("[BankJob_SyncAccounts] Executing at {0}", DateUtil.GetDateTimeNow()));
                         strResult.Append(string.Format("Executing at {0}", DateUtil.GetDateTimeNow()));
 
                         #region Implementar logica de negocio especifica
@@ -75,6 +76,8 @@ namespace MVC_Project.Jobs
 
                         foreach (var webhookProcess in webhookProcesses)
                         {
+                            Account account = null;
+                            Bank bank = null;
                             try
                             {
                                 var response = JsonConvert.DeserializeObject<SyncfyWebhookModel>(webhookProcess.content.ToString());
@@ -83,9 +86,10 @@ namespace MVC_Project.Jobs
                                 if (credential == null)
                                     throw new Exception("Credencial de usuario no encontrada en el sistema, id_user: " + response.id_user);
 
+                                account = credential.account;
                                 var token = PaybookService.CreateToken(response.id_user);
 
-                                var bankCredential = _bankCredentialService.FirstOrDefault(x => x.credentialProviderId == response.id_credential && x.account.id==credential.account.id && x.status == SystemStatus.ACTIVE.ToString());
+                                var bankCredential = _bankCredentialService.FirstOrDefault(x => x.credentialProviderId == response.id_credential && x.account.id == credential.account.id && x.status == SystemStatus.ACTIVE.ToString());
                                 if (bankCredential == null)
                                 {
                                     var paybookCredentials = PaybookService.GetCredentials(response.id_credential, token);
@@ -94,7 +98,7 @@ namespace MVC_Project.Jobs
 
                                     var paybookCredential = paybookCredentials.FirstOrDefault();
 
-                                    var bank = _bankService.FirstOrDefault(x => x.providerSiteId == response.id_site);
+                                    bank = _bankService.FirstOrDefault(x => x.providerSiteId == response.id_site);
 
                                     if (bank == null)
                                     {
@@ -126,7 +130,7 @@ namespace MVC_Project.Jobs
                                     bankCredential = new BankCredential()
                                     {
                                         uuid = Guid.NewGuid(),
-                                        account = credential.account,
+                                        account = account,
                                         credentialProviderId = paybookCredential.id_credential,
                                         createdAt = DateUtil.GetDateTimeNow(),
                                         modifiedAt = DateUtil.GetDateTimeNow(),
@@ -140,6 +144,8 @@ namespace MVC_Project.Jobs
                                 }
                                 else
                                 {
+                                    bank = bankCredential.bank;
+
                                     var paybookCredentials = PaybookService.GetCredentials(response.id_credential, token);
                                     if (!paybookCredentials.Any())
                                         throw new Exception("Credencial bancaria no encontrada en Syncfy" + response.id_credential);
@@ -149,6 +155,7 @@ namespace MVC_Project.Jobs
                                         bankCredential.dateTimeAuthorized = DateUtil.UnixTimeToDateTime(paybookCredential.dt_authorized.Value);
                                     if (paybookCredential.dt_refresh.HasValue)
                                         bankCredential.dateTimeRefresh = DateUtil.UnixTimeToDateTime(paybookCredential.dt_refresh.Value);
+                                    _bankCredentialService.Update(bankCredential);
                                 }
 
                                 var paybookAccounts = PaybookService.GetAccounts(response.id_credential, token);
@@ -182,44 +189,84 @@ namespace MVC_Project.Jobs
                                         _bankAccountService.Update(bankAccount);
                                     }
                                 }
-
-                                foreach (string uri in response.endpoints.transactions)
+                                if (response.endpoints.transactions != null && response.endpoints.transactions.Any())
                                 {
-                                    var transactions = PaybookService.GetTransactions(uri.Replace("/v1", ""), token);
-                                    foreach (var transaction in transactions)
+                                    foreach (string uri in response.endpoints.transactions)
                                     {
-                                        var bankAccount = _bankAccountService.FirstOrDefault(x => x.accountProviderId == transaction.id_account);
-                                        BankTransaction bankTransactions = _bankTransactionService.FirstOrDefault(x => x.transactionId == transaction.id_transaction && x.bankAccount.id == bankAccount.id);
-                                        if (bankTransactions == null)
+                                        var bankTransactions = new List<BankTransaction>();
+                                        var paybookTransactions = PaybookService.GetTransactions(uri.Replace("/v1", ""), token);
+                                        foreach (var paybookTransaction in paybookTransactions)
                                         {
-                                            //long d_rt = itemTransaction.dt_refresh;
-                                            DateTime date_refresht = DateUtil.UnixTimeToDateTime(transaction.dt_refresh);
-                                            DateTime date_transaction = DateUtil.UnixTimeToDateTime(transaction.dt_transaction);
-
-                                            bankTransactions = new BankTransaction()
+                                            var bankAccount = _bankAccountService.FirstOrDefault(x => x.accountProviderId == paybookTransaction.id_account);
+                                            BankTransaction bankTransaction = _bankTransactionService.FirstOrDefault(x => x.transactionId == paybookTransaction.id_transaction && x.bankAccount.id == bankAccount.id);
+                                            if (bankTransaction == null)
                                             {
-                                                uuid = Guid.NewGuid(),
-                                                bankAccount = bankAccount,
-                                                transactionId = transaction.id_transaction,
-                                                description = transaction.description,
-                                                amount = transaction.amount,
-                                                currency = transaction.currency,
-                                                reference = transaction.reference,
-                                                transactionAt = date_transaction,
-                                                createdAt = DateUtil.GetDateTimeNow(),
-                                                modifiedAt = DateUtil.GetDateTimeNow(),
-                                                status = SystemStatus.ACTIVE.ToString()
-                                            };
-                                            bankAccount.bankTransaction.Add(bankTransactions);
+                                                //long d_rt = itemTransaction.dt_refresh;
+                                                DateTime date_refresht = DateUtil.UnixTimeToDateTime(paybookTransaction.dt_refresh);
+                                                DateTime date_transaction = DateUtil.UnixTimeToDateTime(paybookTransaction.dt_transaction);
+
+                                                bankTransaction = new BankTransaction()
+                                                {
+                                                    uuid = Guid.NewGuid(),
+                                                    bankAccount = bankAccount,
+                                                    transactionId = paybookTransaction.id_transaction,
+                                                    description = paybookTransaction.description,
+                                                    amount = paybookTransaction.amount,
+                                                    currency = paybookTransaction.currency,
+                                                    reference = paybookTransaction.reference,
+                                                    transactionAt = date_transaction,
+                                                    createdAt = DateUtil.GetDateTimeNow(),
+                                                    modifiedAt = DateUtil.GetDateTimeNow(),
+                                                    status = SystemStatus.ACTIVE.ToString()
+                                                };
+                                                bankTransactions.Add(bankTransaction);
+                                            }
                                         }
+                                        if (bankTransactions.Any())
+                                            _bankTransactionService.Create(bankTransactions);
                                     }
-                                    _bankCredentialService.CreateWithTransaction(bankCredential);
                                 }
+
+                                webhookProcess.status = SystemStatus.ACTIVE.ToString();
+                                webhookProcess.modifiedAt = DateUtil.GetDateTimeNow();
+                                _webhookProcessService.Update(webhookProcess);
+
+                                var notification = new Notification
+                                {
+                                    uuid = Guid.NewGuid(),
+                                    account = account,
+                                    createdAt = DateUtil.GetDateTimeNow(),
+                                    status = NotificationStatus.ACTIVE.ToString(),
+                                    message = "Sincronización de cuentas bancarias completado " + (bank != null ? (bank.name + " - " + bank.nameSite) : string.Empty)
+                                };
+                                _notificationService.Create(notification);
                             }
-                            catch(Exception ex)
+                            catch (Exception ex)
                             {
-                                //webhookProcess.intents += 1;
-                                //_webhookProcessService.Update(webhookProcess);
+                                webhookProcess.attempt += 1;
+                                if (webhookProcess.attempt == attempt)
+                                {
+                                    webhookProcess.status = SystemStatus.FAILED.ToString();
+                                    if (account != null)
+                                    {
+                                        var notification = new Notification
+                                        {
+                                            uuid = Guid.NewGuid(),
+                                            account = account,
+                                            createdAt = DateUtil.GetDateTimeNow(),
+                                            status = NotificationStatus.ACTIVE.ToString(),
+                                            message = "Ocurrio un problema al sincronizar sus cuentas bancarias " + (bank != null ? (bank.name + " - " + bank.nameSite) : string.Empty)
+                                        };
+                                        _notificationService.Create(notification);
+                                    }
+                                }
+                                else
+                                {
+                                    webhookProcess.status = SystemStatus.PENDING.ToString();
+                                }
+                                webhookProcess.result = ex.Message + (ex.InnerException != null ? ex.InnerException.Message : string.Empty);
+                                webhookProcess.modifiedAt = DateUtil.GetDateTimeNow();
+                                _webhookProcessService.Update(webhookProcess);
                             }
                         }
 

@@ -21,6 +21,8 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.reference).Column("reference").Nullable();
             Map(x => x.status).Column("status").Nullable();
             Map(x => x.content).Column("content").CustomSqlType("varchar(max)").Nullable();
+            Map(x => x.result).Column("result").CustomSqlType("varchar(max)").Nullable();
+            Map(x => x.attempt).Column("attempt").Nullable();
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
         }
