@@ -25,7 +25,7 @@ namespace MVC_Project.Utils
         APPROVED,
         [Display(Name = "Cancelado")]
         CANCELLED,
-        [Display(Name ="No válido")]
+        [Display(Name = "No válido")]
         INVALID,
         [Display(Name = "Fallido")]
         FAILED
@@ -41,9 +41,9 @@ namespace MVC_Project.Utils
 
     public enum IssueStatus
     {
-        [Display(Name ="Guardado")]
+        [Display(Name = "Guardado")]
         SAVED,
-        [Display(Name ="Timbrado")]
+        [Display(Name = "Timbrado")]
         STAMPED,
         [Display(Name = "Cancelado")]
         CANCELED
@@ -165,6 +165,8 @@ namespace MVC_Project.Utils
         INVOICING,
         [Display(Name = "Mi Cuenta con El20.mx")]
         MY_ACCOUNT,
+        [Display(Name = "Datos de la cuenta")]
+        RECURLY_ACCOUNT,
         #region Modulos del BackOffice
         [Display(Name = "Planes")]
         PLANS,
@@ -254,7 +256,9 @@ namespace MVC_Project.Utils
         [Display(Name = "SAT.ws")]
         SATWS,
         [Display(Name = "Finerio")]
-        FINERIO
+        FINERIO,
+        [Display(Name = "Recurly")]
+        RECURLY
     }
 
     public enum SATCredentialType
@@ -302,7 +306,7 @@ namespace MVC_Project.Utils
     {
         [Description("General de Ley Personas Morales")]
         RegimenFiscal601
-    }  
+    }
 
     public enum TipoComprobante
     {
@@ -330,49 +334,49 @@ namespace MVC_Project.Utils
 
     public enum UsoCFDI
     {
-        
+
         [Description("Adquisición de Mercancías")]
         G01,
         [Description("Devoluciones, Descuentos o Bonificaciones")]
-        G02,   
+        G02,
         [Description("Gastos en General")]
-        G03,   
+        G03,
         [Description("Construcciones")]
-        I01,    
+        I01,
         [Description("Mobiliario y Equipo de Oficina por Inversiones")]
-        I02,    
+        I02,
         [Description("Equipo de Transporte")]
-        I03,   
+        I03,
         [Description("Equipo de Cómputo y Accesorios")]
-        I04,    
+        I04,
         [Description("Dados, Troqueles, Moldes, Matrices y Herramental")]
-        I05,    
+        I05,
         [Description("Comunicaciones Telefónicas")]
-        I06,    
+        I06,
         [Description("Comunicaciones Satelitales")]
-        I07,    
+        I07,
         [Description("Otra Maquinaria y Equipo")]
-        I08,    
+        I08,
         [Description("Honorarios Médicos, Dentales y Gastos Hospitalarios")]
-        D01,    
+        D01,
         [Description("Gastos Médicos por Incapacidad o Discapacidad")]
-        D02,   
+        D02,
         [Description("Gastos Funerales")]
-        D03,    
+        D03,
         [Description("Donativos")]
-        D04,    
+        D04,
         [Description("Intereses Reales Efectivamente Pagados por Créditos Hipotecarios (Casa Habitación)")]
-        D05,   
+        D05,
         [Description("Aportaciones Voluntarias al SAR")]
-        D06,   
+        D06,
         [Description("Primas por Seguros de Gastos Médicos")]
-        D07,    
+        D07,
         [Description("Gastos de Transportación Escolar Obligatoria")]
-        D08,    
+        D08,
         [Description("Depósitos en Cuentas para el Ahorro, Primas que tengan como Base Planes de Pensiones")]
-        D09,    
+        D09,
         [Description("Pagos por Servicios Educativos (Colegiaturas)")]
-        D10,    
+        D10,
         [Description("Por definir")]
         P01,
     }
@@ -461,5 +465,21 @@ namespace MVC_Project.Utils
         SENDGRID,
         [Display(Name = "SMTP")]
         SMTP
+    }
+
+    public enum SystemPlan
+    {
+        [Display(Name = "Esquema anterior contigo")]
+        OLD_SCHEMA_CONTIGO,
+        [Display(Name = "Esquema anterior startup")]
+        OLD_SCHEMA_STARTUP,
+        [Display(Name = "Esquema anterior básico")]
+        OLD_SCHEMA_BASICO,
+        [Display(Name = "Esquema anterior premiun")]
+        OLD_SCHEMA_PREMIUN,
+        [Display(Name = "Esquema anterior empresarial")]
+        OLD_SCHEMA_EMPRESARIAL,
+        [Display(Name = "Esquema nuevo")]
+        NEW_SCHEMA
     }
 }

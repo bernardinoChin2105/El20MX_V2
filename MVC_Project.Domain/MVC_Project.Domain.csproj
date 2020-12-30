@@ -106,6 +106,8 @@
     <Compile Include="Entities\Quotation.cs" />
     <Compile Include="Entities\QuotationDetail.cs" />
     <Compile Include="Entities\RateFee.cs" />
+    <Compile Include="Entities\RecurlyInvoice.cs" />
+    <Compile Include="Entities\RecurlyPayment.cs" />
     <Compile Include="Entities\Role.cs" />
     <Compile Include="Entities\RolePermission.cs" />
     <Compile Include="Entities\ForeignCountry.cs" />
@@ -118,6 +120,7 @@
     <Compile Include="Entities\Store.cs" />
     <Compile Include="Entities\DiagnosticTaxStatus.cs" />
     <Compile Include="Entities\SupervisorCAD.cs" />
+    <Compile Include="Entities\RecurlySubscription.cs" />
     <Compile Include="Entities\Tax.cs" />
     <Compile Include="Entities\TaxRegime.cs" />
     <Compile Include="Entities\TypeInvoice.cs" />
@@ -128,9 +131,11 @@
     <Compile Include="Entities\Webhook.cs" />
     <Compile Include="Entities\WebhookProcess.cs" />
     <Compile Include="Helpers\IUnitOfWork.cs" />
+    <Compile Include="Model\AccountCredentialModel.cs" />
     <Compile Include="Model\AllianceList.cs" />
     <Compile Include="Model\BanksViewModel.cs" />
     <Compile Include="Model\BasePagination.cs" />
+    <Compile Include="Model\Invoice.cs" />
     <Compile Include="Model\ListInvoiceIssued.cs" />
     <Compile Include="Model\ListProviders.cs" />
     <Compile Include="Model\CustomerList.cs" />
@@ -171,6 +176,9 @@
     <Compile Include="Services\QuotationDetailService.cs" />
     <Compile Include="Services\QuotationService.cs" />
     <Compile Include="Services\RateFeeService.cs" />
+    <Compile Include="Services\RecurlyInvoiceService.cs" />
+    <Compile Include="Services\RecurlyPaymentService.cs" />
+    <Compile Include="Services\RecurlySubscriptionService.cs" />
     <Compile Include="Services\SupervisorCADService.cs" />
     <Compile Include="Services\TaxRegimeService.cs" />
     <Compile Include="Services\TaxService.cs" />
