@@ -11,7 +11,7 @@ namespace MVC_Project.Domain.Entities
         public virtual Int64 id { get; set; }
         public virtual Guid uuid { get; set; }
 
-        public virtual DateTime startedAt{get;set;}
+        public virtual DateTime? startedAt{get;set;}
         public virtual DateTime? hiringDate { get; set; }
         public virtual decimal total { get; set; }
 
