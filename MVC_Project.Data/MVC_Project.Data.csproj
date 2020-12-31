@@ -117,6 +117,7 @@
     <Compile Include="Mappings\RecurlyInvoiceMap.cs" />
     <Compile Include="Mappings\RecurlyPaymentMap.cs" />
     <Compile Include="Mappings\RecurlySubscriptionMap.cs" />
+    <Compile Include="Mappings\SATExtractionProcessMap.cs" />
     <Compile Include="Mappings\SupervisorCADMap.cs" />
     <Compile Include="Mappings\TaxMap.cs" />
     <Compile Include="Mappings\TaxRegimeMap.cs" />

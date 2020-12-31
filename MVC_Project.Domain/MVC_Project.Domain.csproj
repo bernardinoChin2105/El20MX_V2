@@ -65,6 +65,7 @@
     <Compile Include="Entities\CustomsRequestNumber.cs" />
     <Compile Include="Entities\Discount.cs" />
     <Compile Include="Entities\DriveKey.cs" />
+    <Compile Include="Entities\SATExtractionProcess.cs" />
     <Compile Include="Entities\Notification.cs" />
     <Compile Include="Entities\PaymentForm.cs" />
     <Compile Include="Entities\PaymentMethod.cs" />
@@ -157,6 +158,7 @@
     <Compile Include="Services\CountryService.cs" />
     <Compile Include="Services\CredentialService.cs" />
     <Compile Include="Services\AllianceService.cs" />
+    <Compile Include="Services\SATExtractionProcessService.cs" />
     <Compile Include="Services\ForeignCountryService.cs" />
     <Compile Include="Services\CustomerContactService.cs" />
     <Compile Include="Services\CustomsPatentService.cs" />

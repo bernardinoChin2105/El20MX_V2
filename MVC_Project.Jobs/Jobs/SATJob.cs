@@ -24,9 +24,9 @@ namespace MVC_Project.Jobs
         static IAccountService _accountService;
         static ICustomerService _customerService;
         static IProviderService _providerService;
-        static InvoiceIssuedService _invoicesIssuedService;
-        static InvoiceReceivedService _invoicesReceivedService;
-        static NotificationService _notificationService;
+        static IInvoiceIssuedService _invoicesIssuedService;
+        static IInvoiceReceivedService _invoicesReceivedService;
+        static INotificationService _notificationService;
 
         static readonly string JOB_CODE = "SATJob_SyncBills";
 

@@ -451,6 +451,22 @@ namespace MVC_Project.Utils
         FAILED
     }
 
+    public enum SatwsExtractionsTypes
+    {
+        [Display(Name = "invoice")]
+        INVOICE,
+        [Display(Name = "monthly_tax_return")]
+        MONTHLY_TAX_RETURN,
+        [Display(Name = "annual_tax_return")]
+        ANNUAL_TAX_RETURN,
+        [Display(Name = "tax_status")]
+        TAX_STATUS,
+        [Display(Name = "tax_retention")]
+        TAX_RETENTION,
+        [Display(Name = "tax_compliance")]
+        TAX_COMPLIANCE
+    }
+
     public enum TypeInvoicing
     {
         [Display(Name = "issued")]

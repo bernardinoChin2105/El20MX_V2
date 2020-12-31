@@ -21,12 +21,12 @@ namespace MVC_Project.Jobs
         static IProcessService _processService;
         static IWebhookProcessService _webhookProcessService;
         static IAccountService _accountService;
-        static NotificationService _notificationService;
-        static BankService _bankService;
-        static BankCredentialService _bankCredentialService;
-        static CredentialService _credentialService;
-        static BankAccountService _bankAccountService;
-        static BankTransactionService _bankTransactionService;
+        static INotificationService _notificationService;
+        static IBankService _bankService;
+        static IBankCredentialService _bankCredentialService;
+        static ICredentialService _credentialService;
+        static IBankAccountService _bankAccountService;
+        static IBankTransactionService _bankTransactionService;
 
         static readonly string JOB_CODE = "BankJob_SyncAccounts";
 

@@ -15,7 +15,7 @@ using System.Text;
 using System.Threading;
 using System.Web;
 
-namespace MVC_Project.Jobs.Jobs
+namespace MVC_Project.Jobs
 {
     public class SATExtractionJob
     {
@@ -30,10 +30,11 @@ namespace MVC_Project.Jobs.Jobs
         static InvoiceReceivedService _invoicesReceivedService;
         static INotificationService _notificationService;
         static ICredentialService _credentialService;
+        static ISATExtractionProcessService _satExtractionProcessService;
 
-        static readonly string JOB_CODE = "SATExtractionJob_GererateExtractions";
+        static readonly string JOB_CODE = "SATExtractionJob_InvoiceExtractions";
 
-        public static void GererateExtractions()
+        public static void InvoiceExtractions()
         {
             var _unitOfWork = new UnitOfWork();
             _processService = new ProcessService(new Repository<Process>(_unitOfWork));
@@ -45,6 +46,7 @@ namespace MVC_Project.Jobs.Jobs
             _invoicesReceivedService = new InvoiceReceivedService(new Repository<InvoiceReceived>(_unitOfWork));
             _notificationService = new NotificationService(new Repository<Notification>(_unitOfWork));
             _credentialService = new CredentialService(new Repository<Credential>(_unitOfWork));
+            _satExtractionProcessService = new SATExtractionProcessService(new Repository<SATExtractionProcess>(_unitOfWork));
 
             Process processJob = _processService.GetByCode(JOB_CODE);
             bool CAN_EXECUTE = processJob != null && processJob.Status && !processJob.Running; //Esta habilitado y no está corriendo (validacion por BD)
@@ -76,29 +78,67 @@ namespace MVC_Project.Jobs.Jobs
                         bool.TryParse(ConfigurationManager.AppSettings["SATws.IsHistoricalExtraction"], out bool isHistorical);
                         var provider = ConfigurationManager.AppSettings["SATProvider"];
 
-                        var credentials = _credentialService.
+                        List<Credential> credentials = _credentialService.
                             FindBy(x => x.credentialType == SATCredentialType.CIEC.ToString() &&
                             x.provider == SystemProviders.SATWS.ToString() &&
                             x.status == SystemStatus.ACTIVE.ToString() &&
-                            x.account.status == SystemStatus.ACTIVE.ToString()).Take(5);
-                        
-                        DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
+                            x.account.status == SystemStatus.ACTIVE.ToString()).
+                            OrderBy(x => x.id).
+                            ToList();
+
+                        DateTime dateTo = DateUtil.GetDateTimeNow();
+                        DateTime dateFrom = DateTime.UtcNow.AddDays(-3);
                         dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
 
                         if (isHistorical)
+                        {
                             dateFrom = new DateTime(2014, 1, 1);
 
-                        DateTime dateTo = DateTime.UtcNow;
+                            var accountsProcessed = _satExtractionProcessService.
+                            FindBy(x => x.isHistorical).
+                            Select(x => x.account.id);
+
+                            credentials = credentials.
+                                Where(x => !accountsProcessed.Contains(x.account.id)).
+                                OrderBy(x => x.id).
+                                Take(5).
+                                ToList();
+                        }
 
                         foreach (var credential in credentials)
                         {
+                            SATExtractionProcess sATExtractionProcess = null;
                             try
                             {
                                 string extractionId = SATService.GenerateExtractions(credential.account.rfc, dateFrom, dateTo, provider);
+                                sATExtractionProcess = new SATExtractionProcess
+                                {
+                                    uuid = Guid.NewGuid(),
+                                    processId = extractionId,
+                                    provider = SystemProviders.SATWS.ToString(),
+                                    createdAt = DateUtil.GetDateTimeNow(),
+                                    @event = SatwsExtractionsTypes.INVOICE.ToString(),
+                                    isHistorical = isHistorical,
+                                    status = SystemStatus.ACTIVE.ToString(),
+                                    account = credential.account
+                                };
                             }
                             catch (Exception ex)
                             {
+                                sATExtractionProcess = new SATExtractionProcess
+                                {
+                                    uuid = Guid.NewGuid(),
+                                    provider = SystemProviders.SATWS.ToString(),
+                                    createdAt = DateUtil.GetDateTimeNow(),
+                                    @event = SatwsExtractionsTypes.INVOICE.ToString(),
+                                    isHistorical = isHistorical,
+                                    status = SystemStatus.FAILED.ToString(),
+                                    account = credential.account,
+                                    result = ex.Message + (ex.InnerException != null ? ex.InnerException.Message : string.Empty)
+                                };
+
                             }
+                            _satExtractionProcessService.Create(sATExtractionProcess);
                         }
                         #endregion
 
