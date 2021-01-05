@@ -297,6 +297,7 @@ namespace MVC_Project.API.Controllers
                                 customerMessage = "",
                                 statusCode = contentNode.SelectSingleNode("transaction").SelectSingleNode("status").InnerText,
                                 statusMessage = contentNode.SelectSingleNode("transaction").SelectSingleNode("message").InnerText,
+                                email = contentNode.SelectSingleNode("account").SelectSingleNode("email").InnerText,
                                 transactionId = transactionId
                             };
                             _recurlyPaymentService.Create(recurlyPayment);

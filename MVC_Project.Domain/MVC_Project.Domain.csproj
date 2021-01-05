@@ -66,6 +66,7 @@
     <Compile Include="Entities\Discount.cs" />
     <Compile Include="Entities\DriveKey.cs" />
     <Compile Include="Entities\SATExtractionProcess.cs" />
+    <Compile Include="Entities\InvoiceEmissionParameters.cs" />
     <Compile Include="Entities\Notification.cs" />
     <Compile Include="Entities\PaymentForm.cs" />
     <Compile Include="Entities\PaymentMethod.cs" />
@@ -166,6 +167,7 @@
     <Compile Include="Services\CustomsService.cs" />
     <Compile Include="Services\DiscountService.cs" />
     <Compile Include="Services\DriveKeyService.cs" />
+    <Compile Include="Services\InvoiceEmissionParametersService.cs" />
     <Compile Include="Services\InvoiceIssuedService.cs" />
     <Compile Include="Services\InvoiceReceivedService.cs" />
     <Compile Include="Services\CurrencyService.cs" />

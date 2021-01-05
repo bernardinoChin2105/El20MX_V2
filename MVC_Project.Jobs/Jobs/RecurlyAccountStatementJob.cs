@@ -19,7 +19,7 @@ using System.Web;
 
 namespace MVC_Project.Jobs
 {
-    public class InvoiceRecurlyJob
+    public class RecurlyAccountStatementJob
     {
         static bool executing = false;
         static readonly Object thisLock = new Object();
@@ -96,18 +96,20 @@ namespace MVC_Project.Jobs
                         var nextMonth = now.AddMonths(1);
                         DateTime nextBillDate = new DateTime(nextMonth.Year, nextMonth.Month, nextMonth.Day, 8, 0, 0);
 
+                        var stampedStatusName = IssueStatus.STAMPED.ToString();
+
                         if (accountsRecurly != null)
                         {
                             foreach (var acc in accountsRecurly)
                             {
 
-                                var issuedInvoices = _invoicesIssuedService.FindBy(x => x.account.id == acc.id && x.status == "STAMPED"
+                                var issuedInvoices = _invoicesIssuedService.FindBy(x => x.account.id == acc.id && x.status == stampedStatusName
                                     && x.invoicedAt >= firstDayOfMonth && x.invoicedAt <= lastDayOfMonth).OrderBy(x => x.invoicedAt);
 
-                                var receivedInvoices = _invoicesReceivedService.FindBy(x => x.account.id == acc.id && x.status == "STAMPED"
+                                var receivedInvoices = _invoicesReceivedService.FindBy(x => x.account.id == acc.id && x.status == stampedStatusName
                                     && x.invoicedAt >= firstDayOfMonth && x.invoicedAt <= lastDayOfMonth).OrderBy(x => x.invoicedAt);
 
-                                bool isOldAccount = !string.IsNullOrEmpty(acc.planSchema) && acc.planSchema.StartsWith("OLD_SCHEMA");
+                                bool isOldAccount = !string.IsNullOrEmpty(acc.planSchema) && acc.planSchema.StartsWith(SystemPlan.OLD_SCHEMA.ToString());
 
                                 var accountSupscriptions = RecurlyService.GetAccountSuscriptions(siteId, acc.idCredentialProvider);
 
@@ -121,9 +123,9 @@ namespace MVC_Project.Jobs
 
                                         var totalInvoices = totalIssuedInvoices + totalReceivedInvoices;
 
-                                        var planCode = totalInvoices <= 50 ? "plan_startup" :
-                                                totalInvoices <= 125 ? "plan_basico" :
-                                                totalInvoices <= 200 ? "plan_premium" : "plan_empresarial";
+                                        var planCode = totalInvoices <= 50 ? SystemPlan.STARTUP.GetDisplayName() :
+                                                totalInvoices <= 125 ? SystemPlan.BASICO.GetDisplayName() :
+                                                totalInvoices <= 200 ? SystemPlan.PREMIUM.GetDisplayName() : SystemPlan.EMPRESARIAL.GetDisplayName();
 
                                         if (accountSupscriptions.data != null && accountSupscriptions.data.Count > 0)
                                         {
@@ -168,13 +170,13 @@ namespace MVC_Project.Jobs
                                     }
                                     else
                                     {
-                                        var recurlyPlan = plans.data.FirstOrDefault(x => x.code == "contigo");
+                                        var recurlyPlan = plans.data.FirstOrDefault(x => x.code == SystemPlan.CONTIGO.GetDisplayName());
 
                                         if (recurlyPlan != null)
                                         {
-                                            var totalIssuedInvoices = issuedInvoices.Where(x => x.invoiceType != "E" && x.invoiceType != "P").Count();
+                                            var totalIssuedInvoices = issuedInvoices.Where(x => x.invoiceType != TipoComprobante.E.ToString() && x.invoiceType != TipoComprobante.P.ToString()).Count();
 
-                                            var totalReceivedInvoices = receivedInvoices.Where(x => x.invoiceType != "E" && x.invoiceType != "P").Count();
+                                            var totalReceivedInvoices = receivedInvoices.Where(x => x.invoiceType != TipoComprobante.E.ToString() && x.invoiceType != TipoComprobante.P.ToString()).Count();
 
                                             var totalInvoices = totalIssuedInvoices + totalReceivedInvoices;
 
@@ -182,30 +184,32 @@ namespace MVC_Project.Jobs
 
                                             if (totalInvoices > 30)
                                             {
-                                                var allInvoices = issuedInvoices.Where(x => x.invoiceType != "E" && x.invoiceType != "P").Select(x => new Domain.Model.Invoice()
-                                                {
-                                                    issued = true,
-                                                    id = x.id,
-                                                    uuid = x.uuid,
-                                                    createdAt = x.createdAt,
-                                                    invoicedAt = x.invoicedAt,
-                                                    invoiceType = x.invoiceType,
-                                                    modifiedAt = x.modifiedAt,
-                                                    status = x.status,
-                                                    isHomeIssued = x.homemade && x.branchOffice != null
-                                                });
+                                                var allInvoices = issuedInvoices.Where(x => x.invoiceType != TipoComprobante.E.ToString() && x.invoiceType != TipoComprobante.P.ToString())
+                                                    .Select(x => new Domain.Model.Invoice()
+                                                    {
+                                                        issued = true,
+                                                        id = x.id,
+                                                        uuid = x.uuid,
+                                                        createdAt = x.createdAt,
+                                                        invoicedAt = x.invoicedAt,
+                                                        invoiceType = x.invoiceType,
+                                                        modifiedAt = x.modifiedAt,
+                                                        status = x.status,
+                                                        isHomeIssued = x.homemade && x.branchOffice != null
+                                                    });
 
-                                                allInvoices = allInvoices.Concat(receivedInvoices.Where(x => x.invoiceType != "E" && x.invoiceType != "P").Select(x => new Domain.Model.Invoice()
-                                                {
-                                                    issued = false,
-                                                    id = x.id,
-                                                    uuid = x.uuid,
-                                                    createdAt = x.createdAt,
-                                                    invoicedAt = x.invoicedAt,
-                                                    invoiceType = x.invoiceType,
-                                                    modifiedAt = x.modifiedAt,
-                                                    status = x.status
-                                                }));
+                                                allInvoices = allInvoices.Concat(receivedInvoices.Where(x => x.invoiceType != TipoComprobante.E.ToString() && x.invoiceType != TipoComprobante.P.ToString())
+                                                    .Select(x => new Domain.Model.Invoice()
+                                                    {
+                                                        issued = false,
+                                                        id = x.id,
+                                                        uuid = x.uuid,
+                                                        createdAt = x.createdAt,
+                                                        invoicedAt = x.invoicedAt,
+                                                        invoiceType = x.invoiceType,
+                                                        modifiedAt = x.modifiedAt,
+                                                        status = x.status
+                                                    }));
 
                                                 allInvoices = allInvoices.OrderBy(x => x.invoicedAt);
 
@@ -223,7 +227,7 @@ namespace MVC_Project.Jobs
 
                                             if (accountSupscriptions.data != null && accountSupscriptions.data.Count > 0)
                                             {
-                                                haveSubscription = accountSupscriptions.data.Any(x => x.Plan.Code == "contigo");
+                                                haveSubscription = accountSupscriptions.data.Any(x => x.Plan.Code == SystemPlan.CONTIGO.GetDisplayName());
                                             }
 
                                             if (!haveSubscription)
@@ -234,7 +238,7 @@ namespace MVC_Project.Jobs
                                                     addonsList = new List<SubscriptionAddOnCreate>() {
                                                         new SubscriptionAddOnCreate()
                                                         {
-                                                            Code = "factura_adicional_contigo",
+                                                            Code = RecurlyPlanAddons.CONTIGO_FACTURA_ADICIONAL.GetDisplayName(),
                                                             Quantity = addonsQuantity,
                                                         }
                                                     };
@@ -263,8 +267,8 @@ namespace MVC_Project.Jobs
                                             }
                                             else
                                             {
-                                                var currentSubscription = accountSupscriptions.data.FirstOrDefault(x => x.Plan.Code == "contigo");
-                                                var currentSubAddonQuantity = currentSubscription.AddOns.FirstOrDefault(x => x.AddOn.Code == "factura_adicional_contigo")?.Quantity;
+                                                var currentSubscription = accountSupscriptions.data.FirstOrDefault(x => x.Plan.Code == SystemPlan.CONTIGO.GetDisplayName());
+                                                var currentSubAddonQuantity = currentSubscription.AddOns.FirstOrDefault(x => x.AddOn.Code == RecurlyPlanAddons.CONTIGO_FACTURA_ADICIONAL.GetDisplayName())?.Quantity;
 
                                                 if (currentSubAddonQuantity.GetValueOrDefault() != addonsQuantity)
                                                 {
@@ -272,7 +276,7 @@ namespace MVC_Project.Jobs
                                                         {
                                                             new SubscriptionAddOnUpdate
                                                             {
-                                                                Code = "factura_adicional_contigo",
+                                                                Code = RecurlyPlanAddons.CONTIGO_FACTURA_ADICIONAL.GetDisplayName(),
                                                                 Quantity = addonsQuantity
                                                             }
                                                         } : null;
@@ -294,16 +298,16 @@ namespace MVC_Project.Jobs
                                     switch (planSchema)
                                     {
                                         case SystemPlan.OLD_SCHEMA_STARTUP:
-                                            planCode = "pstartup_anterior";
+                                            planCode = SystemPlan.OLD_SCHEMA_STARTUP.GetDisplayName();
                                             break;
                                         case SystemPlan.OLD_SCHEMA_BASICO:
-                                            planCode = "pbasico_anterior";
+                                            planCode = SystemPlan.OLD_SCHEMA_BASICO.GetDisplayName();
                                             break;
                                         case SystemPlan.OLD_SCHEMA_PREMIUN:
-                                            planCode = "ppremium_anterior";
+                                            planCode = SystemPlan.OLD_SCHEMA_PREMIUN.GetDisplayName();
                                             break;
                                         case SystemPlan.OLD_SCHEMA_EMPRESARIAL:
-                                            planCode = "pempresarial_anterior";
+                                            planCode = SystemPlan.OLD_SCHEMA_EMPRESARIAL.GetDisplayName();
                                             break;
                                     }
 
@@ -412,7 +416,7 @@ namespace MVC_Project.Jobs
         {
             var purchaseReq = new PurchaseCreate()
             {
-                Currency = "MXN",
+                Currency = TypeCurrency.MXN.ToString(),
                 Account = new AccountPurchase()
                 {
                     Code = accontCode,
@@ -442,7 +446,7 @@ namespace MVC_Project.Jobs
         {
             var subscriptionChangeModel = new SubscriptionChangeCreate()
             {
-                Timeframe = "bill_date",
+                Timeframe = RecurlyChangeTimeframe.BILL_DATE.ToString(),
                 AddOns = addons
             };
 
@@ -503,7 +507,8 @@ namespace MVC_Project.Jobs
                 customerMessage = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault()?.CustomerMessage,
                 statusCode = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault()?.Status,
                 statusMessage = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault()?.StatusMessage,
-                transactionId = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault().Uuid
+                transactionId = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault().Uuid,
+                email = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault().Account.Email
             };
             _recurlyPaymentService.Create(recurlyPayment);
         }
@@ -512,7 +517,7 @@ namespace MVC_Project.Jobs
         {
             var now = DateUtil.GetDateTimeNow();
             var storedSubscription = _recurlySubscriptionService.FirstOrDefault(x => x.subscriptionId == subscriptionChange.SubscriptionId);
-            if(storedSubscription != null)
+            if (storedSubscription != null)
             {
                 storedSubscription.modifiedAt = now;
                 storedSubscription.state = SystemStatus.PROCESSING.ToString();
