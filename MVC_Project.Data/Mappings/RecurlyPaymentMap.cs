@@ -17,6 +17,7 @@ namespace MVC_Project.Data.Mappings
             //Map(x => x.uuid).Column("uuid").Not.Nullable();
 
             Map(x => x.subtotal).Column("subtotal").Nullable();
+            Map(x => x.total).Column("total").Nullable();
             Map(x => x.paymentGateway).Column("paymentGateway").Nullable();
             Map(x => x.statusCode).Column("statusCode").Nullable();
             Map(x => x.statusMessage).Column("statusMessage").Nullable();
@@ -24,10 +25,15 @@ namespace MVC_Project.Data.Mappings
 
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
             Map(x => x.transactionId).Column("transactionId").Nullable();
+            Map(x => x.stampStatus).Column("stampStatus").Nullable();
+            Map(x => x.stampAttempt).Column("stampAttempt").Not.Nullable();
+            Map(x => x.stampStatusMessage).Column("stampStatusMessage").Length(3000).Nullable();
+            Map(x => x.email).Column("email").Nullable();
             //Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
             //Map(x => x.status).Column("status").Nullable();
 
             References(x => x.subscription).Column("subscriptionId").Nullable();
+            References(x => x.invoice).Column("invoiceId").Nullable();
 
         }
     }

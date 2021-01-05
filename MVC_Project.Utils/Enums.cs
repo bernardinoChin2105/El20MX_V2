@@ -147,6 +147,11 @@ namespace MVC_Project.Utils
         {
             return Enum.GetValues(typeof(T)).Cast<T>();
         }
+
+        //public static string GetDisplayName(this Enum enumValue)
+        //{
+        //    return GetAttribute<DisplayAttribute>(enumValue).Name;
+        //}
     }
 
     public enum SystemModules
@@ -469,17 +474,51 @@ namespace MVC_Project.Utils
 
     public enum SystemPlan
     {
+        [Display(Name = "Prefijo esquema anterior")]
+        OLD_SCHEMA,
         [Display(Name = "Esquema anterior contigo")]
         OLD_SCHEMA_CONTIGO,
-        [Display(Name = "Esquema anterior startup")]
+        [Display(Name = "pstartup_anterior")]
         OLD_SCHEMA_STARTUP,
-        [Display(Name = "Esquema anterior básico")]
+        [Display(Name = "pbasico_anterior")]
         OLD_SCHEMA_BASICO,
-        [Display(Name = "Esquema anterior premiun")]
+        [Display(Name = "ppremium_anterior")]
         OLD_SCHEMA_PREMIUN,
-        [Display(Name = "Esquema anterior empresarial")]
+        [Display(Name = "pempresarial_anterior")]
         OLD_SCHEMA_EMPRESARIAL,
         [Display(Name = "Esquema nuevo")]
-        NEW_SCHEMA
+        NEW_SCHEMA,
+        [Display(Name = "plan_startup")]
+        STARTUP,
+        [Display(Name = "plan_basico")]
+        BASICO,
+        [Display(Name = "plan_premium")]
+        PREMIUM,
+        [Display(Name = "plan_empresarial")]
+        EMPRESARIAL,
+        [Display(Name = "contigo")]
+        CONTIGO
+    }
+
+    public enum RecurlyPlanAddons
+    {
+        [Display(Name = "factura_adicional_contigo")]
+        CONTIGO_FACTURA_ADICIONAL
+    }
+
+    public enum RecurlyPaymentStatus
+    {
+        [Display(Name = "success")]
+        SUCCESS,
+        [Display(Name = "declined")]
+        DECLINED
+    }
+
+    public enum RecurlyChangeTimeframe
+    {
+        [Display(Name = "now")]
+        NOW,
+        [Display(Name = "bill_date")]
+        BILL_DATE
     }
 }
