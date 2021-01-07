@@ -355,6 +355,14 @@ namespace MVC_Project.Resources {
             {
                 return ResourceManager.GetString("MODULE_MY_ACCOUNT", resourceCulture);
             }
-        }        
+        }
+
+        public static string MODULE_CHARGES_RECURLY
+        {
+            get
+            {
+                return ResourceManager.GetString("MODULE_CHARGES_RECURLY", resourceCulture);
+            }
+        }
     }
 }
