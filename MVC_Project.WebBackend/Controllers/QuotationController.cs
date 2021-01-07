@@ -241,6 +241,7 @@ namespace MVC_Project.WebBackend.Controllers
                     startedAt = quotation.startedAt,
                     hiringDate = quotation.hiringDate,
                     hiringDateEdit = quotation.hiringDate.HasValue? quotation.hiringDate.Value.ToShortDateString() : string.Empty,
+                    startedAtEdit = quotation.startedAt.HasValue ? quotation.startedAt.Value.ToShortDateString() : string.Empty,
                     total = Math.Round(quotation.total),
                     hasDeferredPayment = quotation.hasDeferredPayment,
                     advancePayment = Math.Round(quotation.advancePayment, 2),

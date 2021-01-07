@@ -461,7 +461,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             language: "es",
             fontAwesome: true,
             maxDate: DateInit.MaxDate,
-            ////startDate: DateInit.MinDate
+            startDate: '-3d'
         });
 
         $(this.htmlTable, "tbody").on('click',
@@ -982,10 +982,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $(".TypeRelationship").removeClass("hide");
 
                 $("#tablePayments").addClass("hide");
-                $("#tablePayments").html("");
+                $("#Complements").html("");
 
                 $("#Condiciones").removeClass("hide");
-                $("#tablePayments").addClass("hide");
                 $("#DiscountRate").attr("readonly", true);
                 $("#btnProdServ").removeClass("hide");
 
@@ -998,7 +997,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $(".TypeRelationship").removeClass("hide");
 
                 $("#tablePayments").addClass("hide");
-                $("#tablePayments").html("");
+                $("#Complements").html("");
 
                 $("#Condiciones").removeClass("hide");
                 $("#btnProdServ").removeClass("hide");

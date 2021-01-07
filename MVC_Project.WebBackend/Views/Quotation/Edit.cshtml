@@ -70,7 +70,7 @@
                                     <div class="input-group date">
                                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                                         @*@Html.TextBoxFor(model => model.startedAt, new { @class = "form-control", required = "required", @autocomplete = "off", @readonly = "readonly" })*@
-                                        <input type="text" name="startedAt" id="startedAt" class="form-control required" readonly value="@(Model.startedAt.ToShortDateString())">
+                                        <input type="text" name="startedAt" id="startedAt" class="form-control" readonly value="@(Model.startedAtEdit)">
                                     </div>
                                 </div>
                             </div>
