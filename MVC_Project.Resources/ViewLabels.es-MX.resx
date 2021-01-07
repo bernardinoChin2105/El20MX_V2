@@ -213,4 +213,7 @@
   <data name="MODULE_MY_ACCOUNT" xml:space="preserve">
     <value>Mi Cuenta con El20.mx</value>
   </data>
+  <data name="MODULE_CHARGES_RECURLY" xml:space="preserve">
+    <value>Cargos Recurly</value>
+  </data>
 </root>
