@@ -58,6 +58,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //orderMulti: false,
             "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
             "bLengthChange": false,
+            reponsive: true,
             "bInfo": false,
             "paging": false,
             searching: false,
@@ -1133,8 +1134,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 El20Utils.ocultarCargador();
             }
         });
-
-        $("#RFC").keyup(function () {
+        
+        $("#RFC, #SATUnit").keyup(function () {
             this.value = this.value.toUpperCase();
         });
 

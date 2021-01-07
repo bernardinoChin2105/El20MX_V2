@@ -395,7 +395,7 @@ namespace MVC_Project.WebBackend.Controllers
                         ClaveProdServ = item.SATCode.ToString(),
                         //NoIdentificacion = que dato es?
                         Cantidad = item.Quantity,
-                        ClaveUnidad = item.SATUnit,
+                        ClaveUnidad = item.SATUnit.Trim(),
                         Descripcion = item.ProductServiceDescription,
                         ValorUnitario = item.UnitPrice,
                         Importe = item.Subtotal,
