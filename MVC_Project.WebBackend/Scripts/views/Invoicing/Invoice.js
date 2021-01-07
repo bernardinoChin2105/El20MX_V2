@@ -1014,7 +1014,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#InvoiceComplementChk").prop({ "checked": false }).iCheck('update');
 
                 $("#tablePayments").addClass("hide");
-                $("#tablePayments").html("");
+                $("#Complements").html("");
 
                 $("#Condiciones").removeClass("hide");
                 $("#btnProdServ").removeClass("hide");
