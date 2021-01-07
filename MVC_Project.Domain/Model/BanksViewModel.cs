@@ -37,6 +37,7 @@ namespace MVC_Project.Domain.Model
         public Int64 bankCredentialId { get; set; }
         public string bankName { get; set; }
         public Int32 Total { get; set; }
+        public double balanceCutting { get; set; }
     }
 
     public class BankCredentialsList
