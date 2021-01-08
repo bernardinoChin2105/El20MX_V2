@@ -1752,6 +1752,35 @@ namespace MVC_Project.WebBackend.Controllers
         }
 
         [HttpGet, AllowAnonymous]
+        public ActionResult GetAsPDFContent(Int64 id, string type, string rfc)
+        {
+            string typeInvoicing = ((TypeInvoicing)Enum.Parse(typeof(TypeInvoicing), type, true)).GetDisplayName();
+
+            var invoice = (dynamic)null;
+            string logo = string.Empty;
+
+            if (typeInvoicing == TypeInvoicing.ISSUED.GetDisplayName())
+            {
+                invoice = _invoiceIssuedService.FirstOrDefault(x => x.id == id);
+                logo = invoice.branchOffice != null ? invoice.branchOffice.logo : string.Empty;
+            }
+            else
+            {
+                invoice = _invoiceReceivedService.FirstOrDefault(x => x.id == id);
+            }
+
+            InvoicesVM cfdipdf = GetGenerateFilePDF(typeInvoicing, invoice, logo, rfc);
+
+            var actionPDF = new Rotativa.ViewAsPdf("InvoiceDownloadPDF", cfdipdf)
+            {
+                FileName = invoice.uuid + ".pdf"
+            };
+            byte[] applicationPDFData = actionPDF.BuildPdf(ControllerContext);
+            return new FileContentResult(applicationPDFData, "application/octet-stream");
+
+        }
+
+        [HttpGet, AllowAnonymous]
         public void GetDownloadXML(Int64 id, string type)
         {
             var authUser = Authenticator.AuthenticatedUser;
@@ -1789,9 +1818,17 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
-        private InvoicesVM GetGenerateFilePDF(string typeInvoicing, dynamic invoice, string logo)
+        private InvoicesVM GetGenerateFilePDF(string typeInvoicing, dynamic invoice, string logo, string rfc = "")
         {
-            var authUser = Authenticator.AuthenticatedUser;
+            string accountRfc = "";
+            if(!string.IsNullOrEmpty(rfc))
+            {
+                accountRfc = rfc;
+            } else
+            {
+                var authUser = Authenticator.AuthenticatedUser;
+                accountRfc = authUser.Account.RFC;
+            }
 
             var StorageInvoices = typeInvoicing == TypeInvoicing.ISSUED.GetDisplayName() ? ConfigurationManager.AppSettings["StorageInvoicesIssued"] : ConfigurationManager.AppSettings["StorageInvoicesReceived"];
             if (invoice == null)
@@ -1800,7 +1837,7 @@ namespace MVC_Project.WebBackend.Controllers
             if (invoice.xml == null)
                 throw new Exception("El registro no cuenta con el xml de la factura emitida");
 
-            MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
+            MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, accountRfc + "/" + invoice.uuid + ".xml");
             stream.Position = 0;
 
             XmlDocument doc = new XmlDocument();
