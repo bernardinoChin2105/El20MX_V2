@@ -742,7 +742,8 @@ namespace MVC_Project.WebBackend.Controllers
                                 subtotal = cfdi.SubTotal,
                                 total = cfdi.Total,
                                 homemade = true,
-                                branchOffice = office
+                                branchOffice = office,
+                                json = JsonConvert.SerializeObject(invoiceModel)
                             });
                         }
 
@@ -788,7 +789,7 @@ namespace MVC_Project.WebBackend.Controllers
                                                    EOperacionLog.ACCESS,
                                                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                                                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                                                   JsonConvert.SerializeObject(invoiceModel)
+                                                   JsonConvert.SerializeObject(model)
                                                );
                 MensajeFlashHandler.RegistrarMensaje("Factura timbrada con éxito.", TiposMensaje.Success);
                 return RedirectToAction("Invoice");
