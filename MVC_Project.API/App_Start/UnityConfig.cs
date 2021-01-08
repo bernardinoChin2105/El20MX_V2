@@ -90,6 +90,9 @@ namespace MVC_Project.API
             container.RegisterType<IBankCredentialService, BankCredentialService>();
             container.RegisterType<IBankService, BankService>();
             container.RegisterType<IWebhookProcessService, WebhookProcessService>(); 
+            container.RegisterType<IRecurlySubscriptionService, RecurlySubscriptionService>(); 
+            container.RegisterType<IRecurlyPaymentService, RecurlyPaymentService>(); 
+            container.RegisterType<IRecurlyInvoiceService, RecurlyInvoiceService>(); 
         }
     }
 }

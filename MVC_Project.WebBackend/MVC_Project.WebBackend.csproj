@@ -78,6 +78,9 @@
     <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=3.1.5.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.3.1.5\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
     </Reference>
+    <Reference Include="RecurlyJS, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RecurlyJS.1.0.0\lib\net45\RecurlyJS.dll</HintPath>
+    </Reference>
     <Reference Include="Remotion.Linq, Version=2.2.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
       <HintPath>..\packages\Remotion.Linq.2.2.0\lib\net45\Remotion.Linq.dll</HintPath>
     </Reference>
@@ -1905,6 +1908,7 @@
     <Content Include="fonts\webfonts\fa-solid-900.woff" />
     <Content Include="fonts\webfonts\fa-solid-900.woff2" />
     <Content Include="App_Browsers\qt.browser" />
+    <Content Include="libman.json" />
     <None Include="packages.config" />
     <Content Include="Scripts\api\typehead_collection.json" />
     <Content Include="Scripts\bootstrap.js.map" />

@@ -94,6 +94,7 @@
     <Compile Include="Mappings\BranchOfficeMap.cs" />
     <Compile Include="Mappings\CADAccountMap.cs" />
     <Compile Include="Mappings\CredentialMap.cs" />
+    <Compile Include="Mappings\InvoiceEmissionParametersMap.cs" />
     <Compile Include="Mappings\NotificationMap.cs" />
     <Compile Include="Mappings\ForeignCountryMap.cs" />
     <Compile Include="Mappings\RateFeeMap.cs" />
@@ -114,6 +115,10 @@
     <Compile Include="Mappings\PromotionMap.cs" />
     <Compile Include="Mappings\QuotationDetailMap.cs" />
     <Compile Include="Mappings\QuotationMap.cs" />
+    <Compile Include="Mappings\RecurlyInvoiceMap.cs" />
+    <Compile Include="Mappings\RecurlyPaymentMap.cs" />
+    <Compile Include="Mappings\RecurlySubscriptionMap.cs" />
+    <Compile Include="Mappings\SATExtractionProcessMap.cs" />
     <Compile Include="Mappings\SupervisorCADMap.cs" />
     <Compile Include="Mappings\TaxMap.cs" />
     <Compile Include="Mappings\TaxRegimeMap.cs" />

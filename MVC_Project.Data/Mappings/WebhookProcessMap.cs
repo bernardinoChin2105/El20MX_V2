@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MVC_Project.Data.Mappings
 {
-    class WebhookProcessMap:ClassMap<WebhookProcess>
+    public class WebhookProcessMap:ClassMap<WebhookProcess>
     {
         public WebhookProcessMap()
         {

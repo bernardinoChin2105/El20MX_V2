@@ -17,6 +17,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using System.Xml;
 
 namespace MVC_Project.API.Controllers
 {
@@ -29,11 +30,19 @@ namespace MVC_Project.API.Controllers
         private ICredentialService _credentialService;
         private IWebhookProcessService _webhookProcessService;
 
-        public WebhooksController(IAccountService accountService, ICredentialService credentialService, IWebhookProcessService webhookProcessService)
+        private IRecurlySubscriptionService _recurlySubscriptionService;
+        private IRecurlyPaymentService _recurlyPaymentService;
+        private IRecurlyInvoiceService _recurlyInvoiceService;
+
+        public WebhooksController(IAccountService accountService, ICredentialService credentialService, IWebhookProcessService webhookProcessService,
+            IRecurlySubscriptionService recurlySubscriptionService, IRecurlyPaymentService recurlyPaymentService, IRecurlyInvoiceService recurlyInvoiceService)
         {
             _accountService = accountService;
             _credentialService = credentialService;
             _webhookProcessService = webhookProcessService;
+            _recurlySubscriptionService = recurlySubscriptionService;
+            _recurlyPaymentService = recurlyPaymentService;
+            _recurlyInvoiceService = recurlyInvoiceService;
         }
 
         [HttpPost]
@@ -244,6 +253,135 @@ namespace MVC_Project.API.Controllers
             {
                 LogUtil.AddEntry(descripcion: "Error en la actualización de credenciales " + ex.Message, eLogLevel: ENivelLog.Debug,
                        usuarioId: (Int64)1, usuario: "Sat.ws Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "SatwsCredentialUpdateHandler", detalle: taxStatusEventModel.ToString());
+
+            }
+            return Request.CreateResponse(HttpStatusCode.OK);
+        }
+        
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("RecurlyUpdatesWebhook")]
+        public HttpResponseMessage RecurlyUpdatesWebhook([FromBody]string webhookEventModel)
+        {
+            try
+            {
+                var task = Request.Content.ReadAsStreamAsync();
+                task.Wait();
+                var contentStream = task.Result;
+                contentStream.Position = 0;
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(contentStream);
+                contentStream.Dispose();
+
+                var contentNode = xmlDoc.ChildNodes[1];
+
+                var accountCode = contentNode.SelectSingleNode("account").SelectSingleNode("account_code").InnerText;
+                RecurlySubscription recurlySubscription = null;
+
+                switch (contentNode.Name)
+                {
+                    case "successful_payment_notification":
+                        recurlySubscription = _recurlySubscriptionService.FirstOrDefault(x => x.account.uuid.ToString().ToLower() == accountCode.ToLower() && x.status == "ACTIVE");
+                        var transactionId = contentNode.SelectSingleNode("transaction").SelectSingleNode("id").InnerText;
+                        var storedPaymentTransaction = _recurlyPaymentService.FirstOrDefault(x => x.transactionId == transactionId);
+                        if(storedPaymentTransaction == null)
+                        {
+                            var amountInCents = contentNode.SelectSingleNode("transaction").SelectSingleNode("amount_in_cents").InnerText;
+                            var total = int.Parse(amountInCents) / 100M;
+                            var recurlyPayment = new RecurlyPayment
+                            {
+                                createdAt = DateTime.Parse(contentNode.SelectSingleNode("transaction").SelectSingleNode("date").InnerText),
+                                subscription = recurlySubscription,
+                                subtotal = total,
+                                total = total,
+                                paymentGateway = contentNode.SelectSingleNode("transaction").SelectSingleNode("gateway").InnerText,
+                                customerMessage = "",
+                                statusCode = contentNode.SelectSingleNode("transaction").SelectSingleNode("status").InnerText,
+                                statusMessage = contentNode.SelectSingleNode("transaction").SelectSingleNode("message").InnerText,
+                                email = contentNode.SelectSingleNode("account").SelectSingleNode("email").InnerText,
+                                transactionId = transactionId
+                            };
+                            _recurlyPaymentService.Create(recurlyPayment);
+                        }
+                        break;
+                    case "paid_charge_invoice_notification":
+                        recurlySubscription = _recurlySubscriptionService.FirstOrDefault(x => x.account.uuid.ToString().ToLower() == accountCode.ToLower() && x.status == "ACTIVE");
+                        var invoiceNumber = contentNode.SelectSingleNode("invoice").SelectSingleNode("invoice_number").InnerText;
+                        var storedPaymentInvoice = _recurlyInvoiceService.FirstOrDefault(x => x.invoiceId == invoiceNumber);
+                        if(storedPaymentInvoice == null)
+                        {
+                            var createdAt = DateTime.Parse(contentNode.SelectSingleNode("invoice").SelectSingleNode("created_at").InnerText);
+                            var recurlyInvoice = new RecurlyInvoice
+                            {
+                                createdAt = createdAt,
+                                mounth = createdAt.Month.ToString(),
+                                year = createdAt.Year.ToString(),
+                                uuid = Guid.NewGuid(),
+                                subscription = recurlySubscription,
+                                totalInvoice = 0,
+                                totalInvoiceIssued = 0,
+                                totalInvoiceReceived = 0,
+                                extraBills = 0,
+                                invoiceId = invoiceNumber
+                            };
+                            _recurlyInvoiceService.Create(recurlyInvoice);
+
+                            if(recurlySubscription != null)
+                            {
+                                recurlySubscription.state = contentNode.SelectSingleNode("invoice").SelectSingleNode("state").InnerText;
+                                recurlySubscription.modifiedAt = DateUtil.GetDateTimeNow();
+                                _recurlySubscriptionService.Update(recurlySubscription);
+                            }
+                        }
+                        break;
+                    case "failed_payment_notification":
+                        recurlySubscription = _recurlySubscriptionService.FirstOrDefault(x => x.account.uuid.ToString().ToLower() == accountCode.ToLower() && x.status == "ACTIVE");
+                        var failedTransactionId = contentNode.SelectSingleNode("transaction").SelectSingleNode("id").InnerText;
+                        var amountTransactionInCents = contentNode.SelectSingleNode("transaction").SelectSingleNode("amount_in_cents").InnerText;
+                        var totalAmount = int.Parse(amountTransactionInCents) / 100M;
+                        var recurlyFailedPayment = new RecurlyPayment
+                        {
+                            createdAt = DateTime.Parse(contentNode.SelectSingleNode("transaction").SelectSingleNode("date").InnerText),
+                            subscription = recurlySubscription,
+                            subtotal = totalAmount,
+                            total = totalAmount,
+                            paymentGateway = contentNode.SelectSingleNode("transaction").SelectSingleNode("gateway").InnerText,
+                            customerMessage = "",
+                            statusCode = contentNode.SelectSingleNode("transaction").SelectSingleNode("status").InnerText,
+                            statusMessage = contentNode.SelectSingleNode("transaction").SelectSingleNode("message").InnerText,
+                            transactionId = failedTransactionId
+                        };
+                        _recurlyPaymentService.Create(recurlyFailedPayment);
+
+                        if (recurlySubscription != null)
+                        {
+                            recurlySubscription.state = contentNode.SelectSingleNode("transaction").SelectSingleNode("status").InnerText;
+                            recurlySubscription.modifiedAt = DateUtil.GetDateTimeNow();
+                            _recurlySubscriptionService.Update(recurlySubscription);
+                        }
+                        break;
+                    case "expired_subscription_notification":
+                        var planCode = contentNode.SelectSingleNode("subscription").SelectSingleNode("plan").SelectSingleNode("plan_code").InnerText;
+                        recurlySubscription = _recurlySubscriptionService.FirstOrDefault(x => x.account.uuid.ToString().ToLower() == accountCode.ToLower() && x.planCode == planCode && x.status == "ACTIVE");
+                        if(recurlySubscription != null)
+                        {
+                            var subscriptionState = contentNode.SelectSingleNode("subscription").SelectSingleNode("state").InnerText;
+                            recurlySubscription.state = subscriptionState;
+                            recurlySubscription.status = SystemStatus.CANCELLED.ToString();
+                            recurlySubscription.modifiedAt = DateUtil.GetDateTimeNow();
+
+                            _recurlySubscriptionService.Update(recurlySubscription);
+                        }
+                        break;
+                }
+
+                LogUtil.AddEntry(descripcion: "Recurly webhook ejecutado con exito", eLogLevel: ENivelLog.Debug,
+                    usuarioId: (Int64)1, usuario: "Recurly.Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: contentNode.Name, detalle: contentNode.OuterXml);
+            }
+            catch (Exception ex)
+            {
+                LogUtil.AddEntry(descripcion: "Error en webhook recurly: " + ex.Message, eLogLevel: ENivelLog.Debug,
+                       usuarioId: (Int64)1, usuario: "Recurly.Webhook", eOperacionLog: EOperacionLog.AUTHORIZATION, parametros: "", modulo: "Recurly.Webhook", detalle: "");
 
             }
             return Request.CreateResponse(HttpStatusCode.OK);

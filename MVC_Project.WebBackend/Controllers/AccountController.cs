@@ -3,6 +3,7 @@ using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
 using MVC_Project.Integrations.Paybook;
 using MVC_Project.Integrations.Pipedrive;
+using MVC_Project.Integrations.Recurly;
 using MVC_Project.Integrations.SAT;
 using MVC_Project.Integrations.Storage;
 using MVC_Project.Utils;
@@ -220,6 +221,9 @@ namespace MVC_Project.WebBackend.Controllers
             }
             else
             {
+                var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
+                var recurlyAccountUrlBase = ConfigurationManager.AppSettings["Recurly.AccountUrlBase"];
+
                 var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
 
                 if (account != null)
@@ -235,6 +239,18 @@ namespace MVC_Project.WebBackend.Controllers
                             Level = p.level,
                             isCustomizable = p.permission.isCustomizable
                         }).ToList();
+
+                        var recurlyAccountCredential = _credentialService.FindBy(x => x.account.id == account.id && x.provider == recurlyProvider && x.statusProvider == "active" && x.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
+                        if(recurlyAccountCredential != null && !string.IsNullOrEmpty(recurlyAccountCredential.credentialType))
+                        {
+                            permissions.Add(new Permission {
+                                Action = recurlyAccountUrlBase + recurlyAccountCredential.credentialType,
+                                Controller = "MyAccount",
+                                Module = SystemModules.RECURLY_ACCOUNT.ToString(),
+                                Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                                isCustomizable = true
+                            });
+                        }
 
                         authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
                         authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
@@ -555,6 +571,26 @@ namespace MVC_Project.WebBackend.Controllers
                    JsonConvert.SerializeObject(account)
                 );
                 
+                //#region Se creara la cuenta en Recurly
+                //    CreateAccountRecurly();
+                //#endregion
+                //var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
+                //var recurlyAccountUrlBase = ConfigurationManager.AppSettings["Recurly.AccountUrlBase"];
+
+                //var recurlyAccountCredential = _credentialService.FindBy(x => x.account.id == account.id && x.provider == recurlyProvider && x.statusProvider == "active" && x.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
+                //if (recurlyAccountCredential != null && !string.IsNullOrEmpty(recurlyAccountCredential.credentialType))
+                //{
+                //    authUser.Permissions.Add(new Permission
+                //    {
+                //        Action = recurlyAccountUrlBase + recurlyAccountCredential.credentialType,
+                //        Controller = "MyAccount",
+                //        Module = SystemModules.RECURLY_ACCOUNT.ToString(),
+                //        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                //        isCustomizable = true
+                //    });
+                //}
+
+
                 return RedirectToAction("Index", "SAT");
             }
             catch (Exception ex)
@@ -857,6 +893,69 @@ namespace MVC_Project.WebBackend.Controllers
             }
         }
 
+        #endregion
+
+        #region Método para crear la cuenta del RFC en Recurly. Para nuevo clientes
+        public void CreateAccountRecurly()
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+            #region Método para crear una nueva cuenta en recurly. Esta en una ubicación temporal mientras se logra ubicar el correcto.   
+            try
+            {               
+                var provider = ConfigurationManager.AppSettings["RecurlyProvider"];
+                var siteId = ConfigurationManager.AppSettings["Recurly.SiteId"];
+
+                CreateAccountModel newAccount = new CreateAccountModel();
+                DateTime todayDate = DateUtil.GetDateTimeNow();
+
+                newAccount.code = authUser.Account.Uuid.ToString();
+                newAccount.username = authUser.Account.RFC; //Se agrego el RFC para diferenciar si los nombres de usuario
+                newAccount.email = authUser.Email;
+                newAccount.preferred_locale = "es-MX";
+                newAccount.first_name = authUser.FirstName;
+                newAccount.last_name = authUser.LastName;
+                //newAccount.company = authUser.Account.Name;
+                
+                var serilaizeJson = JsonConvert.SerializeObject(newAccount, Newtonsoft.Json.Formatting.None,
+                new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+                dynamic accountRSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
+                var accountRecurly = RecurlyService.CreateAccount(accountRSend, siteId, provider);
+
+                if (accountRecurly != null)
+                {
+                    var account = new Domain.Entities.Account { id = authUser.Account.Id };
+                    var credential = new Domain.Entities.Credential()
+                    {
+                        account = new Domain.Entities.Account { id = authUser.Account.Id },
+                        uuid = Guid.NewGuid(),
+                        provider = provider,
+                        idCredentialProvider = accountRecurly.id,
+                        statusProvider = accountRecurly.state,
+                        createdAt = todayDate,
+                        modifiedAt = todayDate,
+                        status = SystemStatus.ACTIVE.ToString(),
+                        credentialType = accountRecurly.hosted_login_token //Token para la pagina
+                    };
+
+                    _credentialService.Create(credential);
+                }                
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message.ToString();
+                LogUtil.AddEntry(
+                  "Error en la crear la cuenta en Recurly: " + authUser.Account.RFC, ENivelLog.Error, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                  string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                  ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                  ex.Message + "" + (ex.InnerException != null ? ex.InnerException.Message : "")
+               );
+                //throw new Exception("Se validó el RFC pero no fue posible generar la cuenta a Recurly.");
+            }
+            #endregion
+        }
         #endregion
 
         [HttpPost]

@@ -47,14 +47,17 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\WindowsAzure.Storage.9.3.3\lib\net45\Microsoft.WindowsAzure.Storage.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Openpay, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Openpay.1.0.24\lib\net45\Openpay.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp, Version=106.11.5.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.106.11.5-alpha.0.2\lib\net452\RestSharp.dll</HintPath>
+    <Reference Include="RestSharp, Version=106.11.7.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.106.11.7\lib\net452\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp.Serializers.Newtonsoft.Json, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.Newtonsoft.Json.1.5.0\lib\net452\RestSharp.Serializers.Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -79,6 +82,122 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Recurly\Models\Account.cs" />
+    <Compile Include="Recurly\Models\AccountAcquisition.cs" />
+    <Compile Include="Recurly\Models\AccountAcquisitionCost.cs" />
+    <Compile Include="Recurly\Models\AccountAcquisitionUpdatable.cs" />
+    <Compile Include="Recurly\Models\AccountBalance.cs" />
+    <Compile Include="Recurly\Models\AccountBalanceAmount.cs" />
+    <Compile Include="Recurly\Models\AccountCreate.cs" />
+    <Compile Include="Recurly\Models\AccountMini.cs" />
+    <Compile Include="Recurly\Models\AccountNote.cs" />
+    <Compile Include="Recurly\Models\AccountPurchase.cs" />
+    <Compile Include="Recurly\Models\AccountUpdate.cs" />
+    <Compile Include="Recurly\Models\AddOn.cs" />
+    <Compile Include="Recurly\Models\AddOnCreate.cs" />
+    <Compile Include="Recurly\Models\AddOnMini.cs" />
+    <Compile Include="Recurly\Models\AddOnPricing.cs" />
+    <Compile Include="Recurly\Models\AddOnUpdate.cs" />
+    <Compile Include="Recurly\Models\Address.cs" />
+    <Compile Include="Recurly\Models\BillingInfo.cs" />
+    <Compile Include="Recurly\Models\BillingInfoCreate.cs" />
+    <Compile Include="Recurly\Models\BillingInfoUpdatedBy.cs" />
+    <Compile Include="Recurly\Models\BinaryFile.cs" />
+    <Compile Include="Recurly\Models\Coupon.cs" />
+    <Compile Include="Recurly\Models\CouponBulkCreate.cs" />
+    <Compile Include="Recurly\Models\CouponCreate.cs" />
+    <Compile Include="Recurly\Models\CouponDiscount.cs" />
+    <Compile Include="Recurly\Models\CouponDiscountPricing.cs" />
+    <Compile Include="Recurly\Models\CouponDiscountTrial.cs" />
+    <Compile Include="Recurly\Models\CouponMini.cs" />
+    <Compile Include="Recurly\Models\CouponPricing.cs" />
+    <Compile Include="Recurly\Models\CouponRedemption.cs" />
+    <Compile Include="Recurly\Models\CouponRedemptionCreate.cs" />
+    <Compile Include="Recurly\Models\CouponRedemptionMini.cs" />
+    <Compile Include="Recurly\Models\CouponUpdate.cs" />
+    <Compile Include="Recurly\Models\CreditPayment.cs" />
+    <Compile Include="Recurly\Models\CustomField.cs" />
+    <Compile Include="Recurly\Models\CustomFieldDefinition.cs" />
+    <Compile Include="Recurly\Models\Error.cs" />
+    <Compile Include="Recurly\Models\ErrorMayHaveTransaction.cs" />
+    <Compile Include="Recurly\Models\ErrorWrapper.cs" />
+    <Compile Include="Recurly\Models\ExportDates.cs" />
+    <Compile Include="Recurly\Models\ExportFile.cs" />
+    <Compile Include="Recurly\Models\ExportFiles.cs" />
+    <Compile Include="Recurly\Models\ExternalRefund.cs" />
+    <Compile Include="Recurly\Models\ExternalTransaction.cs" />
+    <Compile Include="Recurly\Models\FraudInfo.cs" />
+    <Compile Include="Recurly\Models\Invoice.cs" />
+    <Compile Include="Recurly\Models\InvoiceAddress.cs" />
+    <Compile Include="Recurly\Models\InvoiceCollect.cs" />
+    <Compile Include="Recurly\Models\InvoiceCollection.cs" />
+    <Compile Include="Recurly\Models\InvoiceCreate.cs" />
+    <Compile Include="Recurly\Models\InvoiceMini.cs" />
+    <Compile Include="Recurly\Models\InvoiceRefund.cs" />
+    <Compile Include="Recurly\Models\InvoiceUpdatable.cs" />
+    <Compile Include="Recurly\Models\Item.cs" />
+    <Compile Include="Recurly\Models\ItemCreate.cs" />
+    <Compile Include="Recurly\Models\ItemMini.cs" />
+    <Compile Include="Recurly\Models\ItemUpdate.cs" />
+    <Compile Include="Recurly\Models\LineItem.cs" />
+    <Compile Include="Recurly\Models\LineItemCreate.cs" />
+    <Compile Include="Recurly\Models\LineItemList.cs" />
+    <Compile Include="Recurly\Models\LineItemRefund.cs" />
+    <Compile Include="Recurly\Models\MeasuredUnit.cs" />
+    <Compile Include="Recurly\Models\MeasuredUnitCreate.cs" />
+    <Compile Include="Recurly\Models\MeasuredUnitUpdate.cs" />
+    <Compile Include="Recurly\Models\PaymentMethod.cs" />
+    <Compile Include="Recurly\Models\Plan.cs" />
+    <Compile Include="Recurly\Models\PlanCreate.cs" />
+    <Compile Include="Recurly\Models\PlanHostedPages.cs" />
+    <Compile Include="Recurly\Models\PlanMini.cs" />
+    <Compile Include="Recurly\Models\PlanPricing.cs" />
+    <Compile Include="Recurly\Models\PlanUpdate.cs" />
+    <Compile Include="Recurly\Models\Pricing.cs" />
+    <Compile Include="Recurly\Models\PurchaseCreate.cs" />
+    <Compile Include="Recurly\Models\RecurlyErrorException.cs" />
+    <Compile Include="Recurly\Models\Settings.cs" />
+    <Compile Include="Recurly\Models\ShippingAddress.cs" />
+    <Compile Include="Recurly\Models\ShippingAddressCreate.cs" />
+    <Compile Include="Recurly\Models\ShippingAddressUpdate.cs" />
+    <Compile Include="Recurly\Models\ShippingFeeCreate.cs" />
+    <Compile Include="Recurly\Models\ShippingMethod.cs" />
+    <Compile Include="Recurly\Models\ShippingMethodCreate.cs" />
+    <Compile Include="Recurly\Models\ShippingMethodMini.cs" />
+    <Compile Include="Recurly\Models\ShippingMethodUpdate.cs" />
+    <Compile Include="Recurly\Models\ShippingPurchase.cs" />
+    <Compile Include="Recurly\Models\Site.cs" />
+    <Compile Include="Recurly\Models\Subscription.cs" />
+    <Compile Include="Recurly\Models\SubscriptionAddOn.cs" />
+    <Compile Include="Recurly\Models\SubscriptionAddOnCreate.cs" />
+    <Compile Include="Recurly\Models\SubscriptionAddOnTier.cs" />
+    <Compile Include="Recurly\Models\SubscriptionAddOnUpdate.cs" />
+    <Compile Include="Recurly\Models\SubscriptionCancel.cs" />
+    <Compile Include="Recurly\Models\SubscriptionChange.cs" />
+    <Compile Include="Recurly\Models\SubscriptionChangeCreate.cs" />
+    <Compile Include="Recurly\Models\SubscriptionChangePreview.cs" />
+    <Compile Include="Recurly\Models\SubscriptionChangeShippingCreate.cs" />
+    <Compile Include="Recurly\Models\SubscriptionCreate.cs" />
+    <Compile Include="Recurly\Models\SubscriptionPause.cs" />
+    <Compile Include="Recurly\Models\SubscriptionPurchase.cs" />
+    <Compile Include="Recurly\Models\SubscriptionShipping.cs" />
+    <Compile Include="Recurly\Models\SubscriptionShippingCreate.cs" />
+    <Compile Include="Recurly\Models\SubscriptionShippingPurchase.cs" />
+    <Compile Include="Recurly\Models\SubscriptionShippingUpdate.cs" />
+    <Compile Include="Recurly\Models\SubscriptionUpdate.cs" />
+    <Compile Include="Recurly\Models\TaxInfo.cs" />
+    <Compile Include="Recurly\Models\Tier.cs" />
+    <Compile Include="Recurly\Models\Transaction.cs" />
+    <Compile Include="Recurly\Models\TransactionError.cs" />
+    <Compile Include="Recurly\Models\TransactionPaymentGateway.cs" />
+    <Compile Include="Recurly\Models\UniqueCouponCode.cs" />
+    <Compile Include="Recurly\Models\Usage.cs" />
+    <Compile Include="Recurly\Models\UsageCreate.cs" />
+    <Compile Include="Recurly\Models\User.cs" />
+    <Compile Include="Recurly\Recurly.cs" />
+    <Compile Include="Recurly\RecurlyModels.cs" />
+    <Compile Include="Recurly\RecurlyService.cs" />
+    <Compile Include="Recurly\RecurlyServices.cs" />
     <Compile Include="SAT\SATModels.cs" />
     <Compile Include="SAT\SATService.cs" />
     <Compile Include="SAT\SATwsEnums.cs" />
@@ -97,6 +216,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="libman.json" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

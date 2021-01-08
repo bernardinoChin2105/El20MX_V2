@@ -25,7 +25,7 @@ namespace MVC_Project.Utils
         APPROVED,
         [Display(Name = "Cancelado")]
         CANCELLED,
-        [Display(Name ="No válido")]
+        [Display(Name = "No válido")]
         INVALID,
         [Display(Name = "Fallido")]
         FAILED
@@ -41,9 +41,9 @@ namespace MVC_Project.Utils
 
     public enum IssueStatus
     {
-        [Display(Name ="Guardado")]
+        [Display(Name = "Guardado")]
         SAVED,
-        [Display(Name ="Timbrado")]
+        [Display(Name = "Timbrado")]
         STAMPED,
         [Display(Name = "Cancelado")]
         CANCELED
@@ -147,6 +147,11 @@ namespace MVC_Project.Utils
         {
             return Enum.GetValues(typeof(T)).Cast<T>();
         }
+
+        //public static string GetDisplayName(this Enum enumValue)
+        //{
+        //    return GetAttribute<DisplayAttribute>(enumValue).Name;
+        //}
     }
 
     public enum SystemModules
@@ -163,8 +168,10 @@ namespace MVC_Project.Utils
         BANKS,
         [Display(Name = "Facturación")]
         INVOICING,
-        //[Display(Name = "Mi Cuenta con El20.mx")]
-        //MY_ACCOUNT,
+        [Display(Name = "Mi Cuenta con El20.mx")]
+        MY_ACCOUNT,
+        [Display(Name = "Datos de la cuenta")]
+        RECURLY_ACCOUNT,
         #region Modulos del BackOffice
         [Display(Name = "Planes")]
         PLANS,
@@ -254,7 +261,9 @@ namespace MVC_Project.Utils
         [Display(Name = "SAT.ws")]
         SATWS,
         [Display(Name = "Finerio")]
-        FINERIO
+        FINERIO,
+        [Display(Name = "Recurly")]
+        RECURLY
     }
 
     public enum SATCredentialType
@@ -302,7 +311,7 @@ namespace MVC_Project.Utils
     {
         [Description("General de Ley Personas Morales")]
         RegimenFiscal601
-    }  
+    }
 
     public enum TipoComprobante
     {
@@ -330,49 +339,49 @@ namespace MVC_Project.Utils
 
     public enum UsoCFDI
     {
-        
+
         [Description("Adquisición de Mercancías")]
         G01,
         [Description("Devoluciones, Descuentos o Bonificaciones")]
-        G02,   
+        G02,
         [Description("Gastos en General")]
-        G03,   
+        G03,
         [Description("Construcciones")]
-        I01,    
+        I01,
         [Description("Mobiliario y Equipo de Oficina por Inversiones")]
-        I02,    
+        I02,
         [Description("Equipo de Transporte")]
-        I03,   
+        I03,
         [Description("Equipo de Cómputo y Accesorios")]
-        I04,    
+        I04,
         [Description("Dados, Troqueles, Moldes, Matrices y Herramental")]
-        I05,    
+        I05,
         [Description("Comunicaciones Telefónicas")]
-        I06,    
+        I06,
         [Description("Comunicaciones Satelitales")]
-        I07,    
+        I07,
         [Description("Otra Maquinaria y Equipo")]
-        I08,    
+        I08,
         [Description("Honorarios Médicos, Dentales y Gastos Hospitalarios")]
-        D01,    
+        D01,
         [Description("Gastos Médicos por Incapacidad o Discapacidad")]
-        D02,   
+        D02,
         [Description("Gastos Funerales")]
-        D03,    
+        D03,
         [Description("Donativos")]
-        D04,    
+        D04,
         [Description("Intereses Reales Efectivamente Pagados por Créditos Hipotecarios (Casa Habitación)")]
-        D05,   
+        D05,
         [Description("Aportaciones Voluntarias al SAR")]
-        D06,   
+        D06,
         [Description("Primas por Seguros de Gastos Médicos")]
-        D07,    
+        D07,
         [Description("Gastos de Transportación Escolar Obligatoria")]
-        D08,    
+        D08,
         [Description("Depósitos en Cuentas para el Ahorro, Primas que tengan como Base Planes de Pensiones")]
-        D09,    
+        D09,
         [Description("Pagos por Servicios Educativos (Colegiaturas)")]
-        D10,    
+        D10,
         [Description("Por definir")]
         P01,
     }
@@ -447,6 +456,22 @@ namespace MVC_Project.Utils
         FAILED
     }
 
+    public enum SatwsExtractionsTypes
+    {
+        [Display(Name = "invoice")]
+        INVOICE,
+        [Display(Name = "monthly_tax_return")]
+        MONTHLY_TAX_RETURN,
+        [Display(Name = "annual_tax_return")]
+        ANNUAL_TAX_RETURN,
+        [Display(Name = "tax_status")]
+        TAX_STATUS,
+        [Display(Name = "tax_retention")]
+        TAX_RETENTION,
+        [Display(Name = "tax_compliance")]
+        TAX_COMPLIANCE
+    }
+
     public enum TypeInvoicing
     {
         [Display(Name = "issued")]
@@ -461,5 +486,71 @@ namespace MVC_Project.Utils
         SENDGRID,
         [Display(Name = "SMTP")]
         SMTP
+    }
+
+    public enum SystemPlan
+    {
+        [Display(Name = "Prefijo esquema anterior")]
+        OLD_SCHEMA,
+        [Display(Name = "Esquema anterior contigo")]
+        OLD_SCHEMA_CONTIGO,
+        [Display(Name = "pstartup_anterior")]
+        OLD_SCHEMA_STARTUP,
+        [Display(Name = "pbasico_anterior")]
+        OLD_SCHEMA_BASICO,
+        [Display(Name = "ppremium_anterior")]
+        OLD_SCHEMA_PREMIUN,
+        [Display(Name = "pempresarial_anterior")]
+        OLD_SCHEMA_EMPRESARIAL,
+        [Display(Name = "Esquema nuevo")]
+        NEW_SCHEMA,
+        [Display(Name = "plan_startup")]
+        STARTUP,
+        [Display(Name = "plan_basico")]
+        BASICO,
+        [Display(Name = "plan_premium")]
+        PREMIUM,
+        [Display(Name = "plan_empresarial")]
+        EMPRESARIAL,
+        [Display(Name = "contigo")]
+        CONTIGO
+    }
+
+    public enum RecurlyPlanAddons
+    {
+        [Display(Name = "factura_adicional_contigo")]
+        CONTIGO_FACTURA_ADICIONAL,
+        [Display(Name = "Facturas el20 Startup")]
+        STARTUP_FACTURA_EMITIDA,
+        [Display(Name = "Facturas Startup")]
+        STARTUP_FACTURA_RECIBIDA,
+        [Display(Name = "Facturas Básico")]
+        BASICO_FACTURA_EMITIDA,
+        [Display(Name = "Facturas_plan_Basico")]
+        BASICO_FACTURA_RECIBIDA,
+        [Display(Name = "Facturas Premium")]
+        PREMIUM_FACTURA_EMITIDA,
+        [Display(Name = "Facturas_plan_premium")]
+        PREMIUM_FACTURA_RECIBIDA,
+        [Display(Name = "Facturas Empresarial")]
+        EMPRESARIAL_FACTURA_EMITIDA,
+        [Display(Name = "Facturas_plan_empresarial")]
+        EMPRESARIAL_FACTURA_RECIBIDA,
+    }
+
+    public enum RecurlyPaymentStatus
+    {
+        [Display(Name = "success")]
+        SUCCESS,
+        [Display(Name = "declined")]
+        DECLINED
+    }
+
+    public enum RecurlyChangeTimeframe
+    {
+        [Display(Name = "now")]
+        NOW,
+        [Display(Name = "bill_date")]
+        BILL_DATE
     }
 }

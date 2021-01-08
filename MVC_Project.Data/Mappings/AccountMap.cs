@@ -31,6 +31,8 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.eFirmaStatus).Column("eFirmaStatus").Nullable();
             Map(x => x.pipedriveId).Column("pipedriveId").Nullable();
 
+            Map(x => x.planSchema).Column("planSchema").Nullable();
+
             HasMany(x => x.memberships).Inverse().Cascade.All().KeyColumn("accountId");
 
             //HasManyToMany(x => x.users)
