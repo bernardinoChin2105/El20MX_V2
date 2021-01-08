@@ -1222,7 +1222,7 @@ namespace MVC_Project.WebBackend.Controllers
                     string varFecha = nodeComprobante.Attributes["Fecha"].Value;
                     string varMoneda = nodeComprobante.Attributes["Moneda"] != null ? nodeComprobante.Attributes["Moneda"].Value : string.Empty;
                     string varDescuento1 = nodeComprobante.Attributes["Descuento"] != null ? nodeComprobante.Attributes["Descuento"].Value : string.Empty;
-                    string varTipoCambio = nodeComprobante.Attributes["TipoCambio"] != null ? nodeComprobante.Attributes["TipoCambio"].Value : "1";
+                    string varTipoCambio = nodeComprobante.Attributes["TipoCambio"] != null ? nodeComprobante.Attributes["TipoCambio"].Value : "1";                    
 
                     MonedaUtils formatoTexto = new MonedaUtils();
                     var fecha = varFecha != null || varFecha != "" ? Convert.ToDateTime(varFecha).ToString("yyyy-MM-dd HH:mm:ss") : varFecha;
@@ -1243,10 +1243,18 @@ namespace MVC_Project.WebBackend.Controllers
                         Fecha = fecha,
                         Moneda = varMoneda,
                         TipoCambio = varTipoCambio,
-                        TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true),
                         Descuento = varDescuento1,
                     };
 
+                    string varMonedaTexto = string.Empty;
+
+                    if (!string.IsNullOrEmpty(varMoneda))
+                    {
+                        var moneda = _currencyService.FirstOrDefault(x => x.code == varMoneda);
+                        varMonedaTexto = moneda.description;
+                    }
+
+                    CFDI.TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true, varMonedaTexto.ToUpper());
 
                     invoice.account = null;
                     invoice.customer = null;
@@ -1858,11 +1866,21 @@ namespace MVC_Project.WebBackend.Controllers
                 Fecha = fecha,
                 Moneda = varMoneda,
                 TipoCambio = varTipoCambio,
-                TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true),
+                //TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true),
                 Descuento = varDescuento1,
                 Logo = logo,
                 CondicionesDePago = varCondicionDePago
             };
+
+            string varMonedaTexto = string.Empty;
+
+            if (!string.IsNullOrEmpty(varMoneda))
+            {
+                var moneda = _currencyService.FirstOrDefault(x => x.code == varMoneda);
+                varMonedaTexto = moneda.description;
+            }
+
+            cfdipdf.TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true, varMonedaTexto.ToUpper());
 
             XmlNode nodeEmisor = nodeComprobante.SelectSingleNode("cfdi:Emisor", nsm);
             if (nodeEmisor != null)
