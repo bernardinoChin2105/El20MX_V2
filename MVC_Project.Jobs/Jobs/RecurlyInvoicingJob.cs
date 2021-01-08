@@ -10,9 +10,9 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
-using System.Web;
 
 namespace MVC_Project.Jobs
 {
@@ -21,20 +21,14 @@ namespace MVC_Project.Jobs
         static bool executing = false;
         static readonly Object thisLock = new Object();
         static IProcessService _processService;
-        static IAccountService _accountService;
-        static CredentialService _credentialService;
         static NotificationService _notificationService;
         static IProviderService _providerService;
-
-        static InvoiceIssuedService _invoicesIssuedService;
         static InvoiceReceivedService _invoicesReceivedService;
-
-        static RecurlySubscriptionService _recurlySubscriptionService;
-        static RecurlyInvoiceService _recurlyInvoiceService;
         static RecurlyPaymentService _recurlyPaymentService;
 
         private static IDriveKeyService _driveKeyService;
         static IInvoiceEmissionParametersService _invoiceEmissionParametersService;
+        private static HttpClient _client;
 
         static readonly string JOB_CODE = "RecurlyJob_IssueInvoices";
 
@@ -42,17 +36,14 @@ namespace MVC_Project.Jobs
         {
             var _unitOfWork = new UnitOfWork();
             _processService = new ProcessService(new Repository<Process>(_unitOfWork));
-            _accountService = new AccountService(new Repository<Domain.Entities.Account>(_unitOfWork));
-            _recurlyInvoiceService = new RecurlyInvoiceService(new Repository<RecurlyInvoice>(_unitOfWork));
-            _recurlySubscriptionService = new RecurlySubscriptionService(new Repository<RecurlySubscription>(_unitOfWork));
             _recurlyPaymentService = new RecurlyPaymentService(new Repository<RecurlyPayment>(_unitOfWork));
-            _invoicesIssuedService = new InvoiceIssuedService(new Repository<InvoiceIssued>(_unitOfWork));
             _invoicesReceivedService = new InvoiceReceivedService(new Repository<InvoiceReceived>(_unitOfWork));
-            _credentialService = new CredentialService(new Repository<Credential>(_unitOfWork));
             _driveKeyService = new DriveKeyService(new Repository<DriveKey>(_unitOfWork));
             _invoiceEmissionParametersService = new InvoiceEmissionParametersService(new Repository<InvoiceEmissionParameters>(_unitOfWork));
             _notificationService = new NotificationService(new Repository<Notification>(_unitOfWork));
             _providerService = new ProviderService(new Repository<Provider>(_unitOfWork));
+
+            _client = new HttpClient();
 
             Process processJob = _processService.GetByCode(JOB_CODE);
             bool CAN_EXECUTE = processJob != null && processJob.Status && !processJob.Running; //Esta habilitado y no está corriendo (validacion por BD)
@@ -83,6 +74,8 @@ namespace MVC_Project.Jobs
                         var invoicingParameters = _invoiceEmissionParametersService.FirstOrDefault(x => x.status == SystemStatus.ACTIVE.ToString());
                         var provider = ConfigurationManager.AppSettings["SATProvider"];
                         var StorageInvoicesReceived = ConfigurationManager.AppSettings["StorageInvoicesReceived"];
+                        var serverAcces = ConfigurationManager.AppSettings["_UrlServerAccess"];
+                        _client.BaseAddress = new Uri(serverAcces);
 
                         if (invoicingParameters != null)
                         {
@@ -219,9 +212,20 @@ namespace MVC_Project.Jobs
                                             _invoicesReceivedService.Create(invoiceReceived);
                                             payment.invoice = invoiceReceived;
 
-                                            if(!string.IsNullOrEmpty(payment.email))
+                                            var taskResponse = _client.GetAsync($"Invoicing/GetAsPDFContent?id={invoiceReceived.id}&type=RECEIVED&rfc={account.rfc}");
+                                            taskResponse.Wait();
+                                            var result = taskResponse.Result;
+                                            var resultTask = result.Content.ReadAsByteArrayAsync();
+                                            resultTask.Wait();
+                                            var contentBytes = resultTask.Result;
+
+                                            System.IO.MemoryStream contentStream = new System.IO.MemoryStream(contentBytes);
+
+                                            var uploadPDF = AzureBlobService.UploadPublicFile(contentStream, invoiceReceived.uuid + ".pdf", StorageInvoicesReceived, account.rfc);
+
+                                            if (!string.IsNullOrEmpty(payment.email))
                                             {
-                                                SendInvoice(payment.email, account.rfc, account.name, "", invoiceReceived.xml);
+                                                SendInvoice(payment.email, account.rfc, account.name, "", invoiceReceived.xml, uploadPDF.Item1);
                                             }
                                         }
                                     }
@@ -326,7 +330,7 @@ namespace MVC_Project.Jobs
             return table;
         }
 
-        private static void SendInvoice(string email, string rfc, string businessName, string comments, string linkXml)
+        private static void SendInvoice(string email, string rfc, string businessName, string comments, string linkXml, string linkPdf)
         {
             Dictionary<string, string> customParams = new Dictionary<string, string>();
             customParams.Add("param_rfc", rfc);
@@ -334,6 +338,7 @@ namespace MVC_Project.Jobs
             customParams.Add("param_comentarios", comments);
 
             customParams.Add("param_link_xml", linkXml);
+            customParams.Add("param_link_pdf", linkPdf);
             NotificationUtil.SendNotification(email, customParams, Constants.NOT_TEMPLATE_RECURLY_INVOICING);
         }
 

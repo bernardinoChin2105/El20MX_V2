@@ -93,8 +93,6 @@ namespace MVC_Project.Jobs
                         var pastMonth = now.AddMonths(-1);
                         var firstDayOfMonth = new DateTime(pastMonth.Year, pastMonth.Month, 1);
                         var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddMinutes(-1);
-                        var nextMonth = now.AddMonths(1);
-                        DateTime nextBillDate = new DateTime(nextMonth.Year, nextMonth.Month, nextMonth.Day, 8, 0, 0);
 
                         var stampedStatusName = IssueStatus.STAMPED.ToString();
 
@@ -117,27 +115,101 @@ namespace MVC_Project.Jobs
                                 {
                                     if (acc.rfc.Length == 12)
                                     {
-                                        var totalIssuedInvoices = issuedInvoices.Where(x => x.homemade && x.branchOffice != null).Count();
+                                        var excludedIssuedCount = issuedInvoices.Count(x => x.invoiceType == TipoComprobante.E.ToString() || x.invoiceType == TipoComprobante.P.ToString());
+                                        var excludedReceivedCount = receivedInvoices.Count(x => x.invoiceType == TipoComprobante.E.ToString() || x.invoiceType == TipoComprobante.P.ToString());
 
-                                        var totalReceivedInvoices = receivedInvoices.Count();
+                                        //var totalIssuedInvoices = issuedInvoices.Where(x => x.homemade && x.branchOffice != null).Count();
+                                        var totalIssuedInvoices = issuedInvoices.Count() - excludedIssuedCount;
+                                        //var totalReceivedInvoices = receivedInvoices.Count();
+                                        var totalReceivedInvoices = receivedInvoices.Count() - excludedReceivedCount;
 
                                         var totalInvoices = totalIssuedInvoices + totalReceivedInvoices;
 
-                                        var planCode = totalInvoices <= 50 ? SystemPlan.STARTUP.GetDisplayName() :
-                                                totalInvoices <= 125 ? SystemPlan.BASICO.GetDisplayName() :
-                                                totalInvoices <= 200 ? SystemPlan.PREMIUM.GetDisplayName() : SystemPlan.EMPRESARIAL.GetDisplayName();
+                                        var planCodeEnum = totalInvoices <= 50 ? SystemPlan.STARTUP :
+                                                totalInvoices <= 125 ? SystemPlan.BASICO :
+                                                totalInvoices <= 200 ? SystemPlan.PREMIUM : SystemPlan.EMPRESARIAL;
+                                        var planCode = planCodeEnum.GetDisplayName();
+
+                                        string receivedAddonCode = "";
+                                        string issuedAddonCode = "";
+
+                                        switch (planCodeEnum)
+                                        {
+                                            case SystemPlan.STARTUP:
+                                                issuedAddonCode = RecurlyPlanAddons.STARTUP_FACTURA_EMITIDA.GetDisplayName();
+                                                receivedAddonCode = RecurlyPlanAddons.STARTUP_FACTURA_RECIBIDA.GetDisplayName();
+                                                break;
+                                            case SystemPlan.BASICO:
+                                                issuedAddonCode = RecurlyPlanAddons.BASICO_FACTURA_EMITIDA.GetDisplayName();
+                                                receivedAddonCode = RecurlyPlanAddons.BASICO_FACTURA_RECIBIDA.GetDisplayName();
+                                                break;
+                                            case SystemPlan.PREMIUM:
+                                                issuedAddonCode = RecurlyPlanAddons.PREMIUM_FACTURA_EMITIDA.GetDisplayName();
+                                                receivedAddonCode = RecurlyPlanAddons.PREMIUM_FACTURA_RECIBIDA.GetDisplayName();
+                                                break;
+                                            case SystemPlan.EMPRESARIAL:
+                                                issuedAddonCode = RecurlyPlanAddons.EMPRESARIAL_FACTURA_EMITIDA.GetDisplayName();
+                                                receivedAddonCode = RecurlyPlanAddons.EMPRESARIAL_FACTURA_RECIBIDA.GetDisplayName();
+                                                break;
+                                        }
+
+                                        var homeIssuedCount = issuedInvoices.Where(x => x.homemade && x.branchOffice != null).Count();
+
+                                        List<SubscriptionAddOnCreate> addonsList = null;
+                                        if (homeIssuedCount + totalReceivedInvoices > 0)
+                                        {
+                                            addonsList = new List<SubscriptionAddOnCreate>();
+
+                                            if (homeIssuedCount > 0)
+                                            {
+                                                addonsList.Add(new SubscriptionAddOnCreate()
+                                                {
+                                                    Code = issuedAddonCode,
+                                                    Quantity = homeIssuedCount,
+                                                });
+                                            }
+
+                                            if (totalReceivedInvoices > 0)
+                                            {
+                                                addonsList.Add(new SubscriptionAddOnCreate()
+                                                {
+                                                    Code = receivedAddonCode,
+                                                    Quantity = totalReceivedInvoices,
+                                                });
+                                            }
+                                        }
 
                                         if (accountSupscriptions.data != null && accountSupscriptions.data.Count > 0)
                                         {
                                             var currentSubscription = accountSupscriptions.data[0];
+
+                                            var currentSubIssuedAddonQuantity = currentSubscription.AddOns.FirstOrDefault(x => x.AddOn.Code == issuedAddonCode)?.Quantity;
+                                            var currentSubReceivedAddonQuantity = currentSubscription.AddOns.FirstOrDefault(x => x.AddOn.Code == receivedAddonCode)?.Quantity;
+
                                             if (currentSubscription.Plan.Code != planCode)
                                             {
                                                 var recurlyPlan = plans.data.FirstOrDefault(x => x.code == planCode);
                                                 if (recurlyPlan != null)
                                                 {
-                                                    var subscriptionChange = CreateSubscriptionChange(recurlyPlan.code, null, currentSubscription.Id, siteId, provider);
+                                                    var addonsUpdateLis = addonsList != null ? addonsList.Select(x => new SubscriptionAddOnUpdate
+                                                    {
+                                                        Code = x.Code,
+                                                        Quantity = x.Quantity
+                                                    }).ToList() : null;
+                                                    var subscriptionChange = CreateSubscriptionChange(recurlyPlan.code, addonsUpdateLis, currentSubscription.Id, siteId, provider);
                                                     SaveSubscriptionChangeLog(subscriptionChange, acc);
                                                 }
+                                            }
+                                            else if (currentSubIssuedAddonQuantity.GetValueOrDefault() != homeIssuedCount || currentSubReceivedAddonQuantity.GetValueOrDefault() != totalReceivedInvoices)
+                                            {
+                                                var addonsUpdateList = addonsList != null ? addonsList.Select(x => new SubscriptionAddOnUpdate
+                                                {
+                                                    Code = x.Code,
+                                                    Quantity = x.Quantity
+                                                }).ToList() : null;
+
+                                                var subscriptionChange = CreateSubscriptionChange(null, addonsUpdateList, currentSubscription.Id, siteId, provider);
+                                                SaveSubscriptionChangeLog(subscriptionChange, acc);
                                             }
                                         }
                                         else
@@ -148,7 +220,7 @@ namespace MVC_Project.Jobs
                                             {
                                                 try
                                                 {
-                                                    var invoiceCollection = CreateSubscriptionPurchase(recurlyPlan.code, acc.uuid.ToString(), nextBillDate, siteId, provider);
+                                                    var invoiceCollection = CreateSubscriptionPurchase(recurlyPlan.code, acc.uuid.ToString(), siteId, provider, addonsList);
 
                                                     InvoicesDTO invoices = new InvoicesDTO
                                                     {
@@ -246,7 +318,7 @@ namespace MVC_Project.Jobs
 
                                                 try
                                                 {
-                                                    var invoiceCollection = CreateSubscriptionPurchase(recurlyPlan.code, acc.uuid.ToString(), nextBillDate, siteId, provider, addonsList);
+                                                    var invoiceCollection = CreateSubscriptionPurchase(recurlyPlan.code, acc.uuid.ToString(), siteId, provider, addonsList);
 
                                                     InvoicesDTO invoices = new InvoicesDTO
                                                     {
@@ -332,7 +404,7 @@ namespace MVC_Project.Jobs
                                         {
                                             try
                                             {
-                                                var invoiceCollection = CreateSubscriptionPurchase(recurlyPlan.code, acc.uuid.ToString(), nextBillDate, siteId, provider);
+                                                var invoiceCollection = CreateSubscriptionPurchase(recurlyPlan.code, acc.uuid.ToString(), siteId, provider);
 
                                                 InvoicesDTO invoices = new InvoicesDTO
                                                 {
@@ -412,7 +484,7 @@ namespace MVC_Project.Jobs
             }
         }
 
-        private static InvoiceCollection CreateSubscriptionPurchase(string planCode, string accontCode, DateTime nextBillDate, string siteId, string provider, List<SubscriptionAddOnCreate> addons = null)
+        private static InvoiceCollection CreateSubscriptionPurchase(string planCode, string accontCode, string siteId, string provider, List<SubscriptionAddOnCreate> addons = null)
         {
             var purchaseReq = new PurchaseCreate()
             {
@@ -426,8 +498,6 @@ namespace MVC_Project.Jobs
                 {
                     new SubscriptionPurchase() {
                         PlanCode = planCode,
-                        Quantity = 1,
-                        NextBillDate = nextBillDate
                     }
                 }
             };
@@ -446,7 +516,7 @@ namespace MVC_Project.Jobs
         {
             var subscriptionChangeModel = new SubscriptionChangeCreate()
             {
-                Timeframe = RecurlyChangeTimeframe.BILL_DATE.ToString(),
+                Timeframe = RecurlyChangeTimeframe.BILL_DATE.GetDisplayName(),
                 AddOns = addons
             };
 
