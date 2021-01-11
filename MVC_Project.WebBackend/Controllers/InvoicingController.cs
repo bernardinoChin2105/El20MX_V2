@@ -409,8 +409,8 @@ namespace MVC_Project.WebBackend.Controllers
 
                     //corrección por subtotal
                     decimal subtotal = conceptsData.ValorUnitario * conceptsData.Cantidad;
-                    if (item.DiscountRateProServ > 0)                                       
-                        conceptsData.Descuento = subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100);                    
+                    if (item.DiscountRateProServ > 0)
+                        conceptsData.Descuento = item.DiscountRateProServ; // subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100);                    
 
                     if (model.InternationalChk && !string.IsNullOrEmpty(model.MotionNumber))
                     {
@@ -439,11 +439,11 @@ namespace MVC_Project.WebBackend.Controllers
                                 {
                                     Integrations.SAT.Retenciones ret = new Integrations.SAT.Retenciones()
                                     {
-                                        Base = subtotal.ToString(), //modificado por subtotal
+                                        Base = subtotal.ToString("N6"), //modificado por subtotal
                                         Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                         TipoFactor = "Tasa",
                                         TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
-                                        Importe = (Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100) * subtotal, 6)).ToString() //modificado por subtotal
+                                        Importe = (Math.Round(Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100), 6) * subtotal, 6)).ToString() //modificado por subtotal
                                     };
                                     Retenciones.Add(ret);
                                 }
@@ -453,12 +453,12 @@ namespace MVC_Project.WebBackend.Controllers
                                     {
                                         Integrations.SAT.Traslados tras = new Integrations.SAT.Traslados()
                                         {
-                                            Base = subtotal.ToString(), //modificado por subtotal
+                                            Base = subtotal.ToString("N6"), //modificado por subtotal
                                             Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                             TipoFactor = "Tasa",
                                             TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
                                             //TasaOCuota = "0.160000",
-                                            Importe = (Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100) * subtotal, 6)).ToString() //modificado por subtotal
+                                            Importe = (Math.Round(Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100),6) * subtotal, 6)).ToString() //modificado por subtotal
                                         };
                                         Traslados.Add(tras);
                                     }
@@ -466,7 +466,7 @@ namespace MVC_Project.WebBackend.Controllers
                                     {
                                         Integrations.SAT.Traslados tras = new Integrations.SAT.Traslados()
                                         {
-                                            Base = subtotal.ToString(), //modificado por subtotal
+                                            Base = subtotal.ToString("N6"), //modificado por subtotal
                                             TipoFactor = imp.Porcentaje,
                                             Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                         };
