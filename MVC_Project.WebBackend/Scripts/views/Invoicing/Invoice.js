@@ -54,6 +54,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
 
     this.init = function () {
+        var date = new Date();
+        date.setDate(date.getDate() - 3);
+
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();
         }).DataTable({
@@ -64,7 +67,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //orderMulti: false,
             "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
             "bLengthChange": false,
-            reponsive: true,
+            responsive: true,
             "bInfo": false,
             "paging": false,
             searching: false,
@@ -201,6 +204,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 }
                 */
 
+                console.log(self.discount, self.traslados, self.retencionISR, self.retencionIVA, "el footer");
 
                 if (self.discount > 0) {
                     $(".trDiscount").removeClass("hide");
@@ -252,6 +256,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
         self.dataTableImp = self.htmlTableImp.DataTable({
+            responsive: true,
             "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
             "bLengthChange": false,
             "bInfo": false,
@@ -297,6 +302,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         //self.dataTableCFDI = self.htmlTableCFDI.DataTable();
         var settings = {
+            responsive: true,
             "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
             "bLengthChange": false,
             "bInfo": false,
@@ -412,6 +418,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         };
 
         self.dataTableCFDIEgress = self.htmlTableCFDIEgress.DataTable({
+            responsive: true,
             "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
             "bLengthChange": false,
             "bInfo": false,
@@ -466,20 +473,20 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
             });
 
+        
         $('#DateIssued').datetimepicker({
             dateFormat: "dd/mm/yyyy",
-            //timeFormat: "hh:mm:ss",
+            timeFormat: "hh:ii:ss",
             keyboardNavigation: false,
             todayBtn: "linked",
             forceParse: false,
             calendarWeeks: true,
             autoclose: true,
-            format: "dd/mm/yyyy hh:mm:ss",
-            ////format: "yyyy-mm-dd",
+            format: "dd/mm/yyyy hh:ii:ss",
             language: "es",
             fontAwesome: true,
-            maxDate: DateInit.MaxDate,
-            startDate: '-3d'
+            //maxDate: DateInit.MaxDate,
+            startDate: date,            
         });
 
         $(this.htmlTable, "tbody").on('click',
@@ -767,18 +774,17 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
             $('.starteAt').datetimepicker({
                 dateFormat: "dd/mm/yyyy",
-                //timeFormat: "hh:mm:ss",
+                timeFormat: "hh:ii:ss",
                 keyboardNavigation: false,
                 todayBtn: "linked",
                 forceParse: false,
                 calendarWeeks: true,
                 autoclose: true,
-                format: "dd/mm/yyyy hh:mm:ss",
-                ////format: "yyyy-mm-dd",
+                format: "dd/mm/yyyy hh:ii:ss",
                 language: "es",
                 fontAwesome: true,
-                maxDate: DateInit.MaxDate,
-                ////startDate: DateInit.MinDate
+                //maxDate: DateInit.MaxDate,
+                startDate: date,       
             });
 
             $("#table-" + index).DataTable(settings);
@@ -1176,7 +1182,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var unitPrice = parseFloat(self.unitPrice.val() !== "" ? (self.unitPrice.val().replace(",", "")) : 0);
             var discountRate = parseFloat(self.discountRate.val() !== "" ? self.discountRate.val() : 0);
             var impuestos = $("#tableImpuestos").DataTable();
-            //console.log(discountRate, "descuento");
+            console.log(discountRate, "descuento");
 
             //Calcular el subtotal    
             if (quantity > 0 && unitPrice > 0) {
@@ -1185,6 +1191,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 var impIVAIESP = 0; //parseFloat(self.taxesIEPS.val() !== "" ? self.taxesIVA.val() : 0);
 
                 var discount = discountRate > 0 || discountRate < 0 ? (discountRate * sub) / 100 : 0;
+                console.log(discount, "descuento en prices")
                 var subtotal = sub - discount; //aplicado el descuento.
                 self.discountTemp = discount;
 
@@ -1214,6 +1221,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         }
                     }
                 }
+
+                console.log(self.trasladosTemp,"temporal")
 
                 self.taxesIVA.val(impIVAISR.toFixed(2));
                 self.taxesIEPS.val(impIVAIESP.toFixed(2));

@@ -399,7 +399,8 @@ namespace MVC_Project.WebBackend.Controllers
                         ClaveUnidad = item.SATUnit.Trim(),
                         Descripcion = item.ProductServiceDescription,
                         ValorUnitario = item.UnitPrice,
-                        Importe = item.Subtotal,
+                        //Importe = item.Subtotal,
+                        Importe = (item.Quantity * item.UnitPrice)
                         //public List<Parte> Parte { get; set; }
                     };
 
@@ -408,9 +409,13 @@ namespace MVC_Project.WebBackend.Controllers
                         conceptsData.Unidad = item.Unit;
 
                     //corrección por subtotal
-                    decimal subtotal = conceptsData.ValorUnitario * conceptsData.Cantidad;
+                    decimal subtotal = conceptsData.Importe; //conceptsData.ValorUnitario * conceptsData.Cantidad;
                     if (item.DiscountRateProServ > 0)
-                        conceptsData.Descuento = item.DiscountRateProServ; // subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100);                    
+                    {
+                        //conceptsData.Descuento = item.DiscountRateProServ; // subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100);    
+                        conceptsData.Descuento = subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100);
+                        subtotal = subtotal - conceptsData.Descuento.Value;
+                    }
 
                     if (model.InternationalChk && !string.IsNullOrEmpty(model.MotionNumber))
                     {
