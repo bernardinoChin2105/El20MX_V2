@@ -891,12 +891,12 @@ namespace MVC_Project.WebBackend.Controllers
                        Text = EnumUtils.GetDescription(e)
                    }).ToList();
 
-            model.ListValuation = Enum.GetValues(typeof(TypeValuation)).Cast<TypeValuation>()
-                   .Select(e => new SelectListItem
-                   {
-                       Value = ((int)e).ToString(),
-                       Text = EnumUtils.GetDescription(e)
-                   }).ToList();
+            //model.ListValuation = Enum.GetValues(typeof(TypeValuation)).Cast<TypeValuation>()
+            //       .Select(e => new SelectListItem
+            //       {
+            //           Value = ((int)e).ToString(),
+            //           Text = EnumUtils.GetDescription(e)
+            //       }).ToList();
 
             model.ListTransferred = Enum.GetValues(typeof(TypeTransferred)).Cast<TypeTransferred>()
                     .Select(e => new SelectListItem

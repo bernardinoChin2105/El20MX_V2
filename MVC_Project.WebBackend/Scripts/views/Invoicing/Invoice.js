@@ -204,7 +204,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 }
                 */
 
-                console.log(self.discount, self.traslados, self.retencionISR, self.retencionIVA, "el footer");
+                //console.log(self.discount, self.traslados, self.retencionISR, self.retencionIVA, "el footer");
 
                 if (self.discount > 0) {
                     $(".trDiscount").removeClass("hide");
@@ -215,7 +215,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 }                
 
                 if (self.traslados > 0) {
-                    console.log(self.traslados, "valor que tiene");
+                    //console.log(self.traslados, "valor que tiene");
                     $(".trTaxT").removeClass("hide");
                     $("#TaxTransferred").val(self.traslados);
                     $("#lblTaxTransferred").html('$' + self.traslados.toFixed(2));
@@ -516,9 +516,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 //console.log(data[10], "impuestos");
 
                 var array = data[10].split(";");
-                console.log(array, "que trae el array");
+                //console.log(array, "que trae el array");
 
-                if (array.length > 0 && array[0] != "") {
+                if (array.length > 0 && array[0] !== "") {
                     var t = $("#tableImpuestos").DataTable();
                     var sub = self.quantity.val(data[1]) * self.unitPrice.val(data[6]);
                     var discount = data[7] > 0 || data[7] < 0 ? (data[7] * sub) / 100 : 0;
@@ -532,7 +532,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         }
                         //console.log(item, i, "onjeto");
                         var obj = JSON.stringify(item).replace(/'/g, "\"").replace("\"{", "{").replace("}\"", "}");
-                        console.log(obj,"objeto")
+                        //console.log(obj,"objeto")
                         var datos = JSON.parse(obj);
 
                         if (datos.Porcentaje !== "Exento") {
@@ -843,27 +843,33 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         $("#addTaxes").click(function () {
             //console.log("estoy aqui")
 
-            var t = $("#tableImpuestos").DataTable();
-            var ind = t.rows().count();
-            var index = parseInt(ind);
-            index++;
-            var radio = $("input[name='taxes']:checked").val();
-            var input = "";
-            if (radio === "Retención")
-                input = $("#Withholdings").val();
-            else
-                input = $("#Transferred").val();
+            var porcent = $("#Valuation").val();
+            //console.log("porcentaje", porcent)
+            if (porcent !== null && porcent !== "") {
+                var t = $("#tableImpuestos").DataTable();
+                var ind = t.rows().count();
+                var index = parseInt(ind);
+                index++;
+                var radio = $("input[name='taxes']:checked").val();
+                var input = "";
+                if (radio === "Retención")
+                    input = $("#Withholdings").val();
+                else
+                    input = $("#Transferred").val();
 
-            t.row.add(
-                [{
-                    "Tipo": radio,
-                    "Impuesto": input,
-                    "Porcentaje": $("#Valuation").val(),
-                    "index": index
-                }]
-            ).draw(false);
+                t.row.add(
+                    [{
+                        "Tipo": radio,
+                        "Impuesto": input,
+                        "Porcentaje": porcent,
+                        "index": index
+                    }]
+                ).draw(false);
 
-            Prices();
+                Prices();
+            } else {
+                toastr["error"]("No hay impuesto por agregar.", null, { 'positionClass': 'toast-top-center' });
+            }           
         });
 
         $("#InvoicingForm").validate({
@@ -924,6 +930,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //console.log($(this).val());
             var cmbTaxes = $("#Valuation");
             cmbTaxes.empty();
+            cmbTaxes.trigger('chosen:updated');
             var type = $("input[name='taxes']:checked").val();
             var valueTax = $(this).val();
 
@@ -1182,7 +1189,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var unitPrice = parseFloat(self.unitPrice.val() !== "" ? (self.unitPrice.val().replace(",", "")) : 0);
             var discountRate = parseFloat(self.discountRate.val() !== "" ? self.discountRate.val() : 0);
             var impuestos = $("#tableImpuestos").DataTable();
-            console.log(discountRate, "descuento");
+            //console.log(discountRate, "descuento");
 
             //Calcular el subtotal    
             if (quantity > 0 && unitPrice > 0) {
@@ -1191,15 +1198,15 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 var impIVAIESP = 0; //parseFloat(self.taxesIEPS.val() !== "" ? self.taxesIVA.val() : 0);
 
                 var discount = discountRate > 0 || discountRate < 0 ? (discountRate * sub) / 100 : 0;
-                console.log(discount, "descuento en prices")
+                //console.log(discount, "descuento en prices")
                 var subtotal = sub - discount; //aplicado el descuento.
                 self.discountTemp = discount;
 
-                console.log(impuestos, "tabla")
+                //console.log(impuestos, "tabla")
                 if (impuestos.rows().count() > 0) {
                     for (var i = 0; i < impuestos.rows().count(); i++) {
                         var datos = impuestos.row(i).data()[0];
-                        console.log(datos, "datos");
+                        //console.log(datos, "datos");
                         if (datos.Porcentaje !== "Exento") {
                             var por = parseFloat(datos.Porcentaje);
                             var imp1 = por > 0 ? (por * subtotal) / 100 : 0;
@@ -1210,19 +1217,19 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                     self.retencionIVATemp = self.retencionIVATemp + imp1;
                                 }
                                 impIVAISR = impIVAISR + imp1;
-                                console.log(impIVAISR, imp1, "iva isr");
+                                //console.log(impIVAISR, imp1, "iva isr");
                             } else {
-                                console.log("cambio")
+                                //console.log("cambio")
                                 var imp2 = por > 0 ? (por * subtotal) / 100 : 0;
                                 self.trasladosTemp = self.trasladosTemp + imp2;
                                 impIVAIESP = impIVAIESP + imp2;
-                                console.log("iva ieps", impIVAIESP, imp2, self.trasladosTemp)
+                                //console.log("iva ieps", impIVAIESP, imp2, self.trasladosTemp)
                             }
                         }
                     }
                 }
 
-                console.log(self.trasladosTemp,"temporal")
+                //console.log(self.trasladosTemp,"temporal")
 
                 self.taxesIVA.val(impIVAISR.toFixed(2));
                 self.taxesIEPS.val(impIVAIESP.toFixed(2));
@@ -1233,6 +1240,11 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         //Borrar valores cuando se oculte el modal
         $('#ServProdModal').on('hide.bs.modal', function (e) {
             // do something...
+            $("a#products-tab").click();
+            var cmbTaxes = $("#Valuation");
+            cmbTaxes.empty();
+            cmbTaxes.trigger('chosen:updated');
+
             $("#ConceptForm").each(function () {
                 //console.log("holas");
                 this.reset();
@@ -1242,6 +1254,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 table.clear().draw();
                 $("input[name='TaxesChk']").iCheck("update");
             });
+
         });
 
         //Agregar a la lista de conceptos del producto
@@ -1434,12 +1447,13 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var taxes = $("#taxes");
             var cmbTaxes = $("#Valuation");
             cmbTaxes.empty();
+            cmbTaxes.trigger('chosen:updated');
 
             if (!this.checked) {
                 taxes.addClass("hide");
-                $("#Withholdings").val("");
-                $("#Transferred").val("");
-                $("#Valuation").val("");
+                $("#Withholdings").val("").trigger('chosen:updated');
+                $("#Transferred").val("").trigger('chosen:updated');
+                //$("#Valuation").val("").trigger('chosen:updated');
             }
             else
                 taxes.removeClass("hide");
@@ -1460,17 +1474,18 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
         $("input[name='taxes']").click(function () {
-            //console.log("valor", $(this).val())
+            //console.log("valor", $(this).val(),"cual es")
             var cmbTaxes = $("#Valuation");
             cmbTaxes.empty();
+            cmbTaxes.trigger('chosen:updated');
             if ($(this).val() === "Retención") {
                 $(".retenciones").removeClass("hide");
                 $(".traslados").addClass("hide");
-                $("#Transferred").val("");
+                $("#Transferred").val("").trigger('chosen:updated');
             } else {
                 $(".retenciones").addClass("hide");
                 $(".traslados").removeClass("hide");
-                $("#Withholdings").val("");
+                $("#Withholdings").val("").trigger('chosen:updated');
             }
         });
 
