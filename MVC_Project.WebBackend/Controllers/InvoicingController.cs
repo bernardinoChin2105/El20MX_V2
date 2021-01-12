@@ -444,7 +444,7 @@ namespace MVC_Project.WebBackend.Controllers
                                 {
                                     Integrations.SAT.Retenciones ret = new Integrations.SAT.Retenciones()
                                     {
-                                        Base = subtotal.ToString("N6"), //modificado por subtotal
+                                        Base = Math.Round(subtotal,6).ToString(), //modificado por subtotal
                                         Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                         TipoFactor = "Tasa",
                                         TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
@@ -458,7 +458,7 @@ namespace MVC_Project.WebBackend.Controllers
                                     {
                                         Integrations.SAT.Traslados tras = new Integrations.SAT.Traslados()
                                         {
-                                            Base = subtotal.ToString("N6"), //modificado por subtotal
+                                            Base = Math.Round(subtotal, 6).ToString(), //modificado por subtotal
                                             Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                             TipoFactor = "Tasa",
                                             TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
@@ -471,7 +471,7 @@ namespace MVC_Project.WebBackend.Controllers
                                     {
                                         Integrations.SAT.Traslados tras = new Integrations.SAT.Traslados()
                                         {
-                                            Base = subtotal.ToString("N6"), //modificado por subtotal
+                                            Base = Math.Round(subtotal, 6).ToString(), //modificado por subtotal
                                             TipoFactor = imp.Porcentaje,
                                             Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                         };
