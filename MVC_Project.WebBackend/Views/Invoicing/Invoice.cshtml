@@ -551,7 +551,7 @@
                                 <td>@item.DiscountRateProServ</td>
                                 <td>@item.TaxesIVA</td>
                                 <td>@item.TaxesIEPS</td>
-                                <td class="hide">@item.TaxesGeneral</td>
+                                <td class="hide">@(item.TaxesGeneral != "''"? item.TaxesGeneral : null)</td>
                                 <td>@item.Subtotal</td>
                                 <td>@index</td>
                             </tr>

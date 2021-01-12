@@ -118,6 +118,7 @@ namespace MVC_Project.WebBackend.Controllers
                 model.IssuingRFC = account.RFC;
                 model.BusinessName = account.Name;
                 model.IssuingTaxEmail = email;
+                model.DateIssued = DateUtil.GetDateTimeNow();
                 //model.IssuingTaxRegime = ""; //Faltan estos datos del cliente
                 //model.IssuingTaxRegimeId = "";//Faltan estos datos del cliente  
                 string zipCode = string.Empty;
@@ -395,18 +396,26 @@ namespace MVC_Project.WebBackend.Controllers
                         ClaveProdServ = item.SATCode.ToString(),
                         //NoIdentificacion = que dato es?
                         Cantidad = item.Quantity,
-                        ClaveUnidad = item.SATUnit,
+                        ClaveUnidad = item.SATUnit.Trim(),
                         Descripcion = item.ProductServiceDescription,
                         ValorUnitario = item.UnitPrice,
-                        Importe = item.Subtotal,
+                        //Importe = item.Subtotal,
+                        Importe = (item.Quantity * item.UnitPrice)
                         //public List<Parte> Parte { get; set; }
                     };
+
 
                     if (model.TypeInvoice != TipoComprobante.P.ToString() && item.Unit.Count() <= 20)
                         conceptsData.Unidad = item.Unit;
 
+                    //corrección por subtotal
+                    decimal subtotal = conceptsData.Importe; //conceptsData.ValorUnitario * conceptsData.Cantidad;
                     if (item.DiscountRateProServ > 0)
-                        conceptsData.Descuento = item.DiscountRateProServ;
+                    {
+                        //conceptsData.Descuento = item.DiscountRateProServ; // subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100);    
+                        conceptsData.Descuento = subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100);
+                        subtotal = subtotal - conceptsData.Descuento.Value;
+                    }
 
                     if (model.InternationalChk && !string.IsNullOrEmpty(model.MotionNumber))
                     {
@@ -435,11 +444,11 @@ namespace MVC_Project.WebBackend.Controllers
                                 {
                                     Integrations.SAT.Retenciones ret = new Integrations.SAT.Retenciones()
                                     {
-                                        Base = (conceptsData.ValorUnitario * conceptsData.Cantidad).ToString(),
+                                        Base = subtotal.ToString("N6"), //modificado por subtotal
                                         Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                         TipoFactor = "Tasa",
                                         TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
-                                        Importe = (Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100) * (conceptsData.ValorUnitario * conceptsData.Cantidad), 6)).ToString()
+                                        Importe = (Math.Round(Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100), 6) * subtotal, 6)).ToString() //modificado por subtotal
                                     };
                                     Retenciones.Add(ret);
                                 }
@@ -449,12 +458,12 @@ namespace MVC_Project.WebBackend.Controllers
                                     {
                                         Integrations.SAT.Traslados tras = new Integrations.SAT.Traslados()
                                         {
-                                            Base = (conceptsData.ValorUnitario * conceptsData.Cantidad).ToString(),
+                                            Base = subtotal.ToString("N6"), //modificado por subtotal
                                             Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                             TipoFactor = "Tasa",
                                             TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
                                             //TasaOCuota = "0.160000",
-                                            Importe = (Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100) * (conceptsData.ValorUnitario * conceptsData.Cantidad), 6)).ToString()
+                                            Importe = (Math.Round(Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100),6) * subtotal, 6)).ToString() //modificado por subtotal
                                         };
                                         Traslados.Add(tras);
                                     }
@@ -462,7 +471,7 @@ namespace MVC_Project.WebBackend.Controllers
                                     {
                                         Integrations.SAT.Traslados tras = new Integrations.SAT.Traslados()
                                         {
-                                            Base = (conceptsData.ValorUnitario * conceptsData.Cantidad).ToString(),
+                                            Base = subtotal.ToString("N6"), //modificado por subtotal
                                             TipoFactor = imp.Porcentaje,
                                             Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                         };
@@ -882,12 +891,12 @@ namespace MVC_Project.WebBackend.Controllers
                        Text = EnumUtils.GetDescription(e)
                    }).ToList();
 
-            model.ListValuation = Enum.GetValues(typeof(TypeValuation)).Cast<TypeValuation>()
-                   .Select(e => new SelectListItem
-                   {
-                       Value = ((int)e).ToString(),
-                       Text = EnumUtils.GetDescription(e)
-                   }).ToList();
+            //model.ListValuation = Enum.GetValues(typeof(TypeValuation)).Cast<TypeValuation>()
+            //       .Select(e => new SelectListItem
+            //       {
+            //           Value = ((int)e).ToString(),
+            //           Text = EnumUtils.GetDescription(e)
+            //       }).ToList();
 
             model.ListTransferred = Enum.GetValues(typeof(TypeTransferred)).Cast<TypeTransferred>()
                     .Select(e => new SelectListItem
@@ -1218,7 +1227,7 @@ namespace MVC_Project.WebBackend.Controllers
                     string varFecha = nodeComprobante.Attributes["Fecha"].Value;
                     string varMoneda = nodeComprobante.Attributes["Moneda"] != null ? nodeComprobante.Attributes["Moneda"].Value : string.Empty;
                     string varDescuento1 = nodeComprobante.Attributes["Descuento"] != null ? nodeComprobante.Attributes["Descuento"].Value : string.Empty;
-                    string varTipoCambio = nodeComprobante.Attributes["TipoCambio"] != null ? nodeComprobante.Attributes["TipoCambio"].Value : "1";
+                    string varTipoCambio = nodeComprobante.Attributes["TipoCambio"] != null ? nodeComprobante.Attributes["TipoCambio"].Value : "1";                    
 
                     MonedaUtils formatoTexto = new MonedaUtils();
                     var fecha = varFecha != null || varFecha != "" ? Convert.ToDateTime(varFecha).ToString("yyyy-MM-dd HH:mm:ss") : varFecha;
@@ -1239,10 +1248,18 @@ namespace MVC_Project.WebBackend.Controllers
                         Fecha = fecha,
                         Moneda = varMoneda,
                         TipoCambio = varTipoCambio,
-                        TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true),
                         Descuento = varDescuento1,
                     };
 
+                    string varMonedaTexto = string.Empty;
+
+                    if (!string.IsNullOrEmpty(varMoneda))
+                    {
+                        var moneda = _currencyService.FirstOrDefault(x => x.code == varMoneda);
+                        varMonedaTexto = moneda.description;
+                    }
+
+                    CFDI.TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true, varMonedaTexto.ToUpper());
 
                     invoice.account = null;
                     invoice.customer = null;
@@ -1891,11 +1908,21 @@ namespace MVC_Project.WebBackend.Controllers
                 Fecha = fecha,
                 Moneda = varMoneda,
                 TipoCambio = varTipoCambio,
-                TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true),
+                //TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true),
                 Descuento = varDescuento1,
                 Logo = logo,
                 CondicionesDePago = varCondicionDePago
             };
+
+            string varMonedaTexto = string.Empty;
+
+            if (!string.IsNullOrEmpty(varMoneda))
+            {
+                var moneda = _currencyService.FirstOrDefault(x => x.code == varMoneda);
+                varMonedaTexto = moneda.description;
+            }
+
+            cfdipdf.TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true, varMonedaTexto.ToUpper());
 
             XmlNode nodeEmisor = nodeComprobante.SelectSingleNode("cfdi:Emisor", nsm);
             if (nodeEmisor != null)

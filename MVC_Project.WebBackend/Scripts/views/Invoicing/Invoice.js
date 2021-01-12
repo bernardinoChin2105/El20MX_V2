@@ -37,17 +37,26 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
     this.retencionISR = 0;
     this.retencionIVA = 0;
     this.traslados = 0;
+    this.discount = 0; //para los descuentos
+    this.subtotalG = 0; //subtotal sin descuento
 
     this.retencionISRTemp = 0;
     this.retencionIVATemp = 0;
     this.trasladosTemp = 0;
+    this.discountTemp = 0; //temporal para los descuentos
+    this.subtotalGTemp = 0; //temporal subtotal sin descuento
 
     this.retencionISRTempDesc = 0;
     this.retencionIVATempDesc = 0;
     this.trasladosTempDesc = 0;
+    this.discountTempDesc = 0; // temporal para los descuentos para descontar
+    this.subtotalGTempDesc = 0; // temporal subtotal sin descuento para descontar
 
 
     this.init = function () {
+        var date = new Date();
+        date.setDate(date.getDate() - 3);
+
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();
         }).DataTable({
@@ -58,6 +67,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //orderMulti: false,
             "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
             "bLengthChange": false,
+            responsive: true,
             "bInfo": false,
             "paging": false,
             searching: false,
@@ -179,10 +189,11 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 $("#lblSubtotal").html('$' + subtotal.toFixed(2));
                 $(".trSubtotal > th").removeClass("hide");
 
-
+                /* Se usa para el descuento general
                 var discountTXT = $("#DiscountRate").val();
                 var discountRate = parseFloat(discountTXT !== "" ? discountTXT : 0);
                 var discount = discountRate > 0 || discountRate < 0 ? (discountRate * subtotal) / 100 : 0;
+                console.log("descuento", discount)
 
                 $("#TotalDiscount").val(discount.toFixed(2));
                 $("#lblTotalDiscount").html("$" + discount.toFixed(2));
@@ -191,9 +202,20 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 } else {
                     $(".trDiscount").addClass("hide");
                 }
+                */
+
+                //console.log(self.discount, self.traslados, self.retencionISR, self.retencionIVA, "el footer");
+
+                if (self.discount > 0) {
+                    $(".trDiscount").removeClass("hide");
+                    $("#TotalDiscount").val(self.discount.toFixed(2));
+                    $("#lblTotalDiscount").html("- $" + self.discount.toFixed(2));
+                } else {
+                    $(".trDiscount").addClass("hide");
+                }                
 
                 if (self.traslados > 0) {
-                    //console.log(self.traslados);
+                    //console.log(self.traslados, "valor que tiene");
                     $(".trTaxT").removeClass("hide");
                     $("#TaxTransferred").val(self.traslados);
                     $("#lblTaxTransferred").html('$' + self.traslados.toFixed(2));
@@ -222,8 +244,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     $(".trTaxWISR").addClass("hide");
                 }
                 //console.log(subtotal, "isr rete");
-
-                var total = (subtotal - discount).toFixed(2);
+                //- self.discount
+                var total = (subtotal ).toFixed(2);
                 //console.log(total, "total");
                 $("#Total").val(total);
                 $("#lblTotal").html('$' + total);
@@ -234,6 +256,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
         self.dataTableImp = self.htmlTableImp.DataTable({
+            responsive: true,
             "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
             "bLengthChange": false,
             "bInfo": false,
@@ -279,6 +302,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         //self.dataTableCFDI = self.htmlTableCFDI.DataTable();
         var settings = {
+            responsive: true,
             "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
             "bLengthChange": false,
             "bInfo": false,
@@ -394,6 +418,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         };
 
         self.dataTableCFDIEgress = self.htmlTableCFDIEgress.DataTable({
+            responsive: true,
             "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
             "bLengthChange": false,
             "bInfo": false,
@@ -448,20 +473,20 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
             });
 
+        
         $('#DateIssued').datetimepicker({
             dateFormat: "dd/mm/yyyy",
-            //timeFormat: "hh:mm:ss",
+            timeFormat: "hh:ii:ss",
             keyboardNavigation: false,
             todayBtn: "linked",
             forceParse: false,
             calendarWeeks: true,
             autoclose: true,
-            format: "dd/mm/yyyy hh:mm:ss",
-            ////format: "yyyy-mm-dd",
+            format: "dd/mm/yyyy hh:ii:ss",
             language: "es",
             fontAwesome: true,
-            maxDate: DateInit.MaxDate,
-            startDate: '-3d'
+            //maxDate: DateInit.MaxDate,
+            startDate: date,            
         });
 
         $(this.htmlTable, "tbody").on('click',
@@ -473,6 +498,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 self.retencionISRTempDesc = 0;
                 self.retencionIVATempDesc = 0;
                 self.trasladosTempDesc = 0;
+                self.discountTempDesc = 0;
                 //console.log(row.data(), "validar que datos estan trayendo ");
 
                 //var id = row.data().uuid;   
@@ -490,15 +516,20 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 //console.log(data[10], "impuestos");
 
                 var array = data[10].split(";");
-                //console.log(array);
+                //console.log(array, "que trae el array");
 
-                if (array.length > 0) {
+                if (array.length > 0 && array[0] !== "") {
                     var t = $("#tableImpuestos").DataTable();
                     var sub = self.quantity.val(data[1]) * self.unitPrice.val(data[6]);
                     var discount = data[7] > 0 || data[7] < 0 ? (data[7] * sub) / 100 : 0;
                     var subtotal = sub - discount; //aplicado el descuento.
 
+                    self.discountTempDesc = discount;
+
                     array.forEach(function (item, i) {
+                        if (item !== "") {
+                            console.log("no tiene impuestos");
+                        }
                         //console.log(item, i, "onjeto");
                         var obj = JSON.stringify(item).replace(/'/g, "\"").replace("\"{", "{").replace("}\"", "}");
                         //console.log(obj,"objeto")
@@ -743,18 +774,17 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
             $('.starteAt').datetimepicker({
                 dateFormat: "dd/mm/yyyy",
-                //timeFormat: "hh:mm:ss",
+                timeFormat: "hh:ii:ss",
                 keyboardNavigation: false,
                 todayBtn: "linked",
                 forceParse: false,
                 calendarWeeks: true,
                 autoclose: true,
-                format: "dd/mm/yyyy hh:mm:ss",
-                ////format: "yyyy-mm-dd",
+                format: "dd/mm/yyyy hh:ii:ss",
                 language: "es",
                 fontAwesome: true,
-                maxDate: DateInit.MaxDate,
-                ////startDate: DateInit.MinDate
+                //maxDate: DateInit.MaxDate,
+                startDate: date,       
             });
 
             $("#table-" + index).DataTable(settings);
@@ -813,27 +843,33 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         $("#addTaxes").click(function () {
             //console.log("estoy aqui")
 
-            var t = $("#tableImpuestos").DataTable();
-            var ind = t.rows().count();
-            var index = parseInt(ind);
-            index++;
-            var radio = $("input[name='taxes']:checked").val();
-            var input = "";
-            if (radio === "Retención")
-                input = $("#Withholdings").val();
-            else
-                input = $("#Transferred").val();
+            var porcent = $("#Valuation").val();
+            //console.log("porcentaje", porcent)
+            if (porcent !== null && porcent !== "") {
+                var t = $("#tableImpuestos").DataTable();
+                var ind = t.rows().count();
+                var index = parseInt(ind);
+                index++;
+                var radio = $("input[name='taxes']:checked").val();
+                var input = "";
+                if (radio === "Retención")
+                    input = $("#Withholdings").val();
+                else
+                    input = $("#Transferred").val();
 
-            t.row.add(
-                [{
-                    "Tipo": radio,
-                    "Impuesto": input,
-                    "Porcentaje": $("#Valuation").val(),
-                    "index": index
-                }]
-            ).draw(false);
+                t.row.add(
+                    [{
+                        "Tipo": radio,
+                        "Impuesto": input,
+                        "Porcentaje": porcent,
+                        "index": index
+                    }]
+                ).draw(false);
 
-            Prices();
+                Prices();
+            } else {
+                toastr["error"]("No hay impuesto por agregar.", null, { 'positionClass': 'toast-top-center' });
+            }           
         });
 
         $("#InvoicingForm").validate({
@@ -894,6 +930,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //console.log($(this).val());
             var cmbTaxes = $("#Valuation");
             cmbTaxes.empty();
+            cmbTaxes.trigger('chosen:updated');
             var type = $("input[name='taxes']:checked").val();
             var valueTax = $(this).val();
 
@@ -1133,8 +1170,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 El20Utils.ocultarCargador();
             }
         });
-
-        $("#RFC").keyup(function () {
+        
+        $("#RFC, #SATUnit").keyup(function () {
             this.value = this.value.toUpperCase();
         });
 
@@ -1146,6 +1183,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             self.retencionISRTemp = 0;
             self.retencionIVATemp = 0;
             self.trasladosTemp = 0;
+            self.discountTemp = 0;
+
             var quantity = parseFloat(self.quantity.val() !== "" ? self.quantity.val() : 0);
             var unitPrice = parseFloat(self.unitPrice.val() !== "" ? (self.unitPrice.val().replace(",", "")) : 0);
             var discountRate = parseFloat(self.discountRate.val() !== "" ? self.discountRate.val() : 0);
@@ -1159,7 +1198,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 var impIVAIESP = 0; //parseFloat(self.taxesIEPS.val() !== "" ? self.taxesIVA.val() : 0);
 
                 var discount = discountRate > 0 || discountRate < 0 ? (discountRate * sub) / 100 : 0;
+                //console.log(discount, "descuento en prices")
                 var subtotal = sub - discount; //aplicado el descuento.
+                self.discountTemp = discount;
 
                 //console.log(impuestos, "tabla")
                 if (impuestos.rows().count() > 0) {
@@ -1178,13 +1219,17 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                 impIVAISR = impIVAISR + imp1;
                                 //console.log(impIVAISR, imp1, "iva isr");
                             } else {
+                                //console.log("cambio")
                                 var imp2 = por > 0 ? (por * subtotal) / 100 : 0;
                                 self.trasladosTemp = self.trasladosTemp + imp2;
                                 impIVAIESP = impIVAIESP + imp2;
+                                //console.log("iva ieps", impIVAIESP, imp2, self.trasladosTemp)
                             }
                         }
                     }
                 }
+
+                //console.log(self.trasladosTemp,"temporal")
 
                 self.taxesIVA.val(impIVAISR.toFixed(2));
                 self.taxesIEPS.val(impIVAIESP.toFixed(2));
@@ -1195,6 +1240,11 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         //Borrar valores cuando se oculte el modal
         $('#ServProdModal').on('hide.bs.modal', function (e) {
             // do something...
+            $("a#products-tab").click();
+            var cmbTaxes = $("#Valuation");
+            cmbTaxes.empty();
+            cmbTaxes.trigger('chosen:updated');
+
             $("#ConceptForm").each(function () {
                 //console.log("holas");
                 this.reset();
@@ -1204,6 +1254,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 table.clear().draw();
                 $("input[name='TaxesChk']").iCheck("update");
             });
+
         });
 
         //Agregar a la lista de conceptos del producto
@@ -1259,12 +1310,14 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 self.retencionISR = self.retencionISR + self.retencionISRTemp - self.retencionISRTempDesc;
                 self.retencionIVA = self.retencionIVA + self.retencionIVATemp - self.retencionIVATempDesc;
                 self.traslados = self.traslados + self.trasladosTemp - self.trasladosTempDesc;
+                self.discount = self.discount + self.discountTemp - self.discountTempDesc;
             } else {
                 var ind = t.rows().count();
                 var index = parseInt(ind);
                 self.retencionISR = self.retencionISR + self.retencionISRTemp;
                 self.retencionIVA = self.retencionIVA + self.retencionIVATemp;
                 self.traslados = self.traslados + self.trasladosTemp;
+                self.discount = self.discount + self.discountTemp;
                 //console.log("se agregar", self.retencionISR, self.retencionIVA, self.traslados);
                 index++;
 
@@ -1394,12 +1447,13 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var taxes = $("#taxes");
             var cmbTaxes = $("#Valuation");
             cmbTaxes.empty();
+            cmbTaxes.trigger('chosen:updated');
 
             if (!this.checked) {
                 taxes.addClass("hide");
-                $("#Withholdings").val("");
-                $("#Transferred").val("");
-                $("#Valuation").val("");
+                $("#Withholdings").val("").trigger('chosen:updated');
+                $("#Transferred").val("").trigger('chosen:updated');
+                //$("#Valuation").val("").trigger('chosen:updated');
             }
             else
                 taxes.removeClass("hide");
@@ -1420,17 +1474,18 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
         $("input[name='taxes']").click(function () {
-            //console.log("valor", $(this).val())
+            //console.log("valor", $(this).val(),"cual es")
             var cmbTaxes = $("#Valuation");
             cmbTaxes.empty();
+            cmbTaxes.trigger('chosen:updated');
             if ($(this).val() === "Retención") {
                 $(".retenciones").removeClass("hide");
                 $(".traslados").addClass("hide");
-                $("#Transferred").val("");
+                $("#Transferred").val("").trigger('chosen:updated');
             } else {
                 $(".retenciones").addClass("hide");
                 $(".traslados").removeClass("hide");
-                $("#Withholdings").val("");
+                $("#Withholdings").val("").trigger('chosen:updated');
             }
         });
 
