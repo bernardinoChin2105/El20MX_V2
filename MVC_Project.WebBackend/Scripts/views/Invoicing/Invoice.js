@@ -275,6 +275,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 { data: 'Tipo' },
                 { data: 'Impuesto' },
                 { data: 'Porcentaje' },
+                { data: 'Etiqueta' },
                 { data: 'index' }
             ],
             "columnDefs": [
@@ -287,18 +288,24 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 {
                     "targets": 1, render: function (data, type, row, meta) {
                         //console.log(data, type, row, meta, "todos")
-                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].Quantity" value="' + row[0].Impuesto + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + meta.row + '].Quantity" value="' + row[0].Impuesto + '" />';
                         return html;
                     }
                 },
                 {
-                    "targets": 2, render: function (data, type, row, meta) {
-                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].SATCode" value="' + row[0].Porcentaje + '" />';
+                    "targets": 2, className: 'hide', render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + meta.row + '].Porcentaje" value="' + row[0].Porcentaje + '" />';
                         return html;
                     }
                 },
                 {
                     "targets": 3, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + meta.row + '].SATCode" value="' + row[0].Etiqueta + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 4, render: function (data, type, row, meta) {
                         var button = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<button type="button" class="btn btn-light btn-delete" title="Eliminar impuesto" style="margin-left:5px;"><span class="fas fa-trash"></span></button>' +
                             '</div>';
@@ -859,6 +866,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //console.log("estoy aqui")
 
             var porcent = $("#Valuation").val();
+            var label = $("#Valuation option:selected").text();
             //console.log("porcentaje", porcent)
             if (porcent !== null && porcent !== "") {
                 var t = $("#tableImpuestos").DataTable();
@@ -877,6 +885,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         "Tipo": radio,
                         "Impuesto": input,
                         "Porcentaje": porcent,
+                        "Etiqueta": label,
                         "index": index
                     }]
                 ).draw(false);
@@ -973,6 +982,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                 cmbTaxes.append($('<option></option>').val(value[0]).text(value[0] + "%"));
                             } else if (item.maximumValue === -100)
                                 cmbTaxes.append($('<option></option>').val("Exento").text("Exento"));
+                            else if (item.maximumValue === 10.66667)
+                                cmbTaxes.append($('<option></option>').val(10.6667).text(item.maximumValue + "%"));
                             else
                                 cmbTaxes.append($('<option></option>').val(item.maximumValue).text(item.maximumValue + "%"));
                         });
