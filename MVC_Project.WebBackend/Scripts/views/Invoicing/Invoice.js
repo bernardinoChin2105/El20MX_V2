@@ -213,7 +213,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 }
                 */
 
-                //console.log(self.discount, self.traslados, self.retencionISR, self.retencionIVA, "el footer");
+                console.log(self.discount, self.traslados, self.retencionISR, self.retencionIVA, "el footer");
 
                 if (self.discount > 0) {
                     $(".trDiscount").removeClass("hide");
@@ -257,8 +257,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 var total = (subtotal).toFixed(6);
                 //console.log(total, "total");
                 $("#Total").val(total);
-                $("#lblTotal").html('$' + total);
-
+                $("#lblTotal").html('$' + total);               
             }
         }).on('xhr.dt', function (e, settings, data) {
             El20Utils.ocultarCargador();
@@ -509,6 +508,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 self.trasladosTempDesc = 0;
                 self.discountTempDesc = 0;
                 //console.log(row.data(), "validar que datos estan trayendo ");
+                console.log("btn-edit", "ISR retencionISRTempDesc", self.retencionISRTempDesc);
 
                 //var id = row.data().uuid;   
                 $("#Row").val(data[0]);
@@ -529,9 +529,10 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                 if (array.length > 0 && array[0] !== "") {
                     var t = $("#tableImpuestos").DataTable();
-                    var sub = self.quantity.val(data[1]) * self.unitPrice.val(data[6]);
+                    var sub = self.quantity.val() * self.unitPrice.val();
                     var discount = data[7] > 0 || data[7] < 0 ? (data[7] * sub) / 100 : 0;
                     var subtotal = sub - discount; //aplicado el descuento.
+                    console.log("valores", sub, discount, subtotal);
 
                     self.discountTempDesc = discount;
 
@@ -540,21 +541,24 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                             //console.log("tiene impuestos");
                             //console.log(item, i, "onjeto");
                             var obj = JSON.stringify(item).replace(/'/g, "\"").replace("\"{", "{").replace("}\"", "}");
-                            //console.log(obj,"objeto")
+                            //console.log(obj, "objeto")
                             var datos = JSON.parse(obj);
 
                             if (datos.Porcentaje !== "Exento") {
+                                console.log(datos.Porcentaje, "porcentaje");
                                 var por = parseFloat(datos.Porcentaje);
                                 var imp1 = por > 0 ? (por * subtotal) / 100 : 0;
+                                //console.log("imp1", imp1)
                                 if (datos.Tipo === "Retención") {
                                     if (datos.Impuesto === "ISR") {
                                         self.retencionISRTempDesc = self.retencionISRTempDesc + imp1;
+                                        //console.log("btn-edit", "ISR tempDesc asignacion", self.retencionISRTempDesc)
                                     } else {
                                         self.retencionIVATempDesc = self.retencionIVATempDesc + imp1;
                                     }
                                 } else {
-                                    var imp2 = por > 0 ? (por * subtotal) / 100 : 0;
-                                    self.trasladosTempDesc = self.trasladosTempDesc + imp2;
+                                    //var imp2 = por > 0 ? (por * subtotal) / 100 : 0;
+                                    self.trasladosTempDesc = self.trasladosTempDesc + imp1;
                                 }
                             }
 
@@ -1196,6 +1200,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             self.trasladosTemp = 0;
             self.discountTemp = 0;
 
+            //console.log("prices", "ISR retencionISRTemp", self.retencionISRTemp)
+
             var quantity = parseFloat(self.quantity.val() !== "" ? self.quantity.val() : 0);
             var unitPrice = parseFloat(self.unitPrice.val() !== "" ? (self.unitPrice.val().replace(",", "")) : 0);
             var discountRate = parseFloat(self.discountRate.val() !== "" ? self.discountRate.val() : 0);
@@ -1224,6 +1230,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                             if (datos.Tipo === "Retención") {
                                 if (datos.Impuesto === "ISR") {
                                     self.retencionISRTemp = self.retencionISRTemp + imp1;
+                                    console.log("btn-edit", "ISR asignacion retencionISRTemp", self.retencionISRTempDesc);
                                 } else {
                                     self.retencionIVATemp = self.retencionIVATemp + imp1;
                                 }
@@ -1231,9 +1238,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                 //console.log(impIVAISR, imp1, "iva isr");
                             } else {
                                 //console.log("cambio")
-                                var imp2 = por > 0 ? (por * subtotal) / 100 : 0;
-                                self.trasladosTemp = self.trasladosTemp + imp2;
-                                impIVAIESP = impIVAIESP + imp2;
+                                //var imp2 = por > 0 ? (por * subtotal) / 100 : 0;
+                                self.trasladosTemp = self.trasladosTemp + imp1;
+                                impIVAIESP = impIVAIESP + imp1;
                                 //console.log("iva ieps", impIVAIESP, imp2, self.trasladosTemp)
                             }
                         }
@@ -1322,6 +1329,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 self.retencionIVA = self.retencionIVA + self.retencionIVATemp - self.retencionIVATempDesc;
                 self.traslados = self.traslados + self.trasladosTemp - self.trasladosTempDesc;
                 self.discount = self.discount + self.discountTemp - self.discountTempDesc;
+
+                console.log("add concept Editar", self.retencionISR + " =" + self.retencionISR + "+" + self.retencionISRTemp + " -" + self.retencionISRTempDesc, self.retencionISR);
             } else {
                 var ind = t.rows().count();
                 var index = parseInt(ind);
@@ -1330,6 +1339,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 self.traslados = self.traslados + self.trasladosTemp;
                 self.discount = self.discount + self.discountTemp;
                 //console.log("se agregar", self.retencionISR, self.retencionIVA, self.traslados);
+                console.log("add concepts add", self.retencionISR + " = " + self.retencionISR + " + " + self.retencionISRTemp, self.retencionISR);
                 index++;
 
                 t.row.add(
@@ -1350,6 +1360,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     ]
                 ).draw(false);
             }
+
+            $("#table").dataTable().api().draw()
 
             $("input[name='taxes']").attr("checked", false);
             //$("input[name='taxes']").attr("checked", false);
