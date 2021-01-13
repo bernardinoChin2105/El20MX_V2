@@ -69,5 +69,13 @@ namespace MVC_Project.Utils
             Facebook = 1,
             Google = 2
         }
+
+        public static Dictionary<SystemPlan, int> RecurlyPlanLimits = new Dictionary<SystemPlan, int>
+        {
+            {SystemPlan.plan_startup, 50},
+            {SystemPlan.plan_basico, 125},
+            {SystemPlan.plan_premium, 200},
+            {SystemPlan.plan_empresarial, int.MaxValue},
+        };
     }
 }

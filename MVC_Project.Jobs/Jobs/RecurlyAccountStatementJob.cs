@@ -100,6 +100,12 @@ namespace MVC_Project.Jobs
                         {
                             foreach (var acc in accountsRecurly)
                             {
+                                var accountSupscriptions = RecurlyService.GetAccountSuscriptions(siteId, acc.idCredentialProvider);
+
+                                if (accountSupscriptions.data.Count == 0 && acc.inicioFacturacion.HasValue && now < acc.inicioFacturacion.Value)
+                                {
+                                    continue;
+                                }
 
                                 var issuedInvoices = _invoicesIssuedService.FindBy(x => x.account.id == acc.id && x.status == stampedStatusName
                                     && x.invoicedAt >= firstDayOfMonth && x.invoicedAt <= lastDayOfMonth).OrderBy(x => x.invoicedAt);
@@ -109,8 +115,6 @@ namespace MVC_Project.Jobs
 
                                 bool isOldAccount = !string.IsNullOrEmpty(acc.planSchema) && acc.planSchema.StartsWith(SystemPlan.OLD_SCHEMA.ToString());
 
-                                var accountSupscriptions = RecurlyService.GetAccountSuscriptions(siteId, acc.idCredentialProvider);
-
                                 if (!isOldAccount)
                                 {
                                     if (acc.rfc.Length == 12)
@@ -118,36 +122,51 @@ namespace MVC_Project.Jobs
                                         var excludedIssuedCount = issuedInvoices.Count(x => x.invoiceType == TipoComprobante.E.ToString() || x.invoiceType == TipoComprobante.P.ToString());
                                         var excludedReceivedCount = receivedInvoices.Count(x => x.invoiceType == TipoComprobante.E.ToString() || x.invoiceType == TipoComprobante.P.ToString());
 
-                                        //var totalIssuedInvoices = issuedInvoices.Where(x => x.homemade && x.branchOffice != null).Count();
                                         var totalIssuedInvoices = issuedInvoices.Count() - excludedIssuedCount;
-                                        //var totalReceivedInvoices = receivedInvoices.Count();
                                         var totalReceivedInvoices = receivedInvoices.Count() - excludedReceivedCount;
 
                                         var totalInvoices = totalIssuedInvoices + totalReceivedInvoices;
 
-                                        var planCodeEnum = totalInvoices <= 50 ? SystemPlan.STARTUP :
-                                                totalInvoices <= 125 ? SystemPlan.BASICO :
-                                                totalInvoices <= 200 ? SystemPlan.PREMIUM : SystemPlan.EMPRESARIAL;
-                                        var planCode = planCodeEnum.GetDisplayName();
+                                        //var planCodeEnum = totalInvoices <= 50 ? SystemPlan.plan_startup :
+                                        //        totalInvoices <= 125 ? SystemPlan.plan_basico :
+                                        //        totalInvoices <= 200 ? SystemPlan.plan_premium : SystemPlan.plan_empresarial;
+                                        //var planCode = planCodeEnum.GetDisplayName();
+
+                                        var planCodeEnum = Constants.RecurlyPlanLimits.First(x => x.Value >= totalInvoices).Key;
+                                        var planCode = planCodeEnum.ToString();
+
+                                        if (!string.IsNullOrEmpty(acc.planFijo))
+                                        {
+                                            var planExists = Enum.TryParse(acc.planFijo, out SystemPlan fixedPlanEnum);
+                                            if(planExists && Constants.RecurlyPlanLimits.ContainsKey(fixedPlanEnum))
+                                            {
+                                                var fixedPlanLimit = Constants.RecurlyPlanLimits[fixedPlanEnum];
+                                                if (fixedPlanLimit >= totalInvoices)
+                                                {
+                                                    planCodeEnum = fixedPlanEnum;
+                                                    planCode = acc.planFijo;
+                                                }
+                                            }
+                                        }
 
                                         string receivedAddonCode = "";
                                         string issuedAddonCode = "";
 
                                         switch (planCodeEnum)
                                         {
-                                            case SystemPlan.STARTUP:
+                                            case SystemPlan.plan_startup:
                                                 issuedAddonCode = RecurlyPlanAddons.STARTUP_FACTURA_EMITIDA.GetDisplayName();
                                                 receivedAddonCode = RecurlyPlanAddons.STARTUP_FACTURA_RECIBIDA.GetDisplayName();
                                                 break;
-                                            case SystemPlan.BASICO:
+                                            case SystemPlan.plan_basico:
                                                 issuedAddonCode = RecurlyPlanAddons.BASICO_FACTURA_EMITIDA.GetDisplayName();
                                                 receivedAddonCode = RecurlyPlanAddons.BASICO_FACTURA_RECIBIDA.GetDisplayName();
                                                 break;
-                                            case SystemPlan.PREMIUM:
+                                            case SystemPlan.plan_premium:
                                                 issuedAddonCode = RecurlyPlanAddons.PREMIUM_FACTURA_EMITIDA.GetDisplayName();
                                                 receivedAddonCode = RecurlyPlanAddons.PREMIUM_FACTURA_RECIBIDA.GetDisplayName();
                                                 break;
-                                            case SystemPlan.EMPRESARIAL:
+                                            case SystemPlan.plan_empresarial:
                                                 issuedAddonCode = RecurlyPlanAddons.EMPRESARIAL_FACTURA_EMITIDA.GetDisplayName();
                                                 receivedAddonCode = RecurlyPlanAddons.EMPRESARIAL_FACTURA_RECIBIDA.GetDisplayName();
                                                 break;
@@ -242,7 +261,7 @@ namespace MVC_Project.Jobs
                                     }
                                     else
                                     {
-                                        var recurlyPlan = plans.data.FirstOrDefault(x => x.code == SystemPlan.CONTIGO.GetDisplayName());
+                                        var recurlyPlan = plans.data.FirstOrDefault(x => x.code == SystemPlan.contigo.GetDisplayName());
 
                                         if (recurlyPlan != null)
                                         {
@@ -299,7 +318,7 @@ namespace MVC_Project.Jobs
 
                                             if (accountSupscriptions.data != null && accountSupscriptions.data.Count > 0)
                                             {
-                                                haveSubscription = accountSupscriptions.data.Any(x => x.Plan.Code == SystemPlan.CONTIGO.GetDisplayName());
+                                                haveSubscription = accountSupscriptions.data.Any(x => x.Plan.Code == SystemPlan.contigo.GetDisplayName());
                                             }
 
                                             if (!haveSubscription)
@@ -339,7 +358,7 @@ namespace MVC_Project.Jobs
                                             }
                                             else
                                             {
-                                                var currentSubscription = accountSupscriptions.data.FirstOrDefault(x => x.Plan.Code == SystemPlan.CONTIGO.GetDisplayName());
+                                                var currentSubscription = accountSupscriptions.data.FirstOrDefault(x => x.Plan.Code == SystemPlan.contigo.GetDisplayName());
                                                 var currentSubAddonQuantity = currentSubscription.AddOns.FirstOrDefault(x => x.AddOn.Code == RecurlyPlanAddons.CONTIGO_FACTURA_ADICIONAL.GetDisplayName())?.Quantity;
 
                                                 if (currentSubAddonQuantity.GetValueOrDefault() != addonsQuantity)
@@ -381,6 +400,11 @@ namespace MVC_Project.Jobs
                                         case SystemPlan.OLD_SCHEMA_EMPRESARIAL:
                                             planCode = SystemPlan.OLD_SCHEMA_EMPRESARIAL.GetDisplayName();
                                             break;
+                                    }
+
+                                    if (!string.IsNullOrEmpty(acc.planFijo))
+                                    {
+                                        planCode = acc.planFijo;
                                     }
 
                                     if (haveSubscription)

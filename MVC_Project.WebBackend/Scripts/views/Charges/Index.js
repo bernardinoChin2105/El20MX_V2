@@ -40,7 +40,7 @@ var ChargesIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAc
             ordering: false,
             columns: [
                 { data: 'id', title: "Id", visible: false },
-                { data: 'businessName', title: "Nombre/Razón Social" },
+                { data: 'businessName', title: "Razón Social" },
                 { data: 'rfc', title: "RFC" },
                 { data: 'billingStart', title: "Inicio Facturación" },
                 { data: 'plan', title: "Plan fijo" },
