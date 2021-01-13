@@ -261,6 +261,7 @@
     <Compile Include="Controllers\BankController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BranchOfficeController.cs" />
+    <Compile Include="Controllers\CADController.cs" />
     <Compile Include="Controllers\CalendarController.cs" />
     <Compile Include="Controllers\DiagnosticController.cs" />
     <Compile Include="Controllers\DocumentsController.cs" />
@@ -293,6 +294,7 @@
     <Compile Include="Models\AuthViewModel.cs" />
     <Compile Include="Models\BankViewModel.cs" />
     <Compile Include="Models\BranchOfficeViewModel.cs" />
+    <Compile Include="Models\CADViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
     <Compile Include="Models\CredentialViewModel.cs" />
     <Compile Include="Models\InvoiceViewModel.cs" />
@@ -328,6 +330,16 @@
     <Compile Include="Utils\ViewConstants.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\fonts\font-awesome\all.css" />
+    <Content Include="Content\fonts\font-awesome\all.js" />
+    <Content Include="Content\fonts\font-awesome\all.min.css" />
+    <Content Include="Content\fonts\font-awesome\all.min.js" />
+    <Content Include="Content\fonts\font-awesome\v4-shims.js" />
+    <Content Include="Content\fonts\font-awesome\v4-shims.min.js" />
+    <Content Include="Content\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Content\fonts\webfonts\fa-brands-400.svg" />
+    <Content Include="Content\fonts\webfonts\fa-regular-400.svg" />
+    <Content Include="Content\fonts\webfonts\fa-solid-900.svg" />
     <Content Include="Content\img\logo20.png" />
     <Content Include="Content\template\animate.css" />
     <Content Include="Content\template\bootstrap.css" />
@@ -1909,6 +1921,22 @@
     <Content Include="fonts\webfonts\fa-solid-900.woff2" />
     <Content Include="App_Browsers\qt.browser" />
     <Content Include="libman.json" />
+    <Content Include="Content\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Content\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="Content\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="Content\fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="Content\fonts\webfonts\fa-brands-400.eot" />
+    <Content Include="Content\fonts\webfonts\fa-brands-400.ttf" />
+    <Content Include="Content\fonts\webfonts\fa-brands-400.woff" />
+    <Content Include="Content\fonts\webfonts\fa-brands-400.woff2" />
+    <Content Include="Content\fonts\webfonts\fa-regular-400.eot" />
+    <Content Include="Content\fonts\webfonts\fa-regular-400.ttf" />
+    <Content Include="Content\fonts\webfonts\fa-regular-400.woff" />
+    <Content Include="Content\fonts\webfonts\fa-regular-400.woff2" />
+    <Content Include="Content\fonts\webfonts\fa-solid-900.eot" />
+    <Content Include="Content\fonts\webfonts\fa-solid-900.ttf" />
+    <Content Include="Content\fonts\webfonts\fa-solid-900.woff" />
+    <Content Include="Content\fonts\webfonts\fa-solid-900.woff2" />
     <None Include="packages.config" />
     <Content Include="Scripts\api\typehead_collection.json" />
     <Content Include="Scripts\bootstrap.js.map" />
@@ -2007,6 +2035,7 @@
     <Content Include="Views\Invoicing\InvoicesIssued.cshtml" />
     <Content Include="Views\Invoicing\InvoicesReceived.cshtml" />
     <Content Include="Views\MyAccount\Index.cshtml" />
+    <Content Include="Views\CAD\AssignAccount.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

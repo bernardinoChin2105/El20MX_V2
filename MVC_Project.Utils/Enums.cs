@@ -178,7 +178,9 @@ namespace MVC_Project.Utils
         [Display(Name = "Alianzas y Descuentos")]
         ALLIANCES_DISCOUNTS,
         [Display(Name = "Regularizaciones")]
-        QUOTATION
+        QUOTATION,
+        [Display(Name = "CADs")]
+        CAD
         #endregion
     }
 
