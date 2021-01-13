@@ -41,7 +41,8 @@ namespace MVC_Project.Domain.Services
 
         public List<AccountCredentialModel> GetAccountRecurly()
         {
-            string sql = "select ac.[id], ac.[uuid], ac.[name], ac.[rfc], ac.[planSchema], c.[provider], c.[idCredentialProvider], c.[statusProvider], c.[credentialType] hostedKey " +
+            string sql = "select ac.[id], ac.[uuid], ac.[name], ac.[rfc], ac.[planSchema], c.[provider], c.[idCredentialProvider], c.[statusProvider], c.[credentialType] hostedKey, " +
+                        "ac.[planFijo], ac.[inicioFacturacion] " +
                         "from [dbo].[accounts] ac " +
                         "inner join [dbo].[credentials] c on ac.id = c.[accountId]" +
                         "inner join [dbo].[memberships] m on ac.id = m.[accountId]" +
@@ -80,6 +81,9 @@ namespace MVC_Project.Domain.Services
                     query = query.Where(x => x.status == SystemStatus.ACTIVE.ToString());
                 else if (FilterStatus == (int)SystemStatus.INACTIVE)
                     query = query.Where(x => x.status == SystemStatus.INACTIVE.ToString());
+            } else
+            {
+                query = query.Where(x => x.status == SystemStatus.ACTIVE.ToString() || x.status == SystemStatus.INACTIVE.ToString());
             }
             var count = query.RowCount();
 

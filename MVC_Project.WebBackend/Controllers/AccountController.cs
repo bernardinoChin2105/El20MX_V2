@@ -127,7 +127,8 @@ namespace MVC_Project.WebBackend.Controllers
             else
             {
                 var accountViewModel = new AccountSelectViewModel { accountListViewModels = new List<AccountListViewModel>() };
-                var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
+                var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString()
+                    && x.account.status != SystemStatus.INACTIVE.ToString());
                 if (memberships.Any())
                 {
                     foreach (var membership in memberships)
@@ -574,6 +575,21 @@ namespace MVC_Project.WebBackend.Controllers
                 #region Se creara la cuenta en Recurly
                     CreateAccountRecurly();
                 #endregion
+                var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
+                var recurlyAccountUrlBase = ConfigurationManager.AppSettings["Recurly.AccountUrlBase"];
+
+                var recurlyAccountCredential = _credentialService.FindBy(x => x.account.id == account.id && x.provider == recurlyProvider && x.statusProvider == "active" && x.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
+                if (recurlyAccountCredential != null && !string.IsNullOrEmpty(recurlyAccountCredential.credentialType))
+                {
+                    authUser.Permissions.Add(new Permission
+                    {
+                        Action = recurlyAccountUrlBase + recurlyAccountCredential.credentialType,
+                        Controller = "MyAccount",
+                        Module = SystemModules.RECURLY_ACCOUNT.ToString(),
+                        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                        isCustomizable = true
+                    });
+                }
 
 
                 return RedirectToAction("Index", "SAT");

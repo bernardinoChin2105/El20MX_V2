@@ -507,21 +507,37 @@ namespace MVC_Project.Utils
         [Display(Name = "Esquema nuevo")]
         NEW_SCHEMA,
         [Display(Name = "plan_startup")]
-        STARTUP,
+        plan_startup,
         [Display(Name = "plan_basico")]
-        BASICO,
+        plan_basico,
         [Display(Name = "plan_premium")]
-        PREMIUM,
+        plan_premium,
         [Display(Name = "plan_empresarial")]
-        EMPRESARIAL,
+        plan_empresarial,
         [Display(Name = "contigo")]
-        CONTIGO
+        contigo
     }
 
     public enum RecurlyPlanAddons
     {
         [Display(Name = "factura_adicional_contigo")]
-        CONTIGO_FACTURA_ADICIONAL
+        CONTIGO_FACTURA_ADICIONAL,
+        [Display(Name = "Facturas el20 Startup")]
+        STARTUP_FACTURA_EMITIDA,
+        [Display(Name = "Facturas Startup")]
+        STARTUP_FACTURA_RECIBIDA,
+        [Display(Name = "Facturas Básico")]
+        BASICO_FACTURA_EMITIDA,
+        [Display(Name = "Facturas_plan_Basico")]
+        BASICO_FACTURA_RECIBIDA,
+        [Display(Name = "Facturas Premium")]
+        PREMIUM_FACTURA_EMITIDA,
+        [Display(Name = "Facturas_plan_premium")]
+        PREMIUM_FACTURA_RECIBIDA,
+        [Display(Name = "Facturas Empresarial")]
+        EMPRESARIAL_FACTURA_EMITIDA,
+        [Display(Name = "Facturas_plan_empresarial")]
+        EMPRESARIAL_FACTURA_RECIBIDA,
     }
 
     public enum RecurlyPaymentStatus

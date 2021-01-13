@@ -17,5 +17,7 @@ namespace MVC_Project.Domain.Model
         public string statusProvider { get; set; }
         public string hostedKey { get; set; }
         public string planSchema { get; set; }
+        public string planFijo { get; set; }
+        public DateTime? inicioFacturacion { get; set; }
     }
 }
