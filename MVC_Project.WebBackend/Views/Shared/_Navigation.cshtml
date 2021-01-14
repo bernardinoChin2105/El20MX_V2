@@ -170,6 +170,19 @@
                     }
                 </li>
             }
+            @if (user.HasAccessToModule(SystemModules.CHARGES_RECURLY.ToString()))
+            {
+                <li class="@Html.IsModuleSelected(user, SystemModules.CHARGES_RECURLY.ToString())">
+                    <a href="#"><i class="fas fa-balance-scale"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CHARGES_RECURLY</span> <span class="fain arrow"></span></a>
+                    @if (user.HasAccessController("Charges"))
+                    {
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Charges", cssClass: "in")">
+                            <li class="@Html.IsSelected(controller: "Charges", action: "Index")"><a href="@Url.Action("Index", "Charges")">Cuentas</a></li>
+
+                        </ul>
+                    }
+                </li>
+            }
             @if (user.HasAccessToModule(SystemModules.INVOICING.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.INVOICING.ToString())">

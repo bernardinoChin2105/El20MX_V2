@@ -170,6 +170,8 @@ namespace MVC_Project.WebBackend.Controllers
                     var uniqueMembership = memberships.First();
                     if (uniqueMembership.account.status == SystemStatus.INACTIVE.ToString())
                     {
+                        throw new Exception("Su cuenta se encuentra inactiva.");
+
                         List<Permission> permissionsUser = new List<Permission>();
                         permissionsUser.Add(new Permission
                         {
@@ -230,6 +232,10 @@ namespace MVC_Project.WebBackend.Controllers
                 }
                 else
                 {
+                    if(memberships.All(x => x.account.status == SystemStatus.INACTIVE.ToString()))
+                    {
+                        throw new Exception("Su cuenta se encuentra inactiva.");
+                    }
                     List<Permission> permissionsUser = new List<Permission>();
                     permissionsUser.Add(new Permission
                     {

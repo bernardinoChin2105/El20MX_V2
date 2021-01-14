@@ -367,5 +367,13 @@ namespace MVC_Project.Resources {
                 return ResourceManager.GetString("MODULE_CADs", resourceCulture);
             }
         }
+
+        public static string MODULE_CHARGES_RECURLY
+        {
+            get
+            {
+                return ResourceManager.GetString("MODULE_CHARGES_RECURLY", resourceCulture);
+            }
+        }
     }
 }
