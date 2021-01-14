@@ -279,8 +279,10 @@ namespace MVC_Project.WebBackend.Controllers
                 branchOffice.municipality = new Domain.Entities.Municipality { id = model.municipality};
                 branchOffice.state = new Domain.Entities.State { id = model.state };
                 branchOffice.country = new Domain.Entities.Country { id = model.country };
+                branchOffice.modifiedAt = DateUtil.GetDateTimeNow();
 
                 _branchOfficeService.Update(branchOffice);
+                string message = string.Empty;
 
                 if (model.cer != null && model.key != null && !string.IsNullOrEmpty(model.password))
                 {
@@ -291,7 +293,16 @@ namespace MVC_Project.WebBackend.Controllers
                             var storageEFirma = ConfigurationManager.AppSettings["StorageEFirma"];
 
                             if (!string.IsNullOrEmpty(branchOffice.certificateId))
-                                SATService.DeleteCertificates(branchOffice.certificateId, _provider);
+                            {
+                                try
+                                {
+                                    SATService.DeleteCertificates(branchOffice.certificateId, _provider);
+                                }
+                                catch (Exception ex)
+                                {
+                                    message = "No fue posible eliminar el certificado anterior. " + ex.Message;
+                                }
+                            }
 
                             model.cer.InputStream.Position = 0;
                             byte[] result = null;
@@ -333,7 +344,7 @@ namespace MVC_Project.WebBackend.Controllers
                                ENivelLog.Info, userAuth.Id, userAuth.Email, EOperacionLog.ACCESS,
                                string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
                                ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                               ex.Message + " " + ex.InnerException != null ? ex.InnerException.Message : ""
+                               ex.Message + (ex.InnerException != null ? ex.InnerException.Message : string.Empty)
                             );
                             return RedirectToAction("Edit", new { uuid = branchOffice.uuid });
                         }
@@ -347,8 +358,11 @@ namespace MVC_Project.WebBackend.Controllers
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    JsonConvert.SerializeObject(branchOffice)
                 );
+                if(string.IsNullOrEmpty(message))
+                    MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
+                else
+                    MensajeFlashHandler.RegistrarMensaje("Registro actualizado. " + (!string.IsNullOrEmpty(message) ? message : string.Empty), TiposMensaje.Warning);
 
-                MensajeFlashHandler.RegistrarMensaje("Actualización exitosa", TiposMensaje.Success);
                 return RedirectToAction("Index");
             }
             catch (Exception ex)

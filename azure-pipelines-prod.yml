@@ -4,7 +4,18 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
 
 trigger:
-- master
+  branches:
+    include:
+      - master
+  paths:
+    include:
+    - 'MVC_Project.WebBackend'
+    - 'MVC_Project.Utils'
+    - 'MVC_Project.Data'
+    - 'MVC_Project.Domain'
+    - 'MVC_Project.Integrations'
+    - 'MVC_Project.FlashMessages'
+    - 'MVC_Project.Resources'
 
 pool:
   vmImage: 'windows-latest'

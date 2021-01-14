@@ -181,5 +181,6 @@ namespace MVC_Project.WebBackend.Models
         public string paymentFormDescription { get; set; }
         public string businessName { get; set; }
         public string xml { get; set; }
+        public string type { get; set; }
     }
 }

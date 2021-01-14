@@ -1521,7 +1521,8 @@ namespace MVC_Project.WebBackend.Controllers
                     businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
                     //first_name = x.first_name,
                     //last_name = x.last_name,
-                    paymentFormDescription = x.paymentFormDescription
+                    paymentFormDescription = x.paymentFormDescription,
+                    type = x.invoiceType
                 }).ToList();
 
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
@@ -1655,7 +1656,8 @@ namespace MVC_Project.WebBackend.Controllers
                     businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
                     //first_name = x.first_name,
                     //last_name = x.last_name,
-                    paymentFormDescription = x.paymentFormDescription
+                    paymentFormDescription = x.paymentFormDescription,
+                    type = x.invoiceType
                 }).ToList();
 
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
