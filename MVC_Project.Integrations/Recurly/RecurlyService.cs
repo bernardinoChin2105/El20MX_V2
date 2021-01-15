@@ -113,5 +113,19 @@ namespace MVC_Project.Integrations.Recurly
                 throw new Exception("No se encontró un proveedor de acceso al información fiscal");
             }
         }
+
+        public static CouponRedemption CreateCouponRedemption(CouponRedemptionCreate couponRedemption, string siteId, string accountId, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                var recurlyModel = RecurlyServices.CreateCouponRedemption(couponRedemption, siteId, accountId);
+
+                return recurlyModel;
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso.");
+            }
+        }
     }
 }

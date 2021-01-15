@@ -108,6 +108,8 @@ namespace MVC_Project.WebBackend
             //Custom
             bundles.Add(new ScriptBundle("~/custom/utils").Include(
                       "~/Scripts/custom/Utils.js"));
+            bundles.Add(new ScriptBundle("~/custom/promotion-coupon").Include(
+                      "~/Scripts/views/MyAccount/promotion-coupon.js"));
 
             //Views
             bundles.Add(new ScriptBundle("~/views/user").Include(
