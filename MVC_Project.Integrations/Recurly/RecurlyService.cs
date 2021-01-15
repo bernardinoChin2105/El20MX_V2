@@ -113,5 +113,19 @@ namespace MVC_Project.Integrations.Recurly
                 throw new Exception("No se encontró un proveedor de acceso al información fiscal");
             }
         }
+
+        public static Account DeleteAccount(string accountId, string siteId, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                var recurlyModel = RecurlyServices.DeleteAccount(accountId, siteId);
+
+                return recurlyModel; //new AccountResponseModel { id = recurlyModel.id, state = recurlyModel.state };
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso de recurly");
+            }
+        }
     }
 }

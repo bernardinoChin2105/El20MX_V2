@@ -105,13 +105,13 @@ namespace MVC_Project.Integrations.Paybook
         }
 
         //Eliminar credenciales de las cuentas en paybook
-        public static bool DeleteCredential(string idCredential, string method, string token)
+        public static bool DeleteCredential(string idCredential, string method)
         {
             bool responseDelete = false;
             try
             {
                 string url = "/credentials/"+idCredential;
-                var response = Paybook.CallServicePaybook(url, null, method, false, token);
+                var response = Paybook.CallServicePaybook(url, null, method, false, null);
                 var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
                 var option = model.First(x => x.Key == "response").Value;
                 //JObject rItemValueJson = (JObject)option;

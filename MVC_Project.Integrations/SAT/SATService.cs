@@ -173,5 +173,18 @@ namespace MVC_Project.Integrations.SAT
                 throw new Exception("No se encontró un proveedor de acceso al información fiscal");
             }
         }
+
+        //Método para Eliminar la credencial
+        public static string DeleteCredential(string id, string provider)
+        {
+            if (provider == SystemProviders.SATWS.ToString())
+            {
+                return SATwsService.DeleteCredential(id);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
     }
 }
