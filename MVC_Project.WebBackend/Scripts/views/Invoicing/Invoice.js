@@ -1273,6 +1273,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var cmbTaxes = $("#Valuation");
             cmbTaxes.empty();
             cmbTaxes.trigger('chosen:updated');
+            $("#Withholdings").val("").trigger('chosen:updated');
+            $("#Transferred").val("").trigger('chosen:updated');
 
             $("#ConceptForm").each(function () {
                 //console.log("holas");
@@ -1372,7 +1374,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 ).draw(false);
             }
 
-            $("#table").dataTable().api().draw()
+            $("#table").dataTable().api().draw();
 
             $("input[name='taxes']").attr("checked", false);
             //$("input[name='taxes']").attr("checked", false);
