@@ -213,7 +213,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 }
                 */
 
-                console.log(self.discount, self.traslados, self.retencionISR, self.retencionIVA, "el footer");
+                //console.log(self.discount, self.traslados, self.retencionISR, self.retencionIVA, "el footer");
 
                 if (self.discount > 0) {
                     $(".trDiscount").removeClass("hide");
@@ -539,7 +539,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     var sub = self.quantity.val() * self.unitPrice.val();
                     var discount = data[7] > 0 || data[7] < 0 ? (data[7] * sub) / 100 : 0;
                     var subtotal = sub - discount; //aplicado el descuento.
-                    console.log("valores", sub, discount, subtotal);
+                    //console.log("valores", sub, discount, subtotal);
 
                     self.discountTempDesc = discount;
 
@@ -552,7 +552,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                             var datos = JSON.parse(obj);
 
                             if (datos.Porcentaje !== "Exento") {
-                                console.log(datos.Porcentaje, "porcentaje");
+                                //console.log(datos.Porcentaje, "porcentaje");
                                 var por = parseFloat(datos.Porcentaje);
                                 var imp1 = por > 0 ? (por * subtotal) / 100 : 0;
                                 //console.log("imp1", imp1)
@@ -679,7 +679,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var data = t.row(index).data();
 
             //console.log(t, "tabla");
-            console.log(value, "valor del campo")
+            //console.log(value, "valor del campo")
 
             data.previousBalance = value;
             t.row(index).data(data).draw(false);
@@ -1241,7 +1241,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                             if (datos.Tipo === "Retención") {
                                 if (datos.Impuesto === "ISR") {
                                     self.retencionISRTemp = self.retencionISRTemp + imp1;
-                                    console.log("btn-edit", "ISR asignacion retencionISRTemp", self.retencionISRTempDesc);
+                                    //console.log("btn-edit", "ISR asignacion retencionISRTemp", self.retencionISRTempDesc);
                                 } else {
                                     self.retencionIVATemp = self.retencionIVATemp + imp1;
                                 }
@@ -1273,6 +1273,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var cmbTaxes = $("#Valuation");
             cmbTaxes.empty();
             cmbTaxes.trigger('chosen:updated');
+            $("input[name='taxes']").prop("checked", false).iCheck('update');
             $("#Withholdings").val("").trigger('chosen:updated');
             $("#Transferred").val("").trigger('chosen:updated');
 
@@ -1343,7 +1344,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 self.traslados = self.traslados + self.trasladosTemp - self.trasladosTempDesc;
                 self.discount = self.discount + self.discountTemp - self.discountTempDesc;
 
-                console.log("add concept Editar", self.retencionISR + " =" + self.retencionISR + "+" + self.retencionISRTemp + " -" + self.retencionISRTempDesc, self.retencionISR);
+                //console.log("add concept Editar", self.retencionISR + " =" + self.retencionISR + "+" + self.retencionISRTemp + " -" + self.retencionISRTempDesc, self.retencionISR);
             } else {
                 var ind = t.rows().count();
                 var index = parseInt(ind);
@@ -1352,7 +1353,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 self.traslados = self.traslados + self.trasladosTemp;
                 self.discount = self.discount + self.discountTemp;
                 //console.log("se agregar", self.retencionISR, self.retencionIVA, self.traslados);
-                console.log("add concepts add", self.retencionISR + " = " + self.retencionISR + " + " + self.retencionISRTemp, self.retencionISR);
+                //console.log("add concepts add", self.retencionISR + " = " + self.retencionISR + " + " + self.retencionISRTemp, self.retencionISR);
                 index++;
 
                 t.row.add(
@@ -1376,7 +1377,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
             $("#table").dataTable().api().draw();
 
-            $("input[name='taxes']").attr("checked", false);
+            $("input[name='taxes']").prop("checked", false).iCheck('update');
             //$("input[name='taxes']").attr("checked", false);
             $("#TaxesChk").trigger("click");
 
