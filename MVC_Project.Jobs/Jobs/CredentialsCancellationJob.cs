@@ -15,6 +15,8 @@ using System.Configuration;
 //using System.Net.Http;
 using System.Text;
 using System.Threading;
+using LogHubSDK.Models;
+using Newtonsoft.Json;
 
 namespace MVC_Project.Jobs
 {
@@ -84,8 +86,8 @@ namespace MVC_Project.Jobs
                         //Cada cuenta debe estar Activa, la fechaCreación > 16 días y que la FechaFacturación debe estar vacía
                         /** Parametros: FechaDelDía**/
 
-                        var now = DateUtil.GetDateTimeNow();
-                        var accountsProspect = _accountService.GetAccountCredentialProspect(now);
+                        var today = DateUtil.GetDateTimeNow();
+                        var accountsProspect = _accountService.GetAccountCredentialProspect(today);
                         foreach (var prospect in accountsProspect)
                         {
                             //Se desactivaran las credenciales de Paybook y Satws para que deje de hacer la sincronización diaria.
@@ -93,18 +95,21 @@ namespace MVC_Project.Jobs
 
                             try
                             {
+                                string provider = string.Empty;
                                 bool delete = false;
                                 if (prospect.provider == SystemProviders.SATWS.ToString())
                                 {
                                     //Evento para desactivar la cuenta en satws
                                     //la opción que se tiene es delete credential
-                                    var response = SATService.DeleteCredential(prospect.idCredentialProvider, SystemProviders.SATWS.ToString());
+                                    provider = SystemProviders.SATWS.ToString();
+                                    var response = SATService.DeleteCredential(prospect.idCredentialProvider, provider);
                                     delete = true;
                                 }
                                 else if (prospect.provider == SystemProviders.SYNCFY.ToString())
                                 {
                                     //Evento para desactivar la cuenta en syncfy
-                                    //La opcion que se tiene es delete credential                                                                        
+                                    //La opcion que se tiene es delete credential       
+                                    provider = SystemProviders.SYNCFY.ToString();
                                     var response = PaybookService.DeleteCredential(prospect.idCredentialProvider, "Delete");
                                     delete = true;
                                 }
@@ -112,7 +117,8 @@ namespace MVC_Project.Jobs
                                 {
                                     //Evento para desactivar la cuenta en recurly
                                     //También sería el evento de delete account
-                                    var response = RecurlyService.DeleteAccount(prospect.idCredentialProvider, siteId, SystemProviders.RECURLY.ToString());
+                                    provider = SystemProviders.RECURLY.ToString();
+                                    var response = RecurlyService.DeleteAccount(prospect.idCredentialProvider, siteId, provider);
                                     delete = true;
                                 }
 
@@ -126,14 +132,35 @@ namespace MVC_Project.Jobs
                                         _credentialService.Update(credential);
                                     }
                                 }
+                                else
+                                    throw new Exception("No se pudo realizar la desactivación de la credencial de " + provider + ", credentialId: " + prospect.credentialId + ", accountId: " + prospect.accountId);
 
                                 //guardar logs
+                                LogUtil.AddEntry(
+                                    "Factura timbrada con éxito.",
+                                    ENivelLog.Info,
+                                    0,
+                                    "Proccess",
+                                    EOperacionLog.ACCESS,
+                                     string.Format("Cuenta {0} | Fecha {1}", prospect.rfc, DateUtil.GetDateTimeNow()),
+                                    "CredentialsCancellation",
+                                    JsonConvert.SerializeObject(prospect)
+                                );
                             }
                             catch (Exception Ex)
                             {
                                 //Guardar en el log, el motivo de la excepción
+                                LogUtil.AddEntry(
+                                    "Detalle del error: " + Ex.Message.ToString(),
+                                    ENivelLog.Error,
+                                    0,//userId
+                                    "Proccess",
+                                    EOperacionLog.ACCESS,
+                                    string.Format("Cuenta {0} | Fecha {1}", prospect.rfc, DateUtil.GetDateTimeNow()),
+                                    "CredentialsCancellation",
+                                    JsonConvert.SerializeObject(prospect)
+                                );
                             }
-
                         }
 
 
