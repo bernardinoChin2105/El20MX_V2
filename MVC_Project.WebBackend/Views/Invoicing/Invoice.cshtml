@@ -7,8 +7,6 @@
     var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
     AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
     var hasFullAccessController = user.HasFullAccessController(controllerName);
-
-    //var exchange = Model.Currency == "MXN" ? "hide" : "";
 }
 
 @section styles{
@@ -18,6 +16,8 @@
     <link href="~/Scripts/plugins/datetimepicker/css/bootstrap-datetimepicker.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
     <link href="https://cdn.datatables.net/buttons/1.6.4/css/buttons.dataTables.min.css" />
+
+
 
     <style>
         table.invoices-table tr td {
@@ -48,33 +48,6 @@
         .dataTables_wrapper {
             padding-bottom: 0;
         }
-
-        /*td.details-control .open::before {
-            cursor: pointer;
-            top: 50%;
-            left: 0;
-            height: 1em;
-            width: 1em;
-            margin-top: -9px;
-            display: block;
-            position: absolute;
-            color: white;
-            border: 0.15em solid white;
-            border-radius: 1em;
-            box-shadow: 0 0 0.2em #444;
-            box-sizing: content-box;
-            text-align: center;
-            text-indent: 0 !important;
-            font-family: 'Courier New', Courier, monospace;
-            line-height: 1em;
-            content: '+';
-            background-color: #0275d8;
-        }*/
-
-        /*tr.shown td.details-control .open::before {
-            content: '-';
-            background-color: #d33333;
-        }*/
 
         .table-payment tr td:nth-child(2n+1) {
             width: 15%;
@@ -135,7 +108,7 @@
                         @Html.DropDownListFor(model => model.TypeInvoice, Model.ListTypeInvoices, "Seleccione...", new { @class = "form-control chosen-select required" })
                         @*@Html.ValidationMessageFor(model => model.allyId)*@
                     </div>
-                </div>             
+                </div>
                 <div class="form-group TypeRelationship row">
                     @Html.LabelFor(m => m.TypeRelationship, new { @class = "col-form-label col-md-4 control-label" })
                     <div class="col-md-8">
@@ -154,7 +127,7 @@
                     </div>
                 </div>
 
-                <div class="form-group row complement hide">
+                <div class="form-group row complement @(Model.InvoiceComplementChk ? "": "hide")">
                     @Html.LabelFor(m => m.InvoiceComplement, new { @class = "col-form-label col-md-4 control-label" })
                     <div class="col-md-8">
                         @*mb-2 mr-sm-2*@
@@ -170,16 +143,30 @@
                 <div class="form-group row hide" id="tableRelatedEgress">
                     <div class="col-12">
                         @*<br />*@
-                        <table id="tableComplentEgress" class="table display invoices-table"></table>
+                        <table id="tableComplentEgress" class="table display invoices-table">
+                            @if (Model.invoicesUuid != null)
+                            {
+                                <tbody>
+                                    @for (int i = 0; i < Model.invoicesUuid.Count(); i++)
+                                    {
+                                        <tr>
+                                            <td>@Model.invoicesUuid[i].uuid</td>
+                                            <td>@Model.invoicesUuid[i].typeRelationship</td>
+                                            <td>@i</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            }
+                        </table>
                     </div>
                 </div>
-                <!--Aquí termina-->
+                <!--Aquí termina-->  
             </div>
         </div>
 
         <!--Aquí comienza pagos relacionados-->
         <div class="row hide" id="tablePayments">
-            <div class="col-12">
+            <div class="col-12">               
                 <br />
                 <h3></h3>
                 <br />
@@ -189,9 +176,83 @@
                     </div>
                 </div>
                 <div id="Complements">
+                    @if (Model.payment != null)
+                    {
+                        for (int i = 0; i < Model.payment.Count(); i++)
+                        {
+                            if (!Model.payment[i].delete)
+                            {
+                                <table class="table table-payment" cellpadding="5" cellspacing="0" border="0" style="padding-left:0px;">
+                                    <tr>
+                                        <td><label class="col-form-label control-label">Número de operación</label></td>
+                                        <td>
+                                            <input type="text" name="payment[@i].NumOperationCFDI" id="" value="@Model.payment[i].NumOperationCFDI" class="form-control NumOperationCFDI" autocomplete="off" maxlength="50" />
+                                            <input type="hidden" class="delete" name="payment[@i].delete" id="" value="false" />
+                                        </td>
+                                        <td><label class="col-form-label control-label">Monto</label></td>
+                                        <td><input type="text" name="payment[@i].AmountCFDI" id="" value="@Model.payment[i].AmountCFDI" class="form-control money amountCFDI" data-index="' + index + '" autocomplete="off" maxlength="50" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><label class="col-form-label control-label">Forma de Pago</label></td>
+                                        <td><select name="payment[@i].PaymentFormCFDI" id="" value="@Model.payment[i].PaymentFormCFDI" class="form-control chosen-select"></select></td>
+                                        <td><label class="col-form-label control-label">Fecha</label></td>
+                                        <td>
+                                            <div id="data_1">
+                                                <div class="input-group date">
+                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                    <input type="text" name="payment[@i].startedAt" id="startedAt" class="form-control starteAt" value="@Model.payment[i].startedAt" readonly>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><label class="col-form-label control-label">Moneda</label></td>
+                                        <td><select name="payment[@i].CurrencyCFDI" id="CurrencyCFDI" class="form-control chosen-select"></select></td>
+                                        <td><label class="col-form-label control-label exchangeCFDI">Tipo de Cambio</label></td>
+                                        <td><input type="text" name="payment[@i].ExchangeRateCFDI" id="" value="@Model.payment[i].ExchangeRateCFDI" class="form-control money exchangeCFDI" autocomplete="off" maxlength="50" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control @("InvoiceComplement" + i)" name="InvoiceComplement" autocomplete="off" maxlength="300" />
+                                                <div class="input-group-append">
+                                                    <div class="input-group-text search-invoice" search="@i"><i class="fas fa-search"></i></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td colspan="2" class="text-right"><button type="button" value="@i" class="btn btn-danger btn-remove-pay">Eliminar Pago</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4">
+                                            <table id="@("table-" + i)" class="table table-cfdi invoices-table">
+                                                @if (Model.payment[i].Documents != null)
+                                                {
+                                                    for (int j = 0; j < Model.payment[i].Documents.Count(); j++)
+                                                    {
+                                                        <tr>
+                                                            <td>@Model.payment[i].Documents[j].uuid</td>
+                                                            <td>@Model.payment[i].Documents[j].currency</td>
+                                                            <td>@Model.payment[i].Documents[j].exchangeRate</td>
+                                                            <td>@Model.payment[i].Documents[j].previousBalance</td>
+                                                            <td>@Model.payment[i].Documents[j].paid</td>
+                                                            <td>@Model.payment[i].Documents[j].outstanding</td>
+                                                            <td>@Model.payment[i].Documents[j].method</td>
+                                                            <td>@Model.payment[i].Documents[j].numberPartialities</td>
+                                                            <td>@Model.payment[i].Documents[j].folio</td>
+                                                            <td>@Model.payment[i].Documents[j].serie</td>
+                                                            <td>@j</td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            }
+                        }
+                    }
+
                 </div>
-                @*<div id="tableValue"></div>*@
-                @*<table id="tableComplent" class="table display invoices-table  table-striped"></table>*@
             </div>
         </div>
         <!--Aquí termina-->
@@ -296,7 +357,7 @@
                         </div>*@
                     @Html.LabelFor(m => m.SerieFolio, new { @class = "col-form-label col-md-2 control-label" })
                     <div class="col-md-4">
-                        @Html.TextBoxFor(m => m.SerieFolio, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off", disabled = "disabled" })
+                        @Html.TextBoxFor(m => m.SerieFolio, new { @class = "form-control ", @maxlength = "200", @autocomplete = "off", disabled = "disabled", @value = @Model.Serie + " " + @Model.Folio })
                         @Html.HiddenFor(m => m.Serie)
                         @Html.HiddenFor(m => m.Folio)
                     </div>
@@ -305,7 +366,7 @@
                         <div id="data_date">
                             <div class="input-group date">
                                 <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                <input type="text" name="DateIssued" id="DateIssued" class="form-control required" value="" readonly>
+                                <input type="text" name="DateIssued" id="DateIssued" class="form-control required" value="@Model.DateIssued" readonly>
                             </div>
                         </div>
                     </div>
@@ -316,7 +377,7 @@
                         @Html.DropDownListFor(model => model.UseCFDI, Model.ListUseCFDI, "Seleccione...", new { @class = "form-control chosen-select required" })
                     </div>
                     @Html.LabelFor(m => m.PaymentForm, new { @class = "col-form-label col-md-2 control-label labelsFiscal" })
-                    <div class="col-md-4">
+                    <div class="col-md-4 inputsFiscal">
                         @Html.DropDownListFor(model => model.PaymentForm, Model.ListPaymentForm, "Seleccione...", new { @class = "form-control chosen-select inputsFiscal required" })
                     </div>
                 </div>
@@ -335,14 +396,14 @@
                     {
                         @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label exchange hide" })
                         <div class="col-md-4">
-                            @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control exchange hide", @maxlength = "200", @autocomplete = "off" })
+                            @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control money exchange hide", @maxlength = "200", @autocomplete = "off" })
                         </div>
                     }
                     else
                     {
                         @Html.LabelFor(m => m.ExchangeRate, new { @class = "col-form-label col-md-2 control-label exchange labelsFiscal" })
                         <div class="col-md-4 inputsFiscal">
-                            @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control exchange inputsFiscal required", @maxlength = "200", @autocomplete = "off" })
+                            @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control money exchange inputsFiscal required", @maxlength = "200", @autocomplete = "off" })
                         </div>
                     }
                 </div>
@@ -490,9 +551,9 @@
                                 <td>@item.DiscountRateProServ</td>
                                 <td>@item.TaxesIVA</td>
                                 <td>@item.TaxesIEPS</td>
-                                <td class="hide">impuesto</td>
+                                <td class="hide">@(item.TaxesGeneral != "''"? item.TaxesGeneral : null)</td>
                                 <td>@item.Subtotal</td>
-                                <td></td>
+                                <td>@index</td>
                             </tr>
                             @(index++);
                         }
@@ -594,7 +655,7 @@
                                         </div>
                                     </div>
                                     <div class="form-group row">
-                                        <label class="control-label col-md-3">Concepto</label>
+                                        <label class="control-label col-md-3">Clave de Producto</label>
                                         <div class="col-md-9">
                                             @*<select name="SATCode" id="SATCode" class="form-control chosen-choices required"></select>*@
                                             <input type="text" name="SATCode" id="SATCode" class="form-control chosen-choices required" autocomplete="off" />
@@ -722,6 +783,7 @@
                                                         <tr>
                                                             <th>Tipo de Impuesto</th>
                                                             <th>Impuesto</th>
+                                                            <th class="hide">Porcentaje</th>
                                                             <th>% Impuesto</th>
                                                             <td class=""></td>
                                                         </tr>
@@ -754,10 +816,14 @@
     <script src="~/Scripts/plugins/datetimepicker/js/bootstrap-datetimepicker.js"></script>
     <script src="~/Scripts/plugins/datetimepicker/js/locales/bootstrap-datetimepicker.es.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.13.4/jquery.mask.min.js"></script>
+
     <script src="~/Scripts/views/Invoicing/Invoice.js"></script>
     <script>
         window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
         var DateInit = JSON.parse(window.StartDate);
+
+
+
         $(function () {
             var invoices = new InvoiceControlador('table',
                 '@Url.Action("GetSearchReceiver")',
@@ -772,7 +838,24 @@
                 '@hasFullAccessController' == 'True'
             );
             invoices.init();
+            @if (!string.IsNullOrEmpty(Model.BranchOffice))
+            {
+                @:$("#BranchOffice").trigger('change');
+            }
+            @if (!string.IsNullOrEmpty(Model.RFC))
+            {
+                @:$("#RFC").trigger("blur");
+            }
+            @if(!string.IsNullOrEmpty(Model.CustomerName))
+            {
+                @:$("#CustomerName").trigger('blur');
+            }
+            @if (!string.IsNullOrEmpty(Model.TypeRelationship))
+            {
+                @:$("#TypeRelationship").trigger('change');
+            }
         });
+
 
     </script>
 

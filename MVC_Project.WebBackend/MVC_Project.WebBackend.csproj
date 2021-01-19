@@ -2075,6 +2075,7 @@
   <ItemGroup>
     <Folder Include="Content\img\gallery\" />
     <Folder Include="Content\img\landing\" />
+    <Folder Include="Scripts\plugins\inputmask\" />
     <Folder Include="Views\Notification\" />
     <Folder Include="Views\Webhooks\" />
     <Folder Include="Views\Webhook\" />

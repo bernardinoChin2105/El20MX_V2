@@ -281,7 +281,8 @@ namespace MVC_Project.Integrations.SAT
                     {
                         var model = JsonConvert.DeserializeObject<InvoicesCFDI>(responsecfdi);
 
-                        var responseXML = SATws.CallServiceSATws(url, null, "get", SATwsEnumsAccept.textxml.GetDescriptionSAT());
+                        //var responseXML = SATws.CallServiceSATws(url, null, "get", SATwsEnumsAccept.textxml.GetDescriptionSAT());
+                        var responseXML = SATws.CallServiceSATws(url + ".xml", null, "get");
                         var xml = responseXML;
                         model.Xml = xml;
                         model.id = id;

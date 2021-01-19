@@ -6,6 +6,15 @@
 });
 $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para ", placeholder_text_single: "Seleccione..." });
 
+$("body").on("change", ".money", function () {
+    var el = this;
+    var regex = /^(?:\d*\.\d{1,6}|\d+)$/;
+    //console.log(el, el.value, regex.test(el.value), "prueba");
+    if (el.value === "")
+        el.value = 0;
+    el.value = parseFloat(el.value).toFixed(6);
+});
+
 var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOfficeUrl, locationsUrl, codeSATUrl, UnitSATUrl, searchCDFIUrl,
     rateTaxesUrl, officeSellos, hasFullAccessController) {
     var self = this;
@@ -37,17 +46,26 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
     this.retencionISR = 0;
     this.retencionIVA = 0;
     this.traslados = 0;
+    this.discount = 0; //para los descuentos
+    this.subtotalG = 0; //subtotal sin descuento
 
     this.retencionISRTemp = 0;
     this.retencionIVATemp = 0;
     this.trasladosTemp = 0;
+    this.discountTemp = 0; //temporal para los descuentos
+    this.subtotalGTemp = 0; //temporal subtotal sin descuento
 
     this.retencionISRTempDesc = 0;
     this.retencionIVATempDesc = 0;
     this.trasladosTempDesc = 0;
+    this.discountTempDesc = 0; // temporal para los descuentos para descontar
+    this.subtotalGTempDesc = 0; // temporal subtotal sin descuento para descontar
 
 
     this.init = function () {
+        var date = new Date();
+        date.setDate(date.getDate() - 3);
+
         self.dataTable = this.htmlTable.on('preXhr.dt', function (e, settings, data) {
             El20Utils.mostrarCargador();
         }).DataTable({
@@ -58,6 +76,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //orderMulti: false,
             "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
             "bLengthChange": false,
+            responsive: true,
             "bInfo": false,
             "paging": false,
             searching: false,
@@ -175,14 +194,15 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 //var discount = subtotal;
 
 
-                $("#Subtotal").val(subtotal.toFixed(2));
-                $("#lblSubtotal").html('$' + subtotal.toFixed(2));
+                $("#Subtotal").val(subtotal.toFixed(6));
+                $("#lblSubtotal").html('$' + subtotal.toFixed(6));
                 $(".trSubtotal > th").removeClass("hide");
 
-
+                /* Se usa para el descuento general
                 var discountTXT = $("#DiscountRate").val();
                 var discountRate = parseFloat(discountTXT !== "" ? discountTXT : 0);
                 var discount = discountRate > 0 || discountRate < 0 ? (discountRate * subtotal) / 100 : 0;
+                console.log("descuento", discount)
 
                 $("#TotalDiscount").val(discount.toFixed(2));
                 $("#lblTotalDiscount").html("$" + discount.toFixed(2));
@@ -191,12 +211,23 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 } else {
                     $(".trDiscount").addClass("hide");
                 }
+                */
+
+                //console.log(self.discount, self.traslados, self.retencionISR, self.retencionIVA, "el footer");
+
+                if (self.discount > 0) {
+                    $(".trDiscount").removeClass("hide");
+                    $("#TotalDiscount").val(self.discount.toFixed(6));
+                    $("#lblTotalDiscount").html("- $" + self.discount.toFixed(6));
+                } else {
+                    $(".trDiscount").addClass("hide");
+                }
 
                 if (self.traslados > 0) {
-                    //console.log(self.traslados);
+                    //console.log(self.traslados, "valor que tiene");
                     $(".trTaxT").removeClass("hide");
                     $("#TaxTransferred").val(self.traslados);
-                    $("#lblTaxTransferred").html('$' + self.traslados.toFixed(2));
+                    $("#lblTaxTransferred").html('$' + self.traslados.toFixed(6));
                     subtotal = subtotal + self.traslados;
                 } else {
                     $(".trTaxT").addClass("hide");
@@ -206,7 +237,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 if (self.retencionIVA > 0) {
                     $(".trTaxWIVA").removeClass("hide");
                     $("#TaxWithheldIVA").val(self.retencionIVA);
-                    $("#lblTaxWithheldIVA").html('$' + (self.retencionIVA).toFixed(2));
+                    $("#lblTaxWithheldIVA").html('$' + (self.retencionIVA).toFixed(6));
                     subtotal = subtotal - self.retencionIVA;
                 } else {
                     $(".trTaxWIVA").addClass("hide");
@@ -216,24 +247,24 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 if (self.retencionISR > 0) {
                     $(".trTaxWISR").removeClass("hide");
                     $("#TaxWithheldISR").val(self.retencionISR);
-                    $("#lblTaxWithheldISR").html('$' + (self.retencionISR).toFixed(2));
+                    $("#lblTaxWithheldISR").html('$' + (self.retencionISR).toFixed(6));
                     subtotal = subtotal - self.retencionISR;
                 } else {
                     $(".trTaxWISR").addClass("hide");
                 }
                 //console.log(subtotal, "isr rete");
-
-                var total = (subtotal - discount).toFixed(2);
+                //- self.discount
+                var total = (subtotal).toFixed(6);
                 //console.log(total, "total");
                 $("#Total").val(total);
-                $("#lblTotal").html('$' + total);
-
+                $("#lblTotal").html('$' + total);               
             }
         }).on('xhr.dt', function (e, settings, data) {
             El20Utils.ocultarCargador();
         });
 
         self.dataTableImp = self.htmlTableImp.DataTable({
+            responsive: true,
             "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
             "bLengthChange": false,
             "bInfo": false,
@@ -244,6 +275,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 { data: 'Tipo' },
                 { data: 'Impuesto' },
                 { data: 'Porcentaje' },
+                { data: 'Etiqueta' },
                 { data: 'index' }
             ],
             "columnDefs": [
@@ -256,18 +288,24 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 {
                     "targets": 1, render: function (data, type, row, meta) {
                         //console.log(data, type, row, meta, "todos")
-                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].Quantity" value="' + row[0].Impuesto + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + meta.row + '].Quantity" value="' + row[0].Impuesto + '" />';
                         return html;
                     }
                 },
                 {
-                    "targets": 2, render: function (data, type, row, meta) {
-                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + (meta.row) + '].SATCode" value="' + row[0].Porcentaje + '" />';
+                    "targets": 2, className: 'hide', render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + meta.row + '].Porcentaje" value="' + row[0].Porcentaje + '" />';
                         return html;
                     }
                 },
                 {
                     "targets": 3, render: function (data, type, row, meta) {
+                        var html = '<input type="text" class="form-control" readonly name="ProductServices[' + meta.row + '].SATCode" value="' + row[0].Etiqueta + '" />';
+                        return html;
+                    }
+                },
+                {
+                    "targets": 4, render: function (data, type, row, meta) {
                         var button = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<button type="button" class="btn btn-light btn-delete" title="Eliminar impuesto" style="margin-left:5px;"><span class="fas fa-trash"></span></button>' +
                             '</div>';
@@ -279,6 +317,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         //self.dataTableCFDI = self.htmlTableCFDI.DataTable();
         var settings = {
+            responsive: true,
             "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
             "bLengthChange": false,
             "bInfo": false,
@@ -314,7 +353,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                         //console.log(data, type, row, meta, "todos");
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].uuid" value="' + row.uuid + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind + '].Documents[' + (meta.row) + '].uuid" value="' + row.uuid + '" />';
                         return html;
                     }
                 },
@@ -322,7 +361,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 1, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].currency" value="' + row.currency + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind + '].Documents[' + (meta.row) + '].currency" value="' + row.currency + '" />';
                         return html;
                     }
                 },
@@ -330,7 +369,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 2, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].exchangeRate" value="' + row.exchangeRate + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind + '].Documents[' + (meta.row) + '].exchangeRate" value="' + row.exchangeRate + '" />';
                         return html;
                     }
                 },
@@ -338,7 +377,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 3, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control previousBalance money required" name="payment[' + ind +'].Documents[' + (meta.row) + '].previousBalance" value="' + row.previousBalance + '" />';
+                        var html = '<input type="text" class="form-control previousBalance money required" name="payment[' + ind + '].Documents[' + (meta.row) + '].previousBalance" value="' + row.previousBalance + '" />';
                         return html;
                     }
                 },
@@ -346,7 +385,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 4, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control paid money required" name="payment[' + ind +'].Documents[' + (meta.row) + '].paid" value="' + row.paid + '" />';
+                        var html = '<input type="text" class="form-control paid money required" name="payment[' + ind + '].Documents[' + (meta.row) + '].paid" value="' + row.paid + '" />';
                         return html;
                     }
                 },
@@ -354,7 +393,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 5, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control money" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].outstanding" value="' + row.outstanding + '" />';
+                        var html = '<input type="text" class="form-control money" readonly name="payment[' + ind + '].Documents[' + (meta.row) + '].outstanding" value="' + row.outstanding + '" />';
                         return html;
                     }
                 },
@@ -362,7 +401,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 6, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].method" value="' + row.method + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind + '].Documents[' + (meta.row) + '].method" value="' + row.method + '" />';
                         return html;
                     }
                 },
@@ -370,7 +409,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 7, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control numberPayment required" name="payment[' + ind +'].Documents[' + (meta.row) + '].numberPartialities" value="' + row.numberPartialities + '" />';
+                        var html = '<input type="text" class="form-control numberPayment required" name="payment[' + ind + '].Documents[' + (meta.row) + '].numberPartialities" value="' + row.numberPartialities + '" />';
                         return html;
                     }
                 },
@@ -378,7 +417,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 8, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].folio" value="' + row.folio + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind + '].Documents[' + (meta.row) + '].folio" value="' + row.folio + '" />';
                         return html;
                     }
                 },
@@ -386,7 +425,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     "targets": 9, render: function (data, type, row, meta) {
                         //console.log(meta.settings.sTableId);
                         var ind = (meta.settings.sTableId.split("-"))[1];
-                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind +'].Documents[' + (meta.row) + '].serie" value="' + row.serie + '" />';
+                        var html = '<input type="text" class="form-control" readonly name="payment[' + ind + '].Documents[' + (meta.row) + '].serie" value="' + row.serie + '" />';
                         return html;
                     }
                 }
@@ -394,6 +433,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         };
 
         self.dataTableCFDIEgress = self.htmlTableCFDIEgress.DataTable({
+            responsive: true,
             "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" },
             "bLengthChange": false,
             "bInfo": false,
@@ -432,20 +472,36 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             ]
         });
 
+
+        //Opción de eliminar para los datos relacionados para egresos
+        $(this.htmlTableCFDIEgress, "tbody").on('click',
+            '.btn-group .btn-delete',
+            function () {
+                self.dataTableCFDIEgress
+                    .row($(this).parents('tr'))
+                    .remove()
+                    .draw();
+
+                if (self.dataTableCFDIEgress.rows().count() === 0) {
+                    self.dataTable.clear().draw();
+                }
+
+            });
+
+
         $('#DateIssued').datetimepicker({
             dateFormat: "dd/mm/yyyy",
-            //timeFormat: "hh:mm:ss",
+            timeFormat: "hh:ii:ss",
             keyboardNavigation: false,
             todayBtn: "linked",
             forceParse: false,
             calendarWeeks: true,
             autoclose: true,
-            format: "dd/mm/yyyy hh:mm:ss",
-            ////format: "yyyy-mm-dd",
+            format: "dd/mm/yyyy hh:ii:ss",
             language: "es",
             fontAwesome: true,
-            maxDate: DateInit.MaxDate,
-            ////startDate: DateInit.MinDate
+            //maxDate: DateInit.MaxDate,
+            startDate: date,
         });
 
         $(this.htmlTable, "tbody").on('click',
@@ -457,7 +513,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 self.retencionISRTempDesc = 0;
                 self.retencionIVATempDesc = 0;
                 self.trasladosTempDesc = 0;
+                self.discountTempDesc = 0;
                 //console.log(row.data(), "validar que datos estan trayendo ");
+                console.log("btn-edit", "ISR retencionISRTempDesc", self.retencionISRTempDesc);
 
                 //var id = row.data().uuid;   
                 $("#Row").val(data[0]);
@@ -474,37 +532,45 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 //console.log(data[10], "impuestos");
 
                 var array = data[10].split(";");
-                //console.log(array);
+                //console.log(array, "que trae el array");
 
-                if (array.length > 0) {
+                if (array.length > 0 && array[0] !== "") {
                     var t = $("#tableImpuestos").DataTable();
-                    var sub = self.quantity.val(data[1]) * self.unitPrice.val(data[6]);
+                    var sub = self.quantity.val() * self.unitPrice.val();
                     var discount = data[7] > 0 || data[7] < 0 ? (data[7] * sub) / 100 : 0;
                     var subtotal = sub - discount; //aplicado el descuento.
+                    //console.log("valores", sub, discount, subtotal);
+
+                    self.discountTempDesc = discount;
 
                     array.forEach(function (item, i) {
-                        //console.log(item, i, "onjeto");
-                        var obj = JSON.stringify(item).replace(/'/g, "\"").replace("\"{", "{").replace("}\"", "}");
-                        //console.log(obj,"objeto")
-                        var datos = JSON.parse(obj);
+                        if (item !== "") {
+                            //console.log("tiene impuestos");
+                            //console.log(item, i, "onjeto");
+                            var obj = JSON.stringify(item).replace(/'/g, "\"").replace("\"{", "{").replace("}\"", "}");
+                            //console.log(obj, "objeto")
+                            var datos = JSON.parse(obj);
 
-                        if (datos.Porcentaje !== "Exento") {
-                            var por = parseFloat(datos.Porcentaje);
-                            var imp1 = por > 0 ? (por * subtotal) / 100 : 0;
-                            if (datos.Tipo === "Retención") {
-                                if (datos.Impuesto === "ISR") {
-                                    self.retencionISRTempDesc = self.retencionISRTempDesc + imp1;
+                            if (datos.Porcentaje !== "Exento") {
+                                //console.log(datos.Porcentaje, "porcentaje");
+                                var por = parseFloat(datos.Porcentaje);
+                                var imp1 = por > 0 ? (por * subtotal) / 100 : 0;
+                                //console.log("imp1", imp1)
+                                if (datos.Tipo === "Retención") {
+                                    if (datos.Impuesto === "ISR") {
+                                        self.retencionISRTempDesc = self.retencionISRTempDesc + imp1;
+                                        //console.log("btn-edit", "ISR tempDesc asignacion", self.retencionISRTempDesc)
+                                    } else {
+                                        self.retencionIVATempDesc = self.retencionIVATempDesc + imp1;
+                                    }
                                 } else {
-                                    self.retencionIVATempDesc = self.retencionIVATempDesc + imp1;
+                                    //var imp2 = por > 0 ? (por * subtotal) / 100 : 0;
+                                    self.trasladosTempDesc = self.trasladosTempDesc + imp1;
                                 }
-                            } else {
-                                var imp2 = por > 0 ? (por * subtotal) / 100 : 0;
-                                self.trasladosTempDesc = self.trasladosTempDesc + imp2;
                             }
+
+                            t.row.add([datos]).draw(false);
                         }
-
-
-                        t.row.add([datos]).draw(false);
                     });
                 }
                 $("input[name='TaxesChk']").trigger("click");
@@ -529,21 +595,6 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     .remove()
                     .draw();
                 Prices();
-            });
-
-        //Opción de eliminar para los datos relacionados para egresos
-        $(this.htmlTableCFDIEgress, "tbody").on('click',
-            '.btn-group .btn-delete',
-            function () {
-                self.dataTableCFDIEgress
-                    .row($(this).parents('tr'))
-                    .remove()
-                    .draw();
-
-                if (self.dataTableCFDIEgress.rows().count() === 0) {
-                    self.dataTable.clear().draw();
-                }
-
             });
 
         ////Opción de eliminar para los datos relacionados
@@ -588,18 +639,20 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var t = tr.parent().parent().DataTable();
             var index = t.row(tr).index();
             var data = t.row(index).data();
-            var tableName = t.context[0].sTableId;
-            
+            //var tableName = t.context[0].sTableId;
+
             //console.log(t.context, "tabla", tableName);
 
             //var amount = $(".amountCFDI" + tableName.split("-")[1]).val();            
-            //var amountDecimal = parseFloat(amount !== "" ? amount : 0);
+            //var amountDecimal = parseFloat(amount !== "" ? amount : 0);            
+
             var previous = parseFloat(data.previousBalance);
             var paid = parseFloat(value);
-            
+            console.log(previous, value, paid, "valor previo, pago antes de porner el float y pago")
+
             total = previous - paid;
-            data.paid = Math.round(paid, 6);
-            data.outstanding = Math.round(total, 6); //.toString();
+            data.paid = paid.toFixed(6); //Math.round(paid, 6);
+            data.outstanding = total.toFixed(6); // Math.round(total, 6); //.toString();
 
             t.row(index).data(data).draw(false);
         });
@@ -613,7 +666,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var data = t.row(index).data();
 
             //console.log(t, "tabla");
-    
+
             data.numberPartialities = value;
             t.row(index).data(data).draw(false);
         });
@@ -626,6 +679,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var data = t.row(index).data();
 
             //console.log(t, "tabla");
+            //console.log(value, "valor del campo")
 
             data.previousBalance = value;
             t.row(index).data(data).draw(false);
@@ -651,16 +705,19 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 startedAt: "",
                 Documents: []
             };
-            var item = $("#Complements .table-payment").index();
-            var html = format(data, item + 1);
+            var item = $("#Complements .table-payment").length;
+            var html = format(data, item);
             $("#Complements").append(html);
-            copySelects(data, item + 1);
+            copySelects(data, item);
         });
 
         $("body").on("click", ".btn-remove-pay", function () {
             var value = $(this).val();
             $("input[name='payment[" + value + "].delete").val(true);
             $($("#Complements .table-payment")[value]).addClass("hide");
+
+            if ($("#Complements .table-payment").find(".delete[value='false']").length === 0)
+                self.dataTable.clear().draw();
         });
 
         //funcion para obtener el detalle
@@ -672,7 +729,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 '<td><label class="col-form-label control-label">Número de operación</label></td>' +
                 '<td>' +
                 '<input type="text" name="payment[' + index + '].NumOperationCFDI" id="" value="' + d.NumOperationCFDI + '" class="form-control NumOperationCFDI" autocomplete="off" maxlength="50" />' +
-                '<input type="hidden" name="payment[' + index + '].delete" id="" value="false" />' +
+                '<input type="hidden" class="delete" name="payment[' + index + '].delete" id="" value="false" />' +
                 '</td > ' +
                 '<td><label class="col-form-label control-label">Monto</label></td>' +
                 '<td><input type="text" name="payment[' + index + '].AmountCFDI" id="" value="' + d.AmountCFDI + '" class="form-control money amountCFDI" data-index="' + index + '" autocomplete="off" maxlength="50" /></td>' +
@@ -729,8 +786,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     $(".exchangeCFDI").removeClass("hide riquerid");
             }
 
-            //$('.money').mask("##,###,##0.00", { reverse: true });
-            $('.money').mask("#######0.00", { reverse: true });
+            //$('.money').mask("#######0.00", { reverse: true });
 
             $(".NumOperationCFDI").rules("add", {
                 InvoiceComplement: {
@@ -740,18 +796,17 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
             $('.starteAt').datetimepicker({
                 dateFormat: "dd/mm/yyyy",
-                //timeFormat: "hh:mm:ss",
+                timeFormat: "hh:ii:ss",
                 keyboardNavigation: false,
                 todayBtn: "linked",
                 forceParse: false,
                 calendarWeeks: true,
                 autoclose: true,
-                format: "dd/mm/yyyy hh:mm:ss",
-                ////format: "yyyy-mm-dd",
+                format: "dd/mm/yyyy hh:ii:ss",
                 language: "es",
                 fontAwesome: true,
-                maxDate: DateInit.MaxDate,
-                ////startDate: DateInit.MinDate
+                //maxDate: DateInit.MaxDate,
+                //startDate: date,       
             });
 
             $("#table-" + index).DataTable(settings);
@@ -802,34 +857,43 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             }, "Debe ser un RFC válido"
         );
 
-        $('.money').mask("#######0.00", { reverse: true });
+        //$('.money').mask("#######0.00", { reverse: true });
         $('.rateMoney').mask("##0.00", { reverse: false });
+
 
         //Agregar a la lista de conceptos del producto
         $("#addTaxes").click(function () {
             //console.log("estoy aqui")
 
-            var t = $("#tableImpuestos").DataTable();
-            var ind = t.rows().count();
-            var index = parseInt(ind);
-            index++;
-            var radio = $("input[name='taxes']:checked").val();
-            var input = "";
-            if (radio === "Retención")
-                input = $("#Withholdings").val();
-            else
-                input = $("#Transferred").val();
+            var porcent = $("#Valuation").val();
+            var label = $("#Valuation option:selected").text();
+            //console.log("porcentaje", porcent)
+            if (porcent !== null && porcent !== "") {
+                var t = $("#tableImpuestos").DataTable();
+                var ind = t.rows().count();
+                var index = parseInt(ind);
+                index++;
+                var radio = $("input[name='taxes']:checked").val();
+                var input = "";
+                if (radio === "Retención")
+                    input = $("#Withholdings").val();
+                else
+                    input = $("#Transferred").val();
 
-            t.row.add(
-                [{
-                    "Tipo": radio,
-                    "Impuesto": input,
-                    "Porcentaje": $("#Valuation").val(),
-                    "index": index
-                }]
-            ).draw(false);
+                t.row.add(
+                    [{
+                        "Tipo": radio,
+                        "Impuesto": input,
+                        "Porcentaje": porcent,
+                        "Etiqueta": label,
+                        "index": index
+                    }]
+                ).draw(false);
 
-            Prices();
+                Prices();
+            } else {
+                toastr["error"]("No hay impuesto por agregar.", null, { 'positionClass': 'toast-top-center' });
+            }
         });
 
         $("#InvoicingForm").validate({
@@ -890,6 +954,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //console.log($(this).val());
             var cmbTaxes = $("#Valuation");
             cmbTaxes.empty();
+            cmbTaxes.trigger('chosen:updated');
             var type = $("input[name='taxes']:checked").val();
             var valueTax = $(this).val();
 
@@ -917,6 +982,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                 cmbTaxes.append($('<option></option>').val(value[0]).text(value[0] + "%"));
                             } else if (item.maximumValue === -100)
                                 cmbTaxes.append($('<option></option>').val("Exento").text("Exento"));
+                            else if (item.maximumValue === 10.66667)
+                                cmbTaxes.append($('<option></option>').val(10.6667).text(item.maximumValue + "%"));
                             else
                                 cmbTaxes.append($('<option></option>').val(item.maximumValue).text(item.maximumValue + "%"));
                         });
@@ -957,13 +1024,12 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             //console.log("opción de relación de facturas", $(this).val());
             var typeInvoice = $(this).val();
             self.dataTableCFDIEgress.clear().draw();
+            //self.dataTable.clear().draw();
             //self.dataTableCFDI.clear().draw();
-            self.dataTable.clear().draw();
 
             if (typeInvoice === "P") {
-                $("#relacionados").addClass("hide");
-                $("#tableRelatedEgress").addClass("hide");
                 $(".TypeRelationship").addClass("hide");
+                $("#TypeRelationship").val("").trigger("change").trigger('chosen:updated');
 
                 $("#tablePayments").removeClass("hide");
 
@@ -973,63 +1039,82 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
                 $(".labelsFiscal").addClass("hide");
                 $(".inputsFiscal").addClass("hide").removeClass("required");
-                //$("#CFDIrelacionados").addClass("hide");
-                //self.dataTableCFDIEgress.clear().draw();
             } else if (typeInvoice === "E") {
-                $("#relacionados").removeClass("hide");
-                $("#tableRelatedEgress").removeClass("hide");
                 $(".complement").addClass("hide");
                 $("#InvoiceComplementChk").prop({ "checked": false }).iCheck('update');
                 $(".TypeRelationship").removeClass("hide");
 
                 $("#tablePayments").addClass("hide");
+                $("#Complements").html("");
 
                 $("#Condiciones").removeClass("hide");
-                $("#tablePayments").addClass("hide");
                 $("#DiscountRate").attr("readonly", true);
                 $("#btnProdServ").removeClass("hide");
 
                 $(".labelsFiscal").removeClass("hide");
-                $(".inputsFiscal").removeClass("hide").addClass("required"); 
-                //$("#CFDIrelacionados").removeClass("hide");
-                //self.dataTableCFDI.clear().draw();
+                $(".inputsFiscal").removeClass("hide").addClass("required");
             } else if (typeInvoice === "I") {
                 //Para tipo ingreso
-                $("#relacionados").removeClass("hide");
-                $("#tableRelatedEgress").removeClass("hide");
                 $(".complement").addClass("hide");
                 $("#InvoiceComplementChk").prop({ "checked": false }).iCheck('update');
                 $(".TypeRelationship").removeClass("hide");
 
                 $("#tablePayments").addClass("hide");
+                $("#Complements").html("");
 
                 $("#Condiciones").removeClass("hide");
                 $("#btnProdServ").removeClass("hide");
                 $("#DiscountRate").attr("readonly", false);
 
                 $(".labelsFiscal").removeClass("hide");
-                $(".inputsFiscal").removeClass("hide").addClass("required");                
-                //inputsReference(false);
-                //$("#CFDIrelacionados").removeClass("hide");
-                //self.dataTableCFDIEgress.clear().draw();
-                //self.dataTableCFDI.clear().draw();
-                //self.dataTable.clear().draw();
+                $(".inputsFiscal").removeClass("hide").addClass("required");
             } else {
                 //Sino selecciona nada
+                $(".TypeRelationship").removeClass("hide");
+                $("#TypeRelationship").val("").trigger("change").trigger('chosen:updated');
+
+                $(".complement").addClass("hide");
+                $("#InvoiceComplementChk").prop({ "checked": false }).iCheck('update');
+
+                $("#tablePayments").addClass("hide");
+                $("#Complements").html("");
+
+                $("#Condiciones").removeClass("hide");
+                $("#btnProdServ").removeClass("hide");
+                $("#DiscountRate").attr("readonly", false);
+
+                $(".labelsFiscal").removeClass("hide");
+                $(".inputsFiscal").removeClass("hide").addClass("required");
+
+            }
+        });
+
+        //Validación de tipo de relación
+        $("#TypeRelationship").change(function () {
+            var value = $(this).val();
+            //console.log(value, "valor");
+            if (value !== "") {
+                $("#relacionados").removeClass("hide");
+                $("#tableRelatedEgress").removeClass("hide");
+            } else {
+                $("#relacionados").addClass("hide");
+                $("#tableRelatedEgress").addClass("hide");
             }
         });
 
         $("body").on("click", ".search-invoice", function () {
-            console.log("entre al evento", $(this).val());
+            //console.log("entre al evento", $(this).val());
             El20Utils.mostrarCargador();
             var typeInvoice = $("#TypeInvoice").val();
             var t = null;
             var uuid = "";
             var line = 0;
+            var item = 0;
             if (typeInvoice === "P") {
                 line = $(this).attr("search");
                 uuid = $(".InvoiceComplement" + line).val();
                 t = $("#table-" + line).DataTable(); //self.dataTableCFDI;
+                item = self.dataTable.rows().count();
             } else {
                 t = self.dataTableCFDIEgress;
                 uuid = $("#InvoiceComplement").val();
@@ -1047,7 +1132,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                     data: { uuid: uuid, typeInvoice: typeInvoice },
                     url: self.searchCDFIUrl,
                     success: function (json) {
-                        console.log(json, "respuesta");
+                        //console.log(json, "respuesta");
 
                         if (json.success) {
                             var data = json.data;
@@ -1055,7 +1140,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                 toastr['error']("No se encontro la factura con el Folio Fiscal.", null, { 'positionClass': 'toast-top-center' });
                             else {
                                 //console.log("xml", json.data.xml);
-                                if (typeInvoice === "E") {
+                                if (typeInvoice === "E" || typeInvoice === "I") {
                                     index++;
                                     t.row.add(
                                         {
@@ -1086,7 +1171,8 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                                     ).draw(false);
                                     $(".InvoiceComplement" + line).val("");
                                 }
-                                if (index === 1 && typeInvoice === "P") {
+
+                                if (item === 0 && typeInvoice === "P") {
                                     addConcept();
                                 }
                             }
@@ -1111,7 +1197,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             }
         });
 
-        $("#RFC").keyup(function () {
+        $("#RFC, #SATUnit").keyup(function () {
             this.value = this.value.toUpperCase();
         });
 
@@ -1123,6 +1209,10 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             self.retencionISRTemp = 0;
             self.retencionIVATemp = 0;
             self.trasladosTemp = 0;
+            self.discountTemp = 0;
+
+            //console.log("prices", "ISR retencionISRTemp", self.retencionISRTemp)
+
             var quantity = parseFloat(self.quantity.val() !== "" ? self.quantity.val() : 0);
             var unitPrice = parseFloat(self.unitPrice.val() !== "" ? (self.unitPrice.val().replace(",", "")) : 0);
             var discountRate = parseFloat(self.discountRate.val() !== "" ? self.discountRate.val() : 0);
@@ -1136,7 +1226,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 var impIVAIESP = 0; //parseFloat(self.taxesIEPS.val() !== "" ? self.taxesIVA.val() : 0);
 
                 var discount = discountRate > 0 || discountRate < 0 ? (discountRate * sub) / 100 : 0;
+                //console.log(discount, "descuento en prices")
                 var subtotal = sub - discount; //aplicado el descuento.
+                self.discountTemp = discount;
 
                 //console.log(impuestos, "tabla")
                 if (impuestos.rows().count() > 0) {
@@ -1149,29 +1241,42 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                             if (datos.Tipo === "Retención") {
                                 if (datos.Impuesto === "ISR") {
                                     self.retencionISRTemp = self.retencionISRTemp + imp1;
+                                    //console.log("btn-edit", "ISR asignacion retencionISRTemp", self.retencionISRTempDesc);
                                 } else {
                                     self.retencionIVATemp = self.retencionIVATemp + imp1;
                                 }
                                 impIVAISR = impIVAISR + imp1;
                                 //console.log(impIVAISR, imp1, "iva isr");
                             } else {
-                                var imp2 = por > 0 ? (por * subtotal) / 100 : 0;
-                                self.trasladosTemp = self.trasladosTemp + imp2;
-                                impIVAIESP = impIVAIESP + imp2;
+                                //console.log("cambio")
+                                //var imp2 = por > 0 ? (por * subtotal) / 100 : 0;
+                                self.trasladosTemp = self.trasladosTemp + imp1;
+                                impIVAIESP = impIVAIESP + imp1;
+                                //console.log("iva ieps", impIVAIESP, imp2, self.trasladosTemp)
                             }
                         }
                     }
                 }
 
-                self.taxesIVA.val(impIVAISR.toFixed(2));
-                self.taxesIEPS.val(impIVAIESP.toFixed(2));
-                self.subtotal.val(subtotal.toFixed(2)).trigger("click");
+                //console.log(self.trasladosTemp,"temporal")
+
+                self.taxesIVA.val(impIVAISR.toFixed(6));
+                self.taxesIEPS.val(impIVAIESP.toFixed(6));
+                self.subtotal.val(subtotal.toFixed(6)).trigger("click");
             }
         }
 
         //Borrar valores cuando se oculte el modal
         $('#ServProdModal').on('hide.bs.modal', function (e) {
             // do something...
+            $("a#products-tab").click();
+            var cmbTaxes = $("#Valuation");
+            cmbTaxes.empty();
+            cmbTaxes.trigger('chosen:updated');
+            $("input[name='taxes']").prop("checked", false).iCheck('update');
+            $("#Withholdings").val("").trigger('chosen:updated');
+            $("#Transferred").val("").trigger('chosen:updated');
+
             $("#ConceptForm").each(function () {
                 //console.log("holas");
                 this.reset();
@@ -1181,6 +1286,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 table.clear().draw();
                 $("input[name='TaxesChk']").iCheck("update");
             });
+
         });
 
         //Agregar a la lista de conceptos del producto
@@ -1236,13 +1342,18 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 self.retencionISR = self.retencionISR + self.retencionISRTemp - self.retencionISRTempDesc;
                 self.retencionIVA = self.retencionIVA + self.retencionIVATemp - self.retencionIVATempDesc;
                 self.traslados = self.traslados + self.trasladosTemp - self.trasladosTempDesc;
+                self.discount = self.discount + self.discountTemp - self.discountTempDesc;
+
+                //console.log("add concept Editar", self.retencionISR + " =" + self.retencionISR + "+" + self.retencionISRTemp + " -" + self.retencionISRTempDesc, self.retencionISR);
             } else {
                 var ind = t.rows().count();
                 var index = parseInt(ind);
                 self.retencionISR = self.retencionISR + self.retencionISRTemp;
                 self.retencionIVA = self.retencionIVA + self.retencionIVATemp;
                 self.traslados = self.traslados + self.trasladosTemp;
+                self.discount = self.discount + self.discountTemp;
                 //console.log("se agregar", self.retencionISR, self.retencionIVA, self.traslados);
+                //console.log("add concepts add", self.retencionISR + " = " + self.retencionISR + " + " + self.retencionISRTemp, self.retencionISR);
                 index++;
 
                 t.row.add(
@@ -1264,7 +1375,9 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
                 ).draw(false);
             }
 
-            $("input[name='taxes']").attr("checked", false);
+            $("#table").dataTable().api().draw();
+
+            $("input[name='taxes']").prop("checked", false).iCheck('update');
             //$("input[name='taxes']").attr("checked", false);
             $("#TaxesChk").trigger("click");
 
@@ -1371,12 +1484,13 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
             var taxes = $("#taxes");
             var cmbTaxes = $("#Valuation");
             cmbTaxes.empty();
+            cmbTaxes.trigger('chosen:updated');
 
             if (!this.checked) {
                 taxes.addClass("hide");
-                $("#Withholdings").val("");
-                $("#Transferred").val("");
-                $("#Valuation").val("");
+                $("#Withholdings").val("").trigger('chosen:updated');
+                $("#Transferred").val("").trigger('chosen:updated');
+                //$("#Valuation").val("").trigger('chosen:updated');
             }
             else
                 taxes.removeClass("hide");
@@ -1397,17 +1511,18 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
         $("input[name='taxes']").click(function () {
-            //console.log("valor", $(this).val())
+            //console.log("valor", $(this).val(),"cual es")
             var cmbTaxes = $("#Valuation");
             cmbTaxes.empty();
+            cmbTaxes.trigger('chosen:updated');
             if ($(this).val() === "Retención") {
                 $(".retenciones").removeClass("hide");
                 $(".traslados").addClass("hide");
-                $("#Transferred").val("");
+                $("#Transferred").val("").trigger('chosen:updated');
             } else {
                 $(".retenciones").addClass("hide");
                 $(".traslados").removeClass("hide");
-                $("#Withholdings").val("");
+                $("#Withholdings").val("").trigger('chosen:updated');
             }
         });
 
@@ -1462,18 +1577,16 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         //Validación para RFC del extrangero
         $("#RFC").blur(function () {
-            console.log($(this).val());
+            //console.log($(this).val());
             if ($(this).val() === "XEXX010101000") {
-                console.log("entre")
                 $(".foreign").removeClass("hide");
                 $("#NumIdntFiscal").addClass("required");
                 $("#CountryFiscal").addClass("required");
             } else {
-                console.log("entre false")
                 $(".foreign").addClass("hide");
                 $("#NumIdntFiscal").removeClass("required");
-                $("#CountryFiscal").removeClass("required");
-            }          
+                $("#CountryFiscal").val("").removeClass("required").trigger("chosen:updated");;
+            }
         });
 
         $("#ZipCode").blur(function () {
@@ -1690,5 +1803,4 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
         });
 
     };
-
 };

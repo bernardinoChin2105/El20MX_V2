@@ -16,7 +16,7 @@ namespace MVC_Project.Data.Mappings
             Id(x => x.id).GeneratedBy.Identity().Column("id");
             Map(x => x.uuid).Column("uuid").Not.Nullable();
 
-            Map(x => x.startedAt).Column("startedAt").Not.Nullable();
+            Map(x => x.startedAt).Column("startedAt").Nullable();
             Map(x => x.hiringDate).Column("hiringDate").Nullable();
             Map(x => x.total).Column("total").Not.Nullable();
 

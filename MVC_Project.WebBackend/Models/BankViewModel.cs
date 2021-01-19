@@ -32,7 +32,7 @@ namespace MVC_Project.WebBackend.Models
         [Display(Name = "Divisa")]
         public string Currency { get; set; }
 
-        [Display(Name = "Saldo Actual")]
+        [Display(Name = "Saldo al Corte")]
         public string CurrentBalance { get; set; }
 
         [Display(Name = "Total de Retiros")]

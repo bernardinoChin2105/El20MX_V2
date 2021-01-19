@@ -676,7 +676,7 @@ namespace MVC_Project.WebBackend.Controllers
                         if (bankAccountId != item.bankAccountId)
                         {
                             bankAccountId = item.bankAccountId;
-                            balanceA = item.balance;
+                            balanceA = item.balanceCutting;
                             amountB = (double)item.amount;
                         }
                         else
@@ -710,7 +710,7 @@ namespace MVC_Project.WebBackend.Controllers
                         totales = new BankTransactionTotalVM
                         {
                             currency = listResponse.FirstOrDefault().currency,
-                            TotalAmount = listResponse.FirstOrDefault().balance.ToString("C2"),
+                            TotalAmount = listResponse.FirstOrDefault().balanceCutting.ToString("C2"),
                             TotalRetirement = listResponse.Where(x => x.amount < 0).Sum(x => x.amount).ToString("C2"),
                             TotalDeposits = listResponse.Where(x => x.amount > 0).Sum(x => x.amount).ToString("C2"),
                             TotalFinal = listResponse.FirstOrDefault().balance.ToString("C2")
