@@ -120,5 +120,18 @@ namespace MVC_Project.Integrations.Recurly
 
             return recurlyModel;
         }
+
+        public static CouponRedemption CreateCouponRedemption(CouponRedemptionCreate body, string siteId, string account_id)
+        {
+            CouponRedemption recurlyModel = new CouponRedemption();
+
+            string url = "sites/" + siteId + "/accounts/" + account_id + "/coupon_redemptions/active";
+              
+            var responseRecurly = Recurly.CallServiceRecurly(url, body, "POST");
+
+            recurlyModel = JsonConvert.DeserializeObject<CouponRedemption>(responseRecurly);
+
+            return recurlyModel;
+        }
     }
 }

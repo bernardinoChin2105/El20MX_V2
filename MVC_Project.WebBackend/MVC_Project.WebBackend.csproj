@@ -263,7 +263,6 @@
     <Compile Include="Controllers\BranchOfficeController.cs" />
     <Compile Include="Controllers\CADController.cs" />
     <Compile Include="Controllers\CalendarController.cs" />
-    <Compile Include="Controllers\ChargesController.cs" />
     <Compile Include="Controllers\DiagnosticController.cs" />
     <Compile Include="Controllers\DocumentsController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
@@ -297,7 +296,6 @@
     <Compile Include="Models\BranchOfficeViewModel.cs" />
     <Compile Include="Models\CADViewModel.cs" />
     <Compile Include="Models\CalendarViewModel.cs" />
-    <Compile Include="Models\ChargeViewModel.cs" />
     <Compile Include="Models\CredentialViewModel.cs" />
     <Compile Include="Models\InvoiceViewModel.cs" />
     <Compile Include="Models\MyAccountVM.cs" />
@@ -327,7 +325,6 @@
     <Compile Include="Models\UserViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\Enums\Enumeration.cs" />
-    <Compile Include="Utils\Enums\FilterAccountStatusEnum.cs" />
     <Compile Include="Utils\Enums\FilterStatusEnum.cs" />
     <Compile Include="Utils\FileDownloadAttribute.cs" />
     <Compile Include="Utils\ViewConstants.cs" />
@@ -1847,12 +1844,12 @@
     <Content Include="Scripts\views\BranchOffice\Create.js" />
     <Content Include="Scripts\views\BranchOffice\Edit.js" />
     <Content Include="Scripts\views\BranchOffice\Index.js" />
-    <Content Include="Scripts\views\Charges\Index.js" />
     <Content Include="Scripts\views\MyAccount\Index.js" />
     <Content Include="Scripts\views\Invoicing\CustomerInvoices.js" />
     <Content Include="Scripts\views\Invoicing\Invoice.js" />
     <Content Include="Scripts\views\Invoicing\InvoicesSaved.js" />
     <Content Include="Scripts\views\Invoicing\ProviderInvoices.js" />
+    <Content Include="Scripts\views\MyAccount\promotion-coupon.js" />
     <Content Include="Scripts\views\Promotion\Index.js" />
     <Content Include="Scripts\views\Alliance\Index.js" />
     <Content Include="Scripts\views\Ally\Index.js" />
@@ -2040,8 +2037,7 @@
     <Content Include="Views\Invoicing\InvoicesReceived.cshtml" />
     <Content Include="Views\MyAccount\Index.cshtml" />
     <Content Include="Views\CAD\AssignAccount.cshtml" />
-    <Content Include="Views\Charges\Index.cshtml" />
-    <Content Include="Views\Charges\Edit.cshtml" />
+    <Content Include="Views\MyAccount\_PromotionCoupon.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

@@ -110,6 +110,7 @@
             </div>
         </div>
 
+        @{ Html.RenderPartial("~/Views/MyAccount/_PromotionCoupon.cshtml"); }
 
         <!-- Left navigation bar -->
         @Html.Partial("_Navigation")
@@ -153,6 +154,7 @@
     @Scripts.Render("~/plugins/fullCalendar")
     @Scripts.Render("~/plugins/validate")
     @Scripts.Render("~/custom/Utils")
+    @Scripts.Render("~/custom/promotion-coupon")
     <script type="text/javascript" src="https://www.paybook.com/sync/widget/v2/widget.js"></script>
     <script src="~/Scripts/plugins/jasny/jasny-bootstrap.min.js"></script>
     <!-- Custom and plugin javascript -->
