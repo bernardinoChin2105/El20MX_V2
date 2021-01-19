@@ -94,7 +94,13 @@ namespace MVC_Project.Jobs
                                 //Crear clientes
 
                                 List<string> customerRfcs = modelInvoices.Customers.Select(c => c.rfc).Distinct().ToList();
-                                var ExistC = _customerService.ValidateRFC(customerRfcs, account.id);
+                                //var ExistC = _customerService.ValidateRFC(customerRfcs, account.id);
+
+                                var ExistC = from customer in _customerService.FindBy(x => x.account.id == account.id)
+                                             join rfc in customerRfcs
+                                             on customer.rfc equals rfc
+                                             select customer.rfc;
+
                                 List<string> NoExistC = customerRfcs.Except(ExistC).ToList();
 
                                 List<Customer> customers = modelInvoices.Customers
@@ -116,7 +122,13 @@ namespace MVC_Project.Jobs
 
                                 //Crear proveedores
                                 List<string> providersRfcs = modelInvoices.Providers.Select(c => c.rfc).Distinct().ToList();
-                                var ExistP = _providerService.ValidateRFC(providersRfcs, account.id);
+                                //var ExistP = _providerService.ValidateRFC(providersRfcs, account.id);
+
+                                var ExistP = from prov in _providerService.FindBy(x => x.account.id == account.id)
+                                             join rfc in providersRfcs
+                                             on prov.rfc equals rfc
+                                             select prov.rfc;
+
                                 List<string> NoExistP = providersRfcs.Except(ExistP).ToList();
 
                                 List<Provider> providers = modelInvoices.Providers

@@ -915,8 +915,11 @@ namespace MVC_Project.WebBackend.Controllers
                 newAccount.preferred_locale = "es-MX";
                 newAccount.first_name = authUser.FirstName;
                 newAccount.last_name = authUser.LastName;
-                //newAccount.company = authUser.Account.Name;
-                
+
+                var user = _userService.GetById(authUser.Id);
+                if (user != null)
+                    newAccount.address = new AddressModel { phone = user.profile?.phoneNumber };
+
                 var serilaizeJson = JsonConvert.SerializeObject(newAccount, Newtonsoft.Json.Formatting.None,
                 new JsonSerializerSettings
                 {

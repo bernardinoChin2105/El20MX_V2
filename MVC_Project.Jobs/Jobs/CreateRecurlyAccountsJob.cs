@@ -96,11 +96,17 @@ namespace MVC_Project.Jobs
 
                                 newAccount.code = account.uuid.ToString();
                                 newAccount.username = account.rfc; //Se agrego el RFC para diferenciar si los nombres de usuario
-                                newAccount.email = account.memberships.FirstOrDefault()?.user?.name;
                                 newAccount.preferred_locale = "es-MX";
-                                newAccount.first_name = account.memberships.FirstOrDefault()?.user?.profile?.firstName;
-                                newAccount.last_name = account.memberships.FirstOrDefault()?.user?.profile?.lastName;
-                                //newAccount.company = authUser.Account.Name;
+
+                                var membership = account.memberships.FirstOrDefault(x => x.role.code == SystemRoles.ACCOUNT_OWNER.ToString());
+
+                                if (membership != null && membership.user != null)
+                                {
+                                    newAccount.email = membership.user.name;
+                                    newAccount.first_name = membership.user.profile?.firstName;
+                                    newAccount.last_name = membership.user.profile?.lastName;
+                                    newAccount.address = new AddressModel { phone = membership.user.profile?.phoneNumber };
+                                }
 
                                 var accountRecurly = RecurlyService.CreateAccount(newAccount, siteId, provider);
 

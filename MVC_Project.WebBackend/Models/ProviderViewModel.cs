@@ -123,7 +123,8 @@ namespace MVC_Project.WebBackend.Models
         public string first_name { get; set; }
         public string last_name { get; set; }
         public string paymentFormDescription { get; set; }
-        public string businessName { get; set; }        
+        public string businessName { get; set; }
+        public string type { get; set; }
     }
 
     public class DataCFDI

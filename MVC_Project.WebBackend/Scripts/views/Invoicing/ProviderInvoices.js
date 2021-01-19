@@ -85,6 +85,7 @@ var ProviderInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl
                 { data: 'businessName', title: "Proveedor" },
                 { data: 'paymentMethod', title: "Método Pago" },
                 { data: 'paymentFormDescription', title: "Forma Pago" },
+                { data: 'type', title: "Tipo" },
                 { data: 'currency', title: "Divisa" },
                 { data: 'amount', title: "SubTotal" },
                 { data: 'iva', title: "IVA" },

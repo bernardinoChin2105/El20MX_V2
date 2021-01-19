@@ -55,7 +55,8 @@ namespace MVC_Project.WebBackend.Controllers
                 model.ciec = account.ciec;
                 model.avatar = account.avatar;
 
-                var process = _webhookProcessService.FindBy(x => x.reference == account.uuid.ToString()).OrderByDescending(x => x.id).FirstOrDefault();
+                var process = _webhookProcessService.FindBy(x => x.reference == account.uuid.ToString() && x.provider == SystemProviders.SATWS.ToString()).
+                    OrderByDescending(x => x.id).FirstOrDefault();
                 if (process != null)
                 {
                     model.HasInvoiceSync = true;
