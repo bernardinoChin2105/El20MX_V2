@@ -129,6 +129,7 @@ namespace MVC_Project.Jobs
                                     if (credential != null)
                                     {
                                         credential.status = SystemStatus.INACTIVE.ToString();
+                                        credential.modifiedAt = DateUtil.GetDateTimeNow();
                                         _credentialService.Update(credential);
                                     }
                                 }
