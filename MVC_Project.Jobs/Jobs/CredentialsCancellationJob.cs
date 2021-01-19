@@ -110,7 +110,7 @@ namespace MVC_Project.Jobs
                                     //Evento para desactivar la cuenta en syncfy
                                     //La opcion que se tiene es delete credential       
                                     provider = SystemProviders.SYNCFY.ToString();
-                                    var response = PaybookService.DeleteCredential(prospect.idCredentialProvider, "Delete");
+                                    var response = PaybookService.DeleteCredential(prospect.idCredentialProvider, "Delete", null);
                                     delete = true;
                                 }
                                 else if (prospect.provider == SystemProviders.RECURLY.ToString())
