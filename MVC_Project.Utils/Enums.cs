@@ -179,6 +179,8 @@ namespace MVC_Project.Utils
         ALLIANCES_DISCOUNTS,
         [Display(Name = "Regularizaciones")]
         QUOTATION,
+        [Display(Name = "CADs")]
+        CAD,
         [Display(Name = "Cobros Recurly")]
         CHARGES_RECURLY
         #endregion

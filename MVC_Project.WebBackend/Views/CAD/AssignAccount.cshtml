@@ -1,0 +1,51 @@
+﻿@model MVC_Project.WebBackend.Models.CADAccountsViewModel
+@{
+    ViewBag.Title = "Asignacion de CADs";
+}
+<link href="~/Content/template/plugins/dualListbox/bootstrap-duallistbox.min.css" rel="stylesheet" />
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+
+                    <div class="form-group row">
+                        @*@Html.LabelFor(model => model.cad, new { @class = "col-form-label control-label col-md-2" })*@
+                        <label class = "col-form-label control-label col-md-2">CADs</label>
+                        <div class="col-md-10">
+                            @Html.DropDownListFor(model=>model.cad, Model.cads, "Seleccione un CAD...",
+                       new { @class = "chosen-select", data_placeholder = "Seleccione un CAD", @required = "required", @style = "width: 100%" })
+                        </div>
+                        
+                    </div>
+                    <div class="form-group row">
+                        <select multiple="multiple" size="10" name="duallistbox_demo1">
+                            <option value="option1">TECNOLOGIA CON INGENIO R20 S A (TIR1602182N8)</option>
+                            <option value="option2">MARIA NIEVES SANCHEZ (NISM7308056H4) </option>
+                            <option value="option3" selected="selected">EDUARDO TORREBLANCA JACQUES (TOJE5409234F9)</option>
+                            <option value="option4">DIAS KARE NUTRICION (DKN1403135V1)</option>
+                            <option value="option5">KARLA MONTALVO GOMEZ (MOGK771128E18) </option>
+                            <option value="option6" selected="selected">LUIS PATRICIO DESENTIS GARCIA (DEGL821027UU1)</option>
+                        </select>
+                    </div>
+                    <div class="form-group row pull-right">
+                        <div class="col-md-12 text-right">
+                            @*<a href='@Url.Action("Index", "Role")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>*@
+                            <button type="button" id="btnSelectAccount" class="btn btn-color"> <i class="fa fa-check"></i> Aceptar </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/Scripts/plugins/dualListbox/jquery.bootstrap-duallistbox.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
+            var demo1 = $('[name=duallistbox_demo1]').bootstrapDualListbox();
+        });
+    </script>
+}

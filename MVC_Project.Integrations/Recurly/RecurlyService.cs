@@ -114,6 +114,20 @@ namespace MVC_Project.Integrations.Recurly
             }
         }
 
+        public static CouponRedemption CreateCouponRedemption(CouponRedemptionCreate couponRedemption, string siteId, string accountId, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                var recurlyModel = RecurlyServices.CreateCouponRedemption(couponRedemption, siteId, accountId);
+
+                return recurlyModel;
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso.");
+            }
+        }
+        
         public static Account DeleteAccount(string accountId, string siteId, string provider)
         {
             if (provider == SystemProviders.RECURLY.ToString())
