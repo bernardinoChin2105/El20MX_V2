@@ -104,15 +104,16 @@ namespace MVC_Project.Domain.Services
 
         public List<AccountCredentialProspectModel> GetAccountCredentialProspect(DateTime DateToday)
         {
-            String dateToday = null;
+            String today = null;
             if (DateToday != null)
             {
-                dateToday = Convert.ToDateTime(DateToday).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo);
+                //dateToday = Convert.ToDateTime(DateToday).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo);
+                today = DateToday.ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo);
             }           
 
             var list = _repository.Session.CreateSQLQuery("exec dbo.st_prospectList " +
-                "@createdOnStart=:createdOnStart ")
-                    .SetParameter("createdOnStart", dateToday)
+                "@createdOnStart=:createdOnStart")
+                    .SetParameter("createdOnStart", today)
                     .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(AccountCredentialProspectModel)))
                     .List<AccountCredentialProspectModel>();
 

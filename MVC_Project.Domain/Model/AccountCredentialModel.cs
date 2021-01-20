@@ -27,16 +27,16 @@ namespace MVC_Project.Domain.Model
         public Guid uuid { get; set; }
         public string name { get; set; }
         public string rfc { get; set; }
-        public DateTime createdAt { get; set; }
+        //public DateTime createdAt { get; set; }
         public string statusAccount { get; set; }
-        public DateTime? inicioFacturacion { get; set; }
+        //public DateTime? inicioFacturacion { get; set; }
         public string planFijo { get; set; }
-        public Int32 totalDays { get; set; }
+        //public Int32 totalDays { get; set; }
         public Int64 credentialId { get; set; }
         public string provider { get; set; }
         public string idCredentialProvider { get; set; }
         public string statusProvider { get; set; }
-        public string createdAtCredential { get; set; }
+        //public string createdAtCredential { get; set; }
         public string statusCredential { get; set; }
         public string accountId { get; set; }
         public string credentialType { get; set; }     
