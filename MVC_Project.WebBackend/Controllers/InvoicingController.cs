@@ -424,6 +424,7 @@ namespace MVC_Project.WebBackend.Controllers
                             NumeroPedimento = model.MotionNumber
                         };
 
+                        conceptsData.InformacionAduanera = new List<Integrations.SAT.InformacionAduanera>();
                         conceptsData.InformacionAduanera.Add(infoAduanera);
                     }
 
