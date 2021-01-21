@@ -203,7 +203,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 if(string.IsNullOrWhiteSpace(couponCode))
                 {
-                    throw new Exception("Código de cupón requerido.");
+                    throw new ArgumentException("Código de cupón requerido.");
                 }
 
                 var provider = ConfigurationManager.AppSettings["RecurlyProvider"];
@@ -212,7 +212,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var recurlyCredential = _credentialService.FirstOrDefault(x => x.account.id == authUser.Account.Id && x.provider == provider && x.status == SystemStatus.ACTIVE.ToString());
                 if (recurlyCredential == null)
                 {
-                    throw new Exception("Cuenta no encontrada.");
+                    throw new ArgumentException("Cuenta no encontrada.");
                 }
 
                 var couponRequest = new CouponRedemptionCreate()
@@ -248,7 +248,7 @@ namespace MVC_Project.WebBackend.Controllers
                 //Se trata de identificar los casos más comunes de error para mostrar un mensaje más significativo al usuario.
                 if (mainErrorMessage.Contains("coupon_id"))
                 {
-                    userMessage = "Código no valido.";
+                    userMessage = "Código no válido.";
                 }
                 else if (mainErrorMessage.Contains("has expired"))
                 {
@@ -276,8 +276,28 @@ namespace MVC_Project.WebBackend.Controllers
                     error = userMessage
                 }, JsonRequestBehavior.AllowGet);
             }
-            catch (Exception ex)
+            catch (ArgumentException ex)
             {
+                string error = ex.Message.ToString();
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + error,
+                   ENivelLog.Error,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.AUTHORIZATION,
+                   string.Format("Usuario {0} | Fecha {1} | Cupon {2}", authUser.Email, DateUtil.GetDateTimeNow(), couponCode),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   ex.Message
+                );
+
+                return Json(new
+                {
+                    status = false,
+                    error = error
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {                
                 LogUtil.AddEntry(
                    "Se encontro un error: " + ex.Message,
                    ENivelLog.Error,
