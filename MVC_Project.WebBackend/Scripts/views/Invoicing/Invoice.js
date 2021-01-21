@@ -836,7 +836,7 @@ var InvoiceControlador = function (htmlTableId, searchUrl, addressUrl, branchOff
 
         $.validator.addMethod("Alphanumeric",
             function (value, element) {
-                return value.match(/^[A-Za-zÀ-ÿ\u00f1\u00d10-9 _.,-@]+$|^$/);
+                return value.match(/^[A-Za-zÀ-ÿ10-9 _.,-@%]+$|^$/);
             }, "El campo debe ser alfanumérico"
         );
         $.validator.addMethod("Numeric",
