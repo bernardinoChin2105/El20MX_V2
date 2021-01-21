@@ -12,11 +12,13 @@ namespace MVC_Project.WebBackend.Controllers
     {
         private IAccountService _accountService;
         private IUserService _userService;
+        private ICADAccountService _cadAccountService;
 
-        public CADController(AccountService accountService, IUserService userService)
+        public CADController(AccountService accountService, IUserService userService, ICADAccountService cadAccountService)
         {
             _accountService = accountService;
             _userService = userService;
+            _cadAccountService = cadAccountService;
         }
         
         public ActionResult AssignAccount()
@@ -31,6 +33,19 @@ namespace MVC_Project.WebBackend.Controllers
             }).ToList();
 
             return View(model);
+        }
+
+        [HttpGet, AllowAnonymous]
+        public ActionResult GetAccounts(Int64 id)
+        {
+            var assigneds = _cadAccountService.GetAll().Select(x => x.account.id);
+            var availables = _accountService.FindBy(x => !assigneds.Contains(x.id)).Select(x => new { id = x.id, name = x.name + "( " + x.rfc + " )" });
+
+            return new JsonResult
+            {
+                Data = new { success = true, accounts = availables },
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
         }
     }
 }

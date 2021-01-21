@@ -20,13 +20,13 @@
                         
                     </div>
                     <div class="form-group row">
-                        <select multiple="multiple" size="10" name="duallistbox_demo1">
-                            <option value="option1">TECNOLOGIA CON INGENIO R20 S A (TIR1602182N8)</option>
+                        <select id="duallistbox" multiple="multiple" size="10" name="duallistbox_demo1">
+                            @*<option value="option1">TECNOLOGIA CON INGENIO R20 S A (TIR1602182N8)</option>
                             <option value="option2">MARIA NIEVES SANCHEZ (NISM7308056H4) </option>
                             <option value="option3" selected="selected">EDUARDO TORREBLANCA JACQUES (TOJE5409234F9)</option>
                             <option value="option4">DIAS KARE NUTRICION (DKN1403135V1)</option>
                             <option value="option5">KARLA MONTALVO GOMEZ (MOGK771128E18) </option>
-                            <option value="option6" selected="selected">LUIS PATRICIO DESENTIS GARCIA (DEGL821027UU1)</option>
+                            <option value="option6" selected="selected">LUIS PATRICIO DESENTIS GARCIA (DEGL821027UU1)</option>*@
                         </select>
                     </div>
                     <div class="form-group row pull-right">
@@ -46,6 +46,22 @@
         $(document).ready(function () {
             $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
             var demo1 = $('[name=duallistbox_demo1]').bootstrapDualListbox();
+
+            $("#cad").on("change", function () {
+                debugger;
+                var id = $(this).val();
+
+                $.get('@Url.Action("GetAccounts")', { id: id }, function (result) {
+                    if (result.success) {
+                        $.each(result.accounts, function (i, item) {
+
+                            demo1.append('<option value=' + item.id + '>' + item.name + '</option>');//new Option(item.name, item.id));
+                            demo1.bootstrapDualListbox('refresh');
+                        });
+                    }
+                });
+            });
+
         });
     </script>
 }
