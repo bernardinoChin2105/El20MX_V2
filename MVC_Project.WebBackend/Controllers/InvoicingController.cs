@@ -360,6 +360,7 @@ namespace MVC_Project.WebBackend.Controllers
         public ActionResult IssueIncomeInvoice(InvoiceViewModel model)
         {
             bool success = false;
+            dynamic invoiceSend = null;
             var authUser = Authenticator.AuthenticatedUser;
             try
             {
@@ -393,7 +394,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     var conceptsData = new ConceptsData
                     {
-                        ClaveProdServ = item.SATCode.ToString(),
+                        ClaveProdServ = item.SATCode.Trim(),
                         //NoIdentificacion = que dato es?
                         Cantidad = item.Quantity,
                         ClaveUnidad = item.SATUnit.Trim(),
@@ -412,8 +413,8 @@ namespace MVC_Project.WebBackend.Controllers
                     decimal subtotal = conceptsData.Importe; //conceptsData.ValorUnitario * conceptsData.Cantidad;
                     if (item.DiscountRateProServ > 0)
                     {
-                        //conceptsData.Descuento = item.DiscountRateProServ; // subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100);    
-                        conceptsData.Descuento = subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100);
+                        conceptsData.Descuento = item.DiscountRateProServ; // subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100);    
+                        //conceptsData.Descuento = Math.Round(subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100), 6);
                         subtotal = subtotal - conceptsData.Descuento.Value;
                     }
 
@@ -700,7 +701,8 @@ namespace MVC_Project.WebBackend.Controllers
                 //throw new Exception("Vamos a probar los errores y el autollenado");
 
                 //Envio de la factura al satws para timbrado
-                dynamic invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
+                //dynamic invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
+                invoiceSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
                 result = SATService.PostIssueIncomeInvoices(invoiceSend, provider);
 
                 if (result != null)
@@ -799,7 +801,7 @@ namespace MVC_Project.WebBackend.Controllers
                                                    EOperacionLog.ACCESS,
                                                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                                                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                                                   JsonConvert.SerializeObject(model)
+                                                    JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend)
                                                );
                 MensajeFlashHandler.RegistrarMensaje("Factura timbrada con éxito.", TiposMensaje.Success);
                 return RedirectToAction("Invoice");
@@ -814,7 +816,7 @@ namespace MVC_Project.WebBackend.Controllers
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   JsonConvert.SerializeObject(model)
+                   JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend)
                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 ViewBag.Date = new
