@@ -1,7 +1,9 @@
 ﻿using LogHubSDK.Models;
 using MVC_Project.Domain.Model;
 using MVC_Project.Domain.Services;
+using MVC_Project.FlashMessages;
 using MVC_Project.Integrations.Recurly;
+using MVC_Project.Integrations.Recurly.Models;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
 using MVC_Project.WebBackend.Models;
@@ -190,6 +192,129 @@ namespace MVC_Project.WebBackend.Controllers
                 aaData = listResponse
             }, JsonRequestBehavior.AllowGet);
 
+        }
+
+        [HttpPost]
+        public JsonResult RedeemCoupon(string couponCode)
+        {
+            var authUser = Authenticator.AuthenticatedUser;
+
+            try
+            {
+                if(string.IsNullOrWhiteSpace(couponCode))
+                {
+                    throw new ArgumentException("Código de cupón requerido.");
+                }
+
+                var provider = ConfigurationManager.AppSettings["RecurlyProvider"];
+                var siteId = ConfigurationManager.AppSettings["Recurly.SiteId"];
+
+                var recurlyCredential = _credentialService.FirstOrDefault(x => x.account.id == authUser.Account.Id && x.provider == provider && x.status == SystemStatus.ACTIVE.ToString());
+                if (recurlyCredential == null)
+                {
+                    throw new ArgumentException("Cuenta no encontrada.");
+                }
+
+                var couponRequest = new CouponRedemptionCreate()
+                {
+                    CouponId = "code-" + couponCode
+                };
+
+                var redemptionResponse = RecurlyService.CreateCouponRedemption(couponRequest, siteId, recurlyCredential.idCredentialProvider, provider);
+
+                LogUtil.AddEntry(
+                   "Cupón canjeado: " + couponCode,
+                   ENivelLog.Info,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.AUTHORIZATION,
+                   string.Format("Cupon {0} | Cuenta {1} | Fecha {2}", couponCode, recurlyCredential.idCredentialProvider, DateUtil.GetDateTimeNow()),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   JsonConvert.SerializeObject(redemptionResponse)
+                );
+
+                return Json(new
+                {
+                    status = true,
+                    message = "Cupón canjeado correctamente."
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (RecurlyErrorException recurlyError)
+            {
+                var mainErrorMessage = "";
+                var userMessage = "El cupón no pudo ser canjeado. Verifique e intentelo más tarde";
+                mainErrorMessage = recurlyError.Error.Message;
+
+                //Se trata de identificar los casos más comunes de error para mostrar un mensaje más significativo al usuario.
+                if (mainErrorMessage.Contains("coupon_id"))
+                {
+                    userMessage = "Código no válido.";
+                }
+                else if (mainErrorMessage.Contains("has expired"))
+                {
+                    userMessage = "El cupón ha expirado.";
+                }
+                else if(mainErrorMessage.Contains("max redemptions"))
+                {
+                    userMessage = "El cupón ya ha sido canjeado.";
+                }
+
+                LogUtil.AddEntry(
+                   "Error al canjear cupón: " + mainErrorMessage,
+                   ENivelLog.Error,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.AUTHORIZATION,
+                   string.Format("Usuario {0} | Fecha {1} | Cupon {2}", authUser.Email, DateUtil.GetDateTimeNow(), couponCode),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   JsonConvert.SerializeObject(recurlyError.Error)
+                );
+
+                return Json(new
+                {
+                    status = false,
+                    error = userMessage
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (ArgumentException ex)
+            {
+                string error = ex.Message.ToString();
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + error,
+                   ENivelLog.Error,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.AUTHORIZATION,
+                   string.Format("Usuario {0} | Fecha {1} | Cupon {2}", authUser.Email, DateUtil.GetDateTimeNow(), couponCode),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   ex.Message
+                );
+
+                return Json(new
+                {
+                    status = false,
+                    error = error
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {                
+                LogUtil.AddEntry(
+                   "Se encontro un error: " + ex.Message,
+                   ENivelLog.Error,
+                   authUser.Id,
+                   authUser.Email,
+                   EOperacionLog.AUTHORIZATION,
+                   string.Format("Usuario {0} | Fecha {1} | Cupon {2}", authUser.Email, DateUtil.GetDateTimeNow(), couponCode),
+                   ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   ex.Message
+                );
+
+                return Json(new
+                {
+                    status = false,
+                    error = "El cupón no pudo ser canjeado. Verifique e intentelo más tarde."
+                }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         private void SetCombos(ref MyAccountVM model)

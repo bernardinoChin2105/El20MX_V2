@@ -108,6 +108,8 @@ namespace MVC_Project.WebBackend
             //Custom
             bundles.Add(new ScriptBundle("~/custom/utils").Include(
                       "~/Scripts/custom/Utils.js"));
+            bundles.Add(new ScriptBundle("~/custom/promotion-coupon").Include(
+                      "~/Scripts/views/MyAccount/promotion-coupon.js"));
 
             //Views
             bundles.Add(new ScriptBundle("~/views/user").Include(
@@ -141,6 +143,8 @@ namespace MVC_Project.WebBackend
                      "~/Scripts/views/Promotion/Index.js"));
             bundles.Add(new ScriptBundle("~/views/myAccountIndex").Include(
                      "~/Scripts/views/MyAccount/Index.js"));
+            bundles.Add(new ScriptBundle("~/views/chargesIndex").Include(
+                     "~/Scripts/views/Charges/Index.js"));
 
             // toastr notification
             bundles.Add(new ScriptBundle("~/plugins/toastr").Include(

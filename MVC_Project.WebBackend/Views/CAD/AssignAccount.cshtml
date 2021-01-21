@@ -1,0 +1,105 @@
+﻿@model MVC_Project.WebBackend.Models.CADAccountsViewModel
+@{
+    ViewBag.Title = "Asignacion de CADs";
+}
+<link href="~/Content/template/plugins/dualListbox/bootstrap-duallistbox.min.css" rel="stylesheet" />
+<style>
+    .bootstrap-duallistbox-container {
+        width: -webkit-fill-available
+    }
+</style>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+
+                    <div class="form-group row">
+                        @*@Html.LabelFor(model => model.cad, new { @class = "col-form-label control-label col-md-2" })*@
+                        <label class = "col-form-label control-label col-md-2">CAD</label>
+                        <div class="col-md-10">
+                            @Html.DropDownListFor(model=>model.cad, Model.cads, "Seleccione un CAD...",
+                       new { @class = "chosen-select", data_placeholder = "Seleccione un CAD", @required = "required", @style = "width: 100%" })
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <select id="duallistbox" multiple="multiple" size="10" name="duallistbox_customers">
+                        </select>
+                    </div>
+                    <div class="form-group row pull-right">
+                        <div class="col-md-12 text-right">
+                            @*<a href='@Url.Action("Index", "Role")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>*@
+                            <button type="button" id="btnSelectAccount" class="btn btn-color"> <i class="fa fa-save"></i> Guardar cambios </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/Scripts/plugins/dualListbox/jquery.bootstrap-duallistbox.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
+            var dlist = $('#duallistbox').bootstrapDualListbox({
+                filterTextClear: 'Eliminar filtro',
+                filterPlaceHolder: 'Filtro',
+                moveSelectedLabel: 'Seleccionar elemento',
+                moveAllLabel: 'Seleccionar todo',
+                removeSelectedLabel: 'Remover elemento',
+                removeAllLabel: 'Remover todo',
+                infoText: 'Total: {0}',
+                infoTextEmpty: 'Sin elementos',
+                infoTextFiltered: '<span class="badge badge-warning">Encontramos</span> {0} de {1}',
+                nonSelectedListLabel: 'Clientes Disponibles',
+                selectedListLabel: 'Clientes Asignados'
+            });
+
+            $("#cad").on("change", function () {
+                dlist.empty();
+                dlist.bootstrapDualListbox('refresh');
+                var id = $(this).val();
+                if (id)
+                {
+                    $.get('@Url.Action("GetAccounts")', { id: id }, function (result) {
+                        if (result.success) {
+                            $.each(result.availables, function (i, item) {
+
+                                dlist.append('<option value=' + item.id + '>' + item.name + '</option>');
+                            });
+                            $.each(result.assigneds, function (i, item) {
+
+                                dlist.append('<option value=' + item.id + ' selected>' + item.name + '</option>');
+
+                            });
+                            dlist.bootstrapDualListbox('refresh');
+                        }
+                        else {
+                            toastr["error"]("No es posible obtener los clientes para el CAD seleccionado", null, { 'positionClass': 'toast-top-center' });
+                            console.log(result.message);
+                        }
+                    });
+                }
+            });
+
+            $("#btnSelectAccount").on("click", function () {
+                var cadId = $("#cad").val();
+                if (cadId)
+                {
+                    var accounts = $("#duallistbox").val();
+                    $.post('@Url.Action("SetAccounts")', { cadId: cadId, accountIds : accounts }, function (result) {
+                        if (result.success) {
+                            toastr["success"]("Asignación realizada", null, { 'positionClass': 'toast-top-center' });
+                        }
+                        else {
+                            toastr["error"]("No fue posible asignar los clientes al CAD", null, { 'positionClass': 'toast-top-center' }); 
+                            console.log(result.message);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

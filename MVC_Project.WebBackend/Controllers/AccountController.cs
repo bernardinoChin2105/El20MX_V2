@@ -127,7 +127,8 @@ namespace MVC_Project.WebBackend.Controllers
             else
             {
                 var accountViewModel = new AccountSelectViewModel { accountListViewModels = new List<AccountListViewModel>() };
-                var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
+                var memberships = _membership.FindBy(x => x.user.id == authUser.Id && x.account != null && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString()
+                    && x.account.status != SystemStatus.INACTIVE.ToString());
                 if (memberships.Any())
                 {
                     foreach (var membership in memberships)

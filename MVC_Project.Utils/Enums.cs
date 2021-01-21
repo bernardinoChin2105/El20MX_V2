@@ -178,7 +178,11 @@ namespace MVC_Project.Utils
         [Display(Name = "Alianzas y Descuentos")]
         ALLIANCES_DISCOUNTS,
         [Display(Name = "Regularizaciones")]
-        QUOTATION
+        QUOTATION,
+        [Display(Name = "CADs")]
+        CAD,
+        [Display(Name = "Cobros Recurly")]
+        CHARGES_RECURLY
         #endregion
     }
 
@@ -490,7 +494,7 @@ namespace MVC_Project.Utils
 
     public enum SystemPlan
     {
-        [Display(Name = "Prefijo esquema anterior")]
+        [Display(Name = "anterior")]
         OLD_SCHEMA,
         [Display(Name = "Esquema anterior contigo")]
         OLD_SCHEMA_CONTIGO,
@@ -505,15 +509,15 @@ namespace MVC_Project.Utils
         [Display(Name = "Esquema nuevo")]
         NEW_SCHEMA,
         [Display(Name = "plan_startup")]
-        STARTUP,
+        plan_startup,
         [Display(Name = "plan_basico")]
-        BASICO,
+        plan_basico,
         [Display(Name = "plan_premium")]
-        PREMIUM,
+        plan_premium,
         [Display(Name = "plan_empresarial")]
-        EMPRESARIAL,
+        plan_empresarial,
         [Display(Name = "contigo")]
-        CONTIGO
+        contigo
     }
 
     public enum RecurlyPlanAddons

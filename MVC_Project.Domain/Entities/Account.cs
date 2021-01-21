@@ -27,6 +27,8 @@ namespace MVC_Project.Domain.Entities
         public virtual int pipedriveId { get; set; }
 
         public virtual string planSchema { get; set; }
+        public virtual DateTime? inicioFacturacion { get; set; }
+        public virtual string planFijo { get; set; }
 
         public virtual IList<Membership> memberships { get; set; }
         public virtual IList<BankCredential> bankCredentials { get; set; }
