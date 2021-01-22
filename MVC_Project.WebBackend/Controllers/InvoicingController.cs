@@ -803,6 +803,28 @@ namespace MVC_Project.WebBackend.Controllers
                 MensajeFlashHandler.RegistrarMensaje("Factura timbrada con éxito.", TiposMensaje.Success);
                 return RedirectToAction("Invoice");
             }
+            catch (InvoiceException ex)
+            {
+                LogUtil.AddEntry(
+                      "Error al realizar la facturación:" + JsonConvert.SerializeObject(ex),
+                      ENivelLog.Error,
+                      authUser.Id,
+                      authUser.Email,
+                      EOperacionLog.ACCESS,
+                      string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                      ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                      JsonConvert.SerializeObject(model)
+                  );
+                var messages = string.Join(" ", ex.invoiceResponse?.violations?.Select(x => x.message));
+                MensajeFlashHandler.RegistrarMensaje(messages, TiposMensaje.Success);
+                ViewBag.Date = new
+                {
+                    MinDate = DateUtil.GetDateTimeNow().ToLongDateString(),
+                    MaxDate = DateUtil.GetDateTimeNow().ToLongDateString()
+                };
+                SetCombos(model.ZipCode, ref model);
+                return View("Invoice", model);
+            }
             catch (Exception ex)
             {
                 LogUtil.AddEntry(

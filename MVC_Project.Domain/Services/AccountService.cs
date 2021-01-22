@@ -46,7 +46,8 @@ namespace MVC_Project.Domain.Services
                         "from [dbo].[accounts] ac " +
                         "inner join [dbo].[credentials] c on ac.id = c.[accountId]" +
                         "inner join [dbo].[memberships] m on ac.id = m.[accountId]" +
-                        "where c.provider = 'RECURLY' and c.statusProvider = 'active' and ac.[status] = 'ACTIVE' ";
+                        "where c.provider = 'RECURLY' and c.statusProvider = 'active' and ac.[status] = 'ACTIVE' " +
+                        "and ac.inicioFacturacion is not null and ac.inicioFacturacion <= DATEADD(dd, DATEDIFF(dd, 0, getdate()), 0)";
 
             var list = _repository.Session.CreateSQLQuery(sql)
                      //.SetParameter("credentialId", idCredential)

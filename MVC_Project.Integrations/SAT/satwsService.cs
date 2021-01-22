@@ -309,7 +309,7 @@ namespace MVC_Project.Integrations.SAT
         {            
             InvoicesInfo invoice = new InvoicesInfo();            
 
-            var responseInvoices =  SATws.CallServiceSATws("invoices", invoiceJson, "Post");
+            var responseInvoices =  SATws.CallInvoiceServiceSATws("invoices", invoiceJson, "Post");
             invoice = JsonConvert.DeserializeObject<InvoicesInfo>(responseInvoices);
             return invoice;
         }
