@@ -15,7 +15,7 @@ $("body").on("change", ".money", function () {
     if (el.value === "")
         el.value = 0.00;
     //el.value = parseFloat(el.value).toFixed(6);
-    else if (/^[0-9]{1,6}\.[0-9]{1,5}$/.test(numero)) {
+    else if (/^[0-9]{1,6}\.[0-9]{1,5}$/.test(el.value)) {
         //console.log(numero, 'SÍ calza');
         el.value = parseFloat(el.value).toFixed(2);
     } else {

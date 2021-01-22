@@ -268,20 +268,20 @@
                     </tr>
                     @foreach (var cPago in Model.Complemento.Pagos)
                     {
-                    <tr>
-                        <td>@cPago.DoctoRelacionado.IdDocumento</td>
-                        <td>@cPago.DoctoRelacionado.Folio</td>
-                        <td>@cPago.DoctoRelacionado.Serie</td>
-                        <td>@cPago.DoctoRelacionado.MonedaDR</td>
-                        <td>@cPago.DoctoRelacionado.MetodoDePagoDR</td>
-                        <td>@cPago.DoctoRelacionado.NumParcialidad</td>
-                        @*<td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoAnt).ToString("C6")</td>
-                        <td>@(cPago.DoctoRelacionado.ImpPagado != null ? Convert.ToDecimal(cPago.DoctoRelacionado.ImpPagado).ToString("C6") : Convert.ToDecimal(cPago.Monto).ToString("C6"))</td>
-                        <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoInsoluto).ToString("C6")</td>*@
-                        <td>@cPago.DoctoRelacionado.ImpSaldoAnt</td>
-                        <td>@(cPago.DoctoRelacionado.ImpPagado != null ? cPago.DoctoRelacionado.ImpPagado : cPago.Monto)</td>
-                        <td>@cPago.DoctoRelacionado.ImpSaldoInsoluto</td>
-                    </tr>
+                        <tr>
+                            <td>@cPago.DoctoRelacionado.IdDocumento</td>
+                            <td>@cPago.DoctoRelacionado.Folio</td>
+                            <td>@cPago.DoctoRelacionado.Serie</td>
+                            <td>@cPago.DoctoRelacionado.MonedaDR</td>
+                            <td>@cPago.DoctoRelacionado.MetodoDePagoDR</td>
+                            <td>@cPago.DoctoRelacionado.NumParcialidad</td>
+                            @*<td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoAnt).ToString("C6")</td>
+                                <td>@(cPago.DoctoRelacionado.ImpPagado != null ? Convert.ToDecimal(cPago.DoctoRelacionado.ImpPagado).ToString("C6") : Convert.ToDecimal(cPago.Monto).ToString("C6"))</td>
+                                <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoInsoluto).ToString("C6")</td>*@
+                            <td>@cPago.DoctoRelacionado.ImpSaldoAnt</td>
+                            <td>@(cPago.DoctoRelacionado.ImpPagado != null ? cPago.DoctoRelacionado.ImpPagado : cPago.Monto)</td>
+                            <td>@cPago.DoctoRelacionado.ImpSaldoInsoluto</td>
+                        </tr>
                     }
                 </table>
             }
@@ -294,6 +294,10 @@
     @if (!string.IsNullOrEmpty(Model.CondicionesDePago))
     {
         <div><p><strong>Condición De Pago:</strong> @Model.CondicionesDePago</p></div>
+    }
+    @if (!string.IsNullOrEmpty(Model.Comentarios))
+    {
+        <div><p><strong>Comentarios:</strong> @Model.Comentarios</p></div>
     }
     <div class="textoContiguo" style="font-size:11px;">
         <strong>Sello CFDI </strong>

@@ -403,7 +403,7 @@ namespace MVC_Project.WebBackend.Controllers
                         //Importe = item.Subtotal,
                         Importe = (item.Quantity * item.UnitPrice)
                         //public List<Parte> Parte { get; set; }
-                    };                    
+                    };
 
                     if (model.TypeInvoice != TipoComprobante.P.ToString() && item.Unit.Count() <= 20)
                         conceptsData.Unidad = item.Unit;
@@ -415,7 +415,7 @@ namespace MVC_Project.WebBackend.Controllers
                         var decImport = conceptsData.Importe.ToString().Split('.');
                         int longDec = decImport.Count() > 0 ? decImport[1].Count() : 2;
 
-                        conceptsData.Descuento = Math.Round(item.DiscountRateProServ, longDec); // subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100);    
+                        conceptsData.Descuento = Math.Round(subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100), longDec);
                         //conceptsData.Descuento = Math.Round(subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100), 6);
                         subtotal = subtotal - conceptsData.Descuento.Value;
                     }
@@ -448,7 +448,7 @@ namespace MVC_Project.WebBackend.Controllers
                                 {
                                     Integrations.SAT.Retenciones ret = new Integrations.SAT.Retenciones()
                                     {
-                                        Base = Math.Round(subtotal,6).ToString(), //modificado por subtotal
+                                        Base = Math.Round(subtotal, 6).ToString(), //modificado por subtotal
                                         Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                         TipoFactor = "Tasa",
                                         TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
@@ -467,7 +467,7 @@ namespace MVC_Project.WebBackend.Controllers
                                             TipoFactor = "Tasa",
                                             TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
                                             //TasaOCuota = "0.160000",
-                                            Importe = (Math.Round(Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100),6) * subtotal, 6)).ToString() //modificado por subtotal
+                                            Importe = (Math.Round(Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100), 6) * subtotal, 6)).ToString() //modificado por subtotal
                                         };
                                         Traslados.Add(tras);
                                     }
@@ -723,45 +723,43 @@ namespace MVC_Project.WebBackend.Controllers
                         IdIssued.Add(result.uuid.ToString());
 
                         /*Obtener los CFDI's*/
-                        var customersCFDI = SATService.GetCFDIs(IdIssued, provider);
+                        var cfdi = SATService.GetCFDIs(IdIssued, provider);
                         var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
 
-                        List<InvoiceIssued> invoiceIssued = new List<InvoiceIssued>();
+                        //List<InvoiceIssued> invoiceIssued = new List<InvoiceIssued>();
+                        //foreach (var cfdi in customersCFDI)
+                        //{
+                        byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(cfdi[0].Xml);
+                        System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
+                        var upload = AzureBlobService.UploadPublicFile(stream, cfdi[0].id + ".xml", StorageInvoicesIssued, model.IssuingRFC);
 
-                        //List<InvoiceIssued> invoiceIssued = _invoiceIssuedService.FindBy(x => x.account.id == authUser.Account.Id).ToList();
-
-                        foreach (var cfdi in customersCFDI)
+                        InvoiceIssued invoiceIssued = new InvoiceIssued()
                         {
-                            byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(cfdi.Xml);
-                            System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
-                            var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesIssued, model.IssuingRFC);
+                            uuid = Guid.Parse(cfdi[0].id),
+                            folio = cfdi[0].Folio,
+                            serie = cfdi[0].Serie,
+                            paymentMethod = cfdi[0].MetodoPago,
+                            paymentForm = cfdi[0].FormaPago,
+                            currency = cfdi[0].Moneda,
+                            iva = result.tax.Value,
+                            invoicedAt = cfdi[0].Fecha,
+                            xml = upload.Item1,
+                            createdAt = todayDate,
+                            modifiedAt = todayDate,
+                            status = IssueStatus.STAMPED.ToString(),
+                            account = new Account() { id = authUser.Account.Id },
+                            customer = customer,
+                            invoiceType = cfdi[0].TipoDeComprobante,
+                            subtotal = cfdi[0].SubTotal,
+                            total = cfdi[0].Total,
+                            homemade = true,
+                            branchOffice = office,
+                            json = JsonConvert.SerializeObject(invoiceModel),
+                            commentsPDF = model.Comments
+                        };
+                        //}
 
-                            invoiceIssued.Add(new InvoiceIssued
-                            {
-                                uuid = Guid.Parse(cfdi.id),
-                                folio = cfdi.Folio,
-                                serie = cfdi.Serie,
-                                paymentMethod = cfdi.MetodoPago,
-                                paymentForm = cfdi.FormaPago,
-                                currency = cfdi.Moneda,
-                                iva = result.tax.Value,
-                                invoicedAt = cfdi.Fecha,
-                                xml = upload.Item1,
-                                createdAt = todayDate,
-                                modifiedAt = todayDate,
-                                status = IssueStatus.STAMPED.ToString(),
-                                account = new Account() { id = authUser.Account.Id },
-                                customer = customer,
-                                invoiceType = cfdi.TipoDeComprobante,
-                                subtotal = cfdi.SubTotal,
-                                total = cfdi.Total,
-                                homemade = true,
-                                branchOffice = office,
-                                json = JsonConvert.SerializeObject(invoiceModel)
-                            });
-                        }
-
-                        var resultSaved = _invoiceIssuedService.SaveInvoice(invoiceIssued[0], customer);
+                        var resultSaved = _invoiceIssuedService.SaveInvoice(invoiceIssued, customer);
                         if (resultSaved != null)
                         {
                             success = true;
@@ -769,11 +767,14 @@ namespace MVC_Project.WebBackend.Controllers
                             {
                                 try
                                 {
-                                    var byteArrayPdf = GetInvoicingPDF(invoiceIssued[0].id);
-                                    System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArrayPdf);
-                                    var uploadPDF = AzureBlobService.UploadPublicFile(stream, invoiceIssued[0].uuid + ".pdf", StorageInvoicesIssued, model.IssuingRFC);
+                                    var byteArrayPdf = GetInvoicingPDF(invoiceIssued.id);
+                                    System.IO.MemoryStream streamPDF = new System.IO.MemoryStream(byteArrayPdf);
+                                    var uploadPDF = AzureBlobService.UploadPublicFile(streamPDF, invoiceIssued.uuid + ".pdf", StorageInvoicesIssued, model.IssuingRFC);
+                                    invoiceIssued.pdf = upload.Item1;
+                                    invoiceIssued.modifiedAt = DateUtil.GetDateTimeNow();
+                                    _invoiceIssuedService.Update(invoiceIssued);
 
-                                    SendInvoice(model.ListCustomerEmail[0], model.RFC, model.CustomerName, model.Comments, invoiceIssued[0].xml, uploadPDF.Item1);
+                                    SendInvoice(model.ListCustomerEmail[0], model.RFC, model.CustomerName, model.Comments, invoiceIssued.xml, uploadPDF.Item1);                                    
                                 }
                                 catch (Exception ex)
                                 {
@@ -788,7 +789,8 @@ namespace MVC_Project.WebBackend.Controllers
                     catch (Exception ex)
                     {
                         string message = "Factura timbrada con éxito, pero hubo un error: " + ex.Message.ToString();
-                        throw new Exception("Factura timbrada con éxito, pero hubo un error al guardar los datos del cliente.");
+                        //throw new Exception("Factura timbrada con éxito, pero hubo un error al guardar los datos del cliente.");
+                        throw new Exception(message);
                     }
 
                 }
@@ -807,6 +809,28 @@ namespace MVC_Project.WebBackend.Controllers
                                                );
                 MensajeFlashHandler.RegistrarMensaje("Factura timbrada con éxito.", TiposMensaje.Success);
                 return RedirectToAction("Invoice");
+            }
+            catch (InvoiceException ex)
+            {
+                LogUtil.AddEntry(
+                      "Error al realizar la facturación:" + JsonConvert.SerializeObject(ex),
+                      ENivelLog.Error,
+                      authUser.Id,
+                      authUser.Email,
+                      EOperacionLog.ACCESS,
+                      string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                      ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                      JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend)
+                  );
+                var messages = string.Join(" ", ex.invoiceResponse?.violations?.Select(x => x.message));
+                MensajeFlashHandler.RegistrarMensaje(messages, TiposMensaje.Success);
+                ViewBag.Date = new
+                {
+                    MinDate = DateUtil.GetDateTimeNow().ToLongDateString(),
+                    MaxDate = DateUtil.GetDateTimeNow().ToLongDateString()
+                };
+                SetCombos(model.ZipCode, ref model);
+                return View("Invoice", model);
             }
             catch (Exception ex)
             {
@@ -886,7 +910,7 @@ namespace MVC_Project.WebBackend.Controllers
                 Value = x.code.ToString()
             }).ToList();
 
-            if(string.IsNullOrEmpty(model.Currency))
+            if (string.IsNullOrEmpty(model.Currency))
                 model.Currency = model.ListCurrency.Where(x => x.Value == "MXN").FirstOrDefault().Value;
 
             model.ListWithholdings = Enum.GetValues(typeof(TypeRetention)).Cast<TypeRetention>()
@@ -1232,7 +1256,7 @@ namespace MVC_Project.WebBackend.Controllers
                     string varFecha = nodeComprobante.Attributes["Fecha"].Value;
                     string varMoneda = nodeComprobante.Attributes["Moneda"] != null ? nodeComprobante.Attributes["Moneda"].Value : string.Empty;
                     string varDescuento1 = nodeComprobante.Attributes["Descuento"] != null ? nodeComprobante.Attributes["Descuento"].Value : string.Empty;
-                    string varTipoCambio = nodeComprobante.Attributes["TipoCambio"] != null ? nodeComprobante.Attributes["TipoCambio"].Value : "1";                    
+                    string varTipoCambio = nodeComprobante.Attributes["TipoCambio"] != null ? nodeComprobante.Attributes["TipoCambio"].Value : "1";
 
                     MonedaUtils formatoTexto = new MonedaUtils();
                     var fecha = varFecha != null || varFecha != "" ? Convert.ToDateTime(varFecha).ToString("yyyy-MM-dd HH:mm:ss") : varFecha;
@@ -1518,9 +1542,9 @@ namespace MVC_Project.WebBackend.Controllers
                     paymentMethod = x.paymentMethod,
                     paymentForm = x.paymentForm,
                     currency = x.currency,
-                    amount = x.subtotal.ToString("C6"),
-                    iva = x.iva.ToString("C6"),
-                    totalAmount = x.total.ToString("C6"),
+                    amount = x.subtotal.ToString(),
+                    iva = x.iva.ToString(),
+                    totalAmount = x.total.ToString(),
                     invoicedAt = x.invoicedAt.ToShortDateString(),
                     rfc = x.rfc,
                     businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
@@ -1652,9 +1676,9 @@ namespace MVC_Project.WebBackend.Controllers
                     paymentMethod = x.paymentMethod,
                     paymentForm = x.paymentForm,
                     currency = x.currency,
-                    amount = x.subtotal.ToString("C6"),
-                    iva = x.iva.ToString("C6"),
-                    totalAmount = x.total.ToString("C6"),
+                    amount = x.subtotal.ToString(),
+                    iva = x.iva.ToString(),
+                    totalAmount = x.total.ToString(),
                     invoicedAt = x.invoicedAt.ToShortDateString(),
                     rfc = x.rfc,
                     businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
@@ -1848,10 +1872,11 @@ namespace MVC_Project.WebBackend.Controllers
         private InvoicesVM GetGenerateFilePDF(string typeInvoicing, dynamic invoice, string logo, string rfc = "")
         {
             string accountRfc = "";
-            if(!string.IsNullOrEmpty(rfc))
+            if (!string.IsNullOrEmpty(rfc))
             {
                 accountRfc = rfc;
-            } else
+            }
+            else
             {
                 var authUser = Authenticator.AuthenticatedUser;
                 accountRfc = authUser.Account.RFC;
@@ -1916,7 +1941,8 @@ namespace MVC_Project.WebBackend.Controllers
                 //TotalTexto = formatoTexto.Convertir(varTotal.ToString(), true),
                 Descuento = varDescuento1,
                 Logo = logo,
-                CondicionesDePago = varCondicionDePago
+                CondicionesDePago = varCondicionDePago,
+                Comentarios = invoice.commentsPDF
             };
 
             string varMonedaTexto = string.Empty;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -580,5 +581,34 @@ namespace MVC_Project.Integrations.SAT
     {
         public string to { get; set; }
         public string from { get; set; }
+    }
+
+    public class InvoiceException : Exception
+    {
+        public InvoiceResponse invoiceResponse { get; set; }
+
+        public InvoiceException(InvoiceResponse invoiceResponse)
+        {
+            this.invoiceResponse = invoiceResponse;
+        }
+    }
+
+    public class InvoiceResponse
+    {
+        [JsonProperty("context")]
+        public string context { get; set; }
+        [JsonProperty("type")]
+        public string type { get; set; }
+        [JsonProperty("violations")]
+        public List<Violations> violations { get; set; }
+
+    }
+
+    public class Violations
+    {
+        [JsonProperty("propertyPath")]
+        public string propertyPath { get; set; }
+        [JsonProperty("message")]
+        public string message { get; set; }
     }
 }

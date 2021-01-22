@@ -34,5 +34,6 @@ namespace MVC_Project.Domain.Entities
 
         public virtual bool homemade { get; set; }
         public virtual string json { get; set; }
+        public virtual string pdf { get; set; }
     }
 }
