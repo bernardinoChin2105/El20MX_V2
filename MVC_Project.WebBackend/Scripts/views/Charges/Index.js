@@ -40,11 +40,12 @@ var ChargesIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAc
             ordering: false,
             columns: [
                 { data: 'id', title: "Id", visible: false },
-                { data: 'businessName', title: "Razón Social" },
+                { data: 'businessName', title: "Razón Social / Nombre" },
                 { data: 'rfc', title: "RFC" },
-                { data: 'billingStart', title: "Inicio Facturación" },
+                { data: 'accountOwner', title: 'Contacto' },
+                { data: 'billingStart', title: "Inicio de operaciones" },
                 { data: 'plan', title: "Plan fijo" },
-                { data: 'status', title: "Estatus en el Sistema" },
+                { data: 'status', title: "Estatus" },
                 {
                     data: null,
                     title: "Opciones",
@@ -68,7 +69,7 @@ var ChargesIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAc
                     primeravez = false;
                     fnCallback(json);
                     if (json.success === false) {
-                        toastr['error'](json.message, null, { 'positionClass': 'toast-top-center' }); 
+                        toastr['error'](json.message, null, { 'positionClass': 'toast-top-center' });
                         console.log(json.Mensaje + " Error al obtener los elementos");
                     }
                 });
@@ -77,6 +78,6 @@ var ChargesIndexControlador = function (htmlTableId, baseUrl, editUrl, hasFullAc
             El20Utils.ocultarCargador();
         });
 
-        
+
     };
 };

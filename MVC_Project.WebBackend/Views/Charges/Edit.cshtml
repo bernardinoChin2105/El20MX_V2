@@ -3,12 +3,12 @@
 @{
     ViewBag.Title = "Administración de Clientes";
     Dictionary<string, object> datePickerAttributes = new Dictionary<string, object>
-    {
+{
         {"class",  "form-control"},
         {"autocomplete", "none" },
         {"readonly", "readonly"}
     };
-    if(!(bool)ViewData["canEditStart"])
+    if (!(bool)ViewData["canEditStart"])
     {
         datePickerAttributes["disabled"] = "true";
     }
@@ -51,6 +51,13 @@
                             </div>
 
                             <div class="form-group row">
+                                @Html.LabelFor(model => model.AccountOwner, new { @class = "col-form-label control-label col-md-2" })
+                                <div class="col-md-8">
+                                    @Html.TextBoxFor(model => model.AccountOwner, new { @class = "form-control", @autocomplete = "none", disabled = "true" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
                                 @Html.LabelFor(model => model.BillingStart, new { @class = "col-form-label control-label col-md-2" })
                                 <div class="col-md-8">
                                     @Html.TextBoxFor(model => model.BillingStart, "{0:MM/yyyy}", datePickerAttributes)
@@ -69,7 +76,7 @@
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.Status, new { @class = "col-form-label control-label col-md-2" })
                                 <div class="col-md-8">
-                                    @Html.CheckBoxFor(model => model.Status, new { @class = "status-select" })
+                                    @Html.DropDownListFor(model => model.Status, Model.StatusList, "Seleccione una opción", new { @class = "chosen-select" })
                                     @Html.ValidationMessageFor(model => model.Status)
                                 </div>
                             </div>

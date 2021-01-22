@@ -37,9 +37,18 @@ namespace MVC_Project.WebBackend.Controllers
         {
             ChargeClientFilterViewModel model = new ChargeClientFilterViewModel
             {
-                Status = FilterAccountStatusEnum.ALL.Id,
-                Statuses = FilterAccountStatusEnum.GetSelectListItems()
+                Status = "",
             };
+
+            var statusSelectList = new List<SelectListItem>();
+            statusSelectList.Add(new SelectListItem
+            {
+                Text = "Todos",
+                Value = "",
+                Selected = true
+            });
+            statusSelectList.AddRange(PopulateStatus());
+            model.Statuses = statusSelectList;
             return View(model);
         }
 
@@ -76,11 +85,12 @@ namespace MVC_Project.WebBackend.Controllers
                         uuid = x.uuid.ToString(),
                         businessName = x.name,
                         rfc = x.rfc,
-                        status = x.status == SystemStatus.ACTIVE.ToString() ? "Activo" : "Inactivo",
+                        status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), x.status)).GetDisplayName(),
                         billingStart = activeSubscriptions.Any(rs => rs.account.id == x.id) ? activeSubscriptions.First(rs => rs.account.id == x.id).createdAt.ToString("MM/yyyy") : x.inicioFacturacion?.ToString("MM/yyyy"),
-                        plan = plans.data.FirstOrDefault(rp => rp.code == x.planFijo)?.name
+                        plan = plans.data.FirstOrDefault(rp => rp.code == x.planFijo)?.name,
+                        accountOwner = x.memberships.Where(member => member.role.code == SystemRoles.ACCOUNT_OWNER.ToString() && member.status == SystemStatus.ACTIVE.ToString() && member.role.status == SystemStatus.ACTIVE.ToString()).Select(member => $"{member.user.profile.firstName} {member.user.profile.lastName}").FirstOrDefault()
                     })
-                }, JsonRequestBehavior.AllowGet);
+                }, JsonRequestBehavior.AllowGet); ; ;
             }
             catch (Exception ex)
             {
@@ -101,7 +111,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 Account account = _accountService.FindBy(x => x.uuid == Guid.Parse(uuid)).First();
                 if (account == null)
-                    throw new Exception("La cuenta no se encontró en la base de datos");
+                    throw new Exception("Verifica la información e intenta de nuevo.");
 
                 var activeSubscriptions = _recurlySubscriptionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString() && x.account.id == account.id);
                 var subscription = activeSubscriptions.FirstOrDefault();
@@ -113,7 +123,9 @@ namespace MVC_Project.WebBackend.Controllers
                 model.BillingStart = account.inicioFacturacion;
                 model.PlanList = PopulatePlans(account.planSchema);
                 model.Plan = account.planFijo;
-                model.Status = account.status == SystemStatus.ACTIVE.ToString();
+                model.Status = account.status;
+                model.StatusList = PopulateStatus(account.status);
+                model.AccountOwner = account.memberships.Where(member => member.role.code == SystemRoles.ACCOUNT_OWNER.ToString() && member.status == SystemStatus.ACTIVE.ToString() && member.role.status == SystemStatus.ACTIVE.ToString()).Select(member => $"{member.user.profile.firstName} {member.user.profile.lastName}").FirstOrDefault();
 
                 ViewData["canEditStart"] = subscription == null;
 
@@ -157,12 +169,7 @@ namespace MVC_Project.WebBackend.Controllers
                     account.inicioFacturacion = model.BillingStart;
                 }
 
-                string modelStatus = model.Status ? SystemStatus.ACTIVE.ToString() : SystemStatus.INACTIVE.ToString();
-
-                if (account.status != modelStatus)
-                {
-                    account.status = modelStatus;
-                }
+                account.status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), model.Status)).ToString();
 
                 account.planFijo = model.Plan;
 
@@ -195,7 +202,12 @@ namespace MVC_Project.WebBackend.Controllers
                    string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
                 );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
-                model.PlanList = PopulatePlans(account?.planSchema);
+                model.Name = account.name;
+                model.RFC = account.rfc;
+                model.BillingStart = account.inicioFacturacion;
+                model.PlanList = PopulatePlans(model.Plan);
+                model.StatusList = PopulateStatus(model.Status);
+                model.AccountOwner = account.memberships.Where(member => member.role.code == SystemRoles.ACCOUNT_OWNER.ToString() && member.status == SystemStatus.ACTIVE.ToString() && member.role.status == SystemStatus.ACTIVE.ToString()).Select(member => $"{member.user.profile.firstName} {member.user.profile.lastName}").FirstOrDefault();
                 return View(model);
             }
         }
@@ -226,6 +238,35 @@ namespace MVC_Project.WebBackend.Controllers
             );
 
             return rolesList.ToList();
+        }
+
+        private List<SelectListItem> PopulateStatus(string status = null)
+        {
+            var statusSelectList = new List<SelectListItem>();
+            statusSelectList.Add(new SelectListItem
+            {
+                Text = SystemStatus.ACTIVE.GetDisplayName(),
+                Value = SystemStatus.ACTIVE.ToString(),
+            });
+            statusSelectList.Add(new SelectListItem
+            {
+                Text = SystemStatus.SUSPENDED.GetDisplayName(),
+                Value = SystemStatus.SUSPENDED.ToString(),
+            });
+            statusSelectList.Add(new SelectListItem
+            {
+                Text = SystemStatus.CANCELLED.GetDisplayName(),
+                Value = SystemStatus.CANCELLED.ToString(),
+            });
+            if (!string.IsNullOrEmpty(status))
+            {
+                for (int i = 0; i < statusSelectList.Count; i++)
+                {
+                    var listItem = statusSelectList[i];
+                    listItem.Selected = listItem.Value == status;
+                }
+            }
+            return statusSelectList;
         }
     }
 }

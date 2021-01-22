@@ -5,10 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NHibernate.Criterion;
 using MVC_Project.Utils;
+using NHibernate.Linq;
 
 namespace MVC_Project.Domain.Services
 {
@@ -62,7 +61,8 @@ namespace MVC_Project.Domain.Services
         {
             string FilterName = filtersValue.Get("BusinessName").Trim();
             string FilterRfc = filtersValue.Get("Rfc").Trim();
-            int FilterStatus = Convert.ToInt32(filtersValue.Get("Status").Trim());
+            string FilterAccountOwner = filtersValue.Get("AccountOwner").Trim();
+            string FilterStatus = filtersValue.Get("Status").Trim();
 
             var query = _repository.Session.QueryOver<Account>();
 
@@ -76,16 +76,23 @@ namespace MVC_Project.Domain.Services
                 query = query.Where(user => user.rfc.IsInsensitiveLike("%" + FilterRfc + "%"));
             }
 
-            if (FilterStatus != Constants.SEARCH_ALL)
+            if (!string.IsNullOrWhiteSpace(FilterAccountOwner))
             {
-                if (FilterStatus == (int)SystemStatus.ACTIVE)
-                    query = query.Where(x => x.status == SystemStatus.ACTIVE.ToString());
-                else if (FilterStatus == (int)SystemStatus.INACTIVE)
-                    query = query.Where(x => x.status == SystemStatus.INACTIVE.ToString());
-            } else
-            {
-                query = query.Where(x => x.status == SystemStatus.ACTIVE.ToString() || x.status == SystemStatus.INACTIVE.ToString());
+                var accountsWithAccountOwnerFilter = QueryOver.Of<Account>()
+                    .JoinQueryOver<Membership>(a => a.memberships)
+                    .JoinQueryOver(m => m.user)
+                    .JoinQueryOver(u => u.profile)
+                    .Where(p => p.firstName.IsInsensitiveLike($"%{FilterAccountOwner}%") || p.lastName.IsInsensitiveLike($"%{FilterAccountOwner}%"))
+                    .Select(Projections.Distinct(Projections.Property<Account>(a => a.uuid)));
+                query = query.WithSubquery.WhereProperty(a => a.uuid).In(accountsWithAccountOwnerFilter);
             }
+
+            if (!string.IsNullOrWhiteSpace(FilterStatus))
+            {
+                var fs = (SystemStatus)Enum.Parse(typeof(SystemStatus), FilterStatus);
+                query = query.Where(x => x.status == fs.ToString());
+            }
+
             var count = query.RowCount();
 
             if (skip.HasValue)
