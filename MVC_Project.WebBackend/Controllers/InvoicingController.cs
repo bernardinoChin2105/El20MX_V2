@@ -403,8 +403,7 @@ namespace MVC_Project.WebBackend.Controllers
                         //Importe = item.Subtotal,
                         Importe = (item.Quantity * item.UnitPrice)
                         //public List<Parte> Parte { get; set; }
-                    };
-
+                    };                    
 
                     if (model.TypeInvoice != TipoComprobante.P.ToString() && item.Unit.Count() <= 20)
                         conceptsData.Unidad = item.Unit;
@@ -413,7 +412,10 @@ namespace MVC_Project.WebBackend.Controllers
                     decimal subtotal = conceptsData.Importe; //conceptsData.ValorUnitario * conceptsData.Cantidad;
                     if (item.DiscountRateProServ > 0)
                     {
-                        conceptsData.Descuento = item.DiscountRateProServ; // subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100);    
+                        var decImport = conceptsData.Importe.ToString().Split('.');
+                        int longDec = decImport.Count() > 0 ? decImport[1].Count() : 2;
+
+                        conceptsData.Descuento = Math.Round(item.DiscountRateProServ, longDec); // subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100);    
                         //conceptsData.Descuento = Math.Round(subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100), 6);
                         subtotal = subtotal - conceptsData.Descuento.Value;
                     }

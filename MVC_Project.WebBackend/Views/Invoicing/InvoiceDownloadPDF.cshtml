@@ -167,7 +167,8 @@
                         <td>@oConcepto.ValorUnitario</td>
 
                         <td align="right">@oConcepto.Descuento</td>
-                        <td align="right">@Convert.ToDecimal(oConcepto.Importe).ToString("C6")</td>
+                        @*<td align="right">@Convert.ToDecimal(oConcepto.Importe).ToString("C6")</td>*@
+                        <td align="right">@oConcepto.Importe</td>
                     </tr>
                 }
                 <tfoot>
@@ -175,7 +176,8 @@
                         <td colspan="2"><strong>CANTIDAD EN LETRA:</strong></td>
                         <td colspan="3">@Model.TotalTexto</td>
                         <td align="right">Subtotal:</td>
-                        <td align="right">@Convert.ToDecimal(Model.SubTotal).ToString("C6")</td>
+                        @*<td align="right">@Convert.ToDecimal(Model.SubTotal).ToString("C6")</td>*@
+                        <td align="right">@Model.SubTotal</td>
                     </tr>
                     @if (!string.IsNullOrEmpty(Model.Descuento))
                     {
@@ -183,7 +185,8 @@
                         {
                             <tr>
                                 <td colspan="6" align="right">Descuento:</td>
-                                <td align="right">@Convert.ToDecimal(Model.Descuento).ToString("C6")</td>
+                                @*<td align="right">@Convert.ToDecimal(Model.Descuento).ToString("C6")</td>*@
+                                <td align="right">@Model.Descuento</td>
                             </tr>
                         }
                     }
@@ -193,27 +196,31 @@
                         {
                             <tr>
                                 <td colspan="6" align="right">Impuestos Traslados (IVA/IEPS):</td>
-                                <td align="right">@Convert.ToDecimal(Model.Impuestos.TotalImpuestosTrasladados).ToString("C6")</td>
+                                @*<td align="right">@Convert.ToDecimal(Model.Impuestos.TotalImpuestosTrasladados).ToString("C6")</td>*@
+                                <td align="right">@Model.Impuestos.TotalImpuestosTrasladados</td>
                             </tr>
                         }
                         if (!string.IsNullOrEmpty(Model.Impuestos.ImpuestosRetenidosIVA))
                         {
                             <tr>
                                 <td colspan="6" align="right">Impuestos Retenidos (IVA):</td>
-                                <td align="right">@Convert.ToDecimal(Model.Impuestos.ImpuestosRetenidosIVA).ToString("C6")</td>
+                                @*<td align="right">@Convert.ToDecimal(Model.Impuestos.ImpuestosRetenidosIVA).ToString("C6")</td>*@
+                                <td align="right">@Model.Impuestos.ImpuestosRetenidosIVA</td>
                             </tr>
                         }
                         if (!string.IsNullOrEmpty(Model.Impuestos.ImpuestosRetenidosISR))
                         {
                             <tr>
                                 <td colspan="6" align="right">Impuestos Retenidos (ISR):</td>
-                                <td align="right">@Convert.ToDecimal(Model.Impuestos.ImpuestosRetenidosISR).ToString("C6")</td>
+                                @*<td align="right">@Convert.ToDecimal(Model.Impuestos.ImpuestosRetenidosISR).ToString("C6")</td>*@
+                                <td align="right">@Model.Impuestos.ImpuestosRetenidosISR</td>
                             </tr>
                         }
                     }
                     <tr>
                         <td colspan="6" align="right">Total:</td>
-                        <td align="right">@Convert.ToDecimal(Model.Total).ToString("C6")</td>
+                        @*<td align="right">@Convert.ToDecimal(Model.Total).ToString("C6")</td>*@
+                        <td align="right">@Model.Total</td>
                     </tr>
                 </tfoot>
             </table>
@@ -237,7 +244,8 @@
                             <td>@cPago.FechaPago</td>
                             <td>@cPago.MonedaP</td>
                             <td>@cPago.TipoCambioP</td>
-                            <td>@Convert.ToDecimal(cPago.Monto).ToString("C6")</td>
+                            @*<td>@Convert.ToDecimal(cPago.Monto).ToString("C6")</td>*@
+                            <td>@cPago.Monto</td>
                             <td>@cPago.FormaDePagoP</td>
                             <td>@cPago.NumOperacion</td>
                         </tr>
@@ -260,17 +268,20 @@
                     </tr>
                     @foreach (var cPago in Model.Complemento.Pagos)
                     {
-                        <tr>
-                            <td>@cPago.DoctoRelacionado.IdDocumento</td>
-                            <td>@cPago.DoctoRelacionado.Folio</td>
-                            <td>@cPago.DoctoRelacionado.Serie</td>
-                            <td>@cPago.DoctoRelacionado.MonedaDR</td>
-                            <td>@cPago.DoctoRelacionado.MetodoDePagoDR</td>
-                            <td>@cPago.DoctoRelacionado.NumParcialidad</td>
-                            <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoAnt).ToString("C6")</td>
-                            <td>@(cPago.DoctoRelacionado.ImpPagado != null ? Convert.ToDecimal(cPago.DoctoRelacionado.ImpPagado).ToString("C6") : Convert.ToDecimal(cPago.Monto).ToString("C6"))</td>
-                            <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoInsoluto).ToString("C6")</td>
-                        </tr>
+                    <tr>
+                        <td>@cPago.DoctoRelacionado.IdDocumento</td>
+                        <td>@cPago.DoctoRelacionado.Folio</td>
+                        <td>@cPago.DoctoRelacionado.Serie</td>
+                        <td>@cPago.DoctoRelacionado.MonedaDR</td>
+                        <td>@cPago.DoctoRelacionado.MetodoDePagoDR</td>
+                        <td>@cPago.DoctoRelacionado.NumParcialidad</td>
+                        @*<td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoAnt).ToString("C6")</td>
+                        <td>@(cPago.DoctoRelacionado.ImpPagado != null ? Convert.ToDecimal(cPago.DoctoRelacionado.ImpPagado).ToString("C6") : Convert.ToDecimal(cPago.Monto).ToString("C6"))</td>
+                        <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoInsoluto).ToString("C6")</td>*@
+                        <td>@cPago.DoctoRelacionado.ImpSaldoAnt</td>
+                        <td>@(cPago.DoctoRelacionado.ImpPagado != null ? cPago.DoctoRelacionado.ImpPagado : cPago.Monto)</td>
+                        <td>@cPago.DoctoRelacionado.ImpSaldoInsoluto</td>
+                    </tr>
                     }
                 </table>
             }
@@ -282,7 +293,7 @@
     <br />
     @if (!string.IsNullOrEmpty(Model.CondicionesDePago))
     {
-    <div><p><strong>Condición De Pago:</strong> @Model.CondicionesDePago</p></div>
+        <div><p><strong>Condición De Pago:</strong> @Model.CondicionesDePago</p></div>
     }
     <div class="textoContiguo" style="font-size:11px;">
         <strong>Sello CFDI </strong>
