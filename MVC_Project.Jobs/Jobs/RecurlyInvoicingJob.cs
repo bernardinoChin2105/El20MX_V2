@@ -82,7 +82,7 @@ namespace MVC_Project.Jobs
                             var successPaymentStatus = RecurlyPaymentStatus.SUCCESS.GetDisplayName();
                             var stampedStatus = IssueStatus.STAMPED.ToString();
                             var satUnit = _driveKeyService.GetDriveKey(invoicingParameters.claveUnidad).FirstOrDefault();
-                            var pendingInvoicePayments = _recurlyPaymentService.FindBy(x => x.statusCode == successPaymentStatus && (x.stampStatus != stampedStatus || x.stampStatus == null) && x.stampAttempt < 3);
+                            var pendingInvoicePayments = _recurlyPaymentService.FindBy(x => x.statusCode == successPaymentStatus && (x.stampStatus != stampedStatus || x.stampStatus == null) && x.stampAttempt < 3 && x.subscription != null);
 
                             foreach (var payment in pendingInvoicePayments)
                             {
