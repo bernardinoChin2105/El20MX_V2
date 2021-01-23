@@ -15,11 +15,13 @@ $("body").on("change", ".money", function () {
     if (el.value === "")
         el.value = 0.00;
     //el.value = parseFloat(el.value).toFixed(6);
-    else if (/^[0-9]{1,6}\.[0-9]{1,5}$/.test(el.value)) {
-        //console.log(numero, 'SÍ calza');
+    else if (/^[0-9]{1,7}\.[0-9]{1,5}$/.test(el.value)) {
+        //console.log(el.value, 'SÍ calza');
+        el.value = parseFloat(el.value).toFixed(2);
+    } else if (/^[0-9]{1,7}$/.test(el.value)) {
         el.value = parseFloat(el.value).toFixed(2);
     } else {
-        //console.log(numero, 'NO calza');
+        //console.log(el.value, 'NO calza');
         el.value = parseFloat(el.value).toFixed(6);
     }
 });
