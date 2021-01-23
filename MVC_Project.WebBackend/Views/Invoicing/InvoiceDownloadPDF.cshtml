@@ -145,7 +145,7 @@
     <br />
 
     <div>
-        <div style="height:750px">
+        <div style="min-height:750px">
             <table style="width:100%" class="tabla">
                 <tr>
                     <th align="center">Prod o Serv</th>
@@ -276,8 +276,8 @@
                             <td>@cPago.DoctoRelacionado.MetodoDePagoDR</td>
                             <td>@cPago.DoctoRelacionado.NumParcialidad</td>
                             @*<td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoAnt).ToString("C6")</td>
-                                <td>@(cPago.DoctoRelacionado.ImpPagado != null ? Convert.ToDecimal(cPago.DoctoRelacionado.ImpPagado).ToString("C6") : Convert.ToDecimal(cPago.Monto).ToString("C6"))</td>
-                                <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoInsoluto).ToString("C6")</td>*@
+                        <td>@(cPago.DoctoRelacionado.ImpPagado != null ? Convert.ToDecimal(cPago.DoctoRelacionado.ImpPagado).ToString("C6") : Convert.ToDecimal(cPago.Monto).ToString("C6"))</td>
+                        <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoInsoluto).ToString("C6")</td>*@
                             <td>@cPago.DoctoRelacionado.ImpSaldoAnt</td>
                             <td>@(cPago.DoctoRelacionado.ImpPagado != null ? cPago.DoctoRelacionado.ImpPagado : cPago.Monto)</td>
                             <td>@cPago.DoctoRelacionado.ImpSaldoInsoluto</td>
@@ -285,20 +285,21 @@
                     }
                 </table>
             }
-
+            <br />
+            <br />
+            @if (!string.IsNullOrEmpty(Model.CondicionesDePago))
+            {
+                <div><p><strong>Condición De Pago:</strong> @Model.CondicionesDePago</p></div>
+            }
+            @if (!string.IsNullOrEmpty(Model.Comentarios))
+            {
+                <div><p><strong>Comentarios:</strong> @Model.Comentarios</p></div>
+            }
         </div>
     </div>
     <br />
     <div class="text-center"><p><small>Este documento es la representación impresa de un CFDI</small></p></div>
-    <br />
-    @if (!string.IsNullOrEmpty(Model.CondicionesDePago))
-    {
-        <div><p><strong>Condición De Pago:</strong> @Model.CondicionesDePago</p></div>
-    }
-    @if (!string.IsNullOrEmpty(Model.Comentarios))
-    {
-        <div><p><strong>Comentarios:</strong> @Model.Comentarios</p></div>
-    }
+    <br />    
     <div class="textoContiguo" style="font-size:11px;">
         <strong>Sello CFDI </strong>
         <br />

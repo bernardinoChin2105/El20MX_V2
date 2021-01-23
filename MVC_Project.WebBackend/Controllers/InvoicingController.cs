@@ -823,7 +823,7 @@ namespace MVC_Project.WebBackend.Controllers
                       JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend)
                   );
                 var messages = string.Join(" ", ex.invoiceResponse?.violations?.Select(x => x.message));
-                MensajeFlashHandler.RegistrarMensaje(messages, TiposMensaje.Success);
+                MensajeFlashHandler.RegistrarMensaje(messages.ToString(), TiposMensaje.Error);
                 ViewBag.Date = new
                 {
                     MinDate = DateUtil.GetDateTimeNow().ToLongDateString(),
@@ -1542,9 +1542,9 @@ namespace MVC_Project.WebBackend.Controllers
                     paymentMethod = x.paymentMethod,
                     paymentForm = x.paymentForm,
                     currency = x.currency,
-                    amount = x.subtotal.ToString(),
-                    iva = x.iva.ToString(),
-                    totalAmount = x.total.ToString(),
+                    amount = x.subtotal.ToString("C2"),
+                    iva = x.iva.ToString("C2"),
+                    totalAmount = x.total.ToString("C2"),
                     invoicedAt = x.invoicedAt.ToShortDateString(),
                     rfc = x.rfc,
                     businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
@@ -1676,9 +1676,9 @@ namespace MVC_Project.WebBackend.Controllers
                     paymentMethod = x.paymentMethod,
                     paymentForm = x.paymentForm,
                     currency = x.currency,
-                    amount = x.subtotal.ToString(),
-                    iva = x.iva.ToString(),
-                    totalAmount = x.total.ToString(),
+                    amount = x.subtotal.ToString("C2"),
+                    iva = x.iva.ToString("C2"),
+                    totalAmount = x.total.ToString("C2"),
                     invoicedAt = x.invoicedAt.ToShortDateString(),
                     rfc = x.rfc,
                     businessName = (x.rfc.Count() == 12 ? x.businessName : x.first_name + " " + x.last_name),
@@ -1917,7 +1917,7 @@ namespace MVC_Project.WebBackend.Controllers
             string varMetodoPago = nodeComprobante.Attributes["MetodoPago"] != null ? nodeComprobante.Attributes["MetodoPago"].Value : string.Empty;
             string varDescuento1 = nodeComprobante.Attributes["Descuento"] != null ? nodeComprobante.Attributes["Descuento"].Value : string.Empty;
             string varTipoCambio = nodeComprobante.Attributes["TipoCambio"] != null ? nodeComprobante.Attributes["TipoCambio"].Value : "1";
-            string varCondicionDePago = nodeComprobante.Attributes["CondicionDePago"] != null ? nodeComprobante.Attributes["CondicionDePago"].Value : string.Empty;
+            string varCondicionDePago = nodeComprobante.Attributes["CondicionesDePago"] != null ? nodeComprobante.Attributes["CondicionesDePago"].Value : string.Empty;
 
             MonedaUtils formatoTexto = new MonedaUtils();
             var fecha = varFecha != null || varFecha != "" ? Convert.ToDateTime(varFecha).ToString("yyyy-MM-dd HH:mm:ss") : varFecha;
