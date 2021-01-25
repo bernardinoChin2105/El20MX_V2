@@ -28,7 +28,9 @@ namespace MVC_Project.Utils
         [Display(Name = "No válido")]
         INVALID,
         [Display(Name = "Fallido")]
-        FAILED
+        FAILED,
+        [Display(Name = "Suspendido")]
+        SUSPENDED,
     }
 
     public enum NotificationStatus

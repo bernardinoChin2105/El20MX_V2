@@ -1,6 +1,6 @@
 ﻿@model MVC_Project.WebBackend.Models.CADAccountsViewModel
 @{
-    ViewBag.Title = "Asignacion de CADs";
+    ViewBag.Title = "Asignación de CADs";
 }
 <link href="~/Content/template/plugins/dualListbox/bootstrap-duallistbox.min.css" rel="stylesheet" />
 <style>
@@ -42,6 +42,7 @@
     <script src="~/Scripts/plugins/dualListbox/jquery.bootstrap-duallistbox.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+            $("#btnSelectAccount").hide();
             $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
             var dlist = $('#duallistbox').bootstrapDualListbox({
                 filterTextClear: 'Eliminar filtro',
@@ -61,8 +62,8 @@
                 dlist.empty();
                 dlist.bootstrapDualListbox('refresh');
                 var id = $(this).val();
-                if (id)
-                {
+                if (id) {
+                    $("#btnSelectAccount").show();
                     $.get('@Url.Action("GetAccounts")', { id: id }, function (result) {
                         if (result.success) {
                             $.each(result.availables, function (i, item) {
@@ -81,6 +82,9 @@
                             console.log(result.message);
                         }
                     });
+                }
+                else {
+                    $("#btnSelectAccount").hide();
                 }
             });
 

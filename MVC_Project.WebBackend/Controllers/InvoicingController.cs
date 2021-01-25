@@ -774,7 +774,7 @@ namespace MVC_Project.WebBackend.Controllers
                                     invoiceIssued.modifiedAt = DateUtil.GetDateTimeNow();
                                     _invoiceIssuedService.Update(invoiceIssued);
 
-                                    SendInvoice(model.ListCustomerEmail[0], model.RFC, model.CustomerName, model.Comments, invoiceIssued.xml, uploadPDF.Item1);                                    
+                                    SendInvoice(model.ListCustomerEmail[0], model.RFC, model.CustomerName, model.Comments, invoiceIssued.xml, uploadPDF.Item1);
                                 }
                                 catch (Exception ex)
                                 {
