@@ -854,6 +854,10 @@
             {
                 @:$("#TypeRelationship").trigger('change');
             }
+            @if (!string.IsNullOrEmpty(Model.TypeInvoice))
+            {
+                @:$("#TypeInvoice").change().trigger("chosen:updated");
+            }
         });
 
 

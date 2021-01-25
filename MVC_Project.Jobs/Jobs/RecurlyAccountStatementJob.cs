@@ -525,7 +525,9 @@ namespace MVC_Project.Jobs
                     new SubscriptionPurchase() {
                         PlanCode = planCode,
                     }
-                }
+                },
+                CollectionMethod = "manual",
+                NetTerms = 0
             };
 
             if (addons != null && addons.Count > 0)

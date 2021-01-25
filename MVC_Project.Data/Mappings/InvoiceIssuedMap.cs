@@ -38,6 +38,9 @@ namespace MVC_Project.Data.Mappings
             //Map(x => x.json).Column("json").Nullable();
             Map(x => x.json).Column("json").Nullable().CustomSqlType("nvarchar(max)");
             References(x => x.branchOffice).Column("branchOfficeId").Nullable();
+            Map(x => x.commentsPDF).Column("commentsPDF").Length(8000).Nullable();
+            Map(x => x.pdf).Column("pdf").Length(8000).Nullable();
+
             References(x => x.account).Column("accountId").Nullable();
             References(x => x.customer).Column("customerId").Nullable();
         }
