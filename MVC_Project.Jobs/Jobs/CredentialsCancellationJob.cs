@@ -86,27 +86,60 @@ namespace MVC_Project.Jobs
                         {
                             //Se desactivaran las credenciales de Paybook y Satws para que deje de hacer la sincronización diaria.
                             //También considerar las de recurly
-                            if (prospect.rfc == "URE180429TM6")
+                            if (prospect.rfc == "IXS7607092R5")
                             {
                                 try
                                 {
                                     string provider = string.Empty;
                                     bool delete = false;
+                                    string statusProvider = "";
                                     if (prospect.provider == SystemProviders.SATWS.ToString())
                                     {
                                         //Evento para desactivar la cuenta en satws
                                         //la opción que se tiene es delete credential
                                         provider = SystemProviders.SATWS.ToString();
                                         var response = SATService.DeleteCredential(prospect.idCredentialProvider, provider);
-                                        delete = true;
+                                        var responseStatus = SATService.GetCredentialStatusSat(prospect.idCredentialProvider, provider);
+                                        LogUtil.AddEntry(
+                                            "Respuesta de Recurly.",
+                                            ENivelLog.Info,
+                                            0,
+                                            "Proccess_" + JOB_CODE,
+                                            EOperacionLog.ACCESS,
+                                            string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
+                                            "CredentialsCancellation",
+                                            JsonConvert.SerializeObject(response)
+                                        );
+
+                                        if (responseStatus != null)
+                                        {
+                                            statusProvider = responseStatus;
+                                            delete = true;
+                                        }
                                     }
-                                    else if (prospect.provider == SystemProviders.SYNCFY.ToString())
+                                    else if (prospect.provider == SystemProviders.SYNCFY.GetDisplayName())
                                     {
                                         //Evento para desactivar la cuenta en syncfy
                                         //La opcion que se tiene es delete credential       
-                                        provider = SystemProviders.SYNCFY.ToString();
-                                        var response = PaybookService.DeleteCredential(prospect.idCredentialProvider, "Delete", null);
-                                        delete = true;
+                                        provider = SystemProviders.SYNCFY.GetDisplayName();
+                                        var response = PaybookService.DeleteUser(prospect.idCredentialProvider, "Delete");
+
+                                        LogUtil.AddEntry(
+                                            "Respuesta de Recurly.",
+                                            ENivelLog.Info,
+                                            0,
+                                            "Proccess_" + JOB_CODE,
+                                            EOperacionLog.ACCESS,
+                                            string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
+                                            "CredentialsCancellation",
+                                            JsonConvert.SerializeObject(response)
+                                        );
+
+                                        if (response)
+                                        {
+                                            delete = true;
+                                            statusProvider = SystemStatus.INACTIVE.ToString();
+                                        }
                                     }
                                     else if (prospect.provider == SystemProviders.RECURLY.ToString())
                                     {
@@ -114,15 +147,33 @@ namespace MVC_Project.Jobs
                                         //También sería el evento de delete account
                                         provider = SystemProviders.RECURLY.ToString();
                                         var response = RecurlyService.DeleteAccount(prospect.idCredentialProvider, siteId, provider);
-                                        delete = true;
+                                        LogUtil.AddEntry(
+                                            "Respuesta de Recurly.",
+                                            ENivelLog.Info,
+                                            0,
+                                            "Proccess_" + JOB_CODE,
+                                            EOperacionLog.ACCESS,
+                                            string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
+                                            "CredentialsCancellation",
+                                            JsonConvert.SerializeObject(response)
+                                        );
+
+                                        if (response != null)
+                                        {
+                                            statusProvider = response.State;
+                                            delete = true;
+                                        }
                                     }
 
                                     //Inactivar cuentas desde nuestras tablas 
                                     if (delete)
                                     {
-                                        var credential = _credentialService.FirstOrDefault(x => x.idCredentialProvider == prospect.idCredentialProvider);
+                                        var credential = _credentialService.FirstOrDefault(x => x.id == prospect.credentialId);
                                         if (credential != null)
                                         {
+                                            if (!string.IsNullOrEmpty(statusProvider))
+                                                credential.statusProvider = statusProvider;
+
                                             credential.status = SystemStatus.INACTIVE.ToString();
                                             credential.modifiedAt = DateUtil.GetDateTimeNow();
                                             _credentialService.Update(credential);
@@ -133,12 +184,12 @@ namespace MVC_Project.Jobs
 
                                     //guardar logs
                                     LogUtil.AddEntry(
-                                        "Factura timbrada con éxito.",
+                                        "Proceso de Cancelación de exitoso.",
                                         ENivelLog.Info,
                                         0,
-                                        "Proccess",
+                                        "Process_" + JOB_CODE,
                                         EOperacionLog.ACCESS,
-                                         string.Format("Cuenta {0} | Fecha {1}", prospect.rfc, DateUtil.GetDateTimeNow()),
+                                        string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
                                         "CredentialsCancellation",
                                         JsonConvert.SerializeObject(prospect)
                                     );
@@ -152,7 +203,7 @@ namespace MVC_Project.Jobs
                                         0,//userId
                                         "Proccess",
                                         EOperacionLog.ACCESS,
-                                        string.Format("Cuenta {0} | Fecha {1}", prospect.rfc, DateUtil.GetDateTimeNow()),
+                                        string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
                                         "CredentialsCancellation",
                                         JsonConvert.SerializeObject(prospect)
                                     );
