@@ -266,6 +266,19 @@ namespace MVC_Project.Integrations.SAT
             return satModel;
         }
 
+        public static string GetXMLInvoice(string uuid)
+        {
+            string url = "invoices/" + uuid + "/cfdi.xml";
+            try
+            {
+                return SATws.CallServiceSATws(url, null, "get");
+            }
+            catch (Exception ex)
+            {
+                return string.Empty;
+            }
+        }
+
         /*Obtener los CFDI's*/
         public static List<InvoicesCFDI> GetInvoicesCFDI(List<string> CFDIIds)
         {

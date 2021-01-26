@@ -93,10 +93,13 @@ var CustomerInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl
                     render: function (data) {
                         //Menu para más opciones de cliente
                         //console.log(data)
-                        var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
-                            '<a href="' + self.downloadPdfUrl + '?id=' + data.id + '&type=ISSUED' + '" class="btn btn-light btn-downloadPdf" title="Descargar PDF"><span class="fas fa-file-pdf"></i></span>' +
-                            '<a href="' + self.downloadXmlUrl + '?id=' + data.id + '&type=ISSUED' + '" class="btn btn-light btn-downloadXml" title="Descargar XML"><span class="fas fa-file-alt"></span></a>' +                            
-                            '</div>';
+                        var buttons = '';
+                        if (data.hasXML) {
+                            '<div class="btn-group" role="group" aria-label="Opciones">' +
+                                '<a href="' + self.downloadPdfUrl + '?id=' + data.id + '&type=ISSUED' + '" class="btn btn-light btn-downloadPdf" title="Descargar PDF"><span class="fas fa-file-pdf"></i></span>' +
+                                '<a href="' + self.downloadXmlUrl + '?id=' + data.id + '&type=ISSUED' + '" class="btn btn-light btn-downloadXml" title="Descargar XML"><span class="fas fa-file-alt"></span></a>' +
+                                '</div>';
+                        }
                         return hasFullAccessController ? buttons : "";
                     }
                 }
