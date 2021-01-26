@@ -78,7 +78,7 @@ namespace MVC_Project.Jobs
                         var accountsResponse = RecurlyService.GetAccounts(siteId);
                         recurlyAccountsList.AddRange(accountsResponse.data);
 
-                        if(accountsResponse.has_more)
+                        while(accountsResponse.has_more)
                         {
                             accountsResponse = RecurlyService.GetNextAccountsPage(accountsResponse.next);
                             recurlyAccountsList.AddRange(accountsResponse.data);
