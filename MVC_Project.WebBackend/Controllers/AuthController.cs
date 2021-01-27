@@ -44,7 +44,7 @@ namespace MVC_Project.WebBackend.Controllers
 
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
-        {           
+        {
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
@@ -80,7 +80,7 @@ namespace MVC_Project.WebBackend.Controllers
                         customParams.Add("param2", link);
                         NotificationUtil.SendNotification(user.name, customParams, Constants.NOT_TEMPLATE_WELCOME);
 
-                        msgReactivation = ". Se ha enviado un email de confirmación.";                       
+                        msgReactivation = ". Se ha enviado un email de confirmación.";
                     }
                     //Sino confirmado se reenviara el correo de confirmación
                     throw new Exception(ErrorMessages.UserInactive + msgReactivation);
@@ -120,7 +120,7 @@ namespace MVC_Project.WebBackend.Controllers
                 if (user.isBackOffice)
                 {
                     var uniqueMembership = memberships.First();
-                    
+
                     List<Permission> permissionsUser = new List<Permission>();
                     permissionsUser.Add(new Permission
                     {
@@ -156,8 +156,8 @@ namespace MVC_Project.WebBackend.Controllers
                     authUser.Role = new Role { Id = guestRole.id, Code = guestRole.code, Name = guestRole.name };
                     authUser.Permissions = permissionsGest;
                     Authenticator.StoreAuthenticatedUser(authUser);
-                    
-                    LogUtil.AddEntry( "Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+
+                    LogUtil.AddEntry("Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
@@ -165,7 +165,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                     return RedirectToAction("Index", "Account");
                 }
-                else if(memberships.Count() == 1)
+                else if (memberships.Count() == 1)
                 {
                     var uniqueMembership = memberships.First();
                     if (uniqueMembership.account.status == SystemStatus.INACTIVE.ToString())
@@ -217,6 +217,15 @@ namespace MVC_Project.WebBackend.Controllers
                         });
                     }
 
+                    #region Validación si la cuenta prospecto tiene credenciales inactivas.
+                    var credentials = _credentialService.FindBy(x => x.account.id == uniqueMembership.account.id && x.status == SystemStatus.INACTIVE.ToString());
+                    if (credentials != null)
+                    {
+                        MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
+                        authUser.isNotCredentials = true;
+                    }
+                    #endregion
+
                     authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
                     authUser.Permissions = permissionsUniqueMembership;
                     authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar };
@@ -232,7 +241,7 @@ namespace MVC_Project.WebBackend.Controllers
                 }
                 else
                 {
-                    if(memberships.All(x => x.account.status == SystemStatus.INACTIVE.ToString()))
+                    if (memberships.All(x => x.account.status == SystemStatus.INACTIVE.ToString()))
                     {
                         throw new Exception("Su cuenta se encuentra inactiva.");
                     }
@@ -295,7 +304,7 @@ namespace MVC_Project.WebBackend.Controllers
                 string errors = string.Join(",", list);
 
                 //ModelState.AddModelError("Email", "No se encontró ninguna cuenta con el correo proporcionado. Verifique su información.");
-                MensajeFlashHandler.RegistrarMensaje("Error: "+errors, TiposMensaje.Error);
+                MensajeFlashHandler.RegistrarMensaje("Error: " + errors, TiposMensaje.Error);
 
                 //return View("Login");
                 return RedirectToAction("Login", "Auth");
@@ -337,7 +346,7 @@ namespace MVC_Project.WebBackend.Controllers
 
             ModelState.AddModelError("Email", "No se encontró ninguna cuenta con el correo proporcionado. Verifique su información.");
             MensajeFlashHandler.RegistrarMensaje("No se encontró ninguna cuenta con el correo proporcionado. Verifique su información.", TiposMensaje.Error);
-            
+
             //return View("Login");
             return RedirectToAction("Login", "Auth");
         }
@@ -392,7 +401,7 @@ namespace MVC_Project.WebBackend.Controllers
             //    return RedirectToAction("Login", "Auth");
             //}
             ChangePasswordViewModel model = new ChangePasswordViewModel();
-            model.Uuid = userUuid;            
+            model.Uuid = userUuid;
             return View("ChangePassword", model);
         }
 
@@ -496,7 +505,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     user = _authService.AuthenticateSocialNetwork(model.Email, SecurityUtil.EncryptPassword(model.Password),
                     model.TypeRedSocial, model.SocialId);
-                    
+
                     if (user != null)
                     {
                         if (user.status != SystemStatus.ACTIVE.ToString())
@@ -531,7 +540,7 @@ namespace MVC_Project.WebBackend.Controllers
                                     Authenticator.StoreAuthenticatedUser(authUser);
                                     url = "/Account/Index";
                                 }
-                                else if(memberships.Count()==1)
+                                else if (memberships.Count() == 1)
                                 {
                                     var uniqueMembership = memberships.First();
                                     List<Permission> permissionsUniqueMembership = uniqueMembership.role.rolePermissions.Select(p => new Permission
@@ -586,7 +595,7 @@ namespace MVC_Project.WebBackend.Controllers
                     Error = "El usuario no existe o contraseña inválida.";
                 }
 
-                LogUtil.AddEntry( "Validación: "+Error + ", URL: "+url+", Existe: "+exist, ENivelLog.Info, 0, "", EOperacionLog.ACCESS,
+                LogUtil.AddEntry("Validación: " + Error + ", URL: " + url + ", Existe: " + exist, ENivelLog.Info, 0, "", EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    string.Format("Usuario {0} | Fecha {1}", "", DateUtil.GetDateTimeNow())
@@ -640,7 +649,7 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 LanguageMngr.SetLanguage(authUser.Language);
             }
-            
+
             return authUser;
         }
 

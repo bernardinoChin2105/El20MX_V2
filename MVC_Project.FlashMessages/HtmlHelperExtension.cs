@@ -17,5 +17,14 @@ namespace MVC_Project.FlashMessages
         {
             return MensajeFlashHandler.ObtenerMensaje();
         }
+
+        public static bool TieneCuenta(this HtmlHelper html)
+        {
+            return MensajeFlashHandler.RecibioCuentaFlash();
+        }
+        public static MensajeFlash ObtenerCuentaMensaje(this HtmlHelper html)
+        {
+            return MensajeFlashHandler.ObtenerCuentaMensaje();
+        }
     }
 }

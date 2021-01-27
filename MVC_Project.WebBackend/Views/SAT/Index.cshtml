@@ -103,7 +103,7 @@
                                             @Html.ValidationMessageFor(model => model.name)
                                         </div>
                                         <div class="col-12 col-md-4 text-right">
-                                            <button class="btn btn-color btn-block" type="button" id="btn-invoices-refresh" style="margin-top:35px"><i class="fas fa-sync"></i> Sincronizar facturas </button>
+                                            <button @(user.isNotCredentials? "disabled":"") class="btn btn-color btn-block" type="button" id="btn-invoices-refresh" style="margin-top:35px"><i class="fas fa-sync"></i> Sincronizar facturas </button>
                                         </div>
                                         @*<div class="col-12 col-md-4 text-center">
                 <label class="label" data-toggle="tooltip" title="Cambiar imagen de la cuenta" data-original-title="Cambiar imagen de la cuenta"
@@ -149,7 +149,7 @@
                                         @if (Model.ciecStatus != SystemStatus.ACTIVE.ToString() && hasFullAccessController)
                                         {
                                             <div class="col-12 col-md-4">
-                                                <button class="btn btn-color" type="button" id="btn-ciec" style="margin-top:35px"><i class="fas fa-sign-in-alt"></i> Validar ciec </button>
+                                                <button class="btn btn-color" @(user.isNotCredentials? "disabled": "") type="button" id="btn-ciec" style="margin-top:35px"><i class="fas fa-sign-in-alt"></i> Validar ciec </button>
                                             </div>
                                         }
                                     </div>
@@ -230,7 +230,7 @@
                                         @if (Model.efirmaStatus != SystemStatus.ACTIVE.ToString() && hasFullAccessController)
                                         {
                                             <div class="col-12 col-md-4 text-right">
-                                                <button class="btn btn-color" type="button" id="btn-efirma" style="margin-top:35px"><i class="fas fa-sign-in-alt"></i> Validar efirma</button>
+                                                <button class="btn btn-color" @(user.isNotCredentials? "disabled": "") type="button" id="btn-efirma" style="margin-top:35px"><i class="fas fa-sign-in-alt"></i> Validar efirma</button>
                                             </div>
                                         }
                                     </div>
