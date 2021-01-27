@@ -50,7 +50,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var credentials = _credentialService.FindBy(x => x.account.id == authUser.Account.Id 
                 && x.status == SystemStatus.INACTIVE.ToString() 
                 && x.provider == SystemProviders.SYNCFY.GetDisplayName());
-                if (credentials != null)
+                if (credentials.Count() > 0)
                 {
                     MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
                     throw new ArgumentException("Credencial de prospecto inactiva.");

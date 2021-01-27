@@ -86,8 +86,8 @@ namespace MVC_Project.Jobs
                         {
                             //Se desactivaran las credenciales de Paybook y Satws para que deje de hacer la sincronización diaria.
                             //También considerar las de recurly
-                            if (prospect.rfc == "H&E951128469")
-                            {
+                            //if (prospect.rfc == "PEMY860416PR5")
+                            //{
                                 try
                                 {
                                     string provider = string.Empty;
@@ -221,7 +221,7 @@ namespace MVC_Project.Jobs
                                         JsonConvert.SerializeObject(prospect)
                                     );
                                 }
-                            }
+                            //}
                         }
 
 

@@ -65,8 +65,8 @@ namespace MVC_Project.WebBackend.Controllers
                 #region Validación si la cuenta prospecto tiene credenciales inactivas.
                 var credentialsValidation = _credentialService.FindBy(x => x.account.id == userAuth.Account.Id
                 && x.status == SystemStatus.INACTIVE.ToString()
-                && x.provider == SystemProviders.SYNCFY.GetDisplayName());
-                if (credentialsValidation != null)
+                && x.provider == SystemProviders.SATWS.GetDisplayName());
+                if (credentialsValidation.Count() > 0)
                 {
                     MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
                     throw new ArgumentException("Credencial de prospecto inactiva.");
