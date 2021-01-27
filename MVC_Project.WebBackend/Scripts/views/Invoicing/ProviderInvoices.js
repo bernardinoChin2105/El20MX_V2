@@ -99,7 +99,7 @@ var ProviderInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl
                         //console.log(data)
                         var buttons = '';
                         if (data.hasXML) {
-                            '<div class="btn-group" role="group" aria-label="Opciones">' +
+                            buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                                 '<a href="' + self.downloadPdfUrl + '?id=' + data.id + '&type=RECEIVED' + '" class="btn btn-light btn-downloadPdf" title="Descargar PDF"><span class="fas fa-file-pdf"></span>' +
                                 '<a href="' + self.downloadXmlUrl + '?id=' + data.id + '&type=RECEIVED' + '" class="btn btn-light btn-downloadXml" title="Descargar XML"><span class="fas fa-file-alt"></span></a>' +
                                 '</div>';

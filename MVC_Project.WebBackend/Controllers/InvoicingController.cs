@@ -1688,7 +1688,7 @@ namespace MVC_Project.WebBackend.Controllers
                     //last_name = x.last_name,
                     paymentFormDescription = x.paymentFormDescription,
                     type = x.invoiceType,
-                    hasXMl = !string.IsNullOrEmpty(x.xml)
+                    hasXML = !string.IsNullOrEmpty(x.xml)
                 }).ToList();
 
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords

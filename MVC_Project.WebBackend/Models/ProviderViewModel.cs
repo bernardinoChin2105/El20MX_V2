@@ -125,7 +125,7 @@ namespace MVC_Project.WebBackend.Models
         public string paymentFormDescription { get; set; }
         public string businessName { get; set; }
         public string type { get; set; }
-        public bool hasXMl { get; set; }
+        public bool hasXML { get; set; }
     }
 
     public class DataCFDI
