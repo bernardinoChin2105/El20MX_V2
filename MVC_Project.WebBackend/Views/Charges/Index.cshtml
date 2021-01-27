@@ -47,7 +47,13 @@
                             </div>
                             <div class="col-sm-6 col-lg-4">
                                 <div class="form-group">
-                                    <label>Estado</label>
+                                    @Html.LabelFor(m => m.AccountOwner)
+                                    @Html.TextBoxFor(m => m.AccountOwner, new { @Class = "form-control form-control-sm txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "200", @autocomplete = "none" })
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-lg-4">
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.Status)
                                     @Html.DropDownListFor(x => x.Status, Model.Statuses, new { @class = "chosen-select form-control", data_live_search = "true", data_style = "btn-default", style = "position: relative;", filtro = "true", filtro_order = "2" })
                                 </div>
                             </div>

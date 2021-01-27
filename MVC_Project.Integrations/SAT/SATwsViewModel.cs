@@ -297,6 +297,8 @@ namespace MVC_Project.Integrations.SAT
         public bool pdf { get; set; }
 
         public List<ServicesDescriptionCFDI> items { get; set; }
+        public string internalIdentifier { get; set; }
+        public string reference { get; set; }
     }
 
     public class ServicesDescriptionCFDI

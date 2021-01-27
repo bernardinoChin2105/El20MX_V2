@@ -95,7 +95,7 @@ namespace MVC_Project.Jobs
                             dateFrom = new DateTime(2014, 1, 1);
 
                             var accountsProcessed = _satExtractionProcessService.
-                            FindBy(x => x.isHistorical).
+                            FindBy(x => x.isHistorical && x.status == SystemStatus.ACTIVE.ToString()).
                             Select(x => x.account.id);
 
                             credentials = credentials.

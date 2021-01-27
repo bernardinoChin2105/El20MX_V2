@@ -140,12 +140,12 @@
                     }
                 }
                 else {
-                    if (contadorLlamadasSAT < 5) {
+                    if (contadorLlamadasSAT < 10) {
                         contadorLlamadasSAT++;
-                        setTimeout(self.finishValidation(uuid), 2000);
+                        setTimeout(self.finishValidation(uuid), 5000);
                     } else {
                         El20Utils.ocultarCargador();
-                        toastr['error']("No es posible validar el RFC en SAT", null, { 'positionClass': 'toast-top-center' }); 
+                        toastr['error']("No es posible validar el RFC en el SAT", null, { 'positionClass': 'toast-top-center' }); 
                     }
                 }
                 
