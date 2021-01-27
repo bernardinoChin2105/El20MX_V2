@@ -2040,6 +2040,9 @@
     <Content Include="Views\MyAccount\Index.cshtml" />
     <Content Include="Views\CAD\AssignAccount.cshtml" />
     <Content Include="Views\MyAccount\_PromotionCoupon.cshtml" />
+    <Content Include="Views\Charges\Index.cshtml" />
+    <Content Include="Views\Charges\Edit.cshtml" />
+    <Content Include="Views\Account\_ServicesContract.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
@@ -2077,7 +2080,6 @@
   <ItemGroup>
     <Folder Include="Content\img\gallery\" />
     <Folder Include="Content\img\landing\" />
-    <Folder Include="Scripts\plugins\inputmask\" />
     <Folder Include="Views\Notification\" />
     <Folder Include="Views\Webhooks\" />
     <Folder Include="Views\Webhook\" />

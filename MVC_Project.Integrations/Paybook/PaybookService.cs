@@ -236,5 +236,25 @@ namespace MVC_Project.Integrations.Paybook
             }
             return banks;
         }
+
+        //Eliminar credenciales de usuario de la cuentas en paybook
+        public static bool DeleteUser(string idUser, string method, bool apikey)
+        {
+            bool responseDelete = false;
+            try
+            {                
+                string url = "/users/" + idUser;
+                var response = Paybook.CallServicePaybook(url, null, method, apikey);
+                var model = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
+                var option = model.First(x => x.Key == "response").Value;
+                //JObject rItemValueJson = (JObject)option;
+                responseDelete = (bool)option;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message.ToString());
+            }
+            return responseDelete;
+        }
     }
 }

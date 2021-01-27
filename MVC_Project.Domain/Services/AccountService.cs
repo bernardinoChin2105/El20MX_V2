@@ -5,9 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using NHibernate.Criterion;
 using MVC_Project.Utils;
 using NHibernate.Linq;
+using System.Globalization;
 
 namespace MVC_Project.Domain.Services
 {
@@ -15,6 +18,7 @@ namespace MVC_Project.Domain.Services
     {
         Account ValidateRFC(string rfc);
         List<AccountCredentialModel> GetAccountRecurly();
+        List<AccountCredentialProspectModel> GetAccountCredentialProspect(DateTime DateToday);
         Tuple<IEnumerable<Account>, int> FilterBy(NameValueCollection filtersValue, int? skip, int? take);
     }
 
@@ -105,6 +109,25 @@ namespace MVC_Project.Domain.Services
             }
             var list = query.OrderBy(u => u.createdAt).Desc.List();
             return new Tuple<IEnumerable<Account>, int>(list, count);
+        }
+
+        public List<AccountCredentialProspectModel> GetAccountCredentialProspect(DateTime DateToday)
+        {
+            String today = null;
+            if (DateToday != null)
+            {
+                //dateToday = Convert.ToDateTime(DateToday).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo);
+                today = DateToday.ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo);
+            }           
+
+            var list = _repository.Session.CreateSQLQuery("exec dbo.st_prospectList " +
+                "@createdOnStart=:createdOnStart")
+                    .SetParameter("createdOnStart", today)
+                    .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(AccountCredentialProspectModel)))
+                    .List<AccountCredentialProspectModel>();
+
+            if (list != null) return list.ToList();
+            return null;
         }
     }
 }

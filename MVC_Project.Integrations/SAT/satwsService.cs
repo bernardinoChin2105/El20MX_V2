@@ -346,6 +346,16 @@ namespace MVC_Project.Integrations.SAT
             var responseInvoices = SATws.CallServiceSATws("invoices/refund", invoiceRefundJson, "Post");
             invoice = JsonConvert.DeserializeObject<InvoicesInfo>(responseInvoices);
             return invoice;
-        }        
+        }
+
+        /*Eliminar una credencial*/
+        public static void DeleteCredential(string id)
+        {            
+            string url = "/credentials/" + id;
+
+            //Llamar al servicio para eliminar la credencial en el sat.ws y obtener respuesta                  
+            var response = SATws.CallServiceSATws(url, null, "Delete");            
+        }
+
     }
 }

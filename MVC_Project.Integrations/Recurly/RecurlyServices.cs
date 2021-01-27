@@ -133,5 +133,18 @@ namespace MVC_Project.Integrations.Recurly
 
             return recurlyModel;
         }
+        
+        public static Account DeleteAccount(string accountId,string siteId)
+        {
+            Account accountModel = new Account();
+
+            string url = "sites/" + siteId + "/accounts/" + accountId;            
+
+            //Llamar al servicio para crear la credencial en el recurly y obtener respuesta                  
+            var responseRecurly = Recurly.CallServiceRecurly(url, null, "Delete");
+            accountModel = JsonConvert.DeserializeObject<Account>(responseRecurly);
+
+            return accountModel;
+        } 
     }
 }

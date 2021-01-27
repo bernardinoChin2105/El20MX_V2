@@ -46,5 +46,42 @@ namespace MVC_Project.FlashMessages
             }
             return null;
         }
+
+        //Para validar la cuenta del cliente
+        public static bool RecibioCuentaFlash()
+        {
+            var mensaje = System.Web.HttpContext.Current.Session[Configuracion.MENSAJE_ACCOUNT_FLASH_SESSION];
+            if (mensaje != null &&
+                mensaje is MensajeFlash)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static MensajeFlash ObtenerCuentaMensaje()
+        {
+            if (RecibioCuentaFlash())
+            {
+                MensajeFlash mensaje = (MensajeFlash)System.Web.HttpContext.Current.Session[Configuracion.MENSAJE_ACCOUNT_FLASH_SESSION];
+                System.Web.HttpContext.Current.Session.Remove(Configuracion.MENSAJE_ACCOUNT_FLASH_SESSION);
+                return mensaje;
+            }
+            return null;
+        }
+
+        public static void RegistrarCuenta(string mensaje, TiposMensaje? tipo = null, Posicion? posicion = Posicion.Arriba_centrado)
+        {
+            if(!tipo.HasValue)
+            {
+                tipo = TiposMensaje.Success;
+            }
+            System.Web.HttpContext.Current.Session.Add(Configuracion.MENSAJE_ACCOUNT_FLASH_SESSION, new MensajeFlash
+            {
+                Mensaje = mensaje,
+                Tipo = tipo.Value.ObtenerCodigo(),
+                Posicion = posicion.Value.ObtenerPosicion()
+            });
+        }
     }
 }

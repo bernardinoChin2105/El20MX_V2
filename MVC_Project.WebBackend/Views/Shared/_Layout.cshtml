@@ -111,6 +111,14 @@
         </div>
 
         @{ Html.RenderPartial("~/Views/MyAccount/_PromotionCoupon.cshtml"); }
+        @if (Html.TieneCuenta())
+        {
+            Html.RenderPartial("~/Views/Account/_ServicesContract.cshtml");
+            //var mensaje = Html.ObtenerCuentaMensaje();
+            //if (mensaje.Mensaje == "True")
+            //{
+            //}
+        }
 
         <!-- Left navigation bar -->
         @Html.Partial("_Navigation")
@@ -194,6 +202,17 @@
             //    "hideMethod": "fadeOut"
             //};
         </script>
+    }
+
+    @if (Html.TieneCuenta())
+    {
+        var mensaje = Html.ObtenerCuentaMensaje();
+        if (mensaje.Mensaje == "True")
+        {
+        <script type="text/javascript">
+            $("#ServicesContract").modal("show")
+        </script>
+        }
     }
 
 
