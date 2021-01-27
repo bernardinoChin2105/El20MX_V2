@@ -43,8 +43,8 @@ namespace MVC_Project.Domain.Services
             string sql = "select ac.[id], ac.[uuid], ac.[name], ac.[rfc], ac.[planSchema], c.[provider], c.[idCredentialProvider], c.[statusProvider], c.[credentialType] hostedKey, " +
                         "ac.[planFijo], ac.[inicioFacturacion] " +
                         "from [dbo].[accounts] ac " +
-                        "inner join [dbo].[credentials] c on ac.id = c.[accountId]" +
-                        "inner join [dbo].[memberships] m on ac.id = m.[accountId]" +
+                        "inner join [dbo].[credentials] c on ac.id = c.[accountId] " +
+                        "inner join [dbo].[memberships] m on ac.id = m.[accountId] " +
                         "where c.provider = 'RECURLY' and c.statusProvider = 'active' and ac.[status] = 'ACTIVE' " +
                         "and ac.inicioFacturacion is not null and ac.inicioFacturacion <= DATEADD(dd, DATEDIFF(dd, 0, getdate()), 0)";
 

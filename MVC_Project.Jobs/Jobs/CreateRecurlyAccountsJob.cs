@@ -97,6 +97,7 @@ namespace MVC_Project.Jobs
                                 newAccount.code = account.uuid.ToString();
                                 newAccount.username = account.rfc; //Se agrego el RFC para diferenciar si los nombres de usuario
                                 newAccount.preferred_locale = "es-MX";
+                                newAccount.company = account.name;
 
                                 var membership = account.memberships.FirstOrDefault(x => x.role.code == SystemRoles.ACCOUNT_OWNER.ToString());
 

@@ -26,6 +26,7 @@ namespace MVC_Project.WebBackend.Models
         public string LugarExpedicion { get; set; }
         public string ClaveCatastral { get; set; }
         public string TipoCambio { get; set; }
+        public string Comentarios { get; set; }
 
         public Emisor Emisor { get; set; }
         public Receptor Receptor { get; set; }

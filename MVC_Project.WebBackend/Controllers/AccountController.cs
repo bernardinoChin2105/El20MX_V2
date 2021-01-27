@@ -527,7 +527,7 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 DateTime todayDate = DateUtil.GetDateTimeNow();
-                
+
                 var account = _accountService.FirstOrDefault(x => x.uuid == Guid.Parse(uuid));
                 if (account == null)
                     throw new Exception("No fue posible obtener la cuenta");
@@ -560,7 +560,7 @@ namespace MVC_Project.WebBackend.Controllers
                     GenerateExtraction();
                 #endregion
 
-                MensajeFlashHandler.RegistrarMensaje("Se registró correctamente el rfc "+ account.rfc + ". Recibira una notificación al sincronizar las facturas.", TiposMensaje.Success);
+                MensajeFlashHandler.RegistrarMensaje("Se registró correctamente el rfc " + account.rfc + ". Recibira una notificación al sincronizar las facturas.", TiposMensaje.Success);
                 LogUtil.AddEntry(
                    "Se registró correctamente el rfc " + account.rfc,
                    ENivelLog.Info,
@@ -571,7 +571,7 @@ namespace MVC_Project.WebBackend.Controllers
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    JsonConvert.SerializeObject(account)
                 );
-                
+
                 //#region Se creara la cuenta en Recurly
                 //    CreateAccountRecurly();
                 //#endregion
@@ -605,7 +605,6 @@ namespace MVC_Project.WebBackend.Controllers
                 );
                 return View("CreateAccount");
             }
-
         }
 
         [HttpGet]
@@ -915,6 +914,7 @@ namespace MVC_Project.WebBackend.Controllers
                 newAccount.preferred_locale = "es-MX";
                 newAccount.first_name = authUser.FirstName;
                 newAccount.last_name = authUser.LastName;
+                newAccount.company = authUser.Account.Name;
 
                 var user = _userService.GetById(authUser.Id);
                 if (user != null)
