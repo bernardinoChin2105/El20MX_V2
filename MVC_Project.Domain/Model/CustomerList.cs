@@ -105,6 +105,7 @@ namespace MVC_Project.Domain.Model
         public string taxRegime { get; set; }
         public int Total { get; set; }
         public string invoiceType { get; set; }
+        public string xml { get; set; }
     }
 
     public class ListCustomersAC

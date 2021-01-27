@@ -78,13 +78,13 @@ namespace MVC_Project.Jobs
                         var accountsResponse = RecurlyService.GetAccounts(siteId);
                         recurlyAccountsList.AddRange(accountsResponse.data);
 
-                        if(accountsResponse.has_more)
+                        while(accountsResponse.has_more)
                         {
                             accountsResponse = RecurlyService.GetNextAccountsPage(accountsResponse.next);
                             recurlyAccountsList.AddRange(accountsResponse.data);
                         }
 
-                        var storedAccounts = _accountService.FindBy(x => x.status == "ACTIVE");
+                        var storedAccounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString());
                         //var accountsCrede = _accountService.GetAccountRecurly();
 
                         foreach (var account in storedAccounts)
