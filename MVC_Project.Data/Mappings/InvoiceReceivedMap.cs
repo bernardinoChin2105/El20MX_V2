@@ -36,6 +36,7 @@ namespace MVC_Project.Data.Mappings
 
             Map(x => x.homemade).Column("homemade").Nullable();
             Map(x => x.json).Column("json").Nullable();
+            Map(x => x.commentsPDF).Column("commentsPDF").Length(8000).Nullable();
             Map(x => x.pdf).Column("pdf").Length(8000).Nullable();
 
             References(x => x.account).Column("accountId").Not.Nullable();
