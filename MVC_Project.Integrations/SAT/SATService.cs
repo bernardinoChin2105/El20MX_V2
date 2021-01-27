@@ -175,11 +175,11 @@ namespace MVC_Project.Integrations.SAT
         }
 
         //Método para Eliminar la credencial
-        public static string DeleteCredential(string id, string provider)
+        public static void DeleteCredential(string id, string provider)
         {
             if (provider == SystemProviders.SATWS.ToString())
             {
-                return SATwsService.DeleteCredential(id);
+                SATwsService.DeleteCredential(id);
             }
             else
             {

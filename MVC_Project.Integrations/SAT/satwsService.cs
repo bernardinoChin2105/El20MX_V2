@@ -334,13 +334,12 @@ namespace MVC_Project.Integrations.SAT
         }
 
         /*Eliminar una credencial*/
-        public static string DeleteCredential(string id)
+        public static void DeleteCredential(string id)
         {            
             string url = "/credentials/" + id;
 
             //Llamar al servicio para eliminar la credencial en el sat.ws y obtener respuesta                  
-            var response = SATws.CallServiceSATws(url, null, "Delete");
-            return "respuesta";
+            var response = SATws.CallServiceSATws(url, null, "Delete");            
         }
 
     }
