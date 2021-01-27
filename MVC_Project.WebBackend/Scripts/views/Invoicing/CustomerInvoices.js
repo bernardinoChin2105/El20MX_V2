@@ -45,6 +45,21 @@ $('#RegisterAt').daterangepicker({
         $('#FilterEndDate').val(picker.endDate.format('DD/MM/YYYY'));
     });
 
+$('.btn-export').click(function () {
+    try {
+        var url = $(this).data('export-url')
+        El20Utils.mostrarCargador();
+        $.fileDownload(url, {
+            httpMethod: 'POST',
+            dataType: 'json',
+            data: $('form#SearchForm').serialize()
+        })
+            .done(function () { El20Utils.ocultarCargador(); })
+            .fail(function () { El20Utils.ocultarCargador(); });
+    } catch (e) {
+        throw 'CustomerInvoicesControlador -> Exportar: ' + e;
+    }
+});
 
 var CustomerInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl, downloadXmlUrl, autocompleteURL, hasFullAccessController) {
     var self = this;

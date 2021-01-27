@@ -26,28 +26,44 @@ $("#RFCP").keyup(function () {
 var DateInit = JSON.parse(window.StartDate);
 
 $('#RegisterAt').daterangepicker({
-        format: 'DD/MM/YYYY',
-        todayBtn: "linked",
-        keyboardNavigation: false,
-        forceParse: false,
-        calendarWeeks: true,
-        autoclose: true,
-        language: 'es',
-        locale: {
-            applyLabel: "Aplicar",
-            cancelLabel: "Cancelar",
-            fromLabel: "De",
-            toLabel: "a"
-        },
-        startDate: DateInit.MinDate,
-        maxDate: DateInit.MaxDate,
-        opens: 'left'
-    }).on('apply.daterangepicker', function (e, picker) {
-        //console.log(picker.startDate.format('DD/MM/YYYY'));
-        //console.log(picker.endDate.format('DD/MM/YYYY'));
-        $('#FilterInitialDate').val(picker.startDate.format('DD/MM/YYYY'));
-        $('#FilterEndDate').val(picker.endDate.format('DD/MM/YYYY'));
-    });
+    format: 'DD/MM/YYYY',
+    todayBtn: "linked",
+    keyboardNavigation: false,
+    forceParse: false,
+    calendarWeeks: true,
+    autoclose: true,
+    language: 'es',
+    locale: {
+        applyLabel: "Aplicar",
+        cancelLabel: "Cancelar",
+        fromLabel: "De",
+        toLabel: "a"
+    },
+    startDate: DateInit.MinDate,
+    maxDate: DateInit.MaxDate,
+    opens: 'left'
+}).on('apply.daterangepicker', function (e, picker) {
+    //console.log(picker.startDate.format('DD/MM/YYYY'));
+    //console.log(picker.endDate.format('DD/MM/YYYY'));
+    $('#FilterInitialDate').val(picker.startDate.format('DD/MM/YYYY'));
+    $('#FilterEndDate').val(picker.endDate.format('DD/MM/YYYY'));
+});
+
+$('.btn-export').click(function () {
+    try {
+        var url = $(this).data('export-url')
+        El20Utils.mostrarCargador();
+        $.fileDownload(url, {
+            httpMethod: 'POST',
+            dataType: 'json',
+            data: $('form#SearchForm').serialize()
+        })
+            .done(function () { El20Utils.ocultarCargador(); })
+            .fail(function () { El20Utils.ocultarCargador(); });
+    } catch (e) {
+        throw 'ProviderIndexControlador -> Exportar: ' + e;
+    }
+});
 
 var ProviderInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl, downloadXmlUrl, autocompleteURL, hasFullAccessController, positions) {
     var self = this;
@@ -55,7 +71,7 @@ var ProviderInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl
     this.baseUrl = baseUrl;
     this.downloadPdfUrl = downloadPdfUrl;
     this.downloadXmlUrl = downloadXmlUrl;
-    this.autocompleteURL = autocompleteURL;   
+    this.autocompleteURL = autocompleteURL;
     this.poss = "";
     this.dataTable = {};
 
@@ -99,7 +115,7 @@ var ProviderInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl
                         //console.log(data)
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<a href="' + self.downloadPdfUrl + '?id=' + data.id + '&type=RECEIVED' + '" class="btn btn-light btn-downloadPdf" title="Descargar PDF"><span class="fas fa-file-pdf"></span>' +
-                            '<a href="' + self.downloadXmlUrl + '?id=' + data.id + '&type=RECEIVED' + '" class="btn btn-light btn-downloadXml" title="Descargar XML"><span class="fas fa-file-alt"></span></a>' +                            
+                            '<a href="' + self.downloadXmlUrl + '?id=' + data.id + '&type=RECEIVED' + '" class="btn btn-light btn-downloadXml" title="Descargar XML"><span class="fas fa-file-alt"></span></a>' +
                             '</div>';
                         return hasFullAccessController ? buttons : "";
                     }
@@ -116,14 +132,14 @@ var ProviderInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl
 
                     if (json.success === false) {
                         //toastr['error'](json.error, null, { 'positionClass': positions });
-                        toastr['error'](json.error, null, { 'positionClass': 'toast-top-center' }); 
+                        toastr['error'](json.error, null, { 'positionClass': 'toast-top-center' });
                         //console.log(json.Mensaje + " Error al obtener los elementos");
                     }
                 });
             }
         }).on('xhr.dt', function (e, settings, data) {
             El20Utils.ocultarCargador();
-            });
+        });
 
         $.validator.addMethod("Alphanumeric",
             function (value, element) {
@@ -145,14 +161,14 @@ var ProviderInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl
                 NombreRazonSocial: {
                     Alphanumeric: true
                 },
-                
+
             }
         });
 
 
     };
 
-    $.get(self.autocompleteURL, function (data) {        
+    $.get(self.autocompleteURL, function (data) {
         $(".typeahead_2").typeahead({ source: data.Data });
-    }, 'json'); 
+    }, 'json');
 };
