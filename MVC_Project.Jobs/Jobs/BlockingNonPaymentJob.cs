@@ -27,12 +27,11 @@ namespace MVC_Project.Jobs
         static IProcessService _processService;
         static ICredentialService _credentialService;
         static IAccountService _accountService;
-        //static IProviderService _providerService;
 
         static readonly string JOB_CODE = "CancellationJob_BlockingNonPayment";
 
         /*
-         * Proceso de cancelación de credenciales
+         * Proceso de bloqueo de cuenta por falta de pagos.
          **/
 
         public static void BlockingNonPayment()
@@ -41,7 +40,6 @@ namespace MVC_Project.Jobs
             _processService = new ProcessService(new Repository<Process>(_unitOfWork));
             _accountService = new AccountService(new Repository<Account>(_unitOfWork));
             _credentialService = new CredentialService(new Repository<Credential>(_unitOfWork));
-           // _providerService = new ProviderService(new Repository<Provider>(_unitOfWork));
 
             Process processJob = _processService.GetByCode(JOB_CODE);
             bool CAN_EXECUTE = processJob != null && processJob.Status && !processJob.Running; //Esta habilitado y no está corriendo (validacion por BD)
@@ -90,13 +88,10 @@ namespace MVC_Project.Jobs
                          *   y se realiza la cancelación de las credenciales de SAT.ws, Paybook y Recurly.                         
                          * **/
 
-
-
-
-
                         /** Parametros: FechaDelDía**/
-
                         DateTime today = DateUtil.GetDateTimeNow();
+
+
                         var accountsProspect = _accountService.GetAccountCredentialProspect(today);
                         foreach (var prospect in accountsProspect)
                         {
