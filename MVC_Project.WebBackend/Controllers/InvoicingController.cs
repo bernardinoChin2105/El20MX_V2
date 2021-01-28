@@ -16,9 +16,10 @@ using System.Configuration;
 using System.IO;
 using MVC_Project.Integrations.Storage;
 using System.Xml;
-using Microsoft.Ajax.Utilities;
 using System.Collections.Specialized;
 using LogHubSDK.Models;
+using OfficeOpenXml;
+using MVC_Project.BackendWeb.Attributes;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -1582,6 +1583,51 @@ namespace MVC_Project.WebBackend.Controllers
             }, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, FileDownload]
+        public FileResult ExportInvoicesIssued(InvoiceFilter searchFilter)
+        {
+            try
+            {
+                var pagination = new BasePagination
+                {                    
+                    CreatedOnStart = searchFilter.FilterInitialDate,
+                    CreatedOnEnd = searchFilter.FilterEndDate
+                };
+
+                var filters = new CustomerCFDIFilter() { accountId = Authenticator.AuthenticatedUser.Account.Id };
+                filters.folio = searchFilter.Folio?.Trim();
+                filters.rfc = searchFilter.RFCP?.Trim();
+                filters.serie = searchFilter.Serie?.Trim();
+                filters.nombreRazonSocial = searchFilter.NombreRazonSocial?.Trim();
+                if (searchFilter.PaymentForm != Constants.SEARCH_ALL.ToString()) filters.paymentForm = searchFilter.PaymentForm;
+                if (searchFilter.PaymentMethod != Constants.SEARCH_ALL.ToString()) filters.paymentMethod = searchFilter.PaymentForm;
+                if (searchFilter.Currency != Constants.SEARCH_ALL.ToString()) filters.currency = searchFilter.Currency;
+
+                var listResponse = _customerService.GetInvoicesIssuedNoPagination(pagination, filters).Select(invoice => new InvoiceExport
+                {
+                    Serie = invoice.serie,
+                    Folio = invoice.folio,
+                    InvoicedAt = invoice.invoicedAt.ToShortDateString(),
+                    RFC = invoice.rfc,
+                    PaymentForm = invoice.paymentFormDescription,
+                    PaymentMethod = invoice.paymentMethod,
+                    InvoiceType = invoice.invoiceType,
+                    Currency = invoice.currency,
+                    Subtotal = invoice.subtotal,
+                    IVA = invoice.iva,
+                    Total = invoice.total
+                }).ToList();
+
+                var invoiceFileBin = GetInvoiceFile("FACTURAS EMITIDAS", listResponse);
+                return File(invoiceFileBin, "application/vnd.ms-excel", "FacturasEmitidas(" + DateUtil.GetDateTimeNow().ToString("G") + ").xlsx");
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                throw;
+            }
+        }
+
         #endregion
 
         #region Facturas Recibidas
@@ -1718,7 +1764,96 @@ namespace MVC_Project.WebBackend.Controllers
             }, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, FileDownload]
+        public FileResult ExportInvoicesReceived(InvoiceFilter searchFilter)
+        {
+            try
+            {
+                var pagination = new BasePagination
+                {
+                    CreatedOnStart = searchFilter.FilterInitialDate,
+                    CreatedOnEnd = searchFilter.FilterEndDate
+                };
+
+                var filters = new CustomerCFDIFilter() { accountId = Authenticator.AuthenticatedUser.Account.Id };
+                filters.folio = searchFilter.Folio?.Trim();
+                filters.rfc = searchFilter.RFCP?.Trim();
+                filters.serie = searchFilter.Serie?.Trim();
+                filters.nombreRazonSocial = searchFilter.NombreRazonSocial?.Trim();
+                if (searchFilter.PaymentForm != Constants.SEARCH_ALL.ToString()) filters.paymentForm = searchFilter.PaymentForm;
+                if (searchFilter.PaymentMethod != Constants.SEARCH_ALL.ToString()) filters.paymentMethod = searchFilter.PaymentForm;
+                if (searchFilter.Currency != Constants.SEARCH_ALL.ToString()) filters.currency = searchFilter.Currency;
+
+                var listResponse = _providerService.GetInvoicesReceivedNoPagination(pagination, filters).Select(invoice => new InvoiceExport
+                {
+                    Serie = invoice.serie,
+                    Folio = invoice.folio,
+                    InvoicedAt = invoice.invoicedAt.ToShortDateString(),
+                    RFC = invoice.rfc,
+                    PaymentForm = invoice.paymentFormDescription,
+                    PaymentMethod = invoice.paymentMethod,
+                    InvoiceType = invoice.invoiceType,
+                    Currency = invoice.currency,
+                    Subtotal = invoice.subtotal,
+                    IVA = invoice.iva,
+                    Total = invoice.total
+                }).ToList();
+
+                var invoiceFileBin = GetInvoiceFile("FACTURAS RECIBIDAS", listResponse);
+                return File(invoiceFileBin, "application/vnd.ms-excel", "FacturasRecibidas(" + DateUtil.GetDateTimeNow().ToString("G") + ").xlsx");
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                throw;
+            }
+        }
         #endregion
+
+        private byte[] GetInvoiceFile(string worksheetTitle, List<InvoiceExport> invoices)
+        {
+            using (ExcelPackage excelDocument = new ExcelPackage())
+            {
+                ExcelWorksheet worksheet = excelDocument.Workbook.Worksheets.Add(worksheetTitle);
+
+                worksheet.Cells["A1:Z1"].Style.Font.Bold = true;
+
+                worksheet.Cells["A1"].Value = "Serie";
+                worksheet.Cells["B1"].Value = "Folio";
+                worksheet.Cells["C1"].Value = "Fecha Factura";
+                worksheet.Cells["D1"].Value = "RFC Proveedor";
+                worksheet.Cells["E1"].Value = "Método de Pago";
+                worksheet.Cells["F1"].Value = "Forma de Pago";
+                worksheet.Cells["G1"].Value = "Tipo";
+                worksheet.Cells["H1"].Value = "Divisa";
+                worksheet.Cells["I1"].Value = "Subtotal";
+                worksheet.Cells["J1"].Value = "IVA";
+                worksheet.Cells["K1"].Value = "Total";
+
+                int rowIndex = 2;
+                for (int i = 0; i < invoices.Count; i++)
+                {
+                    var invoice = invoices[i];
+                    worksheet.Cells[$"A{rowIndex}"].Value = invoice.Serie;
+                    worksheet.Cells[$"B{rowIndex}"].Value = invoice.Folio;
+                    worksheet.Cells[$"C{rowIndex}"].Value = invoice.InvoicedAt;
+                    worksheet.Cells[$"D{rowIndex}"].Value = invoice.RFC;
+                    worksheet.Cells[$"E{rowIndex}"].Value = invoice.PaymentForm;
+                    worksheet.Cells[$"F{rowIndex}"].Value = invoice.PaymentMethod;
+                    worksheet.Cells[$"G{rowIndex}"].Value = invoice.InvoiceType;
+                    worksheet.Cells[$"H{rowIndex}"].Value = invoice.Currency;
+                    worksheet.Cells[$"I{rowIndex}"].Value = invoice.Subtotal;
+                    worksheet.Cells[$"I{rowIndex}"].Style.Numberformat.Format = "#,##0.00";
+                    worksheet.Cells[$"J{rowIndex}"].Value = invoice.IVA;
+                    worksheet.Cells[$"J{rowIndex}"].Style.Numberformat.Format = "#,##0.00";
+                    worksheet.Cells[$"K{rowIndex}"].Value = invoice.Total;
+                    worksheet.Cells[$"K{rowIndex}"].Style.Numberformat.Format = "#,##0.00";
+                    rowIndex++;
+                }
+                worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+                return excelDocument.GetAsByteArray();
+            }
+        }
 
 
 

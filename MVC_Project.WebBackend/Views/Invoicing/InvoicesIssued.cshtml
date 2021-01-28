@@ -95,10 +95,9 @@
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Resultado</h5>
-                    @*@if (hasFullAccessController)
-                        {
-                            <div class="ibox-tools"></div>
-                        }*@
+                    <div class="ibox-tools">
+                        @*<button type="button" class="btn btn-sm btn-color btn-export" data-export-url="@Url.Action("ExportInvoicesIssued", "Invoicing")"><span class="fas fa-download"></span> Exportar</button>*@
+                    </div>
                 </div>
                 <div class="ibox-content">
                     <div class="table-responsive">
@@ -114,6 +113,7 @@
     @Scripts.Render("~/plugins/dataTables")
     @Scripts.Render("~/plugins/daterangepicker")
     @Scripts.Render("~/plugins/typehead")
+    @Scripts.Render("~/plugins/jqueryFileDownload.js")
 
     <script>
         window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';

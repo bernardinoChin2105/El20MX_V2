@@ -9,12 +9,12 @@
     AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
     var hasFullAccessController = user.HasFullAccessController(controllerName);
     Posicion pos = Posicion.Arriba_centrado;
-    var flashMessage =  new MensajeFlash { Posicion = pos.ObtenerPosicion() };
+    var flashMessage = new MensajeFlash { Posicion = pos.ObtenerPosicion() };
     var position = "'" + flashMessage.Posicion + "'";
-    }
+}
 
-    @section styles {
-        @Styles.Render("~/plugins/daterangepickerStyles")
+@section styles {
+    @Styles.Render("~/plugins/daterangepickerStyles")
     <style>
         .hide {
             display: none;
@@ -99,10 +99,9 @@
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Resultado</h5>
-                    @*@if (hasFullAccessController)
-                        {
-                            <div class="ibox-tools"></div>
-                        }*@
+                    <div class="ibox-tools">
+                        @*<button type="button" class="btn btn-sm btn-color btn-export" data-export-url="@Url.Action("ExportInvoicesReceived", "Invoicing")"><span class="fas fa-download"></span> Exportar</button>*@
+                    </div>
                 </div>
                 <div class="ibox-content">
                     <div class="table-responsive">
@@ -118,9 +117,10 @@
     @Scripts.Render("~/plugins/dataTables")
     @Scripts.Render("~/plugins/daterangepicker")
     @Scripts.Render("~/plugins/typehead")
+    @Scripts.Render("~/plugins/jqueryFileDownload.js")
 
     <script>
-        window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';      
+        window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';
         $(function () {
             var invoices = new ProviderInvoicesControlador('table',
                 '@Url.Action("GetInvoicesProvider")',
@@ -132,7 +132,7 @@
             );
             invoices.init();
         });
-    </script>    
+    </script>
     <script src="~/Scripts/views/Invoicing/ProviderInvoices.js"></script>
 
 }
