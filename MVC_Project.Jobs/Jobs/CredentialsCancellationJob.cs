@@ -25,7 +25,7 @@ namespace MVC_Project.Jobs
         static bool executing = false;
         static readonly Object thisLock = new Object();
         static IProcessService _processService;
-        static IProviderService _providerService;
+        //static IProviderService _providerService;
         static IAccountService _accountService;
         static ICredentialService _credentialService;
 
@@ -39,7 +39,7 @@ namespace MVC_Project.Jobs
         {
             var _unitOfWork = new UnitOfWork();
             _processService = new ProcessService(new Repository<Process>(_unitOfWork));
-            _providerService = new ProviderService(new Repository<Provider>(_unitOfWork));
+            //_providerService = new ProviderService(new Repository<Provider>(_unitOfWork));
             _accountService = new AccountService(new Repository<Account>(_unitOfWork));
             _credentialService = new CredentialService(new Repository<Credential>(_unitOfWork));
 
