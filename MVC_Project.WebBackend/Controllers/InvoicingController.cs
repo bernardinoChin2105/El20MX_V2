@@ -1589,9 +1589,9 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 var pagination = new BasePagination
-                {                    
-                    CreatedOnStart = searchFilter.FilterInitialDate,
-                    CreatedOnEnd = searchFilter.FilterEndDate
+                {
+                    CreatedOnStart = searchFilter.FilterInitialDate != DateTime.MinValue ? searchFilter.FilterInitialDate : (DateTime?)null,
+                    CreatedOnEnd = searchFilter.FilterEndDate != DateTime.MinValue ? searchFilter.FilterEndDate : (DateTime?)null
                 };
 
                 var filters = new CustomerCFDIFilter() { accountId = Authenticator.AuthenticatedUser.Account.Id };
@@ -1619,7 +1619,7 @@ namespace MVC_Project.WebBackend.Controllers
                     Total = invoice.total
                 }).ToList();
 
-                var invoiceFileBin = GetInvoiceFile("FACTURAS EMITIDAS", listResponse);
+                var invoiceFileBin = GetInvoiceFile("FACTURAS EMITIDAS", listResponse, "Cliente");
                 return File(invoiceFileBin, "application/vnd.ms-excel", "FacturasEmitidas(" + DateUtil.GetDateTimeNow().ToString("G") + ").xlsx");
             }
             catch (Exception ex)
@@ -1772,8 +1772,8 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 var pagination = new BasePagination
                 {
-                    CreatedOnStart = searchFilter.FilterInitialDate,
-                    CreatedOnEnd = searchFilter.FilterEndDate
+                    CreatedOnStart = searchFilter.FilterInitialDate != DateTime.MinValue ? searchFilter.FilterInitialDate : (DateTime?)null,
+                    CreatedOnEnd = searchFilter.FilterEndDate != DateTime.MinValue ? searchFilter.FilterEndDate : (DateTime?)null
                 };
 
                 var filters = new CustomerCFDIFilter() { accountId = Authenticator.AuthenticatedUser.Account.Id };
@@ -1801,7 +1801,7 @@ namespace MVC_Project.WebBackend.Controllers
                     Total = invoice.total
                 }).ToList();
 
-                var invoiceFileBin = GetInvoiceFile("FACTURAS RECIBIDAS", listResponse);
+                var invoiceFileBin = GetInvoiceFile("FACTURAS RECIBIDAS", listResponse, "Proveedor");
                 return File(invoiceFileBin, "application/vnd.ms-excel", "FacturasRecibidas(" + DateUtil.GetDateTimeNow().ToString("G") + ").xlsx");
             }
             catch (Exception ex)
@@ -1812,7 +1812,7 @@ namespace MVC_Project.WebBackend.Controllers
         }
         #endregion
 
-        private byte[] GetInvoiceFile(string worksheetTitle, List<InvoiceExport> invoices)
+        private byte[] GetInvoiceFile(string worksheetTitle, List<InvoiceExport> invoices, string invoiceType)
         {
             using (ExcelPackage excelDocument = new ExcelPackage())
             {
@@ -1823,8 +1823,8 @@ namespace MVC_Project.WebBackend.Controllers
                 worksheet.Cells["A1"].Value = "Serie";
                 worksheet.Cells["B1"].Value = "Folio";
                 worksheet.Cells["C1"].Value = "Fecha Factura";
-                worksheet.Cells["D1"].Value = "RFC Proveedor";
-                worksheet.Cells["E1"].Value = "Proveedor";
+                worksheet.Cells["D1"].Value = $"RFC {invoiceType}";
+                worksheet.Cells["E1"].Value = invoiceType;
                 worksheet.Cells["F1"].Value = "Método de Pago";
                 worksheet.Cells["G1"].Value = "Forma de Pago";
                 worksheet.Cells["H1"].Value = "Tipo";

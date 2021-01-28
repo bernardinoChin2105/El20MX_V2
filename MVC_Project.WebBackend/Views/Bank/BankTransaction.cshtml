@@ -67,6 +67,9 @@
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Resultado</h5>
+                    <div class="ibox-tools">
+                        <button type="button" class="btn btn-sm btn-color btn-export" data-export-url="@Url.Action("ExportBankTransactions", "Bank")"><span class="fas fa-download"></span> Exportar</button>
+                    </div>
                     <div class="row">
                         <div class="col-12 col-md-2">
                             @Html.LabelFor(m => m.Currency, new { @class = "col-form-label control-label" })
@@ -103,6 +106,7 @@
     @Scripts.Render("~/custom/Utils")
     @*@Scripts.Render("~/plugins/dataTables")*@
     @Scripts.Render("~/plugins/daterangepicker")
+    @Scripts.Render("~/plugins/jqueryFileDownload.js")
 
     <script>
         window.StartDate = '@Html.Raw(Json.Encode(ViewBag.Date))';

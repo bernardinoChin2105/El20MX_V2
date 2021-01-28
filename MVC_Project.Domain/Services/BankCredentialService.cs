@@ -16,6 +16,7 @@ namespace MVC_Project.Domain.Services
         List<BankAccountsList> GetBanksAccounts(Int64 idCredential);
         List<BankTransactionList> GetBankTransactionList(BasePagination pagination, BankTransactionFilter filter);
         BankCredential CreateWithTransaction(BankCredential bankCredential);
+        List<BankTransactionList> GetBankTransactionListNoPagination(BasePagination pagination, BankTransactionFilter filters);
     }
     public class BankCredentialService : ServiceBase<BankCredential>, IBankCredentialService
     {
@@ -95,6 +96,24 @@ namespace MVC_Project.Domain.Services
                     throw ex;
                 }
             }
+        }
+
+        public List<BankTransactionList> GetBankTransactionListNoPagination(BasePagination pagination, BankTransactionFilter filter)
+        {
+            var list = _repository.Session.CreateSQLQuery("exec dbo.st_exportBankTransactionList " +
+                "@createdOnStart=:createdOnStart, @createdOnEnd=:createdOnEnd, " +
+                "@accountId=:accountId, @bankId=:bankId, @bankAccountId=:bankAccountId, @movements=:movements ")
+                    .SetParameter("createdOnStart", pagination.CreatedOnStart != null ? Convert.ToDateTime(pagination.CreatedOnStart).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo) : null)
+                    .SetParameter("createdOnEnd", pagination.CreatedOnEnd != null ? Convert.ToDateTime(pagination.CreatedOnEnd).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo) : null)
+                    .SetParameter("accountId", filter.accountId)
+                    .SetParameter("bankId", filter.bankId)
+                    .SetParameter("bankAccountId", filter.bankAccountId)
+                    .SetParameter("movements", filter.movements)
+                    .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(BankTransactionList)))
+                    .List<BankTransactionList>();
+
+            if (list != null) return list.ToList();
+            return null;
         }
     }
 }
