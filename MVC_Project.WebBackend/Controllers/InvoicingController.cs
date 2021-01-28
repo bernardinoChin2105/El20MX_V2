@@ -1608,6 +1608,7 @@ namespace MVC_Project.WebBackend.Controllers
                     Folio = invoice.folio,
                     InvoicedAt = invoice.invoicedAt.ToShortDateString(),
                     RFC = invoice.rfc,
+                    BussinessName = (invoice.rfc.Count() == 12 ? invoice.businessName : invoice.first_name + " " + invoice.last_name),
                     PaymentForm = invoice.paymentFormDescription,
                     PaymentMethod = invoice.paymentMethod,
                     InvoiceType = invoice.invoiceType,
@@ -1788,6 +1789,7 @@ namespace MVC_Project.WebBackend.Controllers
                     Folio = invoice.folio,
                     InvoicedAt = invoice.invoicedAt.ToShortDateString(),
                     RFC = invoice.rfc,
+                    BussinessName = (invoice.rfc.Count() == 12 ? invoice.businessName : invoice.first_name + " " + invoice.last_name),
                     PaymentForm = invoice.paymentFormDescription,
                     PaymentMethod = invoice.paymentMethod,
                     InvoiceType = invoice.invoiceType,
@@ -1820,13 +1822,14 @@ namespace MVC_Project.WebBackend.Controllers
                 worksheet.Cells["B1"].Value = "Folio";
                 worksheet.Cells["C1"].Value = "Fecha Factura";
                 worksheet.Cells["D1"].Value = "RFC Proveedor";
-                worksheet.Cells["E1"].Value = "Método de Pago";
-                worksheet.Cells["F1"].Value = "Forma de Pago";
-                worksheet.Cells["G1"].Value = "Tipo";
-                worksheet.Cells["H1"].Value = "Divisa";
-                worksheet.Cells["I1"].Value = "Subtotal";
-                worksheet.Cells["J1"].Value = "IVA";
-                worksheet.Cells["K1"].Value = "Total";
+                worksheet.Cells["E1"].Value = "Proveedor";
+                worksheet.Cells["F1"].Value = "Método de Pago";
+                worksheet.Cells["G1"].Value = "Forma de Pago";
+                worksheet.Cells["H1"].Value = "Tipo";
+                worksheet.Cells["I1"].Value = "Divisa";
+                worksheet.Cells["J1"].Value = "Subtotal";
+                worksheet.Cells["K1"].Value = "IVA";
+                worksheet.Cells["L1"].Value = "Total";
 
                 int rowIndex = 2;
                 for (int i = 0; i < invoices.Count; i++)
@@ -1836,16 +1839,19 @@ namespace MVC_Project.WebBackend.Controllers
                     worksheet.Cells[$"B{rowIndex}"].Value = invoice.Folio;
                     worksheet.Cells[$"C{rowIndex}"].Value = invoice.InvoicedAt;
                     worksheet.Cells[$"D{rowIndex}"].Value = invoice.RFC;
-                    worksheet.Cells[$"E{rowIndex}"].Value = invoice.PaymentForm;
+                    worksheet.Cells[$"E{rowIndex}"].Value = invoice.BussinessName;
                     worksheet.Cells[$"F{rowIndex}"].Value = invoice.PaymentMethod;
-                    worksheet.Cells[$"G{rowIndex}"].Value = invoice.InvoiceType;
-                    worksheet.Cells[$"H{rowIndex}"].Value = invoice.Currency;
-                    worksheet.Cells[$"I{rowIndex}"].Value = invoice.Subtotal;
-                    worksheet.Cells[$"I{rowIndex}"].Style.Numberformat.Format = "#,##0.00";
-                    worksheet.Cells[$"J{rowIndex}"].Value = invoice.IVA;
+                    worksheet.Cells[$"G{rowIndex}"].Value = invoice.PaymentForm;
+                    worksheet.Cells[$"H{rowIndex}"].Value = invoice.InvoiceType;
+                    worksheet.Cells[$"I{rowIndex}"].Value = invoice.Currency;
+                    worksheet.Cells[$"J{rowIndex}"].Value = invoice.Subtotal;
+                    worksheet.Cells[$"K{rowIndex}"].Value = invoice.IVA;
+                    worksheet.Cells[$"L{rowIndex}"].Value = invoice.Total;
+
+
                     worksheet.Cells[$"J{rowIndex}"].Style.Numberformat.Format = "#,##0.00";
-                    worksheet.Cells[$"K{rowIndex}"].Value = invoice.Total;
                     worksheet.Cells[$"K{rowIndex}"].Style.Numberformat.Format = "#,##0.00";
+                    worksheet.Cells[$"L{rowIndex}"].Style.Numberformat.Format = "#,##0.00";
                     rowIndex++;
                 }
                 worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();

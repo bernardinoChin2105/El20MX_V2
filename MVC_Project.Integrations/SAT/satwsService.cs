@@ -266,6 +266,19 @@ namespace MVC_Project.Integrations.SAT
             return satModel;
         }
 
+        public static string GetXMLInvoice(string uuid)
+        {
+            string url = "invoices/" + uuid + "/cfdi.xml";
+            try
+            {
+                return SATws.CallServiceSATws(url, null, "get");
+            }
+            catch (Exception ex)
+            {
+                return string.Empty;
+            }
+        }
+
         /*Obtener los CFDI's*/
         public static List<InvoicesCFDI> GetInvoicesCFDI(List<string> CFDIIds)
         {
@@ -307,8 +320,7 @@ namespace MVC_Project.Integrations.SAT
         /*Crear timbrado de factura*/
         public static InvoicesInfo PostIssueIncomeInvoices(dynamic invoiceJson)
         {            
-            InvoicesInfo invoice = new InvoicesInfo();            
-
+            InvoicesInfo invoice = new InvoicesInfo();
             //var responseInvoices =  SATws.CallServiceSATws("invoices", invoiceJson, "Post");
             var responseInvoices = SATws.CallInvoiceServiceSATws("invoices", invoiceJson, "Post");
             invoice = JsonConvert.DeserializeObject<InvoicesInfo>(responseInvoices);
