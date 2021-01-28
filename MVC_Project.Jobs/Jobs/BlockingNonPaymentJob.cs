@@ -20,28 +20,28 @@ using Newtonsoft.Json;
 
 namespace MVC_Project.Jobs
 {
-    public class CredentialsCancellationJob
+    public class BlockingNonPaymentJob
     {
         static bool executing = false;
         static readonly Object thisLock = new Object();
         static IProcessService _processService;
-        //static IProviderService _providerService;
-        static IAccountService _accountService;
         static ICredentialService _credentialService;
+        static IAccountService _accountService;
+        //static IProviderService _providerService;
 
-        static readonly string JOB_CODE = "CancellationJob_CredentialsCancellation";
+        static readonly string JOB_CODE = "CancellationJob_BlockingNonPayment";
 
         /*
          * Proceso de cancelación de credenciales
          **/
 
-        public static void CredentialsCancellation()
+        public static void BlockingNonPayment()
         {
             var _unitOfWork = new UnitOfWork();
             _processService = new ProcessService(new Repository<Process>(_unitOfWork));
-            //_providerService = new ProviderService(new Repository<Provider>(_unitOfWork));
             _accountService = new AccountService(new Repository<Account>(_unitOfWork));
             _credentialService = new CredentialService(new Repository<Credential>(_unitOfWork));
+           // _providerService = new ProviderService(new Repository<Provider>(_unitOfWork));
 
             Process processJob = _processService.GetByCode(JOB_CODE);
             bool CAN_EXECUTE = processJob != null && processJob.Status && !processJob.Running; //Esta habilitado y no está corriendo (validacion por BD)
@@ -69,15 +69,31 @@ namespace MVC_Project.Jobs
                         strResult.Append(string.Format("Executing at {0}", DateUtil.GetDateTimeNow()));
 
                         #region Implementar logica de negocio especifica
-                        var SATProvider = ConfigurationManager.AppSettings["SATProvider"];
-                        var BankProvider = ConfigurationManager.AppSettings["BankProvider"];
                         var RecurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
                         var siteId = ConfigurationManager.AppSettings["Recurly.SiteId"];
+                        var SATProvider = ConfigurationManager.AppSettings["SATProvider"];
+                        var BankProvider = ConfigurationManager.AppSettings["BankProvider"];
 
                         //Actividades
-                        /*Proceso de cancelación de credenciales para los usuarios que son prospectos.*/
-                        //Obtener las cuentas del todos los usuarios.                             
-                        //Cada cuenta debe estar Activa, la fechaCreación > 16 días y que la FechaFacturación debe estar vacía
+                        /*Proceso de bloqueo de cuenta por falta de pagos.*/
+                        /*
+                         * - Obtener cuentas activas con facturaciones vigentes del mes en curso
+                         * - Validar 
+                         * 
+                         * Reglas:
+                         * - El proceso se ejecuta de manera diaria
+                         * - Validar su estatus de pago apartir del día 5 de cada mes
+                         * - El día 8 del mes en curso, se validará que la cuenta tenga un último cobro; 
+                         *   si este es fallido la cuenta cambia a estatus "Suspendido".
+                         * - Si se detecta un pago exitoso entre los días 9 y 23 se cambia el status de la cuenta a Activo
+                         * - El día 24 si la cuenta continuá con pago fallido, se cambia el estatus de la cuenta a Cancelada
+                         *   y se realiza la cancelación de las credenciales de SAT.ws, Paybook y Recurly.                         
+                         * **/
+
+
+
+
+
                         /** Parametros: FechaDelDía**/
 
                         DateTime today = DateUtil.GetDateTimeNow();

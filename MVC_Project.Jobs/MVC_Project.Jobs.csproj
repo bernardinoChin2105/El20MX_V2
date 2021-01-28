@@ -203,6 +203,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Jobs\BankJob.cs" />
+    <Compile Include="Jobs\BlockingNonPaymentJob.cs" />
     <Compile Include="Jobs\CredentialsCancellationJob.cs" />
     <Compile Include="Jobs\SATExtractionJob.cs" />
     <Compile Include="Jobs\CreateRecurlyAccountsJob.cs" />
