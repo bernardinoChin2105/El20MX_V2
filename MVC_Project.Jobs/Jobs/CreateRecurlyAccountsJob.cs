@@ -84,9 +84,10 @@ namespace MVC_Project.Jobs
                             recurlyAccountsList.AddRange(accountsResponse.data);
                         }
 
-                        var storedAccounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString());
-                        //var accountsCrede = _accountService.GetAccountRecurly();
-
+                        var storedAccounts = _accountService.
+                            FindBy(x => x.status == SystemStatus.ACTIVE.ToString() && 
+                            !x.credentials.Any(y => y.provider == SystemProviders.RECURLY.ToString()));                            
+                        
                         foreach (var account in storedAccounts)
                         {
                             if (!recurlyAccountsList.Any(x => x.Code.ToLower() == account.uuid.ToString().ToLower())) 
