@@ -23,8 +23,11 @@ namespace MVC_Project.Jobs
         static IProcessService _processService;
         static NotificationService _notificationService;
         static IProviderService _providerService;
+        static ICustomerService _customerService;
         static InvoiceReceivedService _invoicesReceivedService;
+        static InvoiceIssuedService _invoiceIssuedService;
         static RecurlyPaymentService _recurlyPaymentService;
+        static IAccountService _accountService;
 
         private static IDriveKeyService _driveKeyService;
         static IInvoiceEmissionParametersService _invoiceEmissionParametersService;
@@ -36,12 +39,19 @@ namespace MVC_Project.Jobs
         {
             var _unitOfWork = new UnitOfWork();
             _processService = new ProcessService(new Repository<Process>(_unitOfWork));
-            _recurlyPaymentService = new RecurlyPaymentService(new Repository<RecurlyPayment>(_unitOfWork));
-            _invoicesReceivedService = new InvoiceReceivedService(new Repository<InvoiceReceived>(_unitOfWork));
-            _driveKeyService = new DriveKeyService(new Repository<DriveKey>(_unitOfWork));
+
             _invoiceEmissionParametersService = new InvoiceEmissionParametersService(new Repository<InvoiceEmissionParameters>(_unitOfWork));
-            _notificationService = new NotificationService(new Repository<Notification>(_unitOfWork));
+            _driveKeyService = new DriveKeyService(new Repository<DriveKey>(_unitOfWork));
+
+            _invoicesReceivedService = new InvoiceReceivedService(new Repository<InvoiceReceived>(_unitOfWork));
+            _invoiceIssuedService = new InvoiceIssuedService(new Repository<InvoiceIssued>(_unitOfWork));
+            
             _providerService = new ProviderService(new Repository<Provider>(_unitOfWork));
+            _customerService = new CustomerService(new Repository<Customer>(_unitOfWork));
+            _accountService = new AccountService(new Repository<Account>(_unitOfWork));
+
+            _recurlyPaymentService = new RecurlyPaymentService(new Repository<RecurlyPayment>(_unitOfWork));
+            _notificationService = new NotificationService(new Repository<Notification>(_unitOfWork));
 
             _client = new HttpClient();
 
@@ -74,6 +84,8 @@ namespace MVC_Project.Jobs
                         var invoicingParameters = _invoiceEmissionParametersService.FirstOrDefault(x => x.status == SystemStatus.ACTIVE.ToString());
                         var provider = ConfigurationManager.AppSettings["SATProvider"];
                         var StorageInvoicesReceived = ConfigurationManager.AppSettings["StorageInvoicesReceived"];
+                        var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
+
                         var serverAcces = ConfigurationManager.AppSettings["_UrlServerAccess"];
                         _client.BaseAddress = new Uri(serverAcces);
 
@@ -202,7 +214,7 @@ namespace MVC_Project.Jobs
                                                 modifiedAt = DateUtil.GetDateTimeNow(),
                                                 status = IssueStatus.STAMPED.ToString(),
                                                 account = account,
-                                                provider = _providerService.FirstOrDefault(y => y.rfc == CFDIReceived.Emisor.Rfc),
+                                                provider = _providerService.FirstOrDefault(y => y.account.id == account.id && y.rfc == CFDIReceived.Emisor.Rfc),
                                                 invoiceType = CFDIReceived.TipoDeComprobante,
                                                 subtotal = CFDIReceived.SubTotal,
                                                 total = CFDIReceived.Total,
@@ -210,8 +222,8 @@ namespace MVC_Project.Jobs
                                             };
 
                                             _invoicesReceivedService.Create(invoiceReceived);
-                                            payment.invoice = invoiceReceived;
-
+                                            payment.invoiceReceived = invoiceReceived;
+                                            
                                             var taskResponse = _client.GetAsync($"Invoicing/GetAsPDFContent?id={invoiceReceived.id}&type=RECEIVED&rfc={account.rfc}");
                                             taskResponse.Wait();
                                             var result = taskResponse.Result;
@@ -227,6 +239,39 @@ namespace MVC_Project.Jobs
                                             {
                                                 SendInvoice(payment.email, account.rfc, account.name, "", invoiceReceived.xml, uploadPDF.Item1);
                                             }
+                                        }
+
+                                        var el20mx = _accountService.FirstOrDefault(x => x.rfc == issuer.Rfc);
+                                        if (el20mx != null)
+                                        {
+                                            byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(CFDIReceived.Xml);
+                                            System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
+                                            var upload = AzureBlobService.UploadPublicFile(stream, CFDIReceived.id + ".xml", StorageInvoicesIssued, el20mx.rfc);
+
+                                            var invoiceIssued = new InvoiceIssued
+                                            {
+                                                uuid = Guid.Parse(CFDIReceived.id),
+                                                folio = CFDIReceived.Folio,
+                                                serie = CFDIReceived.Serie,
+                                                paymentMethod = CFDIReceived.MetodoPago,
+                                                paymentForm = CFDIReceived.FormaPago,
+                                                currency = CFDIReceived.Moneda,
+                                                iva = stampResult.tax.GetValueOrDefault(),
+                                                invoicedAt = CFDIReceived.Fecha,
+                                                xml = upload.Item1,
+                                                createdAt = DateUtil.GetDateTimeNow(),
+                                                modifiedAt = DateUtil.GetDateTimeNow(),
+                                                status = IssueStatus.STAMPED.ToString(),
+                                                account = el20mx,
+                                                customer = _customerService.FirstOrDefault(y => account.id == el20mx.id && y.rfc == account.rfc),
+                                                invoiceType = CFDIReceived.TipoDeComprobante,
+                                                subtotal = CFDIReceived.SubTotal,
+                                                total = CFDIReceived.Total,
+                                                homemade = true
+                                            };
+
+                                            _invoiceIssuedService.Create(invoiceIssued);
+                                            payment.invoiceIssued = invoiceIssued;
                                         }
                                     }
                                     catch (Exception ex)

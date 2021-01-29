@@ -26,7 +26,6 @@ namespace MVC_Project.Jobs
         static IProcessService _processService;
         static IWebhookProcessService _webhookProcessService;
         static IAccountService _accountService;
-        static NotificationService _notificationService;
         static CredentialService _credentialService;
 
         static InvoiceIssuedService _invoicesIssuedService;
@@ -44,7 +43,6 @@ namespace MVC_Project.Jobs
             _processService = new ProcessService(new Repository<Process>(_unitOfWork));
             _webhookProcessService = new WebhookProcessService(new Repository<WebhookProcess>(_unitOfWork));
             _accountService = new AccountService(new Repository<Domain.Entities.Account>(_unitOfWork));
-            _notificationService = new NotificationService(new Repository<Notification>(_unitOfWork));
             _recurlyInvoiceService = new RecurlyInvoiceService(new Repository<RecurlyInvoice>(_unitOfWork));
             _recurlySubscriptionService = new RecurlySubscriptionService(new Repository<RecurlySubscription>(_unitOfWork));
             _credentialService = new CredentialService(new Repository<Credential>(_unitOfWork));
@@ -89,7 +87,6 @@ namespace MVC_Project.Jobs
 
                         //Obtener la lista de usuarios activo
                         var accountsRecurly = _accountService.GetAccountRecurly();
-
                         var now = DateUtil.GetDateTimeNow();
                         var pastMonth = now.AddMonths(-1);
                         var firstDayOfMonth = new DateTime(pastMonth.Year, pastMonth.Month, 1);
@@ -101,11 +98,6 @@ namespace MVC_Project.Jobs
                             {
                                 #region lo que se ejecuta dentro por cada cliente
                                 var accountSupscriptions = RecurlyService.GetAccountSuscriptions(siteId, acc.idCredentialProvider);
-
-                                //if (accountSupscriptions.data.Count == 0)
-                                //{
-                                //    continue;
-                                //}
 
                                 var issuedInvoices = _invoicesIssuedService.FindBy(x => x.account.id == acc.id 
                                     && x.invoicedAt >= firstDayOfMonth && x.invoicedAt <= lastDayOfMonth).OrderBy(x => x.invoicedAt);
@@ -579,35 +571,59 @@ namespace MVC_Project.Jobs
             };
             _recurlySubscriptionService.Create(recurlySubscription);
 
-            var recurlyInvoice = new RecurlyInvoice
+            var storedPaymentInvoice = _recurlyInvoiceService.FirstOrDefault(x => x.invoiceNumber == invoiceCollection.ChargeInvoice.Number);
+            if (storedPaymentInvoice == null)
             {
-                createdAt = now,
-                mounth = invoiceCollection.ChargeInvoice.CreatedAt.GetValueOrDefault().Month.ToString(),
-                year = invoiceCollection.ChargeInvoice.CreatedAt.GetValueOrDefault().Year.ToString(),
-                uuid = Guid.NewGuid(),
-                subscription = recurlySubscription,
-                totalInvoice = invoicesCount.totalInvoice,
-                totalInvoiceIssued = invoicesCount.totalInvoiceIssued,
-                totalInvoiceReceived = invoicesCount.totalInvoiceReceived,
-                extraBills = invoicesCount.extraBills,
-                invoiceId = invoiceCollection.ChargeInvoice.Number
-            };
-            _recurlyInvoiceService.Create(recurlyInvoice);
+                var recurlyInvoice = new RecurlyInvoice
+                {
+                    createdAt = now,
+                    transactionAt = invoiceCollection.ChargeInvoice.Transactions.First().CreatedAt.GetValueOrDefault(),
+                    mounth = invoiceCollection.ChargeInvoice.CreatedAt.GetValueOrDefault().Month.ToString(),
+                    year = invoiceCollection.ChargeInvoice.CreatedAt.GetValueOrDefault().Year.ToString(),
+                    uuid = Guid.NewGuid(),
+                    subscription = recurlySubscription,
+                    totalInvoice = invoicesCount.totalInvoice,
+                    totalInvoiceIssued = invoicesCount.totalInvoiceIssued,
+                    totalInvoiceReceived = invoicesCount.totalInvoiceReceived,
+                    extraBills = invoicesCount.extraBills,
+                    invoiceNumber = invoiceCollection.ChargeInvoice.Number,
+                    account = new Domain.Entities.Account { id = accountCredential.id },
+                };
+                _recurlyInvoiceService.Create(recurlyInvoice);
+            }
+            else
+            {
+                storedPaymentInvoice.subscription = recurlySubscription;
+                _recurlyInvoiceService.Update(storedPaymentInvoice);
+            }
 
-            var recurlyPayment = new RecurlyPayment
+            var transactionId = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault().Uuid;
+            var storedPaymentTransaction = _recurlyPaymentService.FirstOrDefault(x => x.transactionId == transactionId);
+            if (storedPaymentTransaction == null)
             {
-                createdAt = invoiceCollection.ChargeInvoice.Transactions.First().CreatedAt.GetValueOrDefault(),
-                subscription = recurlySubscription,
-                subtotal = Convert.ToDecimal(invoiceCollection.ChargeInvoice.Subtotal.GetValueOrDefault()),
-                total = Convert.ToDecimal(invoiceCollection.ChargeInvoice.Total.GetValueOrDefault()),
-                paymentGateway = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault()?.PaymentGateway.Name,
-                customerMessage = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault()?.CustomerMessage,
-                statusCode = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault()?.Status,
-                statusMessage = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault()?.StatusMessage,
-                transactionId = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault().Uuid,
-                email = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault().Account.Email
-            };
-            _recurlyPaymentService.Create(recurlyPayment);
+                var recurlyPayment = new RecurlyPayment
+                {
+                    createdAt = now,
+                    transactionAt = invoiceCollection.ChargeInvoice.Transactions.First().CreatedAt.GetValueOrDefault(),
+                    subscription = recurlySubscription,
+                    subtotal = Convert.ToDecimal(invoiceCollection.ChargeInvoice.Subtotal.GetValueOrDefault()),
+                    total = Convert.ToDecimal(invoiceCollection.ChargeInvoice.Total.GetValueOrDefault()),
+                    paymentGateway = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault()?.PaymentGateway.Name,
+                    customerMessage = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault()?.CustomerMessage,
+                    statusCode = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault()?.Status,
+                    statusMessage = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault()?.StatusMessage,
+                    transactionId = transactionId,
+                    email = invoiceCollection.ChargeInvoice.Transactions.FirstOrDefault().Account.Email,
+                    invoiceNumber = invoiceCollection.ChargeInvoice.Number,
+                    account = new Domain.Entities.Account { id = accountCredential.id },
+                };
+                _recurlyPaymentService.Create(recurlyPayment);
+            }
+            else
+            {
+                storedPaymentTransaction.subscription = recurlySubscription;
+                _recurlyPaymentService.Update(storedPaymentTransaction);
+            }
         }
 
         public static void SaveSubscriptionChangeLog(SubscriptionChange subscriptionChange, AccountCredentialModel accountCredential)

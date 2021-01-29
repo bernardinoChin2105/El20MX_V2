@@ -24,16 +24,19 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.customerMessage).Column("customerMessage").Nullable();
 
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
+            Map(x => x.transactionAt).Column("transactionAt").Not.Nullable();
             Map(x => x.transactionId).Column("transactionId").Nullable();
             Map(x => x.stampStatus).Column("stampStatus").Nullable();
             Map(x => x.stampAttempt).Column("stampAttempt").Not.Nullable();
             Map(x => x.stampStatusMessage).Column("stampStatusMessage").Length(3000).Nullable();
             Map(x => x.email).Column("email").Nullable();
-            //Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
-            //Map(x => x.status).Column("status").Nullable();
+            Map(x => x.invoiceNumber).Column("invoiceNumber").Nullable();
 
             References(x => x.subscription).Column("subscriptionId").Nullable();
-            References(x => x.invoice).Column("invoiceId").Nullable();
+            References(x => x.invoiceIssued).Column("invoiceIssuedId").Nullable();
+            References(x => x.invoiceReceived).Column("invoiceReceivedId").Nullable();
+
+            References(x => x.account).Column("accountId").Nullable();
 
         }
     }

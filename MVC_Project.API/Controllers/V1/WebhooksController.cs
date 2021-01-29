@@ -276,6 +276,7 @@ namespace MVC_Project.API.Controllers
                 var contentNode = xmlDoc.ChildNodes[1];
 
                 var accountCode = contentNode.SelectSingleNode("account").SelectSingleNode("account_code").InnerText;
+                Account account = _accountService.FirstOrDefault(x => x.uuid.ToString().ToLower() == accountCode.ToLower());
                 RecurlySubscription recurlySubscription = null;
 
                 switch (contentNode.Name)
@@ -290,16 +291,17 @@ namespace MVC_Project.API.Controllers
                             var total = int.Parse(amountInCents) / 100M;
                             var recurlyPayment = new RecurlyPayment
                             {
-                                createdAt = DateTime.Parse(contentNode.SelectSingleNode("transaction").SelectSingleNode("date").InnerText),
+                                createdAt = DateUtil.GetDateTimeNow(),
+                                transactionAt = DateTime.Parse(contentNode.SelectSingleNode("transaction").SelectSingleNode("date").InnerText),
                                 subscription = recurlySubscription,
-                                subtotal = total,
                                 total = total,
                                 paymentGateway = contentNode.SelectSingleNode("transaction").SelectSingleNode("gateway").InnerText,
-                                customerMessage = "",
                                 statusCode = contentNode.SelectSingleNode("transaction").SelectSingleNode("status").InnerText,
                                 statusMessage = contentNode.SelectSingleNode("transaction").SelectSingleNode("message").InnerText,
                                 email = contentNode.SelectSingleNode("account").SelectSingleNode("email").InnerText,
-                                transactionId = transactionId
+                                transactionId = transactionId,
+                                invoiceNumber = contentNode.SelectSingleNode("transaction").SelectSingleNode("invoice_number").InnerText,
+                                account = account
                             };
                             _recurlyPaymentService.Create(recurlyPayment);
                         }
@@ -307,22 +309,20 @@ namespace MVC_Project.API.Controllers
                     case "paid_charge_invoice_notification":
                         recurlySubscription = _recurlySubscriptionService.FirstOrDefault(x => x.account.uuid.ToString().ToLower() == accountCode.ToLower() && x.status == "ACTIVE");
                         var invoiceNumber = contentNode.SelectSingleNode("invoice").SelectSingleNode("invoice_number").InnerText;
-                        var storedPaymentInvoice = _recurlyInvoiceService.FirstOrDefault(x => x.invoiceId == invoiceNumber);
+                        var storedPaymentInvoice = _recurlyInvoiceService.FirstOrDefault(x => x.invoiceNumber == invoiceNumber);
                         if(storedPaymentInvoice == null)
                         {
-                            var createdAt = DateTime.Parse(contentNode.SelectSingleNode("invoice").SelectSingleNode("created_at").InnerText);
+                            var transactionAt = DateTime.Parse(contentNode.SelectSingleNode("invoice").SelectSingleNode("created_at").InnerText);
                             var recurlyInvoice = new RecurlyInvoice
                             {
-                                createdAt = createdAt,
-                                mounth = createdAt.Month.ToString(),
-                                year = createdAt.Year.ToString(),
+                                createdAt = DateUtil.GetDateTimeNow(),
+                                transactionAt = transactionAt,
+                                mounth = transactionAt.Month.ToString(),
+                                year = transactionAt.Year.ToString(),
                                 uuid = Guid.NewGuid(),
                                 subscription = recurlySubscription,
-                                totalInvoice = 0,
-                                totalInvoiceIssued = 0,
-                                totalInvoiceReceived = 0,
-                                extraBills = 0,
-                                invoiceId = invoiceNumber
+                                invoiceNumber = invoiceNumber,
+                                account = account
                             };
                             _recurlyInvoiceService.Create(recurlyInvoice);
 
@@ -341,15 +341,16 @@ namespace MVC_Project.API.Controllers
                         var totalAmount = int.Parse(amountTransactionInCents) / 100M;
                         var recurlyFailedPayment = new RecurlyPayment
                         {
-                            createdAt = DateTime.Parse(contentNode.SelectSingleNode("transaction").SelectSingleNode("date").InnerText),
+                            createdAt = DateUtil.GetDateTimeNow(), 
+                            transactionAt = DateTime.Parse(contentNode.SelectSingleNode("transaction").SelectSingleNode("date").InnerText),
                             subscription = recurlySubscription,
-                            subtotal = totalAmount,
                             total = totalAmount,
                             paymentGateway = contentNode.SelectSingleNode("transaction").SelectSingleNode("gateway").InnerText,
-                            customerMessage = "",
                             statusCode = contentNode.SelectSingleNode("transaction").SelectSingleNode("status").InnerText,
                             statusMessage = contentNode.SelectSingleNode("transaction").SelectSingleNode("message").InnerText,
-                            transactionId = failedTransactionId
+                            transactionId = failedTransactionId,
+                            invoiceNumber = contentNode.SelectSingleNode("transaction").SelectSingleNode("invoice_number").InnerText,
+                            account = account
                         };
                         _recurlyPaymentService.Create(recurlyFailedPayment);
 

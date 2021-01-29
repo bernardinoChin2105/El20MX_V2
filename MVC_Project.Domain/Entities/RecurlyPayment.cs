@@ -17,15 +17,17 @@ namespace MVC_Project.Domain.Entities
         public virtual string statusMessage { get; set; }
         public virtual string customerMessage { get; set; }
         public virtual DateTime createdAt { get; set; }
+        public virtual DateTime transactionAt { get; set; }
         public virtual string transactionId { get; set; }
         public virtual string stampStatus { get; set; }
         public virtual int stampAttempt { get; set; }
         public virtual string stampStatusMessage { get; set; }
-        public virtual InvoiceReceived invoice { get; set; }
-        /*Agregar datos por si me hacen falta*/
 
-        //public virtual DateTime modifiedAt { get; set; }
-        //public virtual string status { get; set; }
+        public virtual InvoiceReceived invoiceReceived { get; set; }
+        public virtual InvoiceIssued invoiceIssued { get; set; }
+
+        public virtual string invoiceNumber { get; set; }
+        public virtual Account account { get; set; }
 
         public virtual RecurlySubscription subscription { get; set; }
     }

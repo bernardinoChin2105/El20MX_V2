@@ -23,12 +23,11 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.totalInvoiceReceived).Column("totalInvoiceReceived").Nullable();
             Map(x => x.totalInvoiceIssued).Column("totalInvoiceIssued").Nullable();
             Map(x => x.extraBills).Column("extraBills").Nullable();
-
+            Map(x => x.transactionAt).Column("transactionAt").Not.Nullable();
             Map(x => x.createdAt).Column("createdAt").Not.Nullable();
-            Map(x => x.invoiceId).Column("invoiceId").Nullable();
-            //Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
-            //Map(x => x.status).Column("status").Nullable();
+            Map(x => x.invoiceNumber).Column("invoiceNumber").Nullable();
             References(x => x.subscription).Column("subscriptionId").Nullable();
+            References(x => x.account).Column("accountId").Nullable();
         }
     }
 }
