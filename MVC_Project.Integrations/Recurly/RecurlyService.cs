@@ -127,5 +127,17 @@ namespace MVC_Project.Integrations.Recurly
                 throw new Exception("No se encontró un proveedor de acceso.");
             }
         }
+
+        public static Invoice GetInvoice(string invoiceNumber, string siteId, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                return RecurlyServices.GetInvoice(invoiceNumber, siteId);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
     }
 }

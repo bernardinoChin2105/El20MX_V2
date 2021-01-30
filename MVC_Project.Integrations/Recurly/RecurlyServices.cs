@@ -133,5 +133,17 @@ namespace MVC_Project.Integrations.Recurly
 
             return recurlyModel;
         }
+
+        public static Invoice GetInvoice(string invoiceNumber, string siteId)
+        {
+            Invoice recurlyModel = new Invoice();
+            string url = "sites/" + siteId + "/invoices/number-" + invoiceNumber;
+
+            var responseRecurly = Recurly.CallServiceRecurly(url, null, "GET");
+
+            recurlyModel = JsonConvert.DeserializeObject<Invoice>(responseRecurly);
+
+            return recurlyModel;
+        }
     }
 }
