@@ -87,7 +87,7 @@ namespace MVC_Project.Jobs
                             ToList();
 
                         DateTime dateTo = DateUtil.GetDateTimeNow();
-                        DateTime dateFrom = DateTime.UtcNow.AddDays(-3);
+                        DateTime dateFrom = DateTime.UtcNow.AddMonths(-1);
                         dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
 
                         if (isHistorical)

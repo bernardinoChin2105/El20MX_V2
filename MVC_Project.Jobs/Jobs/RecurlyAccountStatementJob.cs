@@ -87,6 +87,21 @@ namespace MVC_Project.Jobs
 
                         //Obtener la lista de usuarios activo
                         var accountsRecurly = _accountService.GetAccountRecurly();
+                        
+                        var transactions = new List<Transaction>();
+                        var transactionsListResponse = RecurlyService.GetVerifiedTransactions(siteId, provider);
+                        transactions.AddRange(transactionsListResponse.data);
+                        while(transactionsListResponse.has_more)
+                        {
+                            transactionsListResponse = RecurlyService.GetNextTransactions(transactionsListResponse.next, provider);
+                            transactions.AddRange(transactionsListResponse.data);
+                        }
+
+                        accountsRecurly = (from a in accountsRecurly
+                                           join t in transactions
+                                           on a.uuid.ToString() equals t.Account.Code
+                                           select a).ToList();
+                        
                         var now = DateUtil.GetDateTimeNow();
                         var pastMonth = now.AddMonths(-1);
                         var firstDayOfMonth = new DateTime(pastMonth.Year, pastMonth.Month, 1);

@@ -145,5 +145,24 @@ namespace MVC_Project.Integrations.Recurly
 
             return recurlyModel;
         }
+
+        public static TransactionsListResponse GetTransactions(string type, string success, int limit, string siteId)
+        {
+            TransactionsListResponse recurlyModel = new TransactionsListResponse();
+            string url = "sites/" + siteId + "/transactions";
+
+            var responseRecurly = Recurly.CallServiceRecurly(url, new { type, success, limit }, "GET");
+
+            return JsonConvert.DeserializeObject<TransactionsListResponse>(responseRecurly);
+        }
+
+        public static TransactionsListResponse GetNexTransactions(string url)
+        {
+            TransactionsListResponse recurlyModel = new TransactionsListResponse();
+
+            var responseRecurly = Recurly.CallServiceRecurly(url, null, "GET");
+
+            return JsonConvert.DeserializeObject<TransactionsListResponse>(responseRecurly);
+        }
     }
 }
