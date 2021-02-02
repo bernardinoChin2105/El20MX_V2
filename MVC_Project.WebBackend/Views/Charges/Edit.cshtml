@@ -15,7 +15,12 @@
 }
 @section styles {
     @Styles.Render("~/plugins/dataPickerStyles")
-    @Styles.Render("~/Content/template/plugins/switchery/switchery.css")
+
+    <style>
+        .chosen-container.chosen-with-drop .chosen-drop {
+            position: relative;
+        }
+    </style>
 }
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
@@ -97,7 +102,6 @@
 
 @section Scripts {
     @Scripts.Render("~/plugins/dataPicker")
-    @Scripts.Render("~/Scripts/plugins/switchery/switchery.js")
     <script type="text/javascript">
         $(document).ready(function () {
             $('.chosen-select').chosen({ width: '100%', "disable_search": true, no_results_text: "Sin resultados para: " });
@@ -132,8 +136,6 @@
                 startDate: new Date()
                 ////startDate: DateInit.MinDate
             });
-
-            var init = new Switchery($('.status-select')[0]);
         });
 
         function validarDatos() {
