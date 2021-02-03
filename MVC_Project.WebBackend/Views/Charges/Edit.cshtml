@@ -111,22 +111,13 @@
             //        return value.match(/^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/);
             //    }, "La contraseña debe contener al menos un número, mayúsculas, minúsculas y caracteres especiales"
             //);
-            //$("#EditForm").validate({
-            //    rules: {
-            //        Name: {
-            //            required: true,
-            //        },
-            //        Email: {
-            //            required: true,
-            //        },
-            //        Role: {
-            //            required: true,
-            //        },
-            //        Apellidos: {
-            //            required: true,
-            //        }
-            //    }
-            //});
+            $("#EditForm").validate({
+                rules: {
+                    Status: {
+                        required: true,
+                    }
+                }
+            });
             $('#BillingStart').datepicker({
                 keyboardNavigation: false,
                 autoclose: true,
