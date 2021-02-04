@@ -36,7 +36,7 @@ namespace MVC_Project.Jobs
                     RecurringJob.AddOrUpdate("SATExtractionJob_InvoiceExtractions", () => SATExtractionJob.InvoiceExtractions(), "0 0 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
                     RecurringJob.AddOrUpdate("RecurlyJob_GenerateAccountStatement", () => RecurlyAccountStatementJob.GenerateAccountStatement(), "0 0 4 * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
                     RecurringJob.AddOrUpdate("RecurlyJob_IssueInvoices", () => RecurlyInvoicingJob.IssueInvoices(), "0 23 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
-                    BackgroundJob.Enqueue(() => CreateRecurlyAccountsJob.CreateAccounts());
+                    RecurringJob.AddOrUpdate("RecurlyJob_CreateAccounts", () => CreateRecurlyAccountsJob.CreateAccounts(), "0 6 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
                     
                     //BackgroundJob.Enqueue(() => CreateRecurlyAccountsJob.CreateAccounts());
                 }

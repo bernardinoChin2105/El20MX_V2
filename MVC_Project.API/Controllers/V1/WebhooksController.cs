@@ -226,7 +226,11 @@ namespace MVC_Project.API.Controllers
                     }
                     if (isValid)
                     {
-                        SATService.GenerateTaxStatus(credential.account.rfc, provider);
+                        var account = credential.account;
+                        account.status = SystemStatus.ACTIVE.ToString();
+                        _accountService.Update(account);
+
+                        SATService.GenerateTaxStatus(account.rfc, provider);
                     }
                 }
             }
