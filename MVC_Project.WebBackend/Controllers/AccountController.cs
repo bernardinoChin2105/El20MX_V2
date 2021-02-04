@@ -241,6 +241,11 @@ namespace MVC_Project.WebBackend.Controllers
                             isCustomizable = p.permission.isCustomizable
                         }).ToList();
 
+                        if (account.status == SystemStatus.SUSPENDED.ToString())
+                        {
+                            permissions = permissions.Where(x => x.Module == SystemModules.MY_ACCOUNT.ToString()).ToList();
+                        }
+
                         var recurlyAccountCredential = _credentialService.FindBy(x => x.account.id == account.id && x.provider == recurlyProvider && x.statusProvider == "active" && x.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
                         if(recurlyAccountCredential != null && !string.IsNullOrEmpty(recurlyAccountCredential.credentialType))
                         {
@@ -263,7 +268,7 @@ namespace MVC_Project.WebBackend.Controllers
                         #endregion
 
                         authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
-                        authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
+                        authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar, Status = account.status };
                         authUser.Permissions = permissions;
 
                         Authenticator.RefreshAuthenticatedUser(authUser);
@@ -273,7 +278,13 @@ namespace MVC_Project.WebBackend.Controllers
                            ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                            string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                         );
+
                         var inicio = permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+
+                        //Validar si es la unica cuenta de myaccount
+                        if (inicio.Module == SystemModules.MY_ACCOUNT.ToString() && account.status == SystemStatus.SUSPENDED.ToString())
+                            inicio.Controller = "Home";
+
                         return RedirectToAction("Index", inicio.Controller);
                     }
                 }

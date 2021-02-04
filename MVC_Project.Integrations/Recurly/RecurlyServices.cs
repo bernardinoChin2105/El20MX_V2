@@ -140,11 +140,24 @@ namespace MVC_Project.Integrations.Recurly
 
             string url = "sites/" + siteId + "/accounts/" + accountId;            
 
-            //Llamar al servicio para crear la credencial en el recurly y obtener respuesta                  
+            //Llamar al servicio para cerrar la credencial en el recurly y obtener respuesta                  
             var responseRecurly = Recurly.CallServiceRecurly(url, null, "Delete");
             accountModel = JsonConvert.DeserializeObject<Account>(responseRecurly);
 
             return accountModel;
         } 
+
+        public static Invoice GetAccount(string accountId, string siteId)
+        {
+            Invoice invoiceModel = new Invoice();
+
+            string url = "sites/" + siteId + "/accounts/" + accountId+"invoices";
+
+            //Llamar al servicio para obtener la cuenta en el recurly y obtener respuesta                  
+            var responseRecurly = Recurly.CallServiceRecurly(url, null, "Get");
+            invoiceModel = JsonConvert.DeserializeObject<Invoice>(responseRecurly);
+
+            return invoiceModel;
+        }
     }
 }

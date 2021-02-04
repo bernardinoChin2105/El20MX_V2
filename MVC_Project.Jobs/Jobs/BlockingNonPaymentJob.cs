@@ -5,14 +5,11 @@ using MVC_Project.Domain.Services;
 using MVC_Project.Integrations.Paybook;
 using MVC_Project.Integrations.SAT;
 using MVC_Project.Integrations.Recurly;
-//using MVC_Project.Integrations.Storage;
 using MVC_Project.Utils;
-//using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Configuration;
-//using System.Linq;
-//using System.Net.Http;
 using System.Text;
 using System.Threading;
 using LogHubSDK.Models;
@@ -75,168 +72,343 @@ namespace MVC_Project.Jobs
                         //Actividades
                         /*Proceso de bloqueo de cuenta por falta de pagos.*/
                         /*
-                         * - Obtener cuentas activas con facturaciones vigentes del mes en curso
-                         * - Validar 
+                         * - Obtener cuentas activas con facturaciones vigentes del mes en curso                         
                          * 
                          * Reglas:
                          * - El proceso se ejecuta de manera diaria
-                         * - Validar su estatus de pago apartir del día 5 de cada mes
-                         * - El día 8 del mes en curso, se validará que la cuenta tenga un último cobro; 
-                         *   si este es fallido la cuenta cambia a estatus "Suspendido".
-                         * - Si se detecta un pago exitoso entre los días 9 y 23 se cambia el status de la cuenta a Activo
-                         * - El día 24 si la cuenta continuá con pago fallido, se cambia el estatus de la cuenta a Cancelada
-                         *   y se realiza la cancelación de las credenciales de SAT.ws, Paybook y Recurly.                         
+                         * - Validar su estatus de pago apartir del día 5 de cada mes                                                                        
                          * **/
 
                         /** Parametros: FechaDelDía**/
-                        DateTime today = DateUtil.GetDateTimeNow();
-
-
-                        var accountsProspect = _accountService.GetAccountCredentialProspect(today);
-                        foreach (var prospect in accountsProspect)
+                        DateTime today = Convert.ToDateTime("2021-02-24"); //DateUtil.GetDateTimeNow();
+                        if (today.Day >= 8 && today.Day <= 24)
                         {
-                            //Se desactivaran las credenciales de Paybook y Satws para que deje de hacer la sincronización diaria.
-                            //También considerar las de recurly
+                            //días posibles de suspenciones y cancelaciones
+
+                            //Buscar cuentas con el último pago fallido durante el mes
+                            /* Validar que la cuenta realmente este con el pago fallido.
+                             * Si resulta exitosa ajusta las tablas correspondientes para ponerlo exitoso
+                            */
+
                             //if (prospect.rfc == "PEMY860416PR5")
-                            //{
-                                try
+                            //{                            
+                            if (today.Day == 8)
+                            {
+                                #region El día 8 del mes en curso, se validará que la cuenta tenga un último cobro, si este es fallido la cuenta cambia a estatus "Suspendido".
+
+                                var paymentsAccount = _accountService.GetLastPaymentsAccount(today, RecurlyPaymentStatus.OTHER.GetDisplayName());
+
+                                foreach (var payment in paymentsAccount)
                                 {
-                                    string provider = string.Empty;
-                                    bool delete = false;
-                                    string statusProvider = "";
-                                    if (prospect.provider == SystemProviders.SATWS.ToString())
+                                    try
                                     {
-                                        //Evento para desactivar la cuenta en satws
-                                        //la opción que se tiene es delete credential
-                                        provider = SystemProviders.SATWS.ToString();
-                                        try
+                                        //Validar que este correctamente fallido el pago
+                                        //var validateAccount = RecurlyService.GetAccount(payment.idCredentialProvider, siteId, SystemProviders.RECURLY.ToString());
+
+                                        //Cambiar el status de la cuenta
+                                        var account = _accountService.FirstOrDefault(x => x.id == payment.accountId);
+                                        if (account != null)
                                         {
-                                            //Si es eliminada, no regresa nada
-                                            SATService.DeleteCredential(prospect.idCredentialProvider, provider);
+                                            account.modifiedAt = DateUtil.GetDateTimeNow();
+                                            account.status = SystemStatus.SUSPENDED.ToString();
+                                            _accountService.Update(account);
+
                                             LogUtil.AddEntry(
-                                                "Credencial eliminada de SATws",
+                                                "Se cambio el status de la cuenta a suspendido",
                                                 ENivelLog.Info,
                                                 0,
                                                 "Proccess_" + JOB_CODE,
                                                 EOperacionLog.ACCESS,
-                                                string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
-                                                "CredentialsCancellation",
-                                                "Se elimino correctamente la credencial."//JsonConvert.SerializeObject()
-                                            );
-                                            statusProvider = SystemStatus.INACTIVE.ToString();
-                                            delete = true;
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            //Si marca error entonces no se elimino la cuenta en satws
-                                            LogUtil.AddEntry(
-                                                "Error al eliminar la cuenta de SATws: " + ex.Message.ToString(),
-                                                ENivelLog.Error,
-                                                0,
-                                                "Proccess_" + JOB_CODE,
-                                                EOperacionLog.ACCESS,
-                                                string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
-                                                "CredentialsCancellation",
-                                                JsonConvert.SerializeObject(ex.Message.ToString())
+                                                string.Format("|Cuenta {0} | RFC {1} | Fecha {2}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
+                                                "BlockingNonPayment",
+                                                JsonConvert.SerializeObject(payment)
                                             );
                                         }
                                     }
-                                    else if (prospect.provider == SystemProviders.SYNCFY.GetDisplayName())
+                                    catch (Exception Ex)
                                     {
-                                        //Evento para desactivar la cuenta en syncfy
-                                        //La opcion que se tiene es delete credential       
-                                        provider = SystemProviders.SYNCFY.GetDisplayName();
-                                        var response = PaybookService.DeleteUser(prospect.idCredentialProvider, "Delete", true);
-
+                                        //Guardar en el log, el motivo de la excepción
                                         LogUtil.AddEntry(
-                                            "Eliminación de la cuenta de Paybook.",
-                                            ENivelLog.Info,
-                                            0,
-                                            "Proccess_" + JOB_CODE,
+                                            "Detalle del error al obtener el último pago: " + Ex.Message.ToString(),
+                                            ENivelLog.Error,
+                                            0,//userId
+                                             "Proccess_" + JOB_CODE,
                                             EOperacionLog.ACCESS,
-                                            string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
-                                            "CredentialsCancellation",
-                                            JsonConvert.SerializeObject(response)
+                                            string.Format("|Cuenta {0} | RFC {1} | Fecha {3}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
+                                            "BlockingNonPayment",
+                                            JsonConvert.SerializeObject(payment)
                                         );
-
-                                        if (response)
-                                        {
-                                            delete = true;
-                                            statusProvider = SystemStatus.INACTIVE.ToString();
-                                        }
                                     }
-                                    else if (prospect.provider == SystemProviders.RECURLY.ToString())
-                                    {
-                                        //Evento para desactivar la cuenta en recurly
-                                        //También sería el evento de delete account
-                                        provider = SystemProviders.RECURLY.ToString();
-                                        var response = RecurlyService.DeleteAccount(prospect.idCredentialProvider, siteId, provider);
-                                        LogUtil.AddEntry(
-                                            "Respuesta de Recurly al eliminar la cuenta.",
-                                            ENivelLog.Info,
-                                            0,
-                                            "Proccess_" + JOB_CODE,
-                                            EOperacionLog.ACCESS,
-                                            string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
-                                            "CredentialsCancellation",
-                                            JsonConvert.SerializeObject(response)
-                                        );
-
-                                        if (response != null)
-                                        {
-                                            statusProvider = response.State;
-                                            delete = true;
-                                        }
-                                    }
-
-                                    //Inactivar cuentas desde nuestras tablas 
-                                    if (delete)
-                                    {
-                                        var credential = _credentialService.FirstOrDefault(x => x.id == prospect.credentialId);
-                                        if (credential != null)
-                                        {
-                                            if (!string.IsNullOrEmpty(statusProvider))
-                                                credential.statusProvider = statusProvider;
-
-                                            credential.status = SystemStatus.INACTIVE.ToString();
-                                            credential.modifiedAt = DateUtil.GetDateTimeNow();
-                                            _credentialService.Update(credential);
-                                        }
-                                    }
-                                    else
-                                        throw new Exception("No se pudo realizar la desactivación de la credencial de " + provider + ", credentialId: " + prospect.credentialId + ", accountId: " + prospect.accountId);
-
-                                    //guardar logs
-                                    LogUtil.AddEntry(
-                                        "Proceso de Cancelación de exitoso.",
-                                        ENivelLog.Info,
-                                        0,
-                                        "Process_" + JOB_CODE,
-                                        EOperacionLog.ACCESS,
-                                        string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
-                                        "CredentialsCancellation",
-                                        JsonConvert.SerializeObject(prospect)
-                                    );
                                 }
-                                catch (Exception Ex)
+                                #endregion
+                            }
+                            else if (today.Day == 24)
+                            {
+                                #region El día 24 si la cuenta continuá con pago fallido, se cambia el estatus de la cuenta a Cancelada y se realiza la cancelación de las credenciales de SAT.ws, Paybook y Recurly.                                        
+                                //Buscar las credenciales de Satws, Recurly y Paybook de la cuenta que se va a cancelar
+
+                                var paymentsAccount = _accountService.GetLastPaymentsAccount(today, RecurlyPaymentStatus.OTHER.GetDisplayName());
+
+                                foreach (var payment in paymentsAccount)
                                 {
-                                    //Guardar en el log, el motivo de la excepción
-                                    LogUtil.AddEntry(
-                                        "Detalle del error: " + Ex.Message.ToString(),
-                                        ENivelLog.Error,
-                                        0,//userId
-                                        "Proccess",
-                                        EOperacionLog.ACCESS,
-                                        string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
-                                        "CredentialsCancellation",
-                                        JsonConvert.SerializeObject(prospect)
-                                    );
+                                    try
+                                    {
+                                        //Validar que este correctamente fallido el pago
+                                        //var validateAccount = RecurlyService.GetAccount(payment.idCredentialProvider, siteId, SystemProviders.RECURLY.ToString());
+
+                                        var accountCredentials = _credentialService.FindBy(x => x.account.id == payment.accountId && x.status == SystemStatus.ACTIVE.ToString());
+
+                                        foreach (var credential in accountCredentials)
+                                        {
+                                            try
+                                            {
+                                                string provider = string.Empty;
+                                                bool delete = false;
+                                                string statusProvider = "";
+
+                                                if (credential.provider == SystemProviders.SATWS.ToString())
+                                                {
+                                                    //Evento para desactivar la cuenta en satws
+                                                    //la opción que se tiene es delete credential
+                                                    provider = SystemProviders.SATWS.ToString();
+                                                    try
+                                                    {
+                                                        //Si es eliminada, no regresa nada
+                                                        SATService.DeleteCredential(credential.idCredentialProvider, provider);
+                                                        LogUtil.AddEntry(
+                                                            "Credencial eliminada de SATws",
+                                                            ENivelLog.Info,
+                                                            0,
+                                                            "Proccess_" + JOB_CODE,
+                                                            EOperacionLog.ACCESS,
+                                                            string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", payment.accountId, payment.rfc, payment.credentialId, DateUtil.GetDateTimeNow()),
+                                                            "BlockingNonPayment",
+                                                            "Se elimino correctamente la credencial."//JsonConvert.SerializeObject()
+                                                        );
+                                                        statusProvider = SystemStatus.INACTIVE.ToString();
+                                                        delete = true;
+                                                    }
+                                                    catch (Exception ex)
+                                                    {
+                                                        //Si marca error entonces no se elimino la cuenta en satws
+                                                        LogUtil.AddEntry(
+                                                            "Error al eliminar la cuenta de SATws: " + ex.Message.ToString(),
+                                                            ENivelLog.Error,
+                                                            0,
+                                                            "Proccess_" + JOB_CODE,
+                                                            EOperacionLog.ACCESS,
+                                                            string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", payment.accountId, payment.rfc, payment.credentialId, DateUtil.GetDateTimeNow()),
+                                                            "BlockingNonPayment",
+                                                            JsonConvert.SerializeObject(ex.Message.ToString())
+                                                        );
+                                                    }
+                                                }
+                                                else if (credential.provider == SystemProviders.SYNCFY.GetDisplayName())
+                                                {
+                                                    //Evento para desactivar la cuenta en syncfy
+                                                    //La opcion que se tiene es delete credential       
+                                                    provider = SystemProviders.SYNCFY.GetDisplayName();
+                                                    var response = PaybookService.DeleteUser(credential.idCredentialProvider, "Delete", true);
+
+                                                    LogUtil.AddEntry(
+                                                        "Eliminación de la cuenta de Paybook.",
+                                                        ENivelLog.Info,
+                                                        0,
+                                                        "Proccess_" + JOB_CODE,
+                                                        EOperacionLog.ACCESS,
+                                                        string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", payment.accountId, payment.rfc, payment.credentialId, DateUtil.GetDateTimeNow()),
+                                                        "BlockingNonPayment",
+                                                        JsonConvert.SerializeObject(response)
+                                                    );
+
+                                                    if (response)
+                                                    {
+                                                        delete = true;
+                                                        statusProvider = SystemStatus.INACTIVE.ToString();
+                                                    }
+                                                }
+                                                else if (credential.provider == SystemProviders.RECURLY.ToString())
+                                                {
+                                                    //Evento para desactivar la cuenta en recurly
+                                                    //También sería el evento de delete account
+                                                    provider = SystemProviders.RECURLY.ToString();
+                                                    var response = RecurlyService.DeleteAccount(credential.idCredentialProvider, siteId, provider);
+                                                    LogUtil.AddEntry(
+                                                        "Respuesta de Recurly al eliminar la cuenta.",
+                                                        ENivelLog.Info,
+                                                        0,
+                                                        "Proccess_" + JOB_CODE,
+                                                        EOperacionLog.ACCESS,
+                                                        string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", payment.accountId, payment.rfc, payment.credentialId, DateUtil.GetDateTimeNow()),
+                                                        "BlockingNonPayment",
+                                                        JsonConvert.SerializeObject(response)
+                                                    );
+
+                                                    if (response != null)
+                                                    {
+                                                        statusProvider = response.State;
+                                                        delete = true;
+                                                    }
+                                                }
+
+                                                //Inactivar cuentas desde nuestras tablas 
+                                                if (delete)
+                                                {
+                                                    //var credential = _credentialService.FirstOrDefault(x => x.id == payment.credentialId);
+                                                    //if (credential != null)
+                                                    //{
+                                                    if (!string.IsNullOrEmpty(statusProvider))
+                                                        credential.statusProvider = statusProvider;
+
+                                                    credential.status = SystemStatus.INACTIVE.ToString();
+                                                    credential.modifiedAt = DateUtil.GetDateTimeNow();
+                                                    _credentialService.Update(credential);
+                                                    //}
+                                                }
+                                                else
+                                                    throw new Exception("No se pudo realizar la desactivación de la credencial de " + provider + ", credentialId: " + credential.id + ", accountId: " + credential.account.id);
+
+                                                //guardar logs
+                                                LogUtil.AddEntry(
+                                                    "Proceso de Cancelación de exitoso.",
+                                                    ENivelLog.Info,
+                                                    0,
+                                                    "Process_" + JOB_CODE,
+                                                    EOperacionLog.ACCESS,
+                                                    string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", payment.accountId, payment.rfc, payment.credentialId, DateUtil.GetDateTimeNow()),
+                                                    "BlockingNonPayment",
+                                                    JsonConvert.SerializeObject(payment)
+                                                );
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                //Guardar en el log, el motivo de la excepción
+                                                LogUtil.AddEntry(
+                                                    "Detalle del error al cancelar la credencial de la cuenta: " + ex.Message.ToString(),
+                                                    ENivelLog.Error,
+                                                    0,//userId
+                                                    "ProccessBlockingNonPayment",
+                                                    EOperacionLog.ACCESS,
+                                                    string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", payment.accountId, payment.rfc, credential.id, DateUtil.GetDateTimeNow()),
+                                                    "BlockingNonPayment",
+                                                    JsonConvert.SerializeObject(payment)
+                                                );
+                                            }
+                                        }
+
+                                        var credentialConfirm = _credentialService.FindBy(x => x.account.id == payment.accountId && x.status == "ACTIVE");
+
+                                        if (credentialConfirm.Count() == 0)
+                                        {
+                                            //Cambiar el status de la cuenta
+                                            var account = _accountService.FirstOrDefault(x => x.id == payment.accountId);
+                                            if (account != null)
+                                            {
+                                                account.modifiedAt = DateUtil.GetDateTimeNow();
+                                                account.status = SystemStatus.CANCELLED.ToString();
+                                                _accountService.Update(account);
+
+                                                LogUtil.AddEntry(
+                                                    "Se cambio el status de la cuenta de Suspendido a Cancelado.",
+                                                    ENivelLog.Info,
+                                                    0,
+                                                    "Proccess_" + JOB_CODE,
+                                                    EOperacionLog.ACCESS,
+                                                    string.Format("|Cuenta {0} | RFC {1} | Fecha {2}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
+                                                    "BlockingNonPayment",
+                                                    JsonConvert.SerializeObject(payment)
+                                                );
+                                            }
+                                        }
+
+                                    }
+                                    catch (Exception Ex)
+                                    {
+                                        //Guardar en el log, el motivo de la excepción
+                                        LogUtil.AddEntry(
+                                            "Detalle del error al obtener el último pago: " + Ex.Message.ToString(),
+                                            ENivelLog.Error,
+                                            0,//userId
+                                            "ProccessBlockingNonPayment",
+                                            EOperacionLog.ACCESS,
+                                            string.Format("|Cuenta {0} | RFC {1} | Fecha {3}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
+                                            "BlockingNonPayment",
+                                            JsonConvert.SerializeObject(payment)
+                                        );
+                                    }
                                 }
-                            //}
+                                #endregion
+                            }
+                            else if (today.Day >= 9 && today.Day <= 23)
+                            {
+                                #region Si se detecta un pago exitoso entre los días 9 y 23 se cambia el status de la cuenta a Activo
+
+                                /*Se cambio para validar los pagos fallidos con cuentas aun activas*/
+                                var paymentsAccount = _accountService.GetLastPaymentsAccount(today, null);
+
+                                foreach (var payment in paymentsAccount)
+                                {
+                                    try
+                                    {
+                                        //Cambiar el status de la cuenta si este ha sido suspendido
+                                        var account = _accountService.FirstOrDefault(x => x.id == payment.accountId);
+                                        if (account != null)
+                                        {
+                                            if (payment.statusCode == RecurlyPaymentStatus.SUCCESS.GetDisplayName() && account.status == SystemStatus.SUSPENDED.ToString())
+                                            {
+                                                account.modifiedAt = DateUtil.GetDateTimeNow();
+                                                account.status = SystemStatus.ACTIVE.ToString();
+                                                _accountService.Update(account);
+
+                                                LogUtil.AddEntry(
+                                                    "Se cambio el status de la cuenta de Suspendido a Activo",
+                                                    ENivelLog.Info,
+                                                    0,
+                                                    "Proccess_" + JOB_CODE,
+                                                    EOperacionLog.ACCESS,
+                                                    string.Format("|Cuenta {0} | RFC {1} | Fecha {2}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
+                                                    "BlockingNonPayment",
+                                                    JsonConvert.SerializeObject(payment)
+                                                );
+                                            }
+                                            else if (payment.statusCode != RecurlyPaymentStatus.SUCCESS.GetDisplayName() && account.status == SystemStatus.ACTIVE.ToString())
+                                            {
+                                                account.modifiedAt = DateUtil.GetDateTimeNow();
+                                                account.status = SystemStatus.SUSPENDED.ToString();
+                                                _accountService.Update(account);
+
+                                                LogUtil.AddEntry(
+                                                    "Se cambio el status de la cuenta de Activo a Suspendido.",
+                                                    ENivelLog.Info,
+                                                    0,
+                                                    "Proccess_" + JOB_CODE,
+                                                    EOperacionLog.ACCESS,
+                                                    string.Format("|Cuenta {0} | RFC {1} | Fecha {2}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
+                                                    "BlockingNonPayment",
+                                                    JsonConvert.SerializeObject(payment)
+                                                );
+                                            }
+                                        }
+                                    }
+                                    catch (Exception Ex)
+                                    {
+                                        //Guardar en el log, el motivo de la excepción
+                                        LogUtil.AddEntry(
+                                            "Detalle del error al obtener el último pago: " + Ex.Message.ToString(),
+                                            ENivelLog.Error,
+                                            0,//userId
+                                            "Proccess_" + JOB_CODE,
+                                            EOperacionLog.ACCESS,
+                                            string.Format("|Cuenta {0} | RFC {1} | Fecha {2}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
+                                            "BlockingNonPayment",
+                                            JsonConvert.SerializeObject(payment)
+                                        );
+                                    }
+                                }
+
+                                #endregion
+                            }
                         }
-
-
-
                         #endregion
 
                         //UPDATE JOB DATABASE
@@ -281,50 +453,50 @@ namespace MVC_Project.Jobs
             }
         }
 
-        private static string BuildPaymentsTable(IEnumerable<RecurlyPayment> failedInvoices)
-        {
-            var cellStyle = "border-top: 1px solid #dee2e6; padding: 5px;";
-            var tableStyle = "width: 100%; text-align: center;";
+        //private static string BuildPaymentsTable(IEnumerable<RecurlyPayment> failedInvoices)
+        //{
+        //    var cellStyle = "border-top: 1px solid #dee2e6; padding: 5px;";
+        //    var tableStyle = "width: 100%; text-align: center;";
 
-            string table = $"<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" style=\"{tableStyle}\">" +
-                "<thead><tr>" +
-                $"<th>RFC</th>" +
-                $"<th>Plan</th>" +
-                $"<th>Total</th>" +
-                $"<th>Fecha de pago</th>" +
-                "</tr></thead>";
+        //    string table = $"<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" style=\"{tableStyle}\">" +
+        //        "<thead><tr>" +
+        //        $"<th>RFC</th>" +
+        //        $"<th>Plan</th>" +
+        //        $"<th>Total</th>" +
+        //        $"<th>Fecha de pago</th>" +
+        //        "</tr></thead>";
 
-            foreach (var payment in failedInvoices)
-            {
-                var paymentAccount = payment.subscription?.account;
-                var paymentSubscription = payment.subscription;
-                table += $"<tr><td style=\"{cellStyle}\">{paymentAccount?.rfc}</td>" +
-                    $"<td style=\"{cellStyle}\">{paymentSubscription?.planName}</td>" +
-                    $"<td style=\"{cellStyle}\">{payment.total.ToString("F02")}</td>" +
-                    $"<td style=\"{cellStyle}\">{payment.createdAt.ToString("dd/MM/yyyy HH:mm")}</td></tr>";
-            }
+        //    foreach (var payment in failedInvoices)
+        //    {
+        //        var paymentAccount = payment.subscription?.account;
+        //        var paymentSubscription = payment.subscription;
+        //        table += $"<tr><td style=\"{cellStyle}\">{paymentAccount?.rfc}</td>" +
+        //            $"<td style=\"{cellStyle}\">{paymentSubscription?.planName}</td>" +
+        //            $"<td style=\"{cellStyle}\">{payment.total.ToString("F02")}</td>" +
+        //            $"<td style=\"{cellStyle}\">{payment.createdAt.ToString("dd/MM/yyyy HH:mm")}</td></tr>";
+        //    }
 
-            table += "</table>";
-            return table;
-        }
+        //    table += "</table>";
+        //    return table;
+        //}
 
-        private static void SendInvoice(string email, string rfc, string businessName, string comments, string linkXml, string linkPdf)
-        {
-            Dictionary<string, string> customParams = new Dictionary<string, string>();
-            customParams.Add("param_rfc", rfc);
-            customParams.Add("param_razon_social", businessName);
-            customParams.Add("param_comentarios", comments);
+        //private static void SendInvoice(string email, string rfc, string businessName, string comments, string linkXml, string linkPdf)
+        //{
+        //    Dictionary<string, string> customParams = new Dictionary<string, string>();
+        //    customParams.Add("param_rfc", rfc);
+        //    customParams.Add("param_razon_social", businessName);
+        //    customParams.Add("param_comentarios", comments);
 
-            customParams.Add("param_link_xml", linkXml);
-            customParams.Add("param_link_pdf", linkPdf);
-            NotificationUtil.SendNotification(email, customParams, Constants.NOT_TEMPLATE_RECURLY_INVOICING);
-        }
+        //    customParams.Add("param_link_xml", linkXml);
+        //    customParams.Add("param_link_pdf", linkPdf);
+        //    NotificationUtil.SendNotification(email, customParams, Constants.NOT_TEMPLATE_RECURLY_INVOICING);
+        //}
 
-        private static void SendErrorsNotification(string email, string paymentsListContent)
-        {
-            Dictionary<string, string> customParams = new Dictionary<string, string>();
-            customParams.Add("param_payments_table", paymentsListContent);
-            NotificationUtil.SendNotification(email, customParams, Constants.NOT_TEMPLATE_RECURLY_INVOICING_ERRORS);
-        }
+        //private static void SendErrorsNotification(string email, string paymentsListContent)
+        //{
+        //    Dictionary<string, string> customParams = new Dictionary<string, string>();
+        //    customParams.Add("param_payments_table", paymentsListContent);
+        //    NotificationUtil.SendNotification(email, customParams, Constants.NOT_TEMPLATE_RECURLY_INVOICING_ERRORS);
+        //}
     }
 }

@@ -141,5 +141,19 @@ namespace MVC_Project.Integrations.Recurly
                 throw new Exception("No se encontró un proveedor de acceso de recurly");
             }
         }
+
+        public static Invoice GetAccount(string accountId, string siteId, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                var recurlyModel = RecurlyServices.GetAccount(accountId, siteId);
+
+                return recurlyModel;
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso de recurly");
+            }
+        }
     }
 }

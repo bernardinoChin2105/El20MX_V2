@@ -549,7 +549,9 @@ namespace MVC_Project.Utils
         [Display(Name = "success")]
         SUCCESS,
         [Display(Name = "declined")]
-        DECLINED
+        DECLINED,
+        [Display(Name = "other")]
+        OTHER,
     }
 
     public enum RecurlyChangeTimeframe

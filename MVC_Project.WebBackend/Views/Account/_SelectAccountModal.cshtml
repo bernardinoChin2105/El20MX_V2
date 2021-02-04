@@ -21,15 +21,25 @@
         @foreach (var m in Model.accountListViewModels)
         {
             <div class="col-md-4">
+                @if (m.accountStatus == SystemStatus.CANCELLED.ToString())
+                {
+                    <div class="text-canceled rotate"><h2>CANCELADA</h2></div>
+                }
                 <div class="ibox-content text-center">
 
                     <h4>@m.rfc</h4>
                     <h5>@m.name</h5>
 
                     <div class="m-b-sm">
-                        @if (m.accountStatus == SystemStatus.ACTIVE.ToString())
+                        @if (m.accountStatus == SystemStatus.ACTIVE.ToString() || m.accountStatus == SystemStatus.SUSPENDED.ToString())
                         {
                             <a href='@Url.Action("SetAccount", new { uuid = m.uuid })'>
+                                <img alt="image" class="rounded-circle" src="@m.imagen" style="width:30%" />
+                            </a>
+                        }
+                        else if (m.accountStatus == SystemStatus.CANCELLED.ToString())
+                        {
+                            <a href="#">
                                 <img alt="image" class="rounded-circle" src="@m.imagen" style="width:30%" />
                             </a>
                         }

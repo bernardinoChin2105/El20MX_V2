@@ -42,4 +42,29 @@ namespace MVC_Project.Domain.Model
         public Int64 accountId { get; set; }
         public string credentialType { get; set; }     
     }
+
+    public class AccountPaymentsModel
+    {
+        public Int64 paymentId { get; set; }
+        public decimal subtotal { get; set; }
+        public decimal total { get; set; }
+        public string paymentGateway { get; set; }
+        public string statusCode { get; set; }
+        public Int64 accountId { get; set; }
+        public string statusMessage { get; set; }
+        public DateTime createdAt { get; set; }
+        public Int64 subscriptionId { get; set; }
+        public Int64 number { get; set; }
+        public string name { get; set; }
+        public string rfc { get; set; }
+        public DateTime createdAtAccount { get; set; }
+        public string status { get; set; }
+        public string planSchema { get; set; }
+        public DateTime? inicioFacturacion { get; set; }
+        public string planFijo { get; set; }
+        public Int64 credentialId { get; set; }
+        public string provider { get; set; }
+        public string idCredentialProvider { get; set; }
+        public string statusCredential { get; set; }
+    }
 }

@@ -222,3 +222,30 @@
 .modal {
     z-index: 2050 !important;
 }
+
+/*css para las canceladas*/
+.rotate {
+    /* FF3.5+ */
+    -moz-transform: rotate(45.0deg);
+    /* Opera 10.5 */
+    -o-transform: rotate(45.0deg);
+    /* Saf3.1+, Chrome */
+    -webkit-transform: rotate(45.0deg);
+    /* IE6,IE7 */
+    filter: progid: DXImageTransform.Microsoft.BasicImage(rotation=0.50);
+    /* IE8 */
+    -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=0.50)";
+    /* Standard */
+    transform: rotate(45.0deg);
+}
+
+.text-canceled {
+    position: absolute;
+    top: 25%;
+    left: 25%;
+}
+
+    .text-canceled h2 {
+        color: red;
+        font-weight: 600;
+    }
