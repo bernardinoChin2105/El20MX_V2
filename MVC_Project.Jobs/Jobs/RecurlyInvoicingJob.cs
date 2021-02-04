@@ -138,14 +138,14 @@ namespace MVC_Project.Jobs
                                         Unidad = satUnit.name,
                                         Descripcion = lineItem.Description,
                                         Cantidad = lineItem.Quantity.HasValue ? lineItem.Quantity.Value : 1,
-                                        ValorUnitario = (decimal)lineItem.UnitAmount.Value,
-                                        Importe = (decimal)lineItem.Subtotal.Value,
-                                        Descuento = (decimal)lineItem.Discount.Value
+                                        ValorUnitario = lineItem.UnitAmount.Value,
+                                        Importe = lineItem.Subtotal.Value,
+                                        Descuento = lineItem.Discount.Value
                                     };
                                     if (lineItem.Taxable.Value && !lineItem.TaxExempt.Value)
                                     {
                                         var partialTotal = lineItem.Subtotal.Value - lineItem.Discount.Value;
-                                        var taxRate = lineItem.TaxInfo != null ? lineItem.TaxInfo.Rate.Value : 0.00;
+                                        var taxRate = lineItem.TaxInfo != null ? lineItem.TaxInfo.Rate.Value : (decimal)0.00;
                                         var taxImport = partialTotal * taxRate;
 
                                         conceptsData.Traslados = new List<Traslados>();
