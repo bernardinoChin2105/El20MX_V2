@@ -68,7 +68,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var plans = RecurlyService.GetPlans(siteId, provider);
 
-                var activeSubscriptions = _recurlySubscriptionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString());
+                //var activeSubscriptions = _recurlySubscriptionService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString());
 
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
                 total = listResponse.Item2;
@@ -86,11 +86,11 @@ namespace MVC_Project.WebBackend.Controllers
                         businessName = x.name,
                         rfc = x.rfc,
                         status = ((SystemStatus)Enum.Parse(typeof(SystemStatus), x.status)).GetDisplayName(),
-                        billingStart = activeSubscriptions.Any(rs => rs.account.id == x.id) ? activeSubscriptions.First(rs => rs.account.id == x.id).createdAt.ToString("MM/yyyy") : x.inicioFacturacion?.ToString("MM/yyyy"),
+                        billingStart = x.inicioFacturacion?.ToString("MM/yyyy"),//activeSubscriptions.Any(rs => rs.account.id == x.id) ? activeSubscriptions.First(rs => rs.account.id == x.id).createdAt.ToString("MM/yyyy") : x.inicioFacturacion?.ToString("MM/yyyy"),
                         plan = plans.data.FirstOrDefault(rp => rp.code == x.planFijo)?.name,
                         accountOwner = x.memberships.Where(member => member.role.code == SystemRoles.ACCOUNT_OWNER.ToString() && member.status == SystemStatus.ACTIVE.ToString() && member.role.status == SystemStatus.ACTIVE.ToString()).Select(member => $"{member.user.profile.firstName} {member.user.profile.lastName}").FirstOrDefault()
                     })
-                }, JsonRequestBehavior.AllowGet); ; ;
+                }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

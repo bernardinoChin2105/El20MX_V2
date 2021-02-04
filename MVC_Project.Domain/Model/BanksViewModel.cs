@@ -81,4 +81,13 @@ namespace MVC_Project.Domain.Model
 
         public Int32 Total { get; set; }
     }
+
+    public class ExportBankTransactionsFilter
+    {
+        public int BankName { get; set; }
+        public int NumberBankAccount { get; set; }
+        public int Movements { get; set; }
+        public DateTime FilterInitialDate { get; set; }
+        public DateTime FilterEndDate { get; set; }
+    }
 }

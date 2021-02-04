@@ -484,6 +484,7 @@ namespace MVC_Project.WebBackend.Models
         public string Folio { get; set; }
         public string InvoicedAt { get; set; }
         public string RFC { get; set; }
+        public string BussinessName { get; set; }
         public string PaymentForm { get; set; }
         public string PaymentMethod { get; set; }
         public string InvoiceType { get; set; }
