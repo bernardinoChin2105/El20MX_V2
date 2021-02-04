@@ -104,7 +104,7 @@ namespace MVC_Project.Jobs
                         var stampedStatus = IssueStatus.STAMPED.ToString();
 
                         var pendingInvoicePayments = _recurlyPaymentService.FindBy(x => x.statusCode == successPaymentStatus &&
-                        x.subscription != null && x.account != null && x.invoiceNumber != null && x.invoiceNumber.Length > 0 &&
+                        x.account != null && x.invoiceNumber != null && x.invoiceNumber.Length > 0 &&
                         (x.stampStatus != stampedStatus || x.stampStatus == null) && x.stampAttempt < 3);
 
                         foreach (var payment in pendingInvoicePayments)
