@@ -164,5 +164,19 @@ namespace MVC_Project.Integrations.Recurly
             }
         }
 
+        public static AccountResponseModel UpdateAccount(dynamic request, string accountId, string siteId, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                var recurlyModel = RecurlyServices.UpdateAccount(request, accountId, siteId);
+
+                return recurlyModel;
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
     }
 }

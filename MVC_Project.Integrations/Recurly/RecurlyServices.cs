@@ -164,5 +164,19 @@ namespace MVC_Project.Integrations.Recurly
 
             return JsonConvert.DeserializeObject<TransactionsListResponse>(responseRecurly);
         }
+
+        public static AccountResponseModel UpdateAccount(dynamic model, string accountId, string siteId)
+        {
+            AccountResponseModel recurlyModel = new AccountResponseModel();
+
+            string url = "sites/" + siteId + "/accounts/" + accountId;
+
+            //Llamar al servicio para crear la credencial en el recurly y obtener respuesta                  
+            var responseRecurly = Recurly.CallServiceRecurly(url, model, "Put");
+
+            recurlyModel = JsonConvert.DeserializeObject<AccountResponseModel>(responseRecurly);
+
+            return recurlyModel;
+        }
     }
 }

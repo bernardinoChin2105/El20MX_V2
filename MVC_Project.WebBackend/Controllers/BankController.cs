@@ -878,9 +878,9 @@ namespace MVC_Project.WebBackend.Controllers
                         worksheet.Cells[$"A{rowIndex}"].Value = transaction.transactionAt.ToShortDateString();
                         worksheet.Cells[$"B{rowIndex}"].Value = transaction.bankAccountName + " " + (!string.IsNullOrEmpty(transaction.number) ? transaction.number.PadLeft(10, '*') : string.Empty);
                         worksheet.Cells[$"C{rowIndex}"].Value = transaction.description;
-                        worksheet.Cells[$"D{rowIndex}"].Value = transaction.amount > 0 ? transaction.amount.ToString("N2") : "";
+                        worksheet.Cells[$"D{rowIndex}"].Value = transaction.amount < 0 ? transaction.amount.ToString("N2") : "";
                         worksheet.Cells[$"D{rowIndex}"].Style.Numberformat.Format = "#,##0.00";
-                        worksheet.Cells[$"E{rowIndex}"].Value = transaction.amount < 0 ? transaction.amount.ToString("N2") : "";
+                        worksheet.Cells[$"E{rowIndex}"].Value = transaction.amount > 0 ? transaction.amount.ToString("N2") : "";
                         worksheet.Cells[$"E{rowIndex}"].Style.Numberformat.Format = "#,##0.00";
                         worksheet.Cells[$"F{rowIndex}"].Value = prevBalance.ToString("N2");
                         worksheet.Cells[$"F{rowIndex}"].Style.Numberformat.Format = "#,##0.00";

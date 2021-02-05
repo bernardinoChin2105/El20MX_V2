@@ -918,7 +918,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var user = _userService.GetById(authUser.Id);
                 if (user != null)
-                    newAccount.address = new AddressModel { phone = user.profile?.phoneNumber };
+                    newAccount.address = new AddressModel { phone = user.profile?.phoneNumber, country = "MX" };
 
                 var serilaizeJson = JsonConvert.SerializeObject(newAccount, Newtonsoft.Json.Formatting.None,
                 new JsonSerializerSettings

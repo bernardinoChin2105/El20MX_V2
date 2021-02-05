@@ -49,57 +49,57 @@ namespace MVC_Project.WebBackend.Controllers
             /*
              Creación temporal de la cuenta en Recurly, mientras le pido más información a William
              */
-            try
-            {
-                var authUser = Authenticator.AuthenticatedUser;
-                var provider = ConfigurationManager.AppSettings["RecurlyProvider"];
-                var siteId = ConfigurationManager.AppSettings["Recurly.SiteId"];
+            //try
+            //{
+            //    var authUser = Authenticator.AuthenticatedUser;
+            //    var provider = ConfigurationManager.AppSettings["RecurlyProvider"];
+            //    var siteId = ConfigurationManager.AppSettings["Recurly.SiteId"];
 
-                CreateAccountModel newAccount = new CreateAccountModel();
-                DateTime todayDate = DateUtil.GetDateTimeNow();
+            //    CreateAccountModel newAccount = new CreateAccountModel();
+            //    DateTime todayDate = DateUtil.GetDateTimeNow();
 
-                newAccount.code = authUser.Account.Uuid.ToString(); //me falta pensar cual poner
-                newAccount.username = authUser.Email;
-                newAccount.email = authUser.Email; //Preguntar si estos datos son los que iran
-                newAccount.preferred_locale = "es-MX";
-                newAccount.first_name = authUser.FirstName;
-                newAccount.last_name = authUser.LastName;
-                newAccount.company = authUser.Account.Name;
+            //    newAccount.code = authUser.Account.Uuid.ToString(); //me falta pensar cual poner
+            //    newAccount.username = authUser.Email;
+            //    newAccount.email = authUser.Email; //Preguntar si estos datos son los que iran
+            //    newAccount.preferred_locale = "es-MX";
+            //    newAccount.first_name = authUser.FirstName;
+            //    newAccount.last_name = authUser.LastName;
+            //    newAccount.company = authUser.Account.Name;
 
-                //var accountModel = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(newAccount));
-                var serilaizeJson = JsonConvert.SerializeObject(newAccount, Newtonsoft.Json.Formatting.None,
-                new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore
-                });
-                dynamic accountRSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
-                var accountRecurly = RecurlyService.CreateAccount(accountRSend, siteId, provider);
+            //    //var accountModel = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(newAccount));
+            //    var serilaizeJson = JsonConvert.SerializeObject(newAccount, Newtonsoft.Json.Formatting.None,
+            //    new JsonSerializerSettings
+            //    {
+            //        NullValueHandling = NullValueHandling.Ignore
+            //    });
+            //    dynamic accountRSend = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
+            //    var accountRecurly = RecurlyService.CreateAccount(accountRSend, siteId, provider);
 
-                if (accountRecurly != null)
-                {
-                    var account = new Domain.Entities.Account { id = authUser.Account.Id };
-                    var credential = new Domain.Entities.Credential()
-                    {
-                        account = new Domain.Entities.Account { id = authUser.Account.Id },
-                        uuid = Guid.NewGuid(),
-                        provider = provider,
-                        idCredentialProvider = accountRecurly.id,
-                        statusProvider = accountRecurly.state,
-                        createdAt = todayDate,
-                        modifiedAt = todayDate,
-                        status = SystemStatus.ACTIVE.ToString(),
-                        credentialType = accountRecurly.hosted_login_token //Token para la pagina
-                    };
+            //    if (accountRecurly != null)
+            //    {
+            //        var account = new Domain.Entities.Account { id = authUser.Account.Id };
+            //        var credential = new Domain.Entities.Credential()
+            //        {
+            //            account = new Domain.Entities.Account { id = authUser.Account.Id },
+            //            uuid = Guid.NewGuid(),
+            //            provider = provider,
+            //            idCredentialProvider = accountRecurly.id,
+            //            statusProvider = accountRecurly.state,
+            //            createdAt = todayDate,
+            //            modifiedAt = todayDate,
+            //            status = SystemStatus.ACTIVE.ToString(),
+            //            credentialType = accountRecurly.hosted_login_token //Token para la pagina
+            //        };
 
-                    _credentialService.Create(credential);
-                }
+            //        _credentialService.Create(credential);
+            //    }
 
-                //Guardar las credenciales y las que son necesarias para mostrar la pantalla
-            }
-            catch (Exception ex)
-            {
-                string error = ex.Message.ToString();
-            }
+            //    //Guardar las credenciales y las que son necesarias para mostrar la pantalla
+            //}
+            //catch (Exception ex)
+            //{
+            //    string error = ex.Message.ToString();
+            //}
             #endregion
 
 

@@ -38,7 +38,7 @@ namespace MVC_Project.Jobs
                     RecurringJob.AddOrUpdate("RecurlyJob_IssueInvoices", () => RecurlyInvoicingJob.IssueInvoices(), "0 23 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
                     RecurringJob.AddOrUpdate("RecurlyJob_CreateAccounts", () => CreateRecurlyAccountsJob.CreateAccounts(), "0 6 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
                     
-                    //BackgroundJob.Enqueue(() => CreateRecurlyAccountsJob.CreateAccounts());
+                    //BackgroundJob.Enqueue(() => RecurlyUpdateAccountsJob.UpdateAccounts());
                 }
 
                 app.UseHangfireDashboard(Dashboardurl, new DashboardOptions
