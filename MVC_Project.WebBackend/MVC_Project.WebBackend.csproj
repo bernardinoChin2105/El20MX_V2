@@ -1846,6 +1846,7 @@
     <Content Include="Scripts\views\BranchOffice\Create.js" />
     <Content Include="Scripts\views\BranchOffice\Edit.js" />
     <Content Include="Scripts\views\BranchOffice\Index.js" />
+    <Content Include="Scripts\views\Charges\Index.js" />
     <Content Include="Scripts\views\MyAccount\Index.js" />
     <Content Include="Scripts\views\Invoicing\CustomerInvoices.js" />
     <Content Include="Scripts\views\Invoicing\Invoice.js" />

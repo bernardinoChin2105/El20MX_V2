@@ -144,8 +144,8 @@ namespace MVC_Project.Domain.Services
                 "@createdOnStart=:createdOnStart, @createdOnEnd=:createdOnEnd, " +
                 "@accountId=:accountId, @folio=:folio, @rfc=:rfc, @paymentMethod=:paymentMethod, @paymentForm=:paymentForm, " +
                 "@currency=:currency, @serie=:serie, @nombreRazonSocial=:nombreRazonSocial ")
-                    .SetParameter("createdOnStart", Convert.ToDateTime(pagination.CreatedOnStart).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo))
-                    .SetParameter("createdOnEnd", Convert.ToDateTime(pagination.CreatedOnEnd).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo))
+                    .SetParameter("createdOnStart", pagination.CreatedOnStart != null ? Convert.ToDateTime(pagination.CreatedOnStart).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo) : null)
+                    .SetParameter("createdOnEnd", pagination.CreatedOnEnd != null ? Convert.ToDateTime(pagination.CreatedOnEnd).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo) : null)
                     .SetParameter("accountId", filter.accountId)
                     .SetParameter("folio", filter.folio)
                     .SetParameter("rfc", filter.rfc)

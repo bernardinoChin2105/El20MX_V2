@@ -16,6 +16,8 @@ using System.Collections.Specialized;
 using MVC_Project.FlashMessages;
 using System.Configuration;
 using System.IO;
+using MVC_Project.BackendWeb.Attributes;
+using OfficeOpenXml;
 
 namespace MVC_Project.WebBackend.Controllers
 {
@@ -163,7 +165,7 @@ namespace MVC_Project.WebBackend.Controllers
                         bankMv.code = resultBank[0].code;
                         bankMv.dateTimeAuthorized = resultBank[0].dt_authorized.HasValue ? DateUtil.UnixTimeToDateTime(resultBank[0].dt_authorized.Value).ToShortDateString() :
                             (bank.dateTimeAuthorized != null ? bank.dateTimeAuthorized.Value.ToShortDateString() : string.Empty);
-                        bankMv.dateTimeRefresh = resultBank[0].dt_refresh.HasValue ? DateUtil.UnixTimeToDateTime(resultBank[0].dt_refresh.Value).ToShortDateString() : 
+                        bankMv.dateTimeRefresh = resultBank[0].dt_refresh.HasValue ? DateUtil.UnixTimeToDateTime(resultBank[0].dt_refresh.Value).ToShortDateString() :
                             (bank.dateTimeRefresh != null ? bank.dateTimeRefresh.Value.ToShortDateString() : string.Empty);
                         if (bank.dateTimeRefresh != null && bankMv.code != 401)
                         {
@@ -318,7 +320,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (paybookCredential.dt_refresh != null)
                     bankCredential.dateTimeRefresh = DateUtil.UnixTimeToDateTime(paybookCredential.dt_refresh.Value);
-                
+
                 //Preguntarle por el guardado
                 _bankCredentialService.CreateWithTransaction(bankCredential);
 
@@ -822,5 +824,78 @@ namespace MVC_Project.WebBackend.Controllers
             return View();
         }
         #endregion
+
+        [HttpPost, FileDownload]
+        public FileResult ExportBankTransactions(ExportBankTransactionsFilter searchFilter)
+        {
+            try
+            {
+                var pagination = new BasePagination
+                {
+                    CreatedOnStart = searchFilter.FilterInitialDate != DateTime.MinValue ? searchFilter.FilterInitialDate : (DateTime?)null,
+                    CreatedOnEnd = searchFilter.FilterEndDate != DateTime.MinValue ? searchFilter.FilterEndDate : (DateTime?)null
+                };
+
+                var filters = new BankTransactionFilter() { accountId = Authenticator.AuthenticatedUser.Account.Id };
+                filters.bankId = searchFilter.BankName != Constants.SEARCH_ALL ? searchFilter.BankName : (long?)null;
+                filters.bankAccountId = searchFilter.NumberBankAccount != Constants.SEARCH_ALL ? searchFilter.NumberBankAccount : (long?)null;
+                filters.movements = searchFilter.Movements != Constants.SEARCH_ALL ? searchFilter.Movements : (long?)null;
+
+                var transactions = _bankCredentialService.GetBankTransactionListNoPagination(pagination, filters);
+
+                using (ExcelPackage excelDocument = new ExcelPackage())
+                {
+                    ExcelWorksheet worksheet = excelDocument.Workbook.Worksheets.Add("MOVIMIENTOS BANCARIOS");
+
+                    worksheet.Cells["A1:G1"].Style.Font.Bold = true;
+
+                    worksheet.Cells["A1"].Value = "Fecha";
+                    worksheet.Cells["B1"].Value = "Cuenta/Banco";
+                    worksheet.Cells["C1"].Value = "Descripción Banco";
+                    worksheet.Cells["D1"].Value = "Retiro";
+                    worksheet.Cells["E1"].Value = "Depósito";
+                    worksheet.Cells["F1"].Value = "Saldo";
+
+                    int rowIndex = 2;
+                    Int64 bankAccountId = 0;
+                    double prevBalance = 0;
+                    double prevAmount = 0;
+                    for (int i = 0; i < transactions.Count; i++)
+                    {
+                        var transaction = transactions[i];
+                        if (bankAccountId != transaction.bankAccountId)
+                        {
+                            bankAccountId = transaction.bankAccountId;
+                            prevBalance = transaction.balanceCutting;
+                            prevAmount = (double)transaction.amount;
+                        }
+                        else
+                        {
+                            prevBalance = prevBalance - prevAmount;
+                            prevAmount = (double)transaction.amount;
+                        }
+
+                        worksheet.Cells[$"A{rowIndex}"].Value = transaction.transactionAt.ToShortDateString();
+                        worksheet.Cells[$"B{rowIndex}"].Value = transaction.bankAccountName + " " + (!string.IsNullOrEmpty(transaction.number) ? transaction.number.PadLeft(10, '*') : string.Empty);
+                        worksheet.Cells[$"C{rowIndex}"].Value = transaction.description;
+                        worksheet.Cells[$"D{rowIndex}"].Value = transaction.amount > 0 ? transaction.amount.ToString("N2") : "";
+                        worksheet.Cells[$"D{rowIndex}"].Style.Numberformat.Format = "#,##0.00";
+                        worksheet.Cells[$"E{rowIndex}"].Value = transaction.amount < 0 ? transaction.amount.ToString("N2") : "";
+                        worksheet.Cells[$"E{rowIndex}"].Style.Numberformat.Format = "#,##0.00";
+                        worksheet.Cells[$"F{rowIndex}"].Value = prevBalance.ToString("N2");
+                        worksheet.Cells[$"F{rowIndex}"].Style.Numberformat.Format = "#,##0.00";
+                        rowIndex++;
+                    }
+                    worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+                    var fileBin = excelDocument.GetAsByteArray();
+                    return File(fileBin, "application/vnd.ms-excel", "MovimientosBancarios(" + DateUtil.GetDateTimeNow().ToString("G") + ").xlsx");
+                }
+            }
+            catch (Exception ex)
+            {
+                MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
+                throw;
+            }
+        }
     }
 }
