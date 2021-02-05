@@ -359,7 +359,7 @@ namespace MVC_Project.WebBackend.Models
         public string Tipo { get; set; }
         public string Impuesto { get; set; }
         public string Porcentaje { get; set; }
-        public string Label { get; set; }        
+        public string Label { get; set; }
         public int index { get; set; }
     }
 
@@ -463,5 +463,34 @@ namespace MVC_Project.WebBackend.Models
         public string total { get; set; }
         public string subtotal { get; set; }
         public string xml { get; set; }
+    }
+
+    public class InvoiceFilter
+    {
+        public string Folio { get; set; }
+        public string Serie { get; set; }
+        public string RFCP { get; set; }
+        public string NombreRazonSocial { get; set; }
+        public string PaymentMethod { get; set; }
+        public string PaymentForm { get; set; }
+        public string Currency { get; set; }
+        public DateTime FilterInitialDate { get; set; }
+        public DateTime FilterEndDate { get; set; }
+    }
+
+    public class InvoiceExport
+    {
+        public string Serie { get; set; }
+        public string Folio { get; set; }
+        public string InvoicedAt { get; set; }
+        public string RFC { get; set; }
+        public string BussinessName { get; set; }
+        public string PaymentForm { get; set; }
+        public string PaymentMethod { get; set; }
+        public string InvoiceType { get; set; }
+        public string Currency { get; set; }
+        public decimal Subtotal { get; set; }
+        public decimal IVA { get; set; }
+        public decimal Total { get; set; }
     }
 }

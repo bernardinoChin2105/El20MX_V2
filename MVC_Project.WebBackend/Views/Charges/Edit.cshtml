@@ -1,7 +1,7 @@
 ﻿@model MVC_Project.WebBackend.Models.ChargeClientEditViewModel
 @using MVC_Project.Utils;
 @{
-    ViewBag.Title = "Administración de Clientes";
+    ViewBag.Title = "Cuentas";
     Dictionary<string, object> datePickerAttributes = new Dictionary<string, object>
 {
         {"class",  "form-control"},
@@ -15,7 +15,12 @@
 }
 @section styles {
     @Styles.Render("~/plugins/dataPickerStyles")
-    @Styles.Render("~/Content/template/plugins/switchery/switchery.css")
+
+    <style>
+        .chosen-container.chosen-with-drop .chosen-drop {
+            position: relative;
+        }
+    </style>
 }
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
@@ -97,7 +102,6 @@
 
 @section Scripts {
     @Scripts.Render("~/plugins/dataPicker")
-    @Scripts.Render("~/Scripts/plugins/switchery/switchery.js")
     <script type="text/javascript">
         $(document).ready(function () {
             $('.chosen-select').chosen({ width: '100%', "disable_search": true, no_results_text: "Sin resultados para: " });
@@ -107,22 +111,13 @@
             //        return value.match(/^(?=.*\d)(?=.*\W+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/);
             //    }, "La contraseña debe contener al menos un número, mayúsculas, minúsculas y caracteres especiales"
             //);
-            //$("#EditForm").validate({
-            //    rules: {
-            //        Name: {
-            //            required: true,
-            //        },
-            //        Email: {
-            //            required: true,
-            //        },
-            //        Role: {
-            //            required: true,
-            //        },
-            //        Apellidos: {
-            //            required: true,
-            //        }
-            //    }
-            //});
+            $("#EditForm").validate({
+                rules: {
+                    Status: {
+                        required: true,
+                    }
+                }
+            });
             $('#BillingStart').datepicker({
                 keyboardNavigation: false,
                 autoclose: true,
@@ -132,8 +127,6 @@
                 startDate: new Date()
                 ////startDate: DateInit.MinDate
             });
-
-            var init = new Switchery($('.status-select')[0]);
         });
 
         function validarDatos() {
