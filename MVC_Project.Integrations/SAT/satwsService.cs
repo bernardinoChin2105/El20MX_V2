@@ -320,8 +320,7 @@ namespace MVC_Project.Integrations.SAT
         /*Crear timbrado de factura*/
         public static InvoicesInfo PostIssueIncomeInvoices(dynamic invoiceJson)
         {            
-            InvoicesInfo invoice = new InvoicesInfo();            
-            
+            InvoicesInfo invoice = new InvoicesInfo();
             //var responseInvoices =  SATws.CallServiceSATws("invoices", invoiceJson, "Post");
             var responseInvoices = SATws.CallInvoiceServiceSATws("invoices", invoiceJson, "Post");
             invoice = JsonConvert.DeserializeObject<InvoicesInfo>(responseInvoices);

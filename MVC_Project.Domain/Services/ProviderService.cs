@@ -19,9 +19,10 @@ namespace MVC_Project.Domain.Services
         List<string> ValidateRFC(List<string> rfcs, Int64 id);
         List<InvoicesReceivedList> ProviderCDFIList(BasePagination pagination, CustomerCFDIFilter filter);
         List<ListProvidersAC> ListProviderAutoComplete(Int64 id);
+        IEnumerable<InvoicesReceivedList> GetInvoicesReceivedNoPagination(BasePagination pagination, CustomerCFDIFilter filters);
     }
 
-    public class ProviderService : ServiceBase<Provider>, IProviderService 
+    public class ProviderService : ServiceBase<Provider>, IProviderService
     {
         private IRepository<Provider> _repository;
         public ProviderService(IRepository<Provider> baseRepository) : base(baseRepository)
@@ -118,6 +119,29 @@ namespace MVC_Project.Domain.Services
                     .List<ListProvidersAC>();
 
             if (list != null) return list.ToList();
+            return null;
+        }
+
+        public IEnumerable<InvoicesReceivedList> GetInvoicesReceivedNoPagination(BasePagination pagination, CustomerCFDIFilter filter)
+        {
+            var result = _repository.Session.CreateSQLQuery("exec dbo.st_exportProviderInvoicesList " +
+                "@createdOnStart=:createdOnStart, @createdOnEnd=:createdOnEnd, " +
+                "@accountId=:accountId, @folio=:folio, @rfc=:rfc, @paymentMethod=:paymentMethod, @paymentForm=:paymentForm, " +
+                "@currency=:currency, @serie=:serie, @nombreRazonSocial=:nombreRazonSocial ")
+                    .SetParameter("createdOnStart", pagination.CreatedOnStart != null ? Convert.ToDateTime(pagination.CreatedOnStart).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo) : null)
+                    .SetParameter("createdOnEnd", pagination.CreatedOnEnd != null ? Convert.ToDateTime(pagination.CreatedOnEnd).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo) : null)
+                    .SetParameter("accountId", filter.accountId)
+                    .SetParameter("folio", filter.folio)
+                    .SetParameter("rfc", filter.rfc)
+                    .SetParameter("paymentMethod", filter.paymentMethod)
+                    .SetParameter("paymentForm", filter.paymentForm)
+                    .SetParameter("currency", filter.currency)
+                    .SetParameter("serie", filter.serie)
+                    .SetParameter("nombreRazonSocial", filter.nombreRazonSocial)
+                    .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(InvoicesReceivedList)))
+                    .List<InvoicesReceivedList>();
+
+            if (result != null) return result.ToList();
             return null;
         }
     }

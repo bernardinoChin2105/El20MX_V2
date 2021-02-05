@@ -20,6 +20,7 @@ namespace MVC_Project.Domain.Services
         List<InvoicesIssuedList> CustomerCDFIList(BasePagination pagination, CustomerCFDIFilter filter);
         List<ListCustomersAC> ListCustomerAutoComplete(Int64 id);
         List<ListCustomersProvider> ReceiverSearchList(ReceiverFilter filter);
+        IEnumerable<InvoicesIssuedList> GetInvoicesIssuedNoPagination(BasePagination pagination, CustomerCFDIFilter filters);
     }
 
     public class CustomerService : ServiceBase<Customer>, ICustomerService
@@ -134,6 +135,29 @@ namespace MVC_Project.Domain.Services
                     .List<ListCustomersProvider>();
 
             if (list != null) return list.ToList();
+            return null;
+        }
+
+        public IEnumerable<InvoicesIssuedList> GetInvoicesIssuedNoPagination(BasePagination pagination, CustomerCFDIFilter filter)
+        {
+            var result = _repository.Session.CreateSQLQuery("exec dbo.st_exportCustomerInvoicesList " +
+                "@createdOnStart=:createdOnStart, @createdOnEnd=:createdOnEnd, " +
+                "@accountId=:accountId, @folio=:folio, @rfc=:rfc, @paymentMethod=:paymentMethod, @paymentForm=:paymentForm, " +
+                "@currency=:currency, @serie=:serie, @nombreRazonSocial=:nombreRazonSocial ")
+                    .SetParameter("createdOnStart", pagination.CreatedOnStart != null ? Convert.ToDateTime(pagination.CreatedOnStart).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo) : null)
+                    .SetParameter("createdOnEnd", pagination.CreatedOnEnd != null ? Convert.ToDateTime(pagination.CreatedOnEnd).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo) : null)
+                    .SetParameter("accountId", filter.accountId)
+                    .SetParameter("folio", filter.folio)
+                    .SetParameter("rfc", filter.rfc)
+                    .SetParameter("paymentMethod", filter.paymentMethod)
+                    .SetParameter("paymentForm", filter.paymentForm)
+                    .SetParameter("currency", filter.currency)
+                    .SetParameter("serie", filter.serie)
+                    .SetParameter("nombreRazonSocial", filter.nombreRazonSocial)
+                    .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(InvoicesIssuedList)))
+                    .List<InvoicesIssuedList>();
+
+            if (result != null) return result.ToList();
             return null;
         }
     }
