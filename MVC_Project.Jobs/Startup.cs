@@ -34,10 +34,11 @@ namespace MVC_Project.Jobs
                     RecurringJob.AddOrUpdate("SATJob_SyncBills", () => SATJob.SyncBills(), "*/7 * * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
                     RecurringJob.AddOrUpdate("BankJob_SyncAccounts", () => BankJob.SyncAccounts(), "*/5 * * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
                     RecurringJob.AddOrUpdate("SATExtractionJob_InvoiceExtractions", () => SATExtractionJob.InvoiceExtractions(), "0 0 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
-                    RecurringJob.AddOrUpdate("RecurlyJob_GenerateAccountStatement", () => RecurlyAccountStatementJob.GenerateAccountStatement(), "0 0 4 * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
-                    RecurringJob.AddOrUpdate("RecurlyJob_IssueInvoices", () => RecurlyInvoicingJob.IssueInvoices(), "0 23 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
-                    //BackgroundJob.Enqueue(() => RecurlyAccountStatementJob.GenerateAccountStatement());
-                    
+                    //RecurringJob.AddOrUpdate("RecurlyJob_GenerateAccountStatement", () => CredentialsCancellationJob.CredentialsCancellation(), "30 * * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
+                    BackgroundJob.Enqueue(() => CredentialsCancellationJob.CredentialsCancellation());
+
+                    //RecurringJob.AddOrUpdate("RecurlyJob_GenerateAccountStatement", () => RecurlyAccountStatementJob.GenerateAccountStatement(), "0 0 4 * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
+                    //RecurringJob.AddOrUpdate("RecurlyJob_IssueInvoices", () => RecurlyInvoicingJob.IssueInvoices(), "0 23 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
                     //BackgroundJob.Enqueue(() => CreateRecurlyAccountsJob.CreateAccounts());
                 }
 

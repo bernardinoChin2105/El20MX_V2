@@ -44,7 +44,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var account = _accountService.GetById(userAuth.Account.Id);
                 if (account == null)
                     throw new Exception("La cuenta no existe en el sistema");
-                
+
                 model.id = account.id;
                 model.uuid = account.uuid.ToString();
                 model.rfc = account.rfc;
@@ -62,6 +62,17 @@ namespace MVC_Project.WebBackend.Controllers
                     model.HasInvoiceSync = true;
                     model.InvoiceSyncDate = process.createdAt;
                 }
+
+                #region Validación si la cuenta prospecto tiene credenciales inactivas.
+                var credentialsValidation = _credentialService.FindBy(x => x.account.id == userAuth.Account.Id
+                && x.status == SystemStatus.INACTIVE.ToString()
+                && x.provider == SystemProviders.SATWS.ToString());
+                if (credentialsValidation.Count() > 0)
+                {
+                    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
+                    throw new ArgumentException("Credencial de prospecto inactiva.");
+                }
+                #endregion
 
                 var efirmaStatus = SystemStatus.INACTIVE.ToString();
                 var ciecStatus = SystemStatus.INACTIVE.ToString();
@@ -86,7 +97,7 @@ namespace MVC_Project.WebBackend.Controllers
                         _credentialService.Update(efirma);
                     }
                 }
-                if(!string.IsNullOrEmpty(account.cer))
+                if (!string.IsNullOrEmpty(account.cer))
                 {
                     var cerName = Path.GetFileName(account.cer);
                     MemoryStream stream = AzureBlobService.DownloadFile(_storageEFirma, account.rfc + "/" + cerName);
@@ -99,8 +110,32 @@ namespace MVC_Project.WebBackend.Controllers
                 }
                 return View(model);
             }
+            catch (ArgumentException ex)
+            {
+                LogUtil.AddEntry(
+                  "La credencial de Paybook esta inactiva: " + ex.Message.ToString(),
+                  ENivelLog.Info,
+                  userAuth.Id,
+                  userAuth.Email,
+                  EOperacionLog.ACCESS,
+                  string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                  ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   ex.Message.ToString()
+               );
+                return View(model);
+            }
             catch (Exception ex)
             {
+                LogUtil.AddEntry(
+                  "Error : " + ex.Message.ToString(),
+                  ENivelLog.Info,
+                  userAuth.Id,
+                  userAuth.Email,
+                  EOperacionLog.ACCESS,
+                  string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                  ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   ex.Message.ToString()
+               );
                 FlashMessages.MensajeFlashHandler.RegistrarMensaje("No se pudo obtener la información de la cuenta", TiposMensaje.Error);
                 return View(model);
             }
@@ -186,7 +221,7 @@ namespace MVC_Project.WebBackend.Controllers
                 _credentialService.Update(credential);
                 return Json(new { credential.uuid, success = true }, JsonRequestBehavior.AllowGet);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Json(new { message = ex.Message, success = false }, JsonRequestBehavior.AllowGet);
             }
@@ -198,13 +233,13 @@ namespace MVC_Project.WebBackend.Controllers
         {
             try
             {
-                if(string.IsNullOrEmpty(data.efirma))
+                if (string.IsNullOrEmpty(data.efirma))
                     throw new Exception("Porporcione la efirma");
-                
+
                 var account = _accountService.FirstOrDefault(x => x.rfc == data.rfc);
                 if (account == null)
                     throw new Exception("La cuenta no es válida");
-                
+
                 if (data.cer == null && string.IsNullOrEmpty(account.cer))
                     throw new Exception("Es necesario proporcionar un archivo .cer");
 
@@ -298,7 +333,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (credential == null)
                     throw new Exception("Credencial inválida");
-                
+
                 return Json(new { credential.uuid, success = true }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -347,7 +382,7 @@ namespace MVC_Project.WebBackend.Controllers
                 account.avatar = image.Item1;
                 account.modifiedAt = DateUtil.GetDateTimeNow();
                 _accountService.Update(account);
-                
+
                 return Json(new { account.uuid, success = true }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

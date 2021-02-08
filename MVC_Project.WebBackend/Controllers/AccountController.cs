@@ -253,6 +253,15 @@ namespace MVC_Project.WebBackend.Controllers
                             });
                         }
 
+                        #region Validación si la cuenta prospecto tiene credenciales inactivas.
+                        var credentials = _credentialService.FindBy(x => x.account.id == account.id && x.status == SystemStatus.INACTIVE.ToString());
+                        if (credentials.Count() > 0)
+                        {                            
+                            MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
+                            authUser.isNotCredentials = true;
+                        }
+                        #endregion
+
                         authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
                         authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
                         authUser.Permissions = permissions;

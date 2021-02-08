@@ -48,6 +48,16 @@ namespace MVC_Project.WebBackend.Controllers
             var authUser = Authenticator.AuthenticatedUser;
             try
             {
+                #region Validación si la cuenta prospecto tiene credenciales inactivas.
+                var credentials = _credentialService.FindBy(x => x.account.id == authUser.Account.Id 
+                && x.status == SystemStatus.INACTIVE.ToString() 
+                && x.provider == SystemProviders.SYNCFY.GetDisplayName());
+                if (credentials.Count() > 0)
+                {
+                    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
+                    throw new ArgumentException("Credencial de prospecto inactiva.");
+                }
+                #endregion
 
                 string token = Authenticator.BankToken;
 
@@ -106,6 +116,19 @@ namespace MVC_Project.WebBackend.Controllers
                     ViewBag.paybookT = token;
                 }
 
+            }
+            catch (ArgumentException ex)
+            {
+                LogUtil.AddEntry(
+                  "La credencial de Paybook esta inactiva: " + ex.Message.ToString(),
+                  ENivelLog.Info,
+                  authUser.Id,
+                  authUser.Email,
+                  EOperacionLog.ACCESS,
+                  string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                  ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                   ex.Message.ToString()
+               );
             }
             catch (Exception ex)
             {
