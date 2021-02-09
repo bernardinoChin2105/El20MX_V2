@@ -141,5 +141,56 @@ namespace MVC_Project.Integrations.Recurly
                 throw new Exception("No se encontró un proveedor de acceso de recurly");
             }
         }
+
+        public static Invoice GetInvoice(string invoiceNumber, string siteId, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                return RecurlyServices.GetInvoice(invoiceNumber, siteId);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
+        public static TransactionsListResponse GetVerifiedTransactions(string siteId, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                return RecurlyServices.GetTransactions("verify", "true", 100, siteId);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
+        public static TransactionsListResponse GetNextTransactions(string url, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                return RecurlyServices.GetNexTransactions(url);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
+        public static AccountResponseModel UpdateAccount(dynamic request, string accountId, string siteId, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                var recurlyModel = RecurlyServices.UpdateAccount(request, accountId, siteId);
+
+                return recurlyModel;
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+            }
+        }
+
     }
 }

@@ -1844,8 +1844,8 @@ namespace MVC_Project.WebBackend.Controllers
 
                 worksheet.Cells["A1:Z1"].Style.Font.Bold = true;
 
-                worksheet.Cells["A1"].Value = "Serie";
-                worksheet.Cells["B1"].Value = "Folio";
+                worksheet.Cells["A1"].Value = "Folio";
+                worksheet.Cells["B1"].Value = "Serie";
                 worksheet.Cells["C1"].Value = "Fecha Factura";
                 worksheet.Cells["D1"].Value = $"RFC {invoiceType}";
                 worksheet.Cells["E1"].Value = invoiceType;
@@ -1861,8 +1861,8 @@ namespace MVC_Project.WebBackend.Controllers
                 for (int i = 0; i < invoices.Count; i++)
                 {
                     var invoice = invoices[i];
-                    worksheet.Cells[$"A{rowIndex}"].Value = invoice.Serie;
-                    worksheet.Cells[$"B{rowIndex}"].Value = invoice.Folio;
+                    worksheet.Cells[$"A{rowIndex}"].Value = invoice.Folio;
+                    worksheet.Cells[$"B{rowIndex}"].Value = invoice.Serie;
                     worksheet.Cells[$"C{rowIndex}"].Value = invoice.InvoicedAt;
                     worksheet.Cells[$"D{rowIndex}"].Value = invoice.RFC;
                     worksheet.Cells[$"E{rowIndex}"].Value = invoice.BussinessName;

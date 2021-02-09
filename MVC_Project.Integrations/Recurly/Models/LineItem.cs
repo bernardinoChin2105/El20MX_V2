@@ -65,7 +65,7 @@ namespace MVC_Project.Integrations.Recurly.Models
 
         /// <value>The discount applied to the line item.</value>
         [JsonProperty("discount")]
-        public float? Discount { get; set; }
+        public decimal? Discount { get; set; }
 
         /// <value>If this date is provided, it indicates the end of a time range.</value>
         [JsonProperty("end_date")]
@@ -171,7 +171,7 @@ namespace MVC_Project.Integrations.Recurly.Models
 
         /// <value>`quantity * unit_amount`</value>
         [JsonProperty("subtotal")]
-        public float? Subtotal { get; set; }
+        public decimal? Subtotal { get; set; }
 
         /// <value>The tax amount for the line item.</value>
         [JsonProperty("tax")]
@@ -199,7 +199,7 @@ namespace MVC_Project.Integrations.Recurly.Models
 
         /// <value>Positive amount for a charge, negative amount for a credit.</value>
         [JsonProperty("unit_amount")]
-        public float? UnitAmount { get; set; }
+        public decimal? UnitAmount { get; set; }
 
         /// <value>When the line item was last changed.</value>
         [JsonProperty("updated_at")]
