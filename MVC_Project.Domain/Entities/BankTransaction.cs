@@ -22,6 +22,9 @@ namespace MVC_Project.Domain.Entities
         public virtual DateTime modifiedAt { get; set; }
         public virtual string status { get; set; }
 
+        public virtual string statusSend { get; set; }
+        public virtual string linkError { get; set; }
+
         public virtual BankAccount bankAccount { get; set; }
     }
 }
