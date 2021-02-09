@@ -269,7 +269,9 @@ namespace MVC_Project.Utils
         [Display(Name = "Finerio")]
         FINERIO,
         [Display(Name = "Recurly")]
-        RECURLY
+        RECURLY,
+        [Display(Name = "ContaLink")]
+        CONTALINK
     }
 
     public enum SATCredentialType
