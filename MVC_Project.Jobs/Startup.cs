@@ -42,8 +42,8 @@ namespace MVC_Project.Jobs
                     //BackgroundJob.Enqueue(() => CreateRecurlyAccountsJob.CreateAccounts()); //Creación de cuentas de recurly
                     //RecurringJob.AddOrUpdate("CancellationJob_CredentialsCancellation", () => CredentialsCancellationJob.CredentialsCancellation(), "0 0 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
                     //BackgroundJob.Enqueue(() => RecurlyUpdateAccountsJob.UpdateAccounts());
-                    //BackgroundJob.Enqueue(() => RecurlyAccountStatementJob.GenerateAccountStatement());//Proceso de cobro
-                    BackgroundJob.Enqueue(() => BlockingNonPaymentJob.BlockingNonPayment()); //Bloqueo de cuenta por falta de pago                    
+                    BackgroundJob.Enqueue(() => RecurlyAccountStatementJob.GenerateAccountStatement());//Proceso de cobro
+                    //BackgroundJob.Enqueue(() => BlockingNonPaymentJob.BlockingNonPayment()); //Bloqueo de cuenta por falta de pago                    
                 }
 
                 app.UseHangfireDashboard(Dashboardurl, new DashboardOptions

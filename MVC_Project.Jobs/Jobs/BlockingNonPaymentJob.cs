@@ -79,6 +79,11 @@ namespace MVC_Project.Jobs
                          * - Validar su estatus de pago apartir del día 5 de cada mes                                                                        
                          * **/
 
+
+                        /*Validar los invoice de las cuentas que generaron en recurly*/
+
+
+
                         /** Parametros: FechaDelDía**/
                         DateTime today = Convert.ToDateTime("2021-02-24"); //DateUtil.GetDateTimeNow();
                         if (today.Day >= 8 && today.Day <= 24)

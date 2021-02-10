@@ -87,11 +87,11 @@ namespace MVC_Project.Jobs
 
                         //Obtener la lista de usuarios activo
                         var accountsRecurly = _accountService.GetAccountRecurly();
-                        
+
                         var transactions = new List<Transaction>();
                         var transactionsListResponse = RecurlyService.GetVerifiedTransactions(siteId, provider);
                         transactions.AddRange(transactionsListResponse.data);
-                        while(transactionsListResponse.has_more)
+                        while (transactionsListResponse.has_more)
                         {
                             transactionsListResponse = RecurlyService.GetNextTransactions(transactionsListResponse.next, provider);
                             transactions.AddRange(transactionsListResponse.data);
@@ -116,14 +116,17 @@ namespace MVC_Project.Jobs
                         {
                             foreach (var acc in accountsRecurly)
                             {
-                                #region lo que se ejecuta dentro por cada cliente
-                                var accountSupscriptions = RecurlyService.GetAccountSuscriptions(siteId, acc.idCredentialProvider);
+                                if (acc.rfc == "CERA900920NS8" || acc.rfc == "AUR040802HA5")
+                                {
+
+                                    #region lo que se ejecuta dentro por cada cliente
+                                    var accountSupscriptions = RecurlyService.GetAccountSuscriptions(siteId, acc.idCredentialProvider);
 
                                     var issuedInvoices = _invoicesIssuedService.FindBy(x => x.account.id == acc.id
                                         && x.invoicedAt >= firstDayOfMonth && x.invoicedAt <= lastDayOfMonth).OrderBy(x => x.invoicedAt);
 
-                                var receivedInvoices = _invoicesReceivedService.FindBy(x => x.account.id == acc.id && x.status == stampedStatusName
-                                        && x.invoicedAt >= firstDayOfMonth && x.invoicedAt <= lastDayOfMonth).OrderBy(x => x.invoicedAt);
+                                    var receivedInvoices = _invoicesReceivedService.FindBy(x => x.account.id == acc.id && x.status == stampedStatusName
+                                            && x.invoicedAt >= firstDayOfMonth && x.invoicedAt <= lastDayOfMonth).OrderBy(x => x.invoicedAt);
 
                                     bool isOldAccount = !string.IsNullOrEmpty(acc.planSchema) && acc.planSchema.StartsWith(SystemPlan.OLD_SCHEMA.ToString());
 
@@ -469,11 +472,12 @@ namespace MVC_Project.Jobs
                                     - si el RFC es persona moral contar todas las facturas emitidas desde la plataforma y todas las facturas recibidas (en ambos casos se cuentan hasta las tipo de relación y complementos de pagos)                                 
                                     */
 
-                                //Validar si existen suscripciones
-                                //Crear el modelo de la suscripción en la cual la cuenta caera 
-                                //Si la suscripción cambia realizar un cambio de suscripción
-                                //Enviar los datos de la compra.
-                                #endregion
+                                    //Validar si existen suscripciones
+                                    //Crear el modelo de la suscripción en la cual la cuenta caera 
+                                    //Si la suscripción cambia realizar un cambio de suscripción
+                                    //Enviar los datos de la compra.
+                                    #endregion
+                                }
                             }
                         }
 
