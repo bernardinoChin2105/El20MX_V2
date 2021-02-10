@@ -592,24 +592,24 @@ namespace MVC_Project.WebBackend.Controllers
                    JsonConvert.SerializeObject(account)
                 );
 
-                #region Se creara la cuenta en Recurly
-                CreateAccountRecurly();
-                #endregion
-                var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
-                var recurlyAccountUrlBase = ConfigurationManager.AppSettings["Recurly.AccountUrlBase"];
+                //#region Se creara la cuenta en Recurly
+                //    CreateAccountRecurly();
+                //#endregion
+                //var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
+                //var recurlyAccountUrlBase = ConfigurationManager.AppSettings["Recurly.AccountUrlBase"];
 
-                var recurlyAccountCredential = _credentialService.FindBy(x => x.account.id == account.id && x.provider == recurlyProvider && x.statusProvider == "active" && x.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
-                if (recurlyAccountCredential != null && !string.IsNullOrEmpty(recurlyAccountCredential.credentialType))
-                {
-                    authUser.Permissions.Add(new Permission
-                    {
-                        Action = recurlyAccountUrlBase + recurlyAccountCredential.credentialType,
-                        Controller = "MyAccount",
-                        Module = SystemModules.RECURLY_ACCOUNT.ToString(),
-                        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
-                        isCustomizable = true
-                    });
-                }
+                //var recurlyAccountCredential = _credentialService.FindBy(x => x.account.id == account.id && x.provider == recurlyProvider && x.statusProvider == "active" && x.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
+                //if (recurlyAccountCredential != null && !string.IsNullOrEmpty(recurlyAccountCredential.credentialType))
+                //{
+                //    authUser.Permissions.Add(new Permission
+                //    {
+                //        Action = recurlyAccountUrlBase + recurlyAccountCredential.credentialType,
+                //        Controller = "MyAccount",
+                //        Module = SystemModules.RECURLY_ACCOUNT.ToString(),
+                //        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                //        isCustomizable = true
+                //    });
+                //}
 
 
                 return RedirectToAction("Index", "SAT");
@@ -938,7 +938,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 var user = _userService.GetById(authUser.Id);
                 if (user != null)
-                    newAccount.address = new AddressModel { phone = user.profile?.phoneNumber };
+                    newAccount.address = new AddressModel { phone = user.profile?.phoneNumber, country = "MX" };
 
                 var serilaizeJson = JsonConvert.SerializeObject(newAccount, Newtonsoft.Json.Formatting.None,
                 new JsonSerializerSettings

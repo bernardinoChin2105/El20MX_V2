@@ -33,12 +33,14 @@ namespace MVC_Project.Domain.Entities
         public virtual IList<Membership> memberships { get; set; }
         public virtual IList<BankCredential> bankCredentials { get; set; }
         public virtual IList<BankAccount> bankAccounts { get; set; }
+        public virtual IList<Credential> credentials { get; set; }
 
         public Account()
         {
             memberships = new List<Membership>();
             bankCredentials = new List<BankCredential>();
             bankAccounts = new List<BankAccount>();
+            credentials = new List<Credential>();
         }
     }
 }

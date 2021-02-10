@@ -50,6 +50,7 @@ namespace MVC_Project.WebBackend.Controllers
         private ITaxService _taxService;
         private IMembershipService _membershipService;
         private IForeignCountryService _foreignCountryService;
+        private ICredentialService _credentialService;
 
         public InvoicingController(IAccountService accountService, ICustomsService customsService, ICustomsPatentService customsPatentService,
             ICustomsRequestNumberService customsRequestNumberService, ITypeInvoiceService typeInvoiceService, IUseCFDIService useCFDIService,
@@ -58,7 +59,7 @@ namespace MVC_Project.WebBackend.Controllers
             IProviderService providerService, IBranchOfficeService branchOfficeService, ITaxRegimeService taxRegimeService,
             IInvoiceIssuedService invoiceIssuedService, IInvoiceReceivedService invoiceReceivedService, IDriveKeyService driveKeyService,
             IProductServiceKeyService productServiceKeyService, ICountryService countryService, IStateService stateService, IRateFeeService rateFeeService,
-            ITaxService taxService, IMembershipService membershipService, IForeignCountryService foreignCountryService)
+            ITaxService taxService, IMembershipService membershipService, IForeignCountryService foreignCountryService, ICredentialService credentialService)
 
         {
             _accountService = accountService;
@@ -86,6 +87,7 @@ namespace MVC_Project.WebBackend.Controllers
             _taxService = taxService;
             _membershipService = membershipService;
             _foreignCountryService = foreignCountryService;
+            _credentialService = credentialService;
         }
 
         // GET: Invoicing
@@ -98,6 +100,7 @@ namespace MVC_Project.WebBackend.Controllers
         {
             InvoiceViewModel model = new InvoiceViewModel();
             var authUser = Authenticator.AuthenticatedUser;
+           
             try
             {
                 ViewBag.Date = new
@@ -108,7 +111,8 @@ namespace MVC_Project.WebBackend.Controllers
 
                 //obtener información de mi emisor                
                 var account = authUser.Account;
-                string email = authUser.Email;
+                string email = authUser.Email;             
+
                 var membership = _membershipService.FirstOrDefault(x => x.account.id == account.Id && x.role.code == SystemRoles.ACCOUNT_OWNER.ToString() && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
 
                 if (membership != null)
@@ -146,6 +150,17 @@ namespace MVC_Project.WebBackend.Controllers
 
                 //Obtener listas de los combos
                 SetCombos(zipCode, ref model);
+
+                #region Validación si la cuenta prospecto tiene credenciales inactivas.
+                var credentials = _credentialService.FindBy(x => x.account.id == account.Id
+                && x.status == SystemStatus.INACTIVE.ToString()
+                && x.provider == SystemProviders.SYNCFY.GetDisplayName());
+                if (credentials.Count() > 0)
+                {
+                    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
+                    throw new ArgumentException("Credencial de prospecto inactiva.");
+                }
+                #endregion
             }
             catch (Exception ex)
             {
@@ -254,6 +269,17 @@ namespace MVC_Project.WebBackend.Controllers
             var authUser = Authenticator.AuthenticatedUser;
             try
             {
+                #region Validación si la cuenta prospecto tiene credenciales inactivas.
+                var credentials = _credentialService.FindBy(x => x.account.id == authUser.Account.Id
+                && x.status == SystemStatus.INACTIVE.ToString()
+                && x.provider == SystemProviders.SYNCFY.GetDisplayName());
+                if (credentials.Count() > 0)
+                {
+                    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
+                    throw new ArgumentException("Credencial de prospecto inactiva.");
+                }
+                #endregion
+
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
                 //Validar que se exista el receptor
@@ -775,7 +801,7 @@ namespace MVC_Project.WebBackend.Controllers
                                     invoiceIssued.modifiedAt = DateUtil.GetDateTimeNow();
                                     _invoiceIssuedService.Update(invoiceIssued);
 
-                                    SendInvoice(model.ListCustomerEmail[0], model.RFC, model.CustomerName, model.Comments, invoiceIssued.xml, uploadPDF.Item1);
+                                    SendInvoice(model.ListCustomerEmail[0], model.RFC, model.CustomerName, model.Comments, invoiceIssued.xml, uploadPDF.Item1);                                    
                                 }
                                 catch (Exception ex)
                                 {
@@ -1552,8 +1578,7 @@ namespace MVC_Project.WebBackend.Controllers
                     //first_name = x.first_name,
                     //last_name = x.last_name,
                     paymentFormDescription = x.paymentFormDescription,
-                    type = x.invoiceType,
-                    hasXML = !string.IsNullOrEmpty(x.xml)
+                    type = x.invoiceType
                 }).ToList();
 
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
@@ -1734,8 +1759,7 @@ namespace MVC_Project.WebBackend.Controllers
                     //first_name = x.first_name,
                     //last_name = x.last_name,
                     paymentFormDescription = x.paymentFormDescription,
-                    type = x.invoiceType,
-                    hasXML = !string.IsNullOrEmpty(x.xml)
+                    type = x.invoiceType
                 }).ToList();
 
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
@@ -1820,8 +1844,8 @@ namespace MVC_Project.WebBackend.Controllers
 
                 worksheet.Cells["A1:Z1"].Style.Font.Bold = true;
 
-                worksheet.Cells["A1"].Value = "Serie";
-                worksheet.Cells["B1"].Value = "Folio";
+                worksheet.Cells["A1"].Value = "Folio";
+                worksheet.Cells["B1"].Value = "Serie";
                 worksheet.Cells["C1"].Value = "Fecha Factura";
                 worksheet.Cells["D1"].Value = $"RFC {invoiceType}";
                 worksheet.Cells["E1"].Value = invoiceType;
@@ -1837,8 +1861,8 @@ namespace MVC_Project.WebBackend.Controllers
                 for (int i = 0; i < invoices.Count; i++)
                 {
                     var invoice = invoices[i];
-                    worksheet.Cells[$"A{rowIndex}"].Value = invoice.Serie;
-                    worksheet.Cells[$"B{rowIndex}"].Value = invoice.Folio;
+                    worksheet.Cells[$"A{rowIndex}"].Value = invoice.Folio;
+                    worksheet.Cells[$"B{rowIndex}"].Value = invoice.Serie;
                     worksheet.Cells[$"C{rowIndex}"].Value = invoice.InvoicedAt;
                     worksheet.Cells[$"D{rowIndex}"].Value = invoice.RFC;
                     worksheet.Cells[$"E{rowIndex}"].Value = invoice.BussinessName;
@@ -2000,9 +2024,6 @@ namespace MVC_Project.WebBackend.Controllers
                 if (invoice == null)
                     throw new Exception("No se encontro la factura emitida");
 
-                if (string.IsNullOrEmpty(invoice.xml))
-                    throw new Exception("El registro no cuenta con el xml de la factura");
-
                 MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
 
                 Response.ContentType = "application/xml";
@@ -2034,8 +2055,8 @@ namespace MVC_Project.WebBackend.Controllers
             if (invoice == null)
                 throw new Exception("No se encontro la factura emitida");
 
-            if (string.IsNullOrEmpty(invoice.xml))
-                throw new Exception("El registro no cuenta con el xml de la factura");
+            if (invoice.xml == null)
+                throw new Exception("El registro no cuenta con el xml de la factura emitida");
 
             MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, accountRfc + "/" + invoice.uuid + ".xml");
             stream.Position = 0;

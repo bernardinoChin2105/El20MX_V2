@@ -92,7 +92,9 @@ namespace MVC_Project.Jobs
                                 var modelInvoices = SATService.GetInvoicesByExtractions(data.data.@object.taxpayer.id, data.data.@object.options.period.from, data.data.@object.options.period.to, "SATWS");
 
                                 //Crear clientes
+
                                 List<string> customerRfcs = modelInvoices.Customers.Select(c => c.rfc).Distinct().ToList();
+                                //var ExistC = _customerService.ValidateRFC(customerRfcs, account.id);
 
                                 var ExistC = from customer in _customerService.FindBy(x => x.account.id == account.id)
                                              join rfc in customerRfcs
@@ -120,6 +122,7 @@ namespace MVC_Project.Jobs
 
                                 //Crear proveedores
                                 List<string> providersRfcs = modelInvoices.Providers.Select(c => c.rfc).Distinct().ToList();
+                                //var ExistP = _providerService.ValidateRFC(providersRfcs, account.id);
 
                                 var ExistP = from prov in _providerService.FindBy(x => x.account.id == account.id)
                                              join rfc in providersRfcs
@@ -147,90 +150,86 @@ namespace MVC_Project.Jobs
 
                                 var provider = ConfigurationManager.AppSettings["SATProvider"];
 
-                                var invoiceIssuedExists = from invoice in modelInvoices.Invoices.Where(x => x.issuer.rfc == account.rfc)
-                                                          join all in _invoicesIssuedService.FindBy(x => x.account.id == account.id)
-                                                          on invoice.id equals all.uuid.ToString()
-                                                          select invoice;
+                                List<string> IdIssued = modelInvoices.Customers.Select(x => x.idInvoice).ToList();
+                                var invoicesIssuedExist = _invoicesIssuedService.FindBy(x => x.account.id == account.id).Select(x => x.uuid.ToString()).ToList();
 
-                                var customerInvoices = modelInvoices.Invoices.Where(x => x.issuer.rfc == account.rfc).Except(invoiceIssuedExists);
+                                IdIssued = IdIssued.Except(invoicesIssuedExist).ToList();
+
+                                /*Obtener los CFDI's*/
+                                var customersCFDI = SATService.GetCFDIs(IdIssued, provider);
                                 var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
                                 List<InvoiceIssued> invoiceIssued = new List<InvoiceIssued>();
-                                foreach (var cfdi in customerInvoices)
+                                foreach (var cfdi in customersCFDI)
                                 {
-                                    var xml = SATService.GetXMLInvoice(cfdi.id, provider);
-                                    if (!string.IsNullOrEmpty(xml))
-                                    {
-                                        byte[] byteArray = Encoding.UTF8.GetBytes(SATService.GetXMLInvoice(cfdi.id, provider));
-                                        System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
-                                        var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesIssued, account.rfc);
-                                        xml = upload.Item1;
-                                    }
+                                    byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(cfdi.Xml);
+                                    System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
+                                    var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesIssued, account.rfc);
+
                                     invoiceIssued.Add(new InvoiceIssued
                                     {
                                         uuid = Guid.Parse(cfdi.id),
-                                        folio = cfdi.internalIdentifier,
-                                        serie = cfdi.reference,
-                                        paymentMethod = cfdi.paymentType,
-                                        paymentForm = cfdi.paymentMethod,
-                                        currency = cfdi.currency,
-                                        iva = cfdi.tax.HasValue ? cfdi.tax.Value : 0,
-                                        invoicedAt = cfdi.certifiedAt,
-                                        xml = xml,
+                                        folio = cfdi.Folio,
+                                        serie = cfdi.Serie,
+                                        paymentMethod = cfdi.MetodoPago,
+                                        paymentForm = cfdi.FormaPago,
+                                        currency = cfdi.Moneda,
+                                        iva = modelInvoices.Customers.FirstOrDefault(y => y.idInvoice == cfdi.id).tax,
+                                        invoicedAt = cfdi.Fecha,
+                                        xml = upload.Item1,
                                         createdAt = DateUtil.GetDateTimeNow(),
                                         modifiedAt = DateUtil.GetDateTimeNow(),
-                                        status = cfdi.status == "CANCELADO" ? IssueStatus.CANCELED.ToString() : IssueStatus.STAMPED.ToString(),
+                                        status = IssueStatus.STAMPED.ToString(),
                                         account = account,
-                                        customer = _customerService.FirstOrDefault(y => y.rfc == cfdi.receiver.rfc),
-                                        invoiceType = cfdi.type,
-                                        subtotal = cfdi.subtotal.HasValue ? cfdi.subtotal.Value : 0,
-                                        total = cfdi.total,
+                                        customer = _customerService.FirstOrDefault(y => y.rfc == cfdi.Receptor.Rfc),
+                                        invoiceType = cfdi.TipoDeComprobante,
+                                        subtotal = cfdi.SubTotal,
+                                        total = cfdi.Total,
                                         homemade = false
                                     });
                                 }
+
                                 _invoicesIssuedService.Create(invoiceIssued);
 
-                                var invoiceReceivedExists = from invoice in modelInvoices.Invoices.Where(x => x.receiver.rfc == account.rfc)
-                                                            join all in _invoicesReceivedService.FindBy(x => x.account.id == account.id)
-                                                            on invoice.id equals all.uuid.ToString()
-                                                            select invoice;
+                                List<string> IdReceived = modelInvoices.Providers.Select(x => x.idInvoice).ToList();
+                                var invoicesReceivedExist = _invoicesReceivedService.FindBy(x => x.account.id == account.id).Select(x => x.uuid.ToString()).ToList();
 
-                                var providerInvoices = modelInvoices.Invoices.Where(x => x.receiver.rfc == account.rfc).Except(invoiceReceivedExists);
+                                IdReceived = IdReceived.Except(invoicesReceivedExist).ToList();
+
+                                /*Obtener los CFDI's*/
+                                var providersCFDI = SATService.GetCFDIs(IdReceived, provider);
                                 var StorageInvoicesReceived = ConfigurationManager.AppSettings["StorageInvoicesReceived"];
                                 List<InvoiceReceived> invoiceReceiveds = new List<InvoiceReceived>();
-                                foreach (var cfdi in providerInvoices)
+                                foreach (var cfdi in providersCFDI)
                                 {
-                                    var xml = SATService.GetXMLInvoice(cfdi.id, provider);
-                                    if (!string.IsNullOrEmpty(xml))
-                                    {
-                                        byte[] byteArray = Encoding.UTF8.GetBytes(SATService.GetXMLInvoice(cfdi.id, provider));
-                                        System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
-                                        var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesReceived, account.rfc);
-                                        xml = upload.Item1;
-                                    }
+                                    byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(cfdi.Xml);
+                                    System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
+                                    var upload = AzureBlobService.UploadPublicFile(stream, cfdi.id + ".xml", StorageInvoicesReceived, account.rfc);
+
                                     invoiceReceiveds.Add(new InvoiceReceived
                                     {
                                         uuid = Guid.Parse(cfdi.id),
-                                        folio = cfdi.internalIdentifier,
-                                        serie = cfdi.reference,
-                                        paymentMethod = cfdi.paymentType,
-                                        paymentForm = cfdi.paymentMethod,
-                                        currency = cfdi.currency,
-                                        iva = cfdi.tax.HasValue ? cfdi.tax.Value : 0,
-                                        invoicedAt = cfdi.certifiedAt,
-                                        xml = xml,
+                                        folio = cfdi.Folio,
+                                        serie = cfdi.Serie,
+                                        paymentMethod = cfdi.MetodoPago,
+                                        paymentForm = cfdi.FormaPago,
+                                        currency = cfdi.Moneda,
+                                        iva = modelInvoices.Providers.FirstOrDefault(y => y.idInvoice == cfdi.id).tax,
+                                        invoicedAt = cfdi.Fecha,
+                                        xml = upload.Item1,
                                         createdAt = DateUtil.GetDateTimeNow(),
                                         modifiedAt = DateUtil.GetDateTimeNow(),
-                                        status = cfdi.status == "CANCELADO" ? IssueStatus.CANCELED.ToString() : IssueStatus.STAMPED.ToString(),
+                                        status = IssueStatus.STAMPED.ToString(),
                                         account = account,
-                                        provider = _providerService.FirstOrDefault(y => y.rfc == cfdi.issuer.rfc),
-                                        invoiceType = cfdi.type,
-                                        subtotal = cfdi.subtotal.HasValue ? cfdi.subtotal.Value : 0,
-                                        total = cfdi.total,
+                                        provider = _providerService.FirstOrDefault(y => y.rfc == cfdi.Emisor.Rfc),
+                                        invoiceType = cfdi.TipoDeComprobante,
+                                        subtotal = cfdi.SubTotal,
+                                        total = cfdi.Total,
                                         homemade = false
                                     });
                                 }
+
                                 _invoicesReceivedService.Create(invoiceReceiveds);
-                                
+
                                 webhookProcess.status = SystemStatus.ACTIVE.ToString();
                                 webhookProcess.modifiedAt = DateUtil.GetDateTimeNow();
                                 _webhookProcessService.Update(webhookProcess);

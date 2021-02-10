@@ -701,14 +701,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (user != null)
                 {
-                    Membership membership = null;
-                    if (userAuth.Account != null) { 
-                        membership = _membershipService.FirstOrDefault(x => x.user.id == user.id && x.account.id == userAuth.Account.Id);
-                    }
-                    else {
-                        membership = _membershipService.FirstOrDefault(x => x.user.id == user.id);
-                    }
-                    
+                    var membership = _membershipService.FirstOrDefault(x => x.user.id == user.id && x.account.id == userAuth.Account.Id);
                     if (membership != null)
                     {
                         if (membership.status == SystemStatus.ACTIVE.ToString())

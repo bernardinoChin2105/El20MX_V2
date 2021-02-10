@@ -69,7 +69,6 @@
 @section Scripts {
     <script src="~/Scripts/plugins/cropper/cropper.min.js"></script>
     <script type="text/javascript">
-        let contadorLlamadasSAT = 0;
         $(document).ready(function () {
             $("#RFC").keyup(function () {
                 this.value = this.value.toUpperCase();
@@ -113,7 +112,6 @@
             });
         });
         var self = this;
-        
         this.finishValidation = function (uuid) {
             $.get('@Url.Action("AccountValidation")', { uuid: uuid }, function (data) {
                 if (data.finish) {
@@ -137,16 +135,11 @@
                     else {
                         El20Utils.ocultarCargador();
                         toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
+                        
                     }
                 }
                 else {
-                    if (contadorLlamadasSAT < 10) {
-                        //contadorLlamadasSAT++;
-                        setTimeout(self.finishValidation(uuid), 5000);
-                    } else {
-                        El20Utils.ocultarCargador();
-                        toastr['error']("No es posible validar el RFC en el SAT", null, { 'positionClass': 'toast-top-center' }); 
-                    }
+                    setTimeout(self.finishValidation(uuid), 2000);
                 }
                 
             }).fail(function () {

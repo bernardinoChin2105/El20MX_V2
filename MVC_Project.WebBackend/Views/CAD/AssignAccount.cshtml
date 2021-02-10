@@ -1,6 +1,11 @@
 ﻿@model MVC_Project.WebBackend.Models.CADAccountsViewModel
+@using MVC_Project.WebBackend.AuthManagement
+@using MVC_Project.WebBackend.AuthManagement.Models
 @{
     ViewBag.Title = "Asignación de CADs";
+    var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
+    AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
+    var hasFullAccessController = user.HasFullAccessController(controllerName);
 }
 <link href="~/Content/template/plugins/dualListbox/bootstrap-duallistbox.min.css" rel="stylesheet" />
 <style>
@@ -17,15 +22,14 @@
 
                     <div class="form-group row">
                         @*@Html.LabelFor(model => model.cad, new { @class = "col-form-label control-label col-md-2" })*@
-                        <label class = "col-form-label control-label col-md-2">CAD</label>
+                        <label class="col-form-label control-label col-md-2">CAD</label>
                         <div class="col-md-10">
                             @Html.DropDownListFor(model=>model.cad, Model.cads, "Seleccione un CAD...",
                        new { @class = "chosen-select", data_placeholder = "Seleccione un CAD", @required = "required", @style = "width: 100%" })
                         </div>
                     </div>
                     <div class="form-group row">
-                        <select id="duallistbox" multiple="multiple" size="10" name="duallistbox_customers">
-                        </select>
+                        <select id="duallistbox" multiple="multiple" size="10" name="duallistbox_customers"></select>
                     </div>
                     <div class="form-group row pull-right">
                         <div class="col-md-12 text-right">
@@ -42,6 +46,8 @@
     <script src="~/Scripts/plugins/dualListbox/jquery.bootstrap-duallistbox.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+            var hasFullAccess = '@hasFullAccessController' == 'True';
+
             $("#btnSelectAccount").hide();
             $('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
             var dlist = $('#duallistbox').bootstrapDualListbox({
@@ -63,7 +69,9 @@
                 dlist.bootstrapDualListbox('refresh');
                 var id = $(this).val();
                 if (id) {
-                    $("#btnSelectAccount").show();
+                    if (hasFullAccess)
+                        $("#btnSelectAccount").show();
+
                     $.get('@Url.Action("GetAccounts")', { id: id }, function (result) {
                         if (result.success) {
                             $.each(result.availables, function (i, item) {
@@ -98,7 +106,7 @@
                             toastr["success"]("Asignación realizada", null, { 'positionClass': 'toast-top-center' });
                         }
                         else {
-                            toastr["error"]("No fue posible asignar los clientes al CAD", null, { 'positionClass': 'toast-top-center' }); 
+                            toastr["error"]("No fue posible asignar los clientes al CAD", null, { 'positionClass': 'toast-top-center' });
                             console.log(result.message);
                         }
                     });

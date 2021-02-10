@@ -580,4 +580,11 @@ namespace MVC_Project.Integrations.Recurly
         public string next { get; set; }
         public List<Account> data { get; set; }
     }
+
+    public class TransactionsListResponse
+    {
+        public bool has_more { get; set; }
+        public string next { get; set; }
+        public List<Transaction> data { get; set; }
+    }
 }

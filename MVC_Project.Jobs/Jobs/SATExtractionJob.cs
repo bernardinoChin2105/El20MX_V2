@@ -87,7 +87,7 @@ namespace MVC_Project.Jobs
                             ToList();
 
                         DateTime dateTo = DateUtil.GetDateTimeNow();
-                        DateTime dateFrom = DateTime.UtcNow.AddDays(-3);
+                        DateTime dateFrom = DateTime.UtcNow.AddMonths(-1);
                         dateFrom = new DateTime(dateFrom.Year, dateFrom.Month, 1);
 
                         if (isHistorical)
@@ -95,7 +95,7 @@ namespace MVC_Project.Jobs
                             dateFrom = new DateTime(2014, 1, 1);
 
                             var accountsProcessed = _satExtractionProcessService.
-                            FindBy(x => x.isHistorical && x.status == SystemStatus.ACTIVE.ToString()).
+                            FindBy(x => x.isHistorical).
                             Select(x => x.account.id);
 
                             credentials = credentials.

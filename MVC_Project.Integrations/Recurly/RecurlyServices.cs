@@ -145,19 +145,64 @@ namespace MVC_Project.Integrations.Recurly
             accountModel = JsonConvert.DeserializeObject<Account>(responseRecurly);
 
             return accountModel;
-        } 
+        }
 
         public static Invoice GetAccount(string accountId, string siteId)
         {
             Invoice invoiceModel = new Invoice();
 
-            string url = "sites/" + siteId + "/accounts/" + accountId+"invoices";
+            string url = "sites/" + siteId + "/accounts/" + accountId + "invoices";
 
             //Llamar al servicio para obtener la cuenta en el recurly y obtener respuesta                  
             var responseRecurly = Recurly.CallServiceRecurly(url, null, "Get");
             invoiceModel = JsonConvert.DeserializeObject<Invoice>(responseRecurly);
 
             return invoiceModel;
+        }
+
+        public static Invoice GetInvoice(string invoiceNumber, string siteId)
+        {
+            Invoice recurlyModel = new Invoice();
+            string url = "sites/" + siteId + "/invoices/number-" + invoiceNumber;
+
+            var responseRecurly = Recurly.CallServiceRecurly(url, null, "GET");
+
+            recurlyModel = JsonConvert.DeserializeObject<Invoice>(responseRecurly);
+
+            return recurlyModel;
+        }
+
+        public static TransactionsListResponse GetTransactions(string type, string success, int limit, string siteId)
+        {
+            TransactionsListResponse recurlyModel = new TransactionsListResponse();
+            string url = "sites/" + siteId + "/transactions";
+
+            var responseRecurly = Recurly.CallServiceRecurly(url, new { type, success, limit }, "GET");
+
+            return JsonConvert.DeserializeObject<TransactionsListResponse>(responseRecurly);
+        }
+
+        public static TransactionsListResponse GetNexTransactions(string url)
+        {
+            TransactionsListResponse recurlyModel = new TransactionsListResponse();
+
+            var responseRecurly = Recurly.CallServiceRecurly(url, null, "GET");
+
+            return JsonConvert.DeserializeObject<TransactionsListResponse>(responseRecurly);
+        }
+
+        public static AccountResponseModel UpdateAccount(dynamic model, string accountId, string siteId)
+        {
+            AccountResponseModel recurlyModel = new AccountResponseModel();
+
+            string url = "sites/" + siteId + "/accounts/" + accountId;
+
+            //Llamar al servicio para crear la credencial en el recurly y obtener respuesta                  
+            var responseRecurly = Recurly.CallServiceRecurly(url, model, "Put");
+
+            recurlyModel = JsonConvert.DeserializeObject<AccountResponseModel>(responseRecurly);
+
+            return recurlyModel;
         }
     }
 }

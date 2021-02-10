@@ -112,18 +112,7 @@ namespace MVC_Project.Integrations.SAT
                 throw new Exception("No se encontró un proveedor de acceso al información fiscal");
             }
         }
-        public static string GetXMLInvoice(string uuid, string provider)
-        {
-            if (provider == SystemProviders.SATWS.ToString())
-            {
-                return SATwsService.GetXMLInvoice(uuid);
-            }
-            else
-            {
-                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
-            }
-        }
-        
+
         public static List<InvoicesCFDI> GetCFDIs(List<string> uuids, string provider)
         {
             if (provider == SystemProviders.SATWS.ToString())
