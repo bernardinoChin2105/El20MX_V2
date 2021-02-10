@@ -27,7 +27,7 @@
                     <h5>@m.name</h5>
 
                     <div class="m-b-sm">
-                        @if (m.accountStatus == SystemStatus.ACTIVE.ToString())
+                        @if (m.accountStatus == SystemStatus.ACTIVE.ToString() || m.accountStatus == SystemStatus.CONFIRMED.ToString())
                         {
                             <a href='@Url.Action("SetAccount", new { uuid = m.uuid })'>
                                 <img alt="image" class="rounded-circle" src="@m.imagen" style="width:30%" />

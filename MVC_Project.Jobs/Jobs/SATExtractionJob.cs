@@ -82,7 +82,7 @@ namespace MVC_Project.Jobs
                             FindBy(x => x.credentialType == SATCredentialType.CIEC.ToString() &&
                             x.provider == SystemProviders.SATWS.ToString() &&
                             x.status == SystemStatus.ACTIVE.ToString() &&
-                            x.account.status == SystemStatus.ACTIVE.ToString()).
+                            (x.account.status == SystemStatus.ACTIVE.ToString() || x.account.status == SystemStatus.CONFIRMED.ToString())).
                             OrderBy(x => x.id).
                             ToList();
 
