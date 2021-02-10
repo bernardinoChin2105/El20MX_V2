@@ -138,9 +138,9 @@ namespace MVC_Project.Jobs
                                         Unidad = satUnit.name,
                                         Descripcion = lineItem.Description,
                                         Cantidad = lineItem.Quantity.HasValue ? lineItem.Quantity.Value : 1,
-                                        ValorUnitario = lineItem.UnitAmount.Value,
-                                        Importe = lineItem.Subtotal.Value,
-                                        Descuento = lineItem.Discount.Value
+                                        ValorUnitario = lineItem.UnitAmount.Value.ToString("0.000000"),
+                                        Importe = lineItem.Subtotal.Value.ToString("0.000000"),
+                                        Descuento = lineItem.Discount.Value.ToString("0.000000")
                                     };
                                     if (lineItem.Taxable.Value && !lineItem.TaxExempt.Value)
                                     {
@@ -259,7 +259,7 @@ namespace MVC_Project.Jobs
                                     var el20mx = _accountService.FirstOrDefault(x => x.rfc == issuer.Rfc);
                                     if (el20mx != null)
                                     {
-                                        var customer = _customerService.FirstOrDefault(y => y.id == el20mx.id && y.rfc == payment.account.rfc);
+                                        var customer = _customerService.FirstOrDefault(y => y.account.id == el20mx.id && y.rfc == payment.account.rfc);
                                         if (customer == null)
                                         {
                                             customer = new Customer
