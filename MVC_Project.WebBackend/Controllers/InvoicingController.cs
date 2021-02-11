@@ -1575,7 +1575,8 @@ namespace MVC_Project.WebBackend.Controllers
                     //first_name = x.first_name,
                     //last_name = x.last_name,
                     paymentFormDescription = x.paymentFormDescription,
-                    type = x.invoiceType
+                    type = x.invoiceType,
+                    hasXML = !string.IsNullOrEmpty(x.xml)
                 }).ToList();
 
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
@@ -1756,7 +1757,8 @@ namespace MVC_Project.WebBackend.Controllers
                     //first_name = x.first_name,
                     //last_name = x.last_name,
                     paymentFormDescription = x.paymentFormDescription,
-                    type = x.invoiceType
+                    type = x.invoiceType,
+                    hasXML = !string.IsNullOrEmpty(x.xml)
                 }).ToList();
 
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
@@ -2021,6 +2023,9 @@ namespace MVC_Project.WebBackend.Controllers
                 if (invoice == null)
                     throw new Exception("No se encontro la factura emitida");
 
+                if (string.IsNullOrEmpty(invoice.xml))
+                    throw new Exception("El registro no cuenta con el xml de la factura");
+
                 MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
 
                 Response.ContentType = "application/xml";
@@ -2052,8 +2057,8 @@ namespace MVC_Project.WebBackend.Controllers
             if (invoice == null)
                 throw new Exception("No se encontro la factura emitida");
 
-            if (invoice.xml == null)
-                throw new Exception("El registro no cuenta con el xml de la factura emitida");
+            if (string.IsNullOrEmpty(invoice.xml))
+                throw new Exception("El registro no cuenta con el xml de la factura");
 
             MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, accountRfc + "/" + invoice.uuid + ".xml");
             stream.Position = 0;

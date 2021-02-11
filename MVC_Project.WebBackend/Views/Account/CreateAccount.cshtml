@@ -23,7 +23,7 @@
                                 <label class="col-form-label col-md-2 control-label">
                                     RFC <abbr title="Registro Federal de Contribuyentes"><i class="fa fa-question-circle"></i></abbr>
                                 </label>
-                                <div class="col-md-8">                                    
+                                <div class="col-md-8">
                                     @Html.TextBoxFor(model => model.RFC, new { @class = "form-control", @autocomplete = "off" })
                                     @Html.ValidationMessageFor(model => model.RFC)
                                     @*<input id="rfc" name="rfc" type="text" class="form-control required" aria-required="true" autocomplete="off" onkeyup="javascript:this.value=this.value.toUpperCase();">*@
@@ -36,14 +36,14 @@
                                     CIEC <abbr title="Clave de Identificación Electrónica Confidencial"><i class="fa fa-question-circle"></i></abbr>
                                 </label>
                                 @*@Html.LabelFor(model => model.CIEC, new { @class = "col-form-label col-md-2 control-label" })*@
-                                <div class="col-md-8">                                    
+                                <div class="col-md-8">
                                     <div class="input-group">
                                         <div class="input-group-append viewpass">
                                             <span class="input-group-text" title="Ver contraseña">
                                                 <i class="fa fa-eye"></i>
                                             </span>
                                         </div>
-                                        @Html.TextBoxFor(model => model.CIEC, new { @class = "form-control viewpass-input", @autocomplete = "off", @minlength = "8", @maxlength = "20", @type="password" })
+                                        @Html.TextBoxFor(model => model.CIEC, new { @class = "form-control viewpass-input", @autocomplete = "off", @minlength = "8", @maxlength = "20", @type = "password" })
                                         @Html.ValidationMessageFor(model => model.CIEC)
                                         @*<input id="password" name="password" type="password" class="form-control required viewpass-input" data-view="false" aria-required="true" minlength="8" maxlength="20">*@
                                     </div>
@@ -69,6 +69,7 @@
 @section Scripts {
     <script src="~/Scripts/plugins/cropper/cropper.min.js"></script>
     <script type="text/javascript">
+        let contadorLlamadasSAT = 0;
         $(document).ready(function () {
             $("#RFC").keyup(function () {
                 this.value = this.value.toUpperCase();
@@ -112,11 +113,12 @@
             });
         });
         var self = this;
+
         this.finishValidation = function (uuid) {
             $.get('@Url.Action("AccountValidation")', { uuid: uuid }, function (data) {
                 if (data.finish) {
                     if (data.success) {
-                      
+
                         El20Utils.ocultarCargador();
                         let form = document.createElement("form");
                         form.setAttribute("method", "POST");
@@ -130,25 +132,30 @@
 
                         document.body.appendChild(form);
                         form.submit();
-                      
+
                     }
                     else {
                         El20Utils.ocultarCargador();
-                        toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
-                        
+                        toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' });
                     }
                 }
                 else {
-                    setTimeout(self.finishValidation(uuid), 2000);
+                    if (contadorLlamadasSAT < 10) {
+                        contadorLlamadasSAT++;
+                        setTimeout(self.finishValidation(uuid), 5000);
+                    } else {
+                        El20Utils.ocultarCargador();
+                        toastr['error']("No es posible validar el RFC en el SAT", null, { 'positionClass': 'toast-top-center' });
+                    }
                 }
-                
+
             }).fail(function () {
-                toastr['error']('No es posible finalizar la creación de la cuenta', null, { 'positionClass': 'toast-top-center' }); 
+                toastr['error']('No es posible finalizar la creación de la cuenta', null, { 'positionClass': 'toast-top-center' });
                 El20Utils.ocultarCargador();
             });
         }
 
-     
+
 
         function validarDatos() {
             var form = $('#RegisterRFCForm');
@@ -163,11 +170,11 @@
                     self.finishValidation(data.uuid)
                 }
                 else {
-                    toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' }); 
+                    toastr['error'](data.message, null, { 'positionClass': 'toast-top-center' });
                     El20Utils.ocultarCargador();
                 }
             }).fail(function () {
-                toastr['error']('No es posible validar el RFC', null, { 'positionClass': 'toast-top-center' }); 
+                toastr['error']('No es posible validar el RFC', null, { 'positionClass': 'toast-top-center' });
                 El20Utils.ocultarCargador();
             });
 
