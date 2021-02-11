@@ -87,11 +87,11 @@ namespace MVC_Project.Jobs
 
                         //Obtener la lista de usuarios activo
                         var accountsRecurly = _accountService.GetAccountRecurly();
-                        
+
                         var transactions = new List<Transaction>();
                         var transactionsListResponse = RecurlyService.GetVerifiedTransactions(siteId, provider);
                         transactions.AddRange(transactionsListResponse.data);
-                        while(transactionsListResponse.has_more)
+                        while (transactionsListResponse.has_more)
                         {
                             transactionsListResponse = RecurlyService.GetNextTransactions(transactionsListResponse.next, provider);
                             transactions.AddRange(transactionsListResponse.data);
@@ -100,13 +100,11 @@ namespace MVC_Project.Jobs
                                            join t in transactions
                                            on a.uuid.ToString() equals t.Account.Code
                                            select a).Distinct().ToList();
-                        
+
                         var now = DateUtil.GetDateTimeNow();
                         var pastMonth = now.AddMonths(-1);
                         var firstDayOfMonth = new DateTime(pastMonth.Year, pastMonth.Month, 1);
                         var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddMinutes(-1);
-
-                        var stampedStatusName = IssueStatus.STAMPED.ToString();
 
                         if (accountsRecurly != null)
                         {
@@ -115,10 +113,10 @@ namespace MVC_Project.Jobs
                                 #region lo que se ejecuta dentro por cada cliente
                                 var accountSupscriptions = RecurlyService.GetAccountSuscriptions(siteId, acc.idCredentialProvider);
 
-                                var issuedInvoices = _invoicesIssuedService.FindBy(x => x.account.id == acc.id 
+                                var issuedInvoices = _invoicesIssuedService.FindBy(x => x.account.id == acc.id
                                     && x.invoicedAt >= firstDayOfMonth && x.invoicedAt <= lastDayOfMonth).OrderBy(x => x.invoicedAt);
 
-                                var receivedInvoices = _invoicesReceivedService.FindBy(x => x.account.id == acc.id && x.status == stampedStatusName
+                                var receivedInvoices = _invoicesReceivedService.FindBy(x => x.account.id == acc.id
                                     && x.invoicedAt >= firstDayOfMonth && x.invoicedAt <= lastDayOfMonth).OrderBy(x => x.invoicedAt);
 
                                 bool isOldAccount = !string.IsNullOrEmpty(acc.planSchema) && acc.planSchema.StartsWith(SystemPlan.OLD_SCHEMA.ToString());
@@ -533,8 +531,8 @@ namespace MVC_Project.Jobs
                         PlanCode = planCode,
                     }
                 },
-                CollectionMethod = "manual",
-                NetTerms = 0
+                //CollectionMethod = "manual",
+                //NetTerms = 0
             };
 
             if (addons != null && addons.Count > 0)

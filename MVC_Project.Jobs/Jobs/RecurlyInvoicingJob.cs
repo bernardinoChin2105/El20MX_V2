@@ -45,7 +45,7 @@ namespace MVC_Project.Jobs
 
             _invoicesReceivedService = new InvoiceReceivedService(new Repository<InvoiceReceived>(_unitOfWork));
             _invoiceIssuedService = new InvoiceIssuedService(new Repository<InvoiceIssued>(_unitOfWork));
-            
+
             _providerService = new ProviderService(new Repository<Provider>(_unitOfWork));
             _customerService = new CustomerService(new Repository<Customer>(_unitOfWork));
             _accountService = new AccountService(new Repository<Account>(_unitOfWork));
@@ -94,7 +94,7 @@ namespace MVC_Project.Jobs
                         var invoicingParameters = _invoiceEmissionParametersService.FirstOrDefault(x => x.status == SystemStatus.ACTIVE.ToString());
                         if (invoicingParameters == null)
                             throw new Exception("No se encontraron parámetros de facturación");
-                        
+
                         var satUnit = _driveKeyService.GetDriveKey(invoicingParameters.claveUnidad).FirstOrDefault();
 
                         if (satUnit == null)
@@ -255,7 +255,7 @@ namespace MVC_Project.Jobs
 
                                     if (!string.IsNullOrEmpty(payment.email))
                                         SendInvoice(payment.email, payment.account.rfc, payment.account.name, "", invoiceReceived.xml, uploadPDF.Item1);
-                                    
+
                                     var el20mx = _accountService.FirstOrDefault(x => x.rfc == issuer.Rfc);
                                     if (el20mx != null)
                                     {
@@ -337,7 +337,7 @@ namespace MVC_Project.Jobs
                             var paymentsTable = BuildPaymentsTable(failedInvoices);
                             SendErrorsNotification(invoicingParameters.errosNotificationEmail, paymentsTable);
                         }
-                        
+
                         #endregion
 
                         //UPDATE JOB DATABASE
