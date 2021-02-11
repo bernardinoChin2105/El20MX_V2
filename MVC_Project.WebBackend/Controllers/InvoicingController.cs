@@ -300,7 +300,9 @@ namespace MVC_Project.WebBackend.Controllers
             DateTime todayDate = DateUtil.GetDateTimeNow();
             var authUser = Authenticator.AuthenticatedUser;
 
-            if (model.TypeReceptor == "provider" || model.CustomerId == 0)
+            var existCustomer = _customerService.FindBy(x => x.rfc == model.RFC).FirstOrDefault();
+
+            if (model.TypeReceptor == "provider" || model.CustomerId == 0 || existCustomer != null)
             {
                 //Poder guardar el cliente si no existe       
                 customer = new Customer()
@@ -515,22 +517,22 @@ namespace MVC_Project.WebBackend.Controllers
                         {
                             DateTime dateP = Convert.ToDateTime(item.startedAt);
 
-                            var pago = new Integrations.SAT.Pagos
-                            {
-                                FechaPago = dateP.ToString("s"), //item.startedAt,
-                                FormaDePagoP = item.PaymentFormCFDI,
-                                MonedaP = item.CurrencyCFDI,
-                                Monto = item.AmountCFDI.ToString(),
-                                NumOperacion = item.NumOperationCFDI,
-                            };
-
-                            if (item.CurrencyCFDI != "MXN")
-                                pago.TipoCambioP = item.ExchangeRateCFDI.ToString();
-
                             if (item.Documents.Count() > 0)
                             {
                                 foreach (var itemDoc in item.Documents)
                                 {
+                                    var pago = new Integrations.SAT.Pagos
+                                    {
+                                        FechaPago = dateP.ToString("s"), //item.startedAt,
+                                        FormaDePagoP = item.PaymentFormCFDI,
+                                        MonedaP = item.CurrencyCFDI,
+                                        Monto = item.AmountCFDI.ToString(),
+                                        NumOperacion = item.NumOperationCFDI,
+                                    };
+
+                                    if (item.CurrencyCFDI != "MXN")
+                                        pago.TipoCambioP = item.ExchangeRateCFDI.ToString();
+
                                     pago.DoctoRelacionado = new Integrations.SAT.DoctoRelacionado()
                                     {
                                         IdDocumento = itemDoc.uuid,
@@ -543,9 +545,9 @@ namespace MVC_Project.WebBackend.Controllers
                                         Serie = itemDoc.serie,
                                         Folio = itemDoc.folio
                                     };
+                                    payments.Add(pago);
                                 }
                             }
-                            payments.Add(pago);
                         }
                     }
 
@@ -798,6 +800,12 @@ namespace MVC_Project.WebBackend.Controllers
                 else
                     throw new Exception("Error al crear la factura");
 
+                string json = string.Empty;
+                if (model.TypeInvoice == TipoComprobante.P.ToString())
+                    json = " Json a SATws:" + JsonConvert.SerializeObject(invoiceSend);
+                else
+                    json = JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend);
+
                 LogUtil.AddEntry(
                                                    "Factura timbrada con éxito.",
                                                    ENivelLog.Info,
@@ -806,13 +814,19 @@ namespace MVC_Project.WebBackend.Controllers
                                                    EOperacionLog.ACCESS,
                                                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                                                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                                                    JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend)
+                                                   json
                                                );
                 MensajeFlashHandler.RegistrarMensaje("Factura timbrada con éxito.", TiposMensaje.Success);
                 return RedirectToAction("Invoice");
             }
             catch (InvoiceException ex)
             {
+                string json = string.Empty;
+                if (model.TypeInvoice == TipoComprobante.P.ToString())
+                    json = " Json a SATws:" + JsonConvert.SerializeObject(invoiceSend);
+                else
+                    json = JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend);
+
                 LogUtil.AddEntry(
                       "Error al realizar la facturación:" + JsonConvert.SerializeObject(ex),
                       ENivelLog.Error,
@@ -821,7 +835,7 @@ namespace MVC_Project.WebBackend.Controllers
                       EOperacionLog.ACCESS,
                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                      JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend)
+                      json
                   );
                 var messages = string.Join(" ", ex.invoiceResponse?.violations?.Select(x => x.message));
                 MensajeFlashHandler.RegistrarMensaje(messages.ToString(), TiposMensaje.Error);
@@ -835,6 +849,12 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
+                string json = string.Empty;
+                if (model.TypeInvoice == TipoComprobante.P.ToString())
+                    json = " Json a SATws:" + JsonConvert.SerializeObject(invoiceSend);
+                else
+                    json = JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend);
+
                 LogUtil.AddEntry(
                    "Error al realizar la facturación:" + ex.Message.ToString(),
                    ENivelLog.Error,
@@ -843,7 +863,7 @@ namespace MVC_Project.WebBackend.Controllers
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend)
+                   json
                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 ViewBag.Date = new
