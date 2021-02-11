@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MVC_Project.Utils;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -130,7 +131,9 @@ namespace MVC_Project.WebBackend
                 }
                 catch (Exception ex) { }
 
-                Response.Write(HttpUtility.HtmlEncode("<p><b>Mensaje de error: </b>" + exception.Message + "</p>\n"));
+                var messages = ExceptionExtensions.Messages(exception);
+
+                Response.Write(HttpUtility.HtmlEncode("<p><b>Mensaje de error: </b>" + string.Join(" ", messages) + "</p>\n"));
                 if (exception.InnerException != null && !string.IsNullOrEmpty(exception.InnerException.Message))
                 {
                     Response.Write("<p>" + HttpUtility.HtmlEncode(exception.InnerException.Message) + "</p>\n");

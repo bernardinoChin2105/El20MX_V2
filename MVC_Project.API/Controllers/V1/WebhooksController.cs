@@ -227,7 +227,7 @@ namespace MVC_Project.API.Controllers
                     if (isValid)
                     {
                         var account = credential.account;
-                        account.status = SystemStatus.ACTIVE.ToString();
+                        account.status = SystemStatus.CONFIRMED.ToString();
                         _accountService.Update(account);
 
                         SATService.GenerateTaxStatus(account.rfc, provider);

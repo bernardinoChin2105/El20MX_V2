@@ -78,20 +78,19 @@ namespace MVC_Project.Jobs
                         var accountsResponse = RecurlyService.GetAccounts(siteId);
                         recurlyAccountsList.AddRange(accountsResponse.data);
 
-                        if(accountsResponse.has_more)
+                        while (accountsResponse.has_more)
                         {
                             accountsResponse = RecurlyService.GetNextAccountsPage(accountsResponse.next);
                             recurlyAccountsList.AddRange(accountsResponse.data);
                         }
 
-                        //var accountsCrede = _accountService.GetAccountRecurly();
                         var storedAccounts = _accountService.
-                            FindBy(x => x.status == SystemStatus.ACTIVE.ToString() && 
-                            !x.credentials.Any(y => y.provider == SystemProviders.RECURLY.ToString()));                            
-                        
+                            FindBy(x => x.status == SystemStatus.ACTIVE.ToString() &&
+                            !x.credentials.Any(y => y.provider == SystemProviders.RECURLY.ToString()));
+
                         foreach (var account in storedAccounts)
                         {
-                            if (!recurlyAccountsList.Any(x => x.Code.ToLower() == account.uuid.ToString().ToLower())) 
+                            if (!recurlyAccountsList.Any(x => x.Code.ToLower() == account.uuid.ToString().ToLower()))
                             {
                                 CreateAccountModel newAccount = new CreateAccountModel();
                                 DateTime todayDate = DateUtil.GetDateTimeNow();

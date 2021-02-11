@@ -82,7 +82,7 @@ namespace MVC_Project.Jobs
                             FindBy(x => x.credentialType == SATCredentialType.CIEC.ToString() &&
                             x.provider == SystemProviders.SATWS.ToString() &&
                             x.status == SystemStatus.ACTIVE.ToString() &&
-                            x.account.status == SystemStatus.ACTIVE.ToString()).
+                            (x.account.status == SystemStatus.ACTIVE.ToString() || x.account.status == SystemStatus.CONFIRMED.ToString())).
                             OrderBy(x => x.id).
                             ToList();
 
@@ -95,7 +95,7 @@ namespace MVC_Project.Jobs
                             dateFrom = new DateTime(2014, 1, 1);
 
                             var accountsProcessed = _satExtractionProcessService.
-                            FindBy(x => x.isHistorical).
+                            FindBy(x => x.isHistorical && (x.account.status == SystemStatus.ACTIVE.ToString() || x.account.status == SystemStatus.CONFIRMED.ToString())).
                             Select(x => x.account.id);
 
                             credentials = credentials.

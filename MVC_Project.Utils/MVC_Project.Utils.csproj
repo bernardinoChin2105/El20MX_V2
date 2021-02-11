@@ -85,6 +85,7 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="EnumUtils.cs" />
+    <Compile Include="ExceptionUtils.cs" />
     <Compile Include="GeneradorQR.cs" />
     <Compile Include="LogUtil.cs" />
     <Compile Include="MonedaUtils.cs" />

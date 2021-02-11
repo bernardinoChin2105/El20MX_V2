@@ -143,7 +143,7 @@ namespace MVC_Project.WebBackend.Controllers
                             accountId = membership.account.id,
                             imagen = membership.account.avatar,
                             credentialStatus = credential != null ? credential.status : SystemStatus.INACTIVE.ToString(),
-                            accountStatus = credential != null ? membership.account.status : SystemStatus.PENDING.ToString(),
+                            accountStatus = credential != null ? membership.account.status : SystemStatus.UNCONFIRMED.ToString(),
                             credentialId = credential != null ? credential.idCredentialProvider : string.Empty,
                             //ciec=membership.account.ciec
                         });
@@ -184,7 +184,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
                     authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
-                    if (account.status == SystemStatus.INACTIVE.ToString())
+                    if (account.status == SystemStatus.UNCONFIRMED.ToString())
                     {
                         List<Permission> permissionsUser = new List<Permission>();
                         permissionsUser.Add(new Permission
@@ -294,12 +294,6 @@ namespace MVC_Project.WebBackend.Controllers
             return RedirectToAction("Index", "Account");
         }
 
-        private void SetMembership(Domain.Entities.Membership membership)
-        {
-
-
-        }
-
         [AllowAnonymous]
         public ActionResult CreateAccountModal()
         {
@@ -351,7 +345,7 @@ namespace MVC_Project.WebBackend.Controllers
                         createdAt = todayDate,
                         modifiedAt = todayDate,
                         avatar = ConfigurationManager.AppSettings["Avatar.Account"],
-                        status = SystemStatus.PENDING.ToString(),
+                        status = SystemStatus.UNCONFIRMED.ToString(),
                         ciec = model.CIEC
                     };
                     var role = _roleService.FirstOrDefault(x => x.code == SystemRoles.ACCOUNT_OWNER.ToString());
@@ -552,7 +546,7 @@ namespace MVC_Project.WebBackend.Controllers
                 if (account == null)
                     throw new Exception("No fue posible obtener la cuenta");
 
-                account.status = SystemStatus.ACTIVE.ToString();
+                account.status = SystemStatus.CONFIRMED.ToString();
                 _accountService.Update(account);
 
                 Domain.Entities.Membership membership = null;
@@ -592,26 +586,25 @@ namespace MVC_Project.WebBackend.Controllers
                    JsonConvert.SerializeObject(account)
                 );
 
-                //#region Se creara la cuenta en Recurly
-                //    CreateAccountRecurly();
-                //#endregion
-                //var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
-                //var recurlyAccountUrlBase = ConfigurationManager.AppSettings["Recurly.AccountUrlBase"];
+                #region Se creara la cuenta en Recurly
+                CreateAccountRecurly();
+                #endregion
+                var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
+                var recurlyAccountUrlBase = ConfigurationManager.AppSettings["Recurly.AccountUrlBase"];
 
-                //var recurlyAccountCredential = _credentialService.FindBy(x => x.account.id == account.id && x.provider == recurlyProvider && x.statusProvider == "active" && x.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
-                //if (recurlyAccountCredential != null && !string.IsNullOrEmpty(recurlyAccountCredential.credentialType))
-                //{
-                //    authUser.Permissions.Add(new Permission
-                //    {
-                //        Action = recurlyAccountUrlBase + recurlyAccountCredential.credentialType,
-                //        Controller = "MyAccount",
-                //        Module = SystemModules.RECURLY_ACCOUNT.ToString(),
-                //        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
-                //        isCustomizable = true
-                //    });
-                //}
-
-
+                var recurlyAccountCredential = _credentialService.FindBy(x => x.account.id == account.id && x.provider == recurlyProvider && x.statusProvider == "active" && x.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
+                if (recurlyAccountCredential != null && !string.IsNullOrEmpty(recurlyAccountCredential.credentialType))
+                {
+                    authUser.Permissions.Add(new Permission
+                    {
+                        Action = recurlyAccountUrlBase + recurlyAccountCredential.credentialType,
+                        Controller = "MyAccount",
+                        Module = SystemModules.RECURLY_ACCOUNT.ToString(),
+                        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                        isCustomizable = true
+                    });
+                }
+                
                 return RedirectToAction("Index", "SAT");
             }
             catch (Exception ex)

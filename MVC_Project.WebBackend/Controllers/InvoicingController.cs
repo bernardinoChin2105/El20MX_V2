@@ -419,6 +419,7 @@ namespace MVC_Project.WebBackend.Controllers
                 var conceptos = new List<ConceptsData>();
                 foreach (var item in model.ProductServices)
                 {
+                    decimal importe = item.Quantity * item.UnitPrice;
                     var conceptsData = new ConceptsData
                     {
                         ClaveProdServ = item.SATCode.Trim(),
@@ -426,9 +427,9 @@ namespace MVC_Project.WebBackend.Controllers
                         Cantidad = item.Quantity,
                         ClaveUnidad = item.SATUnit.Trim(),
                         Descripcion = item.ProductServiceDescription,
-                        ValorUnitario = item.UnitPrice,
+                        ValorUnitario = item.UnitPrice.ToString("0.000000"),
                         //Importe = item.Subtotal,
-                        Importe = (item.Quantity * item.UnitPrice)
+                        Importe = importe.ToString("0.000000")
                         //public List<Parte> Parte { get; set; }
                     };
 
@@ -436,15 +437,12 @@ namespace MVC_Project.WebBackend.Controllers
                         conceptsData.Unidad = item.Unit;
 
                     //corrección por subtotal
-                    decimal subtotal = conceptsData.Importe; //conceptsData.ValorUnitario * conceptsData.Cantidad;
+                    decimal subtotal = importe; //conceptsData.ValorUnitario * conceptsData.Cantidad;
                     if (item.DiscountRateProServ > 0)
                     {
-                        var decImport = conceptsData.Importe.ToString().Split('.');
-                        int longDec = decImport.Count() > 0 ? decImport[1].Count() : 2;
-
-                        conceptsData.Descuento = Math.Round(subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100), longDec);
-                        //conceptsData.Descuento = Math.Round(subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100), 6);
-                        subtotal = subtotal - conceptsData.Descuento.Value;
+                        decimal descuento = subtotal * (Convert.ToDecimal(item.DiscountRateProServ) / 100);
+                        conceptsData.Descuento = descuento.ToString("0.000000");
+                        subtotal = subtotal - descuento;
                     }
 
                     if (model.InternationalChk && !string.IsNullOrEmpty(model.MotionNumber))
@@ -475,11 +473,11 @@ namespace MVC_Project.WebBackend.Controllers
                                 {
                                     Integrations.SAT.Retenciones ret = new Integrations.SAT.Retenciones()
                                     {
-                                        Base = Math.Round(subtotal, 6).ToString(), //modificado por subtotal
+                                        Base = subtotal.ToString("0.000000"),
                                         Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                         TipoFactor = "Tasa",
                                         TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
-                                        Importe = (Math.Round(Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100), 6) * subtotal, 6)).ToString() //modificado por subtotal
+                                        Importe = ((Convert.ToDecimal(imp.Porcentaje) / 100) * subtotal).ToString("0.000000")
                                     };
                                     Retenciones.Add(ret);
                                 }
@@ -489,12 +487,11 @@ namespace MVC_Project.WebBackend.Controllers
                                     {
                                         Integrations.SAT.Traslados tras = new Integrations.SAT.Traslados()
                                         {
-                                            Base = Math.Round(subtotal, 6).ToString(), //modificado por subtotal
+                                            Base = subtotal.ToString("0.000000"),
                                             Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                             TipoFactor = "Tasa",
                                             TasaOCuota = (Convert.ToDecimal(imp.Porcentaje) / 100).ToString("N6"),
-                                            //TasaOCuota = "0.160000",
-                                            Importe = (Math.Round(Math.Round((Convert.ToDecimal(imp.Porcentaje) / 100), 6) * subtotal, 6)).ToString() //modificado por subtotal
+                                            Importe = ((Convert.ToDecimal(imp.Porcentaje) / 100) * subtotal).ToString("0.000000")
                                         };
                                         Traslados.Add(tras);
                                     }
@@ -502,7 +499,7 @@ namespace MVC_Project.WebBackend.Controllers
                                     {
                                         Integrations.SAT.Traslados tras = new Integrations.SAT.Traslados()
                                         {
-                                            Base = Math.Round(subtotal, 6).ToString(), //modificado por subtotal
+                                            Base = subtotal.ToString("0.000000"),
                                             TipoFactor = imp.Porcentaje,
                                             Impuesto = taxes.FirstOrDefault(x => x.description == imp.Impuesto).code,
                                         };
@@ -1578,7 +1575,8 @@ namespace MVC_Project.WebBackend.Controllers
                     //first_name = x.first_name,
                     //last_name = x.last_name,
                     paymentFormDescription = x.paymentFormDescription,
-                    type = x.invoiceType
+                    type = x.invoiceType,
+                    hasXML = !string.IsNullOrEmpty(x.xml)
                 }).ToList();
 
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
@@ -1759,7 +1757,8 @@ namespace MVC_Project.WebBackend.Controllers
                     //first_name = x.first_name,
                     //last_name = x.last_name,
                     paymentFormDescription = x.paymentFormDescription,
-                    type = x.invoiceType
+                    type = x.invoiceType,
+                    hasXML = !string.IsNullOrEmpty(x.xml)
                 }).ToList();
 
                 //Corroborar los campos iTotalRecords y iTotalDisplayRecords
@@ -2024,6 +2023,9 @@ namespace MVC_Project.WebBackend.Controllers
                 if (invoice == null)
                     throw new Exception("No se encontro la factura emitida");
 
+                if (string.IsNullOrEmpty(invoice.xml))
+                    throw new Exception("El registro no cuenta con el xml de la factura");
+
                 MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, authUser.Account.RFC + "/" + invoice.uuid + ".xml");
 
                 Response.ContentType = "application/xml";
@@ -2055,8 +2057,8 @@ namespace MVC_Project.WebBackend.Controllers
             if (invoice == null)
                 throw new Exception("No se encontro la factura emitida");
 
-            if (invoice.xml == null)
-                throw new Exception("El registro no cuenta con el xml de la factura emitida");
+            if (string.IsNullOrEmpty(invoice.xml))
+                throw new Exception("El registro no cuenta con el xml de la factura");
 
             MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoices, accountRfc + "/" + invoice.uuid + ".xml");
             stream.Position = 0;

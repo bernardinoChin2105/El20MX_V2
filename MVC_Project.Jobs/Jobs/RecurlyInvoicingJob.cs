@@ -45,7 +45,7 @@ namespace MVC_Project.Jobs
 
             _invoicesReceivedService = new InvoiceReceivedService(new Repository<InvoiceReceived>(_unitOfWork));
             _invoiceIssuedService = new InvoiceIssuedService(new Repository<InvoiceIssued>(_unitOfWork));
-            
+
             _providerService = new ProviderService(new Repository<Provider>(_unitOfWork));
             _customerService = new CustomerService(new Repository<Customer>(_unitOfWork));
             _accountService = new AccountService(new Repository<Account>(_unitOfWork));
@@ -94,7 +94,7 @@ namespace MVC_Project.Jobs
                         var invoicingParameters = _invoiceEmissionParametersService.FirstOrDefault(x => x.status == SystemStatus.ACTIVE.ToString());
                         if (invoicingParameters == null)
                             throw new Exception("No se encontraron parámetros de facturación");
-                        
+
                         var satUnit = _driveKeyService.GetDriveKey(invoicingParameters.claveUnidad).FirstOrDefault();
 
                         if (satUnit == null)
@@ -138,9 +138,9 @@ namespace MVC_Project.Jobs
                                         Unidad = satUnit.name,
                                         Descripcion = lineItem.Description,
                                         Cantidad = lineItem.Quantity.HasValue ? lineItem.Quantity.Value : 1,
-                                        ValorUnitario = lineItem.UnitAmount.Value,
-                                        Importe = lineItem.Subtotal.Value,
-                                        Descuento = lineItem.Discount.Value
+                                        ValorUnitario = lineItem.UnitAmount.Value.ToString("0.000000"),
+                                        Importe = lineItem.Subtotal.Value.ToString("0.000000"),
+                                        Descuento = lineItem.Discount.Value.ToString("0.000000")
                                     };
                                     if (lineItem.Taxable.Value && !lineItem.TaxExempt.Value)
                                     {
@@ -255,11 +255,11 @@ namespace MVC_Project.Jobs
 
                                     if (!string.IsNullOrEmpty(payment.email))
                                         SendInvoice(payment.email, payment.account.rfc, payment.account.name, "", invoiceReceived.xml, uploadPDF.Item1);
-                                    
+
                                     var el20mx = _accountService.FirstOrDefault(x => x.rfc == issuer.Rfc);
                                     if (el20mx != null)
                                     {
-                                        var customer = _customerService.FirstOrDefault(y => y.id == el20mx.id && y.rfc == payment.account.rfc);
+                                        var customer = _customerService.FirstOrDefault(y => y.account.id == el20mx.id && y.rfc == payment.account.rfc);
                                         if (customer == null)
                                         {
                                             customer = new Customer
@@ -337,7 +337,7 @@ namespace MVC_Project.Jobs
                             var paymentsTable = BuildPaymentsTable(failedInvoices);
                             SendErrorsNotification(invoicingParameters.errosNotificationEmail, paymentsTable);
                         }
-                        
+
                         #endregion
 
                         //UPDATE JOB DATABASE

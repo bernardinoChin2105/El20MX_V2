@@ -96,21 +96,15 @@ namespace MVC_Project.Jobs
                             transactionsListResponse = RecurlyService.GetNextTransactions(transactionsListResponse.next, provider);
                             transactions.AddRange(transactionsListResponse.data);
                         }
-
                         accountsRecurly = (from a in accountsRecurly
                                            join t in transactions
                                            on a.uuid.ToString() equals t.Account.Code
                                            select a).Distinct().ToList();
 
-                        //var rfcs = new List<string> { "MAZ190524HK9", "LOCM781102MC3" };//{ "FLO1305098P3", "DKN1403135V1", "PAM080404PJA", "DEGL821027UU1", "AAG171201UU8", "PMG1808312G2", "IAA080318T81", "AVI160825MVA", "GIE150611M65", "API180810RZ4", "GEI130529BN4", "AED190208NX8", "GCA130624BI9", "AMB121115JV7", "ZAVC790527MM2", "CCC1905135YA", "CSA180628357", "COM1002034G2", "EWO1405091S0", "ESA180522US2", "COS190521TU7", "KPL180816Q47", "HEGJ860321S90", "NCO190617M41", "GUVA830207QR4", "ESO150318JQ8", "LSO160812Q73", "OCA190313GHA", "CPR1509284K9", "CAUA550312739", "DAD1910148N0", "DIBE710416G66", "FORR960403669", "ESP160211LM6", "KEM050203716", "PAP080229BL4", "CALF811230Q14", "FOU161010BJ0", "AUCE730427UW7", "PCA160617D76", "VCM190103S80", "LAD150722R27", "BARR7908126Y9", "MGS170201IB7", "VCO141110KS6", "FOGD9607243K9", "HEML830505QU3", "AADA880721HS9", "PERA970515G87", "SRM120202SV9", "Maz190524Hk9", "VAML721203DT2", "DECJ780215N93", "TOGR591110C2A", "VACF781013UA7", "CUHA960920535", "IALM940725930", "RUPF790802HL7", "MAMR800508IR5", "CASL960328775", "ANM201006EG2", "LOCM781102MC3", "VME180512HK9", "BTA190301RR1", "GOBE840404QT2", "SIN190321412", "IICC891205C38", "HEEL900815162" };
-                        //accountsRecurly = accountsRecurly.Where(x => rfcs.Contains(x.rfc)).ToList();
-
                         var now = DateUtil.GetDateTimeNow();
                         var pastMonth = now.AddMonths(-1);
                         var firstDayOfMonth = new DateTime(pastMonth.Year, pastMonth.Month, 1);
                         var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddMinutes(-1);
-
-                        var stampedStatusName = IssueStatus.STAMPED.ToString();
 
                         if (accountsRecurly != null)
                         {
@@ -118,15 +112,14 @@ namespace MVC_Project.Jobs
                             {
                                 if (acc.rfc == "CERA900920NS8" || acc.rfc == "AUR040802HA5")
                                 {
-
                                     #region lo que se ejecuta dentro por cada cliente
                                     var accountSupscriptions = RecurlyService.GetAccountSuscriptions(siteId, acc.idCredentialProvider);
 
                                     var issuedInvoices = _invoicesIssuedService.FindBy(x => x.account.id == acc.id
                                         && x.invoicedAt >= firstDayOfMonth && x.invoicedAt <= lastDayOfMonth).OrderBy(x => x.invoicedAt);
-
-                                    var receivedInvoices = _invoicesReceivedService.FindBy(x => x.account.id == acc.id && x.status == stampedStatusName
-                                            && x.invoicedAt >= firstDayOfMonth && x.invoicedAt <= lastDayOfMonth).OrderBy(x => x.invoicedAt);
+                                
+                                    var receivedInvoices = _invoicesReceivedService.FindBy(x => x.account.id == acc.id
+                                        && x.invoicedAt >= firstDayOfMonth && x.invoicedAt <= lastDayOfMonth).OrderBy(x => x.invoicedAt);
 
                                     bool isOldAccount = !string.IsNullOrEmpty(acc.planSchema) && acc.planSchema.StartsWith(SystemPlan.OLD_SCHEMA.ToString());
 
@@ -541,8 +534,8 @@ namespace MVC_Project.Jobs
                         PlanCode = planCode,
                     }
                 },
-                CollectionMethod = "manual",
-                NetTerms = 0
+                //CollectionMethod = "manual",
+                //NetTerms = 0
             };
 
             if (addons != null && addons.Count > 0)
@@ -578,25 +571,37 @@ namespace MVC_Project.Jobs
         private static void SavePurchaseLogs(InvoiceCollection invoiceCollection, PlanDataModel recurlyPlan, AccountCredentialModel accountCredential, InvoicesDTO invoicesCount)
         {
             var now = DateUtil.GetDateTimeNow();
-
-            var recurlySubscription = new RecurlySubscription
+            var recurlySubscription = _recurlySubscriptionService.FirstOrDefault(x => x.account.id == accountCredential.id);
+            if (recurlySubscription == null)
             {
-                account = new Domain.Entities.Account
+                recurlySubscription = new RecurlySubscription
                 {
-                    id = accountCredential.id
-                },
-                createdAt = now,
-                modifiedAt = now,
-                planCode = invoiceCollection.ChargeInvoice.LineItems.Data[0].PlanCode,
-                planId = invoiceCollection.ChargeInvoice.LineItems.Data[0].PlanId,
-                state = invoiceCollection.ChargeInvoice.State,
-                status = SystemStatus.ACTIVE.ToString(),
-                planName = recurlyPlan.name,
-                subscriptionId = invoiceCollection.ChargeInvoice.LineItems.Data[0].SubscriptionId,
-                uuid = Guid.NewGuid()
-            };
-            _recurlySubscriptionService.Create(recurlySubscription);
-
+                    account = new Domain.Entities.Account
+                    {
+                        id = accountCredential.id
+                    },
+                    createdAt = now,
+                    modifiedAt = now,
+                    planCode = invoiceCollection.ChargeInvoice.LineItems.Data[0].PlanCode,
+                    planId = invoiceCollection.ChargeInvoice.LineItems.Data[0].PlanId,
+                    state = invoiceCollection.ChargeInvoice.State,
+                    status = SystemStatus.ACTIVE.ToString(),
+                    planName = recurlyPlan.name,
+                    subscriptionId = invoiceCollection.ChargeInvoice.LineItems.Data[0].SubscriptionId,
+                    uuid = Guid.NewGuid()
+                };
+                _recurlySubscriptionService.Create(recurlySubscription);
+            }
+            else
+            {
+                recurlySubscription.modifiedAt = now;
+                recurlySubscription.planCode = invoiceCollection.ChargeInvoice.LineItems.Data[0].PlanCode;
+                recurlySubscription.planId = invoiceCollection.ChargeInvoice.LineItems.Data[0].PlanId;
+                recurlySubscription.state = invoiceCollection.ChargeInvoice.State;
+                recurlySubscription.planName = recurlyPlan.name;
+                recurlySubscription.subscriptionId = invoiceCollection.ChargeInvoice.LineItems.Data[0].SubscriptionId;
+                _recurlySubscriptionService.Update(recurlySubscription);
+            }
             if (invoiceCollection.ChargeInvoice.Transactions.Any())
             {
                 var storedPaymentInvoice = _recurlyInvoiceService.FirstOrDefault(x => x.invoiceNumber == invoiceCollection.ChargeInvoice.Number);
