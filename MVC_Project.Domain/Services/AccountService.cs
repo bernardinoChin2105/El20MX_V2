@@ -20,6 +20,7 @@ namespace MVC_Project.Domain.Services
         List<AccountCredentialModel> GetAccountRecurly();
         List<AccountCredentialProspectModel> GetAccountCredentialProspect(DateTime DateToday);
         Tuple<IEnumerable<Account>, int> FilterBy(NameValueCollection filtersValue, int? skip, int? take);
+        List<AccountPaymentsModel> GetLastPaymentsAccount(DateTime? DateToday, string statusCode);
     }
 
     public class AccountService : ServiceBase<Account>, IAccountService
@@ -128,6 +129,27 @@ namespace MVC_Project.Domain.Services
                     .SetParameter("createdOnStart", today)
                     .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(AccountCredentialProspectModel)))
                     .List<AccountCredentialProspectModel>();
+
+            if (list != null) return list.ToList();
+            return null;
+        }
+
+        //Obtener los pagos del mes
+        public List<AccountPaymentsModel> GetLastPaymentsAccount(DateTime? DateToday, string statusCode)
+        {
+            String today = null;
+            if (DateToday != null)
+            {
+                //dateToday = Convert.ToDateTime(DateToday).ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo);
+                today = DateToday.Value.ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo);
+            }
+
+            var list = _repository.Session.CreateSQLQuery("exec dbo.st_getLastFailedPayment " +
+                "@createdPayment=:createdPayment,@status=:status")
+                    .SetParameter("createdPayment", today)
+                    .SetParameter("status", statusCode)
+                    .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(AccountPaymentsModel)))
+                    .List<AccountPaymentsModel>();
 
             if (list != null) return list.ToList();
             return null;

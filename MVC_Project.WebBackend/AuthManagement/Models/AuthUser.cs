@@ -112,6 +112,7 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
         public string Name { get; set; }
         public string RFC { get; set; }
         public string Image { get; set; }
+        public string Status { get; set; }
     }
     
     

@@ -33,7 +33,7 @@ namespace MVC_Project.Integrations.Recurly
             }
             else
             {
-                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+                throw new Exception("No se encontró un proveedor de acceso de recurly");
             }
         }
 
@@ -61,7 +61,7 @@ namespace MVC_Project.Integrations.Recurly
             }
             else
             {
-                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+                throw new Exception("No se encontró un proveedor de acceso de recurly");
             }
         }
 
@@ -82,7 +82,7 @@ namespace MVC_Project.Integrations.Recurly
             }
             else
             {
-                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+                throw new Exception("No se encontró un proveedor de acceso de recurly");
             }
         }
 
@@ -96,7 +96,7 @@ namespace MVC_Project.Integrations.Recurly
             }
             else
             {
-                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+                throw new Exception("No se encontró un proveedor de acceso de recurly");
             }
         }
 
@@ -110,7 +110,7 @@ namespace MVC_Project.Integrations.Recurly
             }
             else
             {
-                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+                throw new Exception("No se encontró un proveedor de acceso de recurly");
             }
         }
 
@@ -142,6 +142,19 @@ namespace MVC_Project.Integrations.Recurly
             }
         }
 
+        public static Invoice GetAccount(string accountId, string siteId, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                var recurlyModel = RecurlyServices.GetAccount(accountId, siteId);
+                return recurlyModel;
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso de recurly");
+            }
+        }
+
         public static Invoice GetInvoice(string invoiceNumber, string siteId, string provider)
         {
             if (provider == SystemProviders.RECURLY.ToString())
@@ -150,7 +163,7 @@ namespace MVC_Project.Integrations.Recurly
             }
             else
             {
-                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+                throw new Exception("No se encontró un proveedor de acceso de recurly");
             }
         }
 
@@ -162,7 +175,7 @@ namespace MVC_Project.Integrations.Recurly
             }
             else
             {
-                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+                throw new Exception("No se encontró un proveedor de acceso de recurly");
             }
         }
 
@@ -174,7 +187,7 @@ namespace MVC_Project.Integrations.Recurly
             }
             else
             {
-                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+                throw new Exception("No se encontró un proveedor de acceso de recurly");
             }
         }
 
@@ -183,14 +196,37 @@ namespace MVC_Project.Integrations.Recurly
             if (provider == SystemProviders.RECURLY.ToString())
             {
                 var recurlyModel = RecurlyServices.UpdateAccount(request, accountId, siteId);
-
                 return recurlyModel;
             }
             else
             {
-                throw new Exception("No se encontró un proveedor de acceso al información fiscal");
+                throw new Exception("No se encontró un proveedor de acceso de recurly");
             }
         }
 
+        //Obtener los invoices realizados en el mes
+        public static InvoiceListResponse GetInvoiceAll(string startDate, string endDate, string siteId, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                return RecurlyServices.GetInvoiceAll(startDate, endDate, siteId);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso de recurly.");
+            }
+        }
+
+        public static InvoiceListResponse GetNextInvoiceAll(string url, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                return RecurlyServices.GetNextInvoicesAll(url);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso de recurly");
+            }
+        }
     }
 }

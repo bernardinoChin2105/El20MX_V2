@@ -140,12 +140,25 @@ namespace MVC_Project.Integrations.Recurly
 
             string url = "sites/" + siteId + "/accounts/" + accountId;            
 
-            //Llamar al servicio para crear la credencial en el recurly y obtener respuesta                  
+            //Llamar al servicio para cerrar la credencial en el recurly y obtener respuesta                  
             var responseRecurly = Recurly.CallServiceRecurly(url, null, "Delete");
             accountModel = JsonConvert.DeserializeObject<Account>(responseRecurly);
 
             return accountModel;
-        } 
+        }
+
+        public static Invoice GetAccount(string accountId, string siteId)
+        {
+            Invoice invoiceModel = new Invoice();
+
+            string url = "sites/" + siteId + "/accounts/" + accountId + "invoices";
+
+            //Llamar al servicio para obtener la cuenta en el recurly y obtener respuesta                  
+            var responseRecurly = Recurly.CallServiceRecurly(url, null, "Get");
+            invoiceModel = JsonConvert.DeserializeObject<Invoice>(responseRecurly);
+
+            return invoiceModel;
+        }
 
         public static Invoice GetInvoice(string invoiceNumber, string siteId)
         {
@@ -190,6 +203,29 @@ namespace MVC_Project.Integrations.Recurly
             recurlyModel = JsonConvert.DeserializeObject<AccountResponseModel>(responseRecurly);
 
             return recurlyModel;
+        }
+
+        //Obtener todas las listas de facturas del mes
+        public static InvoiceListResponse GetInvoiceAll(string startDate, string endDate, string siteId) 
+        {
+            InvoiceListResponse recurlyModel = new InvoiceListResponse();
+            string url = "sites/" + siteId + "/invoices?order=desc&sort=created_at&begin_time=" + startDate + "&end_time=" + endDate;
+
+            //Llamar al servicio para crear la credencial en el recurly y obtener respuesta                  
+            var responseRecurly = Recurly.CallServiceRecurly(url, null, "Get");
+
+            recurlyModel = JsonConvert.DeserializeObject<InvoiceListResponse>(responseRecurly);
+
+            return recurlyModel;
+        }
+
+        public static InvoiceListResponse GetNextInvoicesAll(string url)
+        {
+            InvoiceListResponse recurlyModel = new InvoiceListResponse();
+
+            var responseRecurly = Recurly.CallServiceRecurly(url, null, "GET");
+
+            return JsonConvert.DeserializeObject<InvoiceListResponse>(responseRecurly);
         }
     }
 }

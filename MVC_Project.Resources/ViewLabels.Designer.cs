@@ -357,7 +357,6 @@ namespace MVC_Project.Resources {
             }
         }
 
-        
         /// <summary>
         ///   Busca una cadena traducida similar a MI CUENTA.
         /// </summary>
