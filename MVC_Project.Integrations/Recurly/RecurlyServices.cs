@@ -204,5 +204,28 @@ namespace MVC_Project.Integrations.Recurly
 
             return recurlyModel;
         }
+
+        //Obtener todas las listas de facturas del mes
+        public static InvoiceListResponse GetInvoiceAll(string startDate, string endDate, string siteId) 
+        {
+            InvoiceListResponse recurlyModel = new InvoiceListResponse();
+            string url = "sites/" + siteId + "/invoices?order=desc&sort=created_at&begin_time=" + startDate + "&end_time=" + endDate;
+
+            //Llamar al servicio para crear la credencial en el recurly y obtener respuesta                  
+            var responseRecurly = Recurly.CallServiceRecurly(url, null, "Get");
+
+            recurlyModel = JsonConvert.DeserializeObject<InvoiceListResponse>(responseRecurly);
+
+            return recurlyModel;
+        }
+
+        public static InvoiceListResponse GetNextInvoicesAll(string url)
+        {
+            InvoiceListResponse recurlyModel = new InvoiceListResponse();
+
+            var responseRecurly = Recurly.CallServiceRecurly(url, null, "GET");
+
+            return JsonConvert.DeserializeObject<InvoiceListResponse>(responseRecurly);
+        }
     }
 }

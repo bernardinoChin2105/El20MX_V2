@@ -203,5 +203,30 @@ namespace MVC_Project.Integrations.Recurly
                 throw new Exception("No se encontró un proveedor de acceso de recurly");
             }
         }
+
+        //Obtener los invoices realizados en el mes
+        public static InvoiceListResponse GetInvoiceAll(string startDate, string endDate, string siteId, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                return RecurlyServices.GetInvoiceAll(startDate, endDate, siteId);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso de recurly.");
+            }
+        }
+
+        public static InvoiceListResponse GetNextInvoiceAll(string url, string provider)
+        {
+            if (provider == SystemProviders.RECURLY.ToString())
+            {
+                return RecurlyServices.GetNextInvoicesAll(url);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso de recurly");
+            }
+        }
     }
 }

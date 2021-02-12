@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading;
 using LogHubSDK.Models;
 using Newtonsoft.Json;
+//using MVC_Project.Integrations.Recurly.Models;
 
 namespace MVC_Project.Jobs
 {
@@ -79,70 +80,122 @@ namespace MVC_Project.Jobs
                          * - Validar su estatus de pago apartir del día 5 de cada mes                                                                        
                          * **/
 
-
-                        /*Validar los invoice de las cuentas que generaron en recurly*/
-
-
-
                         /** Parametros: FechaDelDía**/
-                        DateTime today = Convert.ToDateTime("2021-02-24"); //DateUtil.GetDateTimeNow();
+                        DateTime today = Convert.ToDateTime("2021-02-08"); //DateUtil.GetDateTimeNow();
+
+                        //días posibles de suspenciones y cancelaciones
                         if (today.Day >= 8 && today.Day <= 24)
                         {
-                            //días posibles de suspenciones y cancelaciones
+                            var startDate = new DateTime(today.Year, today.Month, 1);
+                            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+                            /*Validar los invoice de las cuentas que generaron en recurly*/
+                            List<Integrations.Recurly.Models.Invoice> invoices = new List<Integrations.Recurly.Models.Invoice>();
+                            var paymentsAccount = _accountService.GetLastPaymentsAccount(null, null);
+                            var invoiceListResponse = RecurlyService.GetInvoiceAll(startDate.ToString("yyyy-MM-dd"), endDate.ToString("yyyy-MM-dd"), siteId, RecurlyProvider);
+                            invoices.AddRange(invoiceListResponse.data);
+
+                            while (invoiceListResponse.has_more)
+                            {
+                                invoiceListResponse = RecurlyService.GetNextInvoiceAll(invoiceListResponse.next, RecurlyProvider);
+                                invoices.AddRange(invoiceListResponse.data);
+                            }
+
+                            var leftOuterJoin = (from payment in paymentsAccount
+                                                 join invoice in invoices.Where(x => x.State != "Closed" || x.State != "Voided") on payment.idCredentialProvider equals invoice.Account.Id into temp
+                                                 from invoice in temp.DefaultIfEmpty()
+                                                 select new
+                                                 {
+                                                     paymentId = payment.paymentId,
+                                                     subtotal = payment.subtotal,
+                                                     total = payment.total,
+                                                     paymentGateway = payment.paymentGateway,
+                                                     statusCode = payment.statusCode,
+                                                     accountId = payment.accountId,
+                                                     statusMessage = payment.statusMessage,
+                                                     createdAt = payment.createdAt,
+                                                     subscriptionId = payment.subscriptionId,
+                                                     number = payment.number,
+                                                     name = payment.name,
+                                                     rfc = payment.rfc,
+                                                     createdAtAccount = payment.createdAtAccount,
+                                                     status = payment.status,
+                                                     planSchema = payment.planSchema,
+                                                     inicioFacturacion = payment.inicioFacturacion,
+                                                     planFijo = payment.planFijo,
+                                                     credentialId = payment.credentialId,
+                                                     provider = payment.provider,
+                                                     idCredentialProvider = payment.idCredentialProvider,
+                                                     statusCredential = payment.statusCredential,
+                                                     invoiceId = invoice != null ? invoice.Id : string.Empty,
+                                                     stateInvoice = invoice != null ? invoice.State : string.Empty,
+                                                     originInvoice = invoice != null ? invoice.Origin : string.Empty,
+                                                     accountIdInvoice = invoice != null ? invoice.Account.Id : string.Empty,
+                                                     numberInvoice = invoice != null ? invoice.Number : string.Empty,
+                                                     collectionMethodInvoice = invoice != null ? invoice.CollectionMethod : string.Empty,
+                                                     createdAtInvoice = invoice != null ? invoice.CreatedAt : null,
+                                                     updatedAtInvoice = invoice != null ? invoice.UpdatedAt : null
+                                                 }).ToList();
 
                             //Buscar cuentas con el último pago fallido durante el mes
                             /* Validar que la cuenta realmente este con el pago fallido.
                              * Si resulta exitosa ajusta las tablas correspondientes para ponerlo exitoso
                             */
 
-                            //if (prospect.rfc == "PEMY860416PR5")
-                            //{                            
                             if (today.Day == 8)
                             {
                                 #region El día 8 del mes en curso, se validará que la cuenta tenga un último cobro, si este es fallido la cuenta cambia a estatus "Suspendido".
 
-                                var paymentsAccount = _accountService.GetLastPaymentsAccount(today, RecurlyPaymentStatus.OTHER.GetDisplayName());
+                                var list = leftOuterJoin.Where(x => (x.statusCode != RecurlyPaymentStatus.SUCCESS.GetDisplayName() && x.createdAt >= startDate && x.createdAt <= endDate)
+                                || x.stateInvoice != "Paid");
 
-                                foreach (var payment in paymentsAccount)
+                                var listPaid = leftOuterJoin.Where(x => x.stateInvoice == "Paid");
+
+                                foreach (var payment in list)
                                 {
-                                    try
+                                    //prospect.rfc == "HAE951128471" &&  && && CARJ850321758
+                                    if (payment.rfc == "AUR040802HA5")
                                     {
-                                        //Validar que este correctamente fallido el pago
-                                        //var validateAccount = RecurlyService.GetAccount(payment.idCredentialProvider, siteId, SystemProviders.RECURLY.ToString());
-
-                                        //Cambiar el status de la cuenta
-                                        var account = _accountService.FirstOrDefault(x => x.id == payment.accountId);
-                                        if (account != null)
+                                        try
                                         {
-                                            account.modifiedAt = DateUtil.GetDateTimeNow();
-                                            account.status = SystemStatus.SUSPENDED.ToString();
-                                            _accountService.Update(account);
 
+                                            //Validar que este correctamente fallido el pago
+                                            //var validateAccount = RecurlyService.GetAccount(payment.idCredentialProvider, siteId, SystemProviders.RECURLY.ToString());
+
+                                            //Cambiar el status de la cuenta
+                                            var account = _accountService.FirstOrDefault(x => x.id == payment.accountId);
+                                            if (account != null)
+                                            {
+                                                account.modifiedAt = DateUtil.GetDateTimeNow();
+                                                account.status = SystemStatus.SUSPENDED.ToString();
+                                                _accountService.Update(account);
+
+                                                LogUtil.AddEntry(
+                                                    "Se cambio el status de la cuenta a suspendido",
+                                                    ENivelLog.Info,
+                                                    0,
+                                                    "Proccess_" + JOB_CODE,
+                                                    EOperacionLog.ACCESS,
+                                                    string.Format("|Cuenta {0} | RFC {1} | Fecha {2}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
+                                                    "BlockingNonPayment",
+                                                    JsonConvert.SerializeObject(payment)
+                                                );
+                                            }
+                                        }
+                                        catch (Exception Ex)
+                                        {
+                                            //Guardar en el log, el motivo de la excepción
                                             LogUtil.AddEntry(
-                                                "Se cambio el status de la cuenta a suspendido",
-                                                ENivelLog.Info,
-                                                0,
-                                                "Proccess_" + JOB_CODE,
+                                                "Detalle del error al obtener el último pago: " + Ex.Message.ToString(),
+                                                ENivelLog.Error,
+                                                0,//userId
+                                                 "Proccess_" + JOB_CODE,
                                                 EOperacionLog.ACCESS,
-                                                string.Format("|Cuenta {0} | RFC {1} | Fecha {2}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
+                                                string.Format("|Cuenta {0} | RFC {1} | Fecha {3}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
                                                 "BlockingNonPayment",
                                                 JsonConvert.SerializeObject(payment)
                                             );
                                         }
-                                    }
-                                    catch (Exception Ex)
-                                    {
-                                        //Guardar en el log, el motivo de la excepción
-                                        LogUtil.AddEntry(
-                                            "Detalle del error al obtener el último pago: " + Ex.Message.ToString(),
-                                            ENivelLog.Error,
-                                            0,//userId
-                                             "Proccess_" + JOB_CODE,
-                                            EOperacionLog.ACCESS,
-                                            string.Format("|Cuenta {0} | RFC {1} | Fecha {3}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
-                                            "BlockingNonPayment",
-                                            JsonConvert.SerializeObject(payment)
-                                        );
                                     }
                                 }
                                 #endregion
@@ -152,9 +205,14 @@ namespace MVC_Project.Jobs
                                 #region El día 24 si la cuenta continuá con pago fallido, se cambia el estatus de la cuenta a Cancelada y se realiza la cancelación de las credenciales de SAT.ws, Paybook y Recurly.                                        
                                 //Buscar las credenciales de Satws, Recurly y Paybook de la cuenta que se va a cancelar
 
-                                var paymentsAccount = _accountService.GetLastPaymentsAccount(today, RecurlyPaymentStatus.OTHER.GetDisplayName());
+                                var list = leftOuterJoin.Where(x => (x.statusCode != RecurlyPaymentStatus.SUCCESS.GetDisplayName() && x.createdAt >= startDate && x.createdAt <= endDate)
+                               || x.stateInvoice != "Paid");
 
-                                foreach (var payment in paymentsAccount)
+                                var listPaid = leftOuterJoin.Where(x => x.stateInvoice == "Paid");
+
+                                //var paymentsAccount = _accountService.GetLastPaymentsAccount(today, RecurlyPaymentStatus.OTHER.GetDisplayName());
+
+                                foreach (var payment in list)
                                 {
                                     try
                                     {
@@ -349,9 +407,14 @@ namespace MVC_Project.Jobs
                                 #region Si se detecta un pago exitoso entre los días 9 y 23 se cambia el status de la cuenta a Activo
 
                                 /*Se cambio para validar los pagos fallidos con cuentas aun activas*/
-                                var paymentsAccount = _accountService.GetLastPaymentsAccount(today, null);
+                                //var paymentsAccount = _accountService.GetLastPaymentsAccount(today, null);
 
-                                foreach (var payment in paymentsAccount)
+                                // var list = leftOuterJoin.Where(x => (x.statusCode == RecurlyPaymentStatus.SUCCESS.GetDisplayName() && x.createdAt >= startDate && x.createdAt <= endDate)
+                                //|| x.stateInvoice == "Paid");
+
+                                var listPaid = leftOuterJoin.Where(x => x.stateInvoice == "Paid");
+
+                                foreach (var payment in leftOuterJoin)
                                 {
                                     try
                                     {
@@ -359,7 +422,8 @@ namespace MVC_Project.Jobs
                                         var account = _accountService.FirstOrDefault(x => x.id == payment.accountId);
                                         if (account != null)
                                         {
-                                            if (payment.statusCode == RecurlyPaymentStatus.SUCCESS.GetDisplayName() && account.status == SystemStatus.SUSPENDED.ToString())
+                                            if (((payment.statusCode == RecurlyPaymentStatus.SUCCESS.GetDisplayName() && payment.createdAt >= startDate && payment.createdAt <= endDate)
+                                                || payment.stateInvoice == "Paid") && account.status == SystemStatus.SUSPENDED.ToString())
                                             {
                                                 account.modifiedAt = DateUtil.GetDateTimeNow();
                                                 account.status = SystemStatus.ACTIVE.ToString();
