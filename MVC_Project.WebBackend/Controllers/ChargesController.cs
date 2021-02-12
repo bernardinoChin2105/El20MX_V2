@@ -177,6 +177,11 @@ namespace MVC_Project.WebBackend.Controllers
 
                 _accountService.Update(account);
 
+                if (account.status == SystemStatus.CANCELLED.ToString())
+                {
+                    CanceledAccount(account);
+                }
+
                 LogUtil.AddEntry(
                    "Cuenta editada: " + account.name,
                    ENivelLog.Info,
