@@ -204,12 +204,7 @@ namespace MVC_Project.WebBackend.Controllers
                         Level = p.level,
                         isCustomizable = p.permission.isCustomizable
                     }).ToList();
-
-                    if (authUser.Account.Status == SystemStatus.SUSPENDED.ToString())
-                    {
-                        permissionsUniqueMembership = permissionsUniqueMembership.Where(x => x.Module == SystemModules.MY_ACCOUNT.ToString()).ToList();
-                    }
-
+                    
                     var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
                     var recurlyAccountUrlBase = ConfigurationManager.AppSettings["Recurly.AccountUrlBase"];
 
@@ -226,6 +221,18 @@ namespace MVC_Project.WebBackend.Controllers
                         });
                     }
 
+                    authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
+                    authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar, Status = uniqueMembership.account.status };
+
+                    if (authUser.Account.Status == SystemStatus.SUSPENDED.ToString())
+                    {
+                        permissionsUniqueMembership = permissionsUniqueMembership.Where(x => x.Module == SystemModules.MY_ACCOUNT.ToString()).ToList();
+                    }
+
+                    authUser.Permissions = permissionsUniqueMembership;
+                    Authenticator.StoreAuthenticatedUser(authUser);
+
+
                     #region Validación si la cuenta prospecto tiene credenciales inactivas.
                     var credentials = _credentialService.FindBy(x => x.account.id == uniqueMembership.account.id && x.status == SystemStatus.INACTIVE.ToString());
                     if (credentials.Count() > 0)
@@ -234,11 +241,6 @@ namespace MVC_Project.WebBackend.Controllers
                         authUser.isNotCredentials = true;
                     }
                     #endregion
-
-                    authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
-                    authUser.Permissions = permissionsUniqueMembership;
-                    authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar, Status = uniqueMembership.account.status };
-                    Authenticator.StoreAuthenticatedUser(authUser);
 
                     LogUtil.AddEntry("Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
@@ -581,6 +583,17 @@ namespace MVC_Project.WebBackend.Controllers
                                         });
                                     }
 
+                                    authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
+                                    authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar, Id = uniqueMembership.account.id, Status = uniqueMembership.account.status };
+
+                                    if (authUser.Account.Status == SystemStatus.SUSPENDED.ToString())
+                                    {
+                                        permissionsUniqueMembership = permissionsUniqueMembership.Where(x => x.Module == SystemModules.MY_ACCOUNT.ToString()).ToList();
+                                    }
+
+                                    authUser.Permissions = permissionsUniqueMembership;                                    
+                                    Authenticator.StoreAuthenticatedUser(authUser);
+
                                     #region Validación si la cuenta prospecto tiene credenciales inactivas.
                                     var credentials = _credentialService.FindBy(x => x.account.id == uniqueMembership.account.id && x.status == SystemStatus.INACTIVE.ToString());
                                     if (credentials.Count() > 0)
@@ -590,10 +603,6 @@ namespace MVC_Project.WebBackend.Controllers
                                     }
                                     #endregion
 
-                                    authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
-                                    authUser.Permissions = permissionsUniqueMembership;
-                                    authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar, Id = uniqueMembership.account.id };
-                                    Authenticator.StoreAuthenticatedUser(authUser);
                                     var start = permissionsUniqueMembership.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
                                     url = "/" + start.Controller + "/Index";
                                 }

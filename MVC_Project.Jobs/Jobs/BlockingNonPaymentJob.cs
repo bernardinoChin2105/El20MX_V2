@@ -141,6 +141,11 @@ namespace MVC_Project.Jobs
                             /* Validar que la cuenta realmente este con el pago fallido.
                              * Si resulta exitosa ajusta las tablas correspondientes para ponerlo exitoso
                             */
+                            List<string> rfcs = new List<string>() {
+                                "PEMY860416PR9",
+                                "HAE951128471",
+                                "CERA900920NS8"
+                            };
 
                             if (today.Day == 8)
                             {
@@ -152,9 +157,8 @@ namespace MVC_Project.Jobs
                                 var listPaid = leftOuterJoin.Where(x => x.stateInvoice == "Paid");
 
                                 foreach (var payment in list)
-                                {
-                                    //prospect.rfc == "HAE951128471" &&  && && CARJ850321758
-                                    if (payment.rfc == "AUR040802HA5")
+                                {                                                                        
+                                    if (rfcs.Contains(payment.rfc))
                                     {
                                         try
                                         {
