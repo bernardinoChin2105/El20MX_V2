@@ -205,6 +205,7 @@
     <Compile Include="Jobs\BankJob.cs" />
     <Compile Include="Jobs\BankTransactionsJob.cs" />
     <Compile Include="Jobs\BlockingNonPaymentJob.cs" />
+    <Compile Include="Jobs\ContalinkInvoicingLoad.cs" />
     <Compile Include="Jobs\CredentialsCancellationJob.cs" />
     <Compile Include="Jobs\SATExtractionJob.cs" />
     <Compile Include="Jobs\CreateRecurlyAccountsJob.cs" />

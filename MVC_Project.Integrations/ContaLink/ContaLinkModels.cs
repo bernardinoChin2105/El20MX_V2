@@ -17,6 +17,24 @@ namespace MVC_Project.Integrations.ContaLink
             public string description { get; set; } //(Descripción) - Descripción del movimiento bancario
             public string reference { get; set; } //(Referencia) - Referencia del movimiento bancario
             public decimal withdrawal { get; set; } //(Retiro) - En caso de ser un retiro de la cuenta, el monto retirado
-        }        
+        }
+
+        public class InvoiceUpload
+        {
+            public string name { get; set; }
+            public string xml{ get; set; }
+        }
+
+        public class InvoiceUploadResponse
+        {
+            public string message { get; set; }
+            public int status { get; set; }
+            public InvoiceUploadResult result { get; set; }
+        }
+
+        public class InvoiceUploadResult
+        {
+            public string url { get; set; }
+        }
     }
 }

@@ -54,5 +54,17 @@ namespace MVC_Project.Integrations.ContaLink
                 throw new Exception("No se encontró un proveedor de acceso a la información.");
             }
         }
+
+        public static InvoiceUploadResponse InvoiceUpload(dynamic request, string provider)
+        {
+            if (provider == SystemProviders.CONTALINK.ToString())
+            {
+                return ContaLinkServices.InvoiceUpload(request);
+            }
+            else
+            {
+                throw new Exception("No se encontró un proveedor de acceso a la información.");
+            }
+        }
     }
 }
