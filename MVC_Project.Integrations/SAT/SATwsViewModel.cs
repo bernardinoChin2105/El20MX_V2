@@ -164,7 +164,7 @@ namespace MVC_Project.Integrations.SAT
         public string MonedaP { get; set; }
         public string TipoCambioP { get; set; }
         public string Monto { get; set; }
-        public DoctoRelacionado DoctoRelacionado { get; set; }
+        public List<DoctoRelacionado> DoctoRelacionado { get; set; }
         public string NumOperacion { get; set; }
         public string RfcEmisorCtaOrd { get; set; }
         public string NomBancoOrdExt { get; set; }

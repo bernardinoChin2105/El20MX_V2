@@ -163,7 +163,7 @@ namespace MVC_Project.WebBackend.Models
         public string Monto { get; set; }
         public string NumOperacion { get; set; }
         public string TipoCambioP { get; set; }        
-        public DoctoRelacionado DoctoRelacionado { get; set; }
+        public List<DoctoRelacionado> DoctoRelacionado { get; set; }
     }
     public class DoctoRelacionado
     {

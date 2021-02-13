@@ -300,7 +300,7 @@ namespace MVC_Project.WebBackend.Controllers
             DateTime todayDate = DateUtil.GetDateTimeNow();
             var authUser = Authenticator.AuthenticatedUser;
 
-            var existCustomer = _customerService.FindBy(x => x.rfc == model.RFC).FirstOrDefault();
+            var existCustomer = _customerService.FindBy(x => x.rfc == model.RFC && x.account.id == authUser.Account.Id).FirstOrDefault();
 
             if (model.TypeReceptor == "provider" || model.CustomerId == 0 || existCustomer != null)
             {
@@ -509,6 +509,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     #region Tipo de Pagos
                     //tengo dudas de los complementos
+
                     List<Integrations.SAT.Pagos> payments = new List<Integrations.SAT.Pagos>();
                     foreach (var item in model.payment)
                     {
@@ -516,24 +517,24 @@ namespace MVC_Project.WebBackend.Controllers
                         if (!item.delete)
                         {
                             DateTime dateP = Convert.ToDateTime(item.startedAt);
+                            var pago = new Integrations.SAT.Pagos
+                            {
+                                FechaPago = dateP.ToString("s"), //item.startedAt,
+                                FormaDePagoP = item.PaymentFormCFDI,
+                                MonedaP = item.CurrencyCFDI,
+                                NumOperacion = item.NumOperationCFDI,
+                                Monto = item.AmountCFDI.ToString(),
+                                DoctoRelacionado = new List<Integrations.SAT.DoctoRelacionado>()
+                            };
+
+                            if (item.CurrencyCFDI != "MXN")
+                                pago.TipoCambioP = item.ExchangeRateCFDI.ToString();
 
                             if (item.Documents.Count() > 0)
                             {
                                 foreach (var itemDoc in item.Documents)
                                 {
-                                    var pago = new Integrations.SAT.Pagos
-                                    {
-                                        FechaPago = dateP.ToString("s"), //item.startedAt,
-                                        FormaDePagoP = item.PaymentFormCFDI,
-                                        MonedaP = item.CurrencyCFDI,
-                                        Monto = item.AmountCFDI.ToString(),
-                                        NumOperacion = item.NumOperationCFDI,
-                                    };
-
-                                    if (item.CurrencyCFDI != "MXN")
-                                        pago.TipoCambioP = item.ExchangeRateCFDI.ToString();
-
-                                    pago.DoctoRelacionado = new Integrations.SAT.DoctoRelacionado()
+                                    var doc = new Integrations.SAT.DoctoRelacionado()
                                     {
                                         IdDocumento = itemDoc.uuid,
                                         MonedaDR = itemDoc.currency,
@@ -545,9 +546,11 @@ namespace MVC_Project.WebBackend.Controllers
                                         Serie = itemDoc.serie,
                                         Folio = itemDoc.folio
                                     };
-                                    payments.Add(pago);
+                                    pago.DoctoRelacionado.Add(doc);
                                 }
                             }
+
+                            payments.Add(pago);
                         }
                     }
 
@@ -2394,36 +2397,39 @@ namespace MVC_Project.WebBackend.Controllers
                             MonedaP = varMonedaP,
                             Monto = varMonto,
                             NumOperacion = varNumOperacion,
-                            TipoCambioP = varTipoCambioP
+                            TipoCambioP = varTipoCambioP,
+                            DoctoRelacionado = new List<Models.DoctoRelacionado>()
                         };
 
                         XmlNode nodeDocto = node.SelectSingleNode("pago10:DoctoRelacionado", nsm);
                         if (nodeDocto != null)
                         {
-                            string varImpSaldoInsoluto = nodeDocto.Attributes["ImpSaldoInsoluto"] != null ? nodeDocto.Attributes["ImpSaldoInsoluto"].Value : string.Empty;
-                            string varImpPagado = nodeDocto.Attributes["ImpPagado"] != null ? nodeDocto.Attributes["ImpPagado"].Value : string.Empty;
-                            string varImpSAldoAnt = nodeDocto.Attributes["ImpSaldoAnt"] != null ? nodeDocto.Attributes["ImpSaldoAnt"].Value : string.Empty;
-                            string varNumParcialidad = nodeDocto.Attributes["NumParcialidad"] != null ? nodeDocto.Attributes["NumParcialidad"].Value : string.Empty;
-                            string varMetodoDePagoDR = nodeDocto.Attributes["MetodoDePagoDR"] != null ? nodeDocto.Attributes["MetodoDePagoDR"].Value : string.Empty;
-                            string varMonedaDR = nodeDocto.Attributes["MonedaDR"] != null ? nodeDocto.Attributes["MonedaDR"].Value : string.Empty;
-                            string varIdDocumento = nodeDocto.Attributes["IdDocumento"] != null ? nodeDocto.Attributes["IdDocumento"].Value : string.Empty;
-                            string varFolioCFDI = nodeDocto.Attributes["Folio"] != null ? nodeDocto.Attributes["Folio"].Value : string.Empty;
-                            string varSerieCFDI = nodeDocto.Attributes["Serie"] != null ? nodeDocto.Attributes["Serie"].Value : string.Empty;
-
-                            Models.DoctoRelacionado docto = new Models.DoctoRelacionado()
+                            foreach (XmlNode nodeD in nodeDocto.ChildNodes)
                             {
-                                IdDocumento = varIdDocumento,
-                                MonedaDR = varMonedaDR,
-                                MetodoDePagoDR = varMetodoDePagoDR,
-                                NumParcialidad = varNumParcialidad,
-                                ImpSaldoAnt = varImpSAldoAnt,
-                                ImpSaldoInsoluto = varImpSaldoInsoluto,
-                                Folio = varFolioCFDI,
-                                Serie = varSerieCFDI,
-                                ImpPagado = varImpPagado
-                            };
+                                string varImpSaldoInsoluto = nodeD.Attributes["ImpSaldoInsoluto"] != null ? nodeDocto.Attributes["ImpSaldoInsoluto"].Value : string.Empty;
+                                string varImpPagado = nodeD.Attributes["ImpPagado"] != null ? nodeDocto.Attributes["ImpPagado"].Value : string.Empty;
+                                string varImpSAldoAnt = nodeD.Attributes["ImpSaldoAnt"] != null ? nodeDocto.Attributes["ImpSaldoAnt"].Value : string.Empty;
+                                string varNumParcialidad = nodeD.Attributes["NumParcialidad"] != null ? nodeDocto.Attributes["NumParcialidad"].Value : string.Empty;
+                                string varMetodoDePagoDR = nodeD.Attributes["MetodoDePagoDR"] != null ? nodeDocto.Attributes["MetodoDePagoDR"].Value : string.Empty;
+                                string varMonedaDR = nodeD.Attributes["MonedaDR"] != null ? nodeDocto.Attributes["MonedaDR"].Value : string.Empty;
+                                string varIdDocumento = nodeD.Attributes["IdDocumento"] != null ? nodeDocto.Attributes["IdDocumento"].Value : string.Empty;
+                                string varFolioCFDI = nodeD.Attributes["Folio"] != null ? nodeDocto.Attributes["Folio"].Value : string.Empty;
+                                string varSerieCFDI = nodeD.Attributes["Serie"] != null ? nodeDocto.Attributes["Serie"].Value : string.Empty;
 
-                            pago.DoctoRelacionado = docto;
+                                Models.DoctoRelacionado docto = new Models.DoctoRelacionado()
+                                {
+                                    IdDocumento = varIdDocumento,
+                                    MonedaDR = varMonedaDR,
+                                    MetodoDePagoDR = varMetodoDePagoDR,
+                                    NumParcialidad = varNumParcialidad,
+                                    ImpSaldoAnt = varImpSAldoAnt,
+                                    ImpSaldoInsoluto = varImpSaldoInsoluto,
+                                    Folio = varFolioCFDI,
+                                    Serie = varSerieCFDI,
+                                    ImpPagado = varImpPagado
+                                };
+                                pago.DoctoRelacionado.Add(docto);
+                            }
 
                             cfdipdf.Complemento.Pagos.Add(pago);
                         }
