@@ -326,7 +326,9 @@ namespace MVC_Project.WebBackend.Controllers
             DateTime todayDate = DateUtil.GetDateTimeNow();
             var authUser = Authenticator.AuthenticatedUser;
 
-            if (model.TypeReceptor == "provider" || model.CustomerId == 0)
+            var existCustomer = _customerService.FindBy(x => x.rfc == model.RFC && x.account.id == authUser.Account.Id).FirstOrDefault();
+
+            if (model.TypeReceptor == "provider" || model.CustomerId == 0 || existCustomer == null)
             {
                 //Poder guardar el cliente si no existe       
                 customer = new Customer()
@@ -530,6 +532,7 @@ namespace MVC_Project.WebBackend.Controllers
                 {
                     #region Tipo de Pagos
                     //tengo dudas de los complementos
+
                     List<Integrations.SAT.Pagos> payments = new List<Integrations.SAT.Pagos>();
                     foreach (var item in model.payment)
                     {
@@ -537,14 +540,14 @@ namespace MVC_Project.WebBackend.Controllers
                         if (!item.delete)
                         {
                             DateTime dateP = Convert.ToDateTime(item.startedAt);
-
                             var pago = new Integrations.SAT.Pagos
                             {
                                 FechaPago = dateP.ToString("s"), //item.startedAt,
                                 FormaDePagoP = item.PaymentFormCFDI,
                                 MonedaP = item.CurrencyCFDI,
-                                Monto = item.AmountCFDI.ToString(),
                                 NumOperacion = item.NumOperationCFDI,
+                                Monto = item.AmountCFDI.ToString(),
+                                DoctoRelacionado = new List<Integrations.SAT.DoctoRelacionado>()
                             };
 
                             if (item.CurrencyCFDI != "MXN")
@@ -554,7 +557,7 @@ namespace MVC_Project.WebBackend.Controllers
                             {
                                 foreach (var itemDoc in item.Documents)
                                 {
-                                    pago.DoctoRelacionado = new Integrations.SAT.DoctoRelacionado()
+                                    var doc = new Integrations.SAT.DoctoRelacionado()
                                     {
                                         IdDocumento = itemDoc.uuid,
                                         MonedaDR = itemDoc.currency,
@@ -566,8 +569,10 @@ namespace MVC_Project.WebBackend.Controllers
                                         Serie = itemDoc.serie,
                                         Folio = itemDoc.folio
                                     };
+                                    pago.DoctoRelacionado.Add(doc);
                                 }
                             }
+
                             payments.Add(pago);
                         }
                     }
@@ -821,6 +826,12 @@ namespace MVC_Project.WebBackend.Controllers
                 else
                     throw new Exception("Error al crear la factura");
 
+                string json = string.Empty;
+                if (model.TypeInvoice == TipoComprobante.P.ToString())
+                    json = " Json a SATws:" + JsonConvert.SerializeObject(invoiceSend);
+                else
+                    json = JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend);
+
                 LogUtil.AddEntry(
                                                    "Factura timbrada con éxito.",
                                                    ENivelLog.Info,
@@ -829,13 +840,19 @@ namespace MVC_Project.WebBackend.Controllers
                                                    EOperacionLog.ACCESS,
                                                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                                                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                                                    JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend)
+                                                   json
                                                );
                 MensajeFlashHandler.RegistrarMensaje("Factura timbrada con éxito.", TiposMensaje.Success);
                 return RedirectToAction("Invoice");
             }
             catch (InvoiceException ex)
             {
+                string json = string.Empty;
+                if (model.TypeInvoice == TipoComprobante.P.ToString())
+                    json = " Json a SATws:" + JsonConvert.SerializeObject(invoiceSend);
+                else
+                    json = JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend);
+
                 LogUtil.AddEntry(
                       "Error al realizar la facturación:" + JsonConvert.SerializeObject(ex),
                       ENivelLog.Error,
@@ -844,7 +861,7 @@ namespace MVC_Project.WebBackend.Controllers
                       EOperacionLog.ACCESS,
                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                      JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend)
+                      json
                   );
                 var messages = string.Join(" ", ex.invoiceResponse?.violations?.Select(x => x.message));
                 MensajeFlashHandler.RegistrarMensaje(messages.ToString(), TiposMensaje.Error);
@@ -858,6 +875,12 @@ namespace MVC_Project.WebBackend.Controllers
             }
             catch (Exception ex)
             {
+                string json = string.Empty;
+                if (model.TypeInvoice == TipoComprobante.P.ToString())
+                    json = " Json a SATws:" + JsonConvert.SerializeObject(invoiceSend);
+                else
+                    json = JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend);
+
                 LogUtil.AddEntry(
                    "Error al realizar la facturación:" + ex.Message.ToString(),
                    ENivelLog.Error,
@@ -866,7 +889,7 @@ namespace MVC_Project.WebBackend.Controllers
                    EOperacionLog.ACCESS,
                    string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                   JsonConvert.SerializeObject(model) + ". Json a SATws:" + JsonConvert.SerializeObject(invoiceSend)
+                   json
                );
                 MensajeFlashHandler.RegistrarMensaje(ex.Message.ToString(), TiposMensaje.Error);
                 ViewBag.Date = new
@@ -2397,36 +2420,39 @@ namespace MVC_Project.WebBackend.Controllers
                             MonedaP = varMonedaP,
                             Monto = varMonto,
                             NumOperacion = varNumOperacion,
-                            TipoCambioP = varTipoCambioP
+                            TipoCambioP = varTipoCambioP,
+                            DoctoRelacionado = new List<Models.DoctoRelacionado>()
                         };
 
-                        XmlNode nodeDocto = node.SelectSingleNode("pago10:DoctoRelacionado", nsm);
-                        if (nodeDocto != null)
+                        //XmlNode nodeDocto = node.SelectSingleNode("pago10:Pago", nsm);
+                        if (node.ChildNodes.Count > 0)
                         {
-                            string varImpSaldoInsoluto = nodeDocto.Attributes["ImpSaldoInsoluto"] != null ? nodeDocto.Attributes["ImpSaldoInsoluto"].Value : string.Empty;
-                            string varImpPagado = nodeDocto.Attributes["ImpPagado"] != null ? nodeDocto.Attributes["ImpPagado"].Value : string.Empty;
-                            string varImpSAldoAnt = nodeDocto.Attributes["ImpSaldoAnt"] != null ? nodeDocto.Attributes["ImpSaldoAnt"].Value : string.Empty;
-                            string varNumParcialidad = nodeDocto.Attributes["NumParcialidad"] != null ? nodeDocto.Attributes["NumParcialidad"].Value : string.Empty;
-                            string varMetodoDePagoDR = nodeDocto.Attributes["MetodoDePagoDR"] != null ? nodeDocto.Attributes["MetodoDePagoDR"].Value : string.Empty;
-                            string varMonedaDR = nodeDocto.Attributes["MonedaDR"] != null ? nodeDocto.Attributes["MonedaDR"].Value : string.Empty;
-                            string varIdDocumento = nodeDocto.Attributes["IdDocumento"] != null ? nodeDocto.Attributes["IdDocumento"].Value : string.Empty;
-                            string varFolioCFDI = nodeDocto.Attributes["Folio"] != null ? nodeDocto.Attributes["Folio"].Value : string.Empty;
-                            string varSerieCFDI = nodeDocto.Attributes["Serie"] != null ? nodeDocto.Attributes["Serie"].Value : string.Empty;
-
-                            Models.DoctoRelacionado docto = new Models.DoctoRelacionado()
+                            foreach (XmlNode nodeD in node.ChildNodes)
                             {
-                                IdDocumento = varIdDocumento,
-                                MonedaDR = varMonedaDR,
-                                MetodoDePagoDR = varMetodoDePagoDR,
-                                NumParcialidad = varNumParcialidad,
-                                ImpSaldoAnt = varImpSAldoAnt,
-                                ImpSaldoInsoluto = varImpSaldoInsoluto,
-                                Folio = varFolioCFDI,
-                                Serie = varSerieCFDI,
-                                ImpPagado = varImpPagado
-                            };
+                                string varImpSaldoInsoluto = nodeD.Attributes["ImpSaldoInsoluto"] != null ? nodeD.Attributes["ImpSaldoInsoluto"].Value : string.Empty;
+                                string varImpPagado = nodeD.Attributes["ImpPagado"] != null ? nodeD.Attributes["ImpPagado"].Value : string.Empty;
+                                string varImpSAldoAnt = nodeD.Attributes["ImpSaldoAnt"] != null ? nodeD.Attributes["ImpSaldoAnt"].Value : string.Empty;
+                                string varNumParcialidad = nodeD.Attributes["NumParcialidad"] != null ? nodeD.Attributes["NumParcialidad"].Value : string.Empty;
+                                string varMetodoDePagoDR = nodeD.Attributes["MetodoDePagoDR"] != null ? nodeD.Attributes["MetodoDePagoDR"].Value : string.Empty;
+                                string varMonedaDR = nodeD.Attributes["MonedaDR"] != null ? nodeD.Attributes["MonedaDR"].Value : string.Empty;
+                                string varIdDocumento = nodeD.Attributes["IdDocumento"] != null ? nodeD.Attributes["IdDocumento"].Value : string.Empty;
+                                string varFolioCFDI = nodeD.Attributes["Folio"] != null ? nodeD.Attributes["Folio"].Value : string.Empty;
+                                string varSerieCFDI = nodeD.Attributes["Serie"] != null ? nodeD.Attributes["Serie"].Value : string.Empty;
 
-                            pago.DoctoRelacionado = docto;
+                                Models.DoctoRelacionado docto = new Models.DoctoRelacionado()
+                                {
+                                    IdDocumento = varIdDocumento,
+                                    MonedaDR = varMonedaDR,
+                                    MetodoDePagoDR = varMetodoDePagoDR,
+                                    NumParcialidad = varNumParcialidad,
+                                    ImpSaldoAnt = varImpSAldoAnt,
+                                    ImpSaldoInsoluto = varImpSaldoInsoluto,
+                                    Folio = varFolioCFDI,
+                                    Serie = varSerieCFDI,
+                                    ImpPagado = varImpPagado
+                                };
+                                pago.DoctoRelacionado.Add(docto);
+                            }
 
                             cfdipdf.Complemento.Pagos.Add(pago);
                         }

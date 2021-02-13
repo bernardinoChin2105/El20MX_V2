@@ -224,22 +224,22 @@
                     </tr>
                 </tfoot>
             </table>
+            <br />
             @if (Model.Complemento.Pagos != null)
             {
-                <br />
-                <br />
-                <strong><p>Complemento Pago</p></strong>
-                <table style="width:100%" class="tabla">
-                    <tr>
-                        <th>Fecha Pago</th>
-                        <th>Moneda P</th>
-                        <th>Tipo Cambio P</th>
-                        <th>Monto</th>
-                        <th>Forma De Pago P</th>
-                        <th>Número Operación</th>
-                    </tr>
-                    @foreach (var cPago in Model.Complemento.Pagos)
-                    {
+                foreach (var cPago in Model.Complemento.Pagos)
+                {
+                    <br />
+                    <strong><p>Complemento Pago</p></strong>
+                    <table style="width:100%" class="tabla">
+                        <tr>
+                            <th>Fecha Pago</th>
+                            <th>Moneda P</th>
+                            <th>Tipo Cambio P</th>
+                            <th>Monto</th>
+                            <th>Forma De Pago P</th>
+                            <th>Número Operación</th>
+                        </tr>
                         <tr>
                             <td>@cPago.FechaPago</td>
                             <td>@cPago.MonedaP</td>
@@ -249,41 +249,43 @@
                             <td>@cPago.FormaDePagoP</td>
                             <td>@cPago.NumOperacion</td>
                         </tr>
-                    }
-                </table>
-                <br />
-                <br />
-                <strong><p>Documentación Relacionado</p></strong>
-                <table style="width:100%" class="tabla">
-                    <tr>
-                        <th>Id Documento</th>
-                        <th>Folio</th>
-                        <th>Serie</th>
-                        <th>Moneda</th>
-                        <th>Metodo De Pago</th>
-                        <th>Parcialidad</th>
-                        <th>Imp Saldo Ant</th>
-                        <th>Imp Pagado</th>
-                        <th>Imp Saldo Insoluto</th>
-                    </tr>
-                    @foreach (var cPago in Model.Complemento.Pagos)
+                    </table>
+                    <br />
+                    if (cPago.DoctoRelacionado.Count() > 0)
                     {
-                        <tr>
-                            <td>@cPago.DoctoRelacionado.IdDocumento</td>
-                            <td>@cPago.DoctoRelacionado.Folio</td>
-                            <td>@cPago.DoctoRelacionado.Serie</td>
-                            <td>@cPago.DoctoRelacionado.MonedaDR</td>
-                            <td>@cPago.DoctoRelacionado.MetodoDePagoDR</td>
-                            <td>@cPago.DoctoRelacionado.NumParcialidad</td>
-                            @*<td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoAnt).ToString("C6")</td>
-                        <td>@(cPago.DoctoRelacionado.ImpPagado != null ? Convert.ToDecimal(cPago.DoctoRelacionado.ImpPagado).ToString("C6") : Convert.ToDecimal(cPago.Monto).ToString("C6"))</td>
-                        <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoInsoluto).ToString("C6")</td>*@
-                            <td>@cPago.DoctoRelacionado.ImpSaldoAnt</td>
-                            <td>@(cPago.DoctoRelacionado.ImpPagado != null ? cPago.DoctoRelacionado.ImpPagado : cPago.Monto)</td>
-                            <td>@cPago.DoctoRelacionado.ImpSaldoInsoluto</td>
-                        </tr>
+                        <strong><p>Documentación Relacionado</p></strong>
+                        <table style="width:100%" class="tabla">
+                            <tr>
+                                <th>Id Documento</th>
+                                <th>Folio</th>
+                                <th>Serie</th>
+                                <th>Moneda</th>
+                                <th>Metodo De Pago</th>
+                                <th>Parcialidad</th>
+                                <th>Imp Saldo Ant</th>
+                                <th>Imp Pagado</th>
+                                <th>Imp Saldo Insoluto</th>
+                            </tr>
+                            @foreach (var cDocRel in cPago.DoctoRelacionado)
+                            {
+                                <tr>
+                                    <td>@cDocRel.IdDocumento</td>
+                                    <td>@cDocRel.Folio</td>
+                                    <td>@cDocRel.Serie</td>
+                                    <td>@cDocRel.MonedaDR</td>
+                                    <td>@cDocRel.MetodoDePagoDR</td>
+                                    <td>@cDocRel.NumParcialidad</td>
+                                    @*<td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoAnt).ToString("C6")</td>
+                                        <td>@(cPago.DoctoRelacionado.ImpPagado != null ? Convert.ToDecimal(cPago.DoctoRelacionado.ImpPagado).ToString("C6") : Convert.ToDecimal(cPago.Monto).ToString("C6"))</td>
+                                        <td>@Convert.ToDecimal(cPago.DoctoRelacionado.ImpSaldoInsoluto).ToString("C6")</td>*@
+                                    <td>@cDocRel.ImpSaldoAnt</td>
+                                    <td>@(cDocRel.ImpPagado != null ? cDocRel.ImpPagado : cPago.Monto)</td>
+                                    <td>@cDocRel.ImpSaldoInsoluto</td>
+                                </tr>
+                            }
+                        </table>
                     }
-                </table>
+                }
             }
             <br />
             <br />
@@ -299,7 +301,7 @@
     </div>
     <br />
     <div class="text-center"><p><small>Este documento es la representación impresa de un CFDI</small></p></div>
-    <br />    
+    <br />
     <div class="textoContiguo" style="font-size:11px;">
         <strong>Sello CFDI </strong>
         <br />
