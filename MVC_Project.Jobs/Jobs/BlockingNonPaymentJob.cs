@@ -152,7 +152,7 @@ namespace MVC_Project.Jobs
                                 #region El día 8 del mes en curso, se validará que la cuenta tenga un último cobro, si este es fallido la cuenta cambia a estatus "Suspendido".
 
                                 var list = leftOuterJoin.Where(x => (x.statusCode != RecurlyPaymentStatus.SUCCESS.GetDisplayName() && x.createdAt >= startDate && x.createdAt <= endDate)
-                                || x.stateInvoice != "Paid");
+                                || x.stateInvoice != "Paid" || (x.stateInvoice ==null && x.statusCode == null));
 
                                 var listPaid = leftOuterJoin.Where(x => x.stateInvoice == "Paid");
 
