@@ -302,7 +302,7 @@ namespace MVC_Project.WebBackend.Controllers
 
             var existCustomer = _customerService.FindBy(x => x.rfc == model.RFC && x.account.id == authUser.Account.Id).FirstOrDefault();
 
-            if (model.TypeReceptor == "provider" || model.CustomerId == 0 || existCustomer != null)
+            if (model.TypeReceptor == "provider" || model.CustomerId == 0 || existCustomer == null)
             {
                 //Poder guardar el cliente si no existe       
                 customer = new Customer()
@@ -2401,20 +2401,20 @@ namespace MVC_Project.WebBackend.Controllers
                             DoctoRelacionado = new List<Models.DoctoRelacionado>()
                         };
 
-                        XmlNode nodeDocto = node.SelectSingleNode("pago10:DoctoRelacionado", nsm);
-                        if (nodeDocto != null)
+                        //XmlNode nodeDocto = node.SelectSingleNode("pago10:Pago", nsm);
+                        if (node.ChildNodes.Count > 0)
                         {
-                            foreach (XmlNode nodeD in nodeDocto.ChildNodes)
+                            foreach (XmlNode nodeD in node.ChildNodes)
                             {
-                                string varImpSaldoInsoluto = nodeD.Attributes["ImpSaldoInsoluto"] != null ? nodeDocto.Attributes["ImpSaldoInsoluto"].Value : string.Empty;
-                                string varImpPagado = nodeD.Attributes["ImpPagado"] != null ? nodeDocto.Attributes["ImpPagado"].Value : string.Empty;
-                                string varImpSAldoAnt = nodeD.Attributes["ImpSaldoAnt"] != null ? nodeDocto.Attributes["ImpSaldoAnt"].Value : string.Empty;
-                                string varNumParcialidad = nodeD.Attributes["NumParcialidad"] != null ? nodeDocto.Attributes["NumParcialidad"].Value : string.Empty;
-                                string varMetodoDePagoDR = nodeD.Attributes["MetodoDePagoDR"] != null ? nodeDocto.Attributes["MetodoDePagoDR"].Value : string.Empty;
-                                string varMonedaDR = nodeD.Attributes["MonedaDR"] != null ? nodeDocto.Attributes["MonedaDR"].Value : string.Empty;
-                                string varIdDocumento = nodeD.Attributes["IdDocumento"] != null ? nodeDocto.Attributes["IdDocumento"].Value : string.Empty;
-                                string varFolioCFDI = nodeD.Attributes["Folio"] != null ? nodeDocto.Attributes["Folio"].Value : string.Empty;
-                                string varSerieCFDI = nodeD.Attributes["Serie"] != null ? nodeDocto.Attributes["Serie"].Value : string.Empty;
+                                string varImpSaldoInsoluto = nodeD.Attributes["ImpSaldoInsoluto"] != null ? nodeD.Attributes["ImpSaldoInsoluto"].Value : string.Empty;
+                                string varImpPagado = nodeD.Attributes["ImpPagado"] != null ? nodeD.Attributes["ImpPagado"].Value : string.Empty;
+                                string varImpSAldoAnt = nodeD.Attributes["ImpSaldoAnt"] != null ? nodeD.Attributes["ImpSaldoAnt"].Value : string.Empty;
+                                string varNumParcialidad = nodeD.Attributes["NumParcialidad"] != null ? nodeD.Attributes["NumParcialidad"].Value : string.Empty;
+                                string varMetodoDePagoDR = nodeD.Attributes["MetodoDePagoDR"] != null ? nodeD.Attributes["MetodoDePagoDR"].Value : string.Empty;
+                                string varMonedaDR = nodeD.Attributes["MonedaDR"] != null ? nodeD.Attributes["MonedaDR"].Value : string.Empty;
+                                string varIdDocumento = nodeD.Attributes["IdDocumento"] != null ? nodeD.Attributes["IdDocumento"].Value : string.Empty;
+                                string varFolioCFDI = nodeD.Attributes["Folio"] != null ? nodeD.Attributes["Folio"].Value : string.Empty;
+                                string varSerieCFDI = nodeD.Attributes["Serie"] != null ? nodeD.Attributes["Serie"].Value : string.Empty;
 
                                 Models.DoctoRelacionado docto = new Models.DoctoRelacionado()
                                 {
