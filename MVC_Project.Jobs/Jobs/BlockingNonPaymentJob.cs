@@ -81,12 +81,12 @@ namespace MVC_Project.Jobs
                          * **/
 
                         /** Parametros: FechaDelDía**/
-                        DateTime today = Convert.ToDateTime("2021-02-08"); //DateUtil.GetDateTimeNow();
+                        DateTime today = Convert.ToDateTime("2021-02-15"); //DateUtil.GetDateTimeNow();
 
                         //días posibles de suspenciones y cancelaciones
                         if (today.Day >= 8 && today.Day <= 24)
                         {
-                            var startDate = new DateTime(today.Year, today.Month, 1);
+                            var startDate = new DateTime(today.Year, today.Month, 4);
                             var endDate = startDate.AddMonths(1).AddDays(-1);
 
                             /*Validar los invoice de las cuentas que generaron en recurly*/
@@ -141,66 +141,66 @@ namespace MVC_Project.Jobs
                             /* Validar que la cuenta realmente este con el pago fallido.
                              * Si resulta exitosa ajusta las tablas correspondientes para ponerlo exitoso
                             */
-                            List<string> rfcs = new List<string>() {
-                                "PEMY860416PR9",
-                                "HAE951128471",
-                                "CERA900920NS8"
-                            };
+                            //List<string> rfcs = new List<string>() {
+                            //    //"PEMY860416PR9",
+                            //    "HAE951128471",
+                            //    //"CERA900920NS8"
+                            //};
 
                             if (today.Day == 8)
                             {
                                 #region El día 8 del mes en curso, se validará que la cuenta tenga un último cobro, si este es fallido la cuenta cambia a estatus "Suspendido".
 
                                 var list = leftOuterJoin.Where(x => (x.statusCode != RecurlyPaymentStatus.SUCCESS.GetDisplayName() && x.createdAt >= startDate && x.createdAt <= endDate)
-                                || x.stateInvoice != "Paid" || (x.stateInvoice ==null && x.statusCode == null));
+                                || x.stateInvoice != "paid" || (x.stateInvoice == null && x.statusCode == null)).ToList();
 
-                                var listPaid = leftOuterJoin.Where(x => x.stateInvoice == "Paid");
+                                //var listPaid = leftOuterJoin.Where(x => x.stateInvoice == "Paid");
 
                                 foreach (var payment in list)
-                                {                                                                        
-                                    if (rfcs.Contains(payment.rfc))
+                                {
+                                    //if (rfcs.Contains(payment.rfc))
+                                    //{
+                                    try
                                     {
-                                        try
+
+                                        //Validar que este correctamente fallido el pago
+                                        //var validateAccount = RecurlyService.GetAccount(payment.idCredentialProvider, siteId, SystemProviders.RECURLY.ToString());
+
+                                        //Cambiar el status de la cuenta
+                                        var account = _accountService.FirstOrDefault(x => x.id == payment.accountId);
+                                        if (account != null)
                                         {
+                                            account.modifiedAt = DateUtil.GetDateTimeNow();
+                                            account.status = SystemStatus.SUSPENDED.ToString();
+                                            _accountService.Update(account);
 
-                                            //Validar que este correctamente fallido el pago
-                                            //var validateAccount = RecurlyService.GetAccount(payment.idCredentialProvider, siteId, SystemProviders.RECURLY.ToString());
-
-                                            //Cambiar el status de la cuenta
-                                            var account = _accountService.FirstOrDefault(x => x.id == payment.accountId);
-                                            if (account != null)
-                                            {
-                                                account.modifiedAt = DateUtil.GetDateTimeNow();
-                                                account.status = SystemStatus.SUSPENDED.ToString();
-                                                _accountService.Update(account);
-
-                                                LogUtil.AddEntry(
-                                                    "Se cambio el status de la cuenta a suspendido",
-                                                    ENivelLog.Info,
-                                                    0,
-                                                    "Proccess_" + JOB_CODE,
-                                                    EOperacionLog.ACCESS,
-                                                    string.Format("|Cuenta {0} | RFC {1} | Fecha {2}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
-                                                    "BlockingNonPayment",
-                                                    JsonConvert.SerializeObject(payment)
-                                                );
-                                            }
-                                        }
-                                        catch (Exception Ex)
-                                        {
-                                            //Guardar en el log, el motivo de la excepción
                                             LogUtil.AddEntry(
-                                                "Detalle del error al obtener el último pago: " + Ex.Message.ToString(),
-                                                ENivelLog.Error,
-                                                0,//userId
-                                                 "Proccess_" + JOB_CODE,
+                                                "Se cambio el status de la cuenta a suspendido",
+                                                ENivelLog.Info,
+                                                0,
+                                                "Proccess_" + JOB_CODE,
                                                 EOperacionLog.ACCESS,
-                                                string.Format("|Cuenta {0} | RFC {1} | Fecha {3}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
+                                                string.Format("|Cuenta {0} | RFC {1} | Fecha {2}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
                                                 "BlockingNonPayment",
                                                 JsonConvert.SerializeObject(payment)
                                             );
                                         }
                                     }
+                                    catch (Exception Ex)
+                                    {
+                                        //Guardar en el log, el motivo de la excepción
+                                        LogUtil.AddEntry(
+                                            "Detalle del error al obtener el último pago: " + Ex.Message.ToString(),
+                                            ENivelLog.Error,
+                                            0,//userId
+                                             "Proccess_" + JOB_CODE,
+                                            EOperacionLog.ACCESS,
+                                            string.Format("|Cuenta {0} | RFC {1} | Fecha {3}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
+                                            "BlockingNonPayment",
+                                            JsonConvert.SerializeObject(payment)
+                                        );
+                                    }
+                                    //}
                                 }
                                 #endregion
                             }
@@ -210,14 +210,16 @@ namespace MVC_Project.Jobs
                                 //Buscar las credenciales de Satws, Recurly y Paybook de la cuenta que se va a cancelar
 
                                 var list = leftOuterJoin.Where(x => (x.statusCode != RecurlyPaymentStatus.SUCCESS.GetDisplayName() && x.createdAt >= startDate && x.createdAt <= endDate)
-                               || x.stateInvoice != "Paid");
+                               || x.stateInvoice != "paid" || (x.stateInvoice == null && x.statusCode == null)).ToList();
 
-                                var listPaid = leftOuterJoin.Where(x => x.stateInvoice == "Paid");
+                                //var listPaid = leftOuterJoin.Where(x => x.stateInvoice == "Paid");
 
                                 //var paymentsAccount = _accountService.GetLastPaymentsAccount(today, RecurlyPaymentStatus.OTHER.GetDisplayName());
 
                                 foreach (var payment in list)
                                 {
+                                    //if (rfcs.Contains(payment.rfc))
+                                    //{
                                     try
                                     {
                                         //Validar que este correctamente fallido el pago
@@ -403,6 +405,7 @@ namespace MVC_Project.Jobs
                                             JsonConvert.SerializeObject(payment)
                                         );
                                     }
+                                    //}
                                 }
                                 #endregion
                             }
@@ -413,21 +416,22 @@ namespace MVC_Project.Jobs
                                 /*Se cambio para validar los pagos fallidos con cuentas aun activas*/
                                 //var paymentsAccount = _accountService.GetLastPaymentsAccount(today, null);
 
-                                // var list = leftOuterJoin.Where(x => (x.statusCode == RecurlyPaymentStatus.SUCCESS.GetDisplayName() && x.createdAt >= startDate && x.createdAt <= endDate)
-                                //|| x.stateInvoice == "Paid");
+                                var list = leftOuterJoin.Where(x => ((x.statusCode == RecurlyPaymentStatus.SUCCESS.GetDisplayName() && x.createdAt >= startDate && x.createdAt <= endDate)
+                               || x.stateInvoice == "paid") && x.status == SystemStatus.SUSPENDED.ToString()).ToList();
 
-                                var listPaid = leftOuterJoin.Where(x => x.stateInvoice == "Paid");
+                                //var listPaid = leftOuterJoin.Where(x => x.stateInvoice == "Paid");
 
-                                foreach (var payment in leftOuterJoin)
+                                foreach (var payment in list)
                                 {
+                                    //if (rfcs.Contains(payment.rfc))
+                                    //{
                                     try
                                     {
                                         //Cambiar el status de la cuenta si este ha sido suspendido
                                         var account = _accountService.FirstOrDefault(x => x.id == payment.accountId);
                                         if (account != null)
                                         {
-                                            if (((payment.statusCode == RecurlyPaymentStatus.SUCCESS.GetDisplayName() && payment.createdAt >= startDate && payment.createdAt <= endDate)
-                                                || payment.stateInvoice == "Paid") && account.status == SystemStatus.SUSPENDED.ToString())
+                                            if (account.status == SystemStatus.SUSPENDED.ToString())
                                             {
                                                 account.modifiedAt = DateUtil.GetDateTimeNow();
                                                 account.status = SystemStatus.ACTIVE.ToString();
@@ -444,7 +448,8 @@ namespace MVC_Project.Jobs
                                                     JsonConvert.SerializeObject(payment)
                                                 );
                                             }
-                                            else if (payment.statusCode != RecurlyPaymentStatus.SUCCESS.GetDisplayName() && account.status == SystemStatus.ACTIVE.ToString())
+                                            else if ((payment.statusCode != RecurlyPaymentStatus.SUCCESS.GetDisplayName() || payment.stateInvoice != "Paid")
+                                                    && account.status == SystemStatus.ACTIVE.ToString())
                                             {
                                                 account.modifiedAt = DateUtil.GetDateTimeNow();
                                                 account.status = SystemStatus.SUSPENDED.ToString();
@@ -477,6 +482,7 @@ namespace MVC_Project.Jobs
                                             JsonConvert.SerializeObject(payment)
                                         );
                                     }
+                                    //}
                                 }
 
                                 #endregion
