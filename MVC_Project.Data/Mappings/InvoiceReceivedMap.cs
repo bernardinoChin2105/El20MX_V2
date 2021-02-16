@@ -39,8 +39,8 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.commentsPDF).Column("commentsPDF").Length(8000).Nullable();
             Map(x => x.pdf).Column("pdf").Length(8000).Nullable();
 
-            Map(x => x.statusCL).Column("statusCL").Nullable();
-            Map(x => x.linkCL).Column("linkCL").Nullable();
+            Map(x => x.loadStatus).Column("loadStatus").Nullable();
+            Map(x => x.loadResponse).Column("loadResult").Length(8000).Nullable();
 
             References(x => x.account).Column("accountId").Not.Nullable();
             References(x => x.provider).Column("providerId").Not.Nullable();

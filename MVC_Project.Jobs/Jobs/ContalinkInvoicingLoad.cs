@@ -63,7 +63,8 @@ namespace MVC_Project.Jobs.Jobs
 
                         var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
 
-                        var accounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString());
+                        var accounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString()
+                        && x.credentials.Any(y => y.provider == SystemProviders.CONTALINK.ToString() && x.status == SystemStatus.ACTIVE.ToString()));
 
                         foreach(var account in accounts)
                         {
@@ -71,6 +72,23 @@ namespace MVC_Project.Jobs.Jobs
                             && (x.loadStatus == null || x.loadStatus != SystemStatus.LOADED.ToString()));
 
                             foreach(var issued in issueds)
+                            {
+                                MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoicesIssued, account.rfc + "/" + issued.uuid + ".xml");
+                                stream.Position = 0;
+                                byte[] result = stream.ToArray();
+                                var strBase64 = Convert.ToBase64String(result);
+
+                                XmlDocument doc = new XmlDocument();
+                                doc.Load(issued.xml);
+                                byte[] b = Encoding.UTF8.GetBytes(doc.OuterXml);
+                                var sb64 = Convert.ToBase64String(result);
+
+                            }
+
+                            var receiveds = _invoicesReceivedService.FindBy(x => x.account.id == account.id && x.xml != null && x.xml.Length > 0
+                            && (x.loadStatus == null || x.loadStatus != SystemStatus.LOADED.ToString()));
+
+                            foreach (var issued in issueds)
                             {
                                 MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoicesIssued, account.rfc + "/" + issued.uuid + ".xml");
                                 stream.Position = 0;

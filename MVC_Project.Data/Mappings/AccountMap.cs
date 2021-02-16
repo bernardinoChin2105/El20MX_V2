@@ -36,6 +36,7 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.planFijo).Column("planFijo").Nullable();
 
             HasMany(x => x.memberships).Inverse().Cascade.All().KeyColumn("accountId");
+            HasMany(x => x.credentials).Inverse().Cascade.All().KeyColumn("accountId");
 
             //HasManyToMany(x => x.users)
             //   .Cascade.SaveUpdate()
