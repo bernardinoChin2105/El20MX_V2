@@ -81,7 +81,7 @@ namespace MVC_Project.Jobs
                          * **/
 
                         /** Parametros: FechaDelDía**/
-                        DateTime today = Convert.ToDateTime("2021-02-15"); //DateUtil.GetDateTimeNow();
+                        DateTime today = Convert.ToDateTime("2021-02-24"); //DateUtil.GetDateTimeNow();
 
                         //días posibles de suspenciones y cancelaciones
                         if (today.Day >= 8 && today.Day <= 24)
@@ -135,16 +135,16 @@ namespace MVC_Project.Jobs
                                                      collectionMethodInvoice = invoice != null ? invoice.CollectionMethod : string.Empty,
                                                      createdAtInvoice = invoice != null ? invoice.CreatedAt : null,
                                                      updatedAtInvoice = invoice != null ? invoice.UpdatedAt : null
-                                                 }).ToList();
+                                                 }).GroupBy(x => x.accountId).Select(x => x.OrderByDescending(y => y.createdAtInvoice).OrderByDescending(y => y.createdAt).FirstOrDefault()).ToList();
 
                             //Buscar cuentas con el último pago fallido durante el mes
                             /* Validar que la cuenta realmente este con el pago fallido.
                              * Si resulta exitosa ajusta las tablas correspondientes para ponerlo exitoso
                             */
                             //List<string> rfcs = new List<string>() {
-                            //    //"PEMY860416PR9",
+                            //    "PEMY860416PR9",
                             //    "HAE951128471",
-                            //    //"CERA900920NS8"
+                            //    "CERA900920NS8"
                             //};
 
                             if (today.Day == 8)
@@ -400,7 +400,7 @@ namespace MVC_Project.Jobs
                                             0,//userId
                                             "ProccessBlockingNonPayment",
                                             EOperacionLog.ACCESS,
-                                            string.Format("|Cuenta {0} | RFC {1} | Fecha {3}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
+                                            string.Format("|Cuenta {0} | RFC {1} | Fecha {2}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
                                             "BlockingNonPayment",
                                             JsonConvert.SerializeObject(payment)
                                         );
