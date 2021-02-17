@@ -26,7 +26,10 @@
                 <div class="ibox-title">
                     <h5>Conectar tu Banco</h5>
                     <div class="ibox-tools">
-                        <button type="button" class="btn btn-sm btn-color btn-token" @(user.isNotCredentials? "disabled": "")><span class="fas fa-link"></span> Conectar Nuevo Banco</button>
+                        @if (hasFullAccessController && !user.isNotCredentials)
+                        {
+                            <button type="button" class="btn btn-sm btn-color btn-token"><span class="fas fa-link"></span> Conectar Nuevo Banco</button>
+                        }
                     </div>
                     @*@if (hasFullAccessController)
                         {

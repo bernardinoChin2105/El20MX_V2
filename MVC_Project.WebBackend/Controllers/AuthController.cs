@@ -234,8 +234,9 @@ namespace MVC_Project.WebBackend.Controllers
 
 
                     #region Validación si la cuenta prospecto tiene credenciales inactivas.
-                    var credentials = _credentialService.FindBy(x => x.account.id == uniqueMembership.account.id && x.status == SystemStatus.INACTIVE.ToString());
-                    if (credentials.Count() > 0)
+                    var allCredentailsInactive = uniqueMembership.account.credentials
+                    .All(x => x.status == SystemStatus.INACTIVE.ToString());
+                    if (allCredentailsInactive)
                     {
                         MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
                         authUser.isNotCredentials = true;
@@ -595,8 +596,8 @@ namespace MVC_Project.WebBackend.Controllers
                                     Authenticator.StoreAuthenticatedUser(authUser);
 
                                     #region Validación si la cuenta prospecto tiene credenciales inactivas.
-                                    var credentials = _credentialService.FindBy(x => x.account.id == uniqueMembership.account.id && x.status == SystemStatus.INACTIVE.ToString());
-                                    if (credentials.Count() > 0)
+                                    var allCredentailsInactive = uniqueMembership.account.credentials.All(x => x.status == SystemStatus.INACTIVE.ToString());
+                                    if (allCredentailsInactive)
                                     {
                                         MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
                                         authUser.isNotCredentials = true;

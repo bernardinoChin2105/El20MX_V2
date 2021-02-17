@@ -71,6 +71,18 @@ namespace MVC_Project.WebBackend.Controllers
             {
                 ViewBag.HasInvoiceSync = false;
             }
+
+            var userAuth = Authenticator.AuthenticatedUser;
+            var account = _accountService.GetById(userAuth.Id);
+
+            //var allCredentailsInactive = account.credentials.Where(x => x.provider == SystemProviders.SATWS.ToString())
+            //        .All(x => x.status == SystemStatus.INACTIVE.ToString());
+
+            //if (allCredentailsInactive)
+            //{
+            //    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
+            //}
+
             return View();
         }
 
