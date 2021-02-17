@@ -103,7 +103,9 @@
                                             @Html.ValidationMessageFor(model => model.name)
                                         </div>
                                         <div class="col-12 col-md-4 text-right">
-                                            <button @(user.isNotCredentials? "disabled":"") class="btn btn-color btn-block" type="button" id="btn-invoices-refresh" style="margin-top:35px"><i class="fas fa-sync"></i> Sincronizar facturas </button>
+                                            @if (hasFullAccessController && !user.isNotCredentials) {
+                                                <button class="btn btn-color btn-block" type="button" id="btn-invoices-refresh" style="margin-top:35px"><i class="fas fa-sync"></i> Sincronizar facturas </button>
+                                            }
                                         </div>
                                         @*<div class="col-12 col-md-4 text-center">
                 <label class="label" data-toggle="tooltip" title="Cambiar imagen de la cuenta" data-original-title="Cambiar imagen de la cuenta"
@@ -146,7 +148,7 @@
                                                 @Html.ValidationMessageFor(model => model.ciec)
                                             </div>
                                         </div>
-                                        @if (Model.ciecStatus != SystemStatus.ACTIVE.ToString() && hasFullAccessController)
+                                        @if (Model.ciecStatus != SystemStatus.ACTIVE.ToString() && hasFullAccessController && !user.isNotCredentials)
                                         {
                                             <div class="col-12 col-md-4">
                                                 <button class="btn btn-color" @(user.isNotCredentials? "disabled": "") type="button" id="btn-ciec" style="margin-top:35px"><i class="fas fa-sign-in-alt"></i> Validar ciec </button>
@@ -227,7 +229,7 @@
                                                 <a href="@Model.keyUrl">.key actual</a>
                                             }
                                         </div>
-                                        @if (Model.efirmaStatus != SystemStatus.ACTIVE.ToString() && hasFullAccessController)
+                                        @if (Model.efirmaStatus != SystemStatus.ACTIVE.ToString() && hasFullAccessController && !user.isNotCredentials)
                                         {
                                             <div class="col-12 col-md-4 text-right">
                                                 <button class="btn btn-color" @(user.isNotCredentials? "disabled": "") type="button" id="btn-efirma" style="margin-top:35px"><i class="fas fa-sign-in-alt"></i> Validar efirma</button>

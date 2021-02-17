@@ -3,7 +3,9 @@ using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Model;
 using MVC_Project.Domain.Services;
 using MVC_Project.FlashMessages;
+using MVC_Project.Integrations.Paybook;
 using MVC_Project.Integrations.Recurly;
+using MVC_Project.Integrations.SAT;
 using MVC_Project.Utils;
 using MVC_Project.WebBackend.AuthManagement;
 using MVC_Project.WebBackend.Models;
@@ -175,6 +177,11 @@ namespace MVC_Project.WebBackend.Controllers
 
                 _accountService.Update(account);
 
+                if (account.status == SystemStatus.CANCELLED.ToString())
+                {
+                    CanceledAccount(account);
+                }
+
                 LogUtil.AddEntry(
                    "Cuenta editada: " + account.name,
                    ENivelLog.Info,
@@ -267,6 +274,182 @@ namespace MVC_Project.WebBackend.Controllers
                 }
             }
             return statusSelectList;
+        }
+
+        private bool CanceledAccount(Account account)
+        {
+            var RecurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
+            var siteId = ConfigurationManager.AppSettings["Recurly.SiteId"];
+            var SATProvider = ConfigurationManager.AppSettings["SATProvider"];
+            var BankProvider = ConfigurationManager.AppSettings["BankProvider"];
+            var userAuth = Authenticator.AuthenticatedUser;
+            //bool cancel = false;
+
+            var accountCredentials = _credentialService.FindBy(x => x.account.id == account.id && x.status == SystemStatus.ACTIVE.ToString());
+
+            foreach (var credential in accountCredentials)
+            {
+                try
+                {
+                    string provider = string.Empty;
+                    bool delete = false;
+                    string statusProvider = "";
+
+                    if (credential.provider == SystemProviders.SATWS.ToString())
+                    {
+                        //Evento para desactivar la cuenta en satws
+                        //la opción que se tiene es delete credential
+                        provider = SystemProviders.SATWS.ToString();
+                        try
+                        {
+                            //Si es eliminada, no regresa nada
+                            SATService.DeleteCredential(credential.idCredentialProvider, provider);
+                            LogUtil.AddEntry(
+                                 "Credencial eliminada de SATws",
+                                ENivelLog.Info,
+                                userAuth.Id,
+                                userAuth.Email,
+                                EOperacionLog.ACCESS,
+                                string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                                ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                                JsonConvert.SerializeObject(account)
+                             );
+                            statusProvider = SystemStatus.INACTIVE.ToString();
+                            delete = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            //Si marca error entonces no se elimino la cuenta en satws
+                            LogUtil.AddEntry(
+                               "Error al eliminar la cuenta de SATws: " + ex.Message.ToString(),
+                               ENivelLog.Error,
+                               userAuth.Id,
+                               userAuth.Email,
+                               EOperacionLog.ACCESS,
+                               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow())
+                            );
+                        }
+                    }
+                    else if (credential.provider == SystemProviders.SYNCFY.GetDisplayName())
+                    {
+                        //Evento para desactivar la cuenta en syncfy
+                        //La opcion que se tiene es delete credential       
+                        provider = SystemProviders.SYNCFY.GetDisplayName();
+                        var response = PaybookService.DeleteUser(credential.idCredentialProvider, "Delete", true);
+
+                        LogUtil.AddEntry(
+                               "Eliminación de la cuenta de Paybook.",
+                               ENivelLog.Info,
+                               userAuth.Id,
+                               userAuth.Email,
+                               EOperacionLog.ACCESS,
+                               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                               JsonConvert.SerializeObject(account)
+                            );
+
+                        if (response)
+                        {
+                            delete = true;
+                            statusProvider = SystemStatus.INACTIVE.ToString();
+                        }
+                    }
+                    else if (credential.provider == SystemProviders.RECURLY.ToString())
+                    {
+                        //Evento para desactivar la cuenta en recurly
+                        //También sería el evento de delete account
+                        provider = SystemProviders.RECURLY.ToString();
+                        var response = RecurlyService.DeleteAccount(credential.idCredentialProvider, siteId, provider);
+
+                        LogUtil.AddEntry(
+                               "Respuesta de Recurly al eliminar la cuenta.",
+                               ENivelLog.Info,
+                               userAuth.Id,
+                               userAuth.Email,
+                               EOperacionLog.ACCESS,
+                               string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                               ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                               JsonConvert.SerializeObject(account)
+                            );
+
+                        if (response != null)
+                        {
+                            statusProvider = response.State;
+                            delete = true;
+                        }
+                    }
+
+                    //Inactivar cuentas desde nuestras tablas 
+                    if (delete)
+                    {
+                        if (!string.IsNullOrEmpty(statusProvider))
+                            credential.statusProvider = statusProvider;
+
+                        credential.status = SystemStatus.INACTIVE.ToString();
+                        credential.modifiedAt = DateUtil.GetDateTimeNow();
+                        _credentialService.Update(credential);
+                    }
+                    else
+                        throw new Exception("No se pudo realizar la desactivación de la credencial de " + provider + ", credentialId: " + credential.id + ", accountId: " + credential.account.id);
+
+                    //guardar logs
+
+                    LogUtil.AddEntry(
+                       "Método para cancelación de credenciales",
+                         ENivelLog.Info,
+                         userAuth.Id,
+                         userAuth.Email,
+                         EOperacionLog.ACCESS,
+                         string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                         ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                         JsonConvert.SerializeObject(account)
+                      );
+                }
+                catch (Exception ex)
+                {
+                    //Guardar en el log, el motivo de la excepción
+                    LogUtil.AddEntry(
+                        "Detalle del error al cancelar la credencial de la cuenta: " + ex.Message.ToString(),
+                         ENivelLog.Info,
+                         userAuth.Id,
+                         userAuth.Email,
+                         EOperacionLog.ACCESS,
+                         string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                         ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                         JsonConvert.SerializeObject(account)
+                      );
+                }
+            }
+
+            var credentialConfirm = _credentialService.FindBy(x => x.account.id == account.id && x.status == "ACTIVE");
+
+            if (credentialConfirm.Count() == 0)
+            {
+                //Cambiar el status de la cuenta
+                var accountD = _accountService.FirstOrDefault(x => x.id == account.id);
+                if (accountD != null)
+                {
+                    account.modifiedAt = DateUtil.GetDateTimeNow();
+                    account.status = SystemStatus.CANCELLED.ToString();
+                    _accountService.Update(account);
+
+                    LogUtil.AddEntry(
+                       "Se cambio el status de la cuenta de Suspendido a Cancelado.",
+                         ENivelLog.Info,
+                         userAuth.Id,
+                         userAuth.Email,
+                         EOperacionLog.ACCESS,
+                         string.Format("Usuario {0} | Fecha {1}", userAuth.Email, DateUtil.GetDateTimeNow()),
+                         ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                         JsonConvert.SerializeObject(account)
+                      );
+                    
+                }
+            }
+
+            return account.status == SystemStatus.CANCELLED.ToString()? true: false;
         }
     }
 }

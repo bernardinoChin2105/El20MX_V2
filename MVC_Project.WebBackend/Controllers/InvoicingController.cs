@@ -110,18 +110,18 @@ namespace MVC_Project.WebBackend.Controllers
                 };
 
                 //obtener información de mi emisor                
-                var account = authUser.Account;
+                var account = _accountService.GetById(authUser.Account.Id);
                 string email = authUser.Email;             
 
-                var membership = _membershipService.FirstOrDefault(x => x.account.id == account.Id && x.role.code == SystemRoles.ACCOUNT_OWNER.ToString() && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
+                var membership = _membershipService.FirstOrDefault(x => x.account.id == account.id && x.role.code == SystemRoles.ACCOUNT_OWNER.ToString() && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
 
                 if (membership != null)
                 {
                     email = membership.user.name;
                 }
                 //obtener información de mi emisor                    
-                model.IssuingRFC = account.RFC;
-                model.BusinessName = account.Name;
+                model.IssuingRFC = account.rfc;
+                model.BusinessName = account.name;
                 model.IssuingTaxEmail = email;
                 model.DateIssued = DateUtil.GetDateTimeNow();
                 //model.IssuingTaxRegime = ""; //Faltan estos datos del cliente
@@ -130,7 +130,7 @@ namespace MVC_Project.WebBackend.Controllers
 
                 if (!string.IsNullOrEmpty(customer))
                 {
-                    CustomerViewModel customerModel = GetCustomerReceiver(customer, account.Id);
+                    CustomerViewModel customerModel = GetCustomerReceiver(customer, account.id);
                     model.CustomerId = customerModel.Id;
                     model.CustomerName = customerModel.BusinessName;
                     model.RFC = customerModel.RFC;
@@ -152,14 +152,13 @@ namespace MVC_Project.WebBackend.Controllers
                 SetCombos(zipCode, ref model);
 
                 #region Validación si la cuenta prospecto tiene credenciales inactivas.
-                var credentials = _credentialService.FindBy(x => x.account.id == account.Id
-                && x.status == SystemStatus.INACTIVE.ToString()
-                && x.provider == SystemProviders.SYNCFY.GetDisplayName());
-                if (credentials.Count() > 0)
-                {
-                    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
-                    throw new ArgumentException("Credencial de prospecto inactiva.");
-                }
+                //var allCredentailsInactive = account.credentials.Where(x => x.provider == SystemProviders.SATWS.ToString())
+                //    .All(x => x.status == SystemStatus.INACTIVE.ToString());
+                //if (allCredentailsInactive)
+                //{
+                //    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
+                //    //throw new ArgumentException("Credencial de prospecto inactiva.");
+                //}
                 #endregion
             }
             catch (Exception ex)
@@ -270,14 +269,16 @@ namespace MVC_Project.WebBackend.Controllers
             try
             {
                 #region Validación si la cuenta prospecto tiene credenciales inactivas.
-                var credentials = _credentialService.FindBy(x => x.account.id == authUser.Account.Id
-                && x.status == SystemStatus.INACTIVE.ToString()
-                && x.provider == SystemProviders.SYNCFY.GetDisplayName());
-                if (credentials.Count() > 0)
-                {
-                    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
-                    throw new ArgumentException("Credencial de prospecto inactiva.");
-                }
+
+                //var account = _accountService.GetById(authUser.Account.Id);
+                //var allCredentailsInactive = account.credentials.Where(x => x.provider == SystemProviders.SATWS.ToString())
+                //    .All(x => x.status == SystemStatus.INACTIVE.ToString());
+
+                //if (allCredentailsInactive)
+                //{
+                //    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
+                //    //throw new ArgumentException("Credencial de prospecto inactiva.");
+                //}
                 #endregion
 
                 DateTime todayDate = DateUtil.GetDateTimeNow();

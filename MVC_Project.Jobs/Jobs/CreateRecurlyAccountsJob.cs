@@ -95,37 +95,37 @@ namespace MVC_Project.Jobs
                                 CreateAccountModel newAccount = new CreateAccountModel();
                                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
-                                newAccount.code = account.uuid.ToString();
-                                newAccount.username = account.rfc; //Se agrego el RFC para diferenciar si los nombres de usuario
-                                newAccount.preferred_locale = "es-MX";
-                                newAccount.company = account.name;
+                                    newAccount.code = account.uuid.ToString();
+                                    newAccount.username = account.rfc; //Se agrego el RFC para diferenciar si los nombres de usuario
+                                    newAccount.preferred_locale = "es-MX";
+                                    newAccount.company = account.name;
 
-                                var membership = account.memberships.FirstOrDefault(x => x.role.code == SystemRoles.ACCOUNT_OWNER.ToString());
+                                    var membership = account.memberships.FirstOrDefault(x => x.role.code == SystemRoles.ACCOUNT_OWNER.ToString());
 
-                                if (membership != null && membership.user != null)
-                                {
-                                    newAccount.email = membership.user.name;
-                                    newAccount.first_name = membership.user.profile?.firstName;
-                                    newAccount.last_name = membership.user.profile?.lastName;
-                                    newAccount.address = new AddressModel { phone = membership.user.profile?.phoneNumber, country = "MX" };
-                                }
-
-                                var accountRecurly = RecurlyService.CreateAccount(newAccount, siteId, provider);
-
-                                if (accountRecurly != null)
-                                {
-                                    var credential = new Domain.Entities.Credential()
+                                    if (membership != null && membership.user != null)
                                     {
-                                        account = new Domain.Entities.Account { id = account.id },
-                                        uuid = Guid.NewGuid(),
-                                        provider = provider,
-                                        idCredentialProvider = accountRecurly.id,
-                                        statusProvider = accountRecurly.state,
-                                        createdAt = todayDate,
-                                        modifiedAt = todayDate,
-                                        status = SystemStatus.ACTIVE.ToString(),
-                                        credentialType = accountRecurly.hosted_login_token //Token para la pagina
-                                    };
+                                        newAccount.email = membership.user.name;
+                                        newAccount.first_name = membership.user.profile?.firstName;
+                                        newAccount.last_name = membership.user.profile?.lastName;
+                                    newAccount.address = new AddressModel { phone = membership.user.profile?.phoneNumber, country = "MX" };
+                                    }
+
+                                    var accountRecurly = RecurlyService.CreateAccount(newAccount, siteId, provider);
+
+                                    if (accountRecurly != null)
+                                    {
+                                        var credential = new Domain.Entities.Credential()
+                                        {
+                                            account = new Domain.Entities.Account { id = account.id },
+                                            uuid = Guid.NewGuid(),
+                                            provider = provider,
+                                            idCredentialProvider = accountRecurly.id,
+                                            statusProvider = accountRecurly.state,
+                                            createdAt = todayDate,
+                                            modifiedAt = todayDate,
+                                            status = SystemStatus.ACTIVE.ToString(),
+                                            credentialType = accountRecurly.hosted_login_token //Token para la pagina
+                                        };
 
                                     _credentialService.Create(credential);
                                 }

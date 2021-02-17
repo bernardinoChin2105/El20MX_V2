@@ -84,148 +84,125 @@ namespace MVC_Project.Jobs
                         var accountsProspect = _accountService.GetAccountCredentialProspect(today);
                         foreach (var prospect in accountsProspect)
                         {
-                            //Se desactivaran las credenciales de Paybook y Satws para que deje de hacer la sincronización diaria.
-                            //También considerar las de recurly
-                            //if (prospect.rfc == "PEMY860416PR5")
-                            //{
-                                try
+                            try
+                            {
+                                string provider = string.Empty;
+                                bool delete = false;
+                                string statusProvider = "";
+                                if (prospect.provider == SystemProviders.SATWS.ToString())
                                 {
-                                    string provider = string.Empty;
-                                    bool delete = false;
-                                    string statusProvider = "";
-                                    if (prospect.provider == SystemProviders.SATWS.ToString())
-                                    {
-                                        //Evento para desactivar la cuenta en satws
-                                        //la opción que se tiene es delete credential
-                                        provider = SystemProviders.SATWS.ToString();
-                                        try
-                                        {
-                                            //Si es eliminada, no regresa nada
-                                            SATService.DeleteCredential(prospect.idCredentialProvider, provider);
-                                            LogUtil.AddEntry(
-                                                "Credencial eliminada de SATws",
-                                                ENivelLog.Info,
-                                                0,
-                                                "Proccess_" + JOB_CODE,
-                                                EOperacionLog.ACCESS,
-                                                string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
-                                                "CredentialsCancellation",
-                                                "Se elimino correctamente la credencial."//JsonConvert.SerializeObject()
-                                            );
-                                            statusProvider = SystemStatus.INACTIVE.ToString();
-                                            delete = true;
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            //Si marca error entonces no se elimino la cuenta en satws
-                                            LogUtil.AddEntry(
-                                                "Error al eliminar la cuenta de SATws: " + ex.Message.ToString(),
-                                                ENivelLog.Error,
-                                                0,
-                                                "Proccess_" + JOB_CODE,
-                                                EOperacionLog.ACCESS,
-                                                string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
-                                                "CredentialsCancellation",
-                                                JsonConvert.SerializeObject(ex.Message.ToString())
-                                            );
-                                        }
-                                    }
-                                    else if (prospect.provider == SystemProviders.SYNCFY.GetDisplayName())
-                                    {
-                                        //Evento para desactivar la cuenta en syncfy
-                                        //La opcion que se tiene es delete credential       
-                                        provider = SystemProviders.SYNCFY.GetDisplayName();
-                                        var response = PaybookService.DeleteUser(prospect.idCredentialProvider, "Delete", true);
+                                    //Evento para desactivar la cuenta en satws
+                                    //la opción que se tiene es delete credential
+                                    provider = SystemProviders.SATWS.ToString();
 
-                                        LogUtil.AddEntry(
-                                            "Eliminación de la cuenta de Paybook.",
-                                            ENivelLog.Info,
-                                            0,
-                                            "Proccess_" + JOB_CODE,
-                                            EOperacionLog.ACCESS,
-                                            string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
-                                            "CredentialsCancellation",
-                                            JsonConvert.SerializeObject(response)
-                                        );
-
-                                        if (response)
-                                        {
-                                            delete = true;
-                                            statusProvider = SystemStatus.INACTIVE.ToString();
-                                        }
-                                    }
-                                    else if (prospect.provider == SystemProviders.RECURLY.ToString())
-                                    {
-                                        //Evento para desactivar la cuenta en recurly
-                                        //También sería el evento de delete account
-                                        provider = SystemProviders.RECURLY.ToString();
-                                        var response = RecurlyService.DeleteAccount(prospect.idCredentialProvider, siteId, provider);
-                                        LogUtil.AddEntry(
-                                            "Respuesta de Recurly al eliminar la cuenta.",
-                                            ENivelLog.Info,
-                                            0,
-                                            "Proccess_" + JOB_CODE,
-                                            EOperacionLog.ACCESS,
-                                            string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
-                                            "CredentialsCancellation",
-                                            JsonConvert.SerializeObject(response)
-                                        );
-
-                                        if (response != null)
-                                        {
-                                            statusProvider = response.State;
-                                            delete = true;
-                                        }
-                                    }
-
-                                    //Inactivar cuentas desde nuestras tablas 
-                                    if (delete)
-                                    {
-                                        var credential = _credentialService.FirstOrDefault(x => x.id == prospect.credentialId);
-                                        if (credential != null)
-                                        {
-                                            if (!string.IsNullOrEmpty(statusProvider))
-                                                credential.statusProvider = statusProvider;
-
-                                            credential.status = SystemStatus.INACTIVE.ToString();
-                                            credential.modifiedAt = DateUtil.GetDateTimeNow();
-                                            _credentialService.Update(credential);
-                                        }
-                                    }
-                                    else
-                                        throw new Exception("No se pudo realizar la desactivación de la credencial de " + provider + ", credentialId: " + prospect.credentialId + ", accountId: " + prospect.accountId);
-
-                                    //guardar logs
+                                    //Si es eliminada, no regresa nada
+                                    SATService.DeleteCredential(prospect.idCredentialProvider, provider);
                                     LogUtil.AddEntry(
-                                        "Proceso de Cancelación de exitoso.",
+                                        "Credencial eliminada de SATws",
                                         ENivelLog.Info,
                                         0,
-                                        "Process_" + JOB_CODE,
+                                        "Proccess_" + JOB_CODE,
                                         EOperacionLog.ACCESS,
                                         string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
                                         "CredentialsCancellation",
-                                        JsonConvert.SerializeObject(prospect)
+                                        "Se elimino correctamente la credencial."//JsonConvert.SerializeObject()
                                     );
+                                    statusProvider = SystemStatus.INACTIVE.ToString();
+                                    delete = true;
                                 }
-                                catch (Exception Ex)
+                                else if (prospect.provider == SystemProviders.SYNCFY.GetDisplayName())
                                 {
-                                    //Guardar en el log, el motivo de la excepción
+                                    //Evento para desactivar la cuenta en syncfy
+                                    //La opcion que se tiene es delete credential       
+                                    provider = SystemProviders.SYNCFY.GetDisplayName();
+                                    var response = PaybookService.DeleteUser(prospect.idCredentialProvider, "Delete", true);
+
                                     LogUtil.AddEntry(
-                                        "Detalle del error: " + Ex.Message.ToString(),
-                                        ENivelLog.Error,
-                                        0,//userId
-                                        "Proccess",
+                                        "Eliminación de la cuenta de Paybook.",
+                                        ENivelLog.Info,
+                                        0,
+                                        "Proccess_" + JOB_CODE,
                                         EOperacionLog.ACCESS,
                                         string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
                                         "CredentialsCancellation",
-                                        JsonConvert.SerializeObject(prospect)
+                                        JsonConvert.SerializeObject(response)
                                     );
+
+                                    if (response)
+                                    {
+                                        delete = true;
+                                        statusProvider = SystemStatus.INACTIVE.ToString();
+                                    }
                                 }
-                            //}
+                                //else if (prospect.provider == SystemProviders.RECURLY.ToString())
+                                //{
+                                //    //Evento para desactivar la cuenta en recurly
+                                //    //También sería el evento de delete account
+                                //    provider = SystemProviders.RECURLY.ToString();
+                                //    var response = RecurlyService.DeleteAccount(prospect.idCredentialProvider, siteId, provider);
+                                //    LogUtil.AddEntry(
+                                //        "Respuesta de Recurly al eliminar la cuenta.",
+                                //        ENivelLog.Info,
+                                //        0,
+                                //        "Proccess_" + JOB_CODE,
+                                //        EOperacionLog.ACCESS,
+                                //        string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
+                                //        "CredentialsCancellation",
+                                //        JsonConvert.SerializeObject(response)
+                                //    );
+
+                                //    if (response != null)
+                                //    {
+                                //        statusProvider = response.State;
+                                //        delete = true;
+                                //    }
+                                //}
+
+                                //Inactivar cuentas desde nuestras tablas 
+                                if (delete)
+                                {
+                                    var credential = _credentialService.FirstOrDefault(x => x.id == prospect.credentialId);
+                                    if (credential != null)
+                                    {
+                                        if (!string.IsNullOrEmpty(statusProvider))
+                                            credential.statusProvider = statusProvider;
+
+                                        credential.status = SystemStatus.INACTIVE.ToString();
+                                        credential.modifiedAt = DateUtil.GetDateTimeNow();
+                                        _credentialService.Update(credential);
+                                    }
+                                }
+                                else
+                                    throw new Exception("No se pudo realizar la desactivación de la credencial de " + provider + ", credentialId: " + prospect.credentialId + ", accountId: " + prospect.accountId);
+
+                                //guardar logs
+                                LogUtil.AddEntry(
+                                    "Proceso de Cancelación de exitoso.",
+                                    ENivelLog.Info,
+                                    0,
+                                    "Process_" + JOB_CODE,
+                                    EOperacionLog.ACCESS,
+                                    string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
+                                    "CredentialsCancellation",
+                                    JsonConvert.SerializeObject(prospect)
+                                );
+                            }
+                            catch (Exception Ex)
+                            {
+                                //Guardar en el log, el motivo de la excepción
+                                LogUtil.AddEntry(
+                                    "Detalle del error: " + Ex.Message.ToString(),
+                                    ENivelLog.Error,
+                                    0,//userId
+                                    "Proccess",
+                                    EOperacionLog.ACCESS,
+                                    string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", prospect.id, prospect.rfc, prospect.credentialId, DateUtil.GetDateTimeNow()),
+                                    "CredentialsCancellation",
+                                    JsonConvert.SerializeObject(prospect)
+                                );
+                            }
                         }
-
-
-
+                        
                         #endregion
 
                         //UPDATE JOB DATABASE

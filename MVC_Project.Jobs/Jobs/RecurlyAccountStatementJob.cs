@@ -108,8 +108,17 @@ namespace MVC_Project.Jobs
 
                         if (accountsRecurly != null)
                         {
+                            //List<string> rfcs = new List<string>() {
+                            //    "PEMY860416PR9",
+                            //    "HAE951128471",
+                            //    "CERA900920NS8"
+                            //};
+
                             foreach (var acc in accountsRecurly)
                             {
+                                //acc.rfc == "CERA900920NS8" || acc.rfc == "AUR040802HA5"
+                                //if (rfcs.Contains(acc.rfc))
+                                //{
                                 #region lo que se ejecuta dentro por cada cliente
                                 var accountSupscriptions = RecurlyService.GetAccountSuscriptions(siteId, acc.idCredentialProvider);
 
@@ -469,6 +478,7 @@ namespace MVC_Project.Jobs
                                 //Enviar los datos de la compra.
                                 #endregion
                             }
+                            //}
                         }
 
                         #endregion

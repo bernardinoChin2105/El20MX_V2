@@ -168,9 +168,13 @@ namespace MVC_Project.WebBackend.Controllers
                 else if (memberships.Count() == 1)
                 {
                     var uniqueMembership = memberships.First();
-                    if (uniqueMembership.account.status == SystemStatus.INACTIVE.ToString())
+                    if (uniqueMembership.account.status == SystemStatus.INACTIVE.ToString() || uniqueMembership.account.status == SystemStatus.CANCELLED.ToString())
                     {
-                        throw new Exception("Su cuenta se encuentra inactiva.");
+                        if (uniqueMembership.account.status == SystemStatus.INACTIVE.ToString())
+                            throw new Exception("Su cuenta se encuentra inactiva.");
+
+                        if (uniqueMembership.account.status == SystemStatus.CANCELLED.ToString())
+                            throw new Exception("Su cuenta se encuentra inactiva.");
 
                         List<Permission> permissionsUser = new List<Permission>();
                         permissionsUser.Add(new Permission
@@ -182,7 +186,7 @@ namespace MVC_Project.WebBackend.Controllers
                             isCustomizable = false
                         });
                         authUser.Permissions = permissionsUser;
-                        authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar };
+                        authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar, Status = uniqueMembership.account.status };
                         Authenticator.StoreAuthenticatedUser(authUser);
 
                         LogUtil.AddEntry("Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
@@ -200,7 +204,7 @@ namespace MVC_Project.WebBackend.Controllers
                         Level = p.level,
                         isCustomizable = p.permission.isCustomizable
                     }).ToList();
-
+                    
                     var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
                     var recurlyAccountUrlBase = ConfigurationManager.AppSettings["Recurly.AccountUrlBase"];
 
@@ -217,19 +221,27 @@ namespace MVC_Project.WebBackend.Controllers
                         });
                     }
 
+                    authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
+                    authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar, Status = uniqueMembership.account.status };
+
+                    if (authUser.Account.Status == SystemStatus.SUSPENDED.ToString())
+                    {
+                        permissionsUniqueMembership = permissionsUniqueMembership.Where(x => x.Module == SystemModules.MY_ACCOUNT.ToString()).ToList();
+                    }
+
+                    authUser.Permissions = permissionsUniqueMembership;
+                    Authenticator.StoreAuthenticatedUser(authUser);
+
+
                     #region Validación si la cuenta prospecto tiene credenciales inactivas.
-                    var credentials = _credentialService.FindBy(x => x.account.id == uniqueMembership.account.id && x.status == SystemStatus.INACTIVE.ToString());
-                    if (credentials.Count() > 0)
+                    var allCredentailsInactive = uniqueMembership.account.credentials
+                    .All(x => x.status == SystemStatus.INACTIVE.ToString());
+                    if (allCredentailsInactive)
                     {
                         MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
                         authUser.isNotCredentials = true;
                     }
                     #endregion
-
-                    authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
-                    authUser.Permissions = permissionsUniqueMembership;
-                    authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar };
-                    Authenticator.StoreAuthenticatedUser(authUser);
 
                     LogUtil.AddEntry("Sesión iniciada", ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
@@ -237,6 +249,11 @@ namespace MVC_Project.WebBackend.Controllers
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                     );
                     var start = permissionsUniqueMembership.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+
+                    //Validar si es la unica cuenta de myaccount
+                    if (start.Module == SystemModules.MY_ACCOUNT.ToString() && authUser.Account.Status == SystemStatus.SUSPENDED.ToString())
+                        start.Controller = "Home";
+
                     return RedirectToAction("Index", start.Controller);
                 }
                 else
@@ -568,9 +585,25 @@ namespace MVC_Project.WebBackend.Controllers
                                     }
 
                                     authUser.Role = new Role { Id = uniqueMembership.role.id, Code = uniqueMembership.role.code, Name = uniqueMembership.role.name };
-                                    authUser.Permissions = permissionsUniqueMembership;
-                                    authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar, Id = uniqueMembership.account.id };
+                                    authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar, Id = uniqueMembership.account.id, Status = uniqueMembership.account.status };
+
+                                    if (authUser.Account.Status == SystemStatus.SUSPENDED.ToString())
+                                    {
+                                        permissionsUniqueMembership = permissionsUniqueMembership.Where(x => x.Module == SystemModules.MY_ACCOUNT.ToString()).ToList();
+                                    }
+
+                                    authUser.Permissions = permissionsUniqueMembership;                                    
                                     Authenticator.StoreAuthenticatedUser(authUser);
+
+                                    #region Validación si la cuenta prospecto tiene credenciales inactivas.
+                                    var allCredentailsInactive = uniqueMembership.account.credentials.All(x => x.status == SystemStatus.INACTIVE.ToString());
+                                    if (allCredentailsInactive)
+                                    {
+                                        MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
+                                        authUser.isNotCredentials = true;
+                                    }
+                                    #endregion
+
                                     var start = permissionsUniqueMembership.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
                                     url = "/" + start.Controller + "/Index";
                                 }
