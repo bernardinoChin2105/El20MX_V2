@@ -90,7 +90,7 @@ namespace MVC_Project.Jobs
                         int pageSize = 1000;
                         List<BankTransactionContaLinkList> transacctions = new List<BankTransactionContaLinkList>();
 
-                        List<BankTransactionContaLinkList> result = _bankCredentialService.GetBankTransactionListContaLink(pageNum, pageSize, null);
+                        List<BankTransactionContaLinkList> result = _bankCredentialService.GetBankTransactionListContaLink(pageNum, pageSize, "0");
                         transacctions.AddRange(result);
 
                         if (result.Count() > 0)
