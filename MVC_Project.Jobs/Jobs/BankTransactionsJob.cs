@@ -14,6 +14,8 @@ using System.Text;
 using System.Threading;
 using LogHubSDK.Models;
 using Newtonsoft.Json;
+using MVC_Project.Domain.Model;
+using MVC_Project.Integrations.ContaLink;
 
 namespace MVC_Project.Jobs
 {
@@ -24,6 +26,8 @@ namespace MVC_Project.Jobs
         static IProcessService _processService;
         static ICredentialService _credentialService;
         static IAccountService _accountService;
+        static IBankCredentialService _bankCredentialService;
+        static IBankTransactionService _bankTransactionService;
 
         static readonly string JOB_CODE = "ContaLinkJob_BankTransaction";
 
@@ -37,6 +41,8 @@ namespace MVC_Project.Jobs
             _processService = new ProcessService(new Repository<Process>(_unitOfWork));
             _accountService = new AccountService(new Repository<Account>(_unitOfWork));
             _credentialService = new CredentialService(new Repository<Credential>(_unitOfWork));
+            _bankCredentialService = new BankCredentialService(new Repository<BankCredential>(_unitOfWork));
+            _bankTransactionService = new BankTransactionService(new Repository<BankTransaction>(_unitOfWork));
 
             Process processJob = _processService.GetByCode(JOB_CODE);
             bool CAN_EXECUTE = processJob != null && processJob.Status && !processJob.Running; //Esta habilitado y no está corriendo (validacion por BD)
@@ -79,8 +85,72 @@ namespace MVC_Project.Jobs
                          * **/
 
                         /** Parametros: FechaDelDía**/
-                        DateTime today = Convert.ToDateTime("2021-02-24"); //DateUtil.GetDateTimeNow();
-                       
+                        DateTime today = DateUtil.GetDateTimeNow();
+                        int pageNum = 1;
+                        int pageSize = 1000;
+                        List<BankTransactionContaLinkList> transacctions = new List<BankTransactionContaLinkList>();
+
+                        List<BankTransactionContaLinkList> result = _bankCredentialService.GetBankTransactionListContaLink(pageNum, pageSize, null);
+                        transacctions.AddRange(result);
+
+                        if (result.Count() > 0)
+                        {
+                            //55/10 = 5.5 > 6
+                            while (result[0].Total / pageSize > pageNum)
+                            {
+                                pageNum++;
+                                result = _bankCredentialService.GetBankTransactionListContaLink(pageNum, pageSize, null);
+                                transacctions.AddRange(result);
+                            }
+                        }
+
+                        foreach (var trn in transacctions)
+                        {
+                            try
+                            {
+                                //Se arma el modelo para envío de banco
+                                ContaLinkModels.BankTransaction transactionModel = new ContaLinkModels.BankTransaction()
+                                {
+                                    bank = trn.nameBank + "-" + trn.bankAccount, //(Banco) - Banco / Caja / Tarjeta donde se realiza el movimiento bancario
+                                    date = trn.transactionAt.ToString("yyyy-MM-dd"), //(Fecha) - Fecha del movimiento bancario(YYYY-MM-DD) 
+                                    deposit = trn.amount > 0 ? Math.Round(trn.amount, 2) : 0, //(Deposito) - En caso de ser un depósito a la cuenta, el monto depositado                                     
+                                    description = trn.description, //(Descripción) - Descripción del movimiento bancario
+                                    reference = trn.reference != null ? trn.reference : "", //(Referencia) - Referencia del movimiento bancario
+                                    withdrawal = trn.amount < 0 ? Math.Round(Math.Abs(trn.amount),2) : 0 //(Retiro) - En caso de ser un retiro de la cuenta, el monto retirado
+                                };
+
+                                var response = ContaLinkService.CreateBankTransaction(transactionModel, trn.idCredentialProvider, ContaLinkProvider);
+
+                                var trnUpdate = _bankTransactionService.FirstOrDefault(x => x.id == trn.id);
+                                trnUpdate.statusSend = response.status.ToString();
+                                _bankTransactionService.Update(trnUpdate);
+
+                                LogUtil.AddEntry(
+                                    "Detalle de la respuesta: " + response.message != null ? response.message : "Exitoso.",
+                                    ENivelLog.Info,
+                                    0,//userId
+                                    "Proccess_" + JOB_CODE,
+                                    EOperacionLog.ACCESS,
+                                    string.Format("|Cuenta {0} | RFC {1} | Fecha {2}", trn.accountId, trn.rfc, DateUtil.GetDateTimeNow()),
+                                    "BankTransaction",
+                                    JsonConvert.SerializeObject(trn)
+                                );
+                            }
+                            catch (Exception ex)
+                            {
+                                LogUtil.AddEntry(
+                                    "Detalle del error: " + ex.Message.ToString(),
+                                    ENivelLog.Error,
+                                    0,//userId
+                                    "Proccess_" + JOB_CODE,
+                                    EOperacionLog.ACCESS,
+                                    string.Format("|Cuenta {0} | RFC {1} | Fecha {2}", trn.accountId, trn.rfc, DateUtil.GetDateTimeNow()),
+                                    "BankTransaction",
+                                    JsonConvert.SerializeObject(trn)
+                                );
+                            }
+                        }
+
                         #endregion
 
                         //UPDATE JOB DATABASE

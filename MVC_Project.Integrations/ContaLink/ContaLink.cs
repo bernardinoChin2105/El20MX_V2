@@ -12,10 +12,9 @@ namespace MVC_Project.Integrations.ContaLink
 {
     public class ContaLink
     {
-        public static string CallServiceContaLink(string urlService, Object JsonString, string method)
+        public static string CallServiceContaLink(string urlService, Object JsonString, string method, string apiKey)
         {
             string urlApi = ConfigurationManager.AppSettings["ContaLink.Url"];
-            string apiKey = ConfigurationManager.AppSettings["ContaLink.ApiKey"];
 
             try
             {

@@ -11,46 +11,46 @@ namespace MVC_Project.Integrations.ContaLink
     public class ContaLinkServices
     {
         /*con este método se crean las transacciones bancarias*/
-        public static BankTransaction CreateBankTransaction(dynamic model)
+        public static ResponseBankTransaction CreateBankTransaction(dynamic model, string apiKey)
         {
-            BankTransaction transactionModel = new BankTransaction();
+            ResponseBankTransaction transactionModel = new ResponseBankTransaction();
 
             string url = "treasury/bank-transactions/";
 
             //Llamar al servicio y obtiene respuesta
-            var response = ContaLink.CallServiceContaLink(url, model, "Post");
+            var response = ContaLink.CallServiceContaLink(url, model, "Post", apiKey);
 
-            transactionModel = JsonConvert.DeserializeObject<BankTransaction>(response);
+            transactionModel = JsonConvert.DeserializeObject<ResponseBankTransaction>(response);
 
             return transactionModel;
         }
 
         /*con este método elimina un movimiento bancario*/
-        public static BankTransaction DeleteBankTransaction(Int64 id)
+        public static ResponseBankTransaction DeleteBankTransaction(Int64 id, string apiKey)
         {
-            BankTransaction transactionModel = new BankTransaction();            
+            ResponseBankTransaction transactionModel = new ResponseBankTransaction();            
 
             string url = "treasury/bank-transactions/"+id;
 
             //Llamar al servicio y obtiene respuesta
-            var response = ContaLink.CallServiceContaLink(url, null, "Delete");
+            var response = ContaLink.CallServiceContaLink(url, null, "Delete", apiKey);
 
-            transactionModel = JsonConvert.DeserializeObject<BankTransaction>(response);
+            transactionModel = JsonConvert.DeserializeObject<ResponseBankTransaction>(response);
 
             return transactionModel;
         }
 
         /*con este método se obtiene un movimiento bancario*/
-        public static BankTransaction GetBankTransaction(Int64 id)
+        public static ResponseBankTransaction GetBankTransaction(Int64 id, string apiKey)
         {
-            BankTransaction transactionModel = new BankTransaction();
+            ResponseBankTransaction transactionModel = new ResponseBankTransaction();
 
             string url = "treasury/bank-transactions/" + id;
 
             //Llamar al servicio y obtiene respuesta
-            var response = ContaLink.CallServiceContaLink(url, null, "Get");
+            var response = ContaLink.CallServiceContaLink(url, null, "Get", apiKey);
 
-            transactionModel = JsonConvert.DeserializeObject<BankTransaction>(response);
+            transactionModel = JsonConvert.DeserializeObject<ResponseBankTransaction>(response);
 
             return transactionModel;
         }

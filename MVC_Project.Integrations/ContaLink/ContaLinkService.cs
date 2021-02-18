@@ -11,11 +11,11 @@ namespace MVC_Project.Integrations.ContaLink
     public class ContaLinkService
     {
         //Método Post para movimientos bancarios
-        public static BankTransaction CreateBankTransaction(dynamic request, string provider)
+        public static ResponseBankTransaction CreateBankTransaction(dynamic request, string apiKey, string provider)
         {
             if (provider == SystemProviders.CONTALINK.ToString())
             {
-                var contalinkModel = ContaLinkServices.CreateBankTransaction(request);
+                var contalinkModel = ContaLinkServices.CreateBankTransaction(request, apiKey);
 
                 return contalinkModel; 
             }
@@ -26,11 +26,11 @@ namespace MVC_Project.Integrations.ContaLink
         }
 
         //Método Delete para movimientos bancarios
-        public static BankTransaction DeleteBankTransaction(Int64 id, string provider)
+        public static ResponseBankTransaction DeleteBankTransaction(Int64 id, string apiKey, string provider)
         {
             if (provider == SystemProviders.CONTALINK.ToString())
             {
-                var contalinkModel = ContaLinkServices.DeleteBankTransaction(id);
+                var contalinkModel = ContaLinkServices.DeleteBankTransaction(id, apiKey);
 
                 return contalinkModel;
             }
@@ -41,11 +41,11 @@ namespace MVC_Project.Integrations.ContaLink
         }
 
         //Método Delete para movimientos bancarios
-        public static BankTransaction GetBankTransaction(Int64 id, string provider)
+        public static ResponseBankTransaction GetBankTransaction(Int64 id, string apiKey, string provider)
         {
             if (provider == SystemProviders.CONTALINK.ToString())
             {
-                var contalinkModel = ContaLinkServices.GetBankTransaction(id);
+                var contalinkModel = ContaLinkServices.GetBankTransaction(id, apiKey);
 
                 return contalinkModel;
             }

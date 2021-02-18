@@ -72,6 +72,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContaLink\ContaLink.cs" />
+    <Compile Include="ContaLink\ContaLinkModels.cs" />
+    <Compile Include="ContaLink\ContaLinkService.cs" />
+    <Compile Include="ContaLink\ContaLinkServices.cs" />
     <Compile Include="Paybook\Paybook.cs" />
     <Compile Include="Paybook\PaybookService.cs" />
     <Compile Include="Paybook\PayBookServices.cs" />

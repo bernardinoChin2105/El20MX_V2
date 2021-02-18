@@ -17,6 +17,7 @@ namespace MVC_Project.Domain.Services
         List<BankTransactionList> GetBankTransactionList(BasePagination pagination, BankTransactionFilter filter);
         BankCredential CreateWithTransaction(BankCredential bankCredential);
         List<BankTransactionList> GetBankTransactionListNoPagination(BasePagination pagination, BankTransactionFilter filters);
+        List<BankTransactionContaLinkList> GetBankTransactionListContaLink(int PageNum, int PageSize, string statusSend);
     }
     public class BankCredentialService : ServiceBase<BankCredential>, IBankCredentialService
     {
@@ -111,6 +112,20 @@ namespace MVC_Project.Domain.Services
                     .SetParameter("movements", filter.movements)
                     .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(BankTransactionList)))
                     .List<BankTransactionList>();
+
+            if (list != null) return list.ToList();
+            return null;
+        }
+
+        public List<BankTransactionContaLinkList> GetBankTransactionListContaLink(int PageNum, int PageSize, string statusSend)
+        {
+            var list = _repository.Session.CreateSQLQuery("exec dbo.st_getLastTransactions " +
+                "@PageNum =:PageNum, @PageSize =:PageSize, @status=:status ")
+                    .SetParameter("PageNum", PageNum)
+                    .SetParameter("PageSize", PageSize)
+                    .SetParameter("status", statusSend)
+                    .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(BankTransactionContaLinkList)))
+                    .List<BankTransactionContaLinkList>();
 
             if (list != null) return list.ToList();
             return null;
