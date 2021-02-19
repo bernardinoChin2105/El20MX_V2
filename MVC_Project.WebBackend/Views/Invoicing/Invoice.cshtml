@@ -614,7 +614,7 @@
                     <div class="col-md-10 offset-2 text-right">
                         <a href="#" class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
                         @*<button type="button" id="SavedInvoice" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>*@
-                        @if (hasFullAccessController && !user.isNotCredentials)
+                        @if (hasFullAccessController && !user.Account.LeadWithoutCredentials)
                         {
                             <button type="button" id="validarDatos" class="btn btn-color"> <i class="fa fa-save"></i> Timbrar Factura </button>
                         }

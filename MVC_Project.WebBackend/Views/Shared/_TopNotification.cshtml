@@ -1,0 +1,16 @@
+﻿@using MVC_Project.WebBackend.AuthManagement
+@using MVC_Project.WebBackend.AuthManagement.Models
+@using MVC_Project.Utils
+@{
+    AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
+}
+<div class="row">
+    @if (user.Account!=null && user.Account.Status == SystemStatus.SUSPENDED.ToString())
+    {
+        <div class="col-md-12 alert alert-info alert-dismissable" style="margin-bottom:auto; text-align:center; font-weight:bold">
+            @*<button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>*@
+            Cuenta suspendida.
+        </div>
+    }
+</div>
+

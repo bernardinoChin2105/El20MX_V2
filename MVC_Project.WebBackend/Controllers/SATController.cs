@@ -62,17 +62,10 @@ namespace MVC_Project.WebBackend.Controllers
                     model.HasInvoiceSync = true;
                     model.InvoiceSyncDate = process.createdAt;
                 }
-
-                #region Validación si la cuenta prospecto tiene credenciales inactivas.
-                //var allCredentailsInactive = account.credentials.Where(x => x.provider == SystemProviders.SATWS.ToString())
-                //    .All(x => x.status == SystemStatus.INACTIVE.ToString());
-                //if (allCredentailsInactive)
-                //{
-                //    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
-                //    //throw new ArgumentException("Credencial de prospecto inactiva.");
-                //}
-                #endregion
-
+                
+                if (userAuth.Account.LeadWithoutCredentials)
+                    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
+                
                 var efirmaStatus = SystemStatus.INACTIVE.ToString();
                 var ciecStatus = SystemStatus.INACTIVE.ToString();
 

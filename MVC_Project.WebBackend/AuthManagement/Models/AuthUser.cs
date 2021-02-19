@@ -23,9 +23,7 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
         public Account Account { get; set; }
 
         public bool isBackOffice { get; set; }
-
-        public bool isNotCredentials { get; set; }
-
+        
         public bool HasAccessToModule(string module)
         {
             if (this.Permissions != null && this.Permissions.Count > 0)
@@ -113,6 +111,7 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
         public string RFC { get; set; }
         public string Image { get; set; }
         public string Status { get; set; }
+        public bool LeadWithoutCredentials { get; set; }
     }
     
     

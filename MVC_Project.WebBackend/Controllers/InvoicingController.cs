@@ -151,15 +151,9 @@ namespace MVC_Project.WebBackend.Controllers
                 //Obtener listas de los combos
                 SetCombos(zipCode, ref model);
 
-                #region Validación si la cuenta prospecto tiene credenciales inactivas.
-                //var allCredentailsInactive = account.credentials.Where(x => x.provider == SystemProviders.SATWS.ToString())
-                //    .All(x => x.status == SystemStatus.INACTIVE.ToString());
-                //if (allCredentailsInactive)
-                //{
-                //    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
-                //    //throw new ArgumentException("Credencial de prospecto inactiva.");
-                //}
-                #endregion
+                if (authUser.Account.LeadWithoutCredentials)
+                    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
+                
             }
             catch (Exception ex)
             {
@@ -268,19 +262,13 @@ namespace MVC_Project.WebBackend.Controllers
             var authUser = Authenticator.AuthenticatedUser;
             try
             {
-                #region Validación si la cuenta prospecto tiene credenciales inactivas.
-
-                //var account = _accountService.GetById(authUser.Account.Id);
-                //var allCredentailsInactive = account.credentials.Where(x => x.provider == SystemProviders.SATWS.ToString())
-                //    .All(x => x.status == SystemStatus.INACTIVE.ToString());
-
-                //if (allCredentailsInactive)
-                //{
-                //    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
-                //    //throw new ArgumentException("Credencial de prospecto inactiva.");
-                //}
-                #endregion
-
+                
+                if (authUser.Account.LeadWithoutCredentials)
+                {
+                    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
+                    throw new ArgumentException("Prospecto con permisoso insuficientes");
+                }
+                
                 DateTime todayDate = DateUtil.GetDateTimeNow();
 
                 //Validar que se exista el receptor
