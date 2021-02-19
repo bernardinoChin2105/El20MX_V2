@@ -85,7 +85,7 @@ namespace MVC_Project.Jobs
                         }
 
                         var storedAccounts = _accountService.
-                            FindBy(x => x.status == SystemStatus.ACTIVE.ToString() &&
+                            FindBy(x => (x.status == SystemStatus.ACTIVE.ToString() || x.status == SystemStatus.CONFIRMED.ToString()) &&
                             !x.credentials.Any(y => y.provider == SystemProviders.RECURLY.ToString()));
 
                         foreach (var account in storedAccounts)
