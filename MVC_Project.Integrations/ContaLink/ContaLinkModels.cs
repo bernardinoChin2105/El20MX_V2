@@ -10,7 +10,7 @@ namespace MVC_Project.Integrations.ContaLink
     {
         public class BankTransaction
         {
-            public Int64 id { get; set; } 
+            public Int64? id { get; set; } 
             public string bank { get; set; } //(Banco) - Banco / Caja / Tarjeta donde se realiza el movimiento bancario
             public string date { get; set; } //(Fecha) - Fecha del movimiento bancario(YYYY-MM-DD) 
             public decimal deposit { get; set; } //(Deposito) - En caso de ser un depósito a la cuenta, el monto depositado

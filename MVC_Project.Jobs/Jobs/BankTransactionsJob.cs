@@ -90,7 +90,7 @@ namespace MVC_Project.Jobs
                         int pageSize = 1000;
                         List<BankTransactionContaLinkList> transacctions = new List<BankTransactionContaLinkList>();
 
-                        List<BankTransactionContaLinkList> result = _bankCredentialService.GetBankTransactionListContaLink(pageNum, pageSize, "0");
+                        List<BankTransactionContaLinkList> result = _bankCredentialService.GetBankTransactionListContaLink(pageNum, pageSize, StatusContaLink.ERROR.ToString());
                         transacctions.AddRange(result);
 
                         if (result.Count() > 0)
@@ -99,7 +99,7 @@ namespace MVC_Project.Jobs
                             while (result[0].Total / pageSize > pageNum)
                             {
                                 pageNum++;
-                                result = _bankCredentialService.GetBankTransactionListContaLink(pageNum, pageSize, null);
+                                result = _bankCredentialService.GetBankTransactionListContaLink(pageNum, pageSize, StatusContaLink.ERROR.ToString());
                                 transacctions.AddRange(result);
                             }
                         }
@@ -114,15 +114,27 @@ namespace MVC_Project.Jobs
                                     bank = trn.nameBank + "-" + trn.bankAccount, //(Banco) - Banco / Caja / Tarjeta donde se realiza el movimiento bancario
                                     date = trn.transactionAt.ToString("yyyy-MM-dd"), //(Fecha) - Fecha del movimiento bancario(YYYY-MM-DD) 
                                     deposit = trn.amount > 0 ? Math.Round(trn.amount, 2) : 0, //(Deposito) - En caso de ser un depósito a la cuenta, el monto depositado                                     
-                                    description = trn.description, //(Descripción) - Descripción del movimiento bancario
+                                    description = "Prueba-" + trn.description, //(Descripción) - Descripción del movimiento bancario
                                     reference = trn.reference != null ? trn.reference : "", //(Referencia) - Referencia del movimiento bancario
-                                    withdrawal = trn.amount < 0 ? Math.Round(Math.Abs(trn.amount),2) : 0 //(Retiro) - En caso de ser un retiro de la cuenta, el monto retirado
+                                    withdrawal = trn.amount < 0 ? Math.Round(Math.Abs(trn.amount), 2) : 0 //(Retiro) - En caso de ser un retiro de la cuenta, el monto retirado
                                 };
 
-                                var response = ContaLinkService.CreateBankTransaction(transactionModel, trn.idCredentialProvider, ContaLinkProvider);
+                                var serilaizeJson = JsonConvert.SerializeObject(transactionModel, Newtonsoft.Json.Formatting.None,
+                                                new JsonSerializerSettings
+                                                {
+                                                    NullValueHandling = NullValueHandling.Ignore
+                                                });
+                                dynamic transactionDynamic = JsonConvert.DeserializeObject<dynamic>(serilaizeJson);
+
+                                var response = ContaLinkService.CreateBankTransaction(transactionDynamic, trn.idCredentialProvider, ContaLinkProvider);
 
                                 var trnUpdate = _bankTransactionService.FirstOrDefault(x => x.id == trn.id);
-                                trnUpdate.statusSend = response.status.ToString();
+                                trnUpdate.statusSend = ((StatusContaLink)response.status).ToString();
+
+                                if (response.status == 0)
+                                    trnUpdate.linkError = response.message;
+                                else
+                                    trnUpdate.linkError = "Id registro: " + response.transaction_bank.id;
                                 _bankTransactionService.Update(trnUpdate);
 
                                 LogUtil.AddEntry(

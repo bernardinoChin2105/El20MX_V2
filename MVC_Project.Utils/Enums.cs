@@ -563,4 +563,12 @@ namespace MVC_Project.Utils
         [Display(Name = "bill_date")]
         BILL_DATE
     }
+
+    public enum StatusContaLink
+    {
+        [Display(Name = "ERROR")]
+        ERROR = 0,
+        [Display(Name = "SUCCESS")]
+        SUCCESS = 1
+    }
 }

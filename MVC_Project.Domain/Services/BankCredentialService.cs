@@ -120,10 +120,10 @@ namespace MVC_Project.Domain.Services
         public List<BankTransactionContaLinkList> GetBankTransactionListContaLink(int PageNum, int PageSize, string statusSend)
         {
             var list = _repository.Session.CreateSQLQuery("exec dbo.st_getLastTransactions " +
-                "@PageNum =:PageNum, @PageSize =:PageSize, @status=:status ")
+                "@PageNum =:PageNum, @PageSize =:PageSize, @statusSend=:statusSend ")
                     .SetParameter("PageNum", PageNum)
                     .SetParameter("PageSize", PageSize)
-                    .SetParameter("status", statusSend)
+                    .SetParameter("statusSend", statusSend)
                     .SetResultTransformer(NHibernate.Transform.Transformers.AliasToBean(typeof(BankTransactionContaLinkList)))
                     .List<BankTransactionContaLinkList>();
 
