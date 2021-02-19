@@ -16,7 +16,7 @@
 //    $('#table').DataTable().draw();
 //});
 
-var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getTokenUrl, unlinkBankUrl, createBankCredentialUrl, token, hasFullAccessController) {
+var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getTokenUrl, unlinkBankUrl, createBankCredentialUrl, token, hasFullAccessController, leadWithoutCredentials) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);
     this.baseUrl = baseUrl;
@@ -58,7 +58,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                         var buttons = '<div class="btn-group" role="group" aria-label="Opciones">' +
                             '<a class="link" href="' + self.bankAccountsUrl + '?idBankCredential=' + data.uuid + '">Ver más</a>' +
                             '</div>';
-                        return hasFullAccessController ? buttons : "";
+                        return hasFullAccessController && !leadWithoutCredentials ? buttons : "";
                     }
                 },
                 {
@@ -75,7 +75,7 @@ var BankIndexControlador = function (htmlTableId, baseUrl, bankAccountsUrl, getT
                             '<button class="btn btn-light btn-desvincular" title="Desvincular"><span class="fa fa-trash"></span></button>' +
                             btnUpdate +
                             '</div>';
-                        return hasFullAccessController ? buttons : "";
+                        return hasFullAccessController && !leadWithoutCredentials ? buttons : "";
                     }
                 }
             ],

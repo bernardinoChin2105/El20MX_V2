@@ -48,16 +48,11 @@ namespace MVC_Project.WebBackend.Controllers
             var authUser = Authenticator.AuthenticatedUser;
             try
             {
-                #region Validación si la cuenta prospecto tiene credenciales inactivas.
-                //var account = _accountService.GetById(authUser.Account.Id);
-                //var allCredentailsInactive = account.credentials.Where(x => x.provider == SystemProviders.SYNCFY.ToString())
-                //    .All(x => x.status == SystemStatus.INACTIVE.ToString());
-                //if (allCredentailsInactive)
-                //{
-                //    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
-                //    //throw new ArgumentException("Credencial de prospecto inactiva.");
-                //}
-                #endregion
+                if (authUser.Account.LeadWithoutCredentials)
+                {
+                    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
+                    throw new ArgumentException("Prospecto con permisoso insuficientes");
+                }
 
                 string token = Authenticator.BankToken;
 

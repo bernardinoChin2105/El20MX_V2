@@ -2044,6 +2044,7 @@
     <Content Include="Views\Charges\Edit.cshtml" />
     <Content Include="Views\Charges\Index.cshtml" />
     <Content Include="Views\Account\_ServicesContract.cshtml" />
+    <Content Include="Views\Shared\_TopNotification.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

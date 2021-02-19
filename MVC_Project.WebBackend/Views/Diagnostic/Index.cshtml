@@ -83,7 +83,7 @@
                 <div class="ibox-title">
                     <h5>Resultado</h5>
                     @*@if (hasFullAccessController)*@
-                    @if (user.isBackOffice && ViewBag.HasInvoiceSync && !user.isNotCredentials)                    
+                    @if (user.isBackOffice && ViewBag.HasInvoiceSync && !user.Account.LeadWithoutCredentials)                    
                     {
                         <div class="ibox-tools">
                             <button type="button" id="btn-generate-diagnostic" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Generar Diagnóstico Fiscal</button>

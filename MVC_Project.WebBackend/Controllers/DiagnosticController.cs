@@ -74,14 +74,9 @@ namespace MVC_Project.WebBackend.Controllers
 
             var userAuth = Authenticator.AuthenticatedUser;
             var account = _accountService.GetById(userAuth.Id);
-
-            //var allCredentailsInactive = account.credentials.Where(x => x.provider == SystemProviders.SATWS.ToString())
-            //        .All(x => x.status == SystemStatus.INACTIVE.ToString());
-
-            //if (allCredentailsInactive)
-            //{
-            //    MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
-            //}
+            
+            if (userAuth.Account.LeadWithoutCredentials)
+                MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
 
             return View();
         }

@@ -26,16 +26,11 @@
                 <div class="ibox-title">
                     <h5>Conectar tu Banco</h5>
                     <div class="ibox-tools">
-                        @if (hasFullAccessController && !user.isNotCredentials)
+                        @if (hasFullAccessController && !user.Account.LeadWithoutCredentials)
                         {
                             <button type="button" class="btn btn-sm btn-color btn-token"><span class="fas fa-link"></span> Conectar Nuevo Banco</button>
                         }
                     </div>
-                    @*@if (hasFullAccessController)
-                        {
-                                <a href="@Url.Action("Create", "Customer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Nuevo Cliente</a>
-                                <button type="button" class="btn btn-sm btn-color btn-import" data-toggle="modal" data-target="#ModalImporterClients"><span class="fas fa-upload"></span> Importar</button>
-                        }*@
                 </div>
                 <div class="ibox-content">
                     <div class="table-responsive">
@@ -65,7 +60,8 @@
                 '@Url.Action("UnlinkBank")',
                 '@Url.Action("CreateCredentialBank")',
                 '@ViewBag.paybookT',
-                '@hasFullAccessController' == 'True'
+                '@hasFullAccessController' == 'True',
+                '@user.Account.LeadWithoutCredentials'=='True'
             );
             bank.init();
         });

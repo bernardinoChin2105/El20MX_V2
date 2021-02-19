@@ -85,36 +85,39 @@ namespace MVC_Project.WebBackend.Controllers
                 if (authUser.Role.Code == SystemRoles.SYSTEM_ADMINISTRATOR.ToString() || authUser.Role.Code.Contains(SystemRoles.DIRECCION.ToString())
                     || authUser.Role.Code.Contains(SystemRoles.GERENTE.ToString()) || authUser.Role.Code.Contains(SystemRoles.EJECUTIVO.ToString()))
                 {
-                    accounts = _accountService.GetAll().Select(x => new Account
-                    {
-                        Id = x.id,
-                        Uuid = x.uuid,
-                        Name = x.name,
-                        RFC = x.rfc
-                    }).ToList();
+                    accounts = _accountService.FindBy(x => x.status != SystemStatus.INACTIVE.ToString() && x.status != SystemStatus.CANCELLED.ToString()).
+                        Select(x => new Account
+                        {
+                            Id = x.id,
+                            Uuid = x.uuid,
+                            Name = x.name,
+                            RFC = x.rfc
+                        }).ToList();
                 }
                 else if (authUser.Role.Code.Contains(SystemRoles.SUPERVISOR.ToString()))
                 {
                     List<Int64> cadIds = _supervisorCADService.FindBy(x => x.supervisor.id == authUser.Id).Select(x => x.cad.id).ToList();
                     cadIds.Add(authUser.Id);
 
-                    accounts = _CADAccountService.FindBy(x => cadIds.Contains(x.cad.id)).Select(x => new Account
-                    {
-                        Id = x.account.id,
-                        Uuid = x.account.uuid,
-                        Name = x.account.name,
-                        RFC = x.account.rfc
-                    }).ToList();
+                    accounts = _CADAccountService.FindBy(x => cadIds.Contains(x.cad.id) && x.account.status != SystemStatus.INACTIVE.ToString() && x.account.status != SystemStatus.CANCELLED.ToString()).
+                        Select(x => new Account
+                        {
+                            Id = x.account.id,
+                            Uuid = x.account.uuid,
+                            Name = x.account.name,
+                            RFC = x.account.rfc
+                        }).ToList();
                 }
                 else
                 {
-                    accounts = _CADAccountService.FindBy(x => x.cad.id == authUser.Id).Select(x => new Account
-                    {
-                        Id = x.account.id,
-                        Uuid = x.account.uuid,
-                        Name = x.account.name,
-                        RFC = x.account.rfc
-                    }).ToList();
+                    accounts = _CADAccountService.FindBy(x => x.cad.id == authUser.Id && x.account.status != SystemStatus.INACTIVE.ToString() && x.account.status != SystemStatus.CANCELLED.ToString()).
+                        Select(x => new Account
+                        {
+                            Id = x.account.id,
+                            Uuid = x.account.uuid,
+                            Name = x.account.name,
+                            RFC = x.account.rfc
+                        }).ToList();
                 }
                 var accountViewModel = new AccountSelectViewModel { accountListItems = new List<SelectListItem>() };
                 accountViewModel.accountListItems = accounts.Select(x => new SelectListItem
@@ -143,7 +146,7 @@ namespace MVC_Project.WebBackend.Controllers
                             accountId = membership.account.id,
                             imagen = membership.account.avatar,
                             credentialStatus = credential != null ? credential.status : SystemStatus.INACTIVE.ToString(),
-                            accountStatus = credential != null ? membership.account.status : SystemStatus.UNCONFIRMED.ToString(),
+                            accountStatus = membership.account.status,
                             credentialId = credential != null ? credential.idCredentialProvider : string.Empty,
                             //ciec=membership.account.ciec
                         });
@@ -159,31 +162,101 @@ namespace MVC_Project.WebBackend.Controllers
         [AllowAnonymous]
         public ActionResult SetAccount(Guid? uuid)
         {
-            var authUser = Authenticator.AuthenticatedUser;
-            if (authUser.isBackOffice)
+            try
             {
-                if (!uuid.HasValue)
+                var authUser = Authenticator.AuthenticatedUser;
+                if (authUser.isBackOffice)
                 {
-                    var membership = _membership.FirstOrDefault(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
-
-                    authUser.Permissions = membership.role.rolePermissions
-                    .Where(x => x.permission.status == SystemStatus.ACTIVE.ToString() && x.permission.applyTo != SystemPermissionApply.ONLY_ACCOUNT.ToString())
-                    .Select(p => new Permission
+                    if (!uuid.HasValue)
                     {
-                        Controller = p.permission.controller,
-                        Module = p.permission.module,
-                        Level = p.level,
-                        isCustomizable = p.permission.isCustomizable
-                    }).ToList();
+                        var membership = _membership.FirstOrDefault(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
 
-                    authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
-                    authUser.Account = null;
-                    Authenticator.RefreshAuthenticatedUser(authUser);
+                        authUser.Permissions = membership.role.rolePermissions
+                        .Where(x => x.permission.status == SystemStatus.ACTIVE.ToString() && x.permission.applyTo != SystemPermissionApply.ONLY_ACCOUNT.ToString())
+                        .Select(p => new Permission
+                        {
+                            Controller = p.permission.controller,
+                            Module = p.permission.module,
+                            Level = p.level,
+                            isCustomizable = p.permission.isCustomizable
+                        }).ToList();
+
+                        authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
+                        authUser.Account = null;
+                        Authenticator.RefreshAuthenticatedUser(authUser);
+                    }
+                    else
+                    {
+                        var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
+
+                        if (account.status == SystemStatus.INACTIVE.ToString())
+                            throw new Exception("La cuenta se encuentra inactiva.");
+
+                        if (account.status == SystemStatus.CANCELLED.ToString())
+                            throw new Exception("La cuenta se encuentra cancelada.");
+
+                        authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar, Status = account.status };
+
+                        if (account.status == SystemStatus.UNCONFIRMED.ToString())
+                        {
+                            List<Permission> permissionsUser = new List<Permission>();
+                            permissionsUser.Add(new Permission
+                            {
+                                Action = "Index",
+                                Controller = "Account",
+                                Module = "Account",
+                                Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                                isCustomizable = false
+                            });
+                            authUser.Permissions = permissionsUser;
+                            Authenticator.RefreshAuthenticatedUser(authUser);
+                            return RedirectToAction("CreateAccount", new { uuid = account.uuid });
+                        }
+
+                        var membership = _membership.FirstOrDefault(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
+
+                        authUser.Permissions = membership.role.rolePermissions
+                        .Where(x => x.permission.status == SystemStatus.ACTIVE.ToString() && x.permission.applyTo != SystemPermissionApply.ONLY_BACK_OFFICE.ToString())
+                        .Select(p => new Permission
+                        {
+                            Controller = p.permission.controller,
+                            Module = p.permission.module,
+                            Level = p.level,
+                            isCustomizable = p.permission.isCustomizable
+                        }).ToList();
+
+                        //if (account.status == SystemStatus.SUSPENDED.ToString())
+                        //    authUser.Permissions = authUser.Permissions.Where(x => x.Module == SystemModules.MY_ACCOUNT.ToString()).ToList();
+
+                        authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
+
+                        var allCredentailsInactive = account.credentials.All(x => x.status == SystemStatus.INACTIVE.ToString());
+                        if (allCredentailsInactive && (account.status == SystemStatus.CONFIRMED.ToString() || account.status == SystemStatus.UNCONFIRMED.ToString()))
+                            authUser.Account.LeadWithoutCredentials = true;
+
+                        Authenticator.RefreshAuthenticatedUser(authUser);
+                    }
+                    var inicio = authUser.Permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+                    return RedirectToAction("Index", inicio.Controller);
                 }
                 else
                 {
+                    var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
+                    var recurlyAccountUrlBase = ConfigurationManager.AppSettings["Recurly.AccountUrlBase"];
+
                     var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
-                    authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
+
+                    if(account==null)
+                        throw new Exception("Cuenta no encontrada en el sistema");
+
+                    if (account.status == SystemStatus.INACTIVE.ToString())
+                        throw new Exception("La cuenta se encuentra inactiva.");
+
+                    if (account.status == SystemStatus.CANCELLED.ToString())
+                        throw new Exception("La cuenta se encuentra cancelada.");
+
+                    authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar, Status = account.status };
+
                     if (account.status == SystemStatus.UNCONFIRMED.ToString())
                     {
                         List<Permission> permissionsUser = new List<Permission>();
@@ -200,11 +273,12 @@ namespace MVC_Project.WebBackend.Controllers
                         return RedirectToAction("CreateAccount", new { uuid = account.uuid });
                     }
 
-                    var membership = _membership.FirstOrDefault(x => x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
+                    var membership = _membership.FirstOrDefault(x => x.account.id == account.id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
 
-                    authUser.Permissions = membership.role.rolePermissions
-                    .Where(x => x.permission.status == SystemStatus.ACTIVE.ToString() && x.permission.applyTo != SystemPermissionApply.ONLY_BACK_OFFICE.ToString())
-                    .Select(p => new Permission
+                    if (membership == null)                    
+                        throw new Exception("Relacion de la cuenta con el usuario no encontrada");
+                    
+                    var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
                     {
                         Controller = p.permission.controller,
                         Module = p.permission.module,
@@ -212,95 +286,55 @@ namespace MVC_Project.WebBackend.Controllers
                         isCustomizable = p.permission.isCustomizable
                     }).ToList();
 
-                    authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
-
-                    var allCredentailsInactive = account.credentials.All(x => x.status == SystemStatus.INACTIVE.ToString());
-                    if (allCredentailsInactive)
+                    if (account.status == SystemStatus.SUSPENDED.ToString())
+                        permissions = permissions.Where(x => x.Module == SystemModules.MY_ACCOUNT.ToString()).ToList();
+                    
+                    var recurlyAccountCredential = _credentialService.FindBy(x => x.account.id == account.id && x.provider == recurlyProvider && x.statusProvider == "active" && x.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
+                    if (recurlyAccountCredential != null && !string.IsNullOrEmpty(recurlyAccountCredential.credentialType))
                     {
-                        MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
-                        authUser.isNotCredentials = true;
+                        permissions.Add(new Permission
+                        {
+                            Action = recurlyAccountUrlBase + recurlyAccountCredential.credentialType,
+                            Controller = "MyAccount",
+                            Module = SystemModules.RECURLY_ACCOUNT.ToString(),
+                            Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                            isCustomizable = true
+                        });
                     }
+
+                    authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
+                    
+                    //Valida si es un prospecto con sus credenciales inactivas porque ya tiene mas de 16 dias en el sistema como prospecto
+                    var allCredentailsInactive = account.credentials.All(x => x.status == SystemStatus.INACTIVE.ToString());
+                    if (allCredentailsInactive && (membership.account.status == SystemStatus.CONFIRMED.ToString() || membership.account.status == SystemStatus.UNCONFIRMED.ToString()))
+                        authUser.Account.LeadWithoutCredentials = true;
+
+                    authUser.Permissions = permissions;
 
                     Authenticator.RefreshAuthenticatedUser(authUser);
-                    
+
+                    LogUtil.AddEntry("Acceso a la cuenta: " + account.rfc, ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
+                       ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
+                       string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
+                    );
+
+                    var inicio = permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+
+                    //Validar si es la unica cuenta de myaccount
+                    if (inicio.Module == SystemModules.MY_ACCOUNT.ToString() && account.status == SystemStatus.SUSPENDED.ToString())
+                        inicio.Controller = "Home";
+
+                    return RedirectToAction("Index", inicio.Controller);
+
+
                 }
-                var inicio = authUser.Permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
-                return RedirectToAction("Index", inicio.Controller);
             }
-            else
+            catch (Exception ex)
             {
-                var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
-                var recurlyAccountUrlBase = ConfigurationManager.AppSettings["Recurly.AccountUrlBase"];
-
-                var account = _accountService.FindBy(x => x.uuid == uuid).FirstOrDefault();
-
-                if (account != null)
-                {
-                    var membership = _membership.FirstOrDefault(x => x.account.id == account.id && x.user.id == authUser.Id && x.status == SystemStatus.ACTIVE.ToString() && x.role.status == SystemStatus.ACTIVE.ToString());
-
-                    if (membership != null)
-                    {
-                        var permissions = membership.role.rolePermissions.Where(x => x.permission.status == SystemStatus.ACTIVE.ToString()).Select(p => new Permission
-                        {
-                            Controller = p.permission.controller,
-                            Module = p.permission.module,
-                            Level = p.level,
-                            isCustomizable = p.permission.isCustomizable
-                        }).ToList();
-
-                        if (account.status == SystemStatus.SUSPENDED.ToString())
-                        {
-                            permissions = permissions.Where(x => x.Module == SystemModules.MY_ACCOUNT.ToString()).ToList();
-                        }
-
-                        var recurlyAccountCredential = _credentialService.FindBy(x => x.account.id == account.id && x.provider == recurlyProvider && x.statusProvider == "active" && x.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
-                        if(recurlyAccountCredential != null && !string.IsNullOrEmpty(recurlyAccountCredential.credentialType))
-                        {
-                            permissions.Add(new Permission {
-                                Action = recurlyAccountUrlBase + recurlyAccountCredential.credentialType,
-                                Controller = "MyAccount",
-                                Module = SystemModules.RECURLY_ACCOUNT.ToString(),
-                                Level = SystemLevelPermission.FULL_ACCESS.ToString(),
-                                isCustomizable = true
-                            });
-                        }
-
-                        #region Validación si la cuenta prospecto tiene credenciales inactivas.
-                        //var credentials = _credentialService.FindBy(x => x.account.id == account.id && x.status == SystemStatus.INACTIVE.ToString());
-                        var allCredentailsInactive = account.credentials.All(x => x.status == SystemStatus.INACTIVE.ToString());
-
-                        if (allCredentailsInactive)
-                        {                            
-                            MensajeFlashHandler.RegistrarCuenta("True", TiposMensaje.Warning);
-                            authUser.isNotCredentials = true;
-                        }
-                        #endregion
-
-                        authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
-                        authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar, Status = account.status };
-                        authUser.Permissions = permissions;
-
-                        Authenticator.RefreshAuthenticatedUser(authUser);
-
-                        LogUtil.AddEntry("Acceso a la cuenta: " + account.rfc, ENivelLog.Info, authUser.Id, authUser.Email, EOperacionLog.ACCESS,
-                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow()),
-                           ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
-                           string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
-                        );
-
-                        var inicio = permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
-
-                        //Validar si es la unica cuenta de myaccount
-                        if (inicio.Module == SystemModules.MY_ACCOUNT.ToString() && account.status == SystemStatus.SUSPENDED.ToString())
-                            inicio.Controller = "Home";
-
-                        return RedirectToAction("Index", inicio.Controller);
-                    }
-                }
+                MensajeFlashHandler.RegistrarMensaje(ex.Message, TiposMensaje.Warning);
+                return RedirectToAction("Index");
             }
-
-            MensajeFlashHandler.RegistrarMensaje("No es posible acceder a la cuenta", TiposMensaje.Warning);
-            return RedirectToAction("Index", "Account");
         }
 
         [AllowAnonymous]
