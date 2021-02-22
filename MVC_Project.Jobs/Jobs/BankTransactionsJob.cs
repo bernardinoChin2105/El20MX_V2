@@ -130,6 +130,7 @@ namespace MVC_Project.Jobs
 
                                 var trnUpdate = _bankTransactionService.FirstOrDefault(x => x.id == trn.id);
                                 trnUpdate.statusSend = ((StatusContaLink)response.status).ToString();
+                                trnUpdate.modifiedAt = DateUtil.GetDateTimeNow();
 
                                 if (response.status == 0)
                                     trnUpdate.linkError = response.message;
