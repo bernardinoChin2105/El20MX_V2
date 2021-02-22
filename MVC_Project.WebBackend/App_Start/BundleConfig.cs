@@ -16,7 +16,8 @@ namespace MVC_Project.WebBackend
                           "~/Content/template/animate.css",
                           "~/Content/template/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css",
                           "~/Content/template/style.css",
-                          "~/Content/template/stylesEl20mx.css"));
+                          "~/Content/template/stylesEl20mx.css",
+                          "~/Content/template/eleva.css"));
 
             bundles.Add(new StyleBundle("~/Content/templatepdf/css").Include(
                          "~/Content/template/bootstrap3/bootstrap.min.css"));

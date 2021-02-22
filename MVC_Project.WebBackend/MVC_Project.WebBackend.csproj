@@ -347,6 +347,7 @@
     <Content Include="Content\template\bootstrap.css" />
     <Content Include="Content\template\bootstrap.min.css" />
     <Content Include="Content\template\bootstrap3\bootstrap.min.css" />
+    <Content Include="Content\template\eleva.css" />
     <Content Include="Content\template\patterns\1.png" />
     <Content Include="Content\template\patterns\2.png" />
     <Content Include="Content\template\patterns\3.png" />
