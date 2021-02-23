@@ -1,3 +1,106 @@
-﻿body {
-    background-image: linear-gradient(306deg, #e6e7ed 93%, #f7f8fa 8%);
+﻿:root {
+    --amarillo: #f3ee56;
+    --verde-lim-n: #56ff89;
+    --gris-obscuro: #26272b;
+    --gris-claro: #c9ccda;
+    --azul: #46f0ed;
+    --rojo: #f0728a;
+    --morado: #c34bfa;
+    --naranja: #ffb983;
 }
+
+
+body {
+    background-image: linear-gradient(306deg, #e6e7ed 93%, #f7f8fa 8%) !important;
+}
+.nav .nav-header {
+    padding: 10px;
+    background: none !important;
+
+}
+
+.nav > li > a {
+    /*margin: 30px 18px 30px 8px; Ajustar el tamaño*/ 
+    font-family: ABCFavoritProTrial;
+    font-size: 16px;
+    font-weight: bold;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #ffffff;
+    padding: 14px 5px 14px 14px;
+    /*color: #a7b1c2;
+    font-weight: 600;
+    display: block;*/
+}
+
+.navbar-default .nav > li > a:hover, 
+.navbar-default .nav > li > a:focus {
+    background: none;
+    color: white;
+}
+
+.nav > li.active {
+    border-left: none !important;
+    background: none;
+}
+
+ul.nav-second-level {
+    background: none !important;
+}
+.nav-second-level li a {
+    padding: 7px 10px 7px 10px;
+    padding-left: 52px;
+}
+
+.fain.arrow:before {
+    content: "\f067";
+}
+
+.active > a > .fain.arrow:before {
+    content: "\f068";
+}
+
+.white-bg {
+    background-color: transparent;
+}
+
+.ibox-title {
+    background: none !important;
+    /*border-color: #e7eaec;
+    border-image: none;
+    border-style: solid solid none;
+    border-width: 2px 0 0;
+    color: inherit;
+    margin-bottom: 0;
+    padding: 15px 15px 8px 15px;
+    min-height: 48px;
+    position: relative;
+    clear: both;
+    -webkit-border-radius: 3px 3px 0 0;
+    -moz-border-radius: 3px 3px 0 0;
+    border-radius: 2px 2px 0 0;*/
+}
+
+.ibox-content {
+    background: none !important;
+    /*color: inherit;
+    padding: 15px 20px 20px 20px;
+    border-color: #e7eaec;
+    border-image: none;
+    border-style: solid;
+    border-width: 1px 0;*/
+}
+
+@media (min-width: 768px) {
+    .navbar-static-side {
+        z-index: 2001;
+        width: 260px;
+        padding: 43px 30px 43px 22px;
+        /*padding: 43px 30px 274px 22px;*/
+        background-image: linear-gradient(194deg, var(--morado), var(--azul));
+    }
+
+    
+} 
