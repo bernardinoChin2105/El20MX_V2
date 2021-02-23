@@ -46,7 +46,7 @@ namespace MVC_Project.Integrations.ContaLink
                 {
                     var data = JsonConvert.SerializeObject(JsonString);
 
-                    request.AddParameter("application/json", JsonString, ParameterType.RequestBody);
+                    request.AddParameter("application/json", data, ParameterType.RequestBody);
                 }
 
                 IRestResponse response = client.Execute(request);
