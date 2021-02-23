@@ -14,13 +14,16 @@
                     <img alt="image" class="rounded-circle" src="@user.Avatar" width="20%" />
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                         <span class="block m-t-xs font-bold" style="text-overflow: ellipsis; overflow: hidden;">@user.FirstName <b class="caret"></b> </span>
-                        @if (user.Role != null)
+                        @*@if (user.Role != null)
                         {
                             <span class="text-muted text-xs block">@user.Role.Name</span>
-                        }
+                        }*@
                     </a>
-                    <span class="text-muted text-xs block">@user.Account.Name</span>
-                    <span class="block m-t-xs font-bold" style="color:white">RFC @user.Account.RFC</span>
+                    @if (user.Account != null) {
+                        <span class="text-muted text-xs block">@user.Account.Name</span>
+                        <span class="block m-t-xs font-bold" style="color:white">RFC @user.Account.RFC</span>
+                    }
+
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
                         <li><a class="dropdown-item" href="@Url.Action("Index", "Account")">Administrar cuentas</a></li>
                         <li class="dropdown-divider"></li>
