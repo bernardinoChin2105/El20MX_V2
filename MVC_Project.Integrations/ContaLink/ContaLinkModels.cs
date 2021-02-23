@@ -25,5 +25,23 @@ namespace MVC_Project.Integrations.ContaLink
             public Int32 status { get; set; }
             public BankTransaction transaction_bank { get; set; }
         }
+
+        public class InvoiceUpload
+        {
+            public string name { get; set; }
+            public string xml{ get; set; }
+        }
+
+        public class InvoiceUploadResponse
+        {
+            public string message { get; set; }
+            public int status { get; set; }
+            public InvoiceUploadResult result { get; set; }
+        }
+
+        public class InvoiceUploadResult
+        {
+            public string url { get; set; }
+        }
     }
 }

@@ -36,5 +36,8 @@ namespace MVC_Project.Domain.Entities
         public virtual string json { get; set; }
         public virtual string commentsPDF { get; set; }
         public virtual string pdf { get; set; }
+
+        public virtual string loadStatus { get; set; }
+        public virtual string loadResponse { get; set; }
     }
 }

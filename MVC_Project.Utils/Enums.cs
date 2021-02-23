@@ -33,6 +33,8 @@ namespace MVC_Project.Utils
         SUSPENDED,
         [Display(Name = "Confirmado")]
         CONFIRMED,
+        [Display(Name = "Cargado")]
+        LOADED,
     }
 
     public enum NotificationStatus
