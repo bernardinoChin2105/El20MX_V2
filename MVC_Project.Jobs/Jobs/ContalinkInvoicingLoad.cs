@@ -68,10 +68,12 @@ namespace MVC_Project.Jobs
                         var provider = ConfigurationManager.AppSettings["ContaLinkProvider"];
 
                         var accounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString()
-                        && x.credentials.Any(y => y.provider == SystemProviders.CONTALINK.ToString() && x.status == SystemStatus.ACTIVE.ToString()));
+                        && x.credentials.Any(y => y.provider == SystemProviders.CONTALINK.ToString() && y.status == SystemStatus.ACTIVE.ToString()));
 
                         foreach(var account in accounts)
                         {
+                            var credential = account.credentials.FirstOrDefault(y => y.provider == SystemProviders.CONTALINK.ToString() && y.status == SystemStatus.ACTIVE.ToString());
+
                             var issueds = _invoicesIssuedService.FindBy(x => x.account.id == account.id && x.xml != null && x.xml.Length > 0
                             && (x.loadStatus == null || x.loadStatus != SystemStatus.LOADED.ToString()));
 
@@ -83,7 +85,7 @@ namespace MVC_Project.Jobs
                                     stream.Position = 0;
                                     byte[] result = stream.ToArray();
                                     var body = new InvoiceUpload { name = issued.uuid.ToString(), xml = Convert.ToBase64String(result) };
-                                    var response = ContaLinkService.InvoiceUpload(body, provider);
+                                    var response = ContaLinkService.InvoiceUpload(body, provider, credential?.idCredentialProvider);
                                     issued.loadStatus = response.status == 1 ? SystemStatus.LOADED.ToString() : SystemStatus.FAILED.ToString();
                                     issued.loadResponse = response.status == 1 ? response.result.url : response.message;
                                     issued.modifiedAt = DateUtil.GetDateTimeNow();
@@ -108,7 +110,7 @@ namespace MVC_Project.Jobs
                                     stream.Position = 0;
                                     byte[] result = stream.ToArray();
                                     var body = new InvoiceUpload { name = received.uuid.ToString(), xml = Convert.ToBase64String(result) };
-                                    var response = ContaLinkService.InvoiceUpload(body, provider);
+                                    var response = ContaLinkService.InvoiceUpload(body, provider, credential?.idCredentialProvider);
                                     received.loadStatus = response.status == 1 ? SystemStatus.LOADED.ToString() : SystemStatus.FAILED.ToString();
                                     received.loadResponse = response.status == 1 ? response.result.url : response.message;
                                     received.modifiedAt = DateUtil.GetDateTimeNow();

@@ -55,11 +55,11 @@ namespace MVC_Project.Integrations.ContaLink
             }
         }
 
-        public static InvoiceUploadResponse InvoiceUpload(dynamic request, string provider)
+        public static InvoiceUploadResponse InvoiceUpload(dynamic request, string provider, string apiKey)
         {
             if (provider == SystemProviders.CONTALINK.ToString())
             {
-                return ContaLinkServices.InvoiceUpload(request);
+                return ContaLinkServices.InvoiceUpload(request, apiKey);
             }
             else
             {

@@ -55,12 +55,12 @@ namespace MVC_Project.Integrations.ContaLink
             return transactionModel;
         }
 
-        public static InvoiceUploadResponse InvoiceUpload(dynamic model)
+        public static InvoiceUploadResponse InvoiceUpload(dynamic model, string apiKey)
         {
             string url = "invoices/upload/";
 
             //Llamar al servicio y obtiene respuesta
-            var response = ContaLink.CallServiceContaLink(url, model, "Post");
+            var response = ContaLink.CallServiceContaLink(url, model, "Post", apiKey);
 
             return JsonConvert.DeserializeObject<InvoiceUploadResponse>(response);
         }

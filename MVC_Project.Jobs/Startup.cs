@@ -39,7 +39,7 @@ namespace MVC_Project.Jobs
                     RecurringJob.AddOrUpdate("RecurlyJob_IssueInvoices", () => RecurlyInvoicingJob.IssueInvoices(), "0 23 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
                     RecurringJob.AddOrUpdate("RecurlyJob_CreateAccounts", () => CreateRecurlyAccountsJob.CreateAccounts(), "0 */1 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
                     RecurringJob.AddOrUpdate("CancellationJob_CredentialsCancellation", () => CredentialsCancellationJob.CredentialsCancellation(), "0 5 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
-
+                    RecurringJob.AddOrUpdate("ContalinkJob_InvoicingLoad", () => ContalinkInvoicingLoad.InvoicingLoad(), "0 */1 * * *", TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
                     //BackgroundJob.Enqueue(() => RecurlyUpdateAccountsJob.UpdateAccounts());
                     //BackgroundJob.Enqueue(() => BlockingNonPaymentJob.BlockingNonPayment()); //Bloqueo de cuenta por falta de pago
                 }
