@@ -57,5 +57,10 @@ namespace MVC_Project.Domain.Services
         {
             _baseRepository.Update(entity);
         }
+
+        public void Update(IEnumerable<M> entities)
+        {
+            _baseRepository.Update(entities);
+        }
     }
 }

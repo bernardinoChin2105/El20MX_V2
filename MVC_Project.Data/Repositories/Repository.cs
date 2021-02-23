@@ -70,6 +70,21 @@ namespace MVC_Project.Data.Repositories
             }
         }
 
+        public void Update(IEnumerable<T> entities)
+        {
+            for (int i = 0; i < entities.Count(); i++)
+            {
+                Session.Update(entities.ElementAt(i));
+                // 1000, same as the ADO batch size
+                if (i % 1000 == 0)
+                {
+                    // flush a batch of inserts and release memory:
+                    Session.Flush();
+                    Session.Clear();
+                }
+            }
+        }
+
         public T FirstOrDefault(Expression<Func<T, bool>> predicate)
         {
             return Session.Query<T>().FirstOrDefault(predicate);

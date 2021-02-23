@@ -2,6 +2,7 @@
 using MVC_Project.Data.Repositories;
 using MVC_Project.Domain.Entities;
 using MVC_Project.Domain.Services;
+using MVC_Project.Integrations.ContaLink;
 using MVC_Project.Integrations.Storage;
 using MVC_Project.Utils;
 using System;
@@ -13,8 +14,9 @@ using System.Text;
 using System.Threading;
 using System.Web;
 using System.Xml;
+using static MVC_Project.Integrations.ContaLink.ContaLinkModels;
 
-namespace MVC_Project.Jobs.Jobs
+namespace MVC_Project.Jobs
 {
     public class ContalinkInvoicingLoad
     {
@@ -62,6 +64,8 @@ namespace MVC_Project.Jobs.Jobs
                         strResult.Append(string.Format("Executing at {0}", DateUtil.GetDateTimeNow()));
 
                         var StorageInvoicesIssued = ConfigurationManager.AppSettings["StorageInvoicesIssued"];
+                        var StorageInvoicesReceived = ConfigurationManager.AppSettings["StorageInvoicesReceived"];
+                        var provider = ConfigurationManager.AppSettings["ContaLinkProvider"];
 
                         var accounts = _accountService.FindBy(x => x.status == SystemStatus.ACTIVE.ToString()
                         && x.credentials.Any(y => y.provider == SystemProviders.CONTALINK.ToString() && x.status == SystemStatus.ACTIVE.ToString()));
@@ -71,36 +75,52 @@ namespace MVC_Project.Jobs.Jobs
                             var issueds = _invoicesIssuedService.FindBy(x => x.account.id == account.id && x.xml != null && x.xml.Length > 0
                             && (x.loadStatus == null || x.loadStatus != SystemStatus.LOADED.ToString()));
 
-                            foreach(var issued in issueds)
+                            foreach (var issued in issueds)
                             {
-                                MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoicesIssued, account.rfc + "/" + issued.uuid + ".xml");
-                                stream.Position = 0;
-                                byte[] result = stream.ToArray();
-                                var strBase64 = Convert.ToBase64String(result);
-
-                                XmlDocument doc = new XmlDocument();
-                                doc.Load(issued.xml);
-                                byte[] b = Encoding.UTF8.GetBytes(doc.OuterXml);
-                                var sb64 = Convert.ToBase64String(result);
-
+                                try
+                                {
+                                    MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoicesIssued, account.rfc + "/" + issued.uuid + ".xml");
+                                    stream.Position = 0;
+                                    byte[] result = stream.ToArray();
+                                    var body = new InvoiceUpload { name = issued.uuid.ToString(), xml = Convert.ToBase64String(result) };
+                                    var response = ContaLinkService.InvoiceUpload(body, provider);
+                                    issued.loadStatus = response.status == 1 ? SystemStatus.LOADED.ToString() : SystemStatus.FAILED.ToString();
+                                    issued.loadResponse = response.status == 1 ? response.result.url : response.message;
+                                    issued.modifiedAt = DateUtil.GetDateTimeNow();
+                                }
+                                catch (Exception ex)
+                                {
+                                    issued.loadStatus = SystemStatus.FAILED.ToString();
+                                    issued.loadResponse = ex.Message;
+                                    issued.modifiedAt = DateUtil.GetDateTimeNow();
+                                }
                             }
+                            _invoicesIssuedService.Update(issueds);
 
                             var receiveds = _invoicesReceivedService.FindBy(x => x.account.id == account.id && x.xml != null && x.xml.Length > 0
                             && (x.loadStatus == null || x.loadStatus != SystemStatus.LOADED.ToString()));
 
-                            foreach (var issued in issueds)
+                            foreach (var received in receiveds)
                             {
-                                MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoicesIssued, account.rfc + "/" + issued.uuid + ".xml");
-                                stream.Position = 0;
-                                byte[] result = stream.ToArray();
-                                var strBase64 = Convert.ToBase64String(result);
-
-                                XmlDocument doc = new XmlDocument();
-                                doc.Load(issued.xml);
-                                byte[] b = Encoding.UTF8.GetBytes(doc.OuterXml);
-                                var sb64 = Convert.ToBase64String(result);
-
+                                try
+                                {
+                                    MemoryStream stream = AzureBlobService.DownloadFile(StorageInvoicesReceived, account.rfc + "/" + received.uuid + ".xml");
+                                    stream.Position = 0;
+                                    byte[] result = stream.ToArray();
+                                    var body = new InvoiceUpload { name = received.uuid.ToString(), xml = Convert.ToBase64String(result) };
+                                    var response = ContaLinkService.InvoiceUpload(body, provider);
+                                    received.loadStatus = response.status == 1 ? SystemStatus.LOADED.ToString() : SystemStatus.FAILED.ToString();
+                                    received.loadResponse = response.status == 1 ? response.result.url : response.message;
+                                    received.modifiedAt = DateUtil.GetDateTimeNow();
+                                }
+                                catch (Exception ex)
+                                {
+                                    received.loadStatus = SystemStatus.FAILED.ToString();
+                                    received.loadResponse = ex.Message;
+                                    received.modifiedAt = DateUtil.GetDateTimeNow();
+                                }
                             }
+                            _invoicesReceivedService.Update(receiveds);
                         }
                         
                         //UPDATE JOB DATABASE

@@ -25,6 +25,8 @@ namespace MVC_Project.Domain.Repositories
 
         void Create(IEnumerable<T> entities);
 
+        void Update(IEnumerable<T> entities);
+
         T FirstOrDefault(Expression<Func<T, bool>> predicate);
     }
 }
