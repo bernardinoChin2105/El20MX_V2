@@ -27,6 +27,9 @@ namespace MVC_Project.Data.Mappings
             Map(x => x.modifiedAt).Column("modifiedAt").Not.Nullable();
             Map(x => x.status).Column("status").Nullable();
 
+            Map(x => x.statusSend).Column("statusSend").Nullable();
+            Map(x => x.linkError).Column("linkError").Nullable();
+
             References(x => x.bankAccount).Column("bankAccountId").Nullable();
         }
     }

@@ -271,7 +271,9 @@ namespace MVC_Project.Utils
         [Display(Name = "Finerio")]
         FINERIO,
         [Display(Name = "Recurly")]
-        RECURLY
+        RECURLY,
+        [Display(Name = "ContaLink")]
+        CONTALINK
     }
 
     public enum SATCredentialType
@@ -562,5 +564,13 @@ namespace MVC_Project.Utils
         NOW,
         [Display(Name = "bill_date")]
         BILL_DATE
+    }
+
+    public enum StatusContaLink
+    {
+        [Display(Name = "ERROR")]
+        ERROR = 0,
+        [Display(Name = "SUCCESS")]
+        SUCCESS = 1
     }
 }

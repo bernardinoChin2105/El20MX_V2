@@ -90,4 +90,36 @@ namespace MVC_Project.Domain.Model
         public DateTime FilterInitialDate { get; set; }
         public DateTime FilterEndDate { get; set; }
     }
+
+    public class BankTransactionContaLinkList
+    {
+        public Int64 id { get; set; }
+        public string transactionId { get; set; }
+        public string description { get; set; }
+        public decimal amount { get; set; }
+        public string currency { get; set; }
+        public string reference { get; set; }
+        public DateTime transactionAt { get; set; }
+        public Int64 bankAccountId { get; set; }
+        public string statusSend { get; set; }
+        public string linkError { get; set; }
+        public string accountProviderType { get; set; }
+        public string bankAccount { get; set; }
+        public double balance { get; set; }
+        public string number { get; set; }
+        public string clabe { get; set; }
+        public Int64 bankCredentialId { get; set; }
+        public string credentialProviderId { get; set; }
+        public Int64 accountId { get; set; }
+        public Int64 banckId { get; set; }
+        public string nameBank { get; set; }
+        public string nameSite { get; set; }
+        public string provider { get; set; }
+        public string idCredentialProvider { get; set; }
+        public string status { get; set; }
+        public string nameAccount { get; set; }
+        public string rfc { get; set; }
+        public string statusAccount { get; set; }
+        public Int64 Total { get; set; }
+    }
 }
