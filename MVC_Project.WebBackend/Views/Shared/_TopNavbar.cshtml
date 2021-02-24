@@ -8,70 +8,77 @@
 <div class="row border-bottom">
     <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
         <div class="navbar-header">
-            <a class="navbar-minimalize minimalize-styl-2 btn btn-color" href="#"><i class="fa fa-bars"></i> </a>
-            <img src="~/Images/logo_el20mx.png" width="30%" style="margin:10px 5px 5px 10px; padding: 4px 12px" />
+            <div class="content-logo">
+                <img src="~/Images/logos/elevaplus_full.png" class="img-logo" />
+            </div>
+            @*<a class="navbar-minimalize minimalize-styl-2 btn btn-color" href="#"><i class="fa fa-bars"></i> </a>*@
         </div>
         <div class="navbar-header">
-            <ul class="nav navbar-top-links navbar-right">
-                <li class="dropdown">
-                    <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <i class="fa fa-bell"></i>
-                        @if (Messages.Any())
-                        {
-                            <span class="label label-primary" id="message_count" style="background-color:#53D5E9">@Messages.Count()</span>
-                        }
-                    </a>
-                    <ul class="dropdown-menu dropdown-alerts" id="ul_alerts">
-                        @if (Messages.Any())
-                        {
-                            foreach (var message in Messages)
+            <div class="nav content-notification">
+                <div></div>
+                <ul class="nav navbar-top-links navbar-right notifications">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                            @*<i class="fa fa-bell"></i>*@
+                            @if (Messages.Any())
                             {
-                                <li class="notificacion-mensaje">
-                                    <input type="hidden" value="@message.Id" />
-                                    <a href="#">
-                                        <div>
-                                            <i class="fa fa-envelope fa-fw"></i> @message.Message
-                                            <span class="pull-right text-muted small">@message.Moment</span>
+                                <span class="text-notification">Notificaciones</span><span class="badge badge-light" id="message_count">@Messages.Count()</span>
+                                @*<br />
+                                    <span class="label label-primary"  style="background-color:#53D5E9">@Messages.Count()</span>*@
+                            }
+                        </a>
+                        <ul class="dropdown-menu dropdown-alerts" id="ul_alerts">
+                            @if (Messages.Any())
+                            {
+                                foreach (var message in Messages)
+                                {
+                                    <li class="notificacion-mensaje">
+                                        <input type="hidden" value="@message.Id" />
+                                        <a href="#">
+                                            <div>
+                                                <i class="fa fa-envelope fa-fw"></i> @message.Message
+                                                <span class="pull-right text-muted small">@message.Moment</span>
+                                            </div>
+                                        </a>
+                                        <div class="divider"></div>
+                                    </li>
+
+                                }
+
+                                @*<li>
+                                        <div class="text-center link-block">
+                                            <button class="btn btn-default btn-sm" id="btnNotificaciones">
+                                                <i class="fa fa-check-circle"></i>
+                                                <strong>Marcar como vistos</strong>
+                                            </button>
                                         </div>
-                                    </a>
-                                    <div class="divider"></div>
-                                </li>
+                                    </li>*@
 
                             }
+                            else
+                            {
+                                <li>
+                                    <div class="text-center link-block">
+                                        <a href="#">
+                                            <i class="fa fa-comment-dots"></i>
+                                            <strong>No hay mensajes</strong>
 
-                            @*<li>
-                                <div class="text-center link-block">
-                                    <button class="btn btn-default btn-sm" id="btnNotificaciones">
-                                        <i class="fa fa-check-circle"></i>
-                                        <strong>Marcar como vistos</strong>
-                                    </button>
-                                </div>
-                            </li>*@
-
-                        }
-                        else
-                        {
-                            <li>
-                                <div class="text-center link-block">
-                                    <a href="#">
-                                        <i class="fa fa-comment-dots"></i>
-                                        <strong>No hay mensajes</strong>
-
-                                    </a>
-                                </div>
-                            </li>
-                        }
-                    </ul>
-                </li>
-                @*<li>
-                    <a href="@Url.Action("Logout", "Auth")" id="CloseSession">
-                        <span class="m-r-sm text-muted welcome-message">
-                            <i class="fa fa-sign-out"></i>
-                            <strong>@ViewLabels.AUTH_LOGOUT</strong>
-                        </span>
-                    </a>
-                </li>*@
-            </ul>
+                                        </a>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                    @*<li>
+                            <a href="@Url.Action("Logout", "Auth")" id="CloseSession">
+                                <span class="m-r-sm text-muted welcome-message">
+                                    <i class="fa fa-sign-out"></i>
+                                    <strong>@ViewLabels.AUTH_LOGOUT</strong>
+                                </span>
+                            </a>
+                        </li>*@
+                </ul>
+            </div>
         </div>
     </nav>
 

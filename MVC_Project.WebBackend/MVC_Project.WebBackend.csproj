@@ -332,6 +332,7 @@
     <Compile Include="Utils\ViewConstants.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Connected Services\elevaplus_logotipo_full color_pos.png" />
     <Content Include="Content\fonts\font-awesome\all.css" />
     <Content Include="Content\fonts\font-awesome\all.js" />
     <Content Include="Content\fonts\font-awesome\all.min.css" />
@@ -342,6 +343,7 @@
     <Content Include="Content\fonts\webfonts\fa-brands-400.svg" />
     <Content Include="Content\fonts\webfonts\fa-regular-400.svg" />
     <Content Include="Content\fonts\webfonts\fa-solid-900.svg" />
+    <Content Include="Content\img\.png" />
     <Content Include="Content\img\logo20.png" />
     <Content Include="Content\template\animate.css" />
     <Content Include="Content\template\bootstrap.css" />
@@ -1433,6 +1435,9 @@
     <Content Include="Images\landing\laptop.png" />
     <Content Include="Images\landing\perspective.png" />
     <Content Include="Images\logos\El20mx-logo-estes-donde-e.png" />
+    <Content Include="Images\logos\elevaplus_full.png" />
+    <Content Include="Images\logos\elevaplus_logotipo_responsive_gradient.png" />
+    <Content Include="Images\logos\elevaplus_logotipo_responsive_pos.png" />
     <Content Include="Images\logos\loading_animate.svg" />
     <Content Include="Images\logos\logo-192x192.png" />
     <Content Include="Images\logos\logo-blanco.png" />

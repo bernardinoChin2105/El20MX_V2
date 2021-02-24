@@ -9,18 +9,65 @@
     --naranja: #ffb983;
 }
 
+@font-face {
+    font-family: "ABCFavoritProTrial";
+    src: url(https://strel20mxpv2prod.blob.core.windows.net/fonts/FavoritPro/ABCFavoritPro-Book.otf) format('opentype'), url(https://strel20mxpv2prod.blob.core.windows.net/fonts/FavoritPro/ABCFavoritPro-Book.woff) format('woff'), url(https://strel20mxpv2prod.blob.core.windows.net/fonts/FavoritPro/ABCFavoritPro-Book.woff2) format('woff2');
+    /*src: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");*/
+    /*
+        local('Open Sans'),
+        url(opensans.ttf) format('truetype'), 
+        url(opensans.eot) format('embedded-opentype');*/
+}
+
 
 body {
-    background-image: linear-gradient(306deg, #e6e7ed 93%, #f7f8fa 8%) !important;
+    /*background-image: linear-gradient(306deg, #e6e7ed 93%, #f7f8fa 8%) !important;*/
+    background-image: linear-gradient(306deg, #e6e7ed, #f7f8fa) !important;
+    font-family: ABCFavoritProTrial !important;
 }
+
 .nav .nav-header {
     padding: 10px;
     background: none !important;
-
 }
 
+.nav-header a {
+    color: #ffffff;
+}
+.nav .nav-header.profile {
+    display: flex;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #ffffff;
+    padding: 10px 0;
+}
+
+        .nav .nav-header.profile li {
+            display: inherit;
+        }
+
+        .nav .nav-header.profile .label.rounded-circle {
+            width: 40px;
+            height: 36px;
+            overflow: hidden;
+            padding: 0;
+            margin-right: 8px;
+        }
+
+    .nav .nav-header.profile .name {
+        /*width: 160px;
+        height: 35px;
+        margin: 5px 0 8px 8px;*/
+        font-family: ABCFavoritProTrial;
+        font-size: 18px;
+       
+    }
+
 .nav > li > a {
-    /*margin: 30px 18px 30px 8px; Ajustar el tamaño*/ 
+    /*margin: 30px 18px 30px 8px; Ajustar el tamaño*/
     font-family: ABCFavoritProTrial;
     font-size: 16px;
     font-weight: bold;
@@ -35,7 +82,7 @@ body {
     display: block;*/
 }
 
-.navbar-default .nav > li > a:hover, 
+.navbar-default .nav > li > a:hover,
 .navbar-default .nav > li > a:focus {
     background: none;
     color: white;
@@ -49,6 +96,7 @@ body {
 ul.nav-second-level {
     background: none !important;
 }
+
 .nav-second-level li a {
     padding: 7px 10px 7px 10px;
     padding-left: 52px;
@@ -92,11 +140,81 @@ ul.nav-second-level {
     border-style: solid;
     border-width: 1px 0;*/
 }
-/*.nav.navbar-right{
+
+nav .navbar-header {
     width: 100%
-}*/
-nav .navbar-header{
-    width: 100%
+}
+
+    nav .navbar-header .content-logo {
+        height: 100px;
+        padding: 35px 0 35px 55px;
+    }
+
+    nav .navbar-header .img-logo {
+        height: 22px;
+        margin: 10px 5px 5px 10px;
+    }
+
+    nav .navbar-header .content-notification {
+        height: 64px;
+        /*margin: 110px 0 60px;*/
+        padding: 0px 25px;
+        /*opacity: 0.36;*/
+        /*background-color: var(--rojo);*/
+        background-color: rgba(264,114,138,0.36);
+        align-items: center;
+        justify-content: space-between;
+        font-family: ABCFavoritProTrial;
+        font-size: 16px;
+        font-weight: bold;
+        font-stretch: normal;
+        font-style: normal;
+        line-height: normal;
+        letter-spacing: normal;
+        color: var(--rojo);
+    }
+
+    nav .navbar-header ul.notifications .text-notification {
+        /*width: 129px;
+            height: 25px;*/
+        margin: 3px 5px 2px 0;
+        font-size: 16px;
+        color: var(--rojo);
+    }
+
+        nav .navbar-header ul.notifications .text-notification:hover {
+            border-bottom: 2px solid;
+        }
+
+.badge.badge-light {
+    width: 30px;
+    height: 30px;
+    margin: 0 0 0 10px;
+    padding: 6px 7px 8px;
+    background-color: var(--rojo);
+    border-radius: 15px;
+    font-family: ABCFavoritProTrial;
+    font-size: 16px;
+    font-weight: bold;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #ffffff;
+}
+
+.modal-content {
+    background-image: linear-gradient(300deg, #e6e7ed, #f7f8fa);
+    border: none;
+    border-radius: 24px;
+    box-shadow: 0 5px 8px rgba(0 0 0 / 45%);
+}
+
+.modal-header {
+    border-bottom: 0;
+    border-top-left-radius: .3rem;
+    border-top-right-radius: .3rem;
 }
 
 @media (min-width: 768px) {
@@ -107,6 +225,4 @@ nav .navbar-header{
         /*padding: 43px 30px 274px 22px;*/
         background-image: linear-gradient(194deg, var(--morado), var(--azul));
     }
-
-    
-} 
+}
