@@ -94,15 +94,14 @@ namespace MVC_Project.Jobs
                         transacctions.AddRange(result);
 
                         if (result.Count() > 0)
-                        {
-                            //55/10 = 5.5 > 6
-                            while (result[0].Total / pageSize > pageNum)
+                        {                   
+                            while (Convert.ToDecimal(result[0].Total) / Convert.ToDecimal(pageSize) > pageNum)
                             {
                                 pageNum++;
                                 result = _bankCredentialService.GetBankTransactionListContaLink(pageNum, pageSize, StatusContaLink.ERROR.ToString());
                                 transacctions.AddRange(result);
                             }
-                        }
+                        }         
 
                         foreach (var trn in transacctions)
                         {
@@ -150,7 +149,7 @@ namespace MVC_Project.Jobs
                                 );
                             }
                             catch (Exception ex)
-                            {
+                            {                                
                                 LogUtil.AddEntry(
                                     "Detalle del error: " + ex.Message.ToString(),
                                     ENivelLog.Error,
