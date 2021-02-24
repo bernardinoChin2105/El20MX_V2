@@ -34,8 +34,10 @@ body {
 .nav-header a {
     color: #ffffff;
 }
+
 .nav .nav-header.profile {
     display: flex;
+    font-family: ABCFavoritProTrial;
     font-weight: normal;
     font-stretch: normal;
     font-style: normal;
@@ -45,25 +47,37 @@ body {
     padding: 10px 0;
 }
 
-        .nav .nav-header.profile li {
-            display: inherit;
-        }
+    .nav .nav-header.profile span {
+        white-space: break-spaces;
+    }
 
-        .nav .nav-header.profile .label.rounded-circle {
-            width: 40px;
-            height: 36px;
-            overflow: hidden;
-            padding: 0;
-            margin-right: 8px;
-        }
+    .nav .nav-header.profile li {
+        display: inherit;
+    }
+
+    .nav .nav-header.profile .label.rounded-circle {
+        width: 40px;
+        height: 36px;
+        overflow: hidden;
+        padding: 0;
+        margin-right: 8px;
+    }
 
     .nav .nav-header.profile .name {
         /*width: 160px;
         height: 35px;
         margin: 5px 0 8px 8px;*/
         font-family: ABCFavoritProTrial;
-        font-size: 18px;
-       
+        font-size: 23px;
+        margin-bottom: 20px;
+        display: block;
+    }
+
+    .nav .nav-header.profile .business {
+        /*margin: 8px 0 64px 8px;*/
+        margin-bottom: 10px;
+        font-size: 12px;
+        line-height: 1.67;
     }
 
 .nav > li > a {
@@ -76,11 +90,16 @@ body {
     line-height: normal;
     letter-spacing: normal;
     color: #ffffff;
-    padding: 14px 5px 14px 14px;
+    padding: 15px 0 15px 15px;
+    /*padding: 14px 5px 14px 14px;*/
     /*color: #a7b1c2;
     font-weight: 600;
     display: block;*/
 }
+
+    .nav > li > a .nav-label {
+        margin-left: 17px;
+    }
 
 .navbar-default .nav > li > a:hover,
 .navbar-default .nav > li > a:focus {
@@ -215,6 +234,17 @@ nav .navbar-header {
     border-bottom: 0;
     border-top-left-radius: .3rem;
     border-top-right-radius: .3rem;
+}
+
+.box-degradient {
+    /*width: 570px;
+    height: 658px;*/
+    margin-bottom: 15px;
+    /*padding: 40px 30px 42px;*/
+    border-radius: 24px;
+    box-shadow: 4px 3px 19px 0 #bdc1d1, -7px -7px 16px 0 #fafbfc, inset 1px 1px 16px 0 #e9eaf2, inset -1px -1px 16px 0 #f5f6fa;
+    background-blend-mode: soft-light, normal;
+    background-image: linear-gradient(151deg, #40485d 5%, #606a82 94%), linear-gradient(132deg, #e6e7ed -77%, #f7f8fa 150%);
 }
 
 @media (min-width: 768px) {

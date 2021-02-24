@@ -17,7 +17,6 @@
 
 <div class="modal-body">
     <div class="row">
-
         @foreach (var m in Model.accountListViewModels)
         {
             <div class="col-md-4">
@@ -25,7 +24,7 @@
                 {
                     <div class="text-canceled rotate"><h2>CANCELADA</h2></div>
                 }
-                <div class="ibox-content text-center">
+                <div class="ibox-content text-center box-degradient">
 
                     <h4>@m.rfc</h4>
                     <h5>@m.name</h5>
