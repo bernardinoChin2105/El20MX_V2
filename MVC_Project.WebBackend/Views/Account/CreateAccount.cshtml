@@ -69,7 +69,7 @@
 @section Scripts {
     <script src="~/Scripts/plugins/cropper/cropper.min.js"></script>
     <script type="text/javascript">
-        let contadorLlamadasSAT = 0;
+        //let contadorLlamadasSAT = 0;
         $(document).ready(function () {
             $("#RFC").keyup(function () {
                 this.value = this.value.toUpperCase();
@@ -140,13 +140,14 @@
                     }
                 }
                 else {
-                    if (contadorLlamadasSAT < 10) {
-                        contadorLlamadasSAT++;
-                        setTimeout(self.finishValidation(uuid), 5000);
-                    } else {
-                        El20Utils.ocultarCargador();
-                        toastr['error']("No es posible validar el RFC en el SAT", null, { 'positionClass': 'toast-top-center' });
-                    }
+                    setTimeout(self.finishValidation(uuid), 3000);
+                    //if (contadorLlamadasSAT < 10) {
+                    //    contadorLlamadasSAT++;
+                    //    setTimeout(self.finishValidation(uuid), 5000);
+                    //} else {
+                    //    El20Utils.ocultarCargador();
+                    //    toastr['error']("No es posible validar el RFC en el SAT", null, { 'positionClass': 'toast-top-center' });
+                    //}
                 }
 
             }).fail(function () {
@@ -164,9 +165,11 @@
             }
 
             El20Utils.mostrarCargadorForzado();
+            
             $.post(form.attr('action'), form.serialize(), function (data) {
                 if (data.success) {
                     $("#uuid").val(data.uuid);
+                    toastr['info']("Estamos validando su información", null, { 'positionClass': 'toast-top-center' });
                     self.finishValidation(data.uuid)
                 }
                 else {

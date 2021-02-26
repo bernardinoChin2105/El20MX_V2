@@ -13,6 +13,7 @@ namespace MVC_Project.Domain.Entities
         public virtual string processId { get; set; }
         public virtual string provider { get; set; }
         public virtual string @event { get; set; }
+        public virtual string eventDetail { get; set; }
         public virtual string reference { get; set; }
         public virtual string content { get; set; }
         public virtual string result { get; set; }

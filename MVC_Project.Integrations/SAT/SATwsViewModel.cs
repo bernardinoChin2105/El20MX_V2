@@ -564,6 +564,7 @@ namespace MVC_Project.Integrations.SAT
         public WebhookOptions options { get; set; }
         public string rfc { get; set; }
         public string type { get; set; }
+        public string extractor { get; set; }
     }
 
     public class WebhookTaxpayer

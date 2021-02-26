@@ -96,8 +96,8 @@ namespace MVC_Project.Jobs
                                     issued.loadResponse = ex.Message;
                                     issued.modifiedAt = DateUtil.GetDateTimeNow();
                                 }
+                                _invoicesIssuedService.Update(issueds);
                             }
-                            _invoicesIssuedService.Update(issueds);
 
                             var receiveds = _invoicesReceivedService.FindBy(x => x.account.id == account.id && x.xml != null && x.xml.Length > 0
                             && (x.loadStatus == null || x.loadStatus != SystemStatus.LOADED.ToString()));
@@ -121,8 +121,9 @@ namespace MVC_Project.Jobs
                                     received.loadResponse = ex.Message;
                                     received.modifiedAt = DateUtil.GetDateTimeNow();
                                 }
+                                _invoicesReceivedService.Update(received);
                             }
-                            _invoicesReceivedService.Update(receiveds);
+                            
                         }
                         
                         //UPDATE JOB DATABASE

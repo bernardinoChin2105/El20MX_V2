@@ -203,7 +203,9 @@ namespace MVC_Project.WebBackend.Controllers
                     authUser.Account = new Account { Id = uniqueMembership.account.id, Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar, Status = uniqueMembership.account.status };
 
                     if (authUser.Account.Status == SystemStatus.SUSPENDED.ToString())
-                        permissionsUniqueMembership = permissionsUniqueMembership.Where(x => x.Module == SystemModules.MY_ACCOUNT.ToString()).ToList();
+                        permissionsUniqueMembership = permissionsUniqueMembership.
+                            Where(x => x.Module == SystemModules.MY_ACCOUNT.ToString() || x.Module == SystemModules.RECURLY_ACCOUNT.ToString()).
+                            ToList();
                     
                     authUser.Permissions = permissionsUniqueMembership;
 
@@ -566,7 +568,9 @@ namespace MVC_Project.WebBackend.Controllers
                                     authUser.Account = new Account { Name = uniqueMembership.account.name, RFC = uniqueMembership.account.rfc, Uuid = uniqueMembership.account.uuid, Image = uniqueMembership.account.avatar, Id = uniqueMembership.account.id, Status = uniqueMembership.account.status };
 
                                     if (authUser.Account.Status == SystemStatus.SUSPENDED.ToString())
-                                        permissionsUniqueMembership = permissionsUniqueMembership.Where(x => x.Module == SystemModules.MY_ACCOUNT.ToString()).ToList();
+                                        permissionsUniqueMembership = permissionsUniqueMembership.
+                                            Where(x => x.Module == SystemModules.MY_ACCOUNT.ToString() || x.Module == SystemModules.RECURLY_ACCOUNT.ToString()).
+                                            ToList();
                                     
                                     authUser.Permissions = permissionsUniqueMembership;                                    
                                     

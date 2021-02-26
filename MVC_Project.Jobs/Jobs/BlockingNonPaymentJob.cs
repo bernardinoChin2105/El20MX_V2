@@ -81,7 +81,7 @@ namespace MVC_Project.Jobs
                          * **/
 
                         /** Parametros: FechaDelDía**/
-                        DateTime today = Convert.ToDateTime("2021-02-24"); //DateUtil.GetDateTimeNow();
+                        DateTime today = DateUtil.GetDateTimeNow();
 
                         //días posibles de suspenciones y cancelaciones
                         if (today.Day >= 8 && today.Day <= 24)
@@ -101,71 +101,60 @@ namespace MVC_Project.Jobs
                                 invoices.AddRange(invoiceListResponse.data);
                             }
 
+                            var statusIgnored = new string[] { "closed", "voided" };
+                            invoices = invoices.Where(x => !statusIgnored.Contains(x.State)).ToList();
+
                             var leftOuterJoin = (from payment in paymentsAccount
-                                                 join invoice in invoices.Where(x => x.State != "Closed" || x.State != "Voided") on payment.idCredentialProvider equals invoice.Account.Id into temp
+                                                 join invoice in invoices on payment.idCredentialProvider equals invoice.Account.Id into temp
                                                  from invoice in temp.DefaultIfEmpty()
                                                  select new
                                                  {
-                                                     paymentId = payment.paymentId,
-                                                     subtotal = payment.subtotal,
-                                                     total = payment.total,
-                                                     paymentGateway = payment.paymentGateway,
+                                                     //paymentId = payment.paymentId,
+                                                     //subtotal = payment.subtotal,
+                                                     //total = payment.total,
+                                                     //paymentGateway = payment.paymentGateway,
                                                      statusCode = payment.statusCode,
                                                      accountId = payment.accountId,
-                                                     statusMessage = payment.statusMessage,
+                                                     //statusMessage = payment.statusMessage,
                                                      createdAt = payment.createdAt,
-                                                     subscriptionId = payment.subscriptionId,
-                                                     number = payment.number,
-                                                     name = payment.name,
+                                                     //subscriptionId = payment.subscriptionId,
+                                                     //number = payment.number,
+                                                     //name = payment.name,
                                                      rfc = payment.rfc,
-                                                     createdAtAccount = payment.createdAtAccount,
+                                                     //createdAtAccount = payment.createdAtAccount,
                                                      status = payment.status,
-                                                     planSchema = payment.planSchema,
-                                                     inicioFacturacion = payment.inicioFacturacion,
-                                                     planFijo = payment.planFijo,
+                                                     //planSchema = payment.planSchema,
+                                                     //inicioFacturacion = payment.inicioFacturacion,
+                                                     //planFijo = payment.planFijo,
                                                      credentialId = payment.credentialId,
-                                                     provider = payment.provider,
-                                                     idCredentialProvider = payment.idCredentialProvider,
-                                                     statusCredential = payment.statusCredential,
-                                                     invoiceId = invoice != null ? invoice.Id : string.Empty,
-                                                     stateInvoice = invoice != null ? invoice.State : string.Empty,
-                                                     originInvoice = invoice != null ? invoice.Origin : string.Empty,
-                                                     accountIdInvoice = invoice != null ? invoice.Account.Id : string.Empty,
-                                                     numberInvoice = invoice != null ? invoice.Number : string.Empty,
-                                                     collectionMethodInvoice = invoice != null ? invoice.CollectionMethod : string.Empty,
-                                                     createdAtInvoice = invoice != null ? invoice.CreatedAt : null,
-                                                     updatedAtInvoice = invoice != null ? invoice.UpdatedAt : null
+                                                     //provider = payment.provider,
+                                                     //idCredentialProvider = payment.idCredentialProvider,
+                                                     //statusCredential = payment.statusCredential,
+                                                     //invoiceId = invoice != null ? invoice.Id : string.Empty,
+                                                     stateInvoice = invoice?.State, //!= null ? invoice.State : string.Empty,
+                                                     //originInvoice = invoice != null ? invoice.Origin : string.Empty,
+                                                     //accountIdInvoice = invoice != null ? invoice.Account.Id : string.Empty,
+                                                     //numberInvoice = invoice != null ? invoice.Number : string.Empty,
+                                                     //collectionMethodInvoice = invoice != null ? invoice.CollectionMethod : string.Empty,
+                                                     createdAtInvoice = invoice?.CreatedAt, //!= null ? invoice.CreatedAt : null,
+                                                     //updatedAtInvoice = invoice != null ? invoice.UpdatedAt : null
                                                  }).GroupBy(x => x.accountId).Select(x => x.OrderByDescending(y => y.createdAtInvoice).OrderByDescending(y => y.createdAt).FirstOrDefault()).ToList();
 
                             //Buscar cuentas con el último pago fallido durante el mes
                             /* Validar que la cuenta realmente este con el pago fallido.
                              * Si resulta exitosa ajusta las tablas correspondientes para ponerlo exitoso
                             */
-                            //List<string> rfcs = new List<string>() {
-                            //    "PEMY860416PR9",
-                            //    "HAE951128471",
-                            //    "CERA900920NS8"
-                            //};
 
                             if (today.Day == 8)
                             {
                                 #region El día 8 del mes en curso, se validará que la cuenta tenga un último cobro, si este es fallido la cuenta cambia a estatus "Suspendido".
 
-                                var list = leftOuterJoin.Where(x => (x.statusCode != RecurlyPaymentStatus.SUCCESS.GetDisplayName() && x.createdAt >= startDate && x.createdAt <= endDate)
-                                || x.stateInvoice != "paid" || (x.stateInvoice == null && x.statusCode == null)).ToList();
-
-                                //var listPaid = leftOuterJoin.Where(x => x.stateInvoice == "Paid");
-
+                                var list = leftOuterJoin.Where(x => x.stateInvoice != "paid").ToList();
+                                
                                 foreach (var payment in list)
                                 {
-                                    //if (rfcs.Contains(payment.rfc))
-                                    //{
                                     try
                                     {
-
-                                        //Validar que este correctamente fallido el pago
-                                        //var validateAccount = RecurlyService.GetAccount(payment.idCredentialProvider, siteId, SystemProviders.RECURLY.ToString());
-
                                         //Cambiar el status de la cuenta
                                         var account = _accountService.FirstOrDefault(x => x.id == payment.accountId);
                                         if (account != null)
@@ -192,10 +181,10 @@ namespace MVC_Project.Jobs
                                         LogUtil.AddEntry(
                                             "Detalle del error al obtener el último pago: " + Ex.Message.ToString(),
                                             ENivelLog.Error,
-                                            0,//userId
+                                            0,
                                              "Proccess_" + JOB_CODE,
                                             EOperacionLog.ACCESS,
-                                            string.Format("|Cuenta {0} | RFC {1} | Fecha {3}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
+                                            string.Format("|Cuenta {0} | RFC {1} | Fecha {2}", payment.accountId, payment.rfc, DateUtil.GetDateTimeNow()),
                                             "BlockingNonPayment",
                                             JsonConvert.SerializeObject(payment)
                                         );
@@ -212,18 +201,11 @@ namespace MVC_Project.Jobs
                                 var list = leftOuterJoin.Where(x => (x.statusCode != RecurlyPaymentStatus.SUCCESS.GetDisplayName() && x.createdAt >= startDate && x.createdAt <= endDate)
                                || x.stateInvoice != "paid" || (x.stateInvoice == null && x.statusCode == null)).ToList();
 
-                                //var listPaid = leftOuterJoin.Where(x => x.stateInvoice == "Paid");
-
-                                //var paymentsAccount = _accountService.GetLastPaymentsAccount(today, RecurlyPaymentStatus.OTHER.GetDisplayName());
-
                                 foreach (var payment in list)
                                 {
-                                    //if (rfcs.Contains(payment.rfc))
-                                    //{
                                     try
                                     {
                                         //Validar que este correctamente fallido el pago
-                                        //var validateAccount = RecurlyService.GetAccount(payment.idCredentialProvider, siteId, SystemProviders.RECURLY.ToString());
 
                                         var accountCredentials = _credentialService.FindBy(x => x.account.id == payment.accountId && x.status == SystemStatus.ACTIVE.ToString());
 
@@ -240,37 +222,21 @@ namespace MVC_Project.Jobs
                                                     //Evento para desactivar la cuenta en satws
                                                     //la opción que se tiene es delete credential
                                                     provider = SystemProviders.SATWS.ToString();
-                                                    try
-                                                    {
-                                                        //Si es eliminada, no regresa nada
-                                                        SATService.DeleteCredential(credential.idCredentialProvider, provider);
-                                                        LogUtil.AddEntry(
-                                                            "Credencial eliminada de SATws",
-                                                            ENivelLog.Info,
-                                                            0,
-                                                            "Proccess_" + JOB_CODE,
-                                                            EOperacionLog.ACCESS,
-                                                            string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", payment.accountId, payment.rfc, payment.credentialId, DateUtil.GetDateTimeNow()),
-                                                            "BlockingNonPayment",
-                                                            "Se elimino correctamente la credencial."//JsonConvert.SerializeObject()
-                                                        );
-                                                        statusProvider = SystemStatus.INACTIVE.ToString();
-                                                        delete = true;
-                                                    }
-                                                    catch (Exception ex)
-                                                    {
-                                                        //Si marca error entonces no se elimino la cuenta en satws
-                                                        LogUtil.AddEntry(
-                                                            "Error al eliminar la cuenta de SATws: " + ex.Message.ToString(),
-                                                            ENivelLog.Error,
-                                                            0,
-                                                            "Proccess_" + JOB_CODE,
-                                                            EOperacionLog.ACCESS,
-                                                            string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", payment.accountId, payment.rfc, payment.credentialId, DateUtil.GetDateTimeNow()),
-                                                            "BlockingNonPayment",
-                                                            JsonConvert.SerializeObject(ex.Message.ToString())
-                                                        );
-                                                    }
+
+                                                    //Si es eliminada, no regresa nada
+                                                    SATService.DeleteCredential(credential.idCredentialProvider, provider);
+                                                    LogUtil.AddEntry(
+                                                        "Credencial eliminada de SATws",
+                                                        ENivelLog.Info,
+                                                        0,
+                                                        "Proccess_" + JOB_CODE,
+                                                        EOperacionLog.ACCESS,
+                                                        string.Format("|Cuenta {0} | RFC {1} | Credencial {2} | Fecha {3}", payment.accountId, payment.rfc, payment.credentialId, DateUtil.GetDateTimeNow()),
+                                                        "BlockingNonPayment",
+                                                        "Se elimino correctamente la credencial."//JsonConvert.SerializeObject()
+                                                    );
+                                                    statusProvider = SystemStatus.INACTIVE.ToString();
+                                                    delete = true;
                                                 }
                                                 else if (credential.provider == SystemProviders.SYNCFY.GetDisplayName())
                                                 {
@@ -323,16 +289,12 @@ namespace MVC_Project.Jobs
                                                 //Inactivar cuentas desde nuestras tablas 
                                                 if (delete)
                                                 {
-                                                    //var credential = _credentialService.FirstOrDefault(x => x.id == payment.credentialId);
-                                                    //if (credential != null)
-                                                    //{
                                                     if (!string.IsNullOrEmpty(statusProvider))
                                                         credential.statusProvider = statusProvider;
 
                                                     credential.status = SystemStatus.INACTIVE.ToString();
                                                     credential.modifiedAt = DateUtil.GetDateTimeNow();
                                                     _credentialService.Update(credential);
-                                                    //}
                                                 }
                                                 else
                                                     throw new Exception("No se pudo realizar la desactivación de la credencial de " + provider + ", credentialId: " + credential.id + ", accountId: " + credential.account.id);
@@ -389,7 +351,6 @@ namespace MVC_Project.Jobs
                                                 );
                                             }
                                         }
-
                                     }
                                     catch (Exception Ex)
                                     {
@@ -413,18 +374,11 @@ namespace MVC_Project.Jobs
                             {
                                 #region Si se detecta un pago exitoso entre los días 9 y 23 se cambia el status de la cuenta a Activo
 
-                                /*Se cambio para validar los pagos fallidos con cuentas aun activas*/
-                                //var paymentsAccount = _accountService.GetLastPaymentsAccount(today, null);
-
                                 var list = leftOuterJoin.Where(x => ((x.statusCode == RecurlyPaymentStatus.SUCCESS.GetDisplayName() && x.createdAt >= startDate && x.createdAt <= endDate)
                                || x.stateInvoice == "paid") && x.status == SystemStatus.SUSPENDED.ToString()).ToList();
 
-                                //var listPaid = leftOuterJoin.Where(x => x.stateInvoice == "Paid");
-
                                 foreach (var payment in list)
                                 {
-                                    //if (rfcs.Contains(payment.rfc))
-                                    //{
                                     try
                                     {
                                         //Cambiar el status de la cuenta si este ha sido suspendido
@@ -448,7 +402,7 @@ namespace MVC_Project.Jobs
                                                     JsonConvert.SerializeObject(payment)
                                                 );
                                             }
-                                            else if ((payment.statusCode != RecurlyPaymentStatus.SUCCESS.GetDisplayName() || payment.stateInvoice != "Paid")
+                                            else if ((payment.statusCode != RecurlyPaymentStatus.SUCCESS.GetDisplayName() || payment.stateInvoice != "paid")
                                                     && account.status == SystemStatus.ACTIVE.ToString())
                                             {
                                                 account.modifiedAt = DateUtil.GetDateTimeNow();
@@ -482,9 +436,7 @@ namespace MVC_Project.Jobs
                                             JsonConvert.SerializeObject(payment)
                                         );
                                     }
-                                    //}
                                 }
-
                                 #endregion
                             }
                         }
@@ -531,51 +483,5 @@ namespace MVC_Project.Jobs
                 }
             }
         }
-
-        //private static string BuildPaymentsTable(IEnumerable<RecurlyPayment> failedInvoices)
-        //{
-        //    var cellStyle = "border-top: 1px solid #dee2e6; padding: 5px;";
-        //    var tableStyle = "width: 100%; text-align: center;";
-
-        //    string table = $"<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" style=\"{tableStyle}\">" +
-        //        "<thead><tr>" +
-        //        $"<th>RFC</th>" +
-        //        $"<th>Plan</th>" +
-        //        $"<th>Total</th>" +
-        //        $"<th>Fecha de pago</th>" +
-        //        "</tr></thead>";
-
-        //    foreach (var payment in failedInvoices)
-        //    {
-        //        var paymentAccount = payment.subscription?.account;
-        //        var paymentSubscription = payment.subscription;
-        //        table += $"<tr><td style=\"{cellStyle}\">{paymentAccount?.rfc}</td>" +
-        //            $"<td style=\"{cellStyle}\">{paymentSubscription?.planName}</td>" +
-        //            $"<td style=\"{cellStyle}\">{payment.total.ToString("F02")}</td>" +
-        //            $"<td style=\"{cellStyle}\">{payment.createdAt.ToString("dd/MM/yyyy HH:mm")}</td></tr>";
-        //    }
-
-        //    table += "</table>";
-        //    return table;
-        //}
-
-        //private static void SendInvoice(string email, string rfc, string businessName, string comments, string linkXml, string linkPdf)
-        //{
-        //    Dictionary<string, string> customParams = new Dictionary<string, string>();
-        //    customParams.Add("param_rfc", rfc);
-        //    customParams.Add("param_razon_social", businessName);
-        //    customParams.Add("param_comentarios", comments);
-
-        //    customParams.Add("param_link_xml", linkXml);
-        //    customParams.Add("param_link_pdf", linkPdf);
-        //    NotificationUtil.SendNotification(email, customParams, Constants.NOT_TEMPLATE_RECURLY_INVOICING);
-        //}
-
-        //private static void SendErrorsNotification(string email, string paymentsListContent)
-        //{
-        //    Dictionary<string, string> customParams = new Dictionary<string, string>();
-        //    customParams.Add("param_payments_table", paymentsListContent);
-        //    NotificationUtil.SendNotification(email, customParams, Constants.NOT_TEMPLATE_RECURLY_INVOICING_ERRORS);
-        //}
     }
 }

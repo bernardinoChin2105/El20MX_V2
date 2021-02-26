@@ -287,7 +287,9 @@ namespace MVC_Project.WebBackend.Controllers
                     }).ToList();
 
                     if (account.status == SystemStatus.SUSPENDED.ToString())
-                        permissions = permissions.Where(x => x.Module == SystemModules.MY_ACCOUNT.ToString()).ToList();
+                        permissions = permissions.
+                            Where(x => x.Module == SystemModules.MY_ACCOUNT.ToString() || x.Module == SystemModules.RECURLY_ACCOUNT.ToString()).
+                            ToList();
                     
                     var recurlyAccountCredential = _credentialService.FindBy(x => x.account.id == account.id && x.provider == recurlyProvider && x.statusProvider == "active" && x.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
                     if (recurlyAccountCredential != null && !string.IsNullOrEmpty(recurlyAccountCredential.credentialType))
@@ -607,17 +609,37 @@ namespace MVC_Project.WebBackend.Controllers
                 }).ToList();
 
                 authUser.Role = new Role { Id = membership.role.id, Code = membership.role.code, Name = membership.role.name };
-                authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar };
+                authUser.Account = new Account { Id = account.id, Uuid = account.uuid, Name = account.name, RFC = account.rfc, Image = account.avatar, Status = account.status };
+                
+                CreateAccountRecurly();
+
+                var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
+                var recurlyAccountUrlBase = ConfigurationManager.AppSettings["Recurly.AccountUrlBase"];
+
+                var recurlyAccountCredential = _credentialService.FindBy(x => x.account.id == account.id && x.provider == recurlyProvider && x.statusProvider == "active" && x.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
+                if (recurlyAccountCredential != null && !string.IsNullOrEmpty(recurlyAccountCredential.credentialType))
+                {
+                    permissions.Add(new Permission
+                    {
+                        Action = recurlyAccountUrlBase + recurlyAccountCredential.credentialType,
+                        Controller = "MyAccount",
+                        Module = SystemModules.RECURLY_ACCOUNT.ToString(),
+                        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
+                        isCustomizable = true
+                    });
+                }
+
                 authUser.Permissions = permissions;
 
                 Authenticator.RefreshAuthenticatedUser(authUser);
 
                 #region Generar diagnóstico Inicial
-                if (bool.Parse(ConfigurationManager.AppSettings["InitialDiagnostic.Enable"]))
-                    GenerateExtraction();
+                //Se comenta por sat.ws genera una extraccion inicial
+                //if (bool.Parse(ConfigurationManager.AppSettings["InitialDiagnostic.Enable"]))
+                //    GenerateExtraction();
                 #endregion
 
-                MensajeFlashHandler.RegistrarMensaje("Se registró correctamente el rfc " + account.rfc + ". Recibira una notificación al sincronizar las facturas.", TiposMensaje.Success);
+                MensajeFlashHandler.RegistrarMensaje("Se registró correctamente el rfc " + account.rfc + ". Estamos sincronizando sus facturas.", TiposMensaje.Success);
                 LogUtil.AddEntry(
                    "Se registró correctamente el rfc " + account.rfc,
                    ENivelLog.Info,
@@ -628,25 +650,6 @@ namespace MVC_Project.WebBackend.Controllers
                    ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                    JsonConvert.SerializeObject(account)
                 );
-
-                #region Se creara la cuenta en Recurly
-                CreateAccountRecurly();
-                #endregion
-                var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
-                var recurlyAccountUrlBase = ConfigurationManager.AppSettings["Recurly.AccountUrlBase"];
-
-                var recurlyAccountCredential = _credentialService.FindBy(x => x.account.id == account.id && x.provider == recurlyProvider && x.statusProvider == "active" && x.status == SystemStatus.ACTIVE.ToString()).FirstOrDefault();
-                if (recurlyAccountCredential != null && !string.IsNullOrEmpty(recurlyAccountCredential.credentialType))
-                {
-                    authUser.Permissions.Add(new Permission
-                    {
-                        Action = recurlyAccountUrlBase + recurlyAccountCredential.credentialType,
-                        Controller = "MyAccount",
-                        Module = SystemModules.RECURLY_ACCOUNT.ToString(),
-                        Level = SystemLevelPermission.FULL_ACCESS.ToString(),
-                        isCustomizable = true
-                    });
-                }
                 
                 return RedirectToAction("Index", "SAT");
             }

@@ -71,6 +71,7 @@ namespace MVC_Project.Jobs
                         #region Implementar logica de negocio especifica
                         var webhookProcesses = _webhookProcessService.FindBy(x => x.provider == SystemProviders.SATWS.ToString()
                         && x.@event == SatwsEvent.EXTRACTION_UPDATED.ToString()
+                        && x.eventDetail == SatwsExtractionsTypes.INVOICE.GetDisplayName()
                         && x.status == SystemStatus.PENDING.ToString());
 
                         foreach (var webhookProcess in webhookProcesses)
@@ -174,7 +175,7 @@ namespace MVC_Project.Jobs
                                         paymentForm = cfdi.paymentMethod,
                                         currency = cfdi.currency,
                                         iva = cfdi.tax.HasValue ? cfdi.tax.Value : 0,
-                                        invoicedAt = cfdi.certifiedAt,
+                                        invoicedAt = DateUtil.UnixTimeToDateTime(DateUtil.ConvertToUnixTime(cfdi.issuedAt)),
                                         xml = xml,
                                         createdAt = DateUtil.GetDateTimeNow(),
                                         modifiedAt = DateUtil.GetDateTimeNow(),
@@ -216,7 +217,7 @@ namespace MVC_Project.Jobs
                                         paymentForm = cfdi.paymentMethod,
                                         currency = cfdi.currency,
                                         iva = cfdi.tax.HasValue ? cfdi.tax.Value : 0,
-                                        invoicedAt = cfdi.certifiedAt,
+                                        invoicedAt = DateUtil.UnixTimeToDateTime(DateUtil.ConvertToUnixTime(cfdi.issuedAt)),
                                         xml = xml,
                                         createdAt = DateUtil.GetDateTimeNow(),
                                         modifiedAt = DateUtil.GetDateTimeNow(),

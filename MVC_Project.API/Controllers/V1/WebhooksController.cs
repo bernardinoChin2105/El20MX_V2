@@ -146,6 +146,7 @@ namespace MVC_Project.API.Controllers
                                 processId = data.data.@object.id,
                                 provider = SystemProviders.SATWS.ToString(),
                                 @event = SatwsEvent.EXTRACTION_UPDATED.ToString(),
+                                eventDetail = data.data.@object.extractor,
                                 reference = account.uuid.ToString(),
                                 createdAt = DateUtil.GetDateTimeNow(),
                                 status = SystemStatus.PENDING.ToString(),
@@ -181,8 +182,6 @@ namespace MVC_Project.API.Controllers
         {
             try
             {
-                var provider = ConfigurationManager.AppSettings["SATProvider"];
-
                 var data = JsonConvert.DeserializeObject<WebhookEventModel>(webhookEventModel.ToString());
 
                 if (data != null && data.data != null && data.data.@object != null && data.type == SatwsEvent.CREDENTIAL_UPDATE.GetDisplayName())
@@ -229,8 +228,6 @@ namespace MVC_Project.API.Controllers
                         var account = credential.account;
                         account.status = SystemStatus.CONFIRMED.ToString();
                         _accountService.Update(account);
-
-                        SATService.GenerateTaxStatus(account.rfc, provider);
                     }
                 }
             }

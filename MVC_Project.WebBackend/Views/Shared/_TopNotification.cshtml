@@ -5,11 +5,18 @@
     AuthUser user = (AuthUser)Authenticator.AuthenticatedUser;
 }
 <div class="row">
-    @if (user.Account!=null && user.Account.Status == SystemStatus.SUSPENDED.ToString())
+    @if (user.Account != null && user.Account.Status == SystemStatus.SUSPENDED.ToString())
     {
         <div class="col-md-12 alert alert-info alert-dismissable" style="margin-bottom:auto; text-align:center; font-weight:bold">
             @*<button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>*@
-            Cuenta suspendida.
+            @*<span class="fas fa-sad-tear"></span>*@ ¡Oops! Parece ser que tu cuenta esta suspendida. Necesitamos de tu pago para poderla activar nuevamente. ¿En qué te podemos ayudar?
+        </div>
+    }
+    else if (user.Account != null && user.Account.Status == SystemStatus.CANCELLED.ToString())
+    {
+        <div class="col-md-12 alert alert-info alert-dismissable" style="margin-bottom:auto; text-align:center; font-weight:bold">
+            @*<button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>*@
+            ¡Oh no! Se ha cancelado tu cuenta, pero esto lo podemos cambiar. ¡hablemos y encontremos juntos una solución! <a href="mailto:dudas@el20.mx">dudas@el20.mx</a>
         </div>
     }
 </div>
