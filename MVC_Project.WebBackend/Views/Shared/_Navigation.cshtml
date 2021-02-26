@@ -33,9 +33,9 @@
                     <a data-toggle="dropdown" class="dropdown-toggle name" href="#">
                         <span class="block" style="text-overflow: ellipsis; overflow: hidden;">Hola @user.FirstName <b class="caret"></b> </span>
                         @*@if (user.Role != null)
-                    {
-                        <span class="text-muted text-xs block">@user.Role.Name</span>
-                    }*@
+                            {
+                                <span class="text-muted text-xs block">@user.Role.Name</span>
+                            }*@
                     </a>
                     @if (user.Account != null)
                     {
@@ -45,29 +45,32 @@
 
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
                         <li><a class="dropdown-item" href="@Url.Action("Index", "Account")">Administrar cuentas</a></li>
-                        <li class="dropdown-divider"></li>
+                        @*<li class="dropdown-divider"></li>*@
                         <li><a class="dropdown-item" href="@Url.Action("Logout", "Auth")">@ViewLabels.AUTH_LOGOUT</a></li>
                     </ul>
                 </div>
                 @*<div class="logo-element">
-                       IN+
-            </div>*@
+                               IN+
+                    </div>*@
             </li>
 
-            <li class="@Html.IsModuleSelected(user, SystemModules.REPORTS.ToString())">
-                <a href="#"><i class="fa fa-file"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_REPORTS</span> <span class="fain arrow"></span></a>
-                @if (user.HasAccessController("Diagnostic"))
-                {
-                    <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Diagnostic", cssClass: "in")">
-                        <li class="@Html.IsSelected(controller: "Diagnostic")"><a href="@Url.Action("Index", "Diagnostic")">Tablero Principal</a></li>
-                    </ul>
-                }
-            </li>
+            @if (user.HasAccessToModule(SystemModules.BOARDS.ToString()))
+            {
+                <li class="@Html.IsModuleSelected(user, SystemModules.BOARDS.ToString())">
+                    <a href="#">@*<i class="fa fa-file"></i>*@<img class="iconsMenu" src="~/Images/icons/iconos/eleva_board.png" /><span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_BOARDS</span> <span class="fain arrow"></span></a>
+                    @if (user.HasAccessController("Board"))
+                    {
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Board", cssClass: "in")">
+                            <li class="@Html.IsSelected(controller: "Board")"><a href="@Url.Action("Index", "Board")">Tablero Principal</a></li>
+                        </ul>
+                    }
+                </li>
+            }
 
             @if (user.HasAccessToModule(SystemModules.REPORTS.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.REPORTS.ToString())">
-                    <a href="#"><i class="fa fa-file"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_REPORTS</span> <span class="fain arrow"></span></a>
+                    <a href="#">@*<i class="fa fa-file"></i>*@<img class="iconsMenu" src="~/Images/icons/iconos/eleva_reports.png" /><span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_REPORTS</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("Diagnostic"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Diagnostic", cssClass: "in")">
@@ -80,7 +83,7 @@
             @if (user.HasAccessToModule(SystemModules.BANKS.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.BANKS.ToString())">
-                    <a href="#"><i class="fa fa-piggy-bank"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_BANKS</span> <span class="fain arrow"></span></a>
+                    <a href="#">@*<i class="fa fa-piggy-bank"></i>*@<img class="iconsMenu" src="~/Images/icons/iconos/eleva_banks.png" /><span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_BANKS</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("Bank"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Bank", cssClass: "in")">
@@ -94,7 +97,7 @@
             @if (user.HasAccessToModule(SystemModules.INVOICING.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.INVOICING.ToString())">
-                    <a href="#"><i class="fas fa-balance-scale"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_INVOICING</span> <span class="fain arrow"></span></a>
+                    <a href="#">@*<i class="fas fa-balance-scale"></i>*@<img class="iconsMenu" src="~/Images/icons/iconos/eleva_invoice.png" /><span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_INVOICING</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("Invoicing"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Invoicing", cssClass: "in")">
@@ -110,7 +113,7 @@
             @if (user.HasAccessToModule(SystemModules.CUSTOMERS.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.CUSTOMERS.ToString())">
-                    <a href="#"><i class="fa fa-user"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CUSTOMERS</span> <span class="fain arrow"></span></a>
+                    <a href="#">@*<i class="fa fa-user"></i>*@<img class="iconsMenu" src="~/Images/icons/iconos/eleva_customer.png" /><span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CUSTOMERS</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("Customer"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Customer", cssClass: "in")">
@@ -124,7 +127,7 @@
             @if (user.HasAccessToModule(SystemModules.PROVIDERS.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.PROVIDERS.ToString())">
-                    <a href="#"><i class="fa fa-truck"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_PROVIDERS</span> <span class="fain arrow"></span></a>
+                    <a href="#">@*<i class="fa fa-truck"></i>*@ <img class="iconsMenu" src="~/Images/icons/iconos/eleva_provider.png" /><span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_PROVIDERS</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("Provider"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Provider", cssClass: "in")">
@@ -199,7 +202,7 @@
             @if (user.HasAccessToModule(SystemModules.MY_ACCOUNT.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.MY_ACCOUNT.ToString())">
-                    <a href="#"><i class="fas fa-balance-scale"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_MY_ACCOUNT</span> <span class="fain arrow"></span></a>
+                    <a href="#">@*<i class="fas fa-balance-scale"></i>*@<img class="iconsMenu" src="~/Images/icons/iconos/eleva_invoice.png" /><span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_MY_ACCOUNT</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("MyAccount"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "MyAccount", cssClass: "in")">
@@ -222,15 +225,15 @@
             }
 
             @*@if (user.HasAccessToModule("catalogs"))
-        {
-            <li class="@Html.IsModuleSelected(user, "catalogs")">
-                <a href="#"><i class="fa fa-table"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CATALOGS</span> <span class="fain arrow"></span></a>
-                <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Catalogs", cssClass: "in")">
-                    <li class="@Html.IsSelected(action: "Dashboard_1")"><a href="@Url.Action("Report_1", "Dashboards")">Catálogo 1</a></li>
-                    <li class="@Html.IsSelected(action: "Dashboard_2")"><a href="@Url.Action("Report_2", "Dashboards")">Catálogo 2</a></li>
-                </ul>
-            </li>
-        }*@
+                {
+                    <li class="@Html.IsModuleSelected(user, "catalogs")">
+                        <a href="#"><i class="fa fa-table"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CATALOGS</span> <span class="fain arrow"></span></a>
+                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Catalogs", cssClass: "in")">
+                            <li class="@Html.IsSelected(action: "Dashboard_1")"><a href="@Url.Action("Report_1", "Dashboards")">Catálogo 1</a></li>
+                            <li class="@Html.IsSelected(action: "Dashboard_2")"><a href="@Url.Action("Report_2", "Dashboards")">Catálogo 2</a></li>
+                        </ul>
+                    </li>
+                }*@
 
 
             @if (user.HasAccessToModule("catalogs"))
@@ -314,82 +317,80 @@
 
 
             @*<li class="">
-            <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
-            <ul class="nav nav-second-level collapse in">
-                <li class="">
-                    <a href="#">Bancos <span class="fain arrow"></span></a>
-                    <ul class="nav nav-second-level collapse">
-                        <li class=""><a href="#">Conectar</a></li>
-                        <li class=""><a href="#">Cargar movimientos</a></li>
-                    </ul>
-                </li>
+                    <a href="#"><i class="fa fa-cog"></i> <span class="nav-label" data-i18n="nav.dashboard">Configuración</span> <span class="fain arrow"></span></a>
+                    <ul class="nav nav-second-level collapse in">
+                        <li class="">
+                            <a href="#">Bancos <span class="fain arrow"></span></a>
+                            <ul class="nav nav-second-level collapse">
+                                <li class=""><a href="#">Conectar</a></li>
+                                <li class=""><a href="#">Cargar movimientos</a></li>
+                            </ul>
+                        </li>
 
-            </ul>
-        </li>*@
-            <li>
-                <br />
-                <br />
-                <br />
-                <br />
-            </li>
+                    </ul>
+                </li>*@
+
             @if (user.HasAccessToModule(SystemModules.CONFIGURATION.ToString()))
             {
-                <li class="@Html.IsModuleSelected(user, SystemModules.CONFIGURATION.ToString())">
-                    <a href="#"><i class="fa fa-cogs"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CONFIGURATION</span> <span class="fain arrow"></span></a>
-                    @if (user.HasAccessController("SAT"))
-                    {
-                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "SAT", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "SAT")"><a href="@Url.Action("Index", "SAT")">Mi SAT</a></li>
+                <li class="menu-footer @Html.IsModuleSelected(user, SystemModules.CONFIGURATION.ToString())">
+                    <div class="dropdown profile-element settings">
+                        @*<img alt="image" class="rounded-circle" src="@user.Avatar" width="20%" />*@
+                        @*<a data-toggle="dropdown" class="dropdown-toggle name" href="#">
+                                <span class="block" style="text-overflow: ellipsis; overflow: hidden;">Hola @user.FirstName <b class="caret"></b> </span>
+                            </a>*@
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            @*<i class="fa fa-cogs"></i>*@
+                            <img class="iconsMenu" src="~/Images/icons/iconos/eleva_setting.png" />
+                            <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CONFIGURATION</span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            @if (user.HasAccessController("SAT"))
+                            {
+                                <li class="@Html.IsSelected(controller: "SAT")"><a class="dropdown-item" href="@Url.Action("Index", "SAT")">Mi SAT</a></li>
+                            }
+                            @if (user.HasAccessController("BranchOffice"))
+                            {
+                                <li class="@Html.IsSelected(controller: "BranchOffice")"><a class="dropdown-item" href="@Url.Action("Index", "BranchOffice")">Sucursales</a></li>
+                            }
+                            @if (user.HasAccessController("User"))
+                            {
+                                <li class="@Html.IsSelected(controller: "User")"><a class="dropdown-item" href="@Url.Action("Index", "User")">Usuarios</a></li>
+                            }
+                            @if (user.HasAccessController("Role"))
+                            {
+                                <li class="@Html.IsSelected(controller: "Role")"><a class="dropdown-item" href="@Url.Action("Index", "Role")">Roles</a></li>
+                            }
+                            @if (user.HasAccessController("CAD"))
+                            {
+                                <li class="@Html.IsSelected(controller: "CAD", action: "AssignAccount")"><a class="dropdown-item" href="@Url.Action("AssignAccount", "CAD")">Asignación CADs</a></li>
+                            }
+                            @*<li><a class="dropdown-item" href="@Url.Action("Index", "Account")">Administrar cuentas</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Logout", "Auth")">@ViewLabels.AUTH_LOGOUT</a></li>*@
                         </ul>
-                    }
-                    @if (user.HasAccessController("BranchOffice"))
-                    {
-                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "BranchOffice", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "BranchOffice")"><a href="@Url.Action("Index", "BranchOffice")">Sucursales</a></li>
-                        </ul>
-                    }
-                    @if (user.HasAccessController("User"))
-                    {
-                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "User", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "User")"><a href="@Url.Action("Index", "User")">Usuarios</a></li>
-                        </ul>
-                    }
-                    @if (user.HasAccessController("Role"))
-                    {
-                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Role", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "Role")"><a href="@Url.Action("Index", "Role")">Roles</a></li>
-                        </ul>
-                    }
-
-                    @if (user.HasAccessController("CAD"))
-                    {
-                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "CAD", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "CAD", action: "AssignAccount")"><a href="@Url.Action("AssignAccount", "CAD")">Asignación CADs</a></li>
-                        </ul>
-                    }
-
+                    </div>                
                 </li>
             }
             @if (user != null && user.Account != null)
             {
                 @*<li class="nav-header">
-                <div class="profile-element text-center">
+                        <div class="profile-element text-center">
 
-                    <label class="label" data-toggle="tooltip" title="Cambiar imagen de la cuenta" data-original-title="Cambiar imagen de la cuenta"
-                           style="background-color:transparent">
-                        <img id="avatar-account" class="rounded-circle" src="@user.Account.Image">
-                        <input type="file" class="sr-only" id="input-account" name="image" accept="image/*">
-                    </label>
+                            <label class="label" data-toggle="tooltip" title="Cambiar imagen de la cuenta" data-original-title="Cambiar imagen de la cuenta"
+                                   style="background-color:transparent">
+                                <img id="avatar-account" class="rounded-circle" src="@user.Account.Image">
+                                <input type="file" class="sr-only" id="input-account" name="image" accept="image/*">
+                            </label>
 
 
-                    <img alt="image" class="rounded-circle" src="@user.Account.Image" />
-                    <span class="block m-t-xs font-bold" style="color:white">@user.Account.RFC</span>
-                <span class="text-muted text-xs block">@user.Account.Name</span>
-                </div>
-                <div class="logo-element">
-                IN+
-            </div>
-            </li>*@
+                            <img alt="image" class="rounded-circle" src="@user.Account.Image" />
+                            <span class="block m-t-xs font-bold" style="color:white">@user.Account.RFC</span>
+                        <span class="text-muted text-xs block">@user.Account.Name</span>
+                        </div>
+                        <div class="logo-element">
+                        IN+
+                    </div>
+                    </li>*@
 
 
                 <li>

@@ -180,7 +180,8 @@ namespace MVC_Project.WebBackend.Controllers
                         Controller = p.permission.controller,
                         Module = p.permission.module,
                         Level = p.level,
-                        isCustomizable = p.permission.isCustomizable
+                        isCustomizable = p.permission.isCustomizable,
+                        numOrder = p.permission.numOrder
                     }).ToList();
                     
                     var recurlyProvider = ConfigurationManager.AppSettings["RecurlyProvider"];
@@ -195,7 +196,7 @@ namespace MVC_Project.WebBackend.Controllers
                             Controller = "MyAccount",
                             Module = SystemModules.RECURLY_ACCOUNT.ToString(),
                             Level = SystemLevelPermission.FULL_ACCESS.ToString(),
-                            isCustomizable = true
+                            isCustomizable = true,
                         });
                     }
 
@@ -219,7 +220,7 @@ namespace MVC_Project.WebBackend.Controllers
                        ControllerContext.RouteData.Values["controller"].ToString() + "/" + Request.RequestContext.RouteData.Values["action"].ToString(),
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                     );
-                    var start = permissionsUniqueMembership.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+                    var start = permissionsUniqueMembership.Where(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString()).OrderBy(x => x.numOrder).FirstOrDefault();
 
                     //Validar si es la unica cuenta de myaccount
                     if (start.Module == SystemModules.MY_ACCOUNT.ToString() && authUser.Account.Status == SystemStatus.SUSPENDED.ToString())

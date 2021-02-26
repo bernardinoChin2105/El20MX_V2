@@ -176,6 +176,8 @@ namespace MVC_Project.Utils
         MY_ACCOUNT,
         [Display(Name = "Datos de la cuenta")]
         RECURLY_ACCOUNT,
+        [Display(Name = "Tablero Principal")]
+        BOARDS,
         #region Modulos del BackOffice
         [Display(Name = "Planes")]
         PLANS,

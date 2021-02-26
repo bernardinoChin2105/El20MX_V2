@@ -101,6 +101,7 @@ namespace MVC_Project.WebBackend.AuthManagement.Models
         public string Module { get; set; }
         public string Level { get; set; }
         public bool isCustomizable { get; set; }
+        public Int32 numOrder { get; set; }
     }
 
     public class Account

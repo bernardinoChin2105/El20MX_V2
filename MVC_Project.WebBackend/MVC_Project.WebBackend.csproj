@@ -260,6 +260,7 @@
     <Compile Include="Controllers\AuthController.cs" />
     <Compile Include="Controllers\BankController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\BoardController.cs" />
     <Compile Include="Controllers\BranchOfficeController.cs" />
     <Compile Include="Controllers\CADController.cs" />
     <Compile Include="Controllers\CalendarController.cs" />
@@ -1421,6 +1422,28 @@
     <Content Include="Images\gallery\9.jpg" />
     <Content Include="Images\gallery\9s.jpg" />
     <Content Include="Images\header.jpg" />
+    <Content Include="Images\icons\iconos\eleva_banks.png" />
+    <Content Include="Images\icons\iconos\eleva_board.png" />
+    <Content Include="Images\icons\iconos\eleva_circle-menus.png" />
+    <Content Include="Images\icons\iconos\eleva_circle-money.png" />
+    <Content Include="Images\icons\iconos\eleva_circle-pause.png" />
+    <Content Include="Images\icons\iconos\eleva_circle-plus.png" />
+    <Content Include="Images\icons\iconos\eleva_customer.png" />
+    <Content Include="Images\icons\iconos\eleva_edit.png" />
+    <Content Include="Images\icons\iconos\eleva_facebook.png" />
+    <Content Include="Images\icons\iconos\eleva_gmail.png" />
+    <Content Include="Images\icons\iconos\eleva_invoice.png" />
+    <Content Include="Images\icons\iconos\eleva_less.png" />
+    <Content Include="Images\icons\iconos\eleva_like.png" />
+    <Content Include="Images\icons\iconos\eleva_plus.png" />
+    <Content Include="Images\icons\iconos\eleva_provider.png" />
+    <Content Include="Images\icons\iconos\eleva_reports.png" />
+    <Content Include="Images\icons\iconos\eleva_search.png" />
+    <Content Include="Images\icons\iconos\eleva_setting.png" />
+    <Content Include="Images\icons\iconos\eleva_share.png" />
+    <Content Include="Images\icons\Recurso2.svg" />
+    <Content Include="Images\icons\Recurso3.svg" />
+    <Content Include="Images\icons\Recurso4.svg" />
     <Content Include="Images\landing\avatar1.jpg" />
     <Content Include="Images\landing\avatar2.jpg" />
     <Content Include="Images\landing\avatar3.jpg" />
@@ -1436,8 +1459,12 @@
     <Content Include="Images\landing\perspective.png" />
     <Content Include="Images\logos\El20mx-logo-estes-donde-e.png" />
     <Content Include="Images\logos\elevaplus_full.png" />
+    <Content Include="Images\logos\elevaplus_logotipo2_responsive_gradient.svg" />
+    <Content Include="Images\logos\elevaplus_logotipo_full color_pos.svg" />
     <Content Include="Images\logos\elevaplus_logotipo_responsive_gradient.png" />
+    <Content Include="Images\logos\elevaplus_logotipo_responsive_gradient.svg" />
     <Content Include="Images\logos\elevaplus_logotipo_responsive_pos.png" />
+    <Content Include="Images\logos\Eleva_loading.png" />
     <Content Include="Images\logos\loading_animate.svg" />
     <Content Include="Images\logos\logo-192x192.png" />
     <Content Include="Images\logos\logo-blanco.png" />
@@ -2051,6 +2078,7 @@
     <Content Include="Views\Charges\Index.cshtml" />
     <Content Include="Views\Account\_ServicesContract.cshtml" />
     <Content Include="Views\Shared\_TopNotification.cshtml" />
+    <Content Include="Views\Board\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

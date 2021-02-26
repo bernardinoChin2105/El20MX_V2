@@ -39,7 +39,7 @@
     <link href="~/Content/template/stylesEl20mx.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://www.paybook.com/sync/widget/v2/widget.css" />
 
-    <link rel="icon" href="~/Images/logos/logo-192x192.png" sizes="192x192" />
+    <link rel="icon" href="~/Images/logos/elevaplus_logotipo_responsive_gradient.png" sizes="192x192" />
     <link href="~/Content/template/plugins/cropper/cropper.min.css" rel="stylesheet" />
     <style>
         img {
@@ -76,14 +76,11 @@
         @*Modal para cargador*@
         <div class="modal modal-backdrop" id="CargadorPantalla" tabindex="-1" role="dialog" aria-hidden="false" style="background-color:#0006 !important">
             <div class="modal-dialog modal-sm" style="width:100%; height:100%;display: block;">
-                <div class="modal-body" style="width:100%;height:100%;">
-                    <img id="imgLoadingLayout" height="80" width="100" src="~/Images/logos/loading_animate.svg" style="
-                    top: 50%;
+                <div class="modal-body" style="width:100%;height:100%;">             
+                    <img id="imgLoadingLayout" src="~/Images/logos/Eleva_loading.png" style="top: 50%;
                     left: 50%;
                     position: relative;
-                    transform: translate(-50%,-50%);
-                    zoom: 4;
-                    " />
+                    transform: translate(-50%,-50%);" />
                 </div>
             </div>
         </div>
@@ -129,9 +126,9 @@
             @Html.Partial("_TopNavbar")
             @Html.Partial("_TopNotification")
             @*border-bottom white-bg*@
-            <div class="row wrapper page-heading">
+            <div class="row wrapper content-padding page-heading">
                 <div class="col-lg-10">
-                    <h2>@ViewBag.Title</h2>
+                    <h2 class="title-format">@ViewBag.Title</h2>
                 </div>
             </div>
 
@@ -210,9 +207,9 @@
         var mensaje = Html.ObtenerCuentaMensaje();
         if (mensaje.Mensaje == "True")
         {
-        <script type="text/javascript">
-            $("#ServicesContract").modal("show")
-        </script>
+            <script type="text/javascript">
+                $("#ServicesContract").modal("show")
+            </script>
         }
     }
 

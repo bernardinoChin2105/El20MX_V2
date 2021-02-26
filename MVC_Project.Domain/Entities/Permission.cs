@@ -20,6 +20,7 @@ namespace MVC_Project.Domain.Entities {
 
         public virtual bool isCustomizable { get; set; }
         public virtual string applyTo { get; set; }
+        public virtual int numOrder { get; set; }
 
         public virtual IList<RolePermission> rolePermissions { get; set; }
         public virtual IList<MembershipPermission> mebershipPermissions { get; set; }

@@ -283,7 +283,8 @@ namespace MVC_Project.WebBackend.Controllers
                         Controller = p.permission.controller,
                         Module = p.permission.module,
                         Level = p.level,
-                        isCustomizable = p.permission.isCustomizable
+                        isCustomizable = p.permission.isCustomizable,
+                        numOrder = p.permission.numOrder
                     }).ToList();
 
                     if (account.status == SystemStatus.SUSPENDED.ToString())
@@ -319,7 +320,8 @@ namespace MVC_Project.WebBackend.Controllers
                        string.Format("Usuario {0} | Fecha {1}", authUser.Email, DateUtil.GetDateTimeNow())
                     );
 
-                    var inicio = permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
+                    var inicio = permissions.Where(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString()).OrderBy(x => x.numOrder).FirstOrDefault();
+                    //var inicio = permissions.FirstOrDefault(x => x.isCustomizable && x.Level != SystemLevelPermission.NO_ACCESS.ToString());
 
                     //Validar si es la unica cuenta de myaccount
                     if (inicio.Module == SystemModules.MY_ACCOUNT.ToString() && account.status == SystemStatus.SUSPENDED.ToString())

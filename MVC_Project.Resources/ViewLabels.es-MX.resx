@@ -211,7 +211,7 @@
     <value>Facturación</value>
   </data>
   <data name="MODULE_MY_ACCOUNT" xml:space="preserve">
-    <value>Mi Cuenta con El20.mx</value>
+    <value>Mi Cuenta</value>
   </data>
   <data name="MODULE_CADs" xml:space="preserve">
     <value>CADs</value>
@@ -219,5 +219,7 @@
   <data name="MODULE_CHARGES_RECURLY" xml:space="preserve">
     <value>Clientes EL20MX</value>
   </data>
-  
+  <data name="MODULE_BOARDS" xml:space="preserve">
+    <value>Tablero Principal</value>
+  </data>
 </root>

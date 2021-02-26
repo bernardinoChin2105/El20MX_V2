@@ -211,12 +211,15 @@
     <value>Invoicing</value>
   </data>
   <data name="MODULE_MY_ACCOUNT" xml:space="preserve">
-    <value>My Account with El20.mx</value>
+    <value>My Account</value>
   </data>
   <data name="MODULE_CADs" xml:space="preserve">
     <value>CADs</value>
   </data>
   <data name="MODULE_CHARGES_RECURLY" xml:space="preserve">
     <value>Customers EL20MX</value>
+  </data>
+  <data name="MODULE_BOARDS" xml:space="preserve">
+    <value>Main Board</value>
   </data>
 </root>
