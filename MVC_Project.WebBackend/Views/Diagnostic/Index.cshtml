@@ -61,7 +61,7 @@
                                 <div class="col-sm-6 col-lg-4">
                                     <div class="form-group">
                                         @*col-form-label control-label col-md-2*@
-                                        @Html.LabelFor(m => m.RegisterAt, new { @class = "" })
+                                        @*@Html.LabelFor(m => m.RegisterAt, new { @class = "" })*@
                                         @Html.TextBoxFor(m => m.RegisterAt, new { @Class = "form-control form-control-sm input-text txtFiltro", @readonly = "readonly", placeholder= "Fecha de Registro" })
                                         @Html.EditorFor(x => x.FilterInitialDate, new { htmlAttributes = new { @Class = "form-control-sm form-control hide", id = "FilterInitialDate", @readonly = "readonly", filtro = "true", filtro_order = "1" } })
                                         @Html.EditorFor(x => x.FilterEndDate, new { htmlAttributes = new { @Class = "form-control-sm form-control hide", id = "FilterEndDate", @readonly = "readonly", filtro = "true", filtro_order = "2" } })

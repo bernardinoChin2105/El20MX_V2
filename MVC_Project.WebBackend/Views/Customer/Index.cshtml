@@ -39,27 +39,30 @@
                             <div class="row">
                                 <div class="col-12 col-sm-4">
                                     <div class="form-group">
-                                        @Html.LabelFor(m => m.RFC, new { @class = "" })
+                                        @*@Html.LabelFor(m => m.RFC, new { @class = "" })*@
+                                        <br />
                                         @Html.TextBoxFor(m => m.RFC, new { @Class = "form-control input-text form-control-sm txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "13", @autocomplete = "off", placeholder= HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.RFC).ToHtmlString()) })
                                     </div>
                                 </div>
                                 <div class="col-12 col-sm-4">
                                     <div class="form-group">
-                                        @Html.LabelFor(m => m.BusinessName, new { @class = "" })
+                                        @*@Html.LabelFor(m => m.BusinessName, new { @class = "" })*@
+                                        <br />
                                         @Html.TextBoxFor(m => m.BusinessName, new { @Class = "form-control form-control-sm input-text txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "200", @autocomplete = "off", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.BusinessName).ToHtmlString()) })
                                     </div>
                                 </div>
                                 <div class="col-12 col-sm-4">
                                     <div class="form-group">
-                                        @Html.LabelFor(m => m.Email, new { @class = "" })
-                                        @Html.TextBoxFor(m => m.Email, new { @Class = "form-control form-control-sm input-text txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "250", @autocomplete = "off", placeholder= HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.Email).ToHtmlString()) })
+                                        @*@Html.LabelFor(m => m.Email, new { @class = "" })*@
+                                        <br />
+                                        @Html.TextBoxFor(m => m.Email, new { @Class = "form-control form-control-sm input-text txtFiltro", filtro = "true", filtro_order = "1", @maxlength = "250", @autocomplete = "off", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.Email).ToHtmlString()) })
                                     </div>
                                 </div>
                                 <div class="col-12 offset-8 col-sm-4 col-lg-4">
                                     <br />
-                                    <button type="button" class="btn btn-sm btn-color btn-filter-rol"><i class="fas fa-search"></i> Buscar</button>
+                                    <button type="button" class="btn btn-sm btn-button btn-filter-rol"><i class="fas fa-search"></i> Buscar</button>
                                     &nbsp;
-                                    <button type="button" id="btnClearForm" class="btn btn-sm btn-default"><i class="fas fa-eraser "></i> Limpiar</button>
+                                    <button type="button" id="btnClearForm" class="btn btn-sm btn-button"><i class="fas fa-eraser "></i> Limpiar</button>
                                 </div>
                             </div>
                         </div>
@@ -73,9 +76,9 @@
                         @if (hasFullAccessController)
                         {
                             <div class="ibox-tools">
-                                <a href="@Url.Action("Create", "Customer")" class="btn btn-sm btn-color btn-d0"><span class="fas fa-plus-square"></span> Nuevo Cliente</a>
-                                <button type="button" class="btn btn-sm btn-color btn-import" data-toggle="modal" data-target="#ModalImporterClients"><span class="fas fa-upload"></span> Importar</button>
-                                <button type="button" class="btn btn-sm btn-color btn-export"><span class="fas fa-download"></span> Exportar</button>
+                                <a href="@Url.Action("Create", "Customer")" class="btn btn-sm btn-button btn-d0"><span class="fas fa-plus-square"></span> Nuevo Cliente</a>
+                                <button type="button" class="btn btn-sm btn-button btn-import" data-toggle="modal" data-target="#ModalImporterClients"><span class="fas fa-upload"></span> Importar</button>
+                                <button type="button" class="btn btn-sm btn-button btn-export"><span class="fas fa-download"></span> Exportar</button>
                             </div>
                         }
                     </div>

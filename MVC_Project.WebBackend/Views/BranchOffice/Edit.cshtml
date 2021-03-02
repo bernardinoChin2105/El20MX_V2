@@ -1,7 +1,7 @@
 ﻿@model MVC_Project.WebBackend.Models.BranchOfficeViewModel
 
 @{
-    ViewBag.Title = "Sucursales";
+    ViewBag.Title = "Editar Sucursal";
 }
 
 @section Styles {
@@ -38,13 +38,13 @@
     <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
 }
 
-    <div class="wrapper wrapper-content animated fadeInRight">
+    <div class="wrapper content-padding wrapper-content animated fadeInRight">
         <div class="row">
             <div class="col-lg-12">
-                <div class="ibox float-e-margins">
-                    <div class="ibox-title">
+                <div class="ibox float-e-margins box-degradient">
+                    @*<div class="ibox-title">
                         <h5>Editar</h5>
-                    </div>
+                    </div>*@
                     <div class="ibox-content">
 
                         @using (Html.BeginForm("Edit", "BranchOffice", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "EditForm", @enctype = "multipart/form-data" }))
@@ -65,7 +65,7 @@
                                         <div class="col-12 col-md-4">
                                         </div>
                                         <div class="col-12 col-md-4 text-right">
-                                            <label class="label" data-toggle="tooltip" title="Cambiar logo para facturación" data-original-title="Cambiar logo para facturación">
+                                            <label class="label tab-box" data-toggle="tooltip" title="Cambiar logo para facturación" data-original-title="Cambiar logo para facturación">
                                                 <img id="avatar" src="@Model.logo">
                                                 <input type="file" class="sr-only" id="input" name="image" accept="image/*">
                                             </label>
@@ -73,18 +73,18 @@
                                     </div>
                                     <div class="form-group row">
                                         <div class="col-12 col-md-4">
-                                            @Html.LabelFor(model => model.name, new { @class = "col-form-label control-label" })
-                                            @Html.TextBoxFor(model => model.name, new { @class = "form-control", required = "required", @autocomplete = "off" })
+                                            @*@Html.LabelFor(model => model.name, new { @class = "col-form-label control-label" })*@
+                                            @Html.TextBoxFor(model => model.name, new { @class = "form-control input-text", required = "required", @autocomplete = "off", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.name).ToHtmlString()) })
                                             @Html.ValidationMessageFor(model => model.name)
                                         </div>
                                         <div class="col-12 col-md-4">
-                                            @Html.LabelFor(model => model.folio, new { @class = "col-form-label control-label" })
-                                            @Html.TextBoxFor(model => model.folio, new { @class = "form-control", @autocomplete = "off" })
+                                            @*@Html.LabelFor(model => model.folio, new { @class = "col-form-label control-label" })*@
+                                            @Html.TextBoxFor(model => model.folio, new { @class = "form-control input-text", @autocomplete = "off", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.folio).ToHtmlString()) })
                                             @Html.ValidationMessageFor(model => model.folio)
                                         </div>
                                         <div class="col-12 col-md-4">
-                                            @Html.LabelFor(model => model.serie, new { @class = "col-form-label control-label" })
-                                            @Html.TextBoxFor(model => model.serie, new { @class = "form-control", @autocomplete = "off" })
+                                            @*@Html.LabelFor(model => model.serie, new { @class = "col-form-label control-label" })*@
+                                            @Html.TextBoxFor(model => model.serie, new { @class = "form-control input-text", @autocomplete = "off", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.serie).ToHtmlString()) })
                                             @Html.ValidationMessageFor(model => model.serie)
                                         </div>
                                     </div>
@@ -98,23 +98,23 @@
                                 <div class="ibox-content">
                                     <div class="form-group row">
                                         <div class="col-12 col-md-8">
-                                            @Html.LabelFor(m => m.street, new { @class = "col-form-label control-label" })
-                                            @Html.TextBoxFor(m => m.street, new { @class = "form-control required", @maxlength = "250" })
+                                            @*@Html.LabelFor(m => m.street, new { @class = "col-form-label control-label" })*@
+                                            @Html.TextBoxFor(m => m.street, new { @class = "form-control input-text required", @maxlength = "250", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.street).ToHtmlString()) })
                                         </div>
                                         <div class="col-12 col-md-4">
-                                            @Html.LabelFor(m => m.outdoorNumber, new { @class = "col-form-label control-label" })
-                                            @Html.TextBoxFor(m => m.outdoorNumber, new { @class = "form-control required", @maxlength = "100" })
+                                            @*@Html.LabelFor(m => m.outdoorNumber, new { @class = "col-form-label control-label" })*@
+                                            @Html.TextBoxFor(m => m.outdoorNumber, new { @class = "form-control input-text required", @maxlength = "100", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.outdoorNumber).ToHtmlString()) })
                                         </div>
                                     </div>
 
                                     <div class="form-group row">
                                         <div class="col-12 col-md-4">
-                                            @Html.LabelFor(m => m.interiorNumber, new { @class = "col-form-label control-label" })
-                                            @Html.TextBoxFor(m => m.interiorNumber, new { @class = "form-control", @maxlength = "20" })
+                                            @*@Html.LabelFor(m => m.interiorNumber, new { @class = "col-form-label control-label" })*@
+                                            @Html.TextBoxFor(m => m.interiorNumber, new { @class = "form-control input-text", @maxlength = "20", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.interiorNumber).ToHtmlString()) })
                                         </div>
                                         <div class="col-12 col-md-4">
-                                            @Html.LabelFor(m => m.zipCode, new { @class = "col-form-label control-label" })
-                                            @Html.TextBoxFor(m => m.zipCode, new { @class = "form-control", @maxlength = "5" })
+                                            @*@Html.LabelFor(m => m.zipCode, new { @class = "col-form-label control-label" })*@
+                                            @Html.TextBoxFor(m => m.zipCode, new { @class = "form-control input-text", @maxlength = "5", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.zipCode).ToHtmlString()) })
                                         </div>
                                         <div class="col-12 col-md-4">
                                             @Html.LabelFor(m => m.colony, new { @class = "col-form-label control-label" })
@@ -148,7 +148,7 @@
                                         <div class="col-12 col-md-4">
                                             @Html.LabelFor(model => model.cer, new { @class = "col-form-label control-label" })
                                             <div class="custom-file form-control">
-                                                @Html.TextBoxFor(model => model.cer, new { @class = "custom-file-input", @autocomplete = "off", type = "file", @onchange = "fileValidationCer();", @accept = "application/x-x509-ca-cert" })
+                                                @Html.TextBoxFor(model => model.cer, new { @class = "custom-file-input input-text", @autocomplete = "off", type = "file", @onchange = "fileValidationCer();", @accept = "application/x-x509-ca-cert", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.cer).ToHtmlString()) })
                                                 <label for="files" class="custom-file-label"></label>
                                                 @Html.ValidationMessageFor(model => model.cer)
                                             </div>
@@ -157,7 +157,7 @@
                                         <div class="col-12 col-md-4">
                                             @Html.LabelFor(model => model.key, new { @class = "col-form-label control-label" })
                                             <div class="custom-file form-control">
-                                                @Html.TextBoxFor(model => model.key, new { @class = "custom-file-input", @autocomplete = "off", @onchange = "fileValidationKey();", type = "file" })
+                                                @Html.TextBoxFor(model => model.key, new { @class = "custom-file-input input-text", @autocomplete = "off", @onchange = "fileValidationKey();", type = "file", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.key).ToHtmlString()) })
                                                 <label for="files" class="custom-file-label"></label>0
                                                 @Html.ValidationMessageFor(model => model.key)
                                             </div>
@@ -170,7 +170,7 @@
                                                         <i class="fa fa-eye"></i>
                                                     </span>
                                                 </div>
-                                                @Html.TextBoxFor(model => model.password, new { @class = "form-control view-password-input", @type = "password", @autocomplete = "off" })
+                                                @Html.TextBoxFor(model => model.password, new { @class = "form-control input-text view-password-input", @type = "password", @autocomplete = "off", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.password).ToHtmlString()) })
                                                 @Html.ValidationMessageFor(model => model.password)
                                             </div>
                                         </div>
@@ -192,8 +192,8 @@
 
                             <div class="form-group row pull-right">
                                 <div class="col-md-10 offset-2 text-right">
-                                    <a href='@Url.Action("Index", "BranchOffice")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
-                                    <button type="button" id="btn-save" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                                    <a href='@Url.Action("Index", "BranchOffice")' class='btn btn-button'><i class="fa fa-times"></i> Cancelar</a>
+                                    <button type="button" id="btn-save" class="btn btn-button"> <i class="fa fa-save"></i> Guardar </button>
                                 </div>
                             </div>
                         </div>

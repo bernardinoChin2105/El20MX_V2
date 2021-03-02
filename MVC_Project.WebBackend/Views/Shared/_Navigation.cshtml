@@ -10,23 +10,22 @@
         <ul class="nav metismenu" id="side-menu">
             <li class="nav-header profile">
                 <div>
-
-                    @if (user != null && user.Account != null)
-                    {
-
-                        <div class="profile-element text-center">
+                    <div class="profile-element text-center">
+                        @if (user != null && user.Account != null)
+                        {
                             <label class="label rounded-circle" data-toggle="tooltip" title="Cambiar imagen de la cuenta" data-original-title="Cambiar imagen de la cuenta"
                                    style="background-color:transparent">
                                 <img id="avatar-account" src="@user.Account.Image">
                                 <input type="file" class="sr-only" id="input-account" name="image" accept="image/*">
                             </label>
-                        </div>
-
-                    }
-                    else
-                    {
-                        <img alt="image" class="rounded-circle" src="@user.Avatar" width="20%" />
-                    }
+                        }
+                        else
+                        {
+                            <label class="label rounded-circle" style="background-color:transparent">
+                                <img alt="image" class="rounded-circle" src="@user.Avatar" />
+                            </label>
+                        }
+                    </div>
                 </div>
                 <div class="dropdown profile-element">
                     @*<img alt="image" class="rounded-circle" src="@user.Avatar" width="20%" />*@
@@ -152,25 +151,25 @@
                 </li>
             }
 
-            @if (user.HasAccessToModule(SystemModules.ALLIANCES_DISCOUNTS.ToString()))
-            {
-                <li class="@Html.IsModuleSelected(user, SystemModules.ALLIANCES_DISCOUNTS.ToString())">
-                    <a href="#"><i class="fas fa-handshake"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_ALLIANCE_DISCOUNT</span> <span class="fain arrow"></span></a>
-                    @if (user.HasAccessController("Alliance"))
-                    {
-                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Alliance", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "Alliance", action: "AllyIndex")"><a href="@Url.Action("AllyIndex", "Alliance")">Aliados</a></li>
-                            <li class="@Html.IsSelected(controller: "Alliance", action: "Index")"><a href="@Url.Action("Index", "Alliance")">Alianzas</a></li>
-                        </ul>
-                    }
-                    @if (user.HasAccessController("Promotion"))
-                    {
-                        <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Alliance", cssClass: "in")">
-                            <li class="@Html.IsSelected(controller: "Promotion", action: "Index")"><a href="@Url.Action("Index", "Promotion")">Promociones</a></li>
-                        </ul>
-                    }
-                </li>
-            }
+            @*@if (user.HasAccessToModule(SystemModules.ALLIANCES_DISCOUNTS.ToString()))
+                {
+                    <li class="@Html.IsModuleSelected(user, SystemModules.ALLIANCES_DISCOUNTS.ToString())">
+                        <a href="#"><i class="fas fa-handshake"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_ALLIANCE_DISCOUNT</span> <span class="fain arrow"></span></a>
+                        @if (user.HasAccessController("Alliance"))
+                        {
+                            <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Alliance", cssClass: "in")">
+                                <li class="@Html.IsSelected(controller: "Alliance", action: "AllyIndex")"><a href="@Url.Action("AllyIndex", "Alliance")">Aliados</a></li>
+                                <li class="@Html.IsSelected(controller: "Alliance", action: "Index")"><a href="@Url.Action("Index", "Alliance")">Alianzas</a></li>
+                            </ul>
+                        }
+                        @if (user.HasAccessController("Promotion"))
+                        {
+                            <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Alliance", cssClass: "in")">
+                                <li class="@Html.IsSelected(controller: "Promotion", action: "Index")"><a href="@Url.Action("Index", "Promotion")">Promociones</a></li>
+                            </ul>
+                        }
+                    </li>
+                }*@
             @if (user.HasAccessToModule(SystemModules.QUOTATION.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.QUOTATION.ToString())">
@@ -187,7 +186,7 @@
             @if (user.HasAccessToModule(SystemModules.CHARGES_RECURLY.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.CHARGES_RECURLY.ToString())">
-                    <a href="#"><i class="fas fa-balance-scale"></i> <span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_CHARGES_RECURLY</span> <span class="fain arrow"></span></a>
+                    <a href="#">@*<i class="fas fa-balance-scale"></i>*@ <img class="iconsMenu" src="~/Images/icons/iconos/eleva_account .png" /><span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_MY_ACCOUNT</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("Charges"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Charges", cssClass: "in")">
@@ -202,7 +201,7 @@
             @if (user.HasAccessToModule(SystemModules.MY_ACCOUNT.ToString()))
             {
                 <li class="@Html.IsModuleSelected(user, SystemModules.MY_ACCOUNT.ToString())">
-                    <a href="#">@*<i class="fas fa-balance-scale"></i>*@<img class="iconsMenu" src="~/Images/icons/iconos/eleva_invoice.png" /><span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_MY_ACCOUNT</span> <span class="fain arrow"></span></a>
+                    <a href="#">@*<i class="fas fa-balance-scale"></i>*@<img class="iconsMenu" src="~/Images/icons/iconos/eleva_account .png" /><span class="nav-label" data-i18n="nav.dashboard">@ViewLabels.MODULE_MY_ACCOUNT</span> <span class="fain arrow"></span></a>
                     @if (user.HasAccessController("MyAccount"))
                     {
                         <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "MyAccount", cssClass: "in")">
@@ -365,13 +364,13 @@
                                 <li class="@Html.IsSelected(controller: "CAD", action: "AssignAccount")"><a class="dropdown-item" href="@Url.Action("AssignAccount", "CAD")">Asignación CADs</a></li>
                             }
                             @*<li><a class="dropdown-item" href="@Url.Action("Index", "Account")">Administrar cuentas</a></li>
-                            <li class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="@Url.Action("Logout", "Auth")">@ViewLabels.AUTH_LOGOUT</a></li>*@
+                                <li class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Logout", "Auth")">@ViewLabels.AUTH_LOGOUT</a></li>*@
                         </ul>
-                    </div>                
+                    </div>
                 </li>
             }
-            @if (user != null && user.Account != null)
+            @if (user.Account != null)
             {
                 @*<li class="nav-header">
                         <div class="profile-element text-center">

@@ -1,7 +1,7 @@
 ﻿@model MVC_Project.WebBackend.Models.UserCreateViewModel
 
 @{
-    ViewBag.Title = "Administración de Usuarios";
+    ViewBag.Title = "Crear Usuario";
 }
 
 @section Styles {
@@ -16,13 +16,13 @@
     <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
 }
 
-<div class="wrapper wrapper-content animated fadeInRight">
+<div class="wrapper content-padding wrapper-content animated fadeInRight">
     <div class="row">
         <div class="col-lg-12">
-            <div class="ibox float-e-margins">
-                <div class="ibox-title">
+            <div class="ibox float-e-margins box-degradient">
+                @*<div class="ibox-title">
                     <h5>Crear</h5>
-                </div>
+                </div>*@
                 <div class="ibox-content">
                     @using (Html.BeginForm("Create", "User", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "CreateForm" }))
                     {
@@ -44,33 +44,37 @@
                                     </div>
                                 </div>*@
                             <div class="form-group row">
-                                @Html.LabelFor(model => model.Name, new { @class = "col-form-label col-md-2 control-label" })
+                                @*@Html.LabelFor(model => model.Name, new { @class = "col-form-label col-md-2 control-label" })*@
+                                <div class="col-form-label col-md-2 control-label"></div>
                                 <div class="col-md-8">
-                                    @Html.TextBoxFor(model => model.Name, new { @class = "form-control", @autocomplete = "off" })
+                                    @Html.TextBoxFor(model => model.Name, new { @class = "form-control input-text", @autocomplete = "off", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.Name).ToHtmlString()) })
                                     @Html.ValidationMessageFor(model => model.Name)
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                @Html.LabelFor(model => model.Apellidos, new { @class = "col-form-label col-md-2 control-label" })
+                                @*@Html.LabelFor(model => model.Apellidos, new { @class = "col-form-label col-md-2 control-label" })*@
+                                <div class="col-form-label col-md-2 control-label"></div>
                                 <div class="col-md-8">
-                                    @Html.TextBoxFor(model => model.Apellidos, new { @class = "form-control", @autocomplete = "off" })
+                                    @Html.TextBoxFor(model => model.Apellidos, new { @class = "form-control input-text", @autocomplete = "off", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.Apellidos).ToHtmlString()) })
                                     @Html.ValidationMessageFor(model => model.Apellidos)
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                @Html.LabelFor(model => model.Email, new { @class = "col-form-label col-md-2 control-label" })
+                                @*@Html.LabelFor(model => model.Email, new { @class = "col-form-label col-md-2 control-label" })*@
+                                <div class="col-form-label col-md-2 control-label"></div>
                                 <div class="col-md-8">
-                                    @Html.TextBoxFor(model => model.Email, new { @class = "form-control", @type = "email", @autocomplete = "off" })
+                                    @Html.TextBoxFor(model => model.Email, new { @class = "form-control input-text", @type = "email", @autocomplete = "off", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.Email).ToHtmlString()) })
                                     @Html.ValidationMessageFor(model => model.Email)
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                @Html.LabelFor(model => model.MobileNumber, new { @class = "col-form-label col-md-2 control-label" })
+                                @*@Html.LabelFor(model => model.MobileNumber, new { @class = "col-form-label col-md-2 control-label" })*@
+                                <div class="col-form-label col-md-2 control-label"></div>
                                 <div class="col-md-8">
-                                    @Html.EditorFor(m => m.MobileNumber, new { htmlAttributes = new { @class = "form-control", type = "text", data_mask = "9999-99-99-99", placeholder = "", removeMaskOnSubmit = true, greedy = false, @autocomplete = "off" } })
+                                    @Html.EditorFor(m => m.MobileNumber, new { htmlAttributes = new { @class = "form-control input-text", type = "text", data_mask = "9999-99-99-99", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.MobileNumber).ToHtmlString()), removeMaskOnSubmit = true, greedy = false, @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.MobileNumber)
                                 </div>
                             </div>
@@ -92,7 +96,8 @@
                                 </div>*@
 
                             <div class="form-group row">
-                                @Html.LabelFor(model => model.Role, new { @class = "col-form-label col-md-2 control-label" })
+                                @*@Html.LabelFor(model => model.Role, new { @class = "col-form-label col-md-2 control-label" })*@
+                                <div class="col-form-label col-md-2 control-label"></div>
                                 <div class="col-md-8">
                                     @Html.DropDownListFor(model => model.Role, Model.Roles, "Seleccione...", new { @class = "chosen-select" })
                                     @Html.ValidationMessageFor(model => model.Role)
@@ -101,10 +106,9 @@
                             @if (!Model.isBackOffice)
                             {
                                 <div class="form-group row">
-
                                     <div class="col-md-8 offset-2">
                                         <div class="i-checks">
-                                            <label style="font-weight:initial">
+                                            <label style="font-weight:initial" class="label-text">
                                                 @Html.CheckBoxFor(m => m.AcceptUser, new { @class = "form-control" })
                                                 Acepto que el usuario pueda acceder a mi cuenta
                                             </label>
@@ -116,8 +120,8 @@
                             <div class="form-group row">
                                 <div class="offset-md-2 col-md-8 text-right">
 
-                                    <a href='@Url.Action("Index", "User")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
-                                    <button type="button" value="Crear" class="btn btn-color" onclick="validarDatos();"><i class="fa fa-save"></i> Guardar</button>
+                                    <a href='@Url.Action("Index", "User")' class='btn btn-button'><i class="fa fa-times"></i> Cancelar</a>
+                                    <button type="button" value="Crear" class="btn btn-button" onclick="validarDatos();"><i class="fa fa-save"></i> Guardar</button>
                                 </div>
                             </div>
                         </div>

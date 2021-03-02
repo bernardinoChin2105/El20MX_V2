@@ -171,13 +171,13 @@ var indexPhone = 1;
 $(".btn-add-email").click(function () {    
     var item = '<div class="row">'+
         '<div class="col-12 col-md-10" > ' +
-        '<label class="col-form-label control-label">Otro Email</label>' +
+        //'<label class="col-form-label control-label">Otro Email</label>' +
         '<input type="hidden" name="Emails[' + itemNumberEmail + '].TypeContact" value="EMAIL" />' +
-        '<input type="email" class="form-control emails" maxlength="250" name="Emails[' + itemNumberEmail + '].EmailOrPhone" />' +
+        '<input type="email" class="form-control input-text emails" maxlength="250" name="Emails[' + itemNumberEmail + '].EmailOrPhone" placeholder="Email" />' +
         '</div>' +
         '<div class="col-12 col-md-2">' +
-        '<label class="col-form-label control-label heightLabel"></label>' +
-        ' <button type="button" class="btn btn-color btn-remove-phone btn-remove" data-element="EMAIL" value="' + itemNumberEmail + '"><i class="fa fa-trash"></i></button>' +
+        //'<label class="col-form-label control-label heightLabel"></label>' +
+        ' <button type="button" class="btn btn-button btn-remove-phone btn-remove" data-element="EMAIL" value="' + itemNumberEmail + '"><i class="fa fa-trash"></i></button>' +
         '</div>' +
         '</div>';
     $("#ListEmails").append(item);
@@ -187,13 +187,13 @@ $(".btn-add-email").click(function () {
 
 $(".btn-add-phone").click(function () {
     var item = '<div class="row"><div class="col-12 col-md-10">' +
-        '<label class="col-form-label control-label">Otro Teléfono</label>' +
+        //'<label class="col-form-label control-label">Otro Teléfono</label>' +
         '<input type="hidden" name="Phones[' + itemNumberPhone + '].TypeContact" value="PHONE" />' +
-        '<input type="text" class="form-control phones" name="Phones[' + itemNumberPhone + '].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />' +
+        '<input type="text" class="form-control input-text phones" name="Phones[' + itemNumberPhone + '].EmailOrPhone" data-mask="9999-99-99-99" placeholder="Teléfono" removeMaskOnSubmit="true" greedy="false" />' +
         '</div>' +
         '<div class="col-12 col-md-2">' +
-        '<label class="col-form-label control-label heightLabel"></label>' +
-        ' <button type="button" class="btn btn-color btn-remove-phone btn-remove" data-element="PHONE" value="' + itemNumberPhone + '"><i class="fa fa-trash"></i></button>' +
+        //'<label class="col-form-label control-label heightLabel"></label>' +
+        ' <button type="button" class="btn btn-button btn-remove-phone btn-remove" data-element="PHONE" value="' + itemNumberPhone + '"><i class="fa fa-trash"></i></button>' +
         '</div>' +
         '</div>';
         $("#ListPhones").append(item);

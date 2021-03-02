@@ -24,11 +24,12 @@
                             <div class="row">
                                 <div class="col-sm-6 col-lg-4">
                                     <div class="form-group">
-                                        <label>Rol</label>
-                                        @Html.TextBoxFor(m => m.Name, new { @Class = "form-control form-control-sm input-text txtFiltro", maxlength = "100", filtro = "true", @autocomplete = "off", filtro_order = "1", placeholder="Rol" })
+                                        <br />
+                                        @*<label>Rol</label>*@
+                                        @Html.TextBoxFor(m => m.Name, new { @Class = "form-control form-control-sm input-text txtFiltro", maxlength = "100", filtro = "true", @autocomplete = "off", filtro_order = "1", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.Name).ToHtmlString()) })
                                     </div>
                                 </div>
-                                <div class="col-sm-6 col-lg-4">
+                                <div class="col-sm-6">
                                     <br />
                                     <button type="button" class="btn btn-sm btn-button btn-filter-rol"><i class="fas fa-search"></i> Buscar</button>
                                     &nbsp;
@@ -43,9 +44,9 @@
                 @*<img src="~/Images/icons/Recurso2.svg" />
                     <img src="~/Images/icons/Recurso3.svg" />*@
                 @*<div style="background: #000000">
-                    <img src="~/Images/icons/Recurso4.svg" style="margin: 5px;"/>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0"><title>Recurso 3</title></svg>
-                </div>*@
+                        <img src="~/Images/icons/Recurso4.svg" style="margin: 5px;"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0"><title>Recurso 3</title></svg>
+                    </div>*@
                 <div class="ibox-title">
                     @*<h5>Resultado</h5>*@
                     @if (hasFullAccessController)

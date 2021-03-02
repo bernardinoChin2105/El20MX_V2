@@ -9,17 +9,18 @@
 
 }
 
-<div class="wrapper wrapper-content animated fadeInRight">
+<div class="wrapper content-padding wrapper-content animated fadeInRight">
 
     <div class="row">
         <div class="col-lg-12">
-            <div class="ibox float-e-margins">
+            <div class="ibox float-e-margins box-degradient">
                 <div class="ibox-title">
-                    <h5>Resultado</h5>
+                    @*<h5>Resultado</h5>*@
+                    <br />
                     @if (hasFullAccessController)
                     {
                         <div class="ibox-tools">
-                            <a href="@Url.Action("Create", "BranchOffice")" class="btn btn-sm btn-color"><span class="fas fa-plus-square"></span> Crear Nuevo</a>
+                            <a href="@Url.Action("Create", "BranchOffice")" class="btn btn-sm btn-button"><span class="fas fa-plus-square"></span> Crear Nuevo</a>
                         </div>
                     }
                 </div>

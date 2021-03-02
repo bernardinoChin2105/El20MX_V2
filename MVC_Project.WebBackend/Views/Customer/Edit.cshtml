@@ -22,8 +22,8 @@
     <link href="~/Content/template/plugins/iCheck/skins/square/blue.css" rel="stylesheet" />
 }
 
-<div class="wrapper wrapper-content animated fadeInRight">
-    <div class="row">
+<div class="wrapper wrapper-content content-padding animated fadeInRight">
+    <div class="box-degradient">
         @using (Html.BeginForm("Edit", "Customer", FormMethod.Post, new { role = "form", @id = "EditForm", @class = "row" }))
         {
             <div class="col-lg-12">
@@ -38,16 +38,16 @@
                         <div class="form-horizontal">
                             <div class="form-group row">
                                 <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.RFC, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.RFC, new { @class = "form-control", @readonly = "readonly", @maxlength = "13" })
+                                    @*@Html.LabelFor(m => m.RFC, new { @class = "col-form-label control-label" })*@
+                                    @Html.TextBoxFor(m => m.RFC, new { @class = "form-control input-text", @readonly = "readonly", @maxlength = "13", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.RFC).ToHtmlString()) })
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.FistName, new { @class = "col-form-label control-label FistName" })
-                                    @Html.TextBoxFor(m => m.FistName, new { @class = "form-control", @maxlength = "50" })
+                                    @*@Html.LabelFor(m => m.FistName, new { @class = "col-form-label control-label FistName" })*@
+                                    @Html.TextBoxFor(m => m.FistName, new { @class = "form-control input-text", @maxlength = "50", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.FistName).ToHtmlString()) })
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.LastName, new { @class = "col-form-label control-label LastName" })
-                                    @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", @maxlength = "50" })
+                                    @*@Html.LabelFor(m => m.LastName, new { @class = "col-form-label control-label LastName" })*@
+                                    @Html.TextBoxFor(m => m.LastName, new { @class = "form-control input-text", @maxlength = "50", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.LastName).ToHtmlString()) })
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -56,8 +56,8 @@
                                         @Html.TextBoxFor(m => m.CURP, new { @class = "form-control" })
                                     </div>*@
                                 <div class="col-12 col-md-8 businessName hidden">
-                                    @Html.LabelFor(m => m.BusinessName, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.BusinessName, new { @class = "form-control", @maxlength = "250" })
+                                    @*@Html.LabelFor(m => m.BusinessName, new { @class = "col-form-label control-label" })*@
+                                    @Html.TextBoxFor(m => m.BusinessName, new { @class = "form-control input-text", @maxlength = "250", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.BusinessName).ToHtmlString()) })
                                 </div>
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.taxRegime, new { @class = "col-form-label control-label" })
@@ -79,23 +79,23 @@
                         <div class="form-horizontal">
                             <div class="form-group row">
                                 <div class="col-12 col-md-8">
-                                    @Html.LabelFor(m => m.Street, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.Street, new { @class = "form-control", @maxlength = "250" })
+                                    @*@Html.LabelFor(m => m.Street, new { @class = "col-form-label control-label" })*@
+                                    @Html.TextBoxFor(m => m.Street, new { @class = "form-control input-text", @maxlength = "250", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.Street).ToHtmlString()) })
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.OutdoorNumber, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.OutdoorNumber, new { @class = "form-control", @maxlength = "100" })
+                                    @*@Html.LabelFor(m => m.OutdoorNumber, new { @class = "col-form-label control-label" })*@
+                                    @Html.TextBoxFor(m => m.OutdoorNumber, new { @class = "form-control input-text", @maxlength = "100", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.OutdoorNumber).ToHtmlString()) })
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.InteriorNumber, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.InteriorNumber, new { @class = "form-control", @maxlength = "20" })
+                                    @*@Html.LabelFor(m => m.InteriorNumber, new { @class = "col-form-label control-label" })*@
+                                    @Html.TextBoxFor(m => m.InteriorNumber, new { @class = "form-control input-text", @maxlength = "20", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.InteriorNumber).ToHtmlString()) })
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    @Html.LabelFor(m => m.ZipCode, new { @class = "col-form-label control-label" })
-                                    @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control" })
+                                    @*@Html.LabelFor(m => m.ZipCode, new { @class = "col-form-label control-label" })*@
+                                    @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control input-text", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.ZipCode).ToHtmlString()) })
                                 </div>
                                 <div class="col-12 col-md-4">
                                     @Html.LabelFor(m => m.Colony, new { @class = "col-form-label control-label" })
@@ -128,7 +128,7 @@
                                                 Mismo que domicilio Fiscal
                                             </label>
                                         </div>
-                                        
+
                                     </div>
                                 </div>
                             </div>
@@ -159,23 +159,23 @@
                                                 {
                                                     <div class="row">
                                                         <div class="col-12 col-md-10">
-                                                            <label class="col-form-label control-label">@(i > 0 ? "Otro" : "") Email</label>
+                                                            @*<label class="col-form-label control-label">@(i > 0 ? "Otro" : "") Email</label>*@
                                                             <input type="hidden" name="Emails[@i].Id" value="@Model.Emails[i].Id" />
                                                             <input type="hidden" name="Emails[@i].TypeContact" value="@TypeContact.EMAIL.ToString()" />
-                                                            <input type="email" class="form-control emails" maxlength="250" name="Emails[@i].EmailOrPhone" value="@Model.Emails[i].EmailOrPhone" />
+                                                            <input type="email" class="form-control input-text emails" maxlength="250" name="Emails[@i].EmailOrPhone" value="@Model.Emails[i].EmailOrPhone" placeholder="Email" />
                                                         </div>
                                                         @if (i == 0)
                                                         {
                                                             <div class="col-12 col-md-2">
-                                                                <label class="col-form-label control-label heightLabel"></label>
-                                                                <button type="button" class="btn btn-color btn-add-email" value="email">+</button>
+                                                                @*<label class="col-form-label control-label heightLabel"></label>*@
+                                                                <button type="button" class="btn btn-button btn-add-email" value="email">+</button>
                                                             </div>
                                                         }
                                                         else
                                                         {
                                                             <div class="col-12 col-md-2">
-                                                                <label class="col-form-label control-label heightLabel"></label>
-                                                                <button type="button" class="btn btn-color btn-remove-email btn-remove" data-element="EMAIL" value="@i"><i class="fa fa-trash"></i></button>
+                                                                @*<label class="col-form-label control-label heightLabel"></label>*@
+                                                                <button type="button" class="btn btn-button btn-remove-email btn-remove" data-element="EMAIL" value="@i"><i class="fa fa-trash"></i></button>
                                                                 <input type="hidden" value="@Model.Emails[i].Id" />
                                                             </div>
                                                         }
@@ -186,13 +186,13 @@
                                             {
                                                 <div class="row">
                                                     <div class="col-12 col-md-10">
-                                                        <label class="col-form-label control-label">Email 1</label>
+                                                        @*<label class="col-form-label control-label">Email 1</label>*@
                                                         <input type="hidden" name="Emails[0].TypeContact" value="@TypeContact.EMAIL.ToString()" />
-                                                        <input type="email" class="form-control emails" name="Emails[0].EmailOrPhone" />
+                                                        <input type="email" class="form-control input-text emails" name="Emails[0].EmailOrPhone" placeholder="Email" />
                                                     </div>
                                                     <div class="col-12 col-md-2">
-                                                        <label class="col-form-label control-label heightLabel"></label>
-                                                        <button type="button" class="btn btn-color btn-add-email" value="email">+</button>
+                                                        @*<label class="col-form-label control-label heightLabel"></label>*@
+                                                        <button type="button" class="btn btn-button btn-add-email" value="email">+</button>
                                                     </div>
                                                 </div>
                                             }
@@ -208,23 +208,23 @@
                                                 {
                                                     <div class="row">
                                                         <div class="col-12 col-md-10">
-                                                            <label class="col-form-label control-label">@(i > 0 ? "Otro" : "") Teléfono</label>
+                                                            @*<label class="col-form-label control-label">@(i > 0 ? "Otro" : "") Teléfono</label>*@
                                                             <input type="hidden" name="Phones[@i].Id" value="@Model.Phones[i].Id" />
                                                             <input type="hidden" name="Phones[@i].TypeContact" value="@TypeContact.PHONE.ToString()" />
-                                                            <input type="text" class="form-control phones" name="Phones[@i].EmailOrPhone" value="@Model.Phones[i].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />
+                                                            <input type="text" class="form-control input-text phones" name="Phones[@i].EmailOrPhone" value="@Model.Phones[i].EmailOrPhone" data-mask="9999-99-99-99" placeholder="Teléfono" removeMaskOnSubmit="true" greedy="false" />
                                                         </div>
                                                         @if (i == 0)
                                                         {
                                                             <div class="col-12 col-md-2">
-                                                                <label class="col-form-label control-label heightLabel"></label>
-                                                                <button type="button" class="btn btn-color btn-add-phone" value="phone">+</button>
+                                                                @*<label class="col-form-label control-label heightLabel"></label>*@
+                                                                <button type="button" class="btn btn-button btn-add-phone" value="phone">+</button>
                                                             </div>
                                                         }
                                                         else
                                                         {
                                                             <div class="col-12 col-md-2">
-                                                                <label class="col-form-label control-label heightLabel"></label>
-                                                                <button type="button" class="btn btn-color btn-remove-phone btn-remove" data-element="PHONE" value="@i"><i class="fa fa-trash"></i></button>
+                                                                @*<label class="col-form-label control-label heightLabel"></label>*@
+                                                                <button type="button" class="btn btn-button btn-remove-phone btn-remove" data-element="PHONE" value="@i"><i class="fa fa-trash"></i></button>
                                                                 <input type="hidden" value="@Model.Phones[i].Id" />
                                                             </div>
                                                         }
@@ -235,13 +235,13 @@
                                             {
                                                 <div class="row">
                                                     <div class="col-12 col-md-10">
-                                                        <label class="col-form-label control-label">Teléfono 1</label>
+                                                        @*<label class="col-form-label control-label">Teléfono 1</label>*@
                                                         <input type="hidden" name="Phones[0].TypeContact" value="@TypeContact.PHONE.ToString()" />
-                                                        <input type="text" class="form-control phones" name="Phones[0].EmailOrPhone" data-mask="9999-99-99-99" removeMaskOnSubmit="true" greedy="false" />
+                                                        <input type="text" class="form-control input-text phones" name="Phones[0].EmailOrPhone" data-mask="9999-99-99-99" placeholder="Teléfono" removeMaskOnSubmit="true" greedy="false" />
                                                     </div>
                                                     <div class="col-12 col-md-2">
-                                                        <label class="col-form-label control-label heightLabel">   </label>
-                                                        <button type="button" class="btn btn-color btn-add-phone" value="phone">+</button>
+                                                        @*<label class="col-form-label control-label heightLabel">   </label>*@
+                                                        <button type="button" class="btn btn-button btn-add-phone" value="phone">+</button>
                                                     </div>
                                                 </div>
                                             }
@@ -251,8 +251,8 @@
                             </div>
                             <div class="form-group row pull-right">
                                 <div class="col-md-10 offset-2 text-right">
-                                    <a href='@Url.Action("Index", "Customer")' class='btn btn-white'><i class="fa fa-times"></i> Cancelar</a>
-                                    <button type="submit" class="btn btn-color"> <i class="fa fa-save"></i> Guardar </button>
+                                    <a href='@Url.Action("Index", "Customer")' class='btn btn-button'><i class="fa fa-times"></i> Cancelar</a>
+                                    <button type="submit" class="btn btn-button"> <i class="fa fa-save"></i> Guardar </button>
                                 </div>
                             </div>
                         </div>
@@ -261,7 +261,6 @@
             </div>
 
         }
-
     </div>
 </div>
 

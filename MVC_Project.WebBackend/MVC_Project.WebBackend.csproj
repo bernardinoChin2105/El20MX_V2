@@ -1422,6 +1422,7 @@
     <Content Include="Images\gallery\9.jpg" />
     <Content Include="Images\gallery\9s.jpg" />
     <Content Include="Images\header.jpg" />
+    <Content Include="Images\icons\iconos\eleva_account .png" />
     <Content Include="Images\icons\iconos\eleva_banks.png" />
     <Content Include="Images\icons\iconos\eleva_board.png" />
     <Content Include="Images\icons\iconos\eleva_circle-menus.png" />
@@ -1441,9 +1442,6 @@
     <Content Include="Images\icons\iconos\eleva_search.png" />
     <Content Include="Images\icons\iconos\eleva_setting.png" />
     <Content Include="Images\icons\iconos\eleva_share.png" />
-    <Content Include="Images\icons\Recurso2.svg" />
-    <Content Include="Images\icons\Recurso3.svg" />
-    <Content Include="Images\icons\Recurso4.svg" />
     <Content Include="Images\landing\avatar1.jpg" />
     <Content Include="Images\landing\avatar2.jpg" />
     <Content Include="Images\landing\avatar3.jpg" />

@@ -23,7 +23,7 @@
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id" content="@System.Configuration.ConfigurationManager.AppSettings["Google.ClientId"]">
 
-    <link rel="icon" href="~/Images/logos/logo-192x192.png" sizes="192x192" />
+    <link rel="icon" href="~/Images/logos/elevaplus_logotipo_responsive_gradient.png" sizes="192x192" />
 
     <title> @System.Web.Configuration.WebConfigurationManager.AppSettings["AppName"] | @ViewLabels.AUTH_LOGIN_TITLE </title>
 
@@ -159,7 +159,8 @@
         var mensaje = @Html.ObtenerMensaje();
         <script type="text/javascript">
 
-            toastr['@mensaje.Tipo']('@mensaje.Mensaje',null,{ 'positionClass': '@mensaje.Posicion'});
+            @*toastr['@mensaje.Tipo']('@mensaje.Mensaje', null, { 'positionClass': '@mensaje.Posicion' });*@
+            toastr['@mensaje.Tipo']('@mensaje.Mensaje', null, { 'positionClass': '@mensaje.Posicion', 'preventDuplicates': false, 'newestOnTop': true, 'showDuration': '8000'});
             //toastr.options = {
             //    "closeButton": false,
             //    "debug": false,

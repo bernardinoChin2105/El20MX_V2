@@ -65,6 +65,8 @@ $('.btn-export').click(function () {
     }
 });
 
+$('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para "});
+
 var ProviderInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl, downloadXmlUrl, autocompleteURL, hasFullAccessController, positions) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);

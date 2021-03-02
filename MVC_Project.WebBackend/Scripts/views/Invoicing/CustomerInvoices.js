@@ -61,6 +61,8 @@ $('.btn-export').click(function () {
     }
 });
 
+$('.chosen-select').chosen({ width: '100%', no_results_text: "Sin resultados para " });
+
 var CustomerInvoicesControlador = function (htmlTableId, baseUrl, downloadPdfUrl, downloadXmlUrl, autocompleteURL, hasFullAccessController) {
     var self = this;
     this.htmlTable = $('#' + htmlTableId);

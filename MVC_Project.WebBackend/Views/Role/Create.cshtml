@@ -1,16 +1,16 @@
 ﻿@model MVC_Project.WebBackend.Models.RoleCreateViewModel
 
 @{
-    ViewBag.Title = "Configuración de roles";
+    ViewBag.Title = "Crear Rol";
 }
 
 <div class="wrapper content-padding wrapper-content animated fadeInRight">
     <div class="row">
         <div class="col-lg-12">
             <div class="ibox float-e-margins box-degradient">
-                <div class="ibox-title">
+                @*<div class="ibox-title">
                     <h5>Crear</h5>
-                </div>
+                </div>*@
                 <div class="ibox-content">
 
                     @using (Html.BeginForm("Create", "Role", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "CreateForm" }))
@@ -21,18 +21,20 @@
                         @Html.ValidationSummary(true)
 
                         <div class="form-group row">
-                            @Html.LabelFor(model => model.Name, new { @class = "col-form-label control-label col-md-2" })
+                            @*@Html.LabelFor(model => model.Name, new { @class = "col-form-label control-label col-md-2" })*@
+                            <div class="col-form-label control-label col-md-2"></div>
                             <div class="col-md-8">
-                                @Html.TextBoxFor(model => model.Name, new { @class = "form-control input-text", MaxLength = "30", required = "required", @autocomplete = "off", placeholder="Nombre" })
+                                <br />
+                                @Html.TextBoxFor(model => model.Name, new { @class = "form-control input-text", MaxLength = "30", required = "required", @autocomplete = "off", placeholder= HttpUtility.HtmlDecode(Html.DisplayNameFor(x => x.Name).ToHtmlString()) })
                                 @Html.ValidationMessageFor(model => model.Name)
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class = "col-form-label control-label col-md-2">Permisos</label>
+                            @*<label class = "col-form-label control-label col-md-2">Permisos</label>*@
                             <div class="tabs-container col-md-8 offset-2" style="padding: 0px">
                                 <div class="tabs">
-                                    <ul class="nav nav-tabs">
+                                    <ul class="nav nav-tabs tab-box">
                                         @for (int i = 0; i < Model.Modules.Count; i++)
                                         {
                                             var status = i == 0 ? "active" : "";
@@ -45,12 +47,12 @@
                                         {
                                             var status = i == 0 ? "active" : "";
                                             <div id="tab-@i" class="tab-pane @status">
-                                                <div class="panel-body">
+                                                <div class="panel-body tab-box">
                                                     @for (int j = 0; j < Model.Modules[i].Permissions.Count; j++)
                                                     {
 
                                                     <div class="row">
-                                                        <div class="col-md-2" style="text-align:right">
+                                                        <div class="col-md-2 label-gradiente label-text" style="text-align:right">
                                                             @Model.Modules[i].Permissions[j].Name
                                                             @Html.HiddenFor(model => model.Modules[i].Permissions[j].Id)
                                                         </div>

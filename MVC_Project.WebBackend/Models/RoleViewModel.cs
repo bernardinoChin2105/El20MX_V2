@@ -28,6 +28,7 @@ namespace MVC_Project.WebBackend.Models
     }
     public class RoleViewModel
     {
+        [Display(Name = "Nombre")]
         public string Name { get; set; }
         public RoleData RoleData { get; set; }
     }
